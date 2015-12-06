@@ -1,0 +1,40 @@
+<f:layout name="Backend" />
+
+<f:section name="content">
+	<f:if condition="{settings.debug}">
+		<f:debug>{tasks}</f:debug>
+		<f:debug>{sets}</f:debug>
+		<f:debug>{settings}</f:debug>
+	</f:if>
+	<h1>Import</h1>
+	<f:flashMessages />
+
+	<h2>Tasks</h2>
+	<p>Select an import task to perform</p>
+	<f:form
+		action="importTask"
+		name="task">
+		<f:form.select
+			name="task"
+			options="{tasks}"
+			optionValueField="identifier"
+			optionLabelField="identifier"
+			/>
+		<f:form.submit name="submit" value="import" />
+	</f:form>
+
+	<h2>Sets</h2>
+	<p>Select an import set to perform</p>
+	<f:form
+		action="importSet"
+		name="importSet">
+		<f:form.select
+			name="set"
+			options="{sets}"
+			optionValueField="identifier"
+			optionLabelField="identifier"
+			/>
+		<f:form.submit name="submit" value="import" />
+	</f:form>
+	<f:link.action action="import">Start import</f:link.action><br />
+</f:section>
