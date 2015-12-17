@@ -14,7 +14,10 @@ module.tx_t3import.settings.importProcessor.tasks {
 			limit = 5000
 		}
 		propertyMapping {
-			allowProperties = headline,subtitle,description,performances,eventType,eventLocation,genre,speakers,zewId,keywords,departments,tags
+			allowProperties(
+				headline,subtitle,description,performances,eventType,eventLocation,genre,speakers,zewId,keywords,departments,tags
+				starttime,endtime
+			)
 			properties {
 				eventType {
 					allowProperties = zewId
@@ -302,7 +305,24 @@ module.tx_t3import.settings.importProcessor.tasks {
 							value.field = id
 							stdWrap.wrap = SEMINAR|
 						}
-
+						starttime = COA
+						starttime {
+							10 = TEXT
+							10 {
+								value = 01.08.{field:season_begin}
+								insertData = 1
+							}
+							stdWrap.strtotime = 1
+						}
+						endtime = COA
+						endtime {
+							10 = TEXT
+							10 {
+								value = 31.07.{field:season_begin}
+								insertData = 1
+							}
+							stdWrap.strtotime = + 1 year
+						}
 						performances {
 							multipleRows = 1
 							fields {
