@@ -1,0 +1,28 @@
+<phpunit
+	backupGlobals="false"
+	backupStaticAttributes="false"
+	bootstrap="../../../../../typo3/sysext/core/Build/UnitTestsBootstrap.php"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertWarningsToExceptions="true"
+	forceCoversAnnotation="false"
+	processIsolation="false"
+	stopOnError="false"
+	stopOnFailure="false"
+	stopOnIncomplete="false"
+	stopOnSkipped="false"
+	verbose="false">
+
+	<testsuites>
+		<testsuite name="EXT:t3import tests">
+			<directory>../Unit/</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="false">
+			<directory suffix=".php">../../Classes/</directory>
+		</whitelist>
+	</filter>
+
+
+</phpunit>
