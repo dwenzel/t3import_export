@@ -1,9 +1,5 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
-
-use CPSIT\T3import\PreProcessor\AbstractLookUpDB;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+namespace CPSIT\T3import\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -22,33 +18,34 @@ use CPSIT\T3import\Service\DatabaseConnectionService;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class LookUpSourceDB extends AbstractLookUpDB
+class SetFieldValue
+	extends AbstractPreProcessor
 	implements PreProcessorInterface {
+
 	/**
-	 * Tells if a given configuration is valid
-	 *
 	 * @param array $configuration
 	 * @return bool
 	 */
 	public function isConfigurationValid($configuration) {
-		if (!isset($configuration['select'])
-			OR !is_array($configuration['select'])
+		if (!isset($configuration['targetField'])) {
+			return FALSE;
+		}
+		if (!isset($configuration['value'])
+			OR !is_string($configuration['value'])
 		) {
 			return FALSE;
 		}
-		if (!isset($configuration['select']['table'])
-			OR !is_string(($configuration['select']['table']))
-		) {
-			return FALSE;
-		}
-		if (!isset($configuration['identifier'])
-			OR !is_string($configuration['identifier'])
-		) {
-			return FALSE;
-		}
-		if (!$this->connectionService->isRegistered($configuration['identifier'])) {
-			return FALSE;
-		}
+
+		return TRUE;
+	}
+
+	/**
+	 * @param array $configuration
+	 * @param array $record
+	 * @return bool
+	 */
+	public function process($configuration, &$record) {
+		$record[$configuration['targetField']] = $configuration['value'];
 
 		return TRUE;
 	}

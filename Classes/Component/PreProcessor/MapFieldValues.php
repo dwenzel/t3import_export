@@ -1,8 +1,5 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
-
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
+namespace CPSIT\T3import\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -21,23 +18,34 @@ use CPSIT\T3import\PreProcessor\PreProcessorInterface;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class AddArrays
+class MapFieldValues
 	extends AbstractPreProcessor
 	implements PreProcessorInterface {
+
 	/**
 	 * @param array $configuration
 	 * @return bool
 	 */
 	public function isConfigurationValid($configuration) {
-		if (!isset($configuration['targetField'])
-			OR !is_string($configuration['targetField'])
+		if (!isset($configuration['fields'])) {
+			return FALSE;
+		}
+		if (isset($configuration['fields'])
+			AND !is_array($configuration['fields'])
 		) {
 			return FALSE;
 		}
-		if (!isset($configuration['fields'])
-			OR !is_string($configuration['fields'])
-		) {
-			return FALSE;
+		foreach ($configuration['fields'] as $field) {
+			if (!isset($field['targetField'])
+				OR !is_string(($field['targetField']))
+			) {
+				return FALSE;
+			}
+			if (!isset($field['values'])
+				OR !is_array($field['values'])
+			) {
+				return FALSE;
+			}
 		}
 
 		return TRUE;
@@ -46,22 +54,27 @@ class AddArrays
 	/**
 	 * @param array $configuration
 	 * @param array $record
-	 * @return bool
+	 * @return TRUE
 	 */
 	public function process($configuration, &$record) {
-		$fields = explode(',', $configuration['fields']);
-		$targetField = $configuration['targetField'];
-
-		foreach ($fields as $field) {
-			if (isset($record[$field])
-				AND is_array($record[$field])
-			) {
-				foreach ($record[$field] as $value) {
-					$record[$targetField][] = $value;
-				}
-			}
+		$fields = $configuration['fields'];
+		foreach ($fields as $fieldName => $localConfig) {
+			$this->mapValues($fieldName, $localConfig, $record);
 		}
 
 		return TRUE;
+	}
+
+	/**
+	 * @param string $fieldName
+	 * @param array $config
+	 * @param array $record
+	 */
+	protected function mapValues($fieldName, $config, &$record) {
+		foreach ($config['values'] as $sourceValue => $targetValue) {
+			if ($record[$fieldName] == $sourceValue) {
+				$record[$config['targetField']] = $targetValue;
+			}
+		}
 	}
 }

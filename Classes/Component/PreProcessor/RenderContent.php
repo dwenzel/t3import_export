@@ -1,8 +1,5 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
-
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
+namespace CPSIT\T3import\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice

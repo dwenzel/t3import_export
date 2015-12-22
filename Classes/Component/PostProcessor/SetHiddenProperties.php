@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\PostProcessor;
+namespace CPSIT\T3import\Component\PostProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -18,8 +18,8 @@ namespace CPSIT\T3import\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\PostProcessor\AbstractPostProcessor;
-use CPSIT\T3import\PostProcessor\PostProcessorInterface;
+use CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor;
+use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
@@ -32,7 +32,7 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  */
 class SetHiddenProperties
 	extends AbstractPostProcessor
-	implements PostProcessorInterface {
+	implements \CPSIT\T3import\Component\PostProcessor\PostProcessorInterface {
 
 	/**
 	 * @param array $configuration

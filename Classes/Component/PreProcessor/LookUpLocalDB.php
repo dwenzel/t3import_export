@@ -1,5 +1,9 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
+namespace CPSIT\T3import\Component\PreProcessor;
+
+use CPSIT\T3import\Component\PreProcessor\AbstractLookUpDB;
+use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /***************************************************************
  *  Copyright notice
@@ -18,47 +22,16 @@ namespace CPSIT\T3import\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
-
-/**
- * Class ConcatenateFields
- * Concatenates fields of a given record and sets the result
- * into a new or existing field of this record
- *
- * @package CPSIT\T3import\PreProcessor
- */
-class ConcatenateFields
-	extends AbstractPreProcessor
+class LookUpLocalDB extends \CPSIT\T3import\Component\PreProcessor\AbstractLookUpDB
 	implements PreProcessorInterface {
 
 	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return void
+	 * Constructor
 	 */
-	public function process($configuration, &$record) {
-		$targetFieldName = $configuration['targetField'];
-		foreach ($configuration['fields'] as $key => $value) {
-			if (isset($value['wrap'])
-				AND !empty($record[$key])
-			) {
-				$record[$key] = $this->contentObjectRenderer->wrap(
-					$record[$key],
-					$value['wrap']
-				);
-			}
-			if (isset($value['noTrimWrap'])
-				AND !empty($record[$key])
-			) {
-				$record[$key] = $this->contentObjectRenderer->noTrimWrap(
-					$record[$key],
-					$value['noTrimWrap']
-				);
-			}
-			$record[$targetFieldName] .= $record[$key];
+	public function __construct() {
+		if (!$this->database instanceof DatabaseConnection) {
+			$this->database = $GLOBALS['TYPO3_DB'];
 		}
-
 	}
 
 	/**
@@ -73,8 +46,13 @@ class ConcatenateFields
 		) {
 			return FALSE;
 		}
-		if (!isset($configuration['fields'])
-			OR !is_array($configuration['fields'])
+		if (!isset($configuration['select'])
+			OR !is_array($configuration['select'])
+		) {
+			return FALSE;
+		}
+		if (!isset($configuration['select']['table'])
+			OR !is_string(($configuration['select']['table']))
 		) {
 			return FALSE;
 		}

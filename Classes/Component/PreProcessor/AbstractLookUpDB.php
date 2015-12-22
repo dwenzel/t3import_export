@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
+namespace CPSIT\T3import\Component\PreProcessor;
 
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3import\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;

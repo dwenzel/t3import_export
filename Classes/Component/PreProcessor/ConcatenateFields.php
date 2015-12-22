@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
+namespace CPSIT\T3import\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -18,53 +18,65 @@ namespace CPSIT\T3import\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
 
 /**
- * Class MapFields
- * Maps one field of a record to another. Existing fields are overwritten!
+ * Class ConcatenateFields
+ * Concatenates fields of a given record and sets the result
+ * into a new or existing field of this record
  *
  * @package CPSIT\T3import\PreProcessor
  */
-class MapFields
+class ConcatenateFields
 	extends AbstractPreProcessor
 	implements PreProcessorInterface {
 
 	/**
 	 * @param array $configuration
-	 * @return bool
+	 * @param array $record
+	 * @return void
 	 */
-	public function isConfigurationValid($configuration) {
-		if (!isset($configuration['fields'])) {
-			return FALSE;
-		}
-		if (!is_array($configuration['fields'])) {
-			return FALSE;
-		}
-		foreach ($configuration['fields'] as $field => $value) {
-			if (!is_string($value)
-				OR empty($value)
+	public function process($configuration, &$record) {
+		$targetFieldName = $configuration['targetField'];
+		foreach ($configuration['fields'] as $key => $value) {
+			if (isset($value['wrap'])
+				AND !empty($record[$key])
 			) {
-				return FALSE;
+				$record[$key] = $this->contentObjectRenderer->wrap(
+					$record[$key],
+					$value['wrap']
+				);
 			}
+			if (isset($value['noTrimWrap'])
+				AND !empty($record[$key])
+			) {
+				$record[$key] = $this->contentObjectRenderer->noTrimWrap(
+					$record[$key],
+					$value['noTrimWrap']
+				);
+			}
+			$record[$targetFieldName] .= $record[$key];
 		}
 
-		return TRUE;
 	}
 
 	/**
+	 * Tells if a given configuration is valid
+	 *
 	 * @param array $configuration
-	 * @param array $record
-	 * @return TRUE
+	 * @return bool
 	 */
-	public function process($configuration, &$record) {
-		$fields = $configuration['fields'];
-		foreach ($fields as $sourceField => $targetField) {
-			$this->mapField($sourceField, $targetField, $record);
+	public function isConfigurationValid($configuration) {
+		if (!isset($configuration['targetField'])
+			OR !is_string($configuration['targetField'])
+		) {
+			return FALSE;
+		}
+		if (!isset($configuration['fields'])
+			OR !is_array($configuration['fields'])
+		) {
+			return FALSE;
 		}
 
 		return TRUE;
 	}
-
 }

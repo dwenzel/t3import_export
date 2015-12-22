@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
+namespace CPSIT\T3import\Component\PreProcessor;
 
 use CPSIT\T3import\Component\AbstractComponent;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;

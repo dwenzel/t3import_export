@@ -1,10 +1,5 @@
 <?php
-namespace CPSIT\T3import\PostProcessor;
-
-use CPSIT\T3import\Component\AbstractComponent;
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
-use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+namespace CPSIT\T3import\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -23,24 +18,35 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-abstract class AbstractPostProcessor extends AbstractComponent {
+class LookUpSourceDB extends AbstractLookUpDB
+	implements PreProcessorInterface {
 	/**
-	 * processes the converted record
-	 *
-	 * @param array $configuration
-	 * @param mixed $convertedRecord
-	 * @param array $record
-	 * @return bool
-	 */
-	abstract function process($configuration, &$convertedRecord, &$record);
-
-	/**
-	 * Tells whether a given configuration is valid
+	 * Tells if a given configuration is valid
 	 *
 	 * @param array $configuration
 	 * @return bool
 	 */
 	public function isConfigurationValid($configuration) {
+		if (!isset($configuration['select'])
+			OR !is_array($configuration['select'])
+		) {
+			return FALSE;
+		}
+		if (!isset($configuration['select']['table'])
+			OR !is_string(($configuration['select']['table']))
+		) {
+			return FALSE;
+		}
+		if (!isset($configuration['identifier'])
+			OR !is_string($configuration['identifier'])
+		) {
+			return FALSE;
+		}
+		if (!$this->connectionService->isRegistered($configuration['identifier'])) {
+			return FALSE;
+		}
+
 		return TRUE;
 	}
+
 }

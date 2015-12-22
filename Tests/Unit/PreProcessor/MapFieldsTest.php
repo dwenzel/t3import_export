@@ -25,17 +25,17 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
  * Class MapFieldsTest
  *
  * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\PreProcessor\MapFields
+ * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\MapFields
  */
 class MapFieldsTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\PreProcessor\MapFields
+	 * @var \CPSIT\T3import\Component\PreProcessor\MapFields
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\PreProcessor\\MapFields',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PreProcessor\\MapFields',
 			['dummy'], [], '', FALSE);
 	}
 

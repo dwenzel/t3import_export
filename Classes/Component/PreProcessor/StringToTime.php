@@ -1,9 +1,7 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
+namespace CPSIT\T3import\Component\PreProcessor;
 
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
-
+use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -21,9 +19,14 @@ use CPSIT\T3import\PreProcessor\PreProcessorInterface;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class MapFieldValues
+class StringToTime
 	extends AbstractPreProcessor
 	implements PreProcessorInterface {
+
+	/**
+	 * @var array
+	 */
+	protected $fields = [];
 
 	/**
 	 * @param array $configuration
@@ -32,23 +35,6 @@ class MapFieldValues
 	public function isConfigurationValid($configuration) {
 		if (!isset($configuration['fields'])) {
 			return FALSE;
-		}
-		if (isset($configuration['fields'])
-			AND !is_array($configuration['fields'])
-		) {
-			return FALSE;
-		}
-		foreach ($configuration['fields'] as $field) {
-			if (!isset($field['targetField'])
-				OR !is_string(($field['targetField']))
-			) {
-				return FALSE;
-			}
-			if (!isset($field['values'])
-				OR !is_array($field['values'])
-			) {
-				return FALSE;
-			}
 		}
 
 		return TRUE;
@@ -60,23 +46,30 @@ class MapFieldValues
 	 * @return TRUE
 	 */
 	public function process($configuration, &$record) {
-		$fields = $configuration['fields'];
-		foreach ($fields as $fieldName => $localConfig) {
-			$this->mapValues($fieldName, $localConfig, $record);
+		$this->fields = ArrayUtility::trimExplode(',', $configuration['fields'], TRUE);
+		$this->convertFields($record);
+		if (isset($configuration['multipleRowFields'])) {
+			$multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], TRUE);
+			foreach ($multipleRowFields as $field) {
+				if (is_array($record[$field])) {
+					foreach ($record[$field] as $key => $row) {
+						$this->convertFields($row);
+						$record[$field][$key] = $row;
+					}
+				}
+			}
 		}
 
 		return TRUE;
 	}
 
 	/**
-	 * @param string $fieldName
-	 * @param array $config
-	 * @param array $record
+	 * @param $row
 	 */
-	protected function mapValues($fieldName, $config, &$record) {
-		foreach ($config['values'] as $sourceValue => $targetValue) {
-			if ($record[$fieldName] == $sourceValue) {
-				$record[$config['targetField']] = $targetValue;
+	protected function convertFields(&$row) {
+		foreach ($this->fields as $fieldName) {
+			if (isset($row[$fieldName])) {
+				$row[$fieldName] = strtotime($row[$fieldName]);
 			}
 		}
 	}

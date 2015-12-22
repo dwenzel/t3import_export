@@ -25,17 +25,17 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
  * Class LookUpSourceDBTest
  *
  * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\PreProcessor\AbstractLookUpDB
+ * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\AbstractLookUpDB
  */
 class AbstractLookUpDBTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\PreProcessor\AbstractLookUpDB
+	 * @var \CPSIT\T3import\Component\PreProcessor\AbstractLookUpDB
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\PreProcessor\\AbstractLookUpDB',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PreProcessor\\AbstractLookUpDB',
 			['getQueryConfiguration'], [], '', FALSE);
 	}
 

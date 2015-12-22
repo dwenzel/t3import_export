@@ -1,5 +1,10 @@
 <?php
-namespace CPSIT\T3import\PostProcessor;
+namespace CPSIT\T3import\Component\PostProcessor;
+
+use CPSIT\T3import\Component\AbstractComponent;
+use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice
@@ -18,27 +23,24 @@ namespace CPSIT\T3import\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-interface PostProcessorInterface {
+abstract class AbstractPostProcessor extends AbstractComponent {
 	/**
+	 * processes the converted record
+	 *
 	 * @param array $configuration
 	 * @param mixed $convertedRecord
 	 * @param array $record
 	 * @return bool
 	 */
-	public function process($configuration, &$convertedRecord, &$record);
+	abstract function process($configuration, &$convertedRecord, &$record);
 
 	/**
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid($configuration);
-
-	/**
-	 * Tells if the component is disabled
+	 * Tells whether a given configuration is valid
 	 *
 	 * @param array $configuration
-	 * @param array $record
 	 * @return bool
 	 */
-	public function isDisabled($configuration, $record);
+	public function isConfigurationValid($configuration) {
+		return TRUE;
+	}
 }

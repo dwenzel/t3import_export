@@ -1,9 +1,5 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
-
-use CPSIT\T3import\PreProcessor\AbstractLookUpDB;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+namespace CPSIT\T3import\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -22,41 +18,51 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class LookUpLocalDB extends AbstractLookUpDB
+
+/**
+ * Class MapFields
+ * Maps one field of a record to another. Existing fields are overwritten!
+ *
+ * @package CPSIT\T3import\PreProcessor
+ */
+class MapFields
+	extends AbstractPreProcessor
 	implements PreProcessorInterface {
 
 	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		if (!$this->database instanceof DatabaseConnection) {
-			$this->database = $GLOBALS['TYPO3_DB'];
-		}
-	}
-
-	/**
-	 * Tells if a given configuration is valid
-	 *
 	 * @param array $configuration
 	 * @return bool
 	 */
 	public function isConfigurationValid($configuration) {
-		if (!isset($configuration['targetField'])
-			OR !is_string($configuration['targetField'])
-		) {
+		if (!isset($configuration['fields'])) {
 			return FALSE;
 		}
-		if (!isset($configuration['select'])
-			OR !is_array($configuration['select'])
-		) {
+		if (!is_array($configuration['fields'])) {
 			return FALSE;
 		}
-		if (!isset($configuration['select']['table'])
-			OR !is_string(($configuration['select']['table']))
-		) {
-			return FALSE;
+		foreach ($configuration['fields'] as $field => $value) {
+			if (!is_string($value)
+				OR empty($value)
+			) {
+				return FALSE;
+			}
 		}
 
 		return TRUE;
 	}
+
+	/**
+	 * @param array $configuration
+	 * @param array $record
+	 * @return TRUE
+	 */
+	public function process($configuration, &$record) {
+		$fields = $configuration['fields'];
+		foreach ($fields as $sourceField => $targetField) {
+			$this->mapField($sourceField, $targetField, $record);
+		}
+
+		return TRUE;
+	}
+
 }

@@ -25,17 +25,17 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * Class RenderContentTest
  *
  * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\PreProcessor\RenderContent
+ * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\RenderContent
  */
 class RenderContentTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\PreProcessor\RenderContent
+	 * @var \CPSIT\T3import\Component\PreProcessor\RenderContent
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\PreProcessor\\RenderContent',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PreProcessor\\RenderContent',
 			['dummy'], [], '', FALSE);
 	}
 
@@ -114,7 +114,7 @@ class RenderContentTest extends UnitTestCase {
 	 */
 	public function processRendersContent() {
 		$subject = $this->getAccessibleMock(
-			'CPSIT\\T3import\\PreProcessor\\RenderContent',
+			'CPSIT\\T3import\\Component\\PreProcessor\\RenderContent',
 			['renderContent'], [], '', FALSE);
 		$record = [];
 		$configuration = [
@@ -139,7 +139,7 @@ class RenderContentTest extends UnitTestCase {
 	 */
 	public function processRendersContentForMultipleRowFields() {
 		$subject = $this->getAccessibleMock(
-			'CPSIT\\T3import\\PreProcessor\\RenderContent',
+			'CPSIT\\T3import\\Component\\PreProcessor\\RenderContent',
 			['renderContent'], [], '', FALSE);
 		$record = [
 			'fooField' => [

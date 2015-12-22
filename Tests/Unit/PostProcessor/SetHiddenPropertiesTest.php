@@ -26,17 +26,17 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
  * Class SetHiddenPropertiesTest
  *
  * @package CPSIT\T3import\Tests\Service\PostProcessor
- * @coversDefaultClass \CPSIT\T3import\PostProcessor\SetHiddenProperties
+ * @coversDefaultClass \CPSIT\T3import\Component\PostProcessor\SetHiddenProperties
  */
 class SetHiddenPropertiesTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\PostProcessor\SetHiddenProperties
+	 * @var \CPSIT\T3import\Component\PostProcessor\SetHiddenProperties
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\PostProcessor\\SetHiddenProperties',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PostProcessor\\SetHiddenProperties',
 			['dummy'], [], '', FALSE);
 	}
 

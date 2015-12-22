@@ -16,7 +16,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# look up existing event location
 			1 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
 				config {
 					targetField = zewId
 					select {
@@ -42,7 +42,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 				}
 			}
 			2 {
-				class = CPSIT\T3import\PreProcessor\RenderContent
+				class = CPSIT\T3import\Component\PreProcessor\RenderContent
 				config.fields{
 					zewId = TEXT
 					zewId.value{
@@ -53,7 +53,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match existing event location
 			3 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
 				config {
 					targetField = uid
 					select {
@@ -75,7 +75,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			#map fields if language is not english (i.e. german)
 			4 {
-				class = CPSIT\T3import\PreProcessor\MapFields
+				class = CPSIT\T3import\Component\PreProcessor\MapFields
 				config {
 					disable = TEXT
 					disable {

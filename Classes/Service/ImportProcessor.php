@@ -19,9 +19,9 @@ namespace CPSIT\T3import\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3import\Domain\Model\Dto\DemandInterface;
-use CPSIT\T3import\PostProcessor\AbstractPostProcessor;
-use CPSIT\T3import\PostProcessor\PostProcessorInterface;
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor;
+use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\UnknownClassException;
@@ -34,7 +34,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
+use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /**
@@ -468,11 +468,13 @@ class ImportProcessor {
 
 	/**
 	 * Gets a single PreProcessor instance
-	 *
-	 * @param $type
+
+
+*
+*@param $type
 	 * @param $singleConfig
 	 * @param $key
-	 * @return PreProcessorInterface
+	 * @return \CPSIT\T3import\Component\PreProcessor\PreProcessorInterface
 	 * @throws InvalidConfigurationException
 	 */
 	protected function getSinglePreProcessor($type, $singleConfig, $key) {
@@ -500,18 +502,22 @@ class ImportProcessor {
 			);
 		}
 
-		/** @var PreProcessorInterface $instance */
+		/** @var \CPSIT\T3import\Component\PreProcessor\PreProcessorInterface $instance */
 
 		return $this->objectManager->get($className);
 	}
 
 	/**
 	 * Gets a single PostProcessor instance
-	 *
-	 * @param $type
+
+
+
+
+*
+*@param $type
 	 * @param $singleConfig
 	 * @param $key
-	 * @return PostProcessorInterface
+	 * @return \CPSIT\T3import\Component\PostProcessor\PostProcessorInterface
 	 * @throws InvalidConfigurationException
 	 */
 	protected function getSinglePostProcessor($type, $singleConfig, $key) {
@@ -539,7 +545,7 @@ class ImportProcessor {
 			);
 		}
 
-		/** @var PostProcessorInterface $instance */
+		/** @var \CPSIT\T3import\Component\PostProcessor\PostProcessorInterface $instance */
 
 		return $this->objectManager->get($className);
 	}

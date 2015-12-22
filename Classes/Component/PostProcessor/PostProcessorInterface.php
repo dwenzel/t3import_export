@@ -1,9 +1,5 @@
 <?php
-namespace CPSIT\T3import\PreProcessor;
-
-use CPSIT\T3import\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\PreProcessor\PreProcessorInterface;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
+namespace CPSIT\T3import\Component\PostProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -22,36 +18,27 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class SetFieldValue
-	extends AbstractPreProcessor
-	implements PreProcessorInterface {
+interface PostProcessorInterface {
+	/**
+	 * @param array $configuration
+	 * @param mixed $convertedRecord
+	 * @param array $record
+	 * @return bool
+	 */
+	public function process($configuration, &$convertedRecord, &$record);
 
 	/**
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid($configuration) {
-		if (!isset($configuration['targetField'])) {
-			return FALSE;
-		}
-		if (!isset($configuration['value'])
-			OR !is_string($configuration['value'])
-		) {
-			return FALSE;
-		}
-
-		return TRUE;
-	}
+	public function isConfigurationValid($configuration);
 
 	/**
+	 * Tells if the component is disabled
+	 *
 	 * @param array $configuration
 	 * @param array $record
 	 * @return bool
 	 */
-	public function process($configuration, &$record) {
-		$record[$configuration['targetField']] = $configuration['value'];
-
-		return TRUE;
-	}
-
+	public function isDisabled($configuration, $record);
 }
