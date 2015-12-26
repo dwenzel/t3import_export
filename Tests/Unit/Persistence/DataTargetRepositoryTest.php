@@ -149,9 +149,6 @@ class DataTargetRepositoryTest extends UnitTestCase {
 			DomainObjectInterface::class
 		);
 		$this->subject->_set('repository', $mockRepository);
-		/*$this->subject->expects($this->once())
-			->method('getRepository')
-			->will($this->returnValue($mockRepository));*/
 		$mockRepository->expects($this->once())
 			->method('add')
 			->with($mockObject);

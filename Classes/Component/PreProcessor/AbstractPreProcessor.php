@@ -33,6 +33,8 @@ abstract class AbstractPreProcessor extends AbstractComponent {
 
 	/**
 	 * Tells whether a given configuration is valid
+	 * Override this method in order to perform validation of
+	 * configuration
 	 *
 	 * @param array $configuration
 	 * @return bool
