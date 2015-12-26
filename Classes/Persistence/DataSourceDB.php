@@ -1,6 +1,8 @@
 <?php
 namespace CPSIT\T3import\Persistence;
 
+use CPSIT\T3import\IdentifiableInterface;
+use CPSIT\T3import\IdentifiableTrait;
 use CPSIT\T3import\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 
@@ -28,7 +30,9 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataSourceDB implements DataSourceInterface {
+class DataSourceDB
+	implements DataSourceInterface, IdentifiableInterface {
+	use IdentifiableTrait;
 
 	/**
 	 * @var \CPSIT\T3import\Service\DatabaseConnectionService
@@ -47,15 +51,6 @@ class DataSourceDB implements DataSourceInterface {
 	 * @var string
 	 */
 	protected $identifier;
-
-	/**
-	 * Constructor
-	 *
-	 * @param string $identifier Unique identifier of a database connection as registered with DatabaseConnectionService
-	 */
-	public function __construct($identifier) {
-		$this->identifier = $identifier;
-	}
 
 	/**
 	 * @param DatabaseConnectionService $connectionService
@@ -78,7 +73,6 @@ class DataSourceDB implements DataSourceInterface {
 		return $this->database;
 	}
 
-
 	/**
 	 * Fetches records from the database
 	 *
@@ -99,14 +93,5 @@ class DataSourceDB implements DataSourceInterface {
 		} else {
 			return [];
 		}
-	}
-
-	/**
-	 * Gets the identifier
-	 *
-	 * @return string
-	 */
-	public function getIdentifier() {
-		return $this->identifier;
 	}
 }

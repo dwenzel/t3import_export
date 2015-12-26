@@ -55,18 +55,6 @@ class DataSourceDBTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 */
-	public function constructorSetsIdentifier() {
-		$identifier = 'foo';
-		$subject = new DataSourceDB($identifier);
-		$this->assertSame(
-			$identifier,
-			$subject->getIdentifier()
-		);
-	}
-
-	/**
-	 * @test
 	 * @covers ::injectDatabaseConnectionService
 	 */
 	public function injectConnectionServiceForObjectSetsConnectionService() {
@@ -150,7 +138,7 @@ class DataSourceDBTest extends UnitTestCase {
 	 */
 	public function getDatabaseReturnsDatabaseFromConnectionService() {
 		$identifier = 'foo';
-		$this->subject->_set('identifier', $identifier);
+		$this->subject->setIdentifier($identifier);
 		$mockConnectionService = $this->getMock(
 			DatabaseConnectionService::class, ['getDatabase'], [], '', false
 		);
