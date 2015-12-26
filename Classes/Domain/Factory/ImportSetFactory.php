@@ -19,6 +19,7 @@ namespace CPSIT\T3import\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3import\Domain\Model\ImportSet;
+use CPSIT\T3import\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**

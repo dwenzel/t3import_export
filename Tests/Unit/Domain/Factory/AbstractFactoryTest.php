@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3import\Tests\Domain\Factory;
 
-use CPSIT\T3import\Domain\Factory\AbstractFactory;
+use CPSIT\T3import\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -29,18 +29,18 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class AbstractFactoryTest
  *
  * @package CPSIT\T3import\Tests\Domain\Factory
- * @coversDefaultClass \CPSIT\T3import\Domain\Factory\AbstractFactory
+ * @coversDefaultClass \CPSIT\T3import\Factory\AbstractFactory
  */
 class AbstractFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Domain\Factory\AbstractFactory
+	 * @var \CPSIT\T3import\Factory\AbstractFactory
 	 */
 	protected $subject;
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
-			AbstractFactory::class, ['get'], [], '', FALSE
+			\CPSIT\T3import\Factory\AbstractFactory::class, ['get'], [], '', FALSE
 		);
 	}
 

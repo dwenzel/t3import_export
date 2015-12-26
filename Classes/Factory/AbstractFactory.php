@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Domain\Factory;
+namespace CPSIT\T3import\Factory;
 
 /***************************************************************
  *  Copyright notice
