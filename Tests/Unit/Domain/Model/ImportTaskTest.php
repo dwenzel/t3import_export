@@ -3,6 +3,8 @@ namespace CPSIT\T3import\Tests\Domain\Model;
 
 use CPSIT\T3import\Domain\Model\ImportSet;
 use CPSIT\T3import\Domain\Model\ImportTask;
+use CPSIT\T3import\Persistence\DataSourceInterface;
+use CPSIT\T3import\Persistence\DataTargetInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
 
@@ -41,19 +43,6 @@ class ImportTaskTest extends UnitTestCase {
 	 */
 	public function getIdentifierInitiallyReturnsNull() {
 		$this->assertNull(
-			$this->subject->getIdentifier()
-		);
-	}
-
-	/**
-	 * @test
-	 */
-	public function setIdentifierForStringSetsIdentifier() {
-		$identifier = 'foo';
-		$this->subject->setIdentifier($identifier);
-
-		$this->assertSame(
-			$identifier,
 			$this->subject->getIdentifier()
 		);
 	}
@@ -102,4 +91,51 @@ class ImportTaskTest extends UnitTestCase {
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function getTargetInitiallyReturnsNull() {
+		$this->assertNull(
+			$this->subject->getTarget()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getSourceInitiallyReturnsNull() {
+		$this->assertNull(
+			$this->subject->getSource()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function setTargetForObjectSetsTarget() {
+		$target = $this->getMock(
+			DataTargetInterface::class,
+			[], [], '', false
+		);
+		$this->subject->setTarget($target);
+		$this->assertSame(
+			$target,
+			$this->subject->getTarget()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function setSourceForObjectSetsSource() {
+		$source = $this->getMock(
+			DataSourceInterface::class,
+			[], [], '', false
+		);
+		$this->subject->setSource($source);
+		$this->assertSame(
+			$source,
+			$this->subject->getSource()
+		);
+	}
 }

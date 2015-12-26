@@ -2,6 +2,12 @@
 namespace CPSIT\T3import\Domain\Factory;
 
 use CPSIT\T3import\Domain\Model\ImportTask;
+use CPSIT\T3import\Factory\AbstractFactory;
+use CPSIT\T3import\Persistence\DataTargetRepository;
+use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
+use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
+use CPSIT\T3import\Persistence\MissingClassException;
+use CPSIT\T3import\Service\InvalidConfigurationException;
 
 /***************************************************************
  *  Copyright notice
@@ -28,11 +34,41 @@ use CPSIT\T3import\Domain\Model\ImportTask;
  * @package CPSIT\T3import\Domain\Factory
  */
 class ImportTaskFactory extends AbstractFactory {
+
+	/**
+	 * @var DataTargetFactory
+	 */
+	protected $dataTargetFactory;
+
+	/**
+	 * @var DataSourceFactory
+	 */
+	protected $dataSourceFactory;
+
+	/**
+	 * injects the data target factory
+	 *
+	 * @param DataTargetFactory $factory
+	 */
+	public function injectDataTargetFactory(DataTargetFactory $factory) {
+		$this->dataTargetFactory = $factory;
+	}
+
+	/**
+	 * injects the data source factory
+	 *
+	 * @param DataSourceFactory $factory
+	 */
+	public function injectDataSourceFactory(DataSourceFactory $factory) {
+		$this->dataSourceFactory = $factory;
+	}
+
 	/**
 	 * Builds a task
 	 *
 	 * @param string $identifier
 	 * @param array $settings
+	 * @throws InvalidConfigurationException
 	 * @return ImportTask
 	 */
 	public function get($identifier, array $settings) {
@@ -40,7 +76,6 @@ class ImportTaskFactory extends AbstractFactory {
 		$task = $this->objectManager->get(
 			ImportTask::class
 		);
-
 		$task->setIdentifier($identifier);
 
 		if (isset($settings['class'])
@@ -55,7 +90,20 @@ class ImportTaskFactory extends AbstractFactory {
 			$task->setDescription($settings['description']);
 		}
 
+		if (!isset($settings['target'])
+			OR !is_array(($settings['target']))
+		) {
+			throw new InvalidConfigurationException(
+				'Invalid configuration for import task ' . $identifier .
+				' Target is missing or is not an array.',
+				1451052262
+			);
+		}
+
+		$task->setTarget(
+			$this->dataTargetFactory->get($identifier, $settings['target'])
+		);
+
 		return $task;
 	}
-
 }
