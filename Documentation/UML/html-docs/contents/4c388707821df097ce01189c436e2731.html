@@ -65,7 +65,7 @@
                 <h3>Description</h3>
                 <div>
                     
-                        <span class="label label-info">none</span>
+                        <p>fetches records from databases. Currently supports MySQL only.</p>
                     
                 </div>
             </section>
@@ -147,6 +147,34 @@
             <!-- Attributes -->
 
             
+            <section>
+                <h3>Attributes</h3>
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <th>Visibility</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="86b08eee2dec9153835bb596f57207f2.html">connectionService</a></td>
+                        <td><a href='f5f0fc4a5864e038cad4c4628557e109.html'>DataBaseConnectionService</a></td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>protected</td>
+                        <td><a href="9f5bd259f57cc676098067762181d777.html">identifier</a></td>
+                        <td><a href='4d9fc1d357fff72083b940ab42861370.html'>string</a></td>
+                        <td><p>Unique identifier of the database connection to use.
+This connection must be registered with the connection service.</p></td>
+                    </tr>
+                    
+                </table>
+            </section>
+            
 
             <!-- Operations -->
 
@@ -162,8 +190,26 @@
                     
                     <tr>
                         <td>public</td>
-                        <td><a href="33ac25ce5471fd1b8659351bcfdcf8c6.html">getRecords(configuration): array</a></td>
+                        <td><a href="33ac25ce5471fd1b8659351bcfdcf8c6.html">getRecords(configuration: array): array</a></td>
                         <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="e923d1a13bd12a505b9563f11c64fec4.html">getDatabase(return: \TYPO3\CMS\Core\Database\DatabaseConnection)</a></td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="7f14feb9a40e66b8e6381053b4533f81.html">getIdentifier()</a></td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="0c7c66cd62ba9533af05d02e3466b34b.html">__construct(identifier: string)</a></td>
+                        <td><p>Constructor</p></td>
                     </tr>
                     
                 </table>
