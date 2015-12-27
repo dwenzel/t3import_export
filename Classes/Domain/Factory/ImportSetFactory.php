@@ -45,11 +45,12 @@ class ImportSetFactory extends AbstractFactory {
 	/**
 	 * Builds a set of tasks
 	 *
-	 * @param string $identifier
 	 * @param array $settings
+	 * @param string $identifier
 	 * @return ImportSet
+	 * @throws \CPSIT\T3import\Service\InvalidConfigurationException
 	 */
-	public function get($identifier, array $settings) {
+	public function get(array $settings, $identifier=null) {
 		/** @var ImportSet $importSet */
 		$importSet = $this->objectManager->get(
 			ImportSet::class
@@ -65,7 +66,7 @@ class ImportSetFactory extends AbstractFactory {
 			foreach ($taskIdentifiers as $taskIdentifier) {
 				if (isset($this->settings['importProcessor']['tasks'][$taskIdentifier])) {
 					$task = $this->importTaskFactory->get(
-						$taskIdentifier, $this->settings['importProcessor']['tasks'][$taskIdentifier]
+						$this->settings['importProcessor']['tasks'][$taskIdentifier], $taskIdentifier
 					);
 					$tasks[$taskIdentifier] = $task;
 				}

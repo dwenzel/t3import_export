@@ -66,12 +66,14 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Builds a task
 	 *
-	 * @param string $identifier
 	 * @param array $settings
-	 * @throws InvalidConfigurationException
+	 * @param string $identifier
 	 * @return ImportTask
+	 * @throws InvalidConfigurationException
+	 * @throws MissingClassException
+	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
 	 */
-	public function get($identifier, array $settings) {
+	public function get(array $settings, $identifier = null) {
 		/** @var ImportTask $task */
 		$task = $this->objectManager->get(
 			ImportTask::class

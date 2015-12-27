@@ -77,7 +77,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 		$settings = [
 			'class' => 'NonExistingTargetClass'
 		];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -90,7 +90,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 		$settings = [
 			'class' => DummyMissingTargetInterfaceClass::class
 		];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 	public function getThrowsExceptionIfObjectClassIsNotSet() {
 		$identifier = 'foo';
 		$settings = [];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -116,7 +116,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 				'class' => 'NonExistingObjectClass'
 			]
 		];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -142,6 +142,6 @@ class DataTargetFactoryTest extends UnitTestCase {
 				'class' => $objectClass
 			]
 		];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 }

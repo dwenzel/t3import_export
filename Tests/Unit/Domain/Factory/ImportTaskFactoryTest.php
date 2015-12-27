@@ -4,6 +4,8 @@ namespace CPSIT\T3import\Tests\Domain\Factory;
 use CPSIT\T3import\Factory\AbstractFactory;
 use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3import\Domain\Model\ImportTask;
+use CPSIT\T3import\Persistence\DataSourceInterface;
+use CPSIT\T3import\Persistence\DataTargetInterface;
 use CPSIT\T3import\Persistence\DataTargetRepository;
 use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
@@ -103,7 +105,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -127,7 +129,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		$mockTask->expects($this->once())
 			->method('setIdentifier')
 			->with($identifier);
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -156,7 +158,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->method('setTargetClass')
 			->with($targetClass);
 
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -185,19 +187,26 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->method('setDescription')
 			->with($description);
 
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
 	 * @test
 	 */
 	public function getSetsTarget() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class, ['setSource'], [], '', FALSE
+		);
+		$this->subject->expects($this->once())
+			->method('setSource');
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
 			ImportTask::class, ['setTarget']
 		);
 		$settings = [
-			'target' => ['bar']
+			'target' => [
+				'identifier' => 'bar'
+			]
 		];
 		/** @var ObjectManager $mockObjectManager */
 		$mockObjectManager = $this->getMock(
@@ -208,16 +217,14 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->with(ImportTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
-		$mockTarget = $this->getMock(
-			DataTargetRepository::class, [], [$settings['class']]
-		);
+		$mockTarget = $this->getMock(DataTargetInterface::class);
 
 		$mockTargetFactory = $this->getMock(
 			DataTargetFactory::class, ['get']
 		);
 		$mockTargetFactory->expects($this->once())
 			->method('get')
-			->with($identifier, $settings['target'])
+			->with($settings['target'])
 			->will($this->returnValue($mockTarget));
 		$this->subject->injectDataTargetFactory($mockTargetFactory);
 
@@ -225,7 +232,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->method('setTarget')
 			->with($mockTarget);
 
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -249,6 +256,83 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
+
+	/**
+	 * @test
+	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedExceptionCode 1451206701
+	 */
+	public function getThrowsExceptionForMissingSource() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class, ['setTarget'], [], '', FALSE
+		);
+		$this->subject->expects($this->once())
+			->method('setTarget');
+		$identifier = 'foo';
+		$settings = ['foo'];
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setTarget']
+		);
+		/** @var ObjectManager $mockObjectManager */
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get'], [], '', FALSE);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$this->subject->get($settings, $identifier);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getSetsSource() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class, ['setTarget'], [], '', FALSE
+		);
+		$this->subject->expects($this->once())
+			->method('setTarget');
+		$identifier = 'foo';
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setSource']
+		);
+		$settings = [
+			'source' => [
+				'identifier' => 'bar'
+			]
+		];
+		/** @var ObjectManager $mockObjectManager */
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get'], [], '', FALSE);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+		$mockSource = $this->getMock(
+			DataSourceInterface::class
+		);
+
+		$mockSourceFactory = $this->getMock(
+			DataSourceFactory::class, ['get']
+		);
+		$mockSourceFactory->expects($this->once())
+			->method('get')
+			->with($settings['source'])
+			->will($this->returnValue($mockSource));
+		$this->subject->injectDataSourceFactory($mockSourceFactory);
+
+		$mockTask->expects($this->once())
+			->method('setSource')
+			->with($mockSource);
+
+		$this->subject->get($settings, $identifier);
+	}
+
 }

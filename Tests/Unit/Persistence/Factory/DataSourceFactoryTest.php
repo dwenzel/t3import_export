@@ -107,7 +107,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 		$settings = [
 			'class' => 'NonExistingSourceClass'
 		];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -120,7 +120,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 		$settings = [
 			'class' => DummyMissingSourceInterfaceClass::class
 		];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -134,7 +134,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 			'class' => DummyIdentifiableSourceInterfaceClass::class,
 			'config' => []
 		];
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -149,7 +149,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 			'class' => $dataSourceClass,
 		];
 
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -179,7 +179,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 			->will($this->returnValue($mockDataSource));
 		$this->subject->injectObjectManager($mockObjectManager);
 
-		$this->subject->get($identifier, $settings);
+		$this->subject->get($settings, $identifier);
 	}
 
 	/**
@@ -205,7 +205,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 		$this->subject->injectObjectManager($mockObjectManager);
 		$this->assertSame(
 			$expectedDataSource,
-			$this->subject->get($identifier, $settings)
+			$this->subject->get($settings, $identifier)
 		);
 	}
 
@@ -232,7 +232,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 		$this->subject->injectObjectManager($mockObjectManager);
 		$this->assertSame(
 			$expectedDataSource,
-			$this->subject->get($identifier, $settings)
+			$this->subject->get($settings, $identifier)
 		);
 	}
 }

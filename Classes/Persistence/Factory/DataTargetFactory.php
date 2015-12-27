@@ -38,14 +38,14 @@ class DataTargetFactory extends AbstractFactory {
 	/**
 	 * Builds a factory object
 	 *
-	 * @param string $identifier
 	 * @param array $settings
-	 * @throws MissingClassException
-	 * @throws InvalidConfigurationException
-	 * @throws MissingInterfaceException
+	 * @param string $identifier
 	 * @return DataTargetInterface
+	 * @throws InvalidConfigurationException
+	 * @throws MissingClassException
+	 * @throws MissingInterfaceException
 	 */
-	public function get($identifier, array $settings) {
+	public function get(array $settings, $identifier = null) {
 		$dataTargetClass = self::DEFAULT_DATA_TARGET_CLASS;
 		if (isset($settings['class'])) {
 			$dataTargetClass = $settings['class'];

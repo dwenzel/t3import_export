@@ -67,10 +67,10 @@ abstract class AbstractFactory {
 	/**
 	 * Builds a factory object
 	 *
-	 * @param string $identifier
 	 * @param array $settings
+	 * @param string $identifier
 	 * @return object
 	 */
-	abstract public function get($identifier, array $settings);
+	abstract public function get(array $settings, $identifier = null);
 
 }

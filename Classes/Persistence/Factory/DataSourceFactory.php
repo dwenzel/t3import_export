@@ -39,35 +39,34 @@ class DataSourceFactory extends AbstractFactory {
 	/**
 	 * Builds a DataSource object
 	 *
-	 * @param string $identifier Identifier
 	 * @param array $settings Configuration for the data source
+	 * @param string $identifier Identifier
+	 * @return DataSourceInterface
+	 * @throws InvalidConfigurationException
 	 * @throws MissingClassException
 	 * @throws MissingInterfaceException
-	 * @throws InvalidConfigurationException
-	 * @return DataSourceInterface
 	 */
-	public function get($identifier, array $settings) {
+	public function get(array $settings, $identifier = null) {
 		$dataSourceClass = self::DEFAULT_DATA_SOURCE_CLASS;
 		if (isset($settings['class'])) {
 			$dataSourceClass = $settings['class'];
 		}
 		if (!class_exists($dataSourceClass)) {
 			throw new MissingClassException(
-				'Missing source.class ' . $dataSourceClass .
-				' in configuration for ' . $identifier,
+				'Missing source.class ' . $dataSourceClass . '.',
 				1451060913
 			);
 		}
 		if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass))) {
 			throw new MissingInterfaceException(
-				'Missing interface in configuration for '. $identifier . '.source. Class ' . $dataSourceClass .
+				'Missing interface in configuration for source. Class ' . $dataSourceClass .
 				' must implement interface ' . DataSourceInterface::class . '.',
 				1451061361
 			);
 		}
 		if (!isset($settings['config'])) {
 			throw new InvalidConfigurationException(
-				'Missing ' . $identifier . '.source.config for class ' .
+				'Missing configuration option config for class ' .
 				$dataSourceClass,
 				1451086595
 			);
@@ -77,8 +76,8 @@ class DataSourceFactory extends AbstractFactory {
 			// dataSourceClass implements IdentifiableInterface but identifier is not set
 			if (!isset($settings['identifier'])) {
 				throw new InvalidConfigurationException(
-					'Invalid configuration for ' . $identifier .
-					'.source. Missing identifier for class ' . $dataSourceClass . '.',
+					'Invalid configuration for source.
+					Missing identifier for class ' . $dataSourceClass . '.',
 					1451083802
 				);
 			}
