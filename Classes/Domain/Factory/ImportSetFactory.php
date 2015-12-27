@@ -50,7 +50,7 @@ class ImportSetFactory extends AbstractFactory {
 	 * @return ImportSet
 	 * @throws \CPSIT\T3import\Service\InvalidConfigurationException
 	 */
-	public function get(array $settings, $identifier=null) {
+	public function get(array $settings, $identifier = null) {
 		/** @var ImportSet $importSet */
 		$importSet = $this->objectManager->get(
 			ImportSet::class

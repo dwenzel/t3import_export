@@ -3,7 +3,6 @@ namespace CPSIT\T3import\Domain\Factory;
 
 use CPSIT\T3import\Domain\Model\ImportTask;
 use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\Persistence\DataTargetRepository;
 use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
 use CPSIT\T3import\Persistence\MissingClassException;
@@ -92,20 +91,71 @@ class ImportTaskFactory extends AbstractFactory {
 			$task->setDescription($settings['description']);
 		}
 
+		$this->setTarget($task, $settings, $identifier);
+		$this->setSource($task, $settings, $identifier);
+
+		return $task;
+	}
+
+	/**
+	 * Sets the target for the import task
+	 *
+	 * @param ImportTask $task
+	 * @param array $settings
+	 * @param string $identifier
+	 * @throws InvalidConfigurationException
+	 * @throws MissingClassException
+	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 */
+	protected function setTarget(&$task, array $settings, $identifier) {
 		if (!isset($settings['target'])
 			OR !is_array(($settings['target']))
 		) {
 			throw new InvalidConfigurationException(
 				'Invalid configuration for import task ' . $identifier .
-				' Target is missing or is not an array.',
+				'. Target is missing or is not an array.',
 				1451052262
 			);
 		}
-
+		$targetIdentifier = null;
+		if (isset($settings['target']['identifier'])
+			AND is_string($settings['target']['identifier'])
+		) {
+			$targetIdentifier = $settings['target']['identifier'];
+		}
 		$task->setTarget(
-			$this->dataTargetFactory->get($identifier, $settings['target'])
+			$this->dataTargetFactory->get($settings['target'], $targetIdentifier)
 		);
+	}
 
-		return $task;
+	/**
+	 * Sets the source for the import task
+	 *
+	 * @param ImportTask $task
+	 * @param array $settings
+	 * @param string $identifier
+	 * @throws InvalidConfigurationException
+	 * @throws MissingClassException
+	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 */
+	protected function setSource(&$task, array $settings, $identifier) {
+		if (!isset($settings['source'])
+			OR !is_array(($settings['source']))
+		) {
+			throw new InvalidConfigurationException(
+				'Invalid configuration for import task ' . $identifier .
+				' Source is missing or is not an array.',
+				1451206701
+			);
+		}
+		$sourceIdentifier = null;
+		if (isset($settings['source']['identifier'])
+			AND is_string($settings['source']['identifier'])
+		) {
+			$sourceIdentifier = $settings['source']['identifier'];
+		}
+		$task->setSource(
+			$this->dataSourceFactory->get($settings['source'], $sourceIdentifier)
+		);
 	}
 }
