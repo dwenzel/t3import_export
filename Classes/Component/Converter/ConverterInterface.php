@@ -25,4 +25,19 @@ interface ConverterInterface {
 	 * @return mixed
 	 */
 	public function isConfigurationValid(array $configuration);
+
+	/**
+	 * Sets the configuration
+	 *
+	 * @param array $configuration
+	 * @return mixed
+	 */
+	public function setConfiguration($configuration);
+
+	/**
+	 * Returns the configuration
+	 *
+	 * @return array | null
+	 */
+	public function getConfiguration();
 }

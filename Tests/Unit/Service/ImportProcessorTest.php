@@ -706,9 +706,8 @@ class ImportProcessorTest extends UnitTestCase {
 		$singleRecord = ['foo' => 'bar'];
 		$queue = [$singleRecord];
 		$subject->_set('queue', $queue);
-		$mockPreProcessor = $this->getMock(
-			PreProcessorInterface::class,
-			['process', 'isConfigurationValid', 'isDisabled']
+		$mockPreProcessor = $this->getMockForAbstractClass(
+			PreProcessorInterface::class
 		);
 		$type = 'bazType';
 		$mockConfiguration = ['foo' => 'bar'];
@@ -814,7 +813,8 @@ class ImportProcessorTest extends UnitTestCase {
 		$validClass = AbstractPreProcessor::class;
 		$configurationWithExistingClass = [
 			'1' => [
-				'class' => $validClass
+				'class' => $validClass,
+				'config' => []
 			]
 		];
 		$typoScriptConfiguration = [
@@ -825,10 +825,8 @@ class ImportProcessorTest extends UnitTestCase {
 			]
 		];
 		$subject->_set('typoScriptConfiguration', $typoScriptConfiguration);
-		$mockPreProcessor = $this->getMock(
-			PreProcessorInterface::class,
-			['process', 'isConfigurationValid', 'isDisabled']
-		);
+		$mockPreProcessor = $this->getMockForAbstractClass(
+			PreProcessorInterface::class);
 		$subject->expects($this->once())
 			->method('getSinglePreProcessor')
 			->will($this->returnValue($mockPreProcessor));
@@ -855,10 +853,8 @@ class ImportProcessorTest extends UnitTestCase {
 				'config' => $validSingleConfiguration
 			]
 		];
-		$mockPreProcessor = $this->getMock(
-			PreProcessorInterface::class,
-			['process', 'isConfigurationValid', 'isDisabled']
-		);
+		$mockPreProcessor = $this->getMockForAbstractClass(
+			PreProcessorInterface::class);
 		$subject->expects($this->once())
 			->method('getPreProcessorConfiguration')
 			->will($this->returnValue($configurationForFooType));

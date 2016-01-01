@@ -38,7 +38,7 @@ class SetHiddenProperties
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid($configuration) {
+	public function isConfigurationValid(array $configuration) {
 		if (!isset($configuration['fields'])) {
 			return FALSE;
 		}

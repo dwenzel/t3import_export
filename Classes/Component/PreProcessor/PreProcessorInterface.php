@@ -30,7 +30,7 @@ interface PreProcessorInterface {
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid($configuration);
+	public function isConfigurationValid(array $configuration);
 
 	/**
 	 * Tells if the component is disabled
@@ -40,4 +40,19 @@ interface PreProcessorInterface {
 	 * @return bool
 	 */
 	public function isDisabled($configuration, $record);
+
+	/**
+	 * Sets the configuration
+	 *
+	 * @param array $configuration
+	 * @return mixed
+	 */
+	public function setConfiguration($configuration);
+
+	/**
+	 * Returns the configuration
+	 *
+	 * @return array | null
+	 */
+	public function getConfiguration();
 }
