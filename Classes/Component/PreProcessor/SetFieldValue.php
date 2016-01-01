@@ -26,7 +26,7 @@ class SetFieldValue
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid($configuration) {
+	public function isConfigurationValid(array $configuration) {
 		if (!isset($configuration['targetField'])) {
 			return FALSE;
 		}
