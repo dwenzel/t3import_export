@@ -429,7 +429,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		);
 		$mockPreProcessor->expects($this->once())
 			->method('setConfiguration')
-			->with($singleConfiguration);
+			->with($singleConfiguration['config']);
 		$mockPreProcessorFactory = $this->getMock(
 			PreProcessorFactory::class, ['get']
 		);
@@ -481,7 +481,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		);
 		$mockPostProcessor->expects($this->once())
 			->method('setConfiguration')
-			->with($singleConfiguration);
+			->with($singleConfiguration['config']);
 		$mockPostProcessorFactory = $this->getMock(
 			PostProcessorFactory::class, ['get']
 		);
@@ -534,7 +534,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		);
 		$mockConverter->expects($this->once())
 			->method('setConfiguration')
-			->with($singleConfiguration);
+			->with($singleConfiguration['config']);
 		$mockConverterFactory = $this->getMock(
 			ConverterFactory::class, ['get']
 		);

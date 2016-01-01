@@ -232,7 +232,9 @@ class ImportTaskFactory extends AbstractFactory {
 		foreach ($settings as $key => $singleSettings) {
 			/** @var PreProcessorInterface $instance */
 			$instance = $this->preProcessorFactory->get($singleSettings, $identifier);
-			$instance->setConfiguration($singleSettings);
+			if (isset($singleSettings['config'])) {
+				$instance->setConfiguration($singleSettings['config']);
+			}
 
 			$preProcessors[$key] = $instance;
 		}
@@ -252,8 +254,9 @@ class ImportTaskFactory extends AbstractFactory {
 		foreach ($settings as $key => $singleSettings) {
 			/** @var PostProcessorInterface $instance */
 			$instance = $this->postProcessorFactory->get($singleSettings, $identifier);
-			$instance->setConfiguration($singleSettings);
-
+			if (isset($singleSettings['config'])) {
+				$instance->setConfiguration($singleSettings['config']);
+			}
 			$postProcessors[$key] = $instance;
 		}
 		$task->setPostProcessors($postProcessors);
@@ -272,8 +275,9 @@ class ImportTaskFactory extends AbstractFactory {
 		foreach ($settings as $key => $singleSettings) {
 			/** @var ConverterInterface $instance */
 			$instance = $this->converterFactory->get($singleSettings, $identifier);
-			$instance->setConfiguration($singleSettings);
-
+			if (isset($singleSettings['config'])) {
+				$instance->setConfiguration($singleSettings['config']);
+			}
 			$converters[$key] = $instance;
 		}
 		$task->setConverters($converters);
