@@ -1,6 +1,12 @@
 <?php
 namespace CPSIT\T3import\Domain\Factory;
 
+use CPSIT\T3import\Component\Converter\ConverterInterface;
+use CPSIT\T3import\Component\Factory\ConverterFactory;
+use CPSIT\T3import\Component\Factory\PostProcessorFactory;
+use CPSIT\T3import\Component\Factory\PreProcessorFactory;
+use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3import\Domain\Model\ImportTask;
 use CPSIT\T3import\Factory\AbstractFactory;
 use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
@@ -45,6 +51,21 @@ class ImportTaskFactory extends AbstractFactory {
 	protected $dataSourceFactory;
 
 	/**
+	 * @var PreProcessorFactory
+	 */
+	protected $preProcessorFactory;
+
+	/**
+	 * @var PostProcessorFactory
+	 */
+	protected $postProcessorFactory;
+
+	/**
+	 * @var ConverterFactory
+	 */
+	protected $converterFactory;
+
+	/**
 	 * injects the data target factory
 	 *
 	 * @param DataTargetFactory $factory
@@ -60,6 +81,33 @@ class ImportTaskFactory extends AbstractFactory {
 	 */
 	public function injectDataSourceFactory(DataSourceFactory $factory) {
 		$this->dataSourceFactory = $factory;
+	}
+
+	/**
+	 * injects the pre processor factory
+	 *
+	 * @param PreProcessorFactory $factory
+	 */
+	public function injectPreProcessorFactory(PreProcessorFactory $factory) {
+		$this->preProcessorFactory = $factory;
+	}
+
+	/**
+	 * injects the post processor factory
+	 *
+	 * @param PostProcessorFactory $factory
+	 */
+	public function injectPostProcessorFactory(PostProcessorFactory $factory) {
+		$this->postProcessorFactory = $factory;
+	}
+
+	/**
+	 * injects the converter factory
+	 *
+	 * @param ConverterFactory $factory
+	 */
+	public function injectConverterFactory(ConverterFactory $factory) {
+		$this->converterFactory = $factory;
 	}
 
 	/**
@@ -93,6 +141,18 @@ class ImportTaskFactory extends AbstractFactory {
 
 		$this->setTarget($task, $settings, $identifier);
 		$this->setSource($task, $settings, $identifier);
+		if (isset($settings['preProcessors'])
+			AND is_array($settings['preProcessors']))  {
+			$this->setPreProcessors($task, $settings['preProcessors'], $identifier);
+		}
+		if (isset($settings['postProcessors'])
+			AND is_array($settings['postProcessors']))  {
+			$this->setPostProcessors($task, $settings['postProcessors'], $identifier);
+		}
+		if (isset($settings['converters'])
+			AND is_array($settings['converters']))  {
+			$this->setConverters($task, $settings['converters'], $identifier);
+		}
 
 		return $task;
 	}
@@ -158,4 +218,65 @@ class ImportTaskFactory extends AbstractFactory {
 			$this->dataSourceFactory->get($settings['source'], $sourceIdentifier)
 		);
 	}
+
+	/**
+	 * Sets the pre processors for the import task
+	 *
+	 * @param ImportTask $task
+	 * @param array $settings
+	 * @param string $identifier
+	 * @throws InvalidConfigurationException
+	 */
+	protected function setPreProcessors(&$task, array $settings, $identifier) {
+		$preProcessors = [];
+		foreach ($settings as $key => $singleSettings) {
+			/** @var PreProcessorInterface $instance */
+			$instance = $this->preProcessorFactory->get($singleSettings, $identifier);
+			$instance->setConfiguration($singleSettings);
+
+			$preProcessors[$key] = $instance;
+		}
+		$task->setPreProcessors($preProcessors);
+	}
+
+	/**
+	 * Sets the post processors for the import task
+	 *
+	 * @param ImportTask $task
+	 * @param array $settings
+	 * @param string $identifier
+	 * @throws InvalidConfigurationException
+	 */
+	protected function setPostProcessors(&$task, array $settings, $identifier) {
+		$postProcessors = [];
+		foreach ($settings as $key => $singleSettings) {
+			/** @var PostProcessorInterface $instance */
+			$instance = $this->postProcessorFactory->get($singleSettings, $identifier);
+			$instance->setConfiguration($singleSettings);
+
+			$postProcessors[$key] = $instance;
+		}
+		$task->setPostProcessors($postProcessors);
+	}
+
+	/**
+	 * Sets the converters for the import task
+	 *
+	 * @param ImportTask $task
+	 * @param array $settings
+	 * @param string $identifier
+	 * @throws InvalidConfigurationException
+	 */
+	protected function setConverters(&$task, array $settings, $identifier) {
+		$converters = [];
+		foreach ($settings as $key => $singleSettings) {
+			/** @var ConverterInterface $instance */
+			$instance = $this->converterFactory->get($singleSettings, $identifier);
+			$instance->setConfiguration($singleSettings);
+
+			$converters[$key] = $instance;
+		}
+		$task->setConverters($converters);
+	}
+
 }

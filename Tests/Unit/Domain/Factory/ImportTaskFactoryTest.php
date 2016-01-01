@@ -1,6 +1,12 @@
 <?php
 namespace CPSIT\T3import\Tests\Domain\Factory;
 
+use CPSIT\T3import\Component\Converter\ConverterInterface;
+use CPSIT\T3import\Component\Factory\ConverterFactory;
+use CPSIT\T3import\Component\Factory\PostProcessorFactory;
+use CPSIT\T3import\Component\Factory\PreProcessorFactory;
+use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3import\Factory\AbstractFactory;
 use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3import\Domain\Model\ImportTask;
@@ -65,6 +71,57 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		$this->assertAttributeEquals(
 			$mockFactory,
 			'dataSourceFactory',
+			$this->subject
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectPreProcessorFactorySetsFactory() {
+		$mockFactory = $this->getMock(
+			PreProcessorFactory::class
+		);
+		$this->subject->injectPreProcessorFactory(
+			$mockFactory
+		);
+		$this->assertAttributeEquals(
+			$mockFactory,
+			'preProcessorFactory',
+			$this->subject
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectPostProcessorFactorySetsFactory() {
+		$mockFactory = $this->getMock(
+			PostProcessorFactory::class
+		);
+		$this->subject->injectPostProcessorFactory(
+			$mockFactory
+		);
+		$this->assertAttributeEquals(
+			$mockFactory,
+			'postProcessorFactory',
+			$this->subject
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectConverterFactorySetsFactory() {
+		$mockFactory = $this->getMock(
+			ConverterFactory::class
+		);
+		$this->subject->injectConverterFactory(
+			$mockFactory
+		);
+		$this->assertAttributeEquals(
+			$mockFactory,
+			'converterFactory',
 			$this->subject
 		);
 	}
@@ -333,6 +390,163 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->with($mockSource);
 
 		$this->subject->get($settings, $identifier);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getSetsPreProcessors() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class,
+			['setTarget', 'setSource'], [], '', FALSE
+		);
+
+		$identifier = 'bar';
+		$processorClass = PreProcessorInterface::class;
+		$singleConfiguration = [
+			'class' => $processorClass,
+			'config' => ['foo']
+		];
+		$configuration = [
+			'preProcessors' => [
+				'1' => $singleConfiguration
+			]
+		];
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setPreProcessors']
+		);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get'], [], '', FALSE);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$mockPreProcessor = $this->getMockForAbstractClass(
+			$processorClass, ['setConfiguration']
+		);
+		$mockPreProcessor->expects($this->once())
+			->method('setConfiguration')
+			->with($singleConfiguration);
+		$mockPreProcessorFactory = $this->getMock(
+			PreProcessorFactory::class, ['get']
+		);
+		$this->subject->injectPreProcessorFactory($mockPreProcessorFactory);
+		$mockPreProcessorFactory->expects($this->once())
+			->method('get')
+			->with($singleConfiguration, $identifier)
+			->will($this->returnValue($mockPreProcessor));
+		$mockTask->expects($this->once())
+			->method('setPreProcessors')
+			->with(['1' => $mockPreProcessor]);
+		$this->subject->get($configuration, $identifier);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getSetsPostProcessors() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class,
+			['setTarget', 'setSource'], [], '', FALSE
+		);
+
+		$identifier = 'bar';
+		$processorClass = PostProcessorInterface::class;
+		$singleConfiguration = [
+			'class' => $processorClass,
+			'config' => ['foo']
+		];
+		$configuration = [
+			'postProcessors' => [
+				'1' => $singleConfiguration
+			]
+		];
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setPostProcessors']
+		);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get'], [], '', FALSE);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$mockPostProcessor = $this->getMockForAbstractClass(
+			$processorClass, ['setConfiguration']
+		);
+		$mockPostProcessor->expects($this->once())
+			->method('setConfiguration')
+			->with($singleConfiguration);
+		$mockPostProcessorFactory = $this->getMock(
+			PostProcessorFactory::class, ['get']
+		);
+		$this->subject->injectPostProcessorFactory($mockPostProcessorFactory);
+		$mockPostProcessorFactory->expects($this->once())
+			->method('get')
+			->with($singleConfiguration, $identifier)
+			->will($this->returnValue($mockPostProcessor));
+		$mockTask->expects($this->once())
+			->method('setPostProcessors')
+			->with(['1' => $mockPostProcessor]);
+		$this->subject->get($configuration, $identifier);
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function getSetsConverters() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class,
+			['setTarget', 'setSource'], [], '', FALSE
+		);
+
+		$identifier = 'bar';
+		$processorClass = ConverterInterface::class;
+		$singleConfiguration = [
+			'class' => $processorClass,
+			'config' => ['foo']
+		];
+		$configuration = [
+			'converters' => [
+				'1' => $singleConfiguration
+			]
+		];
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setConverters']
+		);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get'], [], '', FALSE);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$mockConverter = $this->getMockForAbstractClass(
+			$processorClass, ['setConfiguration']
+		);
+		$mockConverter->expects($this->once())
+			->method('setConfiguration')
+			->with($singleConfiguration);
+		$mockConverterFactory = $this->getMock(
+			ConverterFactory::class, ['get']
+		);
+		$this->subject->injectConverterFactory($mockConverterFactory);
+		$mockConverterFactory->expects($this->once())
+			->method('get')
+			->with($singleConfiguration, $identifier)
+			->will($this->returnValue($mockConverter));
+		$mockTask->expects($this->once())
+			->method('setConverters')
+			->with(['1' => $mockConverter]);
+		$this->subject->get($configuration, $identifier);
 	}
 
 }

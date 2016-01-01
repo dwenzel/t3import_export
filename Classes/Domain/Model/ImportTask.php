@@ -58,6 +58,21 @@ class ImportTask
 	protected $target;
 
 	/**
+	 * @var array
+	 */
+	protected $preProcessors = [];
+
+	/**
+	 * @var array
+	 */
+	protected $postProcessors = [];
+
+	/**
+	 * @var array
+	 */
+	protected $converters = [];
+
+	/**
 	 * @return string
 	 */
 	public function getDescription() {
@@ -119,6 +134,48 @@ class ImportTask
 	 */
 	public function setTarget(DataTargetInterface $target) {
 		$this->target = $target;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPreProcessors() {
+		return $this->preProcessors;
+	}
+
+	/**
+	 * @param array $preProcessors
+	 */
+	public function setPreProcessors($preProcessors) {
+		$this->preProcessors = $preProcessors;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPostProcessors() {
+		return $this->postProcessors;
+	}
+
+	/**
+	 * @param array $postProcessors
+	 */
+	public function setPostProcessors($postProcessors) {
+		$this->postProcessors = $postProcessors;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getConverters() {
+		return $this->converters;
+	}
+
+	/**
+	 * @param array $converters
+	 */
+	public function setConverters($converters) {
+		$this->converters = $converters;
 	}
 
 }

@@ -138,4 +138,71 @@ class ImportTaskTest extends UnitTestCase {
 			$this->subject->getSource()
 		);
 	}
+
+	/**
+	 * @test
+	 */
+	public function getPreProcessorsInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getPreProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function preProcessorsCanBeSet() {
+		$processors = ['foo'];
+		$this->subject->setPreProcessors($processors);
+		$this->assertSame(
+			$processors,
+			$this->subject->getPreProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getPostProcessorsInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getPostProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function postProcessorsCanBeSet() {
+		$processors = ['foo'];
+		$this->subject->setPostProcessors($processors);
+		$this->assertSame(
+			$processors,
+			$this->subject->getPostProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getConvertersInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getConverters()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function convertersCanBeSet() {
+		$processors = ['foo'];
+		$this->subject->setConverters($processors);
+		$this->assertSame(
+			$processors,
+			$this->subject->getConverters()
+		);
+	}
+
 }
