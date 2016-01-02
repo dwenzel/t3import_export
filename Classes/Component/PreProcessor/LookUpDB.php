@@ -25,13 +25,15 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  ***************************************************************/
 
 /**
- * Class AbstractLookUpDB
+ * Class LookUpDB
  * Base class for database look up.
  * Children must implement PreProcessorInterface
  *
  * @package CPSIT\T3import\PreProcessor
  */
-abstract class AbstractLookUpDB extends AbstractPreProcessor {
+abstract class LookUpDB
+	extends AbstractPreProcessor
+	implements PreProcessorInterface {
 
 	/**
 	 * @var \CPSIT\T3import\Service\DatabaseConnectionService
@@ -44,10 +46,50 @@ abstract class AbstractLookUpDB extends AbstractPreProcessor {
 	protected $database;
 
 	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		if (!$this->database instanceof DatabaseConnection) {
+			$this->database = $GLOBALS['TYPO3_DB'];
+		}
+	}
+
+	/**
 	 * @param \CPSIT\T3import\Service\DatabaseConnectionService $dbConnectionService
 	 */
 	public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService) {
 		$this->connectionService = $dbConnectionService;
+	}
+
+	/**
+	 * Tells if a given configuration is valid
+	 *
+	 * @param array $configuration
+	 * @return bool
+	 */
+	public function isConfigurationValid(array $configuration) {
+		if (!isset($configuration['select'])
+			OR !is_array($configuration['select'])
+		) {
+			return FALSE;
+		}
+		if (!isset($configuration['select']['table'])
+			OR !is_string(($configuration['select']['table']))
+		) {
+			return FALSE;
+		}
+		if (isset($configuration['identifier'])
+			AND !is_string($configuration['identifier'])
+		) {
+			return FALSE;
+		}
+		if (isset($configuration['identifier'])
+			AND !$this->connectionService->isRegistered($configuration['identifier'])
+		) {
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 
 	/**

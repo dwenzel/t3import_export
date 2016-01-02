@@ -17,7 +17,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# match existing persons
 			1 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {

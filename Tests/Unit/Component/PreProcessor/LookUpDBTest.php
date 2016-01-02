@@ -1,7 +1,10 @@
 <?php
-namespace CPSIT\T3import\Tests\PreProcessor;
+namespace CPSIT\T3import\Tests\Unit\Component\PreProcessor;
 
+use CPSIT\T3import\Component\PreProcessor\LookUpDB;
+use CPSIT\T3import\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -22,21 +25,58 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
  ***************************************************************/
 
 /**
- * Class LookUpSourceDBTest
+ * Class LookUpDBTest
  *
  * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\LookUpSourceDB
+ * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\LookUpDB
  */
-class LookUpSourceDBTest extends BaseTestCase {
+class LookUpDBTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PreProcessor\LookUpSourceDB
+	 * @var \CPSIT\T3import\Component\PreProcessor\LookUpDB
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PreProcessor\\LookUpSourceDB',
+		$this->subject = $this->getAccessibleMock(LookUpDB::class,
+			['getQueryConfiguration'], [], '', FALSE);
+	}
+
+	/**
+	 * @test
+	 * @covers ::injectDatabaseConnectionService
+	 */
+	public function injectDatabaseConnectionServiceForObjectSetsConnectionService() {
+		/** @var DatabaseConnectionService $expectedConnectionService */
+		$expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
 			['dummy'], [], '', FALSE);
+
+		$this->subject->injectDatabaseConnectionService($expectedConnectionService);
+
+		$this->assertSame(
+			$expectedConnectionService,
+			$this->subject->_get('connectionService')
+		);
+	}
+
+
+	/**
+	 * @test
+	 */
+	public function processSetsDatabase() {
+		$configuration = [
+			'identifier' => 'fooDatabase'
+		];
+		/** @var DatabaseConnectionService $connectionService */
+		$connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+			['getDatabase'], [], '', FALSE);
+		$connectionService->expects($this->once())
+			->method('getDatabase')
+			->with($configuration['identifier']);
+		$record = [];
+		$this->subject->injectDatabaseConnectionService($connectionService);
+
+		$this->subject->process($configuration, $record);
 	}
 
 	/**
@@ -96,7 +136,8 @@ class LookUpSourceDBTest extends BaseTestCase {
 	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsTrueForValidConfiguration() {
-		$mockConnectionService = $this->getAccessibleMock('CPSIT\\T3import\\Service\\DatabaseConnectionService',
+		/** @var DatabaseConnectionService $mockConnectionService */
+		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
 			['isRegistered'], [], '', FALSE);
 
 		$mockConnectionService->expects($this->once())
@@ -119,8 +160,9 @@ class LookUpSourceDBTest extends BaseTestCase {
 	 * @test
 	 * @covers ::isConfigurationValid
 	 */
-	public function isConfigurationValidReturnsFalseForMissingIdentifier() {
+	public function isConfigurationValidReturnsFalseForInvalidIdentifier() {
 		$mockConfiguration = [
+			'identifier' => [],
 			'select' => [
 				'table' => 'fooTable'
 			],
@@ -135,7 +177,8 @@ class LookUpSourceDBTest extends BaseTestCase {
 	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
-		$mockConnectionService = $this->getAccessibleMock('CPSIT\\T3import\\Service\\DatabaseConnectionService',
+		/** @var DatabaseConnectionService $mockConnectionService */
+		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
 			['isRegistered'], [], '', FALSE);
 
 		$mockConnectionService->expects($this->once())

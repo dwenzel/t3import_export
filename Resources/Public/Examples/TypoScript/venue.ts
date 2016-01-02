@@ -16,7 +16,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# look up existing event location
 			1 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = zewId
 					select {
@@ -53,7 +53,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match existing event location
 			3 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {

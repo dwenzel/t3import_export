@@ -99,7 +99,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up related records from remote database
 			3 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					select {
@@ -121,7 +121,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match records with local records
 			4 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = event_type
 					select {
@@ -143,7 +143,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up related records from remote database
 			5 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					disable = TEXT
 					disable {
@@ -170,7 +170,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			# relation between event and speaker
 			# speaker = referent2veranstaltung (referent is in mitarbeiter)
 			6 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					targetField = speakers_employee
@@ -192,7 +192,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			# relation between event and speaker
 			# speaker = referent2veranstaltung (referent is in verantwortlicher)
 			7 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					targetField = speakers_responsible
@@ -213,7 +213,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up existing person
 			8 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = speakers_employee
 					select {
@@ -240,7 +240,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up existing person
 			9 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = speakers_responsible
 					select {
@@ -275,7 +275,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# lookup existing events
 			11 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {
@@ -310,7 +310,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# get relation to department from source db
 			14 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					targetField = departments
@@ -331,7 +331,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# lookup and map to existing local department
 			15 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = departments
 					select {
