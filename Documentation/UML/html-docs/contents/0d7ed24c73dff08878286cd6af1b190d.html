@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>AbstractLookUpDB</title>
+        <title>LookUpDB</title>
         <!-- <script src="http://use.edgefonts.net/source-sans-pro;source-code-pro.js"></script> -->
 <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic|Source+Code+Pro:300,400,700' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="../assets/css/bootstrap.css">
@@ -20,7 +20,7 @@
 
             <!-- Name Title -->
 
-            <h1>AbstractLookUpDB</h1>
+            <h1>LookUpDB</h1>
 
             <!-- Type and Stereotype -->
 
@@ -51,7 +51,7 @@
                     <span class="label label-info"><a href='41b57502017e749ea7b9743a233b5f3a.html'><span class='node-icon _icon-UMLPackage'></span>PreProcessor</a></span>
                 
                     <span>::</span>
-                    <span class="label label-info"><a href='0d7ed24c73dff08878286cd6af1b190d.html'><span class='node-icon _icon-UMLClass'></span>AbstractLookUpDB</a></span>
+                    <span class="label label-info"><a href='0d7ed24c73dff08878286cd6af1b190d.html'><span class='node-icon _icon-UMLClass'></span>LookUpDB</a></span>
                 
             </section>
 
@@ -102,21 +102,19 @@
 
                 
                 
+
+
+                
+                
 <section class="element-list">
-    <h3>Specialized Elements</h3>
+    <h3>Interfaces</h3>
     <ul class="nav nav-list">
         
-        <li><a href='db59e467065a48ed9537b85bb8610d92.html'><span class='node-icon _icon-UMLClass'></span>LookUpLocalDB</a></li>
-        
-        <li><a href='4c4d79da930d64307bf992fb32b5b564.html'><span class='node-icon _icon-UMLClass'></span>LookUpSourceDB</a></li>
+        <li><a href='2b2d3eb8b98ce7c06cf5b08e5f20e349.html'><span class='node-icon _icon-UMLInterface'></span>PreProcessorInterface</a></li>
         
     </ul>
 </section>
 
-
-
-                
-                
 
 
                 
@@ -240,7 +238,7 @@
     
     <tr>
         <td>name</td>
-        <td>AbstractLookUpDB</td>
+        <td>LookUpDB</td>
     </tr>
     
     
@@ -283,7 +281,7 @@
     
     <tr>
         <td>isAbstract</td>
-        <td><span class='label label-info'>true</span></td>
+        <td><span class='label label-info'>false</span></td>
     </tr>
     
     
@@ -332,6 +330,15 @@
 
                 
                 
+<section class="element-list">
+    <h3>Dependencies</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='2b2d3eb8b98ce7c06cf5b08e5f20e349.html'><span class='node-icon _icon-UMLInterface'></span>PreProcessorInterface</a></li>
+        
+    </ul>
+</section>
+
 
 
                 
@@ -347,11 +354,9 @@
     <h3>Relationships</h3>
     <ul class="nav nav-list">
         
-        <li><a href='810e6d69de973c98656508e6da3de94e.html'><span class='node-icon _icon-UMLGeneralization'></span>(AbstractLookUpDB→AbstractPreProcessor)</a></li>
+        <li><a href='810e6d69de973c98656508e6da3de94e.html'><span class='node-icon _icon-UMLGeneralization'></span>(LookUpDB→AbstractPreProcessor)</a></li>
         
-        <li><a href='8a3d1570fb9ffa03cacb24995a3deef6.html'><span class='node-icon _icon-UMLGeneralization'></span>(LookUpLocalDB→AbstractLookUpDB)</a></li>
-        
-        <li><a href='3bc37faabdf046359ad24af7a9b97a51.html'><span class='node-icon _icon-UMLGeneralization'></span>(LookUpSourceDB→AbstractLookUpDB)</a></li>
+        <li><a href='0c34df26bd5faf9b5aa90ee717a362aa.html'><span class='node-icon _icon-UMLInterfaceRealization'></span>(LookUpDB→PreProcessorInterface)</a></li>
         
     </ul>
 </section>
@@ -366,7 +371,9 @@
     <h3>Owned Elements</h3>
     <ul class="nav nav-list">
         
-        <li><a href='810e6d69de973c98656508e6da3de94e.html'><span class='node-icon _icon-UMLGeneralization'></span>(AbstractLookUpDB→AbstractPreProcessor)</a></li>
+        <li><a href='810e6d69de973c98656508e6da3de94e.html'><span class='node-icon _icon-UMLGeneralization'></span>(LookUpDB→AbstractPreProcessor)</a></li>
+        
+        <li><a href='0c34df26bd5faf9b5aa90ee717a362aa.html'><span class='node-icon _icon-UMLInterfaceRealization'></span>(LookUpDB→PreProcessorInterface)</a></li>
         
     </ul>
 </section>

@@ -167,14 +167,14 @@
                     
                     <tr>
                         <td>protected</td>
-                        <td><a href="ff855de37e2b9635cebf9f75e5793ee6.html">dataSource</a></td>
+                        <td><a href="ff855de37e2b9635cebf9f75e5793ee6.html">source</a></td>
                         <td><a href='2599a962ba1ebd53f953c4e5adc553ae.html'>DataSourceInterface</a></td>
                         <td><p>Source of the records to import.</p></td>
                     </tr>
                     
                     <tr>
                         <td>public</td>
-                        <td><a href="0f46c61bd5775becff0ed4f33c576838.html">dataTarget</a></td>
+                        <td><a href="0f46c61bd5775becff0ed4f33c576838.html">target</a></td>
                         <td><a href='2a023568fd5894586fca508fb9ba66d3.html'>DataTargetInterface</a></td>
                         <td></td>
                     </tr>
@@ -187,17 +187,17 @@
                     </tr>
                     
                     <tr>
-                        <td>protected</td>
-                        <td><a href="bbb979e3a6918557780597f5425f5709.html">postProcessors</a></td>
-                        <td><a href='e3faa8d7218ec71c1316af6e0912a07a.html'>PostProcessorInterface</a></td>
-                        <td><p>Post  processors to apply after persisting the record. Use either predefined processors or define your own.</p></td>
+                        <td>public</td>
+                        <td><a href="cd81c0a7e033cf626b1560fc883b7291.html">converters</a></td>
+                        <td><a href='295a1237d821560fa79366146c427a0d.html'>ConverterInterface</a></td>
+                        <td></td>
                     </tr>
                     
                     <tr>
                         <td>protected</td>
-                        <td><a href="6dd4baec6f10bf65a63b00d54ebbfaec.html">sourceConfiguration</a></td>
-                        <td><a href='c53fdb17576ead2ba568934de44ee4b5.html'>array</a></td>
-                        <td></td>
+                        <td><a href="bbb979e3a6918557780597f5425f5709.html">postProcessors</a></td>
+                        <td><a href='e3faa8d7218ec71c1316af6e0912a07a.html'>PostProcessorInterface</a></td>
+                        <td><p>Post  processors to apply after persisting the record. Use either predefined processors or define your own.</p></td>
                     </tr>
                     
                     <tr>
@@ -225,7 +225,31 @@
                     
                     <tr>
                         <td>public</td>
-                        <td><a href="d4be212cac912b36cacff4a33a0a0a1f.html">getIdentifier()</a></td>
+                        <td><a href="d4be212cac912b36cacff4a33a0a0a1f.html">getIdentifier(): string</a></td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="7e0cfbe0c0a12e9c3c448171b86716f9.html">getTarget(): DataTargetInterface</a></td>
+                        <td><p>Gets the target of import</p></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="1d07d764170e9cabba3a57ff34bf8deb.html">getSource(): DataSourceInterface</a></td>
+                        <td><p>Gets the source of import</p></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="1b8eca898a7d89fe011beb9b21573bd0.html">setTarget(target: DataTargetInterface)</a></td>
+                        <td><p>Sets the target of import</p></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>public</td>
+                        <td><a href="707632b0aa74cce12f0b5f1334b2ff57.html">setSource(source: DataSourceInterface)</a></td>
                         <td></td>
                     </tr>
                     

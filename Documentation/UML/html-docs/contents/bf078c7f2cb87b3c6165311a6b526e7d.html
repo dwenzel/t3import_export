@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>source</title>
+        <title>AbstractConverter</title>
         <!-- <script src="http://use.edgefonts.net/source-sans-pro;source-code-pro.js"></script> -->
 <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic|Source+Code+Pro:300,400,700' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="../assets/css/bootstrap.css">
@@ -20,17 +20,15 @@
 
             <!-- Name Title -->
 
-            <h1>source</h1>
+            <h1>AbstractConverter</h1>
 
             <!-- Type and Stereotype -->
 
             <section style="margin-top: .5em;">
                 <span class="alert alert-info">
-                    <span class="node-icon _icon-UMLAttribute"></span>
-                    UMLAttribute
+                    <span class="node-icon _icon-UMLClass"></span>
+                    UMLClass
                 </span>
-                
-                    <span style="margin-left: 10px" class="alert alert-info">«»</span>
                 
             </section>
 
@@ -47,16 +45,13 @@
                     <span class="label label-info"><a href='f7749c445f178bd0d2ba34f2032339d5.html'><span class='node-icon _icon-UMLModel'></span>T3importExport</a></span>
                 
                     <span>::</span>
-                    <span class="label label-info"><a href='3dd7f3bc58eff91856fabb70957f0c60.html'><span class='node-icon _icon-UMLPackage'></span>Domain</a></span>
+                    <span class="label label-info"><a href='bee7a9dde3b26005e2164eacff78488c.html'><span class='node-icon _icon-UMLPackage'></span>Component</a></span>
                 
                     <span>::</span>
-                    <span class="label label-info"><a href='7f7ea9ae8bf8cee28b6dc03c11b02b47.html'><span class='node-icon _icon-UMLPackage'></span>Model</a></span>
+                    <span class="label label-info"><a href='f6b33c170c4f2813bf7d55ca7d87b728.html'><span class='node-icon _icon-UMLPackage'></span>Converter</a></span>
                 
                     <span>::</span>
-                    <span class="label label-info"><a href='424dbf45e4edaf841eb8fffe9ccc89ef.html'><span class='node-icon _icon-UMLClass'></span>ImportTask</a></span>
-                
-                    <span>::</span>
-                    <span class="label label-info"><a href='ff855de37e2b9635cebf9f75e5793ee6.html'><span class='node-icon _icon-UMLAttribute'></span>source</a></span>
+                    <span class="label label-info"><a href='bf078c7f2cb87b3c6165311a6b526e7d.html'><span class='node-icon _icon-UMLClass'></span>AbstractConverter</a></span>
                 
             </section>
 
@@ -71,7 +66,7 @@
                 <h3>Description</h3>
                 <div>
                     
-                        <p>Source of the records to import.</p>
+                        <span class="label label-info">none</span>
                     
                 </div>
             </section>
@@ -90,6 +85,44 @@
             
 
             <!-- Classifier -->
+
+            
+                
+                
+<section class="element-list">
+    <h3>Generalized Elements</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='ef301f39c2b2f206a0b9ac6bc1428dc5.html'><span class='node-icon _icon-UMLClass'></span>AbstractComponent</a></li>
+        
+    </ul>
+</section>
+
+
+
+                
+                
+<section class="element-list">
+    <h3>Specialized Elements</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='bcfa698ed180ccab4f8d483a82cf06be.html'><span class='node-icon _icon-UMLClass'></span>ArrayToDomainObject</a></li>
+        
+    </ul>
+</section>
+
+
+
+                
+                
+
+
+                
+                
+
+
+                
+                
 
             
 
@@ -205,7 +238,7 @@
     
     <tr>
         <td>name</td>
-        <td>source</td>
+        <td>AbstractConverter</td>
     </tr>
     
     
@@ -220,7 +253,7 @@
     
     <tr>
         <td>stereotype</td>
-        <td></td>
+        <td><span class='label label-info'>null</span></td>
     </tr>
     
     
@@ -229,7 +262,7 @@
     
     <tr>
         <td>visibility</td>
-        <td>protected</td>
+        <td>public</td>
     </tr>
     
     
@@ -238,8 +271,25 @@
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
     <tr>
-        <td>isStatic</td>
+        <td>isAbstract</td>
+        <td><span class='label label-info'>false</span></td>
+    </tr>
+    
+    
+    
+    
+    
+    <tr>
+        <td>isFinalSpecialization</td>
         <td><span class='label label-info'>false</span></td>
     </tr>
     
@@ -257,79 +307,7 @@
     
     
     <tr>
-        <td>type</td>
-        <td><a href='2599a962ba1ebd53f953c4e5adc553ae.html'><span class='node-icon _icon-UMLInterface'></span>DataSourceInterface</a></td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>multiplicity</td>
-        <td>1</td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>isReadOnly</td>
-        <td><span class='label label-info'>false</span></td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>isOrdered</td>
-        <td><span class='label label-info'>false</span></td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>isUnique</td>
-        <td><span class='label label-info'>false</span></td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>defaultValue</td>
-        <td></td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>isDerived</td>
-        <td><span class='label label-info'>false</span></td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>aggregation</td>
-        <td>none</td>
-    </tr>
-    
-    
-    
-    
-    
-    <tr>
-        <td>isID</td>
+        <td>isActive</td>
         <td><span class='label label-info'>false</span></td>
     </tr>
     
@@ -363,12 +341,32 @@
 
             
             
+<section class="element-list">
+    <h3>Relationships</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='8faeb76d23660e491a754359ecb11439.html'><span class='node-icon _icon-UMLGeneralization'></span>extends (ArrayToDomainObject→AbstractConverter)</a></li>
+        
+        <li><a href='458e9258b91f0720dfd8b7d02a6a1e28.html'><span class='node-icon _icon-UMLGeneralization'></span>extends (AbstractConverter→AbstractComponent)</a></li>
+        
+    </ul>
+</section>
+
 
 
             <!-- Owned Elements -->
 
             
             
+<section class="element-list">
+    <h3>Owned Elements</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='458e9258b91f0720dfd8b7d02a6a1e28.html'><span class='node-icon _icon-UMLGeneralization'></span>extends (AbstractConverter→AbstractComponent)</a></li>
+        
+    </ul>
+</section>
+
 
 
         </div>
