@@ -85,11 +85,13 @@ class DataSourceFactory extends AbstractFactory {
 			/** @var IdentifiableInterface $dataSource */
 			$dataSource = $this->objectManager->get($dataSourceClass);
 			$dataSource->setIdentifier($settings['identifier']);
-
-			return $dataSource;
+		} else {
+			$dataSource = $this->objectManager->get($dataSourceClass);
 		}
+		$dataSource->setConfiguration(
+			$settings['config']
+		);
 
-		$dataSource = $this->objectManager->get($dataSourceClass);
 		return $dataSource;
 	}
 }

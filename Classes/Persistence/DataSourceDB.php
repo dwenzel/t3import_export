@@ -83,19 +83,33 @@ class DataSourceDB
 	 * @return array Array of records from database or empty array
 	 */
 	public function getRecords(array $configuration) {
+		$queryConfiguration = [
+			'fields' => '*',
+			'where' => '',
+			'groupBy' => '',
+			'orderBy' => '',
+			'limit' => ''
+		];
+		ArrayUtility::mergeRecursiveWithOverrule(
+			$queryConfiguration,
+			$configuration,
+			TRUE,
+			FALSE
+		);
+
 		$records = $this->getDatabase()->exec_SELECTgetRows(
-			$configuration['fields'],
-			$configuration['table'],
-			$configuration['where'],
-			$configuration['groupBy'],
-			$configuration['orderBy'],
-			$configuration['limit']
+			$queryConfiguration['fields'],
+			$queryConfiguration['table'],
+			$queryConfiguration['where'],
+			$queryConfiguration['groupBy'],
+			$queryConfiguration['orderBy'],
+			$queryConfiguration['limit']
 		);
 		if ($records !== null) {
 			return $records;
-		} else {
-			return [];
 		}
+
+		return [];
 	}
 
 	/**

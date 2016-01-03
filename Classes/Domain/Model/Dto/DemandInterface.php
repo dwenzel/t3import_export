@@ -24,13 +24,12 @@ namespace CPSIT\T3import\Domain\Model\Dto;
  */
 interface DemandInterface {
 	/**
-	 * @return mixed
+	 * @return array
 	 */
 	public function getTasks();
 
 	/**
 	 * @param array $tasks
-	 * @return mixed
 	 */
 	public function setTasks(array $tasks);
 }

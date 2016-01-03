@@ -82,22 +82,25 @@ class ImportController extends ActionController {
 	}
 
 	/**
-	 * Import
+	 * Import task action
 	 *
-	 * @param string $task
+	 * @param string $identifier
 	 */
-	public function importTaskAction($task) {
+	public function importTaskAction($identifier) {
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
 		);
+		$task = $this->importTaskFactory->get(
+			$this->settings['importProcessor']['tasks'][$identifier], $identifier
+		);
 		$importDemand->setTasks([$task]);
 
 		$this->importProcessor->buildQueue($importDemand);
-		$result = $this->importProcessor->process();
+		$result = $this->importProcessor->process($importDemand);
 		$this->view->assignMultiple(
 			[
-				'task' => $task,
+				'task' => $identifier,
 				'result' => $result
 			]
 		);
