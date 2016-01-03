@@ -48,7 +48,7 @@ interface PostProcessorInterface {
 	 * @param array $configuration
 	 * @return mixed
 	 */
-	public function setConfiguration($configuration);
+	public function setConfiguration(array $configuration);
 
 	/**
 	 * Returns the configuration
