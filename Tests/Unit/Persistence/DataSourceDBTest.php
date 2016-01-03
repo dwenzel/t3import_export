@@ -156,4 +156,39 @@ class DataSourceDBTest extends UnitTestCase {
 		);
 
 	}
+
+	/**
+	 * @test
+	 */
+	public function isConfigurationValidReturnsFalseForMissingTable() {
+		$configuration = [];
+		$this->assertFalse(
+			$this->subject->isConfigurationValid($configuration)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function isConfigurationValidReturnsFalseForInvalidTable() {
+		$configuration = [
+			'table' => []
+		];
+		$this->assertFalse(
+			$this->subject->isConfigurationValid($configuration)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function isConfigurationValidReturnsTrueForValidConfiguration() {
+		$configuration = [
+			'table' => 'foo'
+		];
+		$this->assertTrue(
+			$this->subject->isConfigurationValid($configuration)
+		);
+	}
+
 }

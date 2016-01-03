@@ -1,6 +1,8 @@
 <?php
 namespace CPSIT\T3import\Tests\Unit\Persistence\Factory;
 
+use CPSIT\T3import\ConfigurableInterface;
+use CPSIT\T3import\ConfigurableTrait;
 use CPSIT\T3import\IdentifiableInterface;
 use CPSIT\T3import\IdentifiableTrait;
 use CPSIT\T3import\Persistence\DataSourceInterface;
@@ -39,15 +41,15 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
  */
 class DummyMissingSourceInterfaceClass {}
+
 /**
- * Class DummyIdentifiableSourceInterfaceClass
+ * Class DummyMissingConfigurableInterfaceClass
  *
  * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
  */
-class DummyIdentifiableSourceInterfaceClass
-	implements DataSourceInterface, IdentifiableInterface {
+class DummyMissingConfigurableInterfaceClass
+	{
 	use IdentifiableTrait;
-
 	/**
 	 * Fake method matches DataSourceInterface
 	 *
@@ -59,12 +61,14 @@ class DummyIdentifiableSourceInterfaceClass
 	}
 }
 /**
- * Class DummySourceInterfaceClass
+ * Class DummyIdentifiableSourceInterfaceClass
  *
  * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
  */
-class DummySourceClass
-	implements DataSourceInterface {
+class DummyIdentifiableSourceInterfaceClass
+	implements DataSourceInterface, IdentifiableInterface {
+	use IdentifiableTrait, ConfigurableTrait;
+
 	/**
 	 * Fake method matches DataSourceInterface
 	 *
@@ -74,6 +78,45 @@ class DummySourceClass
 	public function getRecords(array $configuration) {
 		return [];
 	}
+
+	/**
+	 * Fake method matches abstract method in ConfigurableInterface
+	 *
+	 * @param array $configuration
+	 * @return bool
+	 */
+	public function isConfigurationValid(array $configuration) {
+		return true;
+	}
+}
+/**
+ * Class DummySourceInterfaceClass
+ *
+ * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
+ */
+class DummySourceClass
+	implements DataSourceInterface {
+	use ConfigurableTrait;
+
+	/**
+	 * Fake method matches DataSourceInterface
+	 *
+	 * @param array $configuration
+	 * @return array
+	 */
+	public function getRecords(array $configuration) {
+		return [];
+	}
+	/**
+	 * Fake method matches abstract method in ConfigurableInterface
+	 *
+	 * @param array $configuration
+	 * @return bool
+	 */
+	public function isConfigurationValid(array $configuration) {
+		return true;
+	}
+
 }
 /**
  * Class DataSourceFactoryTest
@@ -99,7 +142,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Persistence\MissingClassException
+	 * @expectedException \CPSIT\T3import\MissingClassException
 	 * @expectedExceptionCode 1451060913
 	 */
 	public function getThrowsExceptionForMissingSourceClass() {
@@ -112,10 +155,10 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @expectedException \CPSIT\T3import\MissingInterfaceException
 	 * @expectedExceptionCode 1451061361
 	 */
-	public function getThrowsExceptionForMissingInterface() {
+	public function getThrowsExceptionForMissingDataSourceInterface() {
 		$identifier = 'foo';
 		$settings = [
 			'class' => DummyMissingSourceInterfaceClass::class
@@ -125,7 +168,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451083802
 	 */
 	public function getThrowsExceptionIfIdentifierIsNotSetForIdentifiableSource() {
@@ -139,7 +182,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451086595
 	 */
 	public function getThrowsExceptionForMissingConfig() {
@@ -234,5 +277,33 @@ class DataSourceFactoryTest extends UnitTestCase {
 			$expectedDataSource,
 			$this->subject->get($settings, $identifier)
 		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getSetsConfiguration() {
+		$identifier = 'foo';
+		$dataSourceClass = DummySourceClass::class;
+		$mockDataSource = $this->getMock(
+			$dataSourceClass
+		);
+		$settings = [
+			'class' => $dataSourceClass,
+			'config' => []
+		];
+		$mockDataSource->expects($this->once())
+			->method('setConfiguration')
+			->with($settings['config']);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class, ['get']
+		);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with($dataSourceClass)
+			->will($this->returnValue($mockDataSource));
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$this->subject->get($settings, $identifier);
 	}
 }

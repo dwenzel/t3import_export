@@ -81,7 +81,7 @@ class PostProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1447864207
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -92,7 +92,7 @@ class PostProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1447864223
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -106,7 +106,7 @@ class PostProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1447864243
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementPostProcessorInterface() {

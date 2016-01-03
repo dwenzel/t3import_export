@@ -312,7 +312,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451146126
 	 */
 	public function isConfigurationValidThrowsExceptionIfTargetClassIsNotSet() {
@@ -322,7 +322,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451146384
 	 */
 	public function isConfigurationValidThrowsExceptionIfTargetClassIsNotString() {
@@ -334,7 +334,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Persistence\MissingClassException
+	 * @expectedException \CPSIT\T3import\MissingClassException
 	 * @expectedExceptionCode 1451146564
 	 */
 	public function isConfigurationValidThrowsExceptionIfTargetClassDoesNotExist() {
@@ -346,7 +346,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451146869
 	 */
 	public function isConfigurationValidThrowsExceptionIfAllowPropertiesIsNotString() {
@@ -359,7 +359,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451147517
 	 */
 	public function isConfigurationValidThrowsExceptionIfPropertiesIsNotArray() {
@@ -396,7 +396,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451157586
 	 */
 	public function validatePropertyConfigurationRecursiveThrowsExceptionIfMaxItemsIsNotSet() {

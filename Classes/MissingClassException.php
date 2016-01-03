@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Persistence;
+namespace CPSIT\T3import;
  
  /***************************************************************
  *
@@ -25,4 +25,4 @@ namespace CPSIT\T3import\Persistence;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class MissingInterfaceException extends  \Exception {}
+class MissingClassException extends \Exception {}

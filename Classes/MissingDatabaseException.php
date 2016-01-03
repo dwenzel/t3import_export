@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Service;
+namespace CPSIT\T3import;
 
 /***************************************************************
  *  Copyright notice

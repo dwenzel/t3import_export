@@ -1,10 +1,13 @@
 <?php
 namespace CPSIT\T3import\Persistence;
 
+use CPSIT\T3import\ConfigurableInterface;
+use CPSIT\T3import\ConfigurableTrait;
 use CPSIT\T3import\IdentifiableInterface;
 use CPSIT\T3import\IdentifiableTrait;
 use CPSIT\T3import\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
  *
@@ -32,7 +35,7 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  ***************************************************************/
 class DataSourceDB
 	implements DataSourceInterface, IdentifiableInterface {
-	use IdentifiableTrait;
+	use IdentifiableTrait, ConfigurableTrait;
 
 	/**
 	 * @var \CPSIT\T3import\Service\DatabaseConnectionService
@@ -63,7 +66,7 @@ class DataSourceDB
 	 * Gets the database connection
 	 *
 	 * @return DatabaseConnection
-	 * @throws \CPSIT\T3import\Service\MissingDatabaseException
+	 * @throws \CPSIT\T3import\MissingDatabaseException
 	 */
 	public function getDatabase() {
 		if (!$this->database instanceof DatabaseConnection) {
@@ -93,5 +96,19 @@ class DataSourceDB
 		} else {
 			return [];
 		}
+	}
+
+	/**
+	 * Tells if a given configuration is valid
+	 *
+	 * @param array $configuration
+	 * @return bool
+	 */
+	public function isConfigurationValid(array $configuration) {
+		if (!isset($configuration['table'])
+			OR !is_string($configuration['table'])) {
+			return false;
+		}
+		return true;
 	}
 }

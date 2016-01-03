@@ -69,7 +69,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Persistence\MissingClassException
+	 * @expectedException \CPSIT\T3import\MissingClassException
 	 * @expectedExceptionCode 1451043513
 	 */
 	public function getThrowsExceptionForMissingTargetClass() {
@@ -82,7 +82,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @expectedException \CPSIT\T3import\MissingInterfaceException
 	 * @expectedExceptionCode 1451045997
 	 */
 	public function getThrowsExceptionForMissingInterface() {
@@ -95,7 +95,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451043340
 	 */
 	public function getThrowsExceptionIfObjectClassIsNotSet() {
@@ -106,7 +106,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Persistence\MissingClassException
+	 * @expectedException \CPSIT\T3import\MissingClassException
 	 * @expectedExceptionCode 1451043367
 	 */
 	public function getThrowsExceptionForMissingObjectClass() {

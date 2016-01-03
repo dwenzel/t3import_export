@@ -11,8 +11,8 @@ use CPSIT\T3import\Domain\Model\ImportTask;
 use CPSIT\T3import\Factory\AbstractFactory;
 use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3import\Persistence\MissingClassException;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\MissingClassException;
+use CPSIT\T3import\InvalidConfigurationException;
 
 /***************************************************************
  *  Copyright notice
@@ -117,8 +117,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param string $identifier
 	 * @return ImportTask
 	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
-	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @throws \CPSIT\T3import\MissingClassException
+	 * @throws \CPSIT\T3import\MissingInterfaceException
 	 */
 	public function get(array $settings, $identifier = null) {
 		/** @var ImportTask $task */
@@ -164,8 +164,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
-	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @throws \CPSIT\T3import\MissingClassException
+	 * @throws \CPSIT\T3import\MissingInterfaceException
 	 */
 	protected function setTarget(&$task, array $settings, $identifier) {
 		if (!isset($settings['target'])
@@ -195,8 +195,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
-	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @throws \CPSIT\T3import\MissingClassException
+	 * @throws \CPSIT\T3import\MissingInterfaceException
 	 */
 	protected function setSource(&$task, array $settings, $identifier) {
 		if (!isset($settings['source'])
@@ -247,7 +247,7 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param ImportTask $task
 	 * @param array $settings
 	 * @param string $identifier
-	 * @throws InvalidConfigurationException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 */
 	protected function setPostProcessors(&$task, array $settings, $identifier) {
 		$postProcessors = [];

@@ -1,6 +1,8 @@
 <?php
 namespace CPSIT\T3import\Persistence;
 
+use CPSIT\T3import\ConfigurableInterface;
+use CPSIT\T3import\ConfigurableTrait;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -31,7 +33,8 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataTargetRepository implements DataTargetInterface {
+class DataTargetRepository
+	implements DataTargetInterface {
 
 	/**
 	 * Fully qualified class name of the object which should be persisted.

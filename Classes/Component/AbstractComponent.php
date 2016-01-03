@@ -1,7 +1,8 @@
 <?php
 namespace CPSIT\T3import\Component;
 
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\ConfigurableTrait;
+use CPSIT\T3import\InvalidConfigurationException;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
@@ -25,6 +26,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 abstract class AbstractComponent {
+	use ConfigurableTrait;
 
 	/**
 	 * @var ContentObjectRenderer
@@ -35,14 +37,6 @@ abstract class AbstractComponent {
 	 * @var TypoScriptService
 	 */
 	protected $typoScriptService;
-
-	/**
-	 * Configuration for this component
-	 * A plain TypoScript array
-	 *
-	 * @var array
-	 */
-	protected $configuration;
 
 	/**
 	 * injects the contentObjectRenderer
@@ -116,37 +110,4 @@ abstract class AbstractComponent {
 		return NULL;
 	}
 
-	/**
-	 * Tells if a given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	abstract public function isConfigurationValid(array $configuration);
-
-	/**
-	 * @return array
-	 */
-	public function getConfiguration() {
-		return $this->configuration;
-	}
-
-	/**
-	 * Sets the configuration if it is valid.
-	 * Throws an exception otherwise.
-	 *
-	 * @param array $configuration
-	 * @throws InvalidConfigurationException
-	 */
-	public function setConfiguration($configuration) {
-		if ($this->isConfigurationValid($configuration)) {
-			$this->configuration = $configuration;
-		} else {
-			throw new InvalidConfigurationException(
-				'Configuration for ' . __CLASS__
-				. ' is not valid.',
-				1451659793
-			);
-		}
-	}
 }
