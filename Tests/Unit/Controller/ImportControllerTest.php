@@ -1,6 +1,8 @@
 <?php
 namespace CPSIT\T3import\Tests\Controller;
 
+use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3import\Domain\Model\ImportTask;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Fluid\View\TemplateView;
@@ -60,6 +62,27 @@ class ImportControllerTest extends UnitTestCase {
 	 * @covers ::importTaskAction
 	 */
 	public function importTaskActionBuildsAndProcessQueueAndAssignsVariables() {
+		$identifier = 'foo';
+		$settings = [
+			'importProcessor' => [
+				'tasks' => [
+					$identifier => ['bar']
+				]
+			]
+		];
+		$this->subject->_set('settings', $settings);
+		$mockTask = $this->getMock(
+			ImportTask::class
+		);
+		$importTaskFactory = $this->getMock(
+			ImportTaskFactory::class, ['get']
+		);
+		$importTaskFactory->expects($this->once())
+			->method('get')
+			->with($settings['importProcessor']['tasks'][$identifier])
+			->will($this->returnValue($mockTask));
+		$this->subject->injectImportTaskFactory($importTaskFactory);
+
 		$importProcessor = $this->getMock(
 			'CPSIT\\T3import\\Service\\ImportProcessor',
 			['buildQueue', 'process'], [], '', FALSE
@@ -86,6 +109,7 @@ class ImportControllerTest extends UnitTestCase {
 			->with($mockDemand);
 		$importProcessor->expects($this->once())
 			->method('process')
+			->with($mockDemand)
 			->will($this->returnValue($result));
 		$mockView->expects($this->once())
 			->method('assignMultiple')

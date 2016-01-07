@@ -85,7 +85,7 @@ class ConverterFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451566686
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -96,7 +96,7 @@ class ConverterFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451566699
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -110,7 +110,7 @@ class ConverterFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451566706
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementConverterInterface() {

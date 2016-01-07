@@ -82,7 +82,7 @@ class PreProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1447427020
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -93,7 +93,7 @@ class PreProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1447427184
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -107,7 +107,7 @@ class PreProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1447428235
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementPreProcessorInterface() {

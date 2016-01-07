@@ -18,5 +18,5 @@ interface DataTargetInterface {
 	 * @param array $configuration Configuration array.
 	 * @return mixed
 	 */
-	public function persist($object, array $configuration);
+	public function persist($object, array $configuration = null);
 }

@@ -1,13 +1,14 @@
 <?php
 namespace CPSIT\T3import\Persistence\Factory;
 
+use CPSIT\T3import\ConfigurableInterface;
 use CPSIT\T3import\Factory\AbstractFactory;
 use CPSIT\T3import\IdentifiableInterface;
 use CPSIT\T3import\Persistence\DataSourceDB;
 use CPSIT\T3import\Persistence\DataSourceInterface;
-use CPSIT\T3import\Persistence\MissingClassException;
-use CPSIT\T3import\Persistence\MissingInterfaceException;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\MissingClassException;
+use CPSIT\T3import\MissingInterfaceException;
+use CPSIT\T3import\InvalidConfigurationException;
 
 /***************************************************************
  *
@@ -42,8 +43,8 @@ class DataSourceFactory extends AbstractFactory {
 	 * @param array $settings Configuration for the data source
 	 * @param string $identifier Identifier
 	 * @return DataSourceInterface
-	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
+	 * @throws \CPSIT\T3import\MissingClassException
 	 * @throws MissingInterfaceException
 	 */
 	public function get(array $settings, $identifier = null) {
@@ -84,11 +85,13 @@ class DataSourceFactory extends AbstractFactory {
 			/** @var IdentifiableInterface $dataSource */
 			$dataSource = $this->objectManager->get($dataSourceClass);
 			$dataSource->setIdentifier($settings['identifier']);
-
-			return $dataSource;
+		} else {
+			$dataSource = $this->objectManager->get($dataSourceClass);
 		}
+		$dataSource->setConfiguration(
+			$settings['config']
+		);
 
-		$dataSource = $this->objectManager->get($dataSourceClass);
 		return $dataSource;
 	}
 }

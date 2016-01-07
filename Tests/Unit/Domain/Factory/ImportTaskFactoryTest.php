@@ -15,7 +15,7 @@ use CPSIT\T3import\Persistence\DataTargetInterface;
 use CPSIT\T3import\Persistence\DataTargetRepository;
 use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\InvalidConfigurationException;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -145,7 +145,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 */
 	public function getGetsImportTaskFromObjectManager() {
 		$identifier = 'foo';
@@ -167,7 +167,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 */
 	public function getSetsIdentifier() {
 		$identifier = 'foo';
@@ -191,7 +191,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 */
 	public function getSetsTargetClass() {
 		$identifier = 'foo';
@@ -220,7 +220,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 */
 	public function getSetsDescription() {
 		$identifier = 'foo';
@@ -294,7 +294,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451052262
 	 */
 	public function getThrowsExceptionForMissingTarget() {
@@ -318,7 +318,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
 	 * @expectedExceptionCode 1451206701
 	 */
 	public function getThrowsExceptionForMissingSource() {

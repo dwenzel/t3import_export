@@ -2,7 +2,7 @@
 namespace CPSIT\T3import\Tests\Unit\Component;
 
 use CPSIT\T3import\Component\AbstractComponent;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\InvalidConfigurationException;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -48,40 +48,7 @@ class AbstractComponentTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function getConfigurationInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getConfiguration()
-		);
-	}
-
-	/**
-	 * @test
-	 */
-	public function setConfigurationSetsValidConfiguration() {
-		$configuration = ['foo'];
-
-		$this->subject->expects($this->once())
-			->method('isConfigurationValid')
-			->will($this->returnValue(true));
-		$this->subject->setConfiguration($configuration);
-
-		$this->assertSame(
-			$configuration,
-			$this->subject->getConfiguration()
-		);
-	}
-
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3import\Service\InvalidConfigurationException
-	 * @expectedExceptionCode 1451659793
-	 */
-	public function setConfigurationThrowsExceptionForInvalidConfiguration() {
-		$configuration = ['foo'];
-
-		$this->subject->expects($this->once())
-			->method('isConfigurationValid')
-			->will($this->returnValue(false));
-		$this->subject->setConfiguration($configuration);
+	public function dummyTest() {
+		$this->markTestIncomplete();
 	}
 }

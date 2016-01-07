@@ -1,9 +1,9 @@
 <?php
 namespace CPSIT\T3import\Component\Converter;
 
-use CPSIT\T3import\Persistence\MissingClassException;
+use CPSIT\T3import\MissingClassException;
 use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\InvalidConfigurationException;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
@@ -105,7 +105,7 @@ class ArrayToDomainObject
 
 	/**
 	 * @param array $configuration
-	 * @throws InvalidConfigurationException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 * @throws MissingClassException
 	 * @return bool
 	 */
@@ -156,7 +156,7 @@ class ArrayToDomainObject
 
 	/**
 	 * @param array $configuration
-	 * @throws InvalidConfigurationException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 * @throws MissingClassException
 	 */
 	protected function validateTargetClass(array $configuration) {
@@ -186,7 +186,7 @@ class ArrayToDomainObject
 	/**
 	 * @param array $configuration
 	 * @return bool
-	 * @throws InvalidConfigurationException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 */
 	protected function validatePropertyConfiguration(array $configuration) {
 		if (isset($configuration['allowProperties'])

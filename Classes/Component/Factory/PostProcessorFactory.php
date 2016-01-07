@@ -3,7 +3,7 @@ namespace CPSIT\T3import\Component\Factory;
 
 use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\InvalidConfigurationException;
 
 /***************************************************************
  *
@@ -35,7 +35,7 @@ class PostProcessorFactory extends AbstractFactory {
 	 *
 	 * @param array $settings
 	 * @param string $identifier
-	 * @throws InvalidConfigurationException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 * @return \CPSIT\T3import\Component\Factory\PostProcessorFactory
 	 */
 	public function get(array $settings, $identifier = NULL) {

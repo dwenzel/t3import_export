@@ -31,7 +31,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *
  * @package CPSIT\T3import\PreProcessor
  */
-abstract class LookUpDB
+class LookUpDB
 	extends AbstractPreProcessor
 	implements PreProcessorInterface {
 

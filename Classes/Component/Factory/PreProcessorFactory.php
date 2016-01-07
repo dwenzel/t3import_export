@@ -3,7 +3,7 @@ namespace CPSIT\T3import\Component\Factory;
 
 use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\InvalidConfigurationException;
 
 /***************************************************************
  *

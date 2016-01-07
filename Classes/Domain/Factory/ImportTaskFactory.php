@@ -11,8 +11,8 @@ use CPSIT\T3import\Domain\Model\ImportTask;
 use CPSIT\T3import\Factory\AbstractFactory;
 use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3import\Persistence\MissingClassException;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\MissingClassException;
+use CPSIT\T3import\InvalidConfigurationException;
 
 /***************************************************************
  *  Copyright notice
@@ -117,10 +117,10 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param string $identifier
 	 * @return ImportTask
 	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
-	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @throws \CPSIT\T3import\MissingClassException
+	 * @throws \CPSIT\T3import\MissingInterfaceException
 	 */
-	public function get(array $settings, $identifier = null) {
+	public function get(array $settings, $identifier = NULL) {
 		/** @var ImportTask $task */
 		$task = $this->objectManager->get(
 			ImportTask::class
@@ -142,15 +142,18 @@ class ImportTaskFactory extends AbstractFactory {
 		$this->setTarget($task, $settings, $identifier);
 		$this->setSource($task, $settings, $identifier);
 		if (isset($settings['preProcessors'])
-			AND is_array($settings['preProcessors']))  {
+			AND is_array($settings['preProcessors'])
+		) {
 			$this->setPreProcessors($task, $settings['preProcessors'], $identifier);
 		}
 		if (isset($settings['postProcessors'])
-			AND is_array($settings['postProcessors']))  {
+			AND is_array($settings['postProcessors'])
+		) {
 			$this->setPostProcessors($task, $settings['postProcessors'], $identifier);
 		}
 		if (isset($settings['converters'])
-			AND is_array($settings['converters']))  {
+			AND is_array($settings['converters'])
+		) {
 			$this->setConverters($task, $settings['converters'], $identifier);
 		}
 
@@ -164,8 +167,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
-	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @throws \CPSIT\T3import\MissingClassException
+	 * @throws \CPSIT\T3import\MissingInterfaceException
 	 */
 	protected function setTarget(&$task, array $settings, $identifier) {
 		if (!isset($settings['target'])
@@ -177,7 +180,7 @@ class ImportTaskFactory extends AbstractFactory {
 				1451052262
 			);
 		}
-		$targetIdentifier = null;
+		$targetIdentifier = NULL;
 		if (isset($settings['target']['identifier'])
 			AND is_string($settings['target']['identifier'])
 		) {
@@ -195,8 +198,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
-	 * @throws \CPSIT\T3import\Persistence\MissingInterfaceException
+	 * @throws \CPSIT\T3import\MissingClassException
+	 * @throws \CPSIT\T3import\MissingInterfaceException
 	 */
 	protected function setSource(&$task, array $settings, $identifier) {
 		if (!isset($settings['source'])
@@ -208,7 +211,7 @@ class ImportTaskFactory extends AbstractFactory {
 				1451206701
 			);
 		}
-		$sourceIdentifier = null;
+		$sourceIdentifier = NULL;
 		if (isset($settings['source']['identifier'])
 			AND is_string($settings['source']['identifier'])
 		) {
@@ -247,7 +250,7 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param ImportTask $task
 	 * @param array $settings
 	 * @param string $identifier
-	 * @throws InvalidConfigurationException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 */
 	protected function setPostProcessors(&$task, array $settings, $identifier) {
 		$postProcessors = [];

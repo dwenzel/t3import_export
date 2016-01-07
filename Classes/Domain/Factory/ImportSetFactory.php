@@ -48,7 +48,7 @@ class ImportSetFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @return ImportSet
-	 * @throws \CPSIT\T3import\Service\InvalidConfigurationException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 */
 	public function get(array $settings, $identifier = null) {
 		/** @var ImportSet $importSet */

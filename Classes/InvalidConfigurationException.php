@@ -1,8 +1,5 @@
 <?php
-namespace CPSIT\T3import\Command;
-
-use CPSIT\T3import\Service\ImportProcessor;
-use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
+namespace CPSIT\T3import;
 
 /***************************************************************
  *  Copyright notice
@@ -21,31 +18,5 @@ use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ImportCommandController extends CommandController {
-
-	/**
-	 * @var ImportProcessor
-	 */
-	protected $importProcessor;
-
-	/**
-	 * Injects the event import processor
-	 *
-	 * @param ImportProcessor $importProcessor
-	 */
-	public function injectImportProcessor(ImportProcessor $importProcessor) {
-		$this->importProcessor = $importProcessor;
-	}
-
-	/**
-	 * Imports events
-	 *
-	 * @param int $queueLength Queue length: How many events should be imported at once
-	 * @param bool $dryRun Dry run: If set no event will be saved
-	 * @param string |null $email : Notification email: If set, a summary of the import will be send to it.
-	 */
-	public function importCommand($queueLength = 100, $dryRun = FALSE, $email = NULL) {
-		$this->importProcessor->buildQueue($queueLength);
-		$this->importProcessor->process();
-	}
+class InvalidConfigurationException extends \Exception {
 }

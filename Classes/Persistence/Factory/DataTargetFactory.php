@@ -4,9 +4,9 @@ namespace CPSIT\T3import\Persistence\Factory;
 use CPSIT\T3import\Factory\AbstractFactory;
 use CPSIT\T3import\Persistence\DataTargetInterface;
 use CPSIT\T3import\Persistence\DataTargetRepository;
-use CPSIT\T3import\Persistence\MissingClassException;
-use CPSIT\T3import\Persistence\MissingInterfaceException;
-use CPSIT\T3import\Service\InvalidConfigurationException;
+use CPSIT\T3import\MissingClassException;
+use CPSIT\T3import\MissingInterfaceException;
+use CPSIT\T3import\InvalidConfigurationException;
 
 /***************************************************************
  *
@@ -37,12 +37,16 @@ class DataTargetFactory extends AbstractFactory {
 
 	/**
 	 * Builds a factory object
-	 *
-	 * @param array $settings
+
+
+
+
+*
+*@param array $settings
 	 * @param string $identifier
 	 * @return DataTargetInterface
-	 * @throws InvalidConfigurationException
-	 * @throws MissingClassException
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
+	 * @throws \CPSIT\T3import\MissingClassException
 	 * @throws MissingInterfaceException
 	 */
 	public function get(array $settings, $identifier = null) {
