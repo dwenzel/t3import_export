@@ -78,16 +78,21 @@ class PropertyMappingConfigurationBuilder {
 	 * @return array
 	 */
 	protected function getTypeConverterOptions($configuration) {
-		if (isset($configuration['typeConverter']['options'])
-			AND is_array($configuration['typeConverter']['options'])
-		) {
-			return $configuration['typeConverter']['options'];
-		}
-
-		return [
+		$options = [
 			PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => TRUE,
 			PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => TRUE
 		];
+
+		if (isset($configuration['typeConverter']['options'])
+			AND is_array($configuration['typeConverter']['options'])
+		) {
+			$options = ArrayUtility::arrayMergeRecursiveOverrule(
+				$options,
+				$configuration['typeConverter']['options']
+			);
+		}
+
+		return $options;
 	}
 
 	/**
