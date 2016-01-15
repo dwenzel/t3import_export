@@ -25,8 +25,10 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /**
- * Class MapFields
- * Maps one field of a record to another. Existing fields are overwritten!
+ * Class SetHiddenProperties
+ * Sets fields of AbstractDomainObject instances
+ * which are not settable via PropertyMapper.
+ * I.e. _languageUid, _localizedUid, $_versionedUid
  *
  * @package CPSIT\T3import\PreProcessor
  */
