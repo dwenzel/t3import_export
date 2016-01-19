@@ -3,7 +3,9 @@ namespace CPSIT\T3import\Component;
 
 use CPSIT\T3import\ConfigurableTrait;
 use CPSIT\T3import\InvalidConfigurationException;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -39,6 +41,16 @@ abstract class AbstractComponent {
 	protected $typoScriptService;
 
 	/**
+	 * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
+	 */
+	protected $signalSlotDispatcher;
+
+	/**
+	 * @var ObjectManager
+	 */
+	protected $objectManager;
+
+	/**
 	 * injects the contentObjectRenderer
 	 *
 	 * @param ContentObjectRenderer $contentObjectRenderer
@@ -63,6 +75,22 @@ abstract class AbstractComponent {
 	 */
 	public function injectTypoScriptService(TypoScriptService $typoScriptService) {
 		$this->typoScriptService = $typoScriptService;
+	}
+
+	/**
+	 * @param Dispatcher $signalSlotDispatcher
+	 */
+	public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher) {
+		$this->signalSlotDispatcher = $signalSlotDispatcher;
+	}
+
+	/**
+	 * injects the object manager
+	 *
+	 * @param ObjectManager $objectManager
+	 */
+	public function injectObjectManager(ObjectManager $objectManager) {
+		$this->objectManager = $objectManager;
 	}
 
 	/**
@@ -108,6 +136,26 @@ abstract class AbstractComponent {
 		}
 
 		return NULL;
+	}
+
+	/**
+	 * Emits signals
+	 *
+	 * @param string $name Signal name
+	 * @param array $arguments Signal arguments
+	 * @codeCoverageIgnore
+	 * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+	 * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
+	 */
+	protected function emitSignal($name, array &$arguments) {
+
+		/**
+		 * Wrap arguments into array in order to allow changing the arguments
+		 * count. Dispatcher throws InvalidSlotReturnException if slotResult count
+		 * differs.
+		 */
+		$slotResult = $this->signalSlotDispatcher->dispatch(get_class($this), $name, [$arguments]);
+		$arguments = $slotResult[0];
 	}
 
 }

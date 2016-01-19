@@ -3,6 +3,8 @@ namespace CPSIT\T3import\Tests\Unit\Component\Converter;
 
 use CPSIT\T3import\Component\Converter\ArrayToDomainObject;
 use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -107,6 +109,38 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 		$this->assertSame(
 			$mockObjectManager,
 			$this->subject->_get('objectManager')
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectTargetClassConfigurationValidatorSetsValidator() {
+		$mockValidator = $this->getAccessibleMock(
+			TargetClassConfigurationValidator::class
+		);
+		$this->subject->injectTargetClassConfigurationValidator($mockValidator);
+
+		$this->assertAttributeSame(
+			$mockValidator,
+			'targetClassConfigurationValidator',
+			$this->subject
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectMappingConfigurationValidatorSetsValidator() {
+		$mockValidator = $this->getAccessibleMock(
+			MappingConfigurationValidator::class
+		);
+		$this->subject->injectMappingConfigurationValidator($mockValidator);
+
+		$this->assertAttributeSame(
+			$mockValidator,
+			'mappingConfigurationValidator',
+			$this->subject
 		);
 	}
 
@@ -247,7 +281,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 	public function convertGetsMappingConfiguration() {
 		$this->subject = $this->getAccessibleMock(
 			ArrayToDomainObject::class,
-			['getMappingConfiguration']
+			['getMappingConfiguration', 'emitSignal']
 		);
 		$configuration = [
 			'targetClass' => 'FooClassName'
@@ -274,7 +308,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 		$record = [];
 		$this->subject = $this->getAccessibleMock(
 			ArrayToDomainObject::class,
-			['getMappingConfiguration']
+			['getMappingConfiguration', 'emitSignal']
 		);
 		$expectedObject = $this->getMock(
 			DomainObjectInterface::class
@@ -312,129 +346,32 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
-	 * @expectedExceptionCode 1451146126
 	 */
-	public function isConfigurationValidThrowsExceptionIfTargetClassIsNotSet() {
-		$configuration = ['foo'];
-		$this->subject->isConfigurationValid($configuration);
-	}
-
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
-	 * @expectedExceptionCode 1451146384
-	 */
-	public function isConfigurationValidThrowsExceptionIfTargetClassIsNotString() {
-		$configuration = [
-			'targetClass' => 1
-		];
-		$this->subject->isConfigurationValid($configuration);
-	}
-
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3import\MissingClassException
-	 * @expectedExceptionCode 1451146564
-	 */
-	public function isConfigurationValidThrowsExceptionIfTargetClassDoesNotExist() {
-		$configuration = [
-			'targetClass' => 'NonExistingClassName'
-		];
-		$this->subject->isConfigurationValid($configuration);
-	}
-
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
-	 * @expectedExceptionCode 1451146869
-	 */
-	public function isConfigurationValidThrowsExceptionIfAllowPropertiesIsNotString() {
-		$configuration = [
-			'targetClass' => AbstractDomainObject::class,
-			'allowProperties' => []
-		];
-		$this->subject->isConfigurationValid($configuration);
-	}
-
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
-	 * @expectedExceptionCode 1451147517
-	 */
-	public function isConfigurationValidThrowsExceptionIfPropertiesIsNotArray() {
-		$configuration = [
-			'targetClass' => AbstractDomainObject::class,
-			'properties' => 'invalidStringValue'
-		];
-		$this->subject->isConfigurationValid($configuration);
-	}
-
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidValidatedPropertiesRecursive() {
-		$this->subject = $this->getAccessibleMock(
-			ArrayToDomainObject::class,
-			['validatePropertyConfigurationRecursive']
+	public function isConfigurationValidValidates() {
+		$mockTargetClassValidator = $this->getAccessibleMock(
+			TargetClassConfigurationValidator::class,
+			['validate']
 		);
-		$configuration = [
-			'targetClass' => AbstractDomainObject::class,
-			'properties' => [
-				'propertyA' => [
-					'allowAllProperties' => 1
-				]
-			]
-		];
-
-		$this->subject->expects($this->once())
-			->method('validatePropertyConfigurationRecursive')
-			->with($configuration['properties']['propertyA']);
-
-		$this->subject->isConfigurationValid($configuration);
-	}
-
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
-	 * @expectedExceptionCode 1451157586
-	 */
-	public function validatePropertyConfigurationRecursiveThrowsExceptionIfMaxItemsIsNotSet() {
-		$configuration = [
-			'children' => [
-				'propertyA' => ['allowAllProperties' => 1]
-			]
-		];
-		$this->subject->_call(
-			'validatePropertyConfigurationRecursive',
-			$configuration);
-	}
-
-	/**
-	 * @test
-	 */
-	public function validatePropertyConfigurationRecursiveDoesRecur() {
-		$this->subject = $this->getAccessibleMock(
-			ArrayToDomainObject::class,
-			['validatePropertyConfiguration']
+		$mockMappingConfigurationValidator = $this->getAccessibleMock(
+			MappingConfigurationValidator::class,
+			['validate']
 		);
-		$configuration = [
-			'children' => [
-				'maxItems' => 1,
-				'properties' => [
-					'propertyA' => [
-						'allowAllProperties' => 1
-					]
-				]
-			]
-		];
-		$this->subject->expects($this->exactly(2))
-			->method('validatePropertyConfiguration')
-			->withConsecutive(
-				[$configuration],
-				[$configuration['children']['properties']['propertyA']]
-			);
-		$this->subject->_call(
-			'validatePropertyConfigurationRecursive',
-			$configuration);
-	}}
+		$config = ['foo'];
+		$this->subject->injectTargetClassConfigurationValidator($mockTargetClassValidator);
+		$this->subject->injectMappingConfigurationValidator($mockMappingConfigurationValidator);
+
+		$mockTargetClassValidator->expects($this->once())
+			->method('validate')
+			->with($config)
+			->will($this->returnValue(true));
+
+		$mockMappingConfigurationValidator->expects($this->once())
+			->method('validate')
+			->with($config)
+			->will($this->returnValue(true));
+
+		$this->assertTrue(
+			$this->subject->isConfigurationValid($config)
+		);
+	}
+}

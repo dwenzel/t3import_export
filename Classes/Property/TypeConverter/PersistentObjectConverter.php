@@ -77,7 +77,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 	/**
 	 * @var bool
 	 */
-	protected $respectSysLanguage = TRUE;
+	protected $respectSysLanguage = true;
 
 	/**
 	 * @var array
@@ -98,11 +98,6 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 	 * @var array
 	 */
 	protected $storagePageIds = [];
-
-	/**
-	 * @var array
-	 */
-	protected $foo = [];
 
 	/**
 	 * Convert an object from $source to an entity or a value object.
@@ -130,32 +125,32 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 		if ($configuration === NULL) {
 			return;
 		}
-
-		$ignoreEnableFields = $configuration->getConfigurationValue(get_class($this), self::IGNORE_ENABLE_FIELDS);
+		$class = get_class($this);
+		$ignoreEnableFields = $configuration->getConfigurationValue($class, self::IGNORE_ENABLE_FIELDS);
 		if (isset($ignoreEnableFields)) {
 			$this->ignoreEnableFields = $ignoreEnableFields;
 		}
-		$enableFieldsToBeIgnored = $configuration->getConfigurationValue(get_class($this), self::ENABLE_FIELDS_TO_BE_IGNORED);
+		$enableFieldsToBeIgnored = $configuration->getConfigurationValue($class, self::ENABLE_FIELDS_TO_BE_IGNORED);
 		if (isset($enableFieldsToBeIgnored)) {
 			$this->$enableFieldsToBeIgnored = $enableFieldsToBeIgnored;
 		}
-		$respectStoragePage = $configuration->getConfigurationValue(get_class($this), self::RESPECT_STORAGE_PAGE);
+		$respectStoragePage = $configuration->getConfigurationValue($class, self::RESPECT_STORAGE_PAGE);
 		if (isset($respectStoragePage)) {
-			$this->respectStoragePage = $respectStoragePage;
+			$this->respectStoragePage = (bool)$respectStoragePage;
 		}
-		$respectSysLanguage = $configuration->getConfigurationValue(get_class($this), self::RESPECT_SYS_LANGUAGE);
+		$respectSysLanguage = $configuration->getConfigurationValue($class, self::RESPECT_SYS_LANGUAGE);
 		if (isset($respectSysLanguage)) {
 			$this->$respectSysLanguage = $respectSysLanguage;
 		}
-		$sysLanguageUid = $configuration->getConfigurationValue(get_class($this), self::SYS_LANGUAGE_UID);
+		$sysLanguageUid = $configuration->getConfigurationValue($class, self::SYS_LANGUAGE_UID);
 		if (isset($sysLanguageUid)) {
 			$this->$sysLanguageUid = $sysLanguageUid;
 		}
-		$includeDeleted = $configuration->getConfigurationValue(get_class($this), self::INCLUDE_DELETED);
+		$includeDeleted = $configuration->getConfigurationValue($class, self::INCLUDE_DELETED);
 		if (isset($includeDeleted)) {
 			$this->$includeDeleted = $includeDeleted;
 		}
-		$storagePages = $configuration->getConfigurationValue(get_class($this), self::STORAGE_PAGE_IDS);
+		$storagePages = $configuration->getConfigurationValue($class, self::STORAGE_PAGE_IDS);
 		if (isset($storagePages)) {
 			if (is_string($storagePages)) {
 				$this->storagePageIds = GeneralUtility::intExplode(',', $storagePages);
@@ -202,7 +197,6 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 		} else {
 			throw new InvalidSourceException('The identity property "' . $identity . '" is no UID.', 1297931020);
 		}
-
 		if ($object === NULL) {
 			$query = $this->buildQuery($targetType);
 			$object = $query->matching($query->equals('uid', $identity))->execute()->getFirst();

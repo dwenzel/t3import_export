@@ -126,7 +126,6 @@ module.tx_t3import.settings.importProcessor.tasks {
 				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = eventLocation
-					childRecords = performances
 					select {
 						table = tx_t3events_domain_model_eventlocation
 						fields = uid

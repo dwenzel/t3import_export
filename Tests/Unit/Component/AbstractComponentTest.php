@@ -4,6 +4,9 @@ namespace CPSIT\T3import\Tests\Unit\Component;
 use CPSIT\T3import\Component\AbstractComponent;
 use CPSIT\T3import\InvalidConfigurationException;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
+use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *
@@ -51,4 +54,54 @@ class AbstractComponentTest extends UnitTestCase {
 	public function dummyTest() {
 		$this->markTestIncomplete();
 	}
+
+	/**
+	 * @test
+	 * @cover ::injectSignalSlotDispatcher
+	 */
+	public function injectSignalSlotDispatcherSetsDispatcher() {
+		$mockDispatcher = $this->getMock(
+			Dispatcher::class
+		);
+
+		$this->subject->injectSignalSlotDispatcher($mockDispatcher);
+		$this->assertSame(
+			$mockDispatcher,
+			$this->subject->_get('signalSlotDispatcher')
+		);
+	}
+
+	/**
+	 * @test
+	 * @cover ::injectContentObjectRenderer
+	 */
+	public function injectContentObjectRendererSetsDispatcher() {
+		$mockDispatcher = $this->getMock(
+			ContentObjectRenderer::class
+		);
+
+		$this->subject->injectContentObjectRenderer($mockDispatcher);
+		$this->assertSame(
+			$mockDispatcher,
+			$this->subject->_get('contentObjectRenderer')
+		);
+	}
+
+	/**
+	 * @test
+	 * @cover ::injectTypoScriptService
+	 */
+	public function injectTypoScriptServiceSetsTypoScriptService() {
+		$mockTypoScriptService = $this->getMock(
+			TypoScriptService::class
+		);
+
+		$this->subject->injectTypoScriptService($mockTypoScriptService);
+		$this->assertSame(
+			$mockTypoScriptService,
+			$this->subject->_get('typoScriptService')
+		);
+	}
+
+
 }

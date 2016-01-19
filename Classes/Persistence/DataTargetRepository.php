@@ -49,6 +49,13 @@ class DataTargetRepository
 	 */
 	protected $repository;
 
+
+	/**
+	 * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
+	 */
+	protected $persistenceManager;
+
+
 	/**
 	 * @var ObjectManager
 	 */
@@ -73,6 +80,13 @@ class DataTargetRepository
 	}
 
 	/**
+	 * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
+	 */
+	public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager) {
+		$this->persistenceManager = $persistenceManager;
+	}
+
+	/**
 	 * Persist both new and updated objects.
 	 *
 	 * @param DomainObjectInterface $object Record to persist. Either an array or an instance of \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
@@ -81,7 +95,7 @@ class DataTargetRepository
 	 */
 	public function persist($object, array $configuration = null) {
 		$repository = $this->getRepository();
-		if ($object->getUid() !== null) {
+		if (!$this->persistenceManager->isNewObject($object)) {
 			$repository->update($object);
 		} else {
 			$repository->add($object);

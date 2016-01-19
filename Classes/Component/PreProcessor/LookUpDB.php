@@ -102,17 +102,6 @@ class LookUpDB
 			$this->database = $this->connectionService
 				->getDatabase($configuration['identifier']);
 		}
-		if (isset($configuration['childRecords'])
-			AND is_array($record[$configuration['childRecords']])
-		) {
-			$localConfiguration = $configuration;
-			unset($localConfiguration['childRecords']);
-			foreach ($record[$configuration['childRecords']] as &$childRecord) {
-				$this->process($localConfiguration, $childRecord);
-			}
-
-			return TRUE;
-		}
 		$queryConfiguration = $this->getQueryConfiguration($configuration);
 		$queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
 		if ($queryConfiguration == FALSE) {

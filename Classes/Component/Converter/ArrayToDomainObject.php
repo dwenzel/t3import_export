@@ -4,8 +4,9 @@ namespace CPSIT\T3import\Component\Converter;
 use CPSIT\T3import\MissingClassException;
 use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
@@ -37,6 +38,7 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 class ArrayToDomainObject
 	extends AbstractConverter
 	implements ConverterInterface{
+	const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
 	/**
 	 * @var PropertyMapper
@@ -52,11 +54,15 @@ class ArrayToDomainObject
 	 * @var PropertyMappingConfigurationBuilder
 	 */
 	protected $propertyMappingConfigurationBuilder;
+	/**
+	 * @var TargetClassConfigurationValidator
+	 */
+	protected $targetClassConfigurationValidator;
 
 	/**
-	 * @var ObjectManager
+	 * @var MappingConfigurationValidator
 	 */
-	protected $objectManager;
+	protected $mappingConfigurationValidator;
 
 	/**
 	 * injects the property mapper
@@ -77,12 +83,21 @@ class ArrayToDomainObject
 	}
 
 	/**
-	 * injects the object manager
+	 * injects the TargetClassConfigurationValidator
 	 *
-	 * @param ObjectManager $objectManager
+	 * @param TargetClassConfigurationValidator $validator
 	 */
-	public function injectObjectManager(ObjectManager $objectManager) {
-		$this->objectManager = $objectManager;
+	public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator) {
+		$this->targetClassConfigurationValidator = $validator;
+	}
+
+	/**
+	 * injects the MappingConfigurationValidator
+	 *
+	 * @param MappingConfigurationValidator $validator
+	 */
+	public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator) {
+		$this->mappingConfigurationValidator = $validator;
 	}
 
 	/**
@@ -96,6 +111,11 @@ class ArrayToDomainObject
 		$mappingConfiguration = $configuration;
 		unset($mappingConfiguration['targetClass']);
 		$mappingConfiguration = $this->getMappingConfiguration($mappingConfiguration);
+		$slotVariables = [
+			'configuration' => $configuration,
+			'record' => $record
+		];
+		$this->emitSignal(self::BEFORE_CONVERT_SIGNAL,  $slotVariables);
 		return $this->propertyMapper->convert(
 			$record,
 			$configuration['targetClass'],
@@ -110,8 +130,10 @@ class ArrayToDomainObject
 	 * @return bool
 	 */
 	public function isConfigurationValid(array $configuration) {
-		$this->validateTargetClass($configuration);
-		return $this->validatePropertyConfiguration($configuration);
+		return (
+			$this->targetClassConfigurationValidator->validate($configuration)
+			&& $this->mappingConfigurationValidator->validate($configuration)
+		);
 	}
 
 	/**
@@ -152,95 +174,5 @@ class ArrayToDomainObject
 		)->skipUnknownProperties();
 
 		return $propertyMappingConfiguration;
-	}
-
-	/**
-	 * @param array $configuration
-	 * @throws \CPSIT\T3import\InvalidConfigurationException
-	 * @throws MissingClassException
-	 */
-	protected function validateTargetClass(array $configuration) {
-		if (!isset($configuration['targetClass'])) {
-			throw new InvalidConfigurationException (
-				'Invalid configuration for ' . __CLASS__ .
-				'. Missing targetClass option',
-				1451146126
-			);
-		}
-		if (!is_string($configuration['targetClass'])) {
-			throw new InvalidConfigurationException(
-				'Invalid configuration for ' . __CLASS__ .
-				'. Option value for targetClass must be a string.',
-				1451146384
-			);
-		}
-		if (!class_exists($configuration['targetClass'])) {
-			throw new MissingClassException(
-				'Invalid configuration for ' . __CLASS__ .
-				'. Target class does not exist.',
-				1451146564
-			);
-		}
-	}
-
-	/**
-	 * @param array $configuration
-	 * @return bool
-	 * @throws \CPSIT\T3import\InvalidConfigurationException
-	 */
-	protected function validatePropertyConfiguration(array $configuration) {
-		if (isset($configuration['allowProperties'])
-			AND !is_string($configuration['allowProperties'])
-		) {
-			throw new InvalidConfigurationException(
-				'Invalid configuration for ' . __CLASS__ .
-				'. Option value allowProperties must be a comma separated
-				 string of property names.',
-				1451146869
-			);
-		}
-		if (isset($configuration['properties'])) {
-			if (!is_array($configuration['properties'])
-			) {
-				throw new InvalidConfigurationException(
-					'Invalid configuration for ' . __CLASS__ .
-					'. Option value properties must be an array.',
-					1451147517
-				);
-			}
-
-			foreach ($configuration['properties'] as $propertyName => $localConfiguration) {
-				$this->validatePropertyConfigurationRecursive($localConfiguration);
-			}
-		}
-
-		/**
-		 * todo:
-		 * children.maxItems: int
-		 * typeConverter.class: set, string, class exists
-		 * typeConverter.options: ?
-		 **/
-
-		return TRUE;
-	}
-
-	/**
-	 * @param array $localConfiguration
-	 * @throws InvalidConfigurationException
-	 */
-	protected function validatePropertyConfigurationRecursive(array $localConfiguration) {
-		$this->validatePropertyConfiguration($localConfiguration);
-		if (isset($localConfiguration['children'])) {
-			if (!isset($localConfiguration['children']['maxItems'])) {
-				throw new InvalidConfigurationException(
-					'Invalid configuration for ' . __CLASS__ .
-					'. children.maxItems must be set.',
-					1451157586
-				);
-			}
-			foreach($localConfiguration['children']['properties'] as $child=>$childConfiguration) {
-				$this->validatePropertyConfiguration($childConfiguration);
-			}
-		}
 	}
 }

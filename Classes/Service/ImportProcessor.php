@@ -103,7 +103,7 @@ class ImportProcessor {
 					$this->postProcessSingle($convertedRecord, $record, $task);
 					$target = $task->getTarget();
 					if ($target instanceof ConfigurableInterface) {
-						$config = $target->getConfiguration;
+						$config = $target->getConfiguration();
 					}
 					$target->persist($convertedRecord, $config);
 					$result[] = $convertedRecord;
