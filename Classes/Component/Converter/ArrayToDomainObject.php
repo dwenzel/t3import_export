@@ -7,7 +7,6 @@ use CPSIT\T3import\InvalidConfigurationException;
 use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
@@ -39,6 +38,7 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 class ArrayToDomainObject
 	extends AbstractConverter
 	implements ConverterInterface{
+	const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
 	/**
 	 * @var PropertyMapper
@@ -54,12 +54,6 @@ class ArrayToDomainObject
 	 * @var PropertyMappingConfigurationBuilder
 	 */
 	protected $propertyMappingConfigurationBuilder;
-
-	/**
-	 * @var ObjectManager
-	 */
-	protected $objectManager;
-
 	/**
 	 * @var TargetClassConfigurationValidator
 	 */
@@ -86,15 +80,6 @@ class ArrayToDomainObject
 	 */
 	public function injectPropertyMappingConfigurationBuilder(PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder) {
 		$this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
-	}
-
-	/**
-	 * injects the object manager
-	 *
-	 * @param ObjectManager $objectManager
-	 */
-	public function injectObjectManager(ObjectManager $objectManager) {
-		$this->objectManager = $objectManager;
 	}
 
 	/**
@@ -126,6 +111,11 @@ class ArrayToDomainObject
 		$mappingConfiguration = $configuration;
 		unset($mappingConfiguration['targetClass']);
 		$mappingConfiguration = $this->getMappingConfiguration($mappingConfiguration);
+		$slotVariables = [
+			'configuration' => $configuration,
+			'record' => $record
+		];
+		$this->emitSignal(self::BEFORE_CONVERT_SIGNAL,  $slotVariables);
 		return $this->propertyMapper->convert(
 			$record,
 			$configuration['targetClass'],

@@ -281,7 +281,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 	public function convertGetsMappingConfiguration() {
 		$this->subject = $this->getAccessibleMock(
 			ArrayToDomainObject::class,
-			['getMappingConfiguration']
+			['getMappingConfiguration', 'emitSignal']
 		);
 		$configuration = [
 			'targetClass' => 'FooClassName'
@@ -308,7 +308,7 @@ class ArrayToDomainObjectTest extends UnitTestCase {
 		$record = [];
 		$this->subject = $this->getAccessibleMock(
 			ArrayToDomainObject::class,
-			['getMappingConfiguration']
+			['getMappingConfiguration', 'emitSignal']
 		);
 		$expectedObject = $this->getMock(
 			DomainObjectInterface::class
