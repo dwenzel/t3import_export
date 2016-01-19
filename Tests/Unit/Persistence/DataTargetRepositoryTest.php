@@ -6,6 +6,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 /***************************************************************
  *
@@ -190,4 +191,21 @@ class DataTargetRepositoryTest extends UnitTestCase {
 			$subject->getTargetClass()
 		);
 	}
+
+	/**
+	 * @test
+	 */
+	public function injectPersistenceManagerSetsPersistenceManager() {
+		$mockPersistenceManager = $this->getMockForAbstractClass(
+			PersistenceManagerInterface::class
+		);
+
+		$this->subject->injectPersistenceManager($mockPersistenceManager);
+		$this->assertAttributeSame(
+			$mockPersistenceManager,
+			'persistenceManager',
+			$this->subject
+		);
+	}
+
 }
