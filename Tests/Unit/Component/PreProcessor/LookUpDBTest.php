@@ -59,7 +59,6 @@ class LookUpDBTest extends UnitTestCase {
 		);
 	}
 
-
 	/**
 	 * @test
 	 */
@@ -75,6 +74,36 @@ class LookUpDBTest extends UnitTestCase {
 			->with($configuration['identifier']);
 		$record = [];
 		$this->subject->injectDatabaseConnectionService($connectionService);
+
+		$this->subject->process($configuration, $record);
+	}
+
+	/**
+	 * @test
+	 */
+	public function processGetsQueryConfiguration() {
+		$configuration = [
+			'select' => [
+				'table' => 'fooTable'
+			]
+		];
+		$expectedQueryConfiguration = [
+			'fields' => '*',
+			'where' => '',
+			'groupBy' => '',
+			'orderBy' => '',
+			'limit' => '',
+			'table' => 'fooTable'
+		];
+		$record = [];
+		$this->subject = $this->getAccessibleMock(
+			LookUpDB::class,
+			['performQuery'], [], '', FALSE);
+
+		$this->subject->expects($this->once())
+			->method('performQuery')
+			->with($expectedQueryConfiguration)
+			->will($this->returnValue(null));
 
 		$this->subject->process($configuration, $record);
 	}
@@ -98,6 +127,36 @@ class LookUpDBTest extends UnitTestCase {
 		$mockConfiguration = [
 			'targetField' => 1,
 			'fields' => []
+		];
+		$this->assertFalse(
+			$this->subject->isConfigurationValid($mockConfiguration)
+		);
+	}
+
+	/**
+	 * @test
+	 * @covers ::isConfigurationValid
+	 */
+	public function isConfigurationValidReturnsFalseIfTableIsNotSet() {
+		$mockConfiguration = [
+			'select' => [
+
+			]
+		];
+		$this->assertFalse(
+			$this->subject->isConfigurationValid($mockConfiguration)
+		);
+	}
+
+	/**
+	 * @test
+	 * @covers ::isConfigurationValid
+	 */
+	public function isConfigurationValidReturnsFalseIfTableIsNotString() {
+		$mockConfiguration = [
+			'select' => [
+				'table' => 1
+			]
 		];
 		$this->assertFalse(
 			$this->subject->isConfigurationValid($mockConfiguration)
@@ -198,5 +257,7 @@ class LookUpDBTest extends UnitTestCase {
 			$this->subject->isConfigurationValid($mockConfiguration)
 		);
 	}
+
+
 
 }
