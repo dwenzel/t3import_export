@@ -109,27 +109,28 @@ class ImportController extends ActionController {
 	/**
 	 * Import
 	 *
-	 * @param string $set
+	 * @param string $identifier
 	 */
-	public function importSetAction($set) {
+	public function importSetAction($identifier) {
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
 		);
-		if (isset($this->settings['importProcessor']['sets'][$set])) {
+		if (isset($this->settings['importProcessor']['sets'][$identifier])) {
 			$set = $this->importSetFactory->get(
-				$this->settings['importProcessor']['sets'][$set], $set
+				$this->settings['importProcessor']['sets'][$identifier], $identifier
 			);
-			$tasks = [];
-			/** @var ImportTask $task */
-			foreach ($task = $set->getTasks() as $task) {
-				$tasks[] = $task->getIdentifier();
-			}
-			$importDemand->setTasks($tasks);
+			$importDemand->setTasks($set->getTasks());
 		}
 
 		$this->importProcessor->buildQueue($importDemand);
-		$this->importProcessor->process();
+		$result = $this->importProcessor->process($importDemand);
+		$this->view->assignMultiple(
+			[
+				'set' => $identifier,
+				'result' => $result
+			]
+		);
 	}
 
 	/**
