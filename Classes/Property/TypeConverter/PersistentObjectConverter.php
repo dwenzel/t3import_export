@@ -128,11 +128,16 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 		$class = get_class($this);
 		$ignoreEnableFields = $configuration->getConfigurationValue($class, self::IGNORE_ENABLE_FIELDS);
 		if (isset($ignoreEnableFields)) {
-			$this->ignoreEnableFields = $ignoreEnableFields;
+			$this->ignoreEnableFields = (bool)$ignoreEnableFields;
 		}
 		$enableFieldsToBeIgnored = $configuration->getConfigurationValue($class, self::ENABLE_FIELDS_TO_BE_IGNORED);
 		if (isset($enableFieldsToBeIgnored)) {
-			$this->$enableFieldsToBeIgnored = $enableFieldsToBeIgnored;
+			if (is_string($enableFieldsToBeIgnored)) {
+				$this->enableFieldsToBeIgnored = explode(',', $enableFieldsToBeIgnored);
+			}
+			if (is_array($enableFieldsToBeIgnored)) {
+				$this->$enableFieldsToBeIgnored = $enableFieldsToBeIgnored;
+			}
 		}
 		$respectStoragePage = $configuration->getConfigurationValue($class, self::RESPECT_STORAGE_PAGE);
 		if (isset($respectStoragePage)) {
@@ -140,15 +145,15 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 		}
 		$respectSysLanguage = $configuration->getConfigurationValue($class, self::RESPECT_SYS_LANGUAGE);
 		if (isset($respectSysLanguage)) {
-			$this->$respectSysLanguage = $respectSysLanguage;
+			$this->respectSysLanguage = (bool)$respectSysLanguage;
 		}
 		$sysLanguageUid = $configuration->getConfigurationValue($class, self::SYS_LANGUAGE_UID);
 		if (isset($sysLanguageUid)) {
-			$this->$sysLanguageUid = $sysLanguageUid;
+			$this->sysLanguageUid = (int)$sysLanguageUid;
 		}
 		$includeDeleted = $configuration->getConfigurationValue($class, self::INCLUDE_DELETED);
 		if (isset($includeDeleted)) {
-			$this->$includeDeleted = $includeDeleted;
+			$this->includeDeleted = $includeDeleted;
 		}
 		$storagePages = $configuration->getConfigurationValue($class, self::STORAGE_PAGE_IDS);
 		if (isset($storagePages)) {
