@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3import\Property\TypeConverter;
 
+use TYPO3\CMS\Extbase\Exception;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException;
 use TYPO3\CMS\Extbase\Property\Exception\TargetNotFoundException;
@@ -196,9 +197,16 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 	 * @return object
 	 */
 	protected function fetchObjectFromPersistence($identity, $targetType) {
-
+		$object = NULL;
 		if (ctype_digit((string) $identity)) {
 			$object = $this->persistenceManager->getObjectByIdentifier($identity, $targetType);
+			try {
+				$object = parent::fetchObjectFromPersistence($identity, $targetType);
+			} catch (Exception $e) {
+				if ($this->respectStoragePage && empty($this->storagePageIds)) {
+					throw $e;
+				}
+			}
 		} else {
 			throw new InvalidSourceException('The identity property "' . $identity . '" is no UID.', 1297931020);
 		}
