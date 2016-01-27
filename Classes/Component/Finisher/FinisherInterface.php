@@ -26,10 +26,9 @@ interface FinisherInterface {
 	 *
 	 * @param array $configuration
 	 * @param array $records Array with prepared records
-	 * @param array $result Array with result records
 	 * @return bool
 	 */
-	public function isDisabled($configuration, $records, $result);
+	public function isDisabled($configuration, $records = []);
 
 	/**
 	 * Sets the configuration
