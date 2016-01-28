@@ -108,6 +108,7 @@ class ImportProcessor {
 					$target->persist($convertedRecord, $config);
 					$result[] = $convertedRecord;
 				}
+				$this->processFinishers($records, $task);
 			}
 			$this->persistenceManager->persistAll();
 		}
@@ -175,5 +176,13 @@ class ImportProcessor {
 		return $convertedRecord;
 	}
 
+	/**
+	 * Processes all finishers
+	 *
+	 * @param array $records Processed records
+	 * @param ImportTask $task Import task
+	 */
+	protected function processFinishers($records, $task) {
+	}
 
 }

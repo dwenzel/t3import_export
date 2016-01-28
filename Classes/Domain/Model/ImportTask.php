@@ -73,6 +73,11 @@ class ImportTask
 	protected $converters = [];
 
 	/**
+	 * @var array
+	 */
+	protected $finishers = [];
+
+	/**
 	 * @return string
 	 */
 	public function getDescription() {
@@ -176,6 +181,20 @@ class ImportTask
 	 */
 	public function setConverters($converters) {
 		$this->converters = $converters;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFinishers() {
+		return $this->finishers;
+	}
+
+	/**
+	 * @param array $finishers
+	 */
+	public function setFinishers($finishers) {
+		$this->finishers = $finishers;
 	}
 
 }

@@ -309,4 +309,48 @@ class ImportProcessorTest extends UnitTestCase {
 
 		$this->subject->process($importDemand);
 	}
+
+	/**
+	 * @test
+	 */
+	public function processExecutesFinishers() {
+		$identifier = 'foo';
+		$queue = [
+			$identifier => [
+				['bar']
+			]
+		];
+		$mockTask = $this->getMock(
+				ImportTask::class, ['getIdentifier', 'getTarget']
+		);
+		$mockDemand = $this->getMock(
+				ImportDemand::class, ['getTasks']);
+		$mockDemand->expects($this->once())
+			->method('getTasks')
+			->will($this->returnValue([$mockTask]));
+		$mockTarget = $this->getMock(
+				DataTargetInterface::class);
+		$this->subject = $this->getAccessibleMock(
+				ImportProcessor::class,
+				['convertSingle', 'processFinishers']
+		);
+		$this->subject->_set('queue', $queue);
+		$mockTask->expects($this->any())
+			->method('getIdentifier')
+			->will($this->returnValue($identifier));
+		$mockTask->expects($this->once())
+			->method('getTarget')
+			->will($this->returnValue($mockTarget));
+		$mockPersistenceManager = $this->getMock(
+				PersistenceManager::class, ['persistAll']
+		);
+		$this->subject->injectPersistenceManager(
+				$mockPersistenceManager
+		);
+
+		$this->subject->expects($this->once())
+			->method('processFinishers')
+			->with($queue[$identifier], $mockTask);
+		$this->subject->process($mockDemand);
+	}
 }

@@ -201,102 +201,32 @@ class TranslateObjectTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function processGetsPropertyMappingConfiguration() {
-		$config = ['foo'];
-		$mockObject = $this->getMock(
-			DomainObjectInterface::class
-		);
-		$mockRecord = [];
-		$mockConfigurationBuilder = $this->getMock(
-			PropertyMappingConfigurationBuilder::class,
-			['build']
-		);
-		$this->subject->injectPropertyMappingConfigurationBuilder(
-			$mockConfigurationBuilder
-		);
-		$mockConfigurationBuilder->expects($this->once())
-			->method('build')
-			->with([]);
-		$this->subject->process(
-			$config,
-			$mockObject,
-			$mockRecord
-		);
-	}
-
-	/**
-	 * @test
-	 */
-	public function processGetsPropertyMappingConfigurationFromConfig() {
-		$config = [
-			'mapping' => [
-				'config' => ['foo']
-			]
-		];
-		$mockParent = $this->getMock(
-			DomainObjectInterface::class
-		);
-		$mockObject = [];
-		$mockConfigurationBuilder = $this->getMock(
-			PropertyMappingConfigurationBuilder::class,
-			['build']
-		);
-		$this->subject->injectPropertyMappingConfigurationBuilder(
-			$mockConfigurationBuilder
-		);
-		$mockConfigurationBuilder->expects($this->once())
-			->method('build')
-			->with($config['mapping']['config']);
-		$this->subject->process(
-			$config,
-			$mockParent,
-			$mockObject
-		);
-	}
-
-	/**
-	 * @test
-	 */
 	public function processConvertsParentIfParentFieldIsSet() {
+		$this->subject = $this->getAccessibleMock(
+			TranslateObject::class, ['getLocalizationParent']
+		);
 		$config = [
-			'mapping' => [
-				'config' => ['foo']
-			],
+			'language' => '1',
 			'parentField' => 'foo'
 		];
 		$mockObject = $this->getMock(
 			DomainObjectInterface::class
 		);
+		$mockParent = $this->getMock(
+			DomainObjectInterface::class
+		);
 		$mockRecord = [
 			'foo' => 1
 		];
-		$mockConfigurationBuilder = $this->getMock(
-			PropertyMappingConfigurationBuilder::class,
-			['build']
-		);
-		$this->subject->injectPropertyMappingConfigurationBuilder(
-			$mockConfigurationBuilder
-		);
-		$mockTypeConverter = $this->getMock(
-			PersistentObjectConverter::class,
-			['convertFrom']
-		);
-		$this->subject->injectPersistentObjectConverter($mockTypeConverter);
-		$mockMappingConfiguration = $this->getMock(
-			PropertyMappingConfiguration::class
-		);
-		$mockConfigurationBuilder->expects($this->once())
-			->method('build')
-			->with($config['mapping']['config'])
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockTypeConverter->expects($this->once())
-			->method('convertFrom')
-			->with(
-				(string)$mockRecord[$config['parentField']],
-				get_class($mockObject),
-				[],
-				$mockMappingConfiguration
-			);
+		$mockTranslationService = $this->getMock(
+				TranslationService::class, ['translate']);
+		$this->subject->injectTranslationService($mockTranslationService);
+		$this->subject->expects($this->once())
+			->method('getLocalizationParent')
+			->will($this->returnValue($mockParent));
+		$mockTranslationService->expects($this->once())
+				->method('translate')
+				->with($mockParent, $mockObject, 1 );
 		$this->subject->process(
 			$config,
 			$mockObject,
