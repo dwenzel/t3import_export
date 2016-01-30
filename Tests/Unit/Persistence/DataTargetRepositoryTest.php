@@ -143,13 +143,27 @@ class DataTargetRepositoryTest extends UnitTestCase {
 	 * @covers ::persist
 	 */
 	public function persistAddsObject() {
-		$mockRepository = $this->getAccessibleMock(
-			Repository::class, ['add'], [], '', false
+		$this->subject = $this->getAccessibleMock(
+			DataTargetRepository::class, ['getRepository'], [], '', false
+		);
+
+		$mockPersistenceManager = $this->getMockForAbstractClass(
+			PersistenceManagerInterface::class
 		);
 		$mockObject = $this->getMock(
 			DomainObjectInterface::class
 		);
-		$this->subject->_set('repository', $mockRepository);
+		$mockRepository = $this->getAccessibleMock(
+			Repository::class, ['add'], [], '', false
+		);
+		$this->subject->injectPersistenceManager($mockPersistenceManager);
+		$this->subject->expects($this->once())
+			->method('getRepository')
+			->will($this->returnValue($mockRepository));
+		$mockPersistenceManager->expects($this->once())
+			->method('isNewObject')
+			->with($mockObject)
+			->will($this->returnValue(true));
 		$mockRepository->expects($this->once())
 			->method('add')
 			->with($mockObject);
@@ -163,16 +177,25 @@ class DataTargetRepositoryTest extends UnitTestCase {
 	 * @covers ::persist
 	 */
 	public function persistUpdatesObject() {
+		$this->subject = $this->getAccessibleMock(
+			DataTargetRepository::class, ['getRepository'], [], '', false
+		);
+
+		$mockPersistenceManager = $this->getMockForAbstractClass(
+			PersistenceManagerInterface::class
+		);
+		$this->subject->injectPersistenceManager($mockPersistenceManager);
 		$mockRepository = $this->getAccessibleMock(
 			Repository::class, ['update'], [], '', false
 		);
+		$this->subject->expects($this->once())
+			->method('getRepository')
+			->will($this->returnValue($mockRepository));
+
 		$mockObject = $this->getMock(
 			AbstractDomainObject::class, ['getUid']
 		);
 		$this->subject->_set('repository', $mockRepository);
-		$mockObject->expects($this->once())
-			->method('getUid')
-			->will($this->returnValue(5));
 		$mockRepository->expects($this->once())
 			->method('update')
 			->with($mockObject);
