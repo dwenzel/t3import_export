@@ -72,9 +72,6 @@ class ImportTask
 	 */
 	protected $converters = [];
 
-	/**
-	 * @var array
-	 */
 	protected $finishers = [];
 
 	/**

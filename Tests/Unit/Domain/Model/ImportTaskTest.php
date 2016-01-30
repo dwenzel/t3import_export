@@ -221,10 +221,10 @@ class ImportTaskTest extends UnitTestCase {
 	public function finishersCanBeSet() {
 		$finishers = ['foo'];
 		$this->subject->setFinishers($finishers);
+
 		$this->assertSame(
 			$finishers,
 			$this->subject->getFinishers()
 		);
 	}
-
 }

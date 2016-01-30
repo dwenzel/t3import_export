@@ -3,8 +3,10 @@ namespace CPSIT\T3import\Domain\Factory;
 
 use CPSIT\T3import\Component\Converter\ConverterInterface;
 use CPSIT\T3import\Component\Factory\ConverterFactory;
+use CPSIT\T3import\Component\Factory\FinisherFactory;
 use CPSIT\T3import\Component\Factory\PostProcessorFactory;
 use CPSIT\T3import\Component\Factory\PreProcessorFactory;
+use CPSIT\T3import\Component\Finisher\FinisherInterface;
 use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3import\Domain\Model\ImportTask;
@@ -66,6 +68,11 @@ class ImportTaskFactory extends AbstractFactory {
 	protected $converterFactory;
 
 	/**
+	 * @var FinisherFactory
+	 */
+	protected $finisherFactory;
+
+	/**
 	 * injects the data target factory
 	 *
 	 * @param DataTargetFactory $factory
@@ -108,6 +115,15 @@ class ImportTaskFactory extends AbstractFactory {
 	 */
 	public function injectConverterFactory(ConverterFactory $factory) {
 		$this->converterFactory = $factory;
+	}
+
+	/**
+	 * injects the finisher factory
+	 *
+	 * @param FinisherFactory $factory
+	 */
+	public function injectFinisherFactory(FinisherFactory $factory) {
+		$this->finisherFactory = $factory;
 	}
 
 	/**
@@ -155,6 +171,11 @@ class ImportTaskFactory extends AbstractFactory {
 			AND is_array($settings['converters'])
 		) {
 			$this->setConverters($task, $settings['converters'], $identifier);
+		}
+		if (isset($settings['finishers'])
+			AND is_array($settings['finishers'])
+		) {
+			$this->setFinishers($task, $settings['finishers'], $identifier);
 		}
 
 		return $task;
@@ -284,6 +305,27 @@ class ImportTaskFactory extends AbstractFactory {
 			$converters[$key] = $instance;
 		}
 		$task->setConverters($converters);
+	}
+
+	/**
+	 * Sets the converters for the import task
+	 *
+	 * @param ImportTask $task
+	 * @param array $settings
+	 * @param string $identifier
+	 * @throws InvalidConfigurationException
+	 */
+	protected function setFinishers(&$task, array $settings, $identifier) {
+		$finishers = [];
+		foreach ($settings as $key => $singleSettings) {
+			/** @var FinisherInterface $instance */
+			$instance = $this->finisherFactory->get($singleSettings, $identifier);
+			if (isset($singleSettings['config'])) {
+				$instance->setConfiguration($singleSettings['config']);
+			}
+			$finishers[$key] = $instance;
+		}
+		$task->setFinishers($finishers);
 	}
 
 }
