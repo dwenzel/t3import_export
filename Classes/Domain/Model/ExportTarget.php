@@ -1,5 +1,5 @@
 <?php
-namespace Domain\Model;
+namespace CPSIT\T3import\Domain\Model;
  
  /***************************************************************
  *
