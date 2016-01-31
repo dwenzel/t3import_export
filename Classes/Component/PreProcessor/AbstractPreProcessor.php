@@ -73,12 +73,4 @@ abstract class AbstractPreProcessor extends AbstractComponent {
 	protected function mapField($sourceField, $targetField, &$record) {
 		$record[$targetField] = $record[$sourceField];
 	}
-
-	/**
-	 * @param $sourceField
-	 * @param $record
-	 */
-	protected function unsetField($sourceField, &$record) {
-		unset($record[$sourceField]);
-	}
 }
