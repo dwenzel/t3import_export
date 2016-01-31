@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3import\Tests\Service;
 
+use CPSIT\T3import\Component\Finisher\FinisherInterface;
 use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
 use CPSIT\T3import\Domain\Model\ImportTask;
 use CPSIT\T3import\Persistence\DataSourceInterface;
@@ -321,8 +322,13 @@ class ImportProcessorTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-				ImportTask::class, ['getIdentifier', 'getTarget']
+			ImportTask::class,
+			['getIdentifier', 'getTarget', 'getFinishers']
 		);
+		$mockFinisher = $this->getMockForAbstractClass(
+			FinisherInterface::class
+		);
+		$finisherConfig = ['baz'];
 		$mockDemand = $this->getMock(
 				ImportDemand::class, ['getTasks']);
 		$mockDemand->expects($this->once())
@@ -332,7 +338,7 @@ class ImportProcessorTest extends UnitTestCase {
 				DataTargetInterface::class);
 		$this->subject = $this->getAccessibleMock(
 				ImportProcessor::class,
-				['convertSingle', 'processFinishers']
+				['convertSingle']
 		);
 		$this->subject->_set('queue', $queue);
 		$mockTask->expects($this->any())
@@ -341,6 +347,17 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockTask->expects($this->once())
 			->method('getTarget')
 			->will($this->returnValue($mockTarget));
+		$mockTask->expects($this->once())
+			->method('getFinishers')
+			->will($this->returnValue([$mockFinisher]));
+		$mockFinisher->expects($this->once())
+			->method('isDisabled')
+			->will($this->returnValue(false));
+		$mockFinisher->expects($this->once())
+			->method('getConfiguration')
+			->will($this->returnValue($finisherConfig));
+		$mockFinisher->expects($this->once())
+			->method('process');
 		$mockPersistenceManager = $this->getMock(
 				PersistenceManager::class, ['persistAll']
 		);
@@ -348,9 +365,6 @@ class ImportProcessorTest extends UnitTestCase {
 				$mockPersistenceManager
 		);
 
-		$this->subject->expects($this->once())
-			->method('processFinishers')
-			->with($queue[$identifier], $mockTask);
 		$this->subject->process($mockDemand);
 	}
 }
