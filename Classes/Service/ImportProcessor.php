@@ -110,8 +110,8 @@ class ImportProcessor {
 					$result[] = $convertedRecord;
 				}
 			}
-			$this->processFinishers($records, $task, $result);
 			$this->persistenceManager->persistAll();
+			$this->processFinishers($records, $task, $result);
 		}
 
 		return $result;
