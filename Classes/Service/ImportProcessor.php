@@ -19,6 +19,7 @@ namespace CPSIT\T3import\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3import\Component\Converter\AbstractConverter;
+use CPSIT\T3import\Component\Finisher\FinisherInterface;
 use CPSIT\T3import\ConfigurableInterface;
 use CPSIT\T3import\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor;
@@ -109,6 +110,7 @@ class ImportProcessor {
 					$result[] = $convertedRecord;
 				}
 			}
+			$this->processFinishers($records, $task, $result);
 			$this->persistenceManager->persistAll();
 		}
 
@@ -175,5 +177,22 @@ class ImportProcessor {
 		return $convertedRecord;
 	}
 
+	/**
+	 * Processes all finishers
+	 *
+	 * @param array $records Processed records
+	 * @param ImportTask $task Import task
+	 * @param array $result
+	 */
+	protected function processFinishers(&$records, $task, &$result) {
+		$finishers = $task->getFinishers();
+		foreach ($finishers as $finisher) {
+			/** @var FinisherInterface $finisher */
+			$config = $finisher->getConfiguration();
+			if (!$finisher->isDisabled($config)) {
+				$finisher->process($config, $records, $result);
+			}
+		}
+	}
 
 }

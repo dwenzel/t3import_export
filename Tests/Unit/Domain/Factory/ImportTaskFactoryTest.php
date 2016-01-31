@@ -3,8 +3,10 @@ namespace CPSIT\T3import\Tests\Domain\Factory;
 
 use CPSIT\T3import\Component\Converter\ConverterInterface;
 use CPSIT\T3import\Component\Factory\ConverterFactory;
+use CPSIT\T3import\Component\Factory\FinisherFactory;
 use CPSIT\T3import\Component\Factory\PostProcessorFactory;
 use CPSIT\T3import\Component\Factory\PreProcessorFactory;
+use CPSIT\T3import\Component\Finisher\FinisherInterface;
 use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3import\Factory\AbstractFactory;
@@ -122,6 +124,23 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		$this->assertAttributeEquals(
 			$mockFactory,
 			'converterFactory',
+			$this->subject
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectFinisherFactorySetsFactory() {
+		$mockFactory = $this->getMock(
+			FinisherFactory::class
+		);
+		$this->subject->injectFinisherFactory(
+			$mockFactory
+		);
+		$this->assertAttributeEquals(
+			$mockFactory,
+			'finisherFactory',
 			$this->subject
 		);
 	}
@@ -549,4 +568,56 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		$this->subject->get($configuration, $identifier);
 	}
 
+
+	/**
+	 * @test
+	 */
+	public function getSetsFinishers() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class,
+			['setTarget', 'setSource'], [], '', FALSE
+		);
+
+		$identifier = 'bar';
+		$finisherClass = FinisherInterface::class;
+		$singleConfiguration = [
+			'class' => $finisherClass,
+			'config' => ['foo']
+		];
+		$configuration = [
+			'finishers' => [
+				'1' => $singleConfiguration
+			]
+		];
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setFinishers']
+		);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get'], [], '', FALSE);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$mockFinisher = $this->getMockForAbstractClass(
+			$finisherClass, ['setConfiguration']
+		);
+		$mockFinisher->expects($this->once())
+			->method('setConfiguration')
+			->with($singleConfiguration['config']);
+		$mockFinisherFactory = $this->getMock(
+			FinisherFactory::class, ['get']
+		);
+		$this->subject->injectFinisherFactory($mockFinisherFactory);
+		$mockFinisherFactory->expects($this->once())
+			->method('get')
+			->with($singleConfiguration, $identifier)
+			->will($this->returnValue($mockFinisher));
+		$mockTask->expects($this->once())
+			->method('setFinishers')
+			->with(['1' => $mockFinisher]);
+		$this->subject->get($configuration, $identifier);
+	}
 }
