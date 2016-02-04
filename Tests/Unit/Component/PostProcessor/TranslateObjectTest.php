@@ -193,9 +193,62 @@ class TranslateObjectTest extends UnitTestCase {
 		$mockTargetClassValidator->expects($this->once())
 			->method('validate')
 			->with($config['mapping'])
-			->will($this->returnValue(true));
+			->will($this->returnValue(false));
 
-		$this->subject->isConfigurationValid($config);
+		$this->assertFalse(
+			$this->subject->isConfigurationValid($config)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function isConfigurationValidValidatesMappingConfiguration() {
+		$mockTargetClassValidator = $this->getAccessibleMock(
+			TargetClassConfigurationValidator::class,
+			['validate']
+		);
+		$mockMappingConfigurationValidator = $this->getAccessibleMock(
+			MappingConfigurationValidator::class,
+			['validate']
+		);
+		$config = [
+			'parentField' => 'foo',
+			'language' => 'foo',
+			'mapping' => [
+				'targetClass' => 'bar',
+				'config' => ['fooBar']
+			]
+		];
+		$this->subject->injectTargetClassConfigurationValidator($mockTargetClassValidator);
+		$this->subject->injectMappingConfigurationValidator($mockMappingConfigurationValidator);
+
+		$mockTargetClassValidator->expects($this->once())
+			->method('validate')
+			->with($config['mapping'])
+			->will($this->returnValue(true));
+		$mockMappingConfigurationValidator->expects($this->once())
+			->method('validate')
+			->with($config['mapping'])
+			->will($this->returnValue(false));
+
+		$this->assertFalse(
+			$this->subject->isConfigurationValid($config)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function isConfigurationValidReturnsTrueForValidConfiguration() {
+		$config = [
+			'parentField' => 'foo',
+			'language' => 'foo',
+		];
+
+		$this->assertTrue(
+			$this->subject->isConfigurationValid($config)
+		);
 	}
 
 	/**
