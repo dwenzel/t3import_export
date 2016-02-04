@@ -4,9 +4,11 @@ namespace CPSIT\T3import\Tests\Domain\Factory;
 use CPSIT\T3import\Component\Converter\ConverterInterface;
 use CPSIT\T3import\Component\Factory\ConverterFactory;
 use CPSIT\T3import\Component\Factory\FinisherFactory;
+use CPSIT\T3import\Component\Factory\InitializerFactory;
 use CPSIT\T3import\Component\Factory\PostProcessorFactory;
 use CPSIT\T3import\Component\Factory\PreProcessorFactory;
 use CPSIT\T3import\Component\Finisher\FinisherInterface;
+use CPSIT\T3import\Component\Initializer\InitializerInterface;
 use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3import\Factory\AbstractFactory;
@@ -141,6 +143,23 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		$this->assertAttributeEquals(
 			$mockFactory,
 			'finisherFactory',
+			$this->subject
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectInitializerFactorySetsFactory() {
+		$mockFactory = $this->getMock(
+			InitializerFactory::class
+		);
+		$this->subject->injectInitializerFactory(
+			$mockFactory
+		);
+		$this->assertAttributeEquals(
+			$mockFactory,
+			'initializerFactory',
 			$this->subject
 		);
 	}
@@ -567,8 +586,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->with(['1' => $mockConverter]);
 		$this->subject->get($configuration, $identifier);
 	}
-
-
+	
 	/**
 	 * @test
 	 */
@@ -618,6 +636,58 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		$mockTask->expects($this->once())
 			->method('setFinishers')
 			->with(['1' => $mockFinisher]);
+		$this->subject->get($configuration, $identifier);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getSetsInitializers() {
+		$this->subject = $this->getAccessibleMock(
+			ImportTaskFactory::class,
+			['setTarget', 'setSource'], [], '', FALSE
+		);
+
+		$identifier = 'bar';
+		$initializerClass = InitializerInterface::class;
+		$singleConfiguration = [
+			'class' => $initializerClass,
+			'config' => ['foo']
+		];
+		$configuration = [
+			'initializers' => [
+				'1' => $singleConfiguration
+			]
+		];
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setInitializers']
+		);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get'], [], '', FALSE);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$mockInitializer = $this->getMockForAbstractClass(
+			$initializerClass, ['setConfiguration']
+		);
+		$mockInitializer->expects($this->once())
+			->method('setConfiguration')
+			->with($singleConfiguration['config']);
+		$mockInitializerFactory = $this->getMock(
+			InitializerFactory::class, ['get']
+		);
+		$this->subject->injectInitializerFactory($mockInitializerFactory);
+		$mockInitializerFactory->expects($this->once())
+			->method('get')
+			->with($singleConfiguration, $identifier)
+			->will($this->returnValue($mockInitializer));
+		$mockTask->expects($this->once())
+			->method('setInitializers')
+			->with(['1' => $mockInitializer]);
 		$this->subject->get($configuration, $identifier);
 	}
 }

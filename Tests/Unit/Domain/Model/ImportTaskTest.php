@@ -227,4 +227,27 @@ class ImportTaskTest extends UnitTestCase {
 			$this->subject->getFinishers()
 		);
 	}
+
+	/**
+	 * @test
+	 */
+	public function getInitializersInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getInitializers()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function initializersCanBeSet() {
+		$initializers = ['foo'];
+		$this->subject->setInitializers($initializers);
+
+		$this->assertSame(
+			$initializers,
+			$this->subject->getInitializers()
+		);
+	}
 }

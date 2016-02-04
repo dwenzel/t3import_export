@@ -20,6 +20,7 @@ namespace CPSIT\T3import\Service;
  ***************************************************************/
 use CPSIT\T3import\Component\Converter\AbstractConverter;
 use CPSIT\T3import\Component\Finisher\FinisherInterface;
+use CPSIT\T3import\Component\Initializer\InitializerInterface;
 use CPSIT\T3import\ConfigurableInterface;
 use CPSIT\T3import\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor;
@@ -96,6 +97,7 @@ class ImportProcessor {
 				continue;
 			}
 			$records = $this->queue[$task->getIdentifier()];
+			$this->processInitializers($record, $task);
 
 			if ((bool) $records) {
 				foreach ($records as $record) {
@@ -195,4 +197,20 @@ class ImportProcessor {
 		}
 	}
 
+	/**
+	 * Processes all initializers
+	 *
+	 * @param array $records Processed records
+	 * @param ImportTask $task Import task
+	 */
+	protected function processInitializers(&$records, $task) {
+		$initializers = $task->getInitializers();
+		foreach ($initializers as $initializer) {
+			/** @var InitializerInterface $initializer */
+			$config = $initializer->getConfiguration();
+			if (!$initializer->isDisabled($config)) {
+				$initializer->process($config, $records);
+			}
+		}
+	}
 }

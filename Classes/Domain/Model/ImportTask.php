@@ -58,21 +58,39 @@ class ImportTask
 	protected $target;
 
 	/**
+	 * Pre Processors
+	 *
 	 * @var array
 	 */
 	protected $preProcessors = [];
 
 	/**
+	 * Post Processors
+	 *
 	 * @var array
 	 */
 	protected $postProcessors = [];
 
 	/**
+	 * Converters
+	 *
 	 * @var array
 	 */
 	protected $converters = [];
 
+	/**
+	 * Finishers
+	 *
+	 * @var array
+	 */
 	protected $finishers = [];
+
+	/**
+	 * Initializers
+	 *
+	 * @var array
+	 */
+	protected $initializers = [];
 
 	/**
 	 * @return string
@@ -192,6 +210,20 @@ class ImportTask
 	 */
 	public function setFinishers($finishers) {
 		$this->finishers = $finishers;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getInitializers() {
+		return $this->initializers;
+	}
+
+	/**
+	 * @param array $initializers
+	 */
+	public function setInitializers($initializers) {
+		$this->initializers = $initializers;
 	}
 
 }

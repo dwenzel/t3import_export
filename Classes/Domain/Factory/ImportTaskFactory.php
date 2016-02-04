@@ -4,9 +4,11 @@ namespace CPSIT\T3import\Domain\Factory;
 use CPSIT\T3import\Component\Converter\ConverterInterface;
 use CPSIT\T3import\Component\Factory\ConverterFactory;
 use CPSIT\T3import\Component\Factory\FinisherFactory;
+use CPSIT\T3import\Component\Factory\InitializerFactory;
 use CPSIT\T3import\Component\Factory\PostProcessorFactory;
 use CPSIT\T3import\Component\Factory\PreProcessorFactory;
 use CPSIT\T3import\Component\Finisher\FinisherInterface;
+use CPSIT\T3import\Component\Initializer\InitializerInterface;
 use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3import\Domain\Model\ImportTask;
@@ -73,6 +75,11 @@ class ImportTaskFactory extends AbstractFactory {
 	protected $finisherFactory;
 
 	/**
+	 * @var InitializerFactory
+	 */
+	protected $initializerFactory;
+
+	/**
 	 * injects the data target factory
 	 *
 	 * @param DataTargetFactory $factory
@@ -127,6 +134,15 @@ class ImportTaskFactory extends AbstractFactory {
 	}
 
 	/**
+	 * injects the initializer factory
+	 *
+	 * @param InitializerFactory $factory
+	 */
+	public function injectInitializerFactory(InitializerFactory $factory) {
+		$this->initializerFactory = $factory;
+	}
+
+	/**
 	 * Builds a task
 	 *
 	 * @param array $settings
@@ -176,6 +192,11 @@ class ImportTaskFactory extends AbstractFactory {
 			AND is_array($settings['finishers'])
 		) {
 			$this->setFinishers($task, $settings['finishers'], $identifier);
+		}
+		if (isset($settings['initializers'])
+			AND is_array($settings['initializers'])
+		) {
+			$this->setInitializers($task, $settings['initializers'], $identifier);
 		}
 
 		return $task;
@@ -308,7 +329,7 @@ class ImportTaskFactory extends AbstractFactory {
 	}
 
 	/**
-	 * Sets the converters for the import task
+	 * Sets the finishers for the import task
 	 *
 	 * @param ImportTask $task
 	 * @param array $settings
@@ -328,4 +349,24 @@ class ImportTaskFactory extends AbstractFactory {
 		$task->setFinishers($finishers);
 	}
 
+	/**
+	 * Sets the initializers for the import task
+	 *
+	 * @param ImportTask $task
+	 * @param array $settings
+	 * @param string $identifier
+	 * @throws InvalidConfigurationException
+	 */
+	protected function setInitializers(&$task, array $settings, $identifier) {
+		$initializers = [];
+		foreach ($settings as $key => $singleSettings) {
+			/** @var InitializerInterface $instance */
+			$instance = $this->initializerFactory->get($singleSettings, $identifier);
+			if (isset($singleSettings['config'])) {
+				$instance->setConfiguration($singleSettings['config']);
+			}
+			$initializers[$key] = $instance;
+		}
+		$task->setInitializers($initializers);
+	}
 }

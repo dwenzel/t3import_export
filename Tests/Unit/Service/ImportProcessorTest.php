@@ -2,6 +2,7 @@
 namespace CPSIT\T3import\Tests\Service;
 
 use CPSIT\T3import\Component\Finisher\FinisherInterface;
+use CPSIT\T3import\Component\Initializer\InitializerInterface;
 use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
 use CPSIT\T3import\Domain\Model\ImportTask;
 use CPSIT\T3import\Persistence\DataSourceInterface;
@@ -363,6 +364,63 @@ class ImportProcessorTest extends UnitTestCase {
 		);
 		$this->subject->injectPersistenceManager(
 				$mockPersistenceManager
+		);
+
+		$this->subject->process($mockDemand);
+	}
+
+	/**
+	 * @test
+	 */
+	public function processExecutesInitializers() {
+		$identifier = 'foo';
+		$queue = [
+			$identifier => [
+				['bar']
+			]
+		];
+		$mockTask = $this->getMock(
+			ImportTask::class,
+			['getIdentifier', 'getTarget', 'getInitializers']
+		);
+		$mockInitializer = $this->getMockForAbstractClass(
+			InitializerInterface::class
+		);
+		$initializerConfig = ['baz'];
+		$mockDemand = $this->getMock(
+			ImportDemand::class, ['getTasks']);
+		$mockDemand->expects($this->once())
+			->method('getTasks')
+			->will($this->returnValue([$mockTask]));
+		$mockTarget = $this->getMock(
+			DataTargetInterface::class);
+		$this->subject = $this->getAccessibleMock(
+			ImportProcessor::class,
+			['convertSingle']
+		);
+		$this->subject->_set('queue', $queue);
+		$mockTask->expects($this->any())
+			->method('getIdentifier')
+			->will($this->returnValue($identifier));
+		$mockTask->expects($this->once())
+			->method('getTarget')
+			->will($this->returnValue($mockTarget));
+		$mockTask->expects($this->once())
+			->method('getInitializers')
+			->will($this->returnValue([$mockInitializer]));
+		$mockInitializer->expects($this->once())
+			->method('isDisabled')
+			->will($this->returnValue(false));
+		$mockInitializer->expects($this->once())
+			->method('getConfiguration')
+			->will($this->returnValue($initializerConfig));
+		$mockInitializer->expects($this->once())
+			->method('process');
+		$mockPersistenceManager = $this->getMock(
+			PersistenceManager::class, ['persistAll']
+		);
+		$this->subject->injectPersistenceManager(
+			$mockPersistenceManager
 		);
 
 		$this->subject->process($mockDemand);
