@@ -1,10 +1,9 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\PreProcessor;
+namespace CPSIT\T3import\Tests\Unit\Component\Initializer;
 
-use CPSIT\T3import\Component\PreProcessor\LookUpDB;
+use CPSIT\T3import\Component\Initializer\TruncateTables;
 use CPSIT\T3import\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -26,20 +25,20 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  ***************************************************************/
 
 /**
- * Class LookUpDBTest
+ * Class TruncateTablesTest
  *
- * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\LookUpDB
+ * @package CPSIT\T3import\Tests\Service\Initializer
+ * @coversDefaultClass \CPSIT\T3import\Component\Initializer\TruncateTables
  */
-class LookUpDBTest extends UnitTestCase {
+class TruncateTablesTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PreProcessor\LookUpDB
+	 * @var \CPSIT\T3import\Component\Initializer\TruncateTables
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock(LookUpDB::class,
+		$this->subject = $this->getAccessibleMock(TruncateTables::class,
 			['getQueryConfiguration'], [], '', FALSE);
 	}
 
@@ -81,40 +80,10 @@ class LookUpDBTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 */
-	public function processGetsQueryConfiguration() {
-		$configuration = [
-			'select' => [
-				'table' => 'fooTable'
-			]
-		];
-		$expectedQueryConfiguration = [
-			'fields' => '*',
-			'where' => '',
-			'groupBy' => '',
-			'orderBy' => '',
-			'limit' => '',
-			'table' => 'fooTable'
-		];
-		$record = [];
-		$this->subject = $this->getAccessibleMock(
-			LookUpDB::class,
-			['performQuery'], [], '', FALSE);
-
-		$this->subject->expects($this->once())
-			->method('performQuery')
-			->with($expectedQueryConfiguration)
-			->will($this->returnValue(null));
-
-		$this->subject->process($configuration, $record);
-	}
-
-	/**
-	 * @test
 	 * @covers ::isConfigurationValid
 	 */
-	public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet() {
-		$mockConfiguration = ['foo'];
+	public function isConfigurationValidReturnsFalseIfTablesIsNotSet() {
+		$mockConfiguration = [];
 		$this->assertFalse(
 			$this->subject->isConfigurationValid($mockConfiguration)
 		);
@@ -124,67 +93,9 @@ class LookUpDBTest extends UnitTestCase {
 	 * @test
 	 * @covers ::isConfigurationValid
 	 */
-	public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString() {
+	public function isConfigurationValidReturnsFalseIfTablesIsNotString() {
 		$mockConfiguration = [
-			'targetField' => 1,
-			'fields' => []
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
-
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotSet() {
-		$mockConfiguration = [
-			'select' => [
-
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
-
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotString() {
-		$mockConfiguration = [
-			'select' => [
-				'table' => 1
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
-
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfSourceIsNotSet() {
-		$mockConfiguration = [
-			'targetField' => 'foo'
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
-
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfSourceIsNotArray() {
-		$mockConfiguration = [
-			'targetField' => 'foo',
-			'source' => 'invalidStringValue'
+			'tables' => 1
 		];
 		$this->assertFalse(
 			$this->subject->isConfigurationValid($mockConfiguration)
@@ -207,9 +118,7 @@ class LookUpDBTest extends UnitTestCase {
 
 		$validConfiguration = [
 			'identifier' => 'fooDatabaseIdentifier',
-			'select' => [
-				'table' => 'tableName',
-			]
+				'tables' => 'tableName',
 		];
 		$this->assertTrue(
 			$this->subject->isConfigurationValid($validConfiguration)
@@ -223,9 +132,7 @@ class LookUpDBTest extends UnitTestCase {
 	public function isConfigurationValidReturnsFalseForInvalidIdentifier() {
 		$mockConfiguration = [
 			'identifier' => [],
-			'select' => [
-				'table' => 'fooTable'
-			],
+			'tables' => 'fooTable'
 		];
 		$this->assertFalse(
 			$this->subject->isConfigurationValid($mockConfiguration)
@@ -250,15 +157,12 @@ class LookUpDBTest extends UnitTestCase {
 
 		$mockConfiguration = [
 			'identifier' => 'missingDatabaseIdentifier',
-			'select' => [
-				'table' => 'fooTable'
-			],
+			'tables' => 'fooTable'
 		];
 		$this->assertFalse(
 			$this->subject->isConfigurationValid($mockConfiguration)
 		);
 	}
-
 
 	/**
 	 * @test
@@ -273,5 +177,25 @@ class LookUpDBTest extends UnitTestCase {
 			$GLOBALS['TYPO3_DB'],
 			$this->subject->_get('database')
 		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function processTruncatesTables() {
+		$tableName = 'fooTable';
+		$config = [
+			'tables' => $tableName
+		];
+		$records = [];
+		$mockDatabase = $this->getMock(
+			DatabaseConnection::class, ['exec_TRUNCATEquery']
+		);
+		$mockDatabase->expects($this->once())
+			->method('exec_TRUNCATEquery')
+			->with($tableName);
+		$this->subject->_set('database', $mockDatabase);
+		
+		$this->subject->process($config, $records);
 	}
 }
