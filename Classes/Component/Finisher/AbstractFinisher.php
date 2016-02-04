@@ -1,0 +1,50 @@
+<?php
+namespace CPSIT\T3import\Component\Finisher;
+
+use CPSIT\T3import\Component\AbstractComponent;
+
+/***************************************************************
+ *
+ *  Copyright notice
+ *
+ *  (c) 2016 Dirk Wenzel <dirk.wenzel@cps-it.de>
+ *
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
+abstract class AbstractFinisher extends AbstractComponent {
+	/**
+	 * @param array $configuration
+	 * @param array $records Array with prepared records
+	 * @param array $result Array with result records
+	 * @return bool
+	 */
+	abstract public function process($configuration, &$records, &$result);
+
+	/**
+	 * Tells whether a given configuration is valid
+	 * Override this method in order to perform validation of
+	 * configuration
+	 *
+	 * @param array $configuration
+	 * @return bool
+	 */
+	public function isConfigurationValid(array $configuration) {
+		return TRUE;
+	}
+}

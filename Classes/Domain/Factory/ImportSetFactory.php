@@ -19,6 +19,7 @@ namespace CPSIT\T3import\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3import\Domain\Model\ImportSet;
+use CPSIT\T3import\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -44,11 +45,12 @@ class ImportSetFactory extends AbstractFactory {
 	/**
 	 * Builds a set of tasks
 	 *
-	 * @param string $identifier
 	 * @param array $settings
+	 * @param string $identifier
 	 * @return ImportSet
+	 * @throws \CPSIT\T3import\InvalidConfigurationException
 	 */
-	public function get($identifier, array $settings) {
+	public function get(array $settings, $identifier = null) {
 		/** @var ImportSet $importSet */
 		$importSet = $this->objectManager->get(
 			ImportSet::class
@@ -64,7 +66,7 @@ class ImportSetFactory extends AbstractFactory {
 			foreach ($taskIdentifiers as $taskIdentifier) {
 				if (isset($this->settings['importProcessor']['tasks'][$taskIdentifier])) {
 					$task = $this->importTaskFactory->get(
-						$taskIdentifier, $this->settings['importProcessor']['tasks'][$taskIdentifier]
+						$this->settings['importProcessor']['tasks'][$taskIdentifier], $taskIdentifier
 					);
 					$tasks[$taskIdentifier] = $task;
 				}

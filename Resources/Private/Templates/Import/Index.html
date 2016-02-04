@@ -11,17 +11,11 @@
 
 	<h2>Tasks</h2>
 	<p>Select an import task to perform</p>
-	<f:form
-		action="importTask"
-		name="task">
-		<f:form.select
-			name="task"
-			options="{tasks}"
-			optionValueField="identifier"
-			optionLabelField="identifier"
-			/>
-		<f:form.submit name="submit" value="import" />
-	</f:form>
+	<ul class="list">
+		<f:for each="{tasks}" as="task">
+			<f:render partial="Task/ListItem" arguments="{task: task}" />
+		</f:for>
+	</ul>
 
 	<h2>Sets</h2>
 	<p>Select an import set to perform</p>
@@ -29,12 +23,11 @@
 		action="importSet"
 		name="importSet">
 		<f:form.select
-			name="set"
+			name="identifier"
 			options="{sets}"
 			optionValueField="identifier"
 			optionLabelField="identifier"
 			/>
 		<f:form.submit name="submit" value="import" />
 	</f:form>
-	<f:link.action action="import">Start import</f:link.action><br />
 </f:section>

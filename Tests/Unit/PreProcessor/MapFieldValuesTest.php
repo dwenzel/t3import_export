@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3import\Tests\PreProcessor;
 
-use CPSIT\T3import\PreProcessor\MapFieldValues;
+use CPSIT\T3import\Component\PreProcessor\MapFieldValues;
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 
 /***************************************************************
@@ -26,17 +26,17 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
  * Class GuessSeminarLanguageTest
  *
  * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\PreProcessor\MapFieldValues
+ * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\MapFieldValues
  */
 class MapFieldValuesTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\PreProcessor\MapFieldValues
+	 * @var \CPSIT\T3import\Component\PreProcessor\MapFieldValues
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\PreProcessor\\MapFieldValues',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PreProcessor\\MapFieldValues',
 			['dummy'], [], '', FALSE);
 	}
 

@@ -17,7 +17,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# match existing persons
 			1 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {
@@ -39,7 +39,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# set person type
 			3 {
-				class = CPSIT\T3import\PreProcessor\SetFieldValue
+				class = CPSIT\T3import\Component\PreProcessor\SetFieldValue
 				config {
 					targetField = personType
 					value = 2
@@ -47,7 +47,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# map gender
 			4 {
-				class = CPSIT\T3import\PreProcessor\MapFieldValues
+				class = CPSIT\T3import\Component\PreProcessor\MapFieldValues
 				config {
 					fields {
 						gender {
@@ -62,7 +62,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 				}
 			}
 			5 {
-				class = CPSIT\T3import\PreProcessor\MapFields
+				class = CPSIT\T3import\Component\PreProcessor\MapFields
 				config.fields {
 					details_de = details
 					curriculum_de = curriculum
@@ -72,7 +72,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 				}
 			}
 			6 {
-				class = CPSIT\T3import\PreProcessor\RenderContent
+				class = CPSIT\T3import\Component\PreProcessor\RenderContent
 				config.fields {
 					zewId = TEXT
 					zewId.value {

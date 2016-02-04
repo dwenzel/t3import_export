@@ -3,6 +3,80 @@
 module.tx_t3import.settings.importProcessor.tasks {
 	# unique identifier for this task
 	event {
+		source {
+			// fully qualified class name of the data source. Default is
+			#class = CPSIT\T3import\Persistence\DataSourceDB
+			identifier = zew
+			config {
+				# configuration for query to remote database
+				table = veranstaltung JOIN veranstaltungstyp2veranstaltung as MM ON (veranstaltung.lfdnr = MM.veranstaltung AND MM.veranstaltungstyp not in('7','1'))
+				fields = lfdnr,titel,vontermin,bistermin,themeninhalt,allgemeine_info,ort,sprache
+				orderBy =lfdnr
+				limit = 5
+			}
+		}
+		target {
+			// fully qualified class name of the data target. Default is
+			#class = CPSIT\T3import\Persistence\DataTargetRepository
+			object {
+				class = Webfox\T3events\Domain\Model\Event
+			}
+		}
+		converters {
+			1 {
+				class = CPSIT\T3import\Component\Converter\ArrayToDomainObject
+				config {
+					targetClass = Webfox\T3events\Domain\Model\Event
+					allowProperties = headline,subtitle,description,performances,eventType,eventLocation,genre,speakers,zewId,keywords,departments,tags
+					properties {
+						eventType {
+							allowProperties = zewId
+						}
+						performances {
+							allowAllProperties = 1
+							# configuration for all children in object storage field
+							children {
+								maxItems = 5
+								allowProperties = date,endDate,priceNotice,eventLocation
+								properties {
+									date {
+										typeConverter {
+											# use a type converter different from default PersistentObjectConverter
+											class = TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter
+											options {
+												dateFormat = U
+											}
+										}
+									}
+									endDate {
+										typeConverter {
+											class = TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter
+											options {
+												dateFormat = U
+											}
+										}
+									}
+								}
+							}
+
+						}
+						genre {
+							allowAllProperties = 1
+						}
+						speakers {
+							allowAllProperties = 1
+						}
+						departments {
+							allowAllProperties = 1
+						}
+						tags {
+							allowAllProperties = 1
+						}
+					}
+				}
+			}
+		}
+		# legacy configuration - see above for current!
 		# target class for this import task
 		class = Webfox\T3events\Domain\Model\Event
 		sourceQueryConfiguration {
@@ -66,7 +140,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# concatenate some fields to another field and wrap them
 			1 {
-				class = CPSIT\T3import\PreProcessor\ConcatenateFields
+				class = CPSIT\T3import\Component\PreProcessor\ConcatenateFields
 				config {
 					targetField = description
 					fields {
@@ -84,7 +158,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# set language
 			2 {
-				class =CPSIT\T3import\PreProcessor\MapFieldValues
+				class =CPSIT\T3import\Component\PreProcessor\MapFieldValues
 				config {
 					fields {
 						sprache {
@@ -99,7 +173,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up related records from remote database
 			3 {
-				class = CPSIT\T3import\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					select {
@@ -121,7 +195,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match records with local records
 			4 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = event_type
 					select {
@@ -143,7 +217,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up related records from remote database
 			5 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					disable = TEXT
 					disable {
@@ -170,7 +244,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			# relation between event and speaker
 			# speaker = referent2veranstaltung (referent is in mitarbeiter)
 			6 {
-				class = CPSIT\T3import\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					targetField = speakers_employee
@@ -192,7 +266,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			# relation between event and speaker
 			# speaker = referent2veranstaltung (referent is in verantwortlicher)
 			7 {
-				class = CPSIT\T3import\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					targetField = speakers_responsible
@@ -213,7 +287,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up existing person
 			8 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = speakers_employee
 					select {
@@ -240,7 +314,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up existing person
 			9 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = speakers_responsible
 					select {
@@ -267,7 +341,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# add speakers
 			10 {
-				class = CPSIT\T3import\PreProcessor\AddArrays
+				class = CPSIT\T3import\Component\PreProcessor\AddArrays
 				config {
 					targetField = speakers
 					fields = speakers_responsible,speakers_employee
@@ -275,7 +349,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# lookup existing events
 			11 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {
@@ -310,7 +384,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# get relation to department from source db
 			14 {
-				class = CPSIT\T3import\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					identifier = zew
 					targetField = departments
@@ -331,7 +405,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# lookup and map to existing local department
 			15 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = departments
 					select {
@@ -356,14 +430,14 @@ module.tx_t3import.settings.importProcessor.tasks {
 				}
 			}
 			17 {
-				class = CPSIT\T3import\PreProcessor\MapFields
+				class = CPSIT\T3import\Component\PreProcessor\MapFields
 				config.fields {
 					titel = headline
 					event_type = eventType
 				}
 			}
 			18 {
-				class = CPSIT\T3import\PreProcessor\RenderContent
+				class = CPSIT\T3import\Component\PreProcessor\RenderContent
 				config.fields{
 					zewId = TEXT
 					zewId.value{
@@ -375,7 +449,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		}
 		postProcessors {
 			1 {
-				class = CPSIT\T3import\PostProcessor\SetHiddenProperties
+				class = CPSIT\T3import\Component\PostProcessor\SetHiddenProperties
 				config {
 					fields {
 						languageUid = 1

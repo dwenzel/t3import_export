@@ -82,22 +82,25 @@ class ImportController extends ActionController {
 	}
 
 	/**
-	 * Import
+	 * Import task action
 	 *
-	 * @param string $task
+	 * @param string $identifier
 	 */
-	public function importTaskAction($task) {
+	public function importTaskAction($identifier) {
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
 		);
+		$task = $this->importTaskFactory->get(
+			$this->settings['importProcessor']['tasks'][$identifier], $identifier
+		);
 		$importDemand->setTasks([$task]);
 
 		$this->importProcessor->buildQueue($importDemand);
-		$result = $this->importProcessor->process();
+		$result = $this->importProcessor->process($importDemand);
 		$this->view->assignMultiple(
 			[
-				'task' => $task,
+				'task' => $identifier,
 				'result' => $result
 			]
 		);
@@ -106,28 +109,28 @@ class ImportController extends ActionController {
 	/**
 	 * Import
 	 *
-	 * @param string $set
+	 * @param string $identifier
 	 */
-	public function importSetAction($set) {
+	public function importSetAction($identifier) {
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
 		);
-		if (isset($this->settings['importProcessor']['sets'][$set])) {
+		if (isset($this->settings['importProcessor']['sets'][$identifier])) {
 			$set = $this->importSetFactory->get(
-				$set,
-				$this->settings['importProcessor']['sets'][$set]
+				$this->settings['importProcessor']['sets'][$identifier], $identifier
 			);
-			$tasks = [];
-			/** @var ImportTask $task */
-			foreach ($task = $set->getTasks() as $task) {
-				$tasks[] = $task->getIdentifier();
-			}
-			$importDemand->setTasks($tasks);
+			$importDemand->setTasks($set->getTasks());
 		}
 
 		$this->importProcessor->buildQueue($importDemand);
-		$this->importProcessor->process();
+		$result = $this->importProcessor->process($importDemand);
+		$this->view->assignMultiple(
+			[
+				'set' => $identifier,
+				'result' => $result
+			]
+		);
 	}
 
 	/**
@@ -142,8 +145,7 @@ class ImportController extends ActionController {
 		if (is_array($settings)) {
 			foreach ($settings as $identifier => $taskSettings) {
 				$tasks[$identifier] = $this->importTaskFactory->get(
-					$identifier,
-					$taskSettings
+					$taskSettings, $identifier
 				);
 			}
 		}
@@ -162,7 +164,7 @@ class ImportController extends ActionController {
 
 		if (is_array($settings)) {
 			foreach ($settings as $identifier => $setSettings) {
-				$sets[$identifier] = $this->importSetFactory->get($identifier, $setSettings);
+				$sets[$identifier] = $this->importSetFactory->get($setSettings, $identifier);
 			}
 		}
 

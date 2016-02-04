@@ -18,6 +18,8 @@ namespace CPSIT\T3import\Domain\Model;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\T3import\IdentifiableInterface;
+use CPSIT\T3import\IdentifiableTrait;
 use Webfox\T3events\Domain\Model\Task;
 
 /**
@@ -26,14 +28,8 @@ use Webfox\T3events\Domain\Model\Task;
  *
  * @package CPSIT\T3import\Domain\Model
  */
-class ImportSet {
-
-	/**
-	 * Unique identifier
-	 *
-	 * @var string
-	 */
-	protected $identifier;
+class ImportSet implements IdentifiableInterface {
+	use IdentifiableTrait;
 
 	/**
 	 * Description
@@ -48,20 +44,6 @@ class ImportSet {
 	 * @var array
 	 */
 	protected $tasks;
-
-	/**
-	 * @return string
-	 */
-	public function getIdentifier() {
-		return $this->identifier;
-	}
-
-	/**
-	 * @param string $identifier
-	 */
-	public function setIdentifier($identifier) {
-		$this->identifier = $identifier;
-	}
 
 	/**
 	 * @return string

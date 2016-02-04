@@ -65,7 +65,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# get seminar dates from source db (performances)
 			1 {
-				class = CPSIT\T3import\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = performances
 					select {
@@ -95,7 +95,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# convert date fields
 			2 {
-				class = CPSIT\T3import\PreProcessor\StringToTime
+				class = CPSIT\T3import\Component\PreProcessor\StringToTime
 				config {
 					fields = date,endDate
 					multipleRowFields = performances
@@ -103,7 +103,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match local EventType
 			3 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = event_type
 					select {
@@ -123,10 +123,9 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match local event location
 			4 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = eventLocation
-					childRecords = performances
 					select {
 						table = tx_t3events_domain_model_eventlocation
 						fields = uid
@@ -146,7 +145,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# Relations between seminar and speaker
 			5 {
-				class = CPSIT\T3import\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = speakers
 					select {
@@ -166,7 +165,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# look up existing person
 			6 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = speakers
 					select {
@@ -193,7 +192,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match existing event
 			7 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {
@@ -230,7 +229,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# match genres
 			10 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = genre
 					select {
@@ -254,7 +253,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			#map fields if language is english (1)
 			12 {
-				class = CPSIT\T3import\PreProcessor\MapFields
+				class = CPSIT\T3import\Component\PreProcessor\MapFields
 				config {
 					disable = TEXT
 					disable {
@@ -272,7 +271,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			#map fields if language is not english (i.e. german)
 			13 {
-				class = CPSIT\T3import\PreProcessor\MapFields
+				class = CPSIT\T3import\Component\PreProcessor\MapFields
 				config {
 					disable = TEXT
 					disable {
@@ -290,14 +289,14 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# map fields (always)
 			14 {
-				class = CPSIT\T3import\PreProcessor\MapFields
+				class = CPSIT\T3import\Component\PreProcessor\MapFields
 				config.fields {
 					event_type = eventType
 				}
 			}
 			# render field values
 			15 {
-				class = CPSIT\T3import\PreProcessor\RenderContent
+				class = CPSIT\T3import\Component\PreProcessor\RenderContent
 				config {
 					fields {
 						zewId = TEXT
@@ -462,7 +461,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# relation between seminar and tags
 			16 {
-				class = CPSIT\T3import\PreProcessor\LookUpSourceDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					targetField = tags
 					select {
@@ -482,7 +481,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# lookup existing tags
 			17 {
-				class = CPSIT\T3import\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
 				config {
 					#disable = 1
 					targetField = tags
@@ -511,7 +510,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		}
 		postProcessors {
 			1 {
-				class = CPSIT\T3import\PostProcessor\SetHiddenProperties
+				class = CPSIT\T3import\Component\PostProcessor\SetHiddenProperties
 				config {
 					fields {
 						languageUid = 1

@@ -1,80 +1,63 @@
 <?php
-namespace CPSIT\T3import\Tests\Command;
+namespace CPSIT\T3import\Tests\Unit\Command;
 
 use CPSIT\T3import\Command\ImportCommandController;
+use CPSIT\T3import\Domain\Factory\ImportSetFactory;
+use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3import\Domain\Model\Dto\DemandInterface;
+use CPSIT\T3import\Domain\Model\ImportSet;
+use CPSIT\T3import\Domain\Model\ImportTask;
 use CPSIT\T3import\Service\ImportProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
+ *
  *  Copyright notice
- *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
+ *
+ *  (c) 2016 Dirk Wenzel <dirk.wenzel@cps-it.de>
+ *
  *  All rights reserved
+ *
  *  This script is part of the TYPO3 project. The TYPO3 project is
  *  free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
+ *
  *  The GNU General Public License can be found at
  *  http://www.gnu.org/copyleft/gpl.html.
+ *
  *  This script is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+ *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
 /**
- * Class DummyConnectionService
- * replaces external dependency
- *
- * @package CPSIT\T3import\Tests\Service
- */
-class DummyConnectionService {
-}
-
-/**
- * Class DummyRepository
- * replaces external dependency
- *
- * @package CPSIT\T3import\Tests\Service
- */
-class DummyRepository {
-}
-
-/**
  * Class ImportCommandControllerTest
  *
- * @package CPSIT\T3import\Tests\Command
+ * @package CPSIT\T3import\Tests\Unit\Command
  * @coversDefaultClass \CPSIT\T3import\Command\ImportCommandController
  */
 class ImportCommandControllerTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Command\ImportCommandController
+	 * @var ImportCommandController
 	 */
 	protected $subject;
 
+	/**
+	 * set up
+	 */
 	public function setUp() {
-		if (!class_exists('CPSIT\\ZewProjectconf\\Service\\ZewDbConnectionService')) {
-			class_alias(
-				'CPSIT\\T3import\\Tests\\Command\\DummyConnectionService',
-				'CPSIT\\ZewProjectconf\\Service\\ZewDbConnectionService'
-			);
-		}
-		if (!class_exists('CPSIT\\ZewEvents\\Domain\\Repository\\EventRepository')) {
-			class_alias(
-				'CPSIT\\T3import\\Tests\\Command\\DummyRepository',
-				'CPSIT\\ZewEvents\\Domain\\Repository\\EventRepository'
-			);
-		}
-		if (!class_exists('CPSIT\\ZewEvents\\Domain\\Repository\\PerformanceRepository')) {
-			class_alias(
-				'CPSIT\\T3import\\Tests\\Command\\DummyRepository',
-				'CPSIT\\ZewEvents\\Domain\\Repository\\PerformanceRepository'
-			);
-		}
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Command\\ImportCommandController',
-			array('dummy'), array(), '', FALSE);
+		$this->subject = $this->getAccessibleMock(
+			ImportCommandController::class, ['dummy']
+		);
 	}
 
 	/**
@@ -82,7 +65,8 @@ class ImportCommandControllerTest extends UnitTestCase {
 	 * @covers ::injectImportProcessor
 	 */
 	public function injectImportProcessorForObjectSetsImportProcessor() {
-		$expectedProcessor = $this->getMock('CPSIT\\T3import\\Service\\ImportProcessor');
+		$expectedProcessor = $this->getMock(
+			ImportProcessor::class);
 		$this->subject->injectImportProcessor($expectedProcessor);
 
 		$this->assertSame(
@@ -93,21 +77,167 @@ class ImportCommandControllerTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::importCommand
 	 */
-	public function importCommandBuildsQueue() {
-		$eventImportProcessor = $this->getMock(
-			'CPSIT\\T3import\\Service\\ImportProcessor',
-			array('buildQueue')
+	public function injectImportTaskFactorySetsFactory() {
+		$factory = $this->getMock(
+			ImportTaskFactory::class
 		);
-		$this->subject->injectImportProcessor($eventImportProcessor);
-		$mockDemand = $this->getMock(
-			'CPSIT\\T3import\\Domain\\Model\\Dto\\DemandInterface'
+		$this->subject->injectImportTaskFactory($factory);
+		$this->assertSame(
+			$factory,
+			$this->subject->_get('importTaskFactory')
 		);
+	}
 
-		$eventImportProcessor->expects($this->once())
+	/**
+	 * @test
+	 */
+	public function injectImportSetFactorySetsFactory() {
+		$factory = $this->getMock(
+			ImportSetFactory::class
+		);
+		$this->subject->injectImportSetFactory($factory);
+		$this->assertSame(
+			$factory,
+			$this->subject->_get('importSetFactory')
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function injectConfigurationManagerSetsConfigurationManagerAndSettings() {
+		$importProcessorSettings = ['foo'];
+		$extbaseFrameWorkConfig = [
+			'settings' => [
+				'importProcessor' => $importProcessorSettings
+			]
+		];
+		$configurationManager = $this->getAccessibleMock(
+			ConfigurationManager::class,
+			['getConfiguration']
+		);
+		$configurationManager->expects($this->once())
+			->method('getConfiguration')
+			->with(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK)
+			->will($this->returnValue($extbaseFrameWorkConfig));
+		$this->subject->injectConfigurationManager($configurationManager);
+
+		$this->assertSame(
+			$configurationManager,
+			$this->subject->_get('configurationManager')
+		);
+		$this->assertSame(
+			$importProcessorSettings,
+			$this->subject->_get('settings')
+		);
+	}
+
+	/**
+	 * @test
+	 * @covers ::taskCommand
+	 */
+	public function taskCommandBuildsAndProcessesQueue() {
+		$identifier = 'foo';
+		$settings = [
+			'tasks' => [
+				$identifier => ['bar']
+			]
+		];
+		$this->subject->_set('settings', $settings);
+		$mockTask = $this->getMock(
+			ImportTask::class
+		);
+		$importTaskFactory = $this->getMock(
+			ImportTaskFactory::class, ['get']
+		);
+		$importTaskFactory->expects($this->once())
+			->method('get')
+			->with($settings['tasks'][$identifier])
+			->will($this->returnValue($mockTask));
+		$this->subject->injectImportTaskFactory($importTaskFactory);
+
+		$importProcessor = $this->getMock(
+			ImportProcessor::class,
+			['buildQueue', 'process'], [], '', FALSE
+		);
+		$task = 'foo';
+		$result = ['bar'];
+		$mockDemand = $this->getMock(
+			DemandInterface::class
+		);
+		$importProcessor->expects($this->once())
 			->method('buildQueue')
 			->with($mockDemand);
-		$this->subject->importCommand($mockDemand);
+		$importProcessor->expects($this->once())
+			->method('process')
+			->with($mockDemand)
+			->will($this->returnValue($result));
+		$this->subject->injectImportProcessor($importProcessor);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get']);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->will($this->returnValue($mockDemand));
+		$this->subject->_set('objectManager', $mockObjectManager);
+
+		$this->subject->taskCommand($task);
 	}
+
+	/**
+	 * @test
+	 * @covers ::setCommand
+	 */
+	public function setCommandBuildsAndProcessesQueue() {
+		$identifier = 'foo';
+		$settings = [
+			'sets' => [
+				$identifier => ['bar']
+			]
+		];
+		$this->subject->_set('settings', $settings);
+		$mockSet = $this->getMock(
+			ImportSet::class, ['getTasks']
+		);
+		$mockSet->expects($this->once())
+			->method('getTasks')
+			->will($this->returnValue([]));
+		$importSetFactory = $this->getMock(
+			ImportSetFactory::class, ['get']
+		);
+		$importSetFactory->expects($this->once())
+			->method('get')
+			->with($settings['sets'][$identifier])
+			->will($this->returnValue($mockSet));
+		$this->subject->injectImportSetFactory($importSetFactory);
+
+		$importProcessor = $this->getMock(
+			ImportProcessor::class,
+			['buildQueue', 'process'], [], '', FALSE
+		);
+		$set = 'foo';
+		$result = ['bar'];
+		$mockDemand = $this->getMock(
+			DemandInterface::class
+		);
+		$importProcessor->expects($this->once())
+			->method('buildQueue')
+			->with($mockDemand);
+		$importProcessor->expects($this->once())
+			->method('process')
+			->with($mockDemand)
+			->will($this->returnValue($result));
+		$this->subject->injectImportProcessor($importProcessor);
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class,
+			['get']);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->will($this->returnValue($mockDemand));
+		$this->subject->_set('objectManager', $mockObjectManager);
+
+		$this->subject->setCommand($set);
+	}
+
 }

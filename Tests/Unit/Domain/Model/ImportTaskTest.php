@@ -3,6 +3,8 @@ namespace CPSIT\T3import\Tests\Domain\Model;
 
 use CPSIT\T3import\Domain\Model\ImportSet;
 use CPSIT\T3import\Domain\Model\ImportTask;
+use CPSIT\T3import\Persistence\DataSourceInterface;
+use CPSIT\T3import\Persistence\DataTargetInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
 
@@ -41,19 +43,6 @@ class ImportTaskTest extends UnitTestCase {
 	 */
 	public function getIdentifierInitiallyReturnsNull() {
 		$this->assertNull(
-			$this->subject->getIdentifier()
-		);
-	}
-
-	/**
-	 * @test
-	 */
-	public function setIdentifierForStringSetsIdentifier() {
-		$identifier = 'foo';
-		$this->subject->setIdentifier($identifier);
-
-		$this->assertSame(
-			$identifier,
 			$this->subject->getIdentifier()
 		);
 	}
@@ -102,4 +91,163 @@ class ImportTaskTest extends UnitTestCase {
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function getTargetInitiallyReturnsNull() {
+		$this->assertNull(
+			$this->subject->getTarget()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getSourceInitiallyReturnsNull() {
+		$this->assertNull(
+			$this->subject->getSource()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function setTargetForObjectSetsTarget() {
+		$target = $this->getMock(
+			DataTargetInterface::class,
+			[], [], '', false
+		);
+		$this->subject->setTarget($target);
+		$this->assertSame(
+			$target,
+			$this->subject->getTarget()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function setSourceForObjectSetsSource() {
+		$source = $this->getMock(
+			DataSourceInterface::class,
+			[], [], '', false
+		);
+		$this->subject->setSource($source);
+		$this->assertSame(
+			$source,
+			$this->subject->getSource()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getPreProcessorsInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getPreProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function preProcessorsCanBeSet() {
+		$processors = ['foo'];
+		$this->subject->setPreProcessors($processors);
+		$this->assertSame(
+			$processors,
+			$this->subject->getPreProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getPostProcessorsInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getPostProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function postProcessorsCanBeSet() {
+		$processors = ['foo'];
+		$this->subject->setPostProcessors($processors);
+		$this->assertSame(
+			$processors,
+			$this->subject->getPostProcessors()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getConvertersInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getConverters()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function convertersCanBeSet() {
+		$processors = ['foo'];
+		$this->subject->setConverters($processors);
+		$this->assertSame(
+			$processors,
+			$this->subject->getConverters()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getFinishersInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getFinishers()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function finishersCanBeSet() {
+		$finishers = ['foo'];
+		$this->subject->setFinishers($finishers);
+
+		$this->assertSame(
+			$finishers,
+			$this->subject->getFinishers()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getInitializersInitiallyReturnsEmptyArray() {
+		$this->assertSame(
+			[],
+			$this->subject->getInitializers()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function initializersCanBeSet() {
+		$initializers = ['foo'];
+		$this->subject->setInitializers($initializers);
+
+		$this->assertSame(
+			$initializers,
+			$this->subject->getInitializers()
+		);
+	}
 }

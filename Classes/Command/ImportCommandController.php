@@ -1,8 +1,14 @@
 <?php
 namespace CPSIT\T3import\Command;
 
+use CPSIT\T3import\Domain\Factory\ImportSetFactory;
+use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
 use CPSIT\T3import\Service\ImportProcessor;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
+use TYPO3\CMS\Extbase\Service\TypoScriptService;
 
 /***************************************************************
  *  Copyright notice
@@ -24,9 +30,29 @@ use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 class ImportCommandController extends CommandController {
 
 	/**
+	 * @var array
+	 */
+	protected $settings;
+
+	/**
 	 * @var ImportProcessor
 	 */
 	protected $importProcessor;
+
+	/**
+	 * @var \CPSIT\T3import\Domain\Factory\ImportTaskFactory
+	 */
+	protected $importTaskFactory;
+
+	/**
+	 * @var \CPSIT\T3import\Domain\Factory\ImportSetFactory
+	 */
+	protected $importSetFactory;
+
+	/**
+	 * @var ConfigurationManager
+	 */
+	protected $configurationManager;
 
 	/**
 	 * Injects the event import processor
@@ -38,14 +64,83 @@ class ImportCommandController extends CommandController {
 	}
 
 	/**
-	 * Imports events
-	 *
-	 * @param int $queueLength Queue length: How many events should be imported at once
-	 * @param bool $dryRun Dry run: If set no event will be saved
-	 * @param string |null $email : Notification email: If set, a summary of the import will be send to it.
+	 * @param ImportTaskFactory $importTaskFactory
 	 */
-	public function importCommand($queueLength = 100, $dryRun = FALSE, $email = NULL) {
-		$this->importProcessor->buildQueue($queueLength);
-		$this->importProcessor->process();
+	public function injectImportTaskFactory(ImportTaskFactory $importTaskFactory) {
+		$this->importTaskFactory = $importTaskFactory;
+	}
+
+	/**
+	 * @param ImportSetFactory $importSetFactory
+	 */
+	public function injectImportSetFactory(ImportSetFactory $importSetFactory) {
+		$this->importSetFactory = $importSetFactory;
+	}
+
+	/**
+	 * @param ConfigurationManager $configurationManager
+	 */
+	public function injectConfigurationManager(ConfigurationManager $configurationManager) {
+		$this->configurationManager = $configurationManager;
+
+		$extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
+			ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
+		);
+		if (isset($extbaseFrameworkConfiguration['settings']['importProcessor'])) {
+			$this->settings = $extbaseFrameworkConfiguration['settings']['importProcessor'];
+		}
+	}
+
+	/**
+	 * Import task command
+	 * Performs predefined import tasks
+	 *
+	 * @param string $identifier Task: Identifier of the task which should be performed
+	 * @param bool $dryRun Dry run: If set nothing will be saved
+	 */
+	public function taskCommand($identifier, $dryRun = FALSE) {
+		/** @var ImportDemand $importDemand */
+		$importDemand = $this->objectManager->get(
+			ImportDemand::class
+		);
+
+		if (isset($this->settings['tasks'][$identifier])) {
+			$taskSettings = $this->settings['tasks'][$identifier];
+			$task = $this->importTaskFactory->get(
+				$taskSettings, $identifier
+			);
+
+			$importDemand->setTasks([$task]);
+
+			$this->importProcessor->buildQueue($importDemand);
+			if (!$dryRun) {
+				$result = $this->importProcessor->process($importDemand);
+			}
+		}
+	}
+
+	/**
+	 * Import set command
+	 * Performs predefined import sets
+	 *
+	 * @param string $identifier Set: Identifier of the set which should be performed
+	 * @param bool $dryRun Dry run: If set nothing will be saved
+	 */
+	public function setCommand($identifier, $dryRun = FALSE) {
+		/** @var ImportDemand $importDemand */
+		$importDemand = $this->objectManager->get(
+			ImportDemand::class
+		);
+
+		if (isset($this->settings['sets'][$identifier])) {
+			$set = $this->importSetFactory->get(
+				$this->settings['sets'][$identifier], $identifier
+			);
+			$importDemand->setTasks($set->getTasks());
+			$this->importProcessor->buildQueue($importDemand);
+			if (!$dryRun) {
+				$result = $this->importProcessor->process($importDemand);
+			}
+		}
 	}
 }

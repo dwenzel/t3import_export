@@ -18,6 +18,10 @@ namespace CPSIT\T3import\Domain\Model;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\T3import\IdentifiableInterface;
+use CPSIT\T3import\IdentifiableTrait;
+use CPSIT\T3import\Persistence\DataSourceInterface;
+use CPSIT\T3import\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
@@ -26,14 +30,10 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  *
  * @package CPSIT\T3import\Domain\Model
  */
-class ImportTask extends AbstractEntity {
-
-	/**
-	 * Unique identifier for the task
-	 *
-	 * @var string
-	 */
-	protected $identifier;
+class ImportTask
+	extends AbstractEntity
+	implements IdentifiableInterface {
+	use IdentifiableTrait;
 
 	/**
 	 * Target class name
@@ -46,6 +46,51 @@ class ImportTask extends AbstractEntity {
 	 * @var string
 	 */
 	protected $description;
+
+	/**
+	 * @var DataSourceInterface
+	 */
+	protected $source;
+
+	/**
+	 * @var DataTargetInterface
+	 */
+	protected $target;
+
+	/**
+	 * Pre Processors
+	 *
+	 * @var array
+	 */
+	protected $preProcessors = [];
+
+	/**
+	 * Post Processors
+	 *
+	 * @var array
+	 */
+	protected $postProcessors = [];
+
+	/**
+	 * Converters
+	 *
+	 * @var array
+	 */
+	protected $converters = [];
+
+	/**
+	 * Finishers
+	 *
+	 * @var array
+	 */
+	protected $finishers = [];
+
+	/**
+	 * Initializers
+	 *
+	 * @var array
+	 */
+	protected $initializers = [];
 
 	/**
 	 * @return string
@@ -64,20 +109,6 @@ class ImportTask extends AbstractEntity {
 	/**
 	 * @return string
 	 */
-	public function getIdentifier() {
-		return $this->identifier;
-	}
-
-	/**
-	 * @param string $identifier
-	 */
-	public function setIdentifier($identifier) {
-		$this->identifier = $identifier;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getTargetClass() {
 		return $this->targetClass;
 	}
@@ -88,4 +119,111 @@ class ImportTask extends AbstractEntity {
 	public function setTargetClass($targetClass) {
 		$this->targetClass = $targetClass;
 	}
+
+	/**
+	 * Gets the source of import
+	 *
+	 * @return DataSourceInterface
+	 */
+	public function getSource() {
+		return $this->source;
+	}
+
+	/**
+	 * Sets the source of import
+	 *
+	 * @param DataSourceInterface $source
+	 */
+	public function setSource(DataSourceInterface $source) {
+		$this->source = $source;
+	}
+
+	/**
+	 * Gets the target of import
+	 *
+	 * @return DataTargetInterface
+	 */
+	public function getTarget() {
+		return $this->target;
+	}
+
+	/**
+	 * Sets the target of import
+	 *
+	 * @param DataTargetInterface $target
+	 */
+	public function setTarget(DataTargetInterface $target) {
+		$this->target = $target;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPreProcessors() {
+		return $this->preProcessors;
+	}
+
+	/**
+	 * @param array $preProcessors
+	 */
+	public function setPreProcessors($preProcessors) {
+		$this->preProcessors = $preProcessors;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPostProcessors() {
+		return $this->postProcessors;
+	}
+
+	/**
+	 * @param array $postProcessors
+	 */
+	public function setPostProcessors($postProcessors) {
+		$this->postProcessors = $postProcessors;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getConverters() {
+		return $this->converters;
+	}
+
+	/**
+	 * @param array $converters
+	 */
+	public function setConverters($converters) {
+		$this->converters = $converters;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFinishers() {
+		return $this->finishers;
+	}
+
+	/**
+	 * @param array $finishers
+	 */
+	public function setFinishers($finishers) {
+		$this->finishers = $finishers;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getInitializers() {
+		return $this->initializers;
+	}
+
+	/**
+	 * @param array $initializers
+	 */
+	public function setInitializers($initializers) {
+		$this->initializers = $initializers;
+	}
+
 }
