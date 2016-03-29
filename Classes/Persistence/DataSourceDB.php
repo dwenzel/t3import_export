@@ -5,6 +5,7 @@ use CPSIT\T3import\ConfigurableInterface;
 use CPSIT\T3import\ConfigurableTrait;
 use CPSIT\T3import\IdentifiableInterface;
 use CPSIT\T3import\IdentifiableTrait;
+use CPSIT\T3import\RenderContentTrait;
 use CPSIT\T3import\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -35,7 +36,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  ***************************************************************/
 class DataSourceDB
 	implements DataSourceInterface, IdentifiableInterface {
-	use IdentifiableTrait, ConfigurableTrait;
+	use IdentifiableTrait, ConfigurableTrait, RenderContentTrait;
 
 	/**
 	 * @var \CPSIT\T3import\Service\DatabaseConnectionService
@@ -90,6 +91,7 @@ class DataSourceDB
 			'orderBy' => '',
 			'limit' => ''
 		];
+
 		ArrayUtility::mergeRecursiveWithOverrule(
 			$queryConfiguration,
 			$configuration,
@@ -97,6 +99,14 @@ class DataSourceDB
 			FALSE
 		);
 
+        foreach($queryConfiguration as $key=>$value) {
+            if (is_array($value)) {
+                $renderedValue = $this->renderContent([], $value);
+                if (!is_null($renderedValue)) {
+                    $queryConfiguration[$key] = $renderedValue;
+                }
+            }
+        }
 		$records = $this->getDatabase()->exec_SELECTgetRows(
 			$queryConfiguration['fields'],
 			$queryConfiguration['table'],

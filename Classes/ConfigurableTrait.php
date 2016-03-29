@@ -1,8 +1,11 @@
 <?php
 namespace CPSIT\T3import;
 
-use CPSIT\T3import\InvalidConfigurationException;
-
+/**
+ * Class ConfigurableTrait
+ *
+ * @package CPSIT\T3import
+ */
 trait ConfigurableTrait {
 	/**
 	 * Configuration for this component
@@ -11,7 +14,6 @@ trait ConfigurableTrait {
 	 * @var array
 	 */
 	protected $configuration;
-
 
 	/**
 	 * Tells if a given configuration is valid
