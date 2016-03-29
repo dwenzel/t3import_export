@@ -5,6 +5,7 @@ use CPSIT\T3import\ConfigurableInterface;
 use CPSIT\T3import\ConfigurableTrait;
 use CPSIT\T3import\IdentifiableInterface;
 use CPSIT\T3import\IdentifiableTrait;
+use CPSIT\T3import\RenderContentInterface;
 use CPSIT\T3import\RenderContentTrait;
 use CPSIT\T3import\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
@@ -35,7 +36,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 class DataSourceDB
-	implements DataSourceInterface, IdentifiableInterface {
+	implements DataSourceInterface, IdentifiableInterface, RenderContentInterface {
 	use IdentifiableTrait, ConfigurableTrait, RenderContentTrait;
 
 	/**
