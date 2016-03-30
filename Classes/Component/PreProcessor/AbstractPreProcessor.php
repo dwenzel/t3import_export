@@ -44,28 +44,6 @@ abstract class AbstractPreProcessor extends AbstractComponent {
 	}
 
 	/**
-	 * @param $record
-	 * @param $localConfiguration
-	 * @return mixed
-	 * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
-	 */
-	protected function renderContent($record, $localConfiguration) {
-		$typoScriptConf = $this->typoScriptService
-			->convertPlainArrayToTypoScriptArray($localConfiguration);
-		/** @var AbstractContentObject $contentObject */
-		$contentObject = $this->contentObjectRenderer
-			->getContentObject($localConfiguration['_typoScriptNodeValue']);
-
-		if ($contentObject !== NULL) {
-			$this->contentObjectRenderer->start($record);
-
-			return $contentObject->render($typoScriptConf);
-		}
-
-		return NULL;
-	}
-
-	/**
 	 * @param string $sourceField
 	 * @param string $targetField
 	 * @param array $record

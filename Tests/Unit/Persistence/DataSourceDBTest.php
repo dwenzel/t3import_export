@@ -134,6 +134,33 @@ class DataSourceDBTest extends UnitTestCase {
 
 	/**
 	 * @test
+	 */
+	public function getRecordsRendersContentOfConfiguration()
+	{
+        $this->subject = $this->getAccessibleMock(DataSourceDB::class,
+            ['renderContent'], [], '', FALSE);
+
+        $configuration = [
+            'foo' => ['bar']
+        ];
+        $mockConnectionService = $this->getMock(
+            DatabaseConnectionService::class
+        );
+        $mockDataBase = $this->getMock(
+            DatabaseConnection::class, ['exec_SELECTgetRows'], [], '', false
+        );
+        $this->subject->injectDatabaseConnectionService($mockConnectionService);
+        $mockConnectionService->expects($this->once())
+            ->method('getDatabase')
+            ->will($this->returnValue($mockDataBase));
+        $this->subject->expects($this->once())
+            ->method('renderContent')
+            ->will($this->returnValue('baz'));
+        $this->subject->getRecords($configuration);
+    }
+
+	/**
+	 * @test
 	 * @covers ::getDatabase
 	 */
 	public function getDatabaseReturnsDatabaseFromConnectionService() {

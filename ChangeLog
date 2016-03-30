@@ -1,3 +1,7 @@
+2016-03-30         [RELEASE] Release of t3import 0.3.0 (Dirk Wenzel)
+2016-03-29 f6e5278 [TASK] DataSourceDB now implements RenderContentInterface and renders content of configuration. (Dirk Wenzel)
+2016-03-29 8d6aa86 [TASK] RenderContentInterface and RenderContentTrait implemented. AbstractComponent refactored using it. Obsolete Method renderContent remove from AbstractPreProcessor (Dirk Wenzel)
+
 2016-02-04         [RELEASE] Release of t3import 0.2.0 (Dirk Wenzel)
 2016-02-04 27d092e [TASK] unit tests for post processor TranslateObject added. (Dirk Wenzel)
 2016-02-04 0695e7b [TASK] Initializer/TruncateTables implemented. Unit test for PreProcessor/LookUpDB implemented. (Dirk Wenzel)
@@ -51,5 +55,3 @@
 2015-12-22 477a56d [TASK] pre- and post processors moved to Classes/Component (Dirk Wenzel)
 2015-12-21 ea9b166 [TASK] UML documentation added. (Dirk Wenzel)
 2015-12-18 fa94ac2 [TASK] model ExportTarget implemented. (Dirk Wenzel)
-
-
