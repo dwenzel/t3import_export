@@ -61,7 +61,7 @@ class ImportSetFactory extends AbstractFactory {
 		if (isset($settings['tasks'])
 			AND is_string($settings['tasks'])
 		) {
-			$taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks']);
+			$taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
 			$tasks = [];
 			foreach ($taskIdentifiers as $taskIdentifier) {
 				if (isset($this->settings['importProcessor']['tasks'][$taskIdentifier])) {
