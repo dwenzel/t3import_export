@@ -3,6 +3,11 @@ namespace CPSIT\T3import;
 
 use CPSIT\T3import\InvalidConfigurationException;
 
+/**
+ * Interface ConfigurableInterface
+ *
+ * @package CPSIT\T3import
+ */
 interface ConfigurableInterface {
 
 	/**
