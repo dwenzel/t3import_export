@@ -97,7 +97,7 @@ class ImportProcessor {
 				continue;
 			}
 			$records = $this->queue[$task->getIdentifier()];
-			$this->processInitializers($record, $task);
+			$this->processInitializers($records, $task);
 
 			if ((bool) $records) {
 				foreach ($records as $record) {

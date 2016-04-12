@@ -1,3 +1,8 @@
+2016-04-12         [RELEASE] Release of t3import 0.4.0 (Dirk Wenzel)
+2016-04-04 718693e [TASK] unit tests for ImportSetFactory added. Factory method get now ignores empty entries in task identifier list. (Dirk Wenzel)
+2016-04-04 13c35b3 [BUGFIX] fixed typo in argument of processInitializers (Dirk Wenzel)
+2016-04-04 87fbc69 [TASK] Finisher Clear Cache implemented. (Dirk Wenzel)
+
 2016-03-30         [RELEASE] Release of t3import 0.3.0 (Dirk Wenzel)
 2016-03-29 f6e5278 [TASK] DataSourceDB now implements RenderContentInterface and renders content of configuration. (Dirk Wenzel)
 2016-03-29 8d6aa86 [TASK] RenderContentInterface and RenderContentTrait implemented. AbstractComponent refactored using it. Obsolete Method renderContent remove from AbstractPreProcessor (Dirk Wenzel)
