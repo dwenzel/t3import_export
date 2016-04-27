@@ -73,7 +73,7 @@ class DatabaseConnectionService implements SingletonInterface {
 	 * @param $identifier
 	 * @return bool
 	 */
-	public function isRegistered($identifier) {
+	public static function isRegistered($identifier) {
 		return isset(self::$dataBases[$identifier]);
 	}
 
