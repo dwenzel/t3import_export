@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Component\PostProcessor;
+namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
  *  Copyright notice

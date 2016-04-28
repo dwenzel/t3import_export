@@ -1,13 +1,13 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Command;
+namespace CPSIT\T3importExport\Tests\Unit\Command;
 
-use CPSIT\T3import\Command\ImportCommandController;
-use CPSIT\T3import\Domain\Factory\ImportSetFactory;
-use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3import\Domain\Model\Dto\DemandInterface;
-use CPSIT\T3import\Domain\Model\ImportSet;
-use CPSIT\T3import\Domain\Model\ImportTask;
-use CPSIT\T3import\Service\ImportProcessor;
+use CPSIT\T3importExport\Command\ImportCommandController;
+use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
+use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
+use CPSIT\T3importExport\Domain\Model\ImportSet;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Service\ImportProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -41,8 +41,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class ImportCommandControllerTest
  *
- * @package CPSIT\T3import\Tests\Unit\Command
- * @coversDefaultClass \CPSIT\T3import\Command\ImportCommandController
+ * @package CPSIT\T3importExport\Tests\Unit\Command
+ * @coversDefaultClass \CPSIT\T3importExport\Command\ImportCommandController
  */
 class ImportCommandControllerTest extends UnitTestCase {
 

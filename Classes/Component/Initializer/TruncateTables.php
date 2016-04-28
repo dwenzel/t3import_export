@@ -1,9 +1,9 @@
 <?php
-namespace CPSIT\T3import\Component\Initializer;
+namespace CPSIT\T3importExport\Component\Initializer;
 
-use CPSIT\T3import\ConfigurableInterface;
-use CPSIT\T3import\ConfigurableTrait;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -37,7 +37,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * truncates given tables either from default database or a
  * database registered with DatabaseConnectionService by identifier
  *
- * @package CPSIT\T3import\Component\Initializer
+ * @package CPSIT\T3importExport\Component\Initializer
  */
 class TruncateTables
 	extends AbstractInitializer
@@ -45,7 +45,7 @@ class TruncateTables
 	use ConfigurableTrait;
 
 	/**
-	 * @var \CPSIT\T3import\Service\DatabaseConnectionService
+	 * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
 	 */
 	protected $connectionService;
 
@@ -64,7 +64,7 @@ class TruncateTables
 	}
 
 	/**
-	 * @param \CPSIT\T3import\Service\DatabaseConnectionService $dbConnectionService
+	 * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
 	 */
 	public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService) {
 		$this->connectionService = $dbConnectionService;

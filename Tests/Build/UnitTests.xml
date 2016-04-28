@@ -14,7 +14,7 @@
 	verbose="false">
 
 	<testsuites>
-		<testsuite name="EXT:t3import tests">
+		<testsuite name="EXT:t3import_export tests">
 			<directory>../Unit/</directory>
 		</testsuite>
 	</testsuites>

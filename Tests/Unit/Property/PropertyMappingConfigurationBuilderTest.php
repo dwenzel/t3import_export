@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Tests\Property;
+namespace CPSIT\T3importExport\Tests\Property;
 
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -28,19 +28,19 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 /**
  * Class PropertyMappingConfigurationBuilderTest
  *
- * @package CPSIT\T3import\Tests\Property
- * @coversDefaultClass \CPSIT\T3import\Property\PropertyMappingConfigurationBuilder
+ * @package CPSIT\T3importExport\Tests\Property
+ * @coversDefaultClass \CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder
  */
 class PropertyMappingConfigurationBuilderTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Property\PropertyMappingConfigurationBuilder
+	 * @var \CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder
 	 */
 	protected $subject;
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
-			'CPSIT\\T3import\\Property\\PropertyMappingConfigurationBuilder',
+			'CPSIT\\T3importExport\\Property\\PropertyMappingConfigurationBuilder',
 			['dummy'], [], '', FALSE);
 	}
 
@@ -296,7 +296,7 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase {
 
 		//todo: configure abgefangen!
 		$subject = $this->getAccessibleMock(
-			'CPSIT\\T3import\\Property\\PropertyMappingConfigurationBuilder',
+			'CPSIT\\T3importExport\\Property\\PropertyMappingConfigurationBuilder',
 			['configure'], [], '', FALSE);
 		$mockMappingConfiguration = $this->getMock(
 			'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
@@ -338,7 +338,7 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase {
 
 		//todo: configure abgefangen!
 		$subject = $this->getAccessibleMock(
-			'CPSIT\\T3import\\Property\\PropertyMappingConfigurationBuilder',
+			'CPSIT\\T3importExport\\Property\\PropertyMappingConfigurationBuilder',
 			['configure'], [], '', FALSE);
 		$mockMappingConfiguration = $this->getMock(
 			'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',

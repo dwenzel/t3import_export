@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Domain\Factory;
+namespace CPSIT\T3importExport\Domain\Factory;
 
 /***************************************************************
  *  Copyright notice
@@ -18,20 +18,20 @@ namespace CPSIT\T3import\Domain\Factory;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\Domain\Model\ImportSet;
-use CPSIT\T3import\Factory\AbstractFactory;
+use CPSIT\T3importExport\Domain\Model\ImportSet;
+use CPSIT\T3importExport\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class ImportSetFactory
  * builds import sets from settings
  *
- * @package CPSIT\T3import\Domain\Repository
+ * @package CPSIT\T3importExport\Domain\Repository
  */
 class ImportSetFactory extends AbstractFactory {
 
 	/**
-	 * @var \CPSIT\T3import\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
 	 */
 	protected $importTaskFactory;
 
@@ -48,7 +48,7 @@ class ImportSetFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @return ImportSet
-	 * @throws \CPSIT\T3import\InvalidConfigurationException
+	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	public function get(array $settings, $identifier = null) {
 		/** @var ImportSet $importSet */

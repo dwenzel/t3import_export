@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import\Tests\Controller;
+namespace CPSIT\T3importExport\Tests\Controller;
 
-use CPSIT\T3import\Domain\Factory\ImportSetFactory;
-use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3import\Domain\Model\ImportSet;
-use CPSIT\T3import\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
+use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3importExport\Domain\Model\ImportSet;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Fluid\View\TemplateView;
@@ -30,18 +30,18 @@ use TYPO3\CMS\Fluid\View\TemplateView;
 /**
  * Class ImportControllerTest
  *
- * @package CPSIT\T3import\Tests\Controller
- * @coversDefaultClass \CPSIT\T3import\Controller\ImportController
+ * @package CPSIT\T3importExport\Tests\Controller
+ * @coversDefaultClass \CPSIT\T3importExport\Controller\ImportController
  */
 class ImportControllerTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Controller\ImportController
+	 * @var \CPSIT\T3importExport\Controller\ImportController
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Controller\\ImportController',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Controller\\ImportController',
 			['dummy'], [], '', FALSE);
 	}
 
@@ -50,7 +50,7 @@ class ImportControllerTest extends UnitTestCase {
 	 * @covers ::injectImportProcessor
 	 */
 	public function injectImportProcessorForObjectSetsImportProcessor() {
-		$expectedProcessor = $this->getMock('CPSIT\\T3import\\Service\\ImportProcessor');
+		$expectedProcessor = $this->getMock('CPSIT\\T3importExport\\Service\\ImportProcessor');
 		$this->subject->injectImportProcessor($expectedProcessor);
 
 		$this->assertSame(
@@ -114,7 +114,7 @@ class ImportControllerTest extends UnitTestCase {
 		$this->subject->injectImportTaskFactory($importTaskFactory);
 
 		$importProcessor = $this->getMock(
-			'CPSIT\\T3import\\Service\\ImportProcessor',
+			'CPSIT\\T3importExport\\Service\\ImportProcessor',
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$task = 'foo';
@@ -124,7 +124,7 @@ class ImportControllerTest extends UnitTestCase {
 			['get']);
 		$this->subject->injectObjectManager($mockObjectManager);
 		$mockDemand = $this->getMock(
-			'CPSIT\\T3import\\Domain\\Model\\Dto\\DemandInterface'
+			'CPSIT\\T3importExport\\Domain\\Model\\Dto\\DemandInterface'
 		);
 		$mockView = $this->getMock(
 			TemplateView::class, ['assignMultiple'], [], '', FALSE
@@ -245,7 +245,7 @@ class ImportControllerTest extends UnitTestCase {
 		$this->subject->injectImportSetFactory($importSetFactory);
 
 		$importProcessor = $this->getMock(
-			'CPSIT\\T3import\\Service\\ImportProcessor',
+			'CPSIT\\T3importExport\\Service\\ImportProcessor',
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$set = 'foo';
@@ -255,7 +255,7 @@ class ImportControllerTest extends UnitTestCase {
 			['get']);
 		$this->subject->injectObjectManager($mockObjectManager);
 		$mockDemand = $this->getMock(
-			'CPSIT\\T3import\\Domain\\Model\\Dto\\DemandInterface'
+			'CPSIT\\T3importExport\\Domain\\Model\\Dto\\DemandInterface'
 		);
 		$mockView = $this->getMock(
 			TemplateView::class, ['assignMultiple'], [], '', FALSE

@@ -1,13 +1,13 @@
 <?php
-namespace CPSIT\T3import\Persistence;
+namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3import\ConfigurableInterface;
-use CPSIT\T3import\ConfigurableTrait;
-use CPSIT\T3import\IdentifiableInterface;
-use CPSIT\T3import\IdentifiableTrait;
-use CPSIT\T3import\RenderContentInterface;
-use CPSIT\T3import\RenderContentTrait;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\IdentifiableInterface;
+use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\RenderContentInterface;
+use CPSIT\T3importExport\RenderContentTrait;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -40,7 +40,7 @@ class DataSourceDB
 	use IdentifiableTrait, ConfigurableTrait, RenderContentTrait;
 
 	/**
-	 * @var \CPSIT\T3import\Service\DatabaseConnectionService
+	 * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
 	 */
 	protected $connectionService;
 
@@ -68,7 +68,7 @@ class DataSourceDB
 	 * Gets the database connection
 	 *
 	 * @return DatabaseConnection
-	 * @throws \CPSIT\T3import\MissingDatabaseException
+	 * @throws \CPSIT\T3importExport\MissingDatabaseException
 	 */
 	public function getDatabase() {
 		if (!$this->database instanceof DatabaseConnection) {

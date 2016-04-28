@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Domain\Model\Dto;
+namespace CPSIT\T3importExport\Tests\Domain\Model\Dto;
 
 use TYPO3\CMS\Core\Tests\UnitTestCase;
-use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
 
 /***************************************************************
  *  Copyright notice
@@ -24,7 +24,7 @@ use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
 class ImportDemandTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Domain\Model\Dto\ImportDemand
+	 * @var \CPSIT\T3importExport\Domain\Model\Dto\ImportDemand
 	 */
 	protected $subject;
 

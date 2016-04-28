@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Initializer;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
-use CPSIT\T3import\Component\Initializer\AbstractInitializer;
+use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -32,8 +32,8 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class AbstractInitializerTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Initializer
- * @coversDefaultClass \CPSIT\T3import\Component\Initializer\AbstractInitializer
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Initializer
+ * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\AbstractInitializer
  */
 class AbstractInitializerTest extends UnitTestCase {
 

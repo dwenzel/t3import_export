@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Component\Initializer;
+namespace CPSIT\T3importExport\Component\Initializer;
 
-use CPSIT\T3import\Component\AbstractComponent;
+use CPSIT\T3importExport\Component\AbstractComponent;
 
 /***************************************************************
  *

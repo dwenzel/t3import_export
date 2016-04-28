@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Tests\Domain\Factory;
+namespace CPSIT\T3importExport\Tests\Domain\Factory;
 
 /***************************************************************
  *  Copyright notice
@@ -19,17 +19,17 @@ namespace CPSIT\T3import\Tests\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3import\Domain\Factory\ImportSetFactory;
-use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3import\Domain\Model\ImportSet;
-use CPSIT\T3import\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
+use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3importExport\Domain\Model\ImportSet;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class ImportSetFactoryTest
  *
- * @package CPSIT\T3import\Tests\Domain\Factory
+ * @package CPSIT\T3importExport\Tests\Domain\Factory
  */
 class ImportSetFactoryTest extends UnitTestCase
 {

@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Persistence;
+namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3import\ConfigurableInterface;
-use CPSIT\T3import\ConfigurableTrait;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\ConfigurableTrait;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;

@@ -1,9 +1,9 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
-use CPSIT\T3import\Component\Finisher\AbstractFinisher;
-use CPSIT\T3import\Component\Finisher\FinisherInterface;
-use CPSIT\T3import\Component\Factory\FinisherFactory;
+use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\T3importExport\Component\Factory\FinisherFactory;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -35,7 +35,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class DummyInvalidFinisher
  * Does not implement FinisherInterface
  *
- * @package CPSIT\T3import\Tests\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidFinisher {
 }
@@ -43,7 +43,7 @@ class DummyInvalidFinisher {
 /**
  * Class DummyValidFinisher
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidFinisher
 	extends AbstractFinisher
@@ -62,12 +62,12 @@ class DummyValidFinisher
 /**
  * Class FinisherFactoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class FinisherFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\Factory\FinisherFactory
+	 * @var \CPSIT\T3importExport\Component\Factory\FinisherFactory
 	 */
 	protected $subject;
 
@@ -83,7 +83,7 @@ class FinisherFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1454187892
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -94,7 +94,7 @@ class FinisherFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1454187903
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -108,7 +108,7 @@ class FinisherFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1454187910
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementFinisherInterface() {

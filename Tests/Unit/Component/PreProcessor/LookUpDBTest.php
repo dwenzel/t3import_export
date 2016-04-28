@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\PreProcessor;
+namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use CPSIT\T3import\Component\PreProcessor\LookUpDB;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
@@ -28,13 +28,13 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class LookUpDBTest
  *
- * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\LookUpDB
+ * @package CPSIT\T3importExport\Tests\Service\PreProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
  */
 class LookUpDBTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PreProcessor\LookUpDB
+	 * @var \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
 	 */
 	protected $subject;
 

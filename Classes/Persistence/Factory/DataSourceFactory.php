@@ -1,14 +1,14 @@
 <?php
-namespace CPSIT\T3import\Persistence\Factory;
+namespace CPSIT\T3importExport\Persistence\Factory;
 
-use CPSIT\T3import\ConfigurableInterface;
-use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\IdentifiableInterface;
-use CPSIT\T3import\Persistence\DataSourceDB;
-use CPSIT\T3import\Persistence\DataSourceInterface;
-use CPSIT\T3import\MissingClassException;
-use CPSIT\T3import\MissingInterfaceException;
-use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\IdentifiableInterface;
+use CPSIT\T3importExport\Persistence\DataSourceDB;
+use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\MissingInterfaceException;
+use CPSIT\T3importExport\InvalidConfigurationException;
 
 /***************************************************************
  *
@@ -43,8 +43,8 @@ class DataSourceFactory extends AbstractFactory {
 	 * @param array $settings Configuration for the data source
 	 * @param string $identifier Identifier
 	 * @return DataSourceInterface
-	 * @throws \CPSIT\T3import\InvalidConfigurationException
-	 * @throws \CPSIT\T3import\MissingClassException
+	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
+	 * @throws \CPSIT\T3importExport\MissingClassException
 	 * @throws MissingInterfaceException
 	 */
 	public function get(array $settings, $identifier = null) {

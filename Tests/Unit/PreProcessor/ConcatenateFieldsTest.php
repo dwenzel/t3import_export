@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\PreProcessor;
+namespace CPSIT\T3importExport\Tests\PreProcessor;
 
-use CPSIT\T3import\Component\PreProcessor\ConcatenateFields;
+use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 
 /***************************************************************
@@ -25,18 +25,18 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 /**
  * Class ConcatenateFieldsTest
  *
- * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\ConcatenateFields
+ * @package CPSIT\T3importExport\Tests\Service\PreProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
  */
 class ConcatenateFieldsTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PreProcessor\ConcatenateFields
+	 * @var \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PreProcessor\\ConcatenateFields',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\ConcatenateFields',
 			['dummy'], [], '', FALSE);
 	}
 

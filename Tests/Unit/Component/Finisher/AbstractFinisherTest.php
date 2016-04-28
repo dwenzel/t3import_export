@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Finisher;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
-use CPSIT\T3import\Component\Finisher\AbstractFinisher;
+use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -32,8 +32,8 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class AbstractFinisherTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Finisher
- * @coversDefaultClass \CPSIT\T3import\Component\Finisher\AbstractFinisher
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Finisher
+ * @coversDefaultClass \CPSIT\T3importExport\Component\Finisher\AbstractFinisher
  */
 class AbstractFinisherTest extends UnitTestCase {
 

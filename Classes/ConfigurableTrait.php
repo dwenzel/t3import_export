@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import;
+namespace CPSIT\T3importExport;
 
 /**
  * Class ConfigurableTrait
  *
- * @package CPSIT\T3import
+ * @package CPSIT\T3importExport
  */
 trait ConfigurableTrait {
 	/**

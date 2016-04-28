@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests;
+namespace CPSIT\T3importExport\Tests;
 
-use CPSIT\T3import\IdentifiableTrait;
+use CPSIT\T3importExport\IdentifiableTrait;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************

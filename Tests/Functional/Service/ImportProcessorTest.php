@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Tests\Functional\Service;
+namespace CPSIT\T3importExport\Tests\Functional\Service;
 
 /***************************************************************
  *  Copyright notice
@@ -18,7 +18,7 @@ namespace CPSIT\T3import\Tests\Functional\Service;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\Service\ImportProcessor;
+use CPSIT\T3importExport\Service\ImportProcessor;
 use TYPO3\CMS\Core\Tests\FunctionalTestCase;
 use CPSIT\ZewProjectconf\Service\ZewDbConnectionService;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
@@ -26,9 +26,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class ImportProcessorTest
- * Functional tests for CPSIT\T3import\Service\ImportProcessor
+ * Functional tests for CPSIT\T3importExport\Service\ImportProcessor
  *
- * @package CPSIT\T3import\Tests\Functional\Service
+ * @package CPSIT\T3importExport\Tests\Functional\Service
  */
 class ImportProcessorTest extends FunctionalTestCase {
 
@@ -40,11 +40,11 @@ class ImportProcessorTest extends FunctionalTestCase {
 	/**
 	 * @var array
 	 */
-	protected $testExtensionsToLoad = ['typo3/conf/ext/t3import'];
+	protected $testExtensionsToLoad = ['typo3/conf/ext/t3import_export'];
 
 	public function setUp() {
 		parent::setUp();
-		$this->importProcessor = new \CPSIT\T3import\Service\ImportProcessor();
+		$this->importProcessor = new \CPSIT\T3importExport\Service\ImportProcessor();
 		/** @var ZewDbConnectionService $connectionService */
 		$connectionService = $this->getMock(
 			ZewDbConnectionService::class,

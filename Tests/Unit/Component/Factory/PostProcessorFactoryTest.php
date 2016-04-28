@@ -1,16 +1,16 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
-use CPSIT\T3import\Component\Factory\PostProcessorFactory;
-use CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor;
-use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
+use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
+use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class DummyValidPostProcessor
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidPostProcessor
 	extends AbstractPostProcessor
@@ -58,19 +58,19 @@ class DummyValidPostProcessor
  * Class DummyInvalidPostProcessor
  * Does not implement PostProcessorInterface
  *
- * @package CPSIT\T3import\Tests\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidPostProcessor {
 }
 /**
  * Class PostProcessorFactoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class PostProcessorFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\Factory\PostProcessorFactory
+	 * @var \CPSIT\T3importExport\Component\Factory\PostProcessorFactory
 	 */
 	protected $subject;
 	public function setUp() {
@@ -81,7 +81,7 @@ class PostProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1447864207
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -92,7 +92,7 @@ class PostProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1447864223
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -106,7 +106,7 @@ class PostProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1447864243
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementPostProcessorInterface() {

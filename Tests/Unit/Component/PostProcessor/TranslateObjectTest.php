@@ -1,13 +1,13 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\PostProcessor;
+namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
-use CPSIT\T3import\Component\PostProcessor\TranslateObject;
-use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3import\Property\TypeConverter\PersistentObjectConverter;
-use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Component\PostProcessor\TranslateObject;
+use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
+use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
-use CPSIT\T3import\Service\TranslationService;
+use CPSIT\T3importExport\Service\TranslationService;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
@@ -39,7 +39,7 @@ use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
 class TranslateObjectTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PostProcessor\TranslateObject
+	 * @var \CPSIT\T3importExport\Component\PostProcessor\TranslateObject
 	 */
 	protected $subject;
 

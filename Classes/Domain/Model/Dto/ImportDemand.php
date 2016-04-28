@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Domain\Model\Dto;
+namespace CPSIT\T3importExport\Domain\Model\Dto;
 
 	/***************************************************************
 	 *  Copyright notice
@@ -22,7 +22,7 @@ namespace CPSIT\T3import\Domain\Model\Dto;
 /**
  * Class ImportDemand
  *
- * @package CPSIT\T3import\Domain\Model\Dto
+ * @package CPSIT\T3importExport\Domain\Model\Dto
  */
 class ImportDemand implements DemandInterface {
 

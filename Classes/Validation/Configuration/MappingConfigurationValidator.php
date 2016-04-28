@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Validation\Configuration;
+namespace CPSIT\T3importExport\Validation\Configuration;
 
-use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3importExport\InvalidConfigurationException;
 
 /***************************************************************
  *
@@ -40,7 +40,7 @@ class MappingConfigurationValidator
 	/**
 	 * @param array $configuration
 	 * @return bool
-	 * @throws \CPSIT\T3import\InvalidConfigurationException
+	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	protected function validatePropertyConfiguration(array $configuration) {
 		if (isset($configuration['allowProperties'])

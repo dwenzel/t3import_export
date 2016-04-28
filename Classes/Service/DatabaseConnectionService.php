@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Service;
+namespace CPSIT\T3importExport\Service;
 
-use CPSIT\T3import\MissingDatabaseException;
+use CPSIT\T3importExport\MissingDatabaseException;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;

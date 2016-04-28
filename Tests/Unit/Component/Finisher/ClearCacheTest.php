@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Finisher;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
-use CPSIT\T3import\Component\Finisher\ClearCache;
+use CPSIT\T3importExport\Component\Finisher\ClearCache;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;

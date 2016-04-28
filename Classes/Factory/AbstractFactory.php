@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Factory;
+namespace CPSIT\T3importExport\Factory;
 
 /***************************************************************
  *  Copyright notice
@@ -24,7 +24,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 /**
  * Class AbstractFactory
  *
- * @package CPSIT\T3import\Domain\Factory
+ * @package CPSIT\T3importExport\Domain\Factory
  */
 abstract class AbstractFactory {
 

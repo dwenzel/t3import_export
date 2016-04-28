@@ -1,9 +1,9 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
-use CPSIT\T3import\Component\Factory\PreProcessorFactory;
-use CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
+use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -35,7 +35,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class DummyInvalidPreProcessor
  * Does not implement PreProcessorInterface
  *
- * @package CPSIT\T3import\Tests\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidPreProcessor {
 }
@@ -43,7 +43,7 @@ class DummyInvalidPreProcessor {
 /**
  * Class DummyValidPreProcessor
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidPreProcessor
 	extends AbstractPreProcessor
@@ -61,12 +61,12 @@ class DummyValidPreProcessor
 /**
  * Class PreProcessorFactoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class PreProcessorFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\Factory\PreProcessorFactory
+	 * @var \CPSIT\T3importExport\Component\Factory\PreProcessorFactory
 	 */
 	protected $subject;
 
@@ -82,7 +82,7 @@ class PreProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1447427020
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -93,7 +93,7 @@ class PreProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1447427184
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -107,7 +107,7 @@ class PreProcessorFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1447428235
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementPreProcessorInterface() {

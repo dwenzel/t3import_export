@@ -1,6 +1,6 @@
 # responsible.ts
 # import configuration for responsibles (source table verantwortlicher)
-module.tx_t3import.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.importProcessor.tasks {
 	responsible {
 		class = Webfox\T3events\Domain\Model\Person
 		sourceQueryConfiguration {
@@ -17,7 +17,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# match existing persons
 			1 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
+				class = CPSIT\T3importExport\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {
@@ -38,7 +38,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 				}
 			}
 			2 {
-				class = CPSIT\T3import\Component\PreProcessor\RenderContent
+				class = CPSIT\T3importExport\Component\PreProcessor\RenderContent
 				config {
 					fields {
 						personType = TEXT
@@ -61,7 +61,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# concatenate vorname,nachname,titel to name
 			3 {
-				class = CPSIT\T3import\Component\PreProcessor\ConcatenateFields
+				class = CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
 				config {
 					targetField = name
 					# field must be array with field names as key

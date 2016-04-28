@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Service;
+namespace CPSIT\T3importExport\Service;
 
 /***************************************************************
  *  Copyright notice
@@ -18,20 +18,20 @@ namespace CPSIT\T3import\Service;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\Component\Converter\AbstractConverter;
-use CPSIT\T3import\Component\Finisher\FinisherInterface;
-use CPSIT\T3import\Component\Initializer\InitializerInterface;
-use CPSIT\T3import\ConfigurableInterface;
-use CPSIT\T3import\Domain\Model\Dto\DemandInterface;
-use CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor;
-use CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Component\Converter\AbstractConverter;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
+use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
+use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class ImportProcessor
  *
- * @package CPSIT\T3import\Service
+ * @package CPSIT\T3importExport\Service
  */
 class ImportProcessor {
 	/**
@@ -68,7 +68,7 @@ class ImportProcessor {
 	/**
 	 * builds the import queue
 	 *
-	 * @param \CPSIT\T3import\Domain\Model\Dto\DemandInterface
+	 * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
 	 */
 	public function buildQueue(DemandInterface $importDemand) {
 		$tasks = $importDemand->getTasks();
@@ -85,7 +85,7 @@ class ImportProcessor {
 	/**
 	 * Processes the queue
 	 *
-	 * @param \CPSIT\T3import\Domain\Model\Dto\DemandInterface
+	 * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
 	 * @return array
 	 */
 	public function process(DemandInterface $importDemand) {

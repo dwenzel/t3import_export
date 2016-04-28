@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Initializer;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
-use CPSIT\T3import\Component\Initializer\TruncateTables;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\Component\Initializer\TruncateTables;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
@@ -27,13 +27,13 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class TruncateTablesTest
  *
- * @package CPSIT\T3import\Tests\Service\Initializer
- * @coversDefaultClass \CPSIT\T3import\Component\Initializer\TruncateTables
+ * @package CPSIT\T3importExport\Tests\Service\Initializer
+ * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\TruncateTables
  */
 class TruncateTablesTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\Initializer\TruncateTables
+	 * @var \CPSIT\T3importExport\Component\Initializer\TruncateTables
 	 */
 	protected $subject;
 
@@ -195,7 +195,7 @@ class TruncateTablesTest extends UnitTestCase {
 			->method('exec_TRUNCATEquery')
 			->with($tableName);
 		$this->subject->_set('database', $mockDatabase);
-		
+
 		$this->subject->process($config, $records);
 	}
 }
