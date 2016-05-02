@@ -11,8 +11,8 @@
  ***************************************************************/
 
 $EM_CONF[$_EXTKEY] = array (
-  'title' => 'Imports',
-  'description' => 'Versatile importer',
+  'title' => 'Import & Export',
+  'description' => 'General import and export tool for the TYPO3 CMS',
   'category' => 'module',
   'author' => 'Dirk Wenzel',
   'author_email' => 'dirk.wenzel@cps-it.de',
