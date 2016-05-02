@@ -198,20 +198,26 @@ class LookUpDBTest extends UnitTestCase {
 	public function isConfigurationValidReturnsTrueForValidConfiguration() {
 		/** @var DatabaseConnectionService $mockConnectionService */
 		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['isRegistered'], [], '', FALSE);
+			[], [], '', FALSE);
 
-		$mockConnectionService->expects($this->once())
-			->method('isRegistered')
-			->will($this->returnValue(TRUE));
 		$this->subject->injectDatabaseConnectionService($mockConnectionService);
 
+		$validDatabaseIdentifier = 'fooDatabaseIdentifier';
 		$validConfiguration = [
-			'identifier' => 'fooDatabaseIdentifier',
+			'identifier' => $validDatabaseIdentifier,
 			'select' => [
-				'table' => 'tableName',
-			]
+                'table' => 'tableName'
+            ]
 		];
-		$this->assertTrue(
+        DatabaseConnectionService::register(
+            $validDatabaseIdentifier,
+            'hostname',
+            'databaseName',
+            'userName',
+            'password'
+        );
+
+        $this->assertTrue(
 			$this->subject->isConfigurationValid($validConfiguration)
 		);
 	}
@@ -239,12 +245,7 @@ class LookUpDBTest extends UnitTestCase {
 	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
 		/** @var DatabaseConnectionService $mockConnectionService */
 		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['isRegistered'], [], '', FALSE);
-
-		$mockConnectionService->expects($this->once())
-			->method('isRegistered')
-			->with('missingDatabaseIdentifier')
-			->will($this->returnValue(FALSE));
+			[], [], '', FALSE);
 
 		$this->subject->injectDatabaseConnectionService($mockConnectionService);
 

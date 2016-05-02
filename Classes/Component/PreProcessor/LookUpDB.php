@@ -84,7 +84,7 @@ class LookUpDB
 			return FALSE;
 		}
 		if (isset($configuration['identifier'])
-			AND !$this->connectionService->isRegistered($configuration['identifier'])
+			AND !DatabaseConnectionService::isRegistered($configuration['identifier'])
 		) {
 			return FALSE;
 		}
