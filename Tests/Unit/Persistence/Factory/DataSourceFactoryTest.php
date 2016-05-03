@@ -1,12 +1,12 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Persistence\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
-use CPSIT\T3import\ConfigurableInterface;
-use CPSIT\T3import\ConfigurableTrait;
-use CPSIT\T3import\IdentifiableInterface;
-use CPSIT\T3import\IdentifiableTrait;
-use CPSIT\T3import\Persistence\DataSourceInterface;
-use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\IdentifiableInterface;
+use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -38,14 +38,14 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class DummyMissingSourceInterface
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingSourceInterfaceClass {}
 
 /**
  * Class DummyMissingConfigurableInterfaceClass
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingConfigurableInterfaceClass
 	{
@@ -63,7 +63,7 @@ class DummyMissingConfigurableInterfaceClass
 /**
  * Class DummyIdentifiableSourceInterfaceClass
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyIdentifiableSourceInterfaceClass
 	implements DataSourceInterface, IdentifiableInterface {
@@ -92,7 +92,7 @@ class DummyIdentifiableSourceInterfaceClass
 /**
  * Class DummySourceInterfaceClass
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummySourceClass
 	implements DataSourceInterface {
@@ -121,8 +121,8 @@ class DummySourceClass
 /**
  * Class DataSourceFactoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
- * @coversDefaultClass \CPSIT\T3import\Persistence\Factory\DataSourceFactory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
+ * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataSourceFactory
  */
 class DataSourceFactoryTest extends UnitTestCase {
 
@@ -142,7 +142,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\MissingClassException
+	 * @expectedException \CPSIT\T3importExport\MissingClassException
 	 * @expectedExceptionCode 1451060913
 	 */
 	public function getThrowsExceptionForMissingSourceClass() {
@@ -155,7 +155,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\MissingInterfaceException
+	 * @expectedException \CPSIT\T3importExport\MissingInterfaceException
 	 * @expectedExceptionCode 1451061361
 	 */
 	public function getThrowsExceptionForMissingDataSourceInterface() {
@@ -168,7 +168,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451083802
 	 */
 	public function getThrowsExceptionIfIdentifierIsNotSetForIdentifiableSource() {
@@ -182,7 +182,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451086595
 	 */
 	public function getThrowsExceptionForMissingConfig() {

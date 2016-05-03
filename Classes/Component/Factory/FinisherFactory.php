@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import\Component\Factory;
+namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3import\Component\Converter\ConverterInterface;
-use CPSIT\T3import\Component\Finisher\FinisherInterface;
-use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\InvalidConfigurationException;
 
 /***************************************************************
  *
@@ -37,7 +37,7 @@ class FinisherFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @return \CPSIT\T3import\Component\Finisher\FinisherInterface
+	 * @return \CPSIT\T3importExport\Component\Finisher\FinisherInterface
 	 */
 	public function get(array $settings, $identifier = NULL) {
 		$additionalInformation = '.';

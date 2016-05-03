@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Domain\Model;
+namespace CPSIT\T3importExport\Domain\Model;
 
 /***************************************************************
  *  Copyright notice
@@ -18,17 +18,17 @@ namespace CPSIT\T3import\Domain\Model;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\IdentifiableInterface;
-use CPSIT\T3import\IdentifiableTrait;
-use CPSIT\T3import\Persistence\DataSourceInterface;
-use CPSIT\T3import\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\IdentifiableInterface;
+use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
  * Class ImportTask
  * An import task describes an import from one source to one class
  *
- * @package CPSIT\T3import\Domain\Model
+ * @package CPSIT\T3importExport\Domain\Model
  */
 class ImportTask
 	extends AbstractEntity

@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Persistence;
+namespace CPSIT\T3importExport\Persistence;
 
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
@@ -8,7 +8,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  *
  *
  *
- * @package CPSIT\T3import\Persistence
+ * @package CPSIT\T3importExport\Persistence
  */
 interface DataTargetInterface {
 	/**

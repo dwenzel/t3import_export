@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Tests\PreProcessor;
+namespace CPSIT\T3importExport\Tests\PreProcessor;
 
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 
@@ -24,18 +24,18 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 /**
  * Class MapFieldsTest
  *
- * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\MapFields
+ * @package CPSIT\T3importExport\Tests\Service\PreProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFields
  */
 class MapFieldsTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PreProcessor\MapFields
+	 * @var \CPSIT\T3importExport\Component\PreProcessor\MapFields
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PreProcessor\\MapFields',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields',
 			['dummy'], [], '', FALSE);
 	}
 

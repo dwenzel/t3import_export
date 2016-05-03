@@ -1,15 +1,15 @@
 <?php
-namespace CPSIT\T3import\Validation\Configuration;
+namespace CPSIT\T3importExport\Validation\Configuration;
 
 /**
  * Interface ConfigurationValidatorInterface
  *
- * @package CPSIT\T3import\Validation\Configuration
+ * @package CPSIT\T3importExport\Validation\Configuration
  */
 /**
  * Interface ConfigurationValidatorInterface
  *
- * @package CPSIT\T3import\Validation\Configuration
+ * @package CPSIT\T3importExport\Validation\Configuration
  */
 interface ConfigurationValidatorInterface {
 	/**

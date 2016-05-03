@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Initializer;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
-use CPSIT\T3import\Component\Initializer\TruncateTables;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\Component\Initializer\TruncateTables;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
@@ -27,13 +27,13 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class TruncateTablesTest
  *
- * @package CPSIT\T3import\Tests\Service\Initializer
- * @coversDefaultClass \CPSIT\T3import\Component\Initializer\TruncateTables
+ * @package CPSIT\T3importExport\Tests\Service\Initializer
+ * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\TruncateTables
  */
 class TruncateTablesTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\Initializer\TruncateTables
+	 * @var \CPSIT\T3importExport\Component\Initializer\TruncateTables
 	 */
 	protected $subject;
 
@@ -109,18 +109,22 @@ class TruncateTablesTest extends UnitTestCase {
 	public function isConfigurationValidReturnsTrueForValidConfiguration() {
 		/** @var DatabaseConnectionService $mockConnectionService */
 		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['isRegistered'], [], '', FALSE);
-
-		$mockConnectionService->expects($this->once())
-			->method('isRegistered')
-			->will($this->returnValue(TRUE));
-		$this->subject->injectDatabaseConnectionService($mockConnectionService);
-
+			[], [], '', FALSE);
+        $validDatabaseIdentifier = 'fooDatabaseIdentifier';
 		$validConfiguration = [
-			'identifier' => 'fooDatabaseIdentifier',
+			'identifier' => $validDatabaseIdentifier,
 				'tables' => 'tableName',
 		];
-		$this->assertTrue(
+        DatabaseConnectionService::register(
+            $validDatabaseIdentifier,
+            'hostname',
+            'databaseName',
+            'userName',
+            'password'
+        );
+        $this->subject->injectDatabaseConnectionService($mockConnectionService);
+
+        $this->assertTrue(
 			$this->subject->isConfigurationValid($validConfiguration)
 		);
 	}
@@ -146,12 +150,7 @@ class TruncateTablesTest extends UnitTestCase {
 	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
 		/** @var DatabaseConnectionService $mockConnectionService */
 		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['isRegistered'], [], '', FALSE);
-
-		$mockConnectionService->expects($this->once())
-			->method('isRegistered')
-			->with('missingDatabaseIdentifier')
-			->will($this->returnValue(FALSE));
+			[], [], '', FALSE);
 
 		$this->subject->injectDatabaseConnectionService($mockConnectionService);
 
@@ -195,7 +194,7 @@ class TruncateTablesTest extends UnitTestCase {
 			->method('exec_TRUNCATEquery')
 			->with($tableName);
 		$this->subject->_set('database', $mockDatabase);
-		
+
 		$this->subject->process($config, $records);
 	}
 }

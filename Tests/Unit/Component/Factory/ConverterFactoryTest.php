@@ -1,12 +1,12 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
-use CPSIT\T3import\Component\Converter\AbstractConverter;
-use CPSIT\T3import\Component\Converter\ConverterInterface;
-use CPSIT\T3import\Component\Factory\ConverterFactory;
-use CPSIT\T3import\Component\Factory\PreProcessorFactory;
-use CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Component\Converter\AbstractConverter;
+use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\T3importExport\Component\Factory\ConverterFactory;
+use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
+use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -38,7 +38,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class DummyInvalidConverter
  * Does not implement ConverterInterface
  *
- * @package CPSIT\T3import\Tests\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidConverter {
 }
@@ -46,7 +46,7 @@ class DummyInvalidConverter {
 /**
  * Class DummyValidConverter
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidConverter
 	extends AbstractConverter
@@ -64,12 +64,12 @@ class DummyValidConverter
 /**
  * Class ConverterFactoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class ConverterFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\Factory\ConverterFactory
+	 * @var \CPSIT\T3importExport\Component\Factory\ConverterFactory
 	 */
 	protected $subject;
 
@@ -85,7 +85,7 @@ class ConverterFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451566686
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -96,7 +96,7 @@ class ConverterFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451566699
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -110,7 +110,7 @@ class ConverterFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451566706
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementConverterInterface() {

@@ -1,12 +1,12 @@
 <?php
-namespace CPSIT\T3import;
+namespace CPSIT\T3importExport;
 
 /**
  * Interface RenderContentInterface
  *
  * Provides methods for rendering TypoScript content
  *
- * @package CPSIT\T3import
+ * @package CPSIT\T3importExport
  */
 interface RenderContentInterface
 {

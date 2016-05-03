@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Domain\Model;
+namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
-use CPSIT\T3import\Domain\Model\ExportTarget;
+use CPSIT\T3importExport\Domain\Model\ExportTarget;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************

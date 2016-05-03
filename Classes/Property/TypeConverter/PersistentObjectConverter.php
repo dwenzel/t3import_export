@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Property\TypeConverter;
+namespace CPSIT\T3importExport\Property\TypeConverter;
 
 use TYPO3\CMS\Extbase\Exception;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
@@ -137,7 +137,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 				$this->enableFieldsToBeIgnored = explode(',', $enableFieldsToBeIgnored);
 			}
 			if (is_array($enableFieldsToBeIgnored)) {
-				$this->$enableFieldsToBeIgnored = $enableFieldsToBeIgnored;
+				$this->enableFieldsToBeIgnored = $enableFieldsToBeIgnored;
 			}
 		}
 		$respectStoragePage = $configuration->getConfigurationValue($class, self::RESPECT_STORAGE_PAGE);

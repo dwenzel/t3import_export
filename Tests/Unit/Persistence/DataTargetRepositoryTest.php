@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Persistence;
+namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3import\Persistence\DataTargetRepository;
+use CPSIT\T3importExport\Persistence\DataTargetRepository;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -36,21 +36,21 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 /**
  * Class MockModelObject
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence
  */
 class MockModelObject{}
 
 /**
  * Class MockRepositoryObjectRepository
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence
  */
 class MockRepositoryObjectRepository{}
 /**
  * Class DataTargetRepositoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence
- * @coversDefaultClass \CPSIT\T3import\Persistence\DataTargetRepository
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence
+ * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetRepository
  */
 class DataTargetRepositoryTest extends UnitTestCase {
 

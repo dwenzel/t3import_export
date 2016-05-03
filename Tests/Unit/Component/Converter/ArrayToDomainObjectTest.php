@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Converter;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
-use CPSIT\T3import\Component\Converter\ArrayToDomainObject;
-use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Component\Converter\ArrayToDomainObject;
+use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -41,8 +41,8 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 /**
  * Class ArrayToDomainObjectTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Converter
- * @coversDefaultClass \CPSIT\T3import\Component\Converter\ArrayToDomainObject
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
+ * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
  */
 class ArrayToDomainObjectTest extends UnitTestCase {
 

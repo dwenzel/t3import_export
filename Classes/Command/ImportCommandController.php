@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import\Command;
+namespace CPSIT\T3importExport\Command;
 
-use CPSIT\T3import\Domain\Factory\ImportSetFactory;
-use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
-use CPSIT\T3import\Service\ImportProcessor;
+use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
+use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Service\ImportProcessor;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
@@ -40,12 +40,12 @@ class ImportCommandController extends CommandController {
 	protected $importProcessor;
 
 	/**
-	 * @var \CPSIT\T3import\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
 	 */
 	protected $importTaskFactory;
 
 	/**
-	 * @var \CPSIT\T3import\Domain\Factory\ImportSetFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\ImportSetFactory
 	 */
 	protected $importSetFactory;
 

@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Component\PreProcessor;
+namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -24,7 +24,7 @@ namespace CPSIT\T3import\Component\PreProcessor;
  * Concatenates fields of a given record and sets the result
  * into a new or existing field of this record
  *
- * @package CPSIT\T3import\PreProcessor
+ * @package CPSIT\T3importExport\PreProcessor
  */
 class ConcatenateFields
 	extends AbstractPreProcessor

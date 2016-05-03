@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Domain\Model;
+namespace CPSIT\T3importExport\Domain\Model;
 
 /***************************************************************
  *  Copyright notice
@@ -18,15 +18,15 @@ namespace CPSIT\T3import\Domain\Model;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\IdentifiableInterface;
-use CPSIT\T3import\IdentifiableTrait;
+use CPSIT\T3importExport\IdentifiableInterface;
+use CPSIT\T3importExport\IdentifiableTrait;
 use Webfox\T3events\Domain\Model\Task;
 
 /**
  * Class ImportSet
  * A set of import tasks
  *
- * @package CPSIT\T3import\Domain\Model
+ * @package CPSIT\T3importExport\Domain\Model
  */
 class ImportSet implements IdentifiableInterface {
 	use IdentifiableTrait;

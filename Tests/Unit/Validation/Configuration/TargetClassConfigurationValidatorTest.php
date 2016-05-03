@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Validation\Configuration;
+namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
-use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -47,7 +47,7 @@ class TargetClassConfigurationValidatorTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451146126
 	 */
 	public function validateThrowsExceptionIfTargetClassIsNotSet() {
@@ -57,7 +57,7 @@ class TargetClassConfigurationValidatorTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451146384
 	 */
 	public function validateThrowsExceptionIfTargetClassIsNotString() {
@@ -69,7 +69,7 @@ class TargetClassConfigurationValidatorTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\MissingClassException
+	 * @expectedException \CPSIT\T3importExport\MissingClassException
 	 * @expectedExceptionCode 1451146564
 	 */
 	public function validateThrowsExceptionIfTargetClassDoesNotExist() {

@@ -1,11 +1,11 @@
 #################
 # Backend Module
 #################
-module.tx_t3import {
+module.tx_t3importexport {
 	view {
-		templateRootPath = EXT:t3import/Resources/Private/Templates/
-		partialRootPath = EXT:t3import/Resources/Private/Partials/
-		layoutRootPath = EXT:t3import/Resources/Private/Layouts/
+		templateRootPath = EXT:t3import_export/Resources/Private/Templates/
+		partialRootPath = EXT:t3import_export/Resources/Private/Partials/
+		layoutRootPath = EXT:t3import_export/Resources/Private/Layouts/
 	}
 	settings {
 		# Don't touch this (this is just to let the extension know, that there is TypoScript included)

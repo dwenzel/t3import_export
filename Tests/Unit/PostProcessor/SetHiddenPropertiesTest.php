@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Tests\PostProcessor;
+namespace CPSIT\T3importExport\Tests\PostProcessor;
 
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
@@ -25,18 +25,18 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 /**
  * Class SetHiddenPropertiesTest
  *
- * @package CPSIT\T3import\Tests\Service\PostProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PostProcessor\SetHiddenProperties
+ * @package CPSIT\T3importExport\Tests\Service\PostProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
  */
 class SetHiddenPropertiesTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PostProcessor\SetHiddenProperties
+	 * @var \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3import\\Component\\PostProcessor\\SetHiddenProperties',
+		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PostProcessor\\SetHiddenProperties',
 			['dummy'], [], '', FALSE);
 	}
 

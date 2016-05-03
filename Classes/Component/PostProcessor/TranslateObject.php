@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Component\PostProcessor;
+namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -18,12 +18,12 @@ namespace CPSIT\T3import\Component\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3import\InvalidConfigurationException;
-use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3import\Property\TypeConverter\PersistentObjectConverter;
-use CPSIT\T3import\Service\TranslationService;
-use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
+use CPSIT\T3importExport\Service\TranslationService;
+use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\Session;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
@@ -33,14 +33,14 @@ use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
  * Class TranslateObject
  * Translates
  *
- * @package CPSIT\T3import\Component\PostProcessor
+ * @package CPSIT\T3importExport\Component\PostProcessor
  */
 class TranslateObject
 	extends AbstractPostProcessor
 	implements PostProcessorInterface {
 
 	/**
-	 * @var \CPSIT\T3import\Service\TranslationService
+	 * @var \CPSIT\T3importExport\Service\TranslationService
 	 */
 	protected $translationService;
 

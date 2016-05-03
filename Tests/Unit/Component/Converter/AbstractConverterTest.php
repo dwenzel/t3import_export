@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Converter;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
-use CPSIT\T3import\Component\Converter\AbstractConverter;
+use CPSIT\T3importExport\Component\Converter\AbstractConverter;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -32,8 +32,8 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class AbstractConverterTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Converter
- * @coversDefaultClass \CPSIT\T3import\Component\Converter\AbstractConverter
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
+ * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\AbstractConverter
  */
 class AbstractConverterTest extends UnitTestCase {
 

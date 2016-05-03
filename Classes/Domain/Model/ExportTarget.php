@@ -1,6 +1,6 @@
 <?php
-namespace CPSIT\T3import\Domain\Model;
- 
+namespace CPSIT\T3importExport\Domain\Model;
+
  /***************************************************************
  *
  *  Copyright notice

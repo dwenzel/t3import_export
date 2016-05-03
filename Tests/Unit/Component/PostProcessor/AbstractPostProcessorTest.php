@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\PostProcessor;
+namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
-use CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor;
+use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -25,12 +25,12 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class AbstractPostProcessorTest
  *
- * @coversDefaultClass \CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
  */
 class AbstractPostProcessorTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PostProcessor\AbstractPostProcessor
+	 * @var \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
 	 */
 	protected $subject;
 

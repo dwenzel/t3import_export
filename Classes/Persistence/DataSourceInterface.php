@@ -1,14 +1,14 @@
 <?php
-namespace CPSIT\T3import\Persistence;
+namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3import\ConfigurableInterface;
+use CPSIT\T3importExport\ConfigurableInterface;
 
 /**
  * Interface DataSourceInterface
  *
  * Describes data sources.
  *
- * @package CPSIT\T3import\Persistence
+ * @package CPSIT\T3importExport\Persistence
  */
 interface DataSourceInterface extends ConfigurableInterface {
 	/**

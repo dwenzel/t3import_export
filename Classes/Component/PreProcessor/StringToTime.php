@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Component\PreProcessor;
+namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 /***************************************************************

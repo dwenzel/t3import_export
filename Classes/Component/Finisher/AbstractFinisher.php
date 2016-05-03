@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Component\Finisher;
+namespace CPSIT\T3importExport\Component\Finisher;
 
-use CPSIT\T3import\Component\AbstractComponent;
+use CPSIT\T3importExport\Component\AbstractComponent;
 
 /***************************************************************
  *

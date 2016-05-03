@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Validation\Configuration;
+namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
-use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -48,7 +48,7 @@ class MappingConfigurationValidatorTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451146869
 	 */
 	public function validateThrowsExceptionIfAllowPropertiesIsNotString() {
@@ -60,7 +60,7 @@ class MappingConfigurationValidatorTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451147517
 	 */
 	public function validateThrowsExceptionIfPropertiesIsNotArray() {
@@ -95,7 +95,7 @@ class MappingConfigurationValidatorTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451157586
 	 */
 	public function validatePropertyConfigurationRecursiveThrowsExceptionIfMaxItemsIsNotSet() {

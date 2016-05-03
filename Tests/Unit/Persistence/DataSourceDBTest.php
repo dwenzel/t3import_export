@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Persistence;
+namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3import\Persistence\DataSourceDB;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\Persistence\DataSourceDB;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
@@ -34,13 +34,13 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class DataSourceDBTest
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence
- * @coversDefaultClass \CPSIT\T3import\Persistence\DataSourceDB
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence
+ * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataSourceDB
  */
 class DataSourceDBTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Persistence\DataSourceDB
+	 * @var \CPSIT\T3importExport\Persistence\DataSourceDB
 	 */
 	protected $subject;
 
@@ -59,7 +59,7 @@ class DataSourceDBTest extends UnitTestCase {
 	 */
 	public function injectConnectionServiceForObjectSetsConnectionService() {
 		$expectedConnectionService = $this->getAccessibleMock(
-			'CPSIT\\T3import\\Service\\DatabaseConnectionService',
+			'CPSIT\\T3importExport\\Service\\DatabaseConnectionService',
 			['dummy'], [], '', FALSE);
 		$this->subject->injectDatabaseConnectionService($expectedConnectionService);
 

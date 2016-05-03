@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Property;
+namespace CPSIT\T3importExport\Property;
 
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;

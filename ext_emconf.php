@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************
- * Extension Manager/Repository config file for ext "t3import".
+ * Extension Manager/Repository config file for ext "t3import_export".
  *
  * Auto generated 12-04-2016 12:57
  *
@@ -11,8 +11,8 @@
  ***************************************************************/
 
 $EM_CONF[$_EXTKEY] = array (
-  'title' => 'Imports',
-  'description' => 'Versatile importer',
+  'title' => 'Import & Export',
+  'description' => 'General import and export tool for the TYPO3 CMS',
   'category' => 'module',
   'author' => 'Dirk Wenzel',
   'author_email' => 'dirk.wenzel@cps-it.de',
@@ -22,17 +22,17 @@ $EM_CONF[$_EXTKEY] = array (
   'createDirs' => '',
   'clearCacheOnLoad' => 1,
   'version' => '0.4.0',
-  'constraints' => 
+  'constraints' =>
   array (
-    'depends' => 
+    'depends' =>
     array (
       'typo3' => '6.2.0-7.99.99',
       'php' => '5.4.0-0.0.0',
     ),
-    'conflicts' => 
+    'conflicts' =>
     array (
     ),
-    'suggests' => 
+    'suggests' =>
     array (
     ),
   ),
