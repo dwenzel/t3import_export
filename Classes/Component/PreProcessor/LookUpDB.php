@@ -212,6 +212,9 @@ class LookUpDB
 									$childValues[] = $prefix . $child[$childConfig['value']] . '"';
 								}
 								$whereClause .= implode(',', $childValues) . ')';
+                                if (isset($value['keepOrder'])) {
+                                    $whereClause .= ' ORDER BY FIELD (' . $value['field'] . ',' . implode(',', $childValues) . ')';
+                                }
 							} else {
 								return FALSE;
 							}
