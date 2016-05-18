@@ -3,7 +3,7 @@
 if (!defined('TYPO3_MODE')) {
 	die ('Access denied.');
 }
-$ll = 'LLL:EXT:t3importexport/Resources/Private/Language/locallang_db.xlf:';
+$ll = 'LLL:EXT:t3import_export/Resources/Private/Language/locallang_db.xlf:';
 
 return [
 	'ctrl' => [
