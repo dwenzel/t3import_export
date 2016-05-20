@@ -79,6 +79,19 @@ class DummyIdentifiableSourceInterfaceClass
 		return [];
 	}
 
+    /**
+     * Fake method matches DataSourceInterface
+     * @param array $configuration
+     * @param int $batchSize
+     * @param int $currentOffset
+     * @param bool $eof
+     * @return array
+     */
+    public function getRecordsIndexes(array $configuration, $batchSize = 0, $currentOffset = 0, &$eof = false)
+	{
+		return [];
+	}
+
 	/**
 	 * Fake method matches abstract method in ConfigurableInterface
 	 *
@@ -107,7 +120,21 @@ class DummySourceClass
 	public function getRecords(array $configuration) {
 		return [];
 	}
-	/**
+
+    /**
+     * Fake method matches DataSourceInterface
+     * @param array $configuration
+     * @param int $batchSize
+     * @param int $currentOffset
+     * @param bool $eof
+     * @return array
+     */
+    public function getRecordsIndexes(array $configuration, $batchSize = 0, $currentOffset = 0, &$eof = false)
+    {
+        return [];
+    }
+
+    /**
 	 * Fake method matches abstract method in ConfigurableInterface
 	 *
 	 * @param array $configuration

@@ -168,7 +168,7 @@ class ImportProcessor
 		} else {
 			// do something here ... maybe throw
 		}
-		
+
 		return $queue;
 	}
 
@@ -180,11 +180,11 @@ class ImportProcessor
 	 */
 	public function process(DemandInterface $importDemand)
 	{
-		/*$result = [];
+		$result = [];
 		$tasks = $importDemand->getTasks();
 		foreach ($tasks as $task) {
 			/** @var ImportTask $task */
-			/*if (!isset($this->queue[$task->getIdentifier()])) {
+			if (!isset($this->queue[$task->getIdentifier()])) {
 				continue;
 			}
 			//$records = $this->queue[$task->getIdentifier()];
@@ -207,19 +207,19 @@ class ImportProcessor
                     $this->queue->remove($item);
 					$result[] = $convertedRecord;
 				}
-                $queue->flush();
+                //$queue->flush();
                 if (!$this->queue->has($task->getIdentifier())) {
                     $targetConfig['queueEmpty'] = true;
                     $this->queue->clear($task->getIdentifier());
                 }
-                $target->persistAll($result, $targetConfig);
 
+                $target->persistAll($result, $targetConfig);
             }
 
 			$this->processFinishers($records, $task, $result);
 		}
 
-		return $result;*/
+		return $result;
 	}
 
 	/**
