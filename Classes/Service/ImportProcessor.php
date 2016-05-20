@@ -26,6 +26,8 @@ use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Persistence\PersistenceManagerWrapper;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
@@ -33,7 +35,8 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
  *
  * @package CPSIT\T3importExport\Service
  */
-class ImportProcessor {
+class ImportProcessor
+{
 	/**
 	 * Queue
 	 * Records to import
@@ -53,7 +56,7 @@ class ImportProcessor {
 	 * @param PersistenceManager $persistenceManager
 	 */
 	public function injectPersistenceManager(PersistenceManager $persistenceManager) {
-		$this->persistenceManager = $persistenceManager;
+		$this->persistenceManager = GeneralUtility::makeInstance(PersistenceManagerWrapper::class, $persistenceManager);
 	}
 
 	/**
@@ -105,6 +108,7 @@ class ImportProcessor {
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
 					$target = $task->getTarget();
+                    $config = null;
 					if ($target instanceof ConfigurableInterface) {
 						$config = $target->getConfiguration();
 					}
@@ -125,8 +129,8 @@ class ImportProcessor {
 	 * @param array $record
 	 * @param ImportTask $task
 	 */
-	protected function preProcessSingle(&$record, $task) {
-		$preProcessors = $task->getPreProcessors($task);
+	protected function preProcessSingle(&$record, ImportTask $task) {
+		$preProcessors = $task->getPreProcessors();
 		foreach ($preProcessors as $preProcessor) {
 			/** @var AbstractPreProcessor $preProcessor */
 			$singleConfig = $preProcessor->getConfiguration();

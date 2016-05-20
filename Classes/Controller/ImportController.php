@@ -4,12 +4,8 @@ namespace CPSIT\T3importExport\Controller;
 use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
 use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
-use CPSIT\T3importExport\Domain\Model\ImportSet;
 use CPSIT\T3importExport\Service\ImportProcessor;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
-use Webfox\T3events\Domain\Model\Task;
 
 /***************************************************************
  *  Copyright notice
