@@ -231,4 +231,20 @@ class DataTargetRepositoryTest extends UnitTestCase {
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function persistAllPersistsThroughPersistenceManager()
+	{
+        /** @var PersistenceManagerInterface $mockPersistenceManager */
+        $mockPersistenceManager = $this->getMockForAbstractClass(
+            PersistenceManagerInterface::class
+        );
+        $this->subject->injectPersistenceManager($mockPersistenceManager);
+
+        $mockPersistenceManager->expects($this->once())
+            ->method('persistAll');
+
+        $this->subject->persistAll();
+    }
 }

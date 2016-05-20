@@ -100,19 +100,23 @@ class ImportProcessor {
 			$this->processInitializers($records, $task);
 
 			if ((bool) $records) {
+				$target = $task->getTarget();
+				$targetConfig = null;
+				if ($target instanceof ConfigurableInterface) {
+					$targetConfig = $target->getConfiguration();
+				}
+
 				foreach ($records as $record) {
 					$this->preProcessSingle($record, $task);
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
-					$target = $task->getTarget();
-					if ($target instanceof ConfigurableInterface) {
-						$config = $target->getConfiguration();
-					}
-					$target->persist($convertedRecord, $config);
+					$target->persist($convertedRecord, $targetConfig);
 					$result[] = $convertedRecord;
 				}
+
+				$target->persistAll($result, $targetConfig);
 			}
-			$this->persistenceManager->persistAll();
+
 			$this->processFinishers($records, $task, $result);
 		}
 
