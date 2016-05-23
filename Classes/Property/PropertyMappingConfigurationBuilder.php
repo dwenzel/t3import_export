@@ -3,7 +3,7 @@ namespace CPSIT\T3importExport\Property;
 
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
+use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /***************************************************************
@@ -156,6 +156,15 @@ class PropertyMappingConfigurationBuilder {
 				);
 			}
 		}
+		
+		if (isset($configuration['type'])) {
+			$propertyMappingConfiguration->setTypeConverterOption(
+				PersistentObjectConverter::class,
+				'type',
+				$configuration['type']
+			);
+		}
+		
 		if ((bool) $properties = $this->getProperties($configuration)) {
 			$allowedProperties = $this->getAllowedProperties($configuration);
 			foreach ($properties as $propertyName => $localConfiguration) {

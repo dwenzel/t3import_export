@@ -124,10 +124,6 @@ class ArrayToDataStream
             'record' => $record
         ];
         $this->emitSignal(self::BEFORE_CONVERT_SIGNAL,  $slotVariables);
-
-
-
-            
         $data = $this->propertyMapper->convert(
             $record,
             $configuration['targetClass'],

@@ -11,5 +11,4 @@ namespace CPSIT\T3importExport\Domain\Model;
 
 class XMLStream extends DataStream
 {
-    
 }
