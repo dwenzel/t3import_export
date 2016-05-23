@@ -15,6 +15,10 @@ class DataStream extends AbstractEntity
 {
     protected $context;
 
+    protected $outputBuffer;
+
+    protected $tmpFile;
+
     /**
      * @return mixed
      */
@@ -40,5 +44,46 @@ class DataStream extends AbstractEntity
         } else {
             $this->context[$propertyName] = $arguments;
         }
+    }
+
+    public function generateOutput($persist = false)
+    {
+        $buffer = http_build_query($this->context);
+        if ($persist) {
+            $this->outputBuffer = $buffer;
+        }
+        return $buffer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTmpFile()
+    {
+        return $this->tmpFile;
+    }
+
+    /**
+     * @param mixed $tmpFile
+     */
+    public function setTmpFile($tmpFile)
+    {
+        $this->tmpFile = $tmpFile;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOutputBuffer()
+    {
+        return $this->outputBuffer;
+    }
+
+    /**
+     * @param mixed $outputBuffer
+     */
+    public function setOutputBuffer($outputBuffer)
+    {
+        $this->outputBuffer = $outputBuffer;
     }
 }
