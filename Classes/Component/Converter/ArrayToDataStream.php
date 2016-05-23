@@ -116,19 +116,25 @@ class ArrayToDataStream
      */
     public function convert(array $record, array $configuration)
     {
-        /*$mappingConfiguration = $configuration;
+        $mappingConfiguration = $configuration;
         unset($mappingConfiguration['targetClass']);
         $mappingConfiguration = $this->getMappingConfiguration($mappingConfiguration);
         $slotVariables = [
             'configuration' => $configuration,
             'record' => $record
         ];
-        $this->emitSignal(self::BEFORE_CONVERT_SIGNAL, $slotVariables);
-        return $this->propertyMapper->convert(
+        $this->emitSignal(self::BEFORE_CONVERT_SIGNAL,  $slotVariables);
+
+
+
+            
+        $data = $this->propertyMapper->convert(
             $record,
             $configuration['targetClass'],
             $mappingConfiguration
-        );*/
+        );
+
+        return $data;
     }
 
     /**

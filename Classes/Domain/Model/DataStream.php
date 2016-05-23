@@ -30,4 +30,15 @@ class DataStream extends AbstractEntity
     {
         $this->context = $context;
     }
+
+    public function __call($name, $arguments)
+    {
+        $propertyName = lcfirst(str_replace('set', '', $name));
+
+        if (count($arguments) == 1) {
+            $this->context[$propertyName] = $arguments[0];
+        } else {
+            $this->context[$propertyName] = $arguments;
+        }
+    }
 }

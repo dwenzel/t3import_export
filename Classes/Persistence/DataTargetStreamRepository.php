@@ -17,7 +17,6 @@ class DataTargetStreamRepository extends DataTargetRepository implements DataTar
 
     public function persist($object, array $configuration = null)
     {
-        var_dump($object, $configuration);
         return null;
     }
     
