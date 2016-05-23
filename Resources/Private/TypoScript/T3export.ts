@@ -40,7 +40,7 @@ module.tx_t3importexport.settings.importProcessor.tasks {
             1 {
                 class = CPSIT\T3importExport\Component\Converter\ArrayToDataStream
                 config {
-                    targetClass = CPSIT\T3importExport\Domain\Model\DataStream
+                    targetClass = CPSIT\T3importExport\Domain\Model\XMLStream
                 }
             }
         }

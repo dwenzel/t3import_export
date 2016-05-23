@@ -9,7 +9,7 @@
 namespace CPSIT\T3importExport\Domain\Model;
 
 
-class XMLStream
+class XMLStream extends DataStream
 {
-
+    
 }
