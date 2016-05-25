@@ -1,9 +1,9 @@
 <?php
-namespace CPSIT\T3import\Component\Factory;
+namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3import\Component\Initializer\InitializerInterface;
-use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\InvalidConfigurationException;
 
 /***************************************************************
  *
@@ -33,7 +33,7 @@ use CPSIT\T3import\InvalidConfigurationException;
 /**
  * Class InitializerFactory
  *
- * @package CPSIT\T3import\Component\Factory
+ * @package CPSIT\T3importExport\Component\Factory
  */
 class InitializerFactory extends AbstractFactory {
 	/**
@@ -42,7 +42,7 @@ class InitializerFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @return \CPSIT\T3import\Component\Initializer\InitializerInterface
+	 * @return \CPSIT\T3importExport\Component\Initializer\InitializerInterface
 	 */
 	public function get(array $settings, $identifier = NULL) {
 		$additionalInformation = '.';

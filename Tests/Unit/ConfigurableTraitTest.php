@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests;
+namespace CPSIT\T3importExport\Tests;
 
-use CPSIT\T3import\ConfigurableTrait;
+use CPSIT\T3importExport\ConfigurableTrait;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -69,7 +69,7 @@ class ConfigurableTraitTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451659793
 	 */
 	public function setConfigurationThrowsExceptionForInvalidConfiguration() {

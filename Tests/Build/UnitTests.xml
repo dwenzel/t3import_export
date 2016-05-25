@@ -1,7 +1,7 @@
 <phpunit
 	backupGlobals="false"
 	backupStaticAttributes="false"
-	bootstrap="../../../../../typo3/sysext/core/Build/UnitTestsBootstrap.php"
+	bootstrap="../../.Build/Web/typo3/sysext/core/Build/UnitTestsBootstrap.php"
 	colors="true"
 	convertErrorsToExceptions="true"
 	convertWarningsToExceptions="true"
@@ -14,7 +14,7 @@
 	verbose="false">
 
 	<testsuites>
-		<testsuite name="EXT:t3import tests">
+		<testsuite name="EXT:t3import_export tests">
 			<directory>../Unit/</directory>
 		</testsuite>
 	</testsuites>
@@ -23,6 +23,7 @@
 			<directory suffix=".php">../../Classes/</directory>
 		</whitelist>
 	</filter>
-
-
+	<logging>
+		<log type="coverage-text" target="php://stdout" showUncoveredFiles="true" />
+	</logging>
 </phpunit>

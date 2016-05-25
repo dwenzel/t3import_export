@@ -1,9 +1,9 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
-use CPSIT\T3import\Component\Initializer\AbstractInitializer;
-use CPSIT\T3import\Component\Initializer\InitializerInterface;
-use CPSIT\T3import\Component\Factory\InitializerFactory;
+use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
+use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\T3importExport\Component\Factory\InitializerFactory;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -35,7 +35,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class DummyInvalidInitializer
  * Does not implement InitializerInterface
  *
- * @package CPSIT\T3import\Tests\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidInitializer {
 }
@@ -43,7 +43,7 @@ class DummyInvalidInitializer {
 /**
  * Class DummyValidInitializer
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidInitializer
 	extends AbstractInitializer
@@ -61,12 +61,12 @@ class DummyValidInitializer
 /**
  * Class InitializerFactoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Component\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class InitializerFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\Factory\InitializerFactory
+	 * @var \CPSIT\T3importExport\Component\Factory\InitializerFactory
 	 */
 	protected $subject;
 
@@ -82,7 +82,7 @@ class InitializerFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1454588350
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
@@ -93,7 +93,7 @@ class InitializerFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1454588360
 	 */
 	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
@@ -107,7 +107,7 @@ class InitializerFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1454588370
 	 */
 	public function getThrowsExceptionIfClassDoesNotImplementInitializerInterface() {

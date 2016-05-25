@@ -1,22 +1,22 @@
 <?php
-namespace CPSIT\T3import\Domain\Factory;
+namespace CPSIT\T3importExport\Domain\Factory;
 
-use CPSIT\T3import\Component\Converter\ConverterInterface;
-use CPSIT\T3import\Component\Factory\ConverterFactory;
-use CPSIT\T3import\Component\Factory\FinisherFactory;
-use CPSIT\T3import\Component\Factory\InitializerFactory;
-use CPSIT\T3import\Component\Factory\PostProcessorFactory;
-use CPSIT\T3import\Component\Factory\PreProcessorFactory;
-use CPSIT\T3import\Component\Finisher\FinisherInterface;
-use CPSIT\T3import\Component\Initializer\InitializerInterface;
-use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3import\Domain\Model\ImportTask;
-use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
-use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3import\MissingClassException;
-use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\T3importExport\Component\Factory\ConverterFactory;
+use CPSIT\T3importExport\Component\Factory\FinisherFactory;
+use CPSIT\T3importExport\Component\Factory\InitializerFactory;
+use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
+use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
+use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\InvalidConfigurationException;
 
 /***************************************************************
  *  Copyright notice
@@ -40,7 +40,7 @@ use CPSIT\T3import\InvalidConfigurationException;
  * Class ImportTaskFactory
  * builds import tasks from settings
  *
- * @package CPSIT\T3import\Domain\Factory
+ * @package CPSIT\T3importExport\Domain\Factory
  */
 class ImportTaskFactory extends AbstractFactory {
 
@@ -149,8 +149,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param string $identifier
 	 * @return ImportTask
 	 * @throws InvalidConfigurationException
-	 * @throws \CPSIT\T3import\MissingClassException
-	 * @throws \CPSIT\T3import\MissingInterfaceException
+	 * @throws \CPSIT\T3importExport\MissingClassException
+	 * @throws \CPSIT\T3importExport\MissingInterfaceException
 	 */
 	public function get(array $settings, $identifier = NULL) {
 		/** @var ImportTask $task */
@@ -209,8 +209,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @throws \CPSIT\T3import\MissingClassException
-	 * @throws \CPSIT\T3import\MissingInterfaceException
+	 * @throws \CPSIT\T3importExport\MissingClassException
+	 * @throws \CPSIT\T3importExport\MissingInterfaceException
 	 */
 	protected function setTarget(&$task, array $settings, $identifier) {
 		if (!isset($settings['target'])
@@ -240,8 +240,8 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
-	 * @throws \CPSIT\T3import\MissingClassException
-	 * @throws \CPSIT\T3import\MissingInterfaceException
+	 * @throws \CPSIT\T3importExport\MissingClassException
+	 * @throws \CPSIT\T3importExport\MissingInterfaceException
 	 */
 	protected function setSource(&$task, array $settings, $identifier) {
 		if (!isset($settings['source'])
@@ -292,7 +292,7 @@ class ImportTaskFactory extends AbstractFactory {
 	 * @param ImportTask $task
 	 * @param array $settings
 	 * @param string $identifier
-	 * @throws \CPSIT\T3import\InvalidConfigurationException
+	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	protected function setPostProcessors(&$task, array $settings, $identifier) {
 		$postProcessors = [];

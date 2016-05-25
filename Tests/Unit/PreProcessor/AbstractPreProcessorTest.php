@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Tests\PreProcessor;
+namespace CPSIT\T3importExport\Tests\PreProcessor;
 
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
@@ -25,19 +25,19 @@ use TYPO3\CMS\Extbase\Service\TypoScriptService;
 /**
  * Class AbstractPreProcessorTest
  *
- * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor
+ * @package CPSIT\T3importExport\Tests\Service\PreProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor
  */
 class AbstractPreProcessorTest extends BaseTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor
+	 * @var \CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor
 	 */
 	protected $subject;
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMockForAbstractClass(
-			'CPSIT\\T3import\\Component\\PreProcessor\\AbstractPreProcessor',
+			'CPSIT\\T3importExport\\Component\\PreProcessor\\AbstractPreProcessor',
 			[], '', FALSE);
 	}
 
@@ -187,7 +187,7 @@ class AbstractPreProcessorTest extends BaseTestCase {
 	 */
 	public function isDisabledRendersContent() {
 		$subject = $this->getAccessibleMock(
-			'CPSIT\\T3import\\Component\\PreProcessor\\AbstractPreProcessor',
+			'CPSIT\\T3importExport\\Component\\PreProcessor\\AbstractPreProcessor',
 			['renderContent', 'process'], [], '', FALSE);
 		$configuration = [
 			'disable' => [

@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component\PreProcessor;
+namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use CPSIT\T3import\Component\PreProcessor\LookUpDB;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
@@ -28,13 +28,13 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class LookUpDBTest
  *
- * @package CPSIT\T3import\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3import\Component\PreProcessor\LookUpDB
+ * @package CPSIT\T3importExport\Tests\Service\PreProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
  */
 class LookUpDBTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\PreProcessor\LookUpDB
+	 * @var \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
 	 */
 	protected $subject;
 
@@ -198,20 +198,26 @@ class LookUpDBTest extends UnitTestCase {
 	public function isConfigurationValidReturnsTrueForValidConfiguration() {
 		/** @var DatabaseConnectionService $mockConnectionService */
 		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['isRegistered'], [], '', FALSE);
+			[], [], '', FALSE);
 
-		$mockConnectionService->expects($this->once())
-			->method('isRegistered')
-			->will($this->returnValue(TRUE));
 		$this->subject->injectDatabaseConnectionService($mockConnectionService);
 
+		$validDatabaseIdentifier = 'fooDatabaseIdentifier';
 		$validConfiguration = [
-			'identifier' => 'fooDatabaseIdentifier',
+			'identifier' => $validDatabaseIdentifier,
 			'select' => [
-				'table' => 'tableName',
-			]
+                'table' => 'tableName'
+            ]
 		];
-		$this->assertTrue(
+        DatabaseConnectionService::register(
+            $validDatabaseIdentifier,
+            'hostname',
+            'databaseName',
+            'userName',
+            'password'
+        );
+
+        $this->assertTrue(
 			$this->subject->isConfigurationValid($validConfiguration)
 		);
 	}
@@ -239,12 +245,7 @@ class LookUpDBTest extends UnitTestCase {
 	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
 		/** @var DatabaseConnectionService $mockConnectionService */
 		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['isRegistered'], [], '', FALSE);
-
-		$mockConnectionService->expects($this->once())
-			->method('isRegistered')
-			->with('missingDatabaseIdentifier')
-			->will($this->returnValue(FALSE));
+			[], [], '', FALSE);
 
 		$this->subject->injectDatabaseConnectionService($mockConnectionService);
 

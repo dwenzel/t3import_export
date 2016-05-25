@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import\Component\PreProcessor;
+namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
  *  Copyright notice
@@ -23,7 +23,7 @@ namespace CPSIT\T3import\Component\PreProcessor;
  * Class MapFields
  * Maps one field of a record to another. Existing fields are overwritten!
  *
- * @package CPSIT\T3import\PreProcessor
+ * @package CPSIT\T3importExport\PreProcessor
  */
 class MapFields
 	extends AbstractPreProcessor

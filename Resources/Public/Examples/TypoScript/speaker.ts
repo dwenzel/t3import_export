@@ -1,6 +1,6 @@
 # speaker.ts
 # import configuration for speakers (source table speakers)
-module.tx_t3import.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.importProcessor.tasks {
 	speaker {
 		class = Webfox\T3events\Domain\Model\Person
 		sourceQueryConfiguration {
@@ -17,7 +17,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# match existing persons
 			1 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpDB
+				class = CPSIT\T3importExport\Component\PreProcessor\LookUpDB
 				config {
 					targetField = uid
 					select {
@@ -39,7 +39,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# set person type
 			3 {
-				class = CPSIT\T3import\Component\PreProcessor\SetFieldValue
+				class = CPSIT\T3importExport\Component\PreProcessor\SetFieldValue
 				config {
 					targetField = personType
 					value = 2
@@ -47,7 +47,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# map gender
 			4 {
-				class = CPSIT\T3import\Component\PreProcessor\MapFieldValues
+				class = CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
 				config {
 					fields {
 						gender {
@@ -62,7 +62,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 				}
 			}
 			5 {
-				class = CPSIT\T3import\Component\PreProcessor\MapFields
+				class = CPSIT\T3importExport\Component\PreProcessor\MapFields
 				config.fields {
 					details_de = details
 					curriculum_de = curriculum
@@ -72,7 +72,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 				}
 			}
 			6 {
-				class = CPSIT\T3import\Component\PreProcessor\RenderContent
+				class = CPSIT\T3importExport\Component\PreProcessor\RenderContent
 				config.fields {
 					zewId = TEXT
 					zewId.value {

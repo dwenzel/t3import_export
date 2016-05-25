@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Component\Converter;
+namespace CPSIT\T3importExport\Component\Converter;
 
-use CPSIT\T3import\Component\AbstractComponent;
+use CPSIT\T3importExport\Component\AbstractComponent;
 
 /***************************************************************
  *

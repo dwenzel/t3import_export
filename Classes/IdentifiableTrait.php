@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import;
+namespace CPSIT\T3importExport;
 
 /**
  * Interface IdentifiableInterface
  *
- * @package CPSIT\T3import\Persistence\Factory
+ * @package CPSIT\T3importExport\Persistence\Factory
  */
 trait IdentifiableTrait {
 

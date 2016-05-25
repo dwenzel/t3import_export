@@ -1,15 +1,15 @@
 <?php
-namespace CPSIT\T3import\Tests\Service;
+namespace CPSIT\T3importExport\Tests\Service;
 
-use CPSIT\T3import\Component\Finisher\FinisherInterface;
-use CPSIT\T3import\Component\Initializer\InitializerInterface;
-use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
-use CPSIT\T3import\Domain\Model\ImportTask;
-use CPSIT\T3import\Persistence\DataSourceInterface;
-use CPSIT\T3import\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3import\Service\ImportProcessor;
+use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Service\ImportProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -33,13 +33,13 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class ImportCommandControllerTest
  *
- * @package CPSIT\T3import\Tests\Service
- * @coversDefaultClass \CPSIT\T3import\Service\ImportProcessor
+ * @package CPSIT\T3importExport\Tests\Service
+ * @coversDefaultClass \CPSIT\T3importExport\Service\ImportProcessor
  */
 class ImportProcessorTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Service\ImportProcessor
+	 * @var \CPSIT\T3importExport\Service\ImportProcessor
 	 */
 	protected $subject;
 

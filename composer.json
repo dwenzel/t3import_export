@@ -1,0 +1,55 @@
+{
+	"name": "cpsit/t3import_export",
+	"type": "typo3-cms-extension",
+	"description": "General import and export tool for the TYPO3 CMS",
+	"keywords": ["TYPO3", "extension", "import", "export"],
+	"version": "0.5.0",
+	"license": ["GPL-2.0+"],
+	"authors": [
+		{
+			"name": "Dirk Wenzel",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"typo3/cms": ">=6.2.0,<8.0"
+	},
+	"require-dev": {
+    "mikey179/vfsStream": "1.4.*@dev",
+    "phpunit/phpunit": "~4.8.0",
+    "satooshi/php-coveralls": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "CPSIT\\T3importExport\\": "Classes"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CPSIT\\T3importExport\\Tests\\": "Tests",
+      "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/",
+      "TYPO3\\CMS\\Fluid\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/fluid/Tests/"
+    }
+  },
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin"
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "mkdir -p .Build/Web/typo3conf/ext/",
+      "mkdir -p .Build/log/coverage/",
+      "[ -L .Build/Web/typo3conf/ext/t3import_export ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/t3import_export"
+    ]
+  },
+  "extra": {
+		"branch-alias": {
+			"dev-master": "0.5.x-dev"
+		},
+    "typo3/cms": {
+      "cms-package-dir": "{$vendor-dir}/typo3/cms",
+      "web-dir": ".Build/Web"
+    }
+  }
+}
+

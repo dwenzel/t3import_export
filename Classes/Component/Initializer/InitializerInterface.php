@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import\Component\Initializer;
+namespace CPSIT\T3importExport\Component\Initializer;
 
 /**
  * Interface InitializerInterface
  *
- * @package CPSIT\T3import\Component\Initializer
+ * @package CPSIT\T3importExport\Component\Initializer
  */
 interface InitializerInterface {
 	/**

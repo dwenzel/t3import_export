@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Persistence\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
-use CPSIT\T3import\Persistence\DataTargetInterface;
-use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
+use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -34,22 +34,22 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class DummyMissingTargetInterfaceClass
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingTargetInterfaceClass {}
 
 /**
  * Class DummyTargetObjectClass
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyTargetObjectClass {}
 
 /**
  * Class DataTargetFactoryTest
  *
- * @package CPSIT\T3import\Tests\Unit\Persistence\Factory
- * @coversDefaultClass \CPSIT\T3import\Persistence\Factory\DataTargetFactory
+ * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
+ * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataTargetFactory
  */
 class DataTargetFactoryTest extends UnitTestCase {
 
@@ -69,7 +69,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\MissingClassException
+	 * @expectedException \CPSIT\T3importExport\MissingClassException
 	 * @expectedExceptionCode 1451043513
 	 */
 	public function getThrowsExceptionForMissingTargetClass() {
@@ -82,7 +82,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\MissingInterfaceException
+	 * @expectedException \CPSIT\T3importExport\MissingInterfaceException
 	 * @expectedExceptionCode 1451045997
 	 */
 	public function getThrowsExceptionForMissingInterface() {
@@ -95,7 +95,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451043340
 	 */
 	public function getThrowsExceptionIfObjectClassIsNotSet() {
@@ -106,7 +106,7 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\MissingClassException
+	 * @expectedException \CPSIT\T3importExport\MissingClassException
 	 * @expectedExceptionCode 1451043367
 	 */
 	public function getThrowsExceptionForMissingObjectClass() {

@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import\Component\Converter;
+namespace CPSIT\T3importExport\Component\Converter;
 
 /**
  * Interface ConverterInterface
  *
- * @package CPSIT\T3import\Component\Converter
+ * @package CPSIT\T3importExport\Component\Converter
  */
 interface ConverterInterface {
 	/**

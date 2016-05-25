@@ -1,11 +1,11 @@
 <?php
-namespace CPSIT\T3import\Component;
+namespace CPSIT\T3importExport\Component;
 
-use CPSIT\T3import\ConfigurableInterface;
-use CPSIT\T3import\ConfigurableTrait;
-use CPSIT\T3import\InvalidConfigurationException;
-use CPSIT\T3import\RenderContentInterface;
-use CPSIT\T3import\RenderContentTrait;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\RenderContentInterface;
+use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
@@ -34,7 +34,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 /**
  * Class AbstractComponent
  *
- * @package CPSIT\T3import\Component
+ * @package CPSIT\T3importExport\Component
  */
 abstract class AbstractComponent
     implements ConfigurableInterface, RenderContentInterface

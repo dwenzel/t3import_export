@@ -1,11 +1,11 @@
 <?php
-namespace CPSIT\T3import\Component\Converter;
+namespace CPSIT\T3importExport\Component\Converter;
 
-use CPSIT\T3import\MissingClassException;
-use CPSIT\T3import\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3import\InvalidConfigurationException;
-use CPSIT\T3import\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3import\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
@@ -125,7 +125,7 @@ class ArrayToDomainObject
 
 	/**
 	 * @param array $configuration
-	 * @throws \CPSIT\T3import\InvalidConfigurationException
+	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
 	 * @throws MissingClassException
 	 * @return bool
 	 */

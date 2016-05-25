@@ -1,10 +1,10 @@
 <?php
-namespace CPSIT\T3import\Component\Finisher;
+namespace CPSIT\T3importExport\Component\Finisher;
 
 /**
  * Interface FinisherInterface
  *
- * @package CPSIT\T3import\Component\Finisher
+ * @package CPSIT\T3importExport\Component\Finisher
  */
 interface FinisherInterface {
 	/**

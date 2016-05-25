@@ -1,8 +1,8 @@
 <?php
-namespace CPSIT\T3import\Component\PreProcessor;
+namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use CPSIT\T3import\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3import\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -29,14 +29,14 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  * Base class for database look up.
  * Children must implement PreProcessorInterface
  *
- * @package CPSIT\T3import\PreProcessor
+ * @package CPSIT\T3importExport\PreProcessor
  */
 class LookUpDB
 	extends AbstractPreProcessor
 	implements PreProcessorInterface {
 
 	/**
-	 * @var \CPSIT\T3import\Service\DatabaseConnectionService
+	 * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
 	 */
 	protected $connectionService;
 
@@ -55,7 +55,7 @@ class LookUpDB
 	}
 
 	/**
-	 * @param \CPSIT\T3import\Service\DatabaseConnectionService $dbConnectionService
+	 * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
 	 */
 	public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService) {
 		$this->connectionService = $dbConnectionService;
@@ -84,7 +84,7 @@ class LookUpDB
 			return FALSE;
 		}
 		if (isset($configuration['identifier'])
-			AND !$this->connectionService->isRegistered($configuration['identifier'])
+			AND !DatabaseConnectionService::isRegistered($configuration['identifier'])
 		) {
 			return FALSE;
 		}
@@ -212,6 +212,9 @@ class LookUpDB
 									$childValues[] = $prefix . $child[$childConfig['value']] . '"';
 								}
 								$whereClause .= implode(',', $childValues) . ')';
+                                if (isset($value['keepOrder'])) {
+                                    $whereClause .= ' ORDER BY FIELD (' . $value['field'] . ',' . implode(',', $childValues) . ')';
+                                }
 							} else {
 								return FALSE;
 							}

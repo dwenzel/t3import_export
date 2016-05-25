@@ -3,11 +3,11 @@
 if (!defined('TYPO3_MODE')) {
 	die ('Access denied.');
 }
-$ll = 'LLL:EXT:t3import/Resources/Private/Language/locallang_db.xlf:';
+$ll = 'LLL:EXT:t3import_export/Resources/Private/Language/locallang_db.xlf:';
 
 return [
 	'ctrl' => [
-		'title' => $ll. 'tx_t3import_domain_model_exporttarget',
+		'title' => $ll. 'tx_t3importexport_domain_model_exporttarget',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -26,7 +26,7 @@ return [
 			'endtime' => 'endtime',
 		],
 		'searchFields' => 'title,description',
-		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('t3import') . 'Resources/Public/Icons/tx_t3events_domain_model_event.gif'
+		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('t3import_export') . 'Resources/Public/Icons/tx_t3events_domain_model_event.gif'
 	],
 		'interface' => [
 		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title,

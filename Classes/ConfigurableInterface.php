@@ -1,12 +1,12 @@
 <?php
-namespace CPSIT\T3import;
+namespace CPSIT\T3importExport;
 
-use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3importExport\InvalidConfigurationException;
 
 /**
  * Interface ConfigurableInterface
  *
- * @package CPSIT\T3import
+ * @package CPSIT\T3importExport
  */
 interface ConfigurableInterface {
 

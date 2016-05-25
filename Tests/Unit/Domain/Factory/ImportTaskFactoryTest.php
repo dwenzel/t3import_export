@@ -1,25 +1,25 @@
 <?php
-namespace CPSIT\T3import\Tests\Domain\Factory;
+namespace CPSIT\T3importExport\Tests\Domain\Factory;
 
-use CPSIT\T3import\Component\Converter\ConverterInterface;
-use CPSIT\T3import\Component\Factory\ConverterFactory;
-use CPSIT\T3import\Component\Factory\FinisherFactory;
-use CPSIT\T3import\Component\Factory\InitializerFactory;
-use CPSIT\T3import\Component\Factory\PostProcessorFactory;
-use CPSIT\T3import\Component\Factory\PreProcessorFactory;
-use CPSIT\T3import\Component\Finisher\FinisherInterface;
-use CPSIT\T3import\Component\Initializer\InitializerInterface;
-use CPSIT\T3import\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\T3import\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3import\Factory\AbstractFactory;
-use CPSIT\T3import\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3import\Domain\Model\ImportTask;
-use CPSIT\T3import\Persistence\DataSourceInterface;
-use CPSIT\T3import\Persistence\DataTargetInterface;
-use CPSIT\T3import\Persistence\DataTargetRepository;
-use CPSIT\T3import\Persistence\Factory\DataSourceFactory;
-use CPSIT\T3import\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3import\InvalidConfigurationException;
+use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\T3importExport\Component\Factory\ConverterFactory;
+use CPSIT\T3importExport\Component\Factory\FinisherFactory;
+use CPSIT\T3importExport\Component\Factory\InitializerFactory;
+use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
+use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Persistence\DataTargetRepository;
+use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
+use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -46,13 +46,13 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class ImportTaskFactoryTest
  *
- * @package CPSIT\T3import\Tests\Domain\Factory
- * @coversDefaultClass \CPSIT\T3import\Domain\Factory\ImportTaskFactory
+ * @package CPSIT\T3importExport\Tests\Domain\Factory
+ * @coversDefaultClass \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
  */
 class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
 	 */
 	protected $subject;
 
@@ -183,7 +183,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	public function getGetsImportTaskFromObjectManager() {
 		$identifier = 'foo';
@@ -205,7 +205,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	public function getSetsIdentifier() {
 		$identifier = 'foo';
@@ -229,7 +229,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	public function getSetsTargetClass() {
 		$identifier = 'foo';
@@ -258,7 +258,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	public function getSetsDescription() {
 		$identifier = 'foo';
@@ -332,7 +332,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451052262
 	 */
 	public function getThrowsExceptionForMissingTarget() {
@@ -356,7 +356,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3import\InvalidConfigurationException
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451206701
 	 */
 	public function getThrowsExceptionForMissingSource() {
@@ -586,7 +586,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			->with(['1' => $mockConverter]);
 		$this->subject->get($configuration, $identifier);
 	}
-	
+
 	/**
 	 * @test
 	 */

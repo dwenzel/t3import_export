@@ -1,12 +1,12 @@
 <?php
-namespace CPSIT\T3import\Tests\Domain\Model;
+namespace CPSIT\T3importExport\Tests\Domain\Model;
 
-use CPSIT\T3import\Domain\Model\ImportSet;
-use CPSIT\T3import\Domain\Model\ImportTask;
-use CPSIT\T3import\Persistence\DataSourceInterface;
-use CPSIT\T3import\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Domain\Model\ImportSet;
+use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
-use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
 
 /***************************************************************
  *  Copyright notice
@@ -28,7 +28,7 @@ use CPSIT\T3import\Domain\Model\Dto\ImportDemand;
 class ImportTaskTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Domain\Model\ImportTask
+	 * @var \CPSIT\T3importExport\Domain\Model\ImportTask
 	 */
 	protected $subject;
 

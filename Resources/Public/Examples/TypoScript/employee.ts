@@ -1,6 +1,6 @@
 # employee.ts
 # import configuration for employees
-module.tx_t3import.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.importProcessor.tasks {
 	employee {
 		# target class for this import task
 		class = Webfox\T3events\Domain\Model\Person
@@ -24,7 +24,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 		preProcessors {
 			# match existing persons from local database (TYPO3)
 			1 {
-				class = CPSIT\T3import\Component\PreProcessor\LookUpLocalDB
+				class = CPSIT\T3importExport\Component\PreProcessor\LookUpLocalDB
 				config {
 					targetField = uid
 					select {
@@ -46,7 +46,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# set person type
 			2 {
-				class = CPSIT\T3import\Component\PreProcessor\SetFieldValue
+				class = CPSIT\T3importExport\Component\PreProcessor\SetFieldValue
 				config {
 					targetField = personType
 					value = 1
@@ -54,7 +54,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# map gender
 			3 {
-				class = CPSIT\T3import\Component\PreProcessor\MapFieldValues
+				class = CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
 				config {
 					fields {
 						gender {
@@ -70,7 +70,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# render content
 			4 {
-				class = CPSIT\T3import\Component\PreProcessor\RenderContent
+				class = CPSIT\T3importExport\Component\PreProcessor\RenderContent
 				config {
 					fields {
 						zewId = TEXT
@@ -83,7 +83,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# concatenate some fields to another and wrap them
 			5 {
-				class = CPSIT\T3import\Component\PreProcessor\ConcatenateFields
+				class = CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
 				config {
 					targetField = name
 					# fields must be array with field names as keys
@@ -102,7 +102,7 @@ module.tx_t3import.settings.importProcessor.tasks {
 			}
 			# map field names
 			6 {
-				class = CPSIT\T3import\Component\PreProcessor\MapFields
+				class = CPSIT\T3importExport\Component\PreProcessor\MapFields
 				config.fields {
 					nachname = lastName
 					vorname = firstName

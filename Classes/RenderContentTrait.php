@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3import;
+namespace CPSIT\T3importExport;
 
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
@@ -9,7 +9,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 /**
  * Class RenderContentTrait
  *
- * @package CPSIT\T3import
+ * @package CPSIT\T3importExport
  */
 trait RenderContentTrait
 {

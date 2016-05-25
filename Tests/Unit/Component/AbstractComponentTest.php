@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests\Unit\Component;
+namespace CPSIT\T3importExport\Tests\Unit\Component;
 
-use CPSIT\T3import\Component\AbstractComponent;
+use CPSIT\T3importExport\Component\AbstractComponent;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
@@ -32,7 +32,7 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 class AbstractComponentTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3import\Component\AbstractComponent
+	 * @var \CPSIT\T3importExport\Component\AbstractComponent
 	 */
 	protected $subject;
 

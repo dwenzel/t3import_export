@@ -1,7 +1,7 @@
 <?php
-namespace CPSIT\T3import\Tests;
+namespace CPSIT\T3importExport\Tests;
 
-use CPSIT\T3import\RenderContentTrait;
+use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
