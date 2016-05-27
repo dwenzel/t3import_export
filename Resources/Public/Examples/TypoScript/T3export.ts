@@ -1,12 +1,16 @@
 # employee.ts
 # import configuration for employees
 module.tx_t3importexport.settings.importProcessor.tasks {
-    employee {
+    xmlTEST {
         source {
+            // for XML or other files
+            //class = CPSIT\T3importExport\Persistence\DataSourceStream
             identifier = test
+            queueSize = 10
             config {
-                table = tx_t3events_domain_model_person_other
-                fields = name,first_name,last_name,pid,person_type,gender,birthday
+                table = tx_extensionmanager_domain_model_extension
+                fields = extension_key,repository,version,title,description,state,category,last_updated
+                //decoderClass = CPSIT\T3importExport\Domain\coder\XMLDecoder
             }
             # unique identifier of remote database connection
             # this connection has to be registered by the
@@ -16,7 +20,7 @@ module.tx_t3importexport.settings.importProcessor.tasks {
             // fully qualified class name of the data target. Default is
             class = CPSIT\T3importExport\Persistence\DataTargetStreamRepository
             object {
-                class = CPSIT\T3importExport\Domain\Model\XMLStream
+                class = CPSIT\T3importExport\Domain\Model\DataStream
             }
             // DataTargetStreamRepository
             // memory_saving default false (faster but consume more memory)
@@ -31,16 +35,17 @@ module.tx_t3importexport.settings.importProcessor.tasks {
             1 {
                 class = CPSIT\T3importExport\Component\PreProcessor\MapFields
                 config.fields {
-                    first_name = firstName
-                    last_name = lastName
-                    person_type = personType
+                    extension_key = extensionKey
+                    last_updated = lastUpdated
                 }
             }
             # set language
+            /*
             2 {
                 class = CPSIT\T3importExport\Component\PreProcessor\StringToTime
-                config.fields = birthday
+                config.fields = lastUpdated
             }
+            */
         }
         // types = https://typo3.org/api/typo3cms/class_t_y_p_o3_1_1_c_m_s_1_1_extbase_1_1_property_1_1_type_converter_1_1_abstract_type_converter.html
         converters {
@@ -48,10 +53,10 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                 class = CPSIT\T3importExport\Component\Converter\ArrayToDataStream
                 //class = CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
                 config {
-                    targetClass = CPSIT\T3importExport\Domain\Model\XMLStream
-                    allowProperties = name,firstName,lastName,birthday,personType
+                    targetClass = CPSIT\T3importExport\Domain\Model\DataStream
+                    allowProperties = extensionKey,repository,version,title,description,state,category,lastUpdated
                     properties {
-                        birthday {
+                        lastUpdated {
                             type = DateTime
                             typeConverter {
                                 class = TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter
@@ -60,7 +65,7 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                                 }
                             }
                         }
-                        personType {
+                        state {
                             type = integer
                         }
                     }
@@ -69,9 +74,9 @@ module.tx_t3importexport.settings.importProcessor.tasks {
         }
         # property mapping configuration
         propertyMapping {
-            allowProperties = name,firstName,lastName,birthday,personType
+            allowProperties = extensionKey,repository,version,title,description,state,category,lastUpdated
             properties {
-                birthday {
+                lastUpdated {
                     typeConverter {
                         class = TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter
                         options {
