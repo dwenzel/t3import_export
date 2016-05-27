@@ -3,7 +3,7 @@ namespace CPSIT\T3importExport\Property;
 
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
+use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /***************************************************************

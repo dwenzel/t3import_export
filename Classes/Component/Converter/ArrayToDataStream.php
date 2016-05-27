@@ -4,7 +4,6 @@ namespace CPSIT\T3importExport\Component\Converter;
 
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;

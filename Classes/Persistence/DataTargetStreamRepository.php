@@ -26,7 +26,7 @@ class DataTargetStreamRepository extends DataTargetRepository implements DataTar
         // if memory saving true ... dont persist buffer in object
         // write it to typo3Temp directory and save the file path in setTmpFile($file)
         if (is_a($object, DataStream::class)) {
-            $object->generateOutput();
+            //$object->generateOutput(true);
         }
     }
 
@@ -41,8 +41,26 @@ class DataTargetStreamRepository extends DataTargetRepository implements DataTar
         // otherwise use the record buffer
         var_dump($result, $configuration);
         //$this->persistenceManager->persistAll();
+
+
+        /*$xmlWriter = new \XMLWriter();
+        $xmlWriter->openMemory();
+        $xmlWriter->startDocument('1.0', 'UTF-8');
+        for ($i = 0; $i <= 10000000; ++$i) {
+            $xmlWriter->startElement('message');
+            $xmlWriter->writeElement('content', 'Example content');
+            $xmlWriter->endElement();
+            // Flush XML in memory to file every 1000 iterations
+            if (0 == $i % 1000) {
+                file_put_contents('example.xml', $xmlWriter->flush(true), FILE_APPEND);
+            }
+        }
+        // Final flush to make sure we haven't missed anything
+        file_put_contents('example.xml', $xmlWriter->flush(true), FILE_APPEND);
+        */
+
     }
-    
+
 
     public function isConfigurationValid(array $configuration)
     {
