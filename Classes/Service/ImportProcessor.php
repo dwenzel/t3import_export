@@ -26,6 +26,8 @@ use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\Queue;
+use CPSIT\T3importExport\Domain\Repository\QueueRepository;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
@@ -43,9 +45,14 @@ class ImportProcessor {
 	protected $queue = [];
 
 	/**
-	 * @var PersistenceManager
+	 * @var \CPSIT\T3importExport\Domain\Repository\QueueRepository
 	 */
 	protected $persistenceManager;
+
+	/**
+	 * @var QueueRepository
+	 */
+	protected $queueRepository;
 
 	/**
 	 * injects the persistence manager
@@ -57,11 +64,21 @@ class ImportProcessor {
 	}
 
 	/**
+	 * injects the queue Repository manager
+	 *
+	 * @param PersistenceManager $persistenceManager
+	 */
+	public function injectQueueRepository(QueueRepository $queueRepository) {
+		$this->queueRepository = $queueRepository;
+	}
+
+	/**
 	 * gets the queue
 	 *
 	 * @return array
 	 */
-	public function getQueue() {
+	public function getQueue()
+	{
 		return $this->queue;
 	}
 
@@ -70,16 +87,31 @@ class ImportProcessor {
 	 *
 	 * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
 	 */
-	public function buildQueue(DemandInterface $importDemand) {
+	public function buildQueue(DemandInterface $importDemand)
+	{
 		$tasks = $importDemand->getTasks();
+
+		/** @var ImportTask $task */
+		//$task = $tasks[0];
+		//$queue = $this->queueRepository->createWithTask($task, 2);
+		//$this->queueRepository->add($queue);
+
 		foreach ($tasks as $task) {
+			if (!$this->queueRepository->hasQueueForTask($task))
+			{
+				// build new queue
+			}
+			// init current queue window
+		}
+
+		/*
 			/** @var ImportTask $task */
-			$dataSource = $task->getSource();
+			/*$dataSource = $task->getSource();
 			$recordsToImport = $dataSource->getRecords(
 				$dataSource->getConfiguration()
 			);
 			$this->queue[$task->getIdentifier()] = $recordsToImport;
-		}
+		*/
 	}
 
 	/**
@@ -89,14 +121,15 @@ class ImportProcessor {
 	 * @return array
 	 */
 	public function process(DemandInterface $importDemand) {
-		$result = [];
+		/*$result = [];
 		$tasks = $importDemand->getTasks();
 		foreach ($tasks as $task) {
 			/** @var ImportTask $task */
-			if (!isset($this->queue[$task->getIdentifier()])) {
+			/*if (!isset($this->queue[$task->getIdentifier()])) {
 				continue;
 			}
-			$records = $this->queue[$task->getIdentifier()];
+			//$records = $this->queue[$task->getIdentifier()];
+            $queueItems = $this->queue->getItems($task->getIdentifier());
 			$this->processInitializers($records, $task);
 
 			if ((bool) $records) {
@@ -106,21 +139,28 @@ class ImportProcessor {
 					$targetConfig = $target->getConfiguration();
 				}
 
-				foreach ($records as $record) {
+				foreach ($queueItems as $item) {
+                    $record = $item->getRecord();
 					$this->preProcessSingle($record, $task);
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
 					$target->persist($convertedRecord, $targetConfig);
+                    $this->queue->remove($item);
 					$result[] = $convertedRecord;
 				}
+                $queue->flush();
+                if (!$this->queue->has($task->getIdentifier())) {
+                    $targetConfig['queueEmpty'] = true;
+                    $this->queue->clear($task->getIdentifier());
+                }
+                $target->persistAll($result, $targetConfig);
 
-				$target->persistAll($result, $targetConfig);
-			}
+            }
 
 			$this->processFinishers($records, $task, $result);
 		}
 
-		return $result;
+		return $result;*/
 	}
 
 	/**
