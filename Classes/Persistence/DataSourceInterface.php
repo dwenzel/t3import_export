@@ -28,5 +28,5 @@ interface DataSourceInterface extends ConfigurableInterface {
 	 * @param bool $eof
 	 * @return array Array of indexes (xml:node index, csv:line number, DB: uid, ...)
 	 */
-	public function getRecordsIndexes(array $configuration, $batchSize, $currentOffset = 0, &$eof = false);
+	public function getRecordsIndexes(array $configuration, $batchSize = 0, $currentOffset = 0, &$eof = false);
 }
