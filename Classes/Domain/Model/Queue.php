@@ -36,6 +36,8 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  */
 class Queue extends AbstractEntity
 {
+
+    const DEFAULT_BATCH_SIZE = 1000;
     /**
      * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\CPSIT\T3importExport\Domain\Model\QueueItem>
      */
@@ -65,6 +67,11 @@ class Queue extends AbstractEntity
      * @var DataSourceInterface
      */
     protected $dataSource;
+
+    /**
+     * @var int
+     */
+    protected $batchSize = self::DEFAULT_BATCH_SIZE;
 
     /**
      * description
@@ -142,7 +149,52 @@ class Queue extends AbstractEntity
      */
     public function setQueueItems($queueItems)
     {
+        // clear all old queueItems (free memory)
+        unset($this->queueItems);
+        // if this not an ObjectStorage set it
+        // it allows us to null the value and re-init queueItems
+        if (!$queueItems instanceof ObjectStorage) {
+            $queueItems = new ObjectStorage();
+        }
         $this->queueItems = $queueItems;
+    }
+
+    /**
+     * @param QueueItem $item
+     * @return bool
+     */
+    public function addQueueItem(QueueItem $item)
+    {
+        if ($this->queueItems && !$this->hasQueueItem($item)) {
+            $this->queueItems->attach($item);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param QueueItem $item
+     * @return bool
+     */
+    public function removeQueueItem(QueueItem $item)
+    {
+        if ($this->queueItems && $this->hasQueueItem($item)) {
+            $this->queueItems->detach($item);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param QueueItem $item
+     * @return bool
+     */
+    public function hasQueueItem(QueueItem $item)
+    {
+        if ($this->queueItems) {
+            return $this->queueItems->contains($item);
+        }
+        return false;
     }
 
     /**
@@ -191,5 +243,21 @@ class Queue extends AbstractEntity
     public function setDataSource(DataSourceInterface $dataSource)
     {
         $this->dataSource = $dataSource;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBatchSize()
+    {
+        return $this->batchSize;
+    }
+
+    /**
+     * @param int $batchSize
+     */
+    public function setBatchSize($batchSize)
+    {
+        $this->batchSize = (int)$batchSize;
     }
 }
