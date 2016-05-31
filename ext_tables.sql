@@ -69,7 +69,7 @@ CREATE TABLE tx_t3importexport_domain_model_queueitem (
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
-	description text NOT NULL,
+	description text,
 	data_source_index int(11) unsigned DEFAULT '0' NOT NULL,
 	queue int(11) DEFAULT NULL,
 
