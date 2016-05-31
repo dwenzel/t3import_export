@@ -90,16 +90,11 @@ class ImportProcessor {
 	public function buildQueue(DemandInterface $importDemand)
 	{
 		$tasks = $importDemand->getTasks();
-
-		/** @var ImportTask $task */
-		//$task = $tasks[0];
-		//$queue = $this->queueRepository->createWithTask($task, 2);
-		//$this->queueRepository->add($queue);
-
 		foreach ($tasks as $task) {
 			if (!$this->queueRepository->hasQueueForTask($task))
 			{
-				// build new queue
+				// create Queue with QueueItems for Task
+				$this->createQueue($task);
 			}
 			// init current queue window
 		}
@@ -114,13 +109,32 @@ class ImportProcessor {
 		*/
 	}
 
+	protected function createQueue(ImportTask $task)
+	{
+		// create Queue in pid 2
+		$queue = $this->queueRepository->createWithTask($task, 2);
+
+		// create QueueItems
+		$dataSource = $task->getSource();
+		$recordsIndexesToQueue = $dataSource->getRecordsIndexes(
+			$dataSource->getConfiguration()
+		);
+		foreach ($recordsIndexesToQueue as $recordIndex)
+		{
+
+		}
+
+		//$this->queueRepository->add($queue);
+	}
+
 	/**
 	 * Processes the queue
 	 *
 	 * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
 	 * @return array
 	 */
-	public function process(DemandInterface $importDemand) {
+	public function process(DemandInterface $importDemand)
+	{
 		/*$result = [];
 		$tasks = $importDemand->getTasks();
 		foreach ($tasks as $task) {

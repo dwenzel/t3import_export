@@ -47,11 +47,21 @@ class QueueRepository extends Repository
     }
 
     /**
+     * lookup Queue Table if a queue for an task already exists
+     *
      * @param ImportTask $task
      * @return bool
      */
     public function hasQueueForTask(ImportTask $task)
     {
-        return false;
+        $GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+        $query = $this->createQuery();
+        $query->getQuerySettings()->setRespectStoragePage(false);
+        // $querySettings->setStoragePageIds(array(1, 26, 989));
+        $query->matching($query->equals('taskIdentifier', $task->getIdentifier()));
+        $query->setLimit(1);
+        $result = (int)$query->execute()->count();
+
+        return (bool)($result === 1);
     }
 }
