@@ -54,7 +54,6 @@ class QueueRepository extends Repository
      */
     public function hasQueueForTask(ImportTask $task)
     {
-        $GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
         // $querySettings->setStoragePageIds(array(1, 26, 989));
