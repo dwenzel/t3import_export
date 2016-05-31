@@ -18,4 +18,12 @@ interface DataSourceInterface extends ConfigurableInterface {
 	 * @return array Array of records or empty array
 	 */
 	public function getRecords(array $configuration);
+
+	/**
+	 * fetches a record uid from a data source
+	 *
+	 * @param array $configuration
+	 * @return array Array of indexes (xml:node index, csv:line number, DB: uid, ...)
+	 */
+	public function getRecordsIndexes(array $configuration);
 }

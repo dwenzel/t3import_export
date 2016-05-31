@@ -136,4 +136,15 @@ class DataSourceDB
 		}
 		return true;
 	}
+
+    /**
+     * @param array $configuration
+     * @return mixed
+     */
+    public function getRecordsIndexes(array $configuration)
+    {
+        return [];
+    }
+
+
 }
