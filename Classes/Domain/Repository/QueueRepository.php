@@ -12,11 +12,10 @@ class QueueRepository extends Repository
     static protected $transaction = false;
 
     /**
-     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
+     * @param \CPSIT\T3importExport\Persistence\PersistenceManager $persistenceManager
      */
-    public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager)
+    public function injectPersistenceManager(\CPSIT\T3importExport\Persistence\PersistenceManager $persistenceManager)
     {
-        // \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
         $this->persistenceManager = $persistenceManager;
     }
 
@@ -102,6 +101,11 @@ class QueueRepository extends Repository
             // if null given the queueItem will be removed from memory and re-init a new ObjectStorage
             $queue->setQueueItems(null);
         }
+    }
+
+    public function persistAll()
+    {
+        $this->persistenceManager->persistAll();
     }
 
     public function isTransactionActive()

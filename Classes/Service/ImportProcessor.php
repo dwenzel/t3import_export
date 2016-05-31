@@ -117,7 +117,6 @@ class ImportProcessor
 			{
 				// create Queue with QueueItems for Task
 				$queue = $this->createQueueForTask($task, 2);
-				//$this->queueRepository->add($queue);
 			}
 			// add task-queue to process queue pool
 			$this->queue[$task->getIdentifier()] = $queue;
@@ -134,6 +133,7 @@ class ImportProcessor
 		// TODO: this method maybe outsource to another file?
 		// create Queue in pid 2
 		$queue = $this->queueRepository->createWithTask($task, $pid);
+		$this->queueRepository->add($queue);
 
 		// create QueueItems
 		$dataSource = $task->getSource();
@@ -161,6 +161,7 @@ class ImportProcessor
 			}
 			$this->queueRepository->persist($queue, true);
 		}
+		$this->queueRepository->persistAll();
 		
 		return $queue;
 	}
