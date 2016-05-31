@@ -51,6 +51,12 @@ class QueueItem extends AbstractEntity
      */
     protected $description;
 
+    public function initializeObject()
+    {
+        $this->description = '';
+        $this->dataSourceIndex = 0;
+    }
+
     /**
      * @return int
      */
@@ -64,7 +70,7 @@ class QueueItem extends AbstractEntity
      */
     public function setDataSourceIndex($dataSourceIndex)
     {
-        $this->dataSourceIndex = $dataSourceIndex;
+        $this->dataSourceIndex = (int)$dataSourceIndex;
     }
 
     /**
