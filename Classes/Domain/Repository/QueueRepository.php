@@ -9,6 +9,17 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 
 class QueueRepository extends Repository
 {
+    static protected $transaction = false;
+
+    /**
+     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
+     */
+    public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager)
+    {
+        // \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
+        $this->persistenceManager = $persistenceManager;
+    }
+
     /**
      * Create a new Queue
      *
@@ -28,6 +39,10 @@ class QueueRepository extends Repository
         // set the queue Size ... default is 0 (ZERO) - means iterate all in one way
         if (isset($queueConfig['size'])) {
             $queue->setSize((int)$queueConfig['size']);
+        }
+
+        if (isset($queueConfig['importBatchSize'])) {
+            $queue->setBatchSize((int)$queueConfig['importBatchSize']);
         }
 
         $queue->setLockKey(
@@ -52,15 +67,45 @@ class QueueRepository extends Repository
      * @param ImportTask $task
      * @return bool
      */
-    public function hasQueueForTask(ImportTask $task)
+    public function hasQueueForTask(ImportTask $task, $pid)
     {
         $query = $this->createQuery();
-        $query->getQuerySettings()->setRespectStoragePage(false);
-        // $querySettings->setStoragePageIds(array(1, 26, 989));
+        //$query->getQuerySettings()->setRespectStoragePage(false);
+        $query->getQuerySettings()->setStoragePageIds(array($pid));
         $query->matching($query->equals('taskIdentifier', $task->getIdentifier()));
         $query->setLimit(1);
         $result = (int)$query->execute()->count();
 
         return (bool)($result === 1);
+    }
+
+    public function getQueueForTask(ImportTask $task, $pid)
+    {
+        $query = $this->createQuery();
+        //$query->getQuerySettings()->setRespectStoragePage(false);
+        $query->getQuerySettings()->setStoragePageIds(array($pid));
+        $query->matching($query->equals('taskIdentifier', $task->getIdentifier()));
+        $query->setLimit(1);
+        $result = $query->execute();
+
+        return $result->getFirst();
+    }
+
+    /**
+     * @param Queue $queue
+     */
+    public function persist(Queue $queue, $flush = false)
+    {
+        // write the current queue and queueItems into the Database
+        // than clear the queue buffer with unset and re-init - if flush true
+        if ($flush) {
+            // if null given the queueItem will be removed from memory and re-init a new ObjectStorage
+            $queue->setQueueItems(null);
+        }
+    }
+
+    public function isTransactionActive()
+    {
+        return self::$transaction;
     }
 }
