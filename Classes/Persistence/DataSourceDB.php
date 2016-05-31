@@ -36,7 +36,8 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 class DataSourceDB
-	implements DataSourceInterface, IdentifiableInterface, RenderContentInterface {
+	implements DataSourceInterface, IdentifiableInterface, RenderContentInterface
+{
 	use IdentifiableTrait, ConfigurableTrait, RenderContentTrait;
 
 	/**
@@ -60,7 +61,8 @@ class DataSourceDB
 	/**
 	 * @param DatabaseConnectionService $connectionService
 	 */
-	public function injectDatabaseConnectionService(DatabaseConnectionService $connectionService) {
+	public function injectDatabaseConnectionService(DatabaseConnectionService $connectionService)
+    {
 		$this->connectionService = $connectionService;
 	}
 
@@ -70,7 +72,8 @@ class DataSourceDB
 	 * @return DatabaseConnection
 	 * @throws \CPSIT\T3importExport\MissingDatabaseException
 	 */
-	public function getDatabase() {
+	public function getDatabase()
+    {
 		if (!$this->database instanceof DatabaseConnection) {
 			$this->database = $this->connectionService->getDatabase($this->identifier);
 		}
@@ -84,7 +87,8 @@ class DataSourceDB
 	 * @param array $configuration source query configuration
 	 * @return array Array of records from database or empty array
 	 */
-	public function getRecords(array $configuration) {
+	public function getRecords(array $configuration)
+    {
 		$queryConfiguration = [
 			'fields' => '*',
 			'where' => '',
@@ -129,7 +133,8 @@ class DataSourceDB
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid(array $configuration) {
+	public function isConfigurationValid(array $configuration)
+    {
 		if (!isset($configuration['table'])
 			OR !is_string($configuration['table'])) {
 			return false;
@@ -143,8 +148,7 @@ class DataSourceDB
      */
     public function getRecordsIndexes(array $configuration)
     {
-        return [];
+        $configuration['fields'] = 'uid';
+        return $this->getRecords($configuration);
     }
-
-
 }
