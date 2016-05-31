@@ -27,6 +27,7 @@ use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
 use CPSIT\T3importExport\Domain\Model\Queue;
+use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Domain\Repository\QueueRepository;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
@@ -56,6 +57,11 @@ class ImportProcessor
 	protected $queueRepository;
 
 	/**
+	 * @var QueueItemRepository
+	 */
+	protected $queueItemRepository;
+
+	/**
 	 * injects the persistence manager
 	 *
 	 * @param PersistenceManager $persistenceManager
@@ -68,11 +74,21 @@ class ImportProcessor
 	/**
 	 * injects the queue Repository manager
 	 *
-	 * @param PersistenceManager $persistenceManager
+	 * @param QueueRepository $queueRepository
 	 */
 	public function injectQueueRepository(QueueRepository $queueRepository)
 	{
 		$this->queueRepository = $queueRepository;
+	}
+
+	/**
+	 * injects the queue Repository manager
+	 *
+	 * @param QueueItemRepository $queueItemRepository
+	 */
+	public function injectQueueItemRepository(QueueItemRepository $queueItemRepository)
+	{
+		$this->queueItemRepository = $queueItemRepository;
 	}
 
 	/**
@@ -93,41 +109,60 @@ class ImportProcessor
 	public function buildQueue(DemandInterface $importDemand)
 	{
 		$tasks = $importDemand->getTasks();
+		/** @var ImportTask $task */
 		foreach ($tasks as $task) {
-			if (!$this->queueRepository->hasQueueForTask($task))
+			// lookup for existing queue
+			$queue = $this->queueRepository->getQueueForTask($task, 2);
+			if ($queue == null)
 			{
 				// create Queue with QueueItems for Task
-				$this->createQueue($task);
+				$queue = $this->createQueueForTask($task, 2);
+				//$this->queueRepository->add($queue);
 			}
-			// init current queue window
+			// add task-queue to process queue pool
+			$this->queue[$task->getIdentifier()] = $queue;
 		}
-
-		/*
-			/** @var ImportTask $task */
-			/*$dataSource = $task->getSource();
-			$recordsToImport = $dataSource->getRecords(
-				$dataSource->getConfiguration()
-			);
-			$this->queue[$task->getIdentifier()] = $recordsToImport;
-		*/
 	}
 
-	protected function createQueue(ImportTask $task)
+	/**
+	 * @param ImportTask $task
+	 * @param $pid
+	 * @return Queue
+	 */
+	private function createQueueForTask(ImportTask $task, $pid)
 	{
+		// TODO: this method maybe outsource to another file?
 		// create Queue in pid 2
-		$queue = $this->queueRepository->createWithTask($task, 2);
+		$queue = $this->queueRepository->createWithTask($task, $pid);
 
 		// create QueueItems
 		$dataSource = $task->getSource();
-		$recordsIndexesToQueue = $dataSource->getRecordsIndexes(
-			$dataSource->getConfiguration()
-		);
-		foreach ($recordsIndexesToQueue as $recordIndex)
-		{
 
+		// iterate through the dataSource chunk-based (batch size of queue)
+		$endOfSource = false;
+		$offset = 0;
+
+		while ($endOfSource != true) {
+			// load indexes from Datasource chunk by chunk
+			// endOfSource will be true (reference) if the sourceAdapter says "there is no more"
+			$recordsIndexesToQueue = $dataSource->getRecordsIndexes(
+				$dataSource->getConfiguration(),
+				$queue->getBatchSize(),
+				$offset,
+				$endOfSource
+			);
+			// increase the current offset pointer for the next iteration step
+			$offset += count($recordsIndexesToQueue);
+
+			foreach ($recordsIndexesToQueue as $recordIndex)
+			{
+				$queueItem = $this->queueItemRepository->createWithIndex($recordIndex, $pid);
+				$queue->addQueueItem($queueItem);
+			}
+			$this->queueRepository->persist($queue, true);
 		}
-
-		//$this->queueRepository->add($queue);
+		
+		return $queue;
 	}
 
 	/**

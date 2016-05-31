@@ -144,11 +144,62 @@ class DataSourceDB
 
     /**
      * @param array $configuration
+     * @param int $batchSize
+     * @param int $currentOffset = 0
+     * @param bool $eof = false
      * @return mixed
      */
-    public function getRecordsIndexes(array $configuration)
+    public function getRecordsIndexes(array $configuration, $batchSize, $currentOffset = 0, &$eof = false)
     {
+        // manipulate config
         $configuration['fields'] = 'uid';
-        return $this->getRecords($configuration);
+        // pre-init config values
+        $configOffset = 0;
+        $configLimit = 0;
+
+        // check if limit is in task isset
+        if (isset($configuration['limit'])) {
+            // parse limit config
+            list($configOffset, $configLimit) = explode(',', $configuration['limit']);
+            // if only config isset (no offset) remap values
+            if ($configLimit == null) {
+                $configLimit = $configOffset;
+                $configOffset = 0;
+            }
+        }
+        // adjust static offset from task config with dynamic offset from queue
+        $currentOffset += $configOffset;
+
+        // adjust limit with static config limit
+        // if the next calculated offset greater the static limit
+        // calculate the delta from currentOffset and static limit (how many are left)
+        $finalEnd = $configLimit + $configOffset;
+        if ($configLimit > 0 &&
+            $currentOffset + $batchSize > $finalEnd) {
+            $batchSize = $finalEnd - $currentOffset;
+        }
+
+        // if the batch size <= 0 quick abort ...
+        // we know at this point there aren't any records left
+        if ($batchSize <= 0) {
+            $eof = true;
+            return [];
+        }
+
+        // write new limit statement
+        $configuration['limit'] = $currentOffset.', '.$batchSize;
+        // load records with modified
+        $records = $this->getRecords($configuration);
+
+        // remap the output array to a simple index list
+        $result = [];
+        foreach($records as $record) {
+            $result[] = $record['uid'];
+        }
+
+        // if there any records found ... we reach the end
+        $eof = (bool)(count($result) == 0);
+
+        return $result;
     }
 }
