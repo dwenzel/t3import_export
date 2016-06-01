@@ -9,7 +9,10 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 
 class QueueRepository extends Repository
 {
-    static protected $transaction = false;
+    /**
+     * @var \CPSIT\T3importExport\Persistence\PersistenceManager
+     */
+    protected $persistenceManager;
 
     /**
      * @param \CPSIT\T3importExport\Persistence\PersistenceManager $persistenceManager
@@ -92,9 +95,11 @@ class QueueRepository extends Repository
 
     /**
      * @param Queue $queue
+     * @param bool $flush
      */
-    public function persist(Queue $queue, $flush = false)
+    public function persistTransaction(Queue $queue, $flush = false)
     {
+        $this->persistenceManager->persistTransaction($queue);
         // write the current queue and queueItems into the Database
         // than clear the queue buffer with unset and re-init - if flush true
         if ($flush) {
@@ -103,13 +108,8 @@ class QueueRepository extends Repository
         }
     }
 
-    public function persistAll()
+    public function flushTransaction()
     {
-        $this->persistenceManager->persistAll();
-    }
-
-    public function isTransactionActive()
-    {
-        return self::$transaction;
+        //$this->persistenceManager->persistAll();
     }
 }

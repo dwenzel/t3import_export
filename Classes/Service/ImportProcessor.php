@@ -159,9 +159,10 @@ class ImportProcessor
 				$queueItem = $this->queueItemRepository->createWithIndex($recordIndex, $pid);
 				$queue->addQueueItem($queueItem);
 			}
-			$this->queueRepository->persist($queue, true);
+			$this->queueRepository->persistTransaction($queue, true);
 		}
-		$this->queueRepository->persistAll();
+		// flush
+		$this->queueRepository->flushTransaction();
 		
 		return $queue;
 	}
