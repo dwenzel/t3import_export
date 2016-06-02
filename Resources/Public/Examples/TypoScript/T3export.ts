@@ -4,6 +4,7 @@ module.tx_t3importexport.settings.importProcessor.tasks {
     xmlTEST {
         queue {
             size = 10
+            // todo: rename to batchSize
             importBatchSize = 1000
         }
         source {
