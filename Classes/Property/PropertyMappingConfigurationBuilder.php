@@ -159,7 +159,7 @@ class PropertyMappingConfigurationBuilder {
 		
 		if (isset($configuration['type'])) {
 			$propertyMappingConfiguration->setTypeConverterOption(
-				PersistentObjectConverter::class,
+				\CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter::class,
 				'type',
 				$configuration['type']
 			);
