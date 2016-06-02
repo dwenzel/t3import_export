@@ -29,6 +29,7 @@ use CPSIT\T3importExport\Domain\Model\ImportTask;
 use CPSIT\T3importExport\Domain\Model\Queue;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Domain\Repository\QueueRepository;
+use CPSIT\T3importExport\Persistence\DataSourceQueueInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
@@ -138,31 +139,35 @@ class ImportProcessor
 		// create QueueItems
 		$dataSource = $task->getSource();
 
-		// iterate through the dataSource chunk-based (batch size of queue)
-		$endOfSource = false;
-		$offset = 0;
+		if ($dataSource instanceof DataSourceQueueInterface) {
+			// iterate through the dataSource chunk-based (batch size of queue)
+			$endOfSource = false;
+			$offset = 0;
 
-		while ($endOfSource != true) {
-			// load indexes from Datasource chunk by chunk
-			// endOfSource will be true (reference) if the sourceAdapter says "there is no more"
-			$recordsIndexesToQueue = $dataSource->getRecordsIndexes(
-				$dataSource->getConfiguration(),
-				$queue->getBatchSize(),
-				$offset,
-				$endOfSource
-			);
-			// increase the current offset pointer for the next iteration step
-			$offset += count($recordsIndexesToQueue);
+			while ($endOfSource != true) {
+				// load indexes from Datasource chunk by chunk
+				// endOfSource will be true (reference) if the sourceAdapter says "there is no more"
+				$recordsIndexesToQueue = $dataSource->getRecordsIndexes(
+					$dataSource->getConfiguration(),
+					$queue->getBatchSize(),
+					$offset,
+					$endOfSource
+				);
+				// increase the current offset pointer for the next iteration step
+				$offset += count($recordsIndexesToQueue);
 
-			foreach ($recordsIndexesToQueue as $recordIndex)
-			{
-				$queueItem = $this->queueItemRepository->createWithIndex($recordIndex, $pid);
-				$queue->addQueueItem($queueItem);
+				foreach ($recordsIndexesToQueue as $recordIndex)
+				{
+					$queueItem = $this->queueItemRepository->createWithIndex($recordIndex, $pid);
+					$queue->addQueueItem($queueItem);
+				}
+				$this->queueRepository->persistTransaction($queue, true);
 			}
-			$this->queueRepository->persistTransaction($queue, true);
+			// flush
+			$this->queueRepository->flushTransaction();
+		} else {
+			// do something here ... maybe throw
 		}
-		// flush
-		$this->queueRepository->flushTransaction();
 		
 		return $queue;
 	}
