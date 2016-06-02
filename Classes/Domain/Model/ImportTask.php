@@ -92,6 +92,8 @@ class ImportTask
 	 */
 	protected $initializers = [];
 
+	protected $queueConfig = [];
+
 	/**
 	 * @return string
 	 */
@@ -226,4 +228,21 @@ class ImportTask
 		$this->initializers = $initializers;
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getQueueConfig()
+	{
+		return $this->queueConfig;
+	}
+
+	/**
+	 * @param array $queueConfig
+	 */
+	public function setQueueConfig($queueConfig)
+	{
+		if (!empty($queueConfig)) {
+			$this->queueConfig = $queueConfig;
+		}
+	}
 }

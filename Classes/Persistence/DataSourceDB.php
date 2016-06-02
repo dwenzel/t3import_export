@@ -36,7 +36,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 class DataSourceDB
-	implements DataSourceInterface, IdentifiableInterface, RenderContentInterface {
+	implements DataSourceInterface, IdentifiableInterface, RenderContentInterface, DataSourceQueueInterface {
 	use IdentifiableTrait, ConfigurableTrait, RenderContentTrait;
 
 	/**
@@ -60,7 +60,8 @@ class DataSourceDB
 	/**
 	 * @param DatabaseConnectionService $connectionService
 	 */
-	public function injectDatabaseConnectionService(DatabaseConnectionService $connectionService) {
+	public function injectDatabaseConnectionService(DatabaseConnectionService $connectionService)
+    {
 		$this->connectionService = $connectionService;
 	}
 
@@ -70,7 +71,8 @@ class DataSourceDB
 	 * @return DatabaseConnection
 	 * @throws \CPSIT\T3importExport\MissingDatabaseException
 	 */
-	public function getDatabase() {
+	public function getDatabase()
+    {
 		if (!$this->database instanceof DatabaseConnection) {
 			$this->database = $this->connectionService->getDatabase($this->identifier);
 		}
@@ -84,7 +86,8 @@ class DataSourceDB
 	 * @param array $configuration source query configuration
 	 * @return array Array of records from database or empty array
 	 */
-	public function getRecords(array $configuration) {
+	public function getRecords(array $configuration)
+    {
 		$queryConfiguration = [
 			'fields' => '*',
 			'where' => '',
@@ -129,11 +132,78 @@ class DataSourceDB
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid(array $configuration) {
+	public function isConfigurationValid(array $configuration)
+    {
 		if (!isset($configuration['table'])
 			OR !is_string($configuration['table'])) {
 			return false;
 		}
 		return true;
 	}
+
+    /**
+     * @param array $configuration
+     * @param int $batchSize = 0
+     * @param int $currentOffset = 0
+     * @param bool $eof = false
+     * @return mixed
+     */
+    public function getRecordsIndexes(array $configuration, $batchSize = 0, $currentOffset = 0, &$eof = false)
+    {
+        // manipulate config
+        $configuration['fields'] = 'uid';
+
+        // rebuild limit only if necessary
+        if ($batchSize > 0) {
+            // pre-init config values
+            $configOffset = 0;
+            $configLimit = 0;
+
+            // check if limit is in task isset
+            if (isset($configuration['limit'])) {
+                // parse limit config
+                list($configOffset, $configLimit) = explode(',', $configuration['limit']);
+                // if only config isset (no offset) remap values
+                if ($configLimit == null) {
+                    $configLimit = $configOffset;
+                    $configOffset = 0;
+                }
+            }
+            // adjust static offset from task config with dynamic offset from queue
+            $currentOffset += $configOffset;
+
+            // adjust limit with static config limit
+            // if the next calculated offset greater the static limit
+            // calculate the delta from currentOffset and static limit (how many are left)
+            $finalEnd = $configLimit + $configOffset;
+            if ($configLimit > 0 &&
+                $currentOffset + $batchSize > $finalEnd
+            ) {
+                $batchSize = $finalEnd - $currentOffset;
+            }
+
+            // if the batch size <= 0 quick abort ...
+            // we know at this point there aren't any records left
+            if ($batchSize <= 0) {
+                $eof = true;
+                return [];
+            }
+
+            // write new limit statement
+            $configuration['limit'] = $currentOffset . ', ' . $batchSize;
+        }
+        // load records with modified
+        $records = $this->getRecords($configuration);
+
+        // remap the output array to a simple index list
+        $result = [];
+        foreach($records as $record) {
+            $result[] = $record['uid'];
+        }
+
+        // if there any records found ... we reach the end
+        $eof = (bool)(count($result) == 0);
+
+        return $result;
+    }
 }

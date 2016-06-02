@@ -171,6 +171,10 @@ class ImportTaskFactory extends AbstractFactory {
 			$task->setDescription($settings['description']);
 		}
 
+		if (isset($settings['queue'])) {
+			$task->setQueueConfig($settings['queue']);
+		}
+
 		$this->setTarget($task, $settings, $identifier);
 		$this->setSource($task, $settings, $identifier);
 		if (isset($settings['preProcessors'])
