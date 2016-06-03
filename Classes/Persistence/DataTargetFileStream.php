@@ -10,14 +10,14 @@ namespace CPSIT\T3importExport\Persistence;
 
 
 use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\Domain\Model\DataStream;
+use CPSIT\T3importExport\Domain\Model\XMLStream;
 
-class DataTargetStreamRepository extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
+class DataTargetFileStream extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 {
     protected $config;
 
     /**
-     * @param DataStream $object
+     * @param XMLStream $object
      * @param array|null $configuration
      */
     public function persist($object, array $configuration = null)
@@ -25,7 +25,7 @@ class DataTargetStreamRepository extends DataTargetRepository implements DataTar
         // TODO: add memory saving config check
         // if memory saving true ... dont persist buffer in object
         // write it to typo3Temp directory and save the file path in setTmpFile($file)
-        if (is_a($object, DataStream::class)) {
+        if (is_a($object, XMLStream::class)) {
             //$object->generateOutput(true);
         }
     }

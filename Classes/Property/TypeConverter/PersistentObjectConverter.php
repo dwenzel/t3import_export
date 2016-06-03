@@ -117,27 +117,6 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 		return parent::convertFrom($source, $targetType, $convertedChildProperties, $configuration);
 	}
 
-	public function getTypeOfChildProperty(
-		$targetType,
-		$propertyName,
-		\TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration
-	) {
-		$config = $configuration->getConfigurationFor($propertyName);
-		$type = $config->getConfigurationValue(self::class, 'type');
-		if ($type === null) {
-			try {
-				$type = parent::getTypeOfChildProperty($targetType, $propertyName,
-					$configuration);
-			} catch (\Exception $e) {
-				$msg = $e->getMessage();
-				$type = 'string';
-			}
-		}
-
-		return $type;
-	}
-
-
 	/**
 	 * set configuration to overload query settings
 	 *

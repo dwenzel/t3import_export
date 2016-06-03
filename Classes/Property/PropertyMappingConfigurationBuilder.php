@@ -156,15 +156,6 @@ class PropertyMappingConfigurationBuilder {
 				);
 			}
 		}
-		
-		if (isset($configuration['type'])) {
-			$propertyMappingConfiguration->setTypeConverterOption(
-				\CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter::class,
-				'type',
-				$configuration['type']
-			);
-		}
-		
 		if ((bool) $properties = $this->getProperties($configuration)) {
 			$allowedProperties = $this->getAllowedProperties($configuration);
 			foreach ($properties as $propertyName => $localConfiguration) {
