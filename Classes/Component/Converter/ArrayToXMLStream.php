@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Component\Converter;
 
+use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
@@ -115,7 +116,50 @@ class ArrayToXMLStream
      */
     public function convert(array $record, array $configuration)
     {
-        return $record;
+        $result = $this->objectManager->get($configuration['targetClass']);
+        $buffer = $this->generateXMLStream($record);
+        if ($result instanceof DataStreamInterface) {
+            $result->setSteamBuffer($buffer);
+        } else {
+            $result = $buffer;
+        }
+        return $result;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function generateXMLStream(array $data)
+    {
+        $xml = new \XMLWriter();
+        $xml->openMemory();
+        foreach ($data as $key => $sub) {
+            $this->xmlRecursive($xml, $key, $sub);
+        }
+        $buffer = $xml->outputMemory();
+        unset($xml);
+        
+        return $buffer;
+    }
+
+    /**
+     * @param \XMLWriter $xml
+     * @param $key
+     * @param $value
+     */
+    private function xmlRecursive(\XMLWriter $xml, $key, $value) {
+        if (is_array($value)) {
+            $xml->startElement($key);
+            foreach ($value as $key => $sub) {
+                $this->xmlRecursive($xml, $key, $sub);
+            }
+            $xml->endElement();
+        } else {
+            $xml->startElement($key);
+            $xml->writeRaw($value);
+            $xml->endElement();
+        }
     }
 
     /**
@@ -127,8 +171,8 @@ class ArrayToXMLStream
     public function isConfigurationValid(array $configuration)
     {
         return (
-            $this->targetClassConfigurationValidator->validate($configuration)
-            && $this->mappingConfigurationValidator->validate($configuration)
+            $this->targetClassConfigurationValidator->validate($configuration) &&
+            $this->mappingConfigurationValidator->validate($configuration)
         );
     }
 

@@ -29,7 +29,24 @@ namespace CPSIT\T3importExport\Domain\Model;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 
-class XMLStream extends AbstractEntity
+class XMLStream extends AbstractEntity implements DataStreamInterface
 {
+    protected $buffer;
 
+    /**
+     * @param $buffer
+     * @return mixed
+     */
+    public function setSteamBuffer($buffer)
+    {
+        $this->buffer = $buffer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSteamBuffer()
+    {
+        return $this->buffer;
+    }
 }
