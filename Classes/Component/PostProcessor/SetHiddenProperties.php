@@ -116,7 +116,7 @@ class SetHiddenProperties
 					}
 				}
 				if ($propertyValue instanceof AbstractDomainObject) {
-					$propertyValue->_setProperty('_', $propertyName, $value);
+					$propertyValue->_setProperty('_' . $fieldName, $value);
 				}
 			}
 		}
