@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: benjamin
- * Date: 19.05.16
- * Time: 14:57
- */
 
 namespace CPSIT\T3importExport\Persistence;
 
@@ -84,6 +78,8 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
     }
 
     /**
+     * return absolute path of the temp file
+     *
      * @param $fileName
      * @return string
      * @throws FileOperationErrorException
