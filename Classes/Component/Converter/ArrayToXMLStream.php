@@ -139,7 +139,7 @@ class ArrayToXMLStream
         }
         $buffer = $xml->outputMemory();
         unset($xml);
-        
+
         return $buffer;
     }
 
