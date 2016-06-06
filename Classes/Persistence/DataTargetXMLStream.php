@@ -10,6 +10,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class DataTargetXMLStream extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 {
+    const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
+    const DEFAULT_ROOT_NODE = 'rows';
+
     /**
      * subConfig for Data-Traget
      *
@@ -32,8 +35,10 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
      */
     public function persist($object, array $configuration = null)
     {
+        $this->initFileIfNotExist($configuration);
+
         if ($object instanceof DataStreamInterface) {
-            $this->writeBufferIntoTempFile($object->getSteamBuffer());
+            $this->writeData($object->getSteamBuffer());
             $object->setSteamBuffer(null);
         }
     }
@@ -45,26 +50,59 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
      */
     public function persistAll(array $result = null, array $configuration = null)
     {
-        // close
-        parent::persistAll($result, $configuration);
+        // close file
+        $foot = '</'.$this->getRootNodeName($configuration).'>';
+        $this->writeData($foot);
     }
 
     /**
      * @param $buffer
-     * @return void
      * @throws FileOperationErrorException
      */
-    protected function writeBufferIntoTempFile($buffer)
+    protected function writeData($buffer)
     {
+        // create new tempFile if non existing
         if (empty($this->tempFile) || !file_exists($this->tempFile)) {
             $this->tempFile = $this->createAnonymTempFile();
         }
 
         // file put content
-        if (file_put_contents($this->tempFile, $buffer, FILE_APPEND|LOCK_EX) === false) {
+        if (isset($this->tempFile) && $this->writeDataIntoFile($this->tempFile, $buffer) === false) {
             throw new FileOperationErrorException(
                 'can\'t write in temp file: \''. $this->tempFile .'\''
             );
+        }
+    }
+
+    /**
+     * @param string $absoluteFilePath
+     * @param string $data
+     * @return bool
+     */
+    protected function writeDataIntoFile($absoluteFilePath, $data)
+    {
+        $isSuccess = false;
+        if(file_put_contents($absoluteFilePath, $data, FILE_APPEND|LOCK_EX)) {
+            $isSuccess = true;
+        }
+
+        return $isSuccess;
+    }
+
+    /**
+     * @param $configuration
+     * @throws FileOperationErrorException
+     */
+    protected function initFileIfNotExist($configuration)
+    {
+        if (empty($this->tempFile) || !file_exists($this->tempFile)) {
+            $this->tempFile = $this->createAnonymTempFile();
+
+            if (isset($this->tempFile) && file_exists($this->tempFile)) {
+                $head = $this->getFileHeader($configuration);
+                $head .= '<'.$this->getRootNodeName($configuration).'>';
+                $this->writeData($head);
+            }
         }
     }
 
@@ -106,18 +144,56 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
         return $absFileName;
     }
 
+    /**
+     * @param array $configuration
+     * @return bool
+     */
     public function isConfigurationValid(array $configuration)
     {
         return true;
     }
 
+    /**
+     * @return array
+     */
     public function getConfiguration()
     {
         return $this->config;
     }
 
+    /**
+     * @param array $configuration
+     */
     public function setConfiguration(array $configuration)
     {
         $this->config = $configuration;
+    }
+
+    /**
+     * @param array $configuration
+     * @return string
+     */
+    protected function getFileHeader($configuration = null)
+    {
+        $header = self::DEFAULT_HEADER;
+        if (isset($configuration) && isset($configuration['header'])) {
+            $header = $configuration['header'];
+        }
+
+        return $header;
+    }
+
+    /**
+     * @param array $configuration
+     * @return string
+     */
+    protected function  getRootNodeName($configuration = null)
+    {
+        $nodeName = self::DEFAULT_ROOT_NODE;
+        if (isset($configuration) && isset($configuration['rootNodeName'])) {
+            $nodeName = $configuration['rootNodeName'];
+        }
+
+        return $nodeName;
     }
 }
