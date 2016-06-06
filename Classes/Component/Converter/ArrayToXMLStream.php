@@ -121,12 +121,8 @@ class ArrayToXMLStream
     public function convert(array $record, array $configuration)
     {
         // setup config
-        $rootEnclosure = isset($configuration[self::XML_CONFIG_NODE_KEY]) ?
-            $configuration[self::XML_CONFIG_NODE_KEY] :
-            self::DEFAULT_NODE_NAME;
-        $fieldsConfig = isset($configuration[self::XML_CONFIG_FIELD_KEY]) ?
-            $configuration[self::XML_CONFIG_FIELD_KEY] :
-            null;
+        $rootEnclosure = $this->getRootEnclosureConfiguration($configuration);
+        $fieldsConfig = $this->getFieldsConfiguration($configuration);
         // build xml node buffer
         $buffer = $this->generateXMLStream($record, $rootEnclosure, $fieldsConfig);
 
@@ -175,19 +171,16 @@ class ArrayToXMLStream
      */
     private function xmlRecursive(\XMLWriter $xml, $key, $value, $subFieldConfig = null)
     {
-        // overwrite nodeKey with configNodeKey
-        if (isset($subFieldConfig) && isset($subFieldConfig[self::XML_CONFIG_NODE_KEY])) {
-            $key = $subFieldConfig[self::XML_CONFIG_NODE_KEY];
-        }
+        $key = $this->getRootEnclosureConfiguration($subFieldConfig, $key);
         if (is_array($value)) {
             $xml->startElement($key);
             foreach ($value as $key => $sub) {
-                $subConfig = null;
-                // find subNode config
-                if (isset($subFieldConfig) &&
-                    isset($subFieldConfig[self::XML_CONFIG_FIELD_KEY]) &&
-                    isset($subFieldConfig[self::XML_CONFIG_FIELD_KEY][$key])) {
-                    $subConfig = $subFieldConfig[self::XML_CONFIG_FIELD_KEY][$key];
+                $subConfig = $this->getFieldsConfiguration($subFieldConfig);
+                // get only the matching config otherwise null
+                if (isset($subConfig[$key])) {
+                    $subConfig = $subConfig[$key];
+                } else {
+                    $subConfig = null;
                 }
                 $this->xmlRecursive($xml, $key, $sub, $subConfig);
             }
@@ -253,5 +246,30 @@ class ArrayToXMLStream
         )->skipUnknownProperties();
 
         return $propertyMappingConfiguration;
+    }
+
+    /**
+     * @param array $configuration
+     * @return string
+     */
+    private function getRootEnclosureConfiguration($configuration, $default = self::DEFAULT_NODE_NAME)
+    {
+        if (isset($configuration) && isset($configuration[self::XML_CONFIG_NODE_KEY])) {
+            $default = $configuration[self::XML_CONFIG_NODE_KEY];
+        }
+        return $default;
+    }
+
+    /**
+     * @param array $configuration
+     * @return array|null
+     */
+    private function getFieldsConfiguration($configuration = null)
+    {
+        $fieldsConfiguration = null;
+        if (isset($configuration) && isset($configuration[self::XML_CONFIG_FIELD_KEY])) {
+            $fieldsConfiguration = $configuration[self::XML_CONFIG_FIELD_KEY];
+        }
+        return $fieldsConfiguration;
     }
 }
