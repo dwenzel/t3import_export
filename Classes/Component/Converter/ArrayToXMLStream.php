@@ -42,6 +42,8 @@ class ArrayToXMLStream
 {
     const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
+    const DEFAULT_NODE_NAME = 'row';
+
     /**
      * @var PropertyMapper
      */
@@ -116,8 +118,14 @@ class ArrayToXMLStream
      */
     public function convert(array $record, array $configuration)
     {
+        // setup config
+        $rootEnclosure = isset($configuration['nodeName'])?$configuration['nodeName']:self::DEFAULT_NODE_NAME;
+        $fieldsConfig = isset($configuration['fields'])?$configuration['fields']:null;
+        // build xml node buffer
+        $buffer = $this->generateXMLStream($record, $rootEnclosure, $fieldsConfig);
+
+        // fetch target class (DataStream) if not set return xml buffer instead
         $result = $this->objectManager->get($configuration['targetClass']);
-        $buffer = $this->generateXMLStream($record);
         if ($result instanceof DataStreamInterface) {
             $result->setSteamBuffer($buffer);
         } else {
@@ -128,15 +136,26 @@ class ArrayToXMLStream
 
     /**
      * @param array $data
+     * @param $enclosure
+     * @param null|string $fieldsConfig
      * @return string
      */
-    public function generateXMLStream(array $data)
+    public function generateXMLStream(array $data, $enclosure, $fieldsConfig = null)
     {
+        // init xmlBuilder (XMLWriter)
         $xml = new \XMLWriter();
         $xml->openMemory();
+
+        $xml->startElement($enclosure);
         foreach ($data as $key => $sub) {
-            $this->xmlRecursive($xml, $key, $sub);
+
+            $nodeConfig = null;
+            if (isset($fieldsConfig[$key])) {
+                $nodeConfig = $fieldsConfig[$key];
+            }
+            $this->xmlRecursive($xml, $key, $sub, $nodeConfig);
         }
+        $xml->endElement();
         $buffer = $xml->outputMemory();
         unset($xml);
 
@@ -148,11 +167,23 @@ class ArrayToXMLStream
      * @param $key
      * @param $value
      */
-    private function xmlRecursive(\XMLWriter $xml, $key, $value) {
+    private function xmlRecursive(\XMLWriter $xml, $key, $value, $subFieldConfig = null)
+    {
+        // overwrite nodeKey with configNodeKey
+        if (isset($subFieldConfig) && isset($subFieldConfig['nodeName'])) {
+            $key = $subFieldConfig['nodeName'];
+        }
         if (is_array($value)) {
             $xml->startElement($key);
             foreach ($value as $key => $sub) {
-                $this->xmlRecursive($xml, $key, $sub);
+                $subConfig = null;
+                // find subNode config
+                if (isset($subFieldConfig) &&
+                    isset($subFieldConfig['fields']) &&
+                    isset($subFieldConfig['fields'][$key])) {
+                    $subConfig = $subFieldConfig['fields'][$key];
+                }
+                $this->xmlRecursive($xml, $key, $sub, $subConfig);
             }
             $xml->endElement();
         } else {

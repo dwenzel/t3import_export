@@ -29,7 +29,7 @@ namespace CPSIT\T3importExport\Domain\Model;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 
-class XMLStream extends AbstractEntity implements DataStreamInterface
+class DataStream extends AbstractEntity implements DataStreamInterface
 {
     protected $buffer;
 

@@ -18,16 +18,16 @@ module.tx_t3importexport.settings.importProcessor.tasks {
         }
         target {
             // fully qualified class name of the data target. Default is
-            class = CPSIT\T3importExport\Persistence\DataTargetFileStream
+            class = CPSIT\T3importExport\Persistence\DataTargetXMLStream
             object {
-                class = CPSIT\T3importExport\Domain\Model\XMLStream
+                class = CPSIT\T3importExport\Domain\Model\DataStream
             }
-            // DataTargetStreamRepository
-            // memory_saving default false (faster but consume more memory)
-            // if true, it writes files and clear context
-            // higher CPU and file-I/O usage but less Memory (ram) intensive
+
             config {
-                memory_saving = true
+                # default is <?xml version="1.0" encoding="UTF-8"?>
+                header = <?xml version="2.0" encoding="UTF-16"?>
+                # default is rows
+                rootNodeName = events
             }
         }
         preProcessors {
@@ -52,7 +52,20 @@ module.tx_t3importexport.settings.importProcessor.tasks {
             1 {
                 class = CPSIT\T3importExport\Component\Converter\ArrayToXMLStream
                 config {
-                    targetClass = CPSIT\T3importExport\Domain\Model\XMLStream
+                    targetClass = CPSIT\T3importExport\Domain\Model\DataStream
+                    # default node name is row
+                    nodeName = event
+                    fields {
+                        performances {
+                            # default node name equals field name
+                            nodeName = schedule
+                            fields {
+                                abc {
+                                    nodeName = something
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
