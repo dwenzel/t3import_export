@@ -43,6 +43,8 @@ class ArrayToXMLStream
     const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
     const DEFAULT_NODE_NAME = 'row';
+    const XML_CONFIG_NODE_KEY = 'nodeName';
+    const XML_CONFIG_FIELD_KEY = 'fields';
 
     /**
      * @var PropertyMapper
@@ -119,8 +121,12 @@ class ArrayToXMLStream
     public function convert(array $record, array $configuration)
     {
         // setup config
-        $rootEnclosure = isset($configuration['nodeName'])?$configuration['nodeName']:self::DEFAULT_NODE_NAME;
-        $fieldsConfig = isset($configuration['fields'])?$configuration['fields']:null;
+        $rootEnclosure = isset($configuration[self::XML_CONFIG_NODE_KEY]) ?
+            $configuration[self::XML_CONFIG_NODE_KEY] :
+            self::DEFAULT_NODE_NAME;
+        $fieldsConfig = isset($configuration[self::XML_CONFIG_FIELD_KEY]) ?
+            $configuration[self::XML_CONFIG_FIELD_KEY] :
+            null;
         // build xml node buffer
         $buffer = $this->generateXMLStream($record, $rootEnclosure, $fieldsConfig);
 
@@ -170,8 +176,8 @@ class ArrayToXMLStream
     private function xmlRecursive(\XMLWriter $xml, $key, $value, $subFieldConfig = null)
     {
         // overwrite nodeKey with configNodeKey
-        if (isset($subFieldConfig) && isset($subFieldConfig['nodeName'])) {
-            $key = $subFieldConfig['nodeName'];
+        if (isset($subFieldConfig) && isset($subFieldConfig[self::XML_CONFIG_NODE_KEY])) {
+            $key = $subFieldConfig[self::XML_CONFIG_NODE_KEY];
         }
         if (is_array($value)) {
             $xml->startElement($key);
@@ -179,9 +185,9 @@ class ArrayToXMLStream
                 $subConfig = null;
                 // find subNode config
                 if (isset($subFieldConfig) &&
-                    isset($subFieldConfig['fields']) &&
-                    isset($subFieldConfig['fields'][$key])) {
-                    $subConfig = $subFieldConfig['fields'][$key];
+                    isset($subFieldConfig[self::XML_CONFIG_FIELD_KEY]) &&
+                    isset($subFieldConfig[self::XML_CONFIG_FIELD_KEY][$key])) {
+                    $subConfig = $subFieldConfig[self::XML_CONFIG_FIELD_KEY][$key];
                 }
                 $this->xmlRecursive($xml, $key, $sub, $subConfig);
             }

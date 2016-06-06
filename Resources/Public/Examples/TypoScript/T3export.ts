@@ -25,7 +25,7 @@ module.tx_t3importexport.settings.importProcessor.tasks {
 
             config {
                 # default is <?xml version="1.0" encoding="UTF-8"?>
-                header = <?xml version="2.0" encoding="UTF-16"?>
+                header = <?xml version="1.0" encoding="UTF-8"?>
                 # default is rows
                 rootNodeName = events
             }
@@ -62,6 +62,11 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                             fields {
                                 abc {
                                     nodeName = something
+                                    fields {
+                                        asd {
+                                            nodeName = other
+                                        }
+                                    }
                                 }
                             }
                         }
