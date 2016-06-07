@@ -39,6 +39,22 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                     last_updated = lastUpdated
                 }
             }
+            2 {
+                class = CPSIT\T3importExport\Component\PreProcessor\RemoveFields
+                config.fields {
+                    extension_key = true
+                    last_updated {
+                        fields {
+                            subkey = true
+                            subsuNode {
+                                fields {
+                                    subsubKey = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             # set language
             /*
             2 {
