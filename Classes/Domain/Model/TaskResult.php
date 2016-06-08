@@ -44,11 +44,20 @@ class TaskResult implements \Iterator
      */
     private $size = 0;
 
+    /**
+     * @var null|mixed
+     */
+    protected $info;
+
+    /**
+     * TaskResult constructor.
+     */
     public function __construct()
     {
         $this->list = [];
         $this->position = 0;
         $this->size = 0;
+        $this->info = null;
     }
 
     /**
@@ -60,7 +69,7 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @return mixed
+     * @return void
      */
     public function next()
     {
@@ -68,7 +77,7 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function key()
     {
@@ -76,26 +85,34 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function valid()
     {
         return isset($this->list[$this->position]);
     }
 
+    /**
+     * @return int
+     */
     public function count()
     {
         return $this->size;
     }
 
     /**
-     * @return mixed
+     * @return void
+     * @return void
      */
     public function rewind()
     {
         $this->position = 0;
     }
 
+    /**
+     * @param array $elements
+     * @return void
+     */
     public function setElements(array $elements)
     {
         $this->list = $elements;
@@ -103,12 +120,20 @@ class TaskResult implements \Iterator
         $this->rewind();
     }
 
+    /**
+     * @param $newElement
+     * @return void
+     */
     public function add($newElement)
     {
         $this->list[] = $newElement;
         ++$this->size;
     }
 
+    /**
+     * @param $element
+     * @return bool
+     */
     public function removeElement($element)
     {
         $key = array_search($element, $this->list);
@@ -118,6 +143,10 @@ class TaskResult implements \Iterator
         return false;
     }
 
+    /**
+     * @param $index
+     * @return bool
+     */
     public function removeIndex($index)
     {
         if ($this->size > $index) {
@@ -127,11 +156,30 @@ class TaskResult implements \Iterator
             if ($index >= $this->position && $this->position > 0) {
                 --$this->position;
             }
+            return true;
         }
+        return false;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return $this->list;
+    }
+
+    /**
+     * @param $mixed
+     * @return void
+     */
+    public function setInfo($mixed)
+    {
+        $this->info = $mixed;
+    }
+
+    public function getInfo()
+    {
+        return $this->info;
     }
 }
