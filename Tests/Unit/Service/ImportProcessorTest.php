@@ -8,6 +8,7 @@ use CPSIT\T3importExport\Domain\Model\ImportTask;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
@@ -47,23 +48,10 @@ class ImportProcessorTest extends UnitTestCase {
 
 	protected $taskResult;
 
-	protected $objectManagerMock;
-
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
 			ImportProcessor::class,
 			['dummy'], [], '', FALSE);
-
-		// mock object manager
-		$this->objectManagerMock = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-			['get'], [], '', FALSE);
-		$this->taskResult = new TaskResult();
-		$this->objectManagerMock->expects($this->any())
-			->method('get')
-			->with(TaskResult::class)
-			->will($this->returnValue($this->taskResult));
-
-		$this->subject->injectObjectManager($this->objectManagerMock);
 	}
 
 	/**
@@ -84,13 +72,36 @@ class ImportProcessorTest extends UnitTestCase {
 	}
 
 	/**
+	 * @return \PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
+	 */
+	public function createObjectManagerMock()
+	{
+		$this->taskResult = new TaskResult();
+
+		$objectManagerMock = $this->getAccessibleMock(
+			ObjectManager::class,
+			['get']
+		);
+		$objectManagerMock->expects($this->any())
+			->method('get')
+			->with(TaskResult::class)
+			->will($this->returnValue($this->taskResult));
+
+		$this->subject->injectObjectManager($objectManagerMock);
+
+		return $objectManagerMock;
+	}
+
+	/**
 	 * @test
 	 * @covers ::injectObjectManager
 	 */
 	public function injectObjectManagerForObjectSetsObjectManager()
 	{
+		$objectManagerMock = $this->createObjectManagerMock();
+
 		$this->assertSame(
-			$this->objectManagerMock,
+			$objectManagerMock,
 			$this->subject->_get('objectManager')
 		);
 	}
@@ -167,6 +178,8 @@ class ImportProcessorTest extends UnitTestCase {
 			->method('getTasks')
 			->will($this->returnValue([]));
 
+		$this->createObjectManagerMock();
+
 		$this->assertSame(
 			$this->taskResult,
 			$this->subject->process($importDemand)
@@ -191,6 +204,8 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockTask->expects($this->any())
 			->method('getIdentifier')
 			->will($this->returnValue($identifier));
+
+		$this->createObjectManagerMock();
 
 		$this->assertSame(
 			$this->taskResult,
@@ -243,6 +258,8 @@ class ImportProcessorTest extends UnitTestCase {
 			->method('preProcessSingle')
 			->with($singleRecord, $mockTask);
 
+		$this->createObjectManagerMock();
+
 		$this->subject->process($importDemand);
 	}
 
@@ -291,6 +308,8 @@ class ImportProcessorTest extends UnitTestCase {
 			->method('convertSingle')
 			->with($singleRecord, $mockTask);
 
+		$this->createObjectManagerMock();
+
 		$this->subject->process($importDemand);
 	}
 
@@ -338,6 +357,8 @@ class ImportProcessorTest extends UnitTestCase {
 		$this->subject->expects($this->once())
 			->method('postProcessSingle')
 			->with($singleRecord, $singleRecord, $mockTask);
+
+		$this->createObjectManagerMock();
 
 		$this->subject->process($importDemand);
 	}
@@ -396,6 +417,8 @@ class ImportProcessorTest extends UnitTestCase {
 				$mockPersistenceManager
 		);
 
+		$this->createObjectManagerMock();
+
 		$this->subject->process($mockDemand);
 	}
 
@@ -452,6 +475,8 @@ class ImportProcessorTest extends UnitTestCase {
 		$this->subject->injectPersistenceManager(
 			$mockPersistenceManager
 		);
+
+		$this->createObjectManagerMock();
 
 		$this->subject->process($mockDemand);
 	}
