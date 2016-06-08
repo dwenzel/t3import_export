@@ -55,7 +55,7 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockObjectManager = $this->injectObjectManagerForObjectSetsObjectManager();
 		$this->taskResult = new TaskResult();
 
-		$mockObjectManager->expects($this->once())
+		$mockObjectManager->expects($this->any())
 			->method('get')
 			->with(TaskResult::class)
 			->will($this->returnValue($this->taskResult));
