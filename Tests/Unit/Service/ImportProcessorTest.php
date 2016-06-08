@@ -45,10 +45,20 @@ class ImportProcessorTest extends UnitTestCase {
 	 */
 	protected $subject;
 
+	protected $testResult;
+
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
 			ImportProcessor::class,
 			['dummy'], [], '', FALSE);
+
+		$mockObjectManager = $this->injectObjectManagerForObjectSetsObjectManager();
+		$this->taskResult = new TaskResult();
+
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(TaskResult::class)
+			->will($this->returnValue($this->taskResult));
 	}
 
 	/**
@@ -92,7 +102,7 @@ class ImportProcessorTest extends UnitTestCase {
 	 * @covers ::getQueue
 	 */
 	public function getQueueForArrayReturnsInitiallyEmptyArray() {
-		$this->assertSame(
+		$this->assert(
 			[],
 			$this->subject->getQueue()
 		);
@@ -159,16 +169,8 @@ class ImportProcessorTest extends UnitTestCase {
 			->method('getTasks')
 			->will($this->returnValue([]));
 
-		$mockObjectManager = $this->injectObjectManagerForObjectSetsObjectManager();
-		$taskResult = new TaskResult();
-
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with(TaskResult::class)
-			->will($this->returnValue($taskResult));
-
 		$this->assertSame(
-			$taskResult,
+			$this->taskResult,
 			$this->subject->process($importDemand)
 		);
 	}
@@ -184,6 +186,15 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockTask = $this->getMock(
 			ImportTask::class, ['getIdentifier']
 		);
+
+		$mockObjectManager = $this->injectObjectManagerForObjectSetsObjectManager();
+		$taskResult = new TaskResult();
+
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(TaskResult::class)
+			->will($this->returnValue($taskResult));
+
 		$importDemand->expects($this->any())
 			->method('getTasks')
 			->will($this->returnValue($mockTask));
@@ -192,7 +203,7 @@ class ImportProcessorTest extends UnitTestCase {
 			->will($this->returnValue($identifier));
 
 		$this->assertSame(
-			[],
+			$this->taskResult,
 			$this->subject->process($importDemand)
 		);
 	}
