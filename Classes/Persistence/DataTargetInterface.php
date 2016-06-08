@@ -23,9 +23,9 @@ interface DataTargetInterface {
 	/**
 	 * Persists all record or objects
 	 *
-	 * @param array|null $result
-	 * @param array|null $configuration
+	 * @param array|\Iterator|null $result
+	 * @param array|\Iterator|null $configuration
 	 * @return mixed
 	 */
-	public function persistAll(array $result = null , array $configuration = null);
+	public function persistAll($result = null , array $configuration = null);
 }

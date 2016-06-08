@@ -39,14 +39,14 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
     }
 
     /**
-     * @param array|null|null $result
-     * @param array|null|null $configuration
+     * @param array|null $result
+     * @param array|\Iterator|null $configuration
      * @return void
      */
-    public function persistAll(array $result = null, array $configuration = null)
+    public function persistAll($result = null, array $configuration = null)
     {
         // close
-        parent::persistAll($result, $configuration);
+        //parent::persistAll($result, $configuration);
     }
 
     /**

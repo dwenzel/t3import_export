@@ -44,11 +44,11 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
     }
 
     /**
-     * @param array|null|null $result
-     * @param array|null|null $configuration
+     * @param array|null $result
+     * @param array|\Iterator|null $configuration
      * @return void
      */
-    public function persistAll(array $result = null, array $configuration = null)
+    public function persistAll($result = null, array $configuration = null)
     {
         // close file
         $foot = '</'.$this->getRootNodeName($configuration).'>';

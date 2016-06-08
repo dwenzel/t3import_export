@@ -26,6 +26,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\TaskResult;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
@@ -93,7 +94,7 @@ class ImportProcessor
 	 * @return array
 	 */
 	public function process(DemandInterface $importDemand) {
-		$result = [];
+		$result = new TaskResult();
 		$tasks = $importDemand->getTasks();
 		foreach ($tasks as $task) {
 			/** @var ImportTask $task */
@@ -115,7 +116,7 @@ class ImportProcessor
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
 					$target->persist($convertedRecord, $targetConfig);
-					$result[] = $convertedRecord;
+					$result->add($convertedRecord);
 				}
 
 				$target->persistAll($result, $targetConfig);
@@ -195,7 +196,7 @@ class ImportProcessor
 	 *
 	 * @param array $records Processed records
 	 * @param ImportTask $task Import task
-	 * @param array $result
+	 * @param array|\Iterator|null $result
 	 */
 	protected function processFinishers(&$records, $task, &$result)
 	{
