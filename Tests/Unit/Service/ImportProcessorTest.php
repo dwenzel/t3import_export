@@ -47,18 +47,24 @@ class ImportProcessorTest extends UnitTestCase {
 
 	protected $testResult;
 
+	protected $objectManagerMock;
+
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
 			ImportProcessor::class,
 			['dummy'], [], '', FALSE);
 
-		$mockObjectManager = $this->injectObjectManagerForObjectSetsObjectManager();
-		$this->taskResult = new TaskResult();
 
-		$mockObjectManager->expects($this->any())
+		// mock object manager
+		$this->objectManagerMock = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
+			['get'], [], '', FALSE);
+		$this->taskResult = new TaskResult();
+		$this->objectManagerMock->expects($this->any())
 			->method('get')
 			->with(TaskResult::class)
 			->will($this->returnValue($this->taskResult));
+
+		$this->subject->injectObjectManager($this->objectManagerMock);
 	}
 
 	/**
@@ -83,18 +89,10 @@ class ImportProcessorTest extends UnitTestCase {
 	 * @covers ::injectObjectManager
 	 */
 	public function injectObjectManagerForObjectSetsObjectManager() {
-		/** @var ObjectManagerInterface $mockObjectManager */
-		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-			['get'], [], '', FALSE);
-
-		$this->subject->injectObjectManager($mockObjectManager);
-
 		$this->assertSame(
-			$mockObjectManager,
+			$this->objectManagerMock,
 			$this->subject->_get('objectManager')
 		);
-
-		return $mockObjectManager;
 	}
 
 	/**
@@ -102,7 +100,7 @@ class ImportProcessorTest extends UnitTestCase {
 	 * @covers ::getQueue
 	 */
 	public function getQueueForArrayReturnsInitiallyEmptyArray() {
-		$this->assert(
+		$this->assertSame(
 			[],
 			$this->subject->getQueue()
 		);
@@ -186,7 +184,7 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockTask = $this->getMock(
 			ImportTask::class, ['getIdentifier']
 		);
-		
+
 		$importDemand->expects($this->any())
 			->method('getTasks')
 			->will($this->returnValue($mockTask));
