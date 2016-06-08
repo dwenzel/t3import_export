@@ -27,6 +27,7 @@ use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
@@ -50,6 +51,11 @@ class ImportProcessor
 	protected $persistenceManager;
 
 	/**
+	 * @var ObjectManagerInterface
+	 */
+	protected $objectManager;
+
+	/**
 	 * injects the persistence manager
 	 *
 	 * @param PersistenceManager $persistenceManager
@@ -57,6 +63,16 @@ class ImportProcessor
 	public function injectPersistenceManager(PersistenceManager $persistenceManager)
 	{
 		$this->persistenceManager = $persistenceManager;
+	}
+
+	/**
+	 * injects the object manager
+	 *
+	 * @param ObjectManagerInterface $objectManager
+	 */
+	public function injectObjectManager(ObjectManagerInterface $objectManager)
+	{
+		$this->objectManager = $objectManager;
 	}
 
 	/**
@@ -94,7 +110,8 @@ class ImportProcessor
 	 * @return array
 	 */
 	public function process(DemandInterface $importDemand) {
-		$result = new TaskResult();
+		/** @var TaskResult $result */
+		$result = $this->objectManager->get(TaskResult::class);
 		$tasks = $importDemand->getTasks();
 		foreach ($tasks as $task) {
 			/** @var ImportTask $task */
@@ -121,7 +138,7 @@ class ImportProcessor
 
 				$target->persistAll($result, $targetConfig);
 			}
-
+			
 			$this->processFinishers($records, $task, $result);
 		}
 

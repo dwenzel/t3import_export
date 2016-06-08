@@ -7,6 +7,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Service\ImportProcessor;
@@ -63,6 +64,23 @@ class ImportProcessorTest extends UnitTestCase {
 		$this->assertSame(
 			$mockPersistenceManager,
 			$this->subject->_get('persistenceManager')
+		);
+	}
+
+	/**
+	 * @test
+	 * @covers ::injectObjectManager
+	 */
+	public function injectObjectManagerForObjectSetsObjectManager() {
+		/** @var ObjectManagerInterface $mockObjectManager */
+		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
+			[], [], '', FALSE);
+
+		$this->subject->injectObjectManager($mockObjectManager);
+
+		$this->assertSame(
+			$mockObjectManager,
+			$this->subject->_get('objectManager')
 		);
 	}
 
@@ -130,7 +148,7 @@ class ImportProcessorTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function processInitiallyReturnsEmptyArray() {
+	public function processInitiallyReturnsEmptyIterator() {
 		$importDemand = $this->getMock(
 			ImportDemand::class, ['getTasks']
 		);
