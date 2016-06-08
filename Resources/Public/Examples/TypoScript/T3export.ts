@@ -44,10 +44,10 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                 config.fields {
                     extension_key = true
                     last_updated {
-                        fields {
+                        children {
                             subkey = true
                             subsuNode {
-                                fields {
+                                children {
                                     subsubKey = true
                                 }
                             }
@@ -76,11 +76,18 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                             # default node name equals field name
                             nodeName = schedule
                             fields {
+                                someField {
+                                    nodeName = someNodeName
+                                    value = 12345
+                                    modifier = @attribute
+                                }
                                 abc {
                                     nodeName = something
+
                                     fields {
                                         asd {
                                             nodeName = other
+                                            modifier = @cdata
                                         }
                                     }
                                 }
