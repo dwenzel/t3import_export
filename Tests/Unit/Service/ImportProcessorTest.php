@@ -186,15 +186,7 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockTask = $this->getMock(
 			ImportTask::class, ['getIdentifier']
 		);
-
-		$mockObjectManager = $this->injectObjectManagerForObjectSetsObjectManager();
-		$taskResult = new TaskResult();
-
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with(TaskResult::class)
-			->will($this->returnValue($taskResult));
-
+		
 		$importDemand->expects($this->any())
 			->method('getTasks')
 			->will($this->returnValue($mockTask));
