@@ -45,7 +45,7 @@ class ImportProcessorTest extends UnitTestCase {
 	 */
 	protected $subject;
 
-	protected $testResult;
+	protected $taskResult;
 
 	protected $objectManagerMock;
 
@@ -53,18 +53,6 @@ class ImportProcessorTest extends UnitTestCase {
 		$this->subject = $this->getAccessibleMock(
 			ImportProcessor::class,
 			['dummy'], [], '', FALSE);
-
-
-		// mock object manager
-		$this->objectManagerMock = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-			['get'], [], '', FALSE);
-		$this->taskResult = new TaskResult();
-		$this->objectManagerMock->expects($this->any())
-			->method('get')
-			->with(TaskResult::class)
-			->will($this->returnValue($this->taskResult));
-
-		$this->subject->injectObjectManager($this->objectManagerMock);
 	}
 
 	/**
@@ -88,7 +76,8 @@ class ImportProcessorTest extends UnitTestCase {
 	 * @test
 	 * @covers ::injectObjectManager
 	 */
-	public function injectObjectManagerForObjectSetsObjectManager() {
+	public function injectObjectManagerForObjectSetsObjectManager()
+	{
 		$this->assertSame(
 			$this->objectManagerMock,
 			$this->subject->_get('objectManager')
