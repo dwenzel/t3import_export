@@ -5,6 +5,7 @@ use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
@@ -74,7 +75,7 @@ class ImportProcessorTest extends UnitTestCase {
 	public function injectObjectManagerForObjectSetsObjectManager() {
 		/** @var ObjectManagerInterface $mockObjectManager */
 		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-			[], [], '', FALSE);
+			['get'], [], '', FALSE);
 
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -82,6 +83,8 @@ class ImportProcessorTest extends UnitTestCase {
 			$mockObjectManager,
 			$this->subject->_get('objectManager')
 		);
+
+		return $mockObjectManager;
 	}
 
 	/**
@@ -156,8 +159,16 @@ class ImportProcessorTest extends UnitTestCase {
 			->method('getTasks')
 			->will($this->returnValue([]));
 
+		$mockObjectManager = $this->injectObjectManagerForObjectSetsObjectManager();
+		$taskResult = new TaskResult();
+
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(TaskResult::class)
+			->will($this->returnValue($taskResult));
+
 		$this->assertSame(
-			[],
+			$taskResult,
 			$this->subject->process($importDemand)
 		);
 	}
