@@ -30,7 +30,7 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                 rootNodeName = events
                 // output are: direct (outputBuffer)|file (temp file)
                 // direct is default
-                output = direct
+                output = file
                 // cleared record memory if needed after every persist
                 flush = true
             }
@@ -48,12 +48,16 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                 class = CPSIT\T3importExport\Component\PreProcessor\RemoveFields
                 config.fields {
                     extension_key = true
-                    last_updated {
+                    last_updated = true
+                    static {
+                        otherField = true
+                    }
+                    performances {
                         children {
-                            subkey = true
-                            subsuNode {
+                            uid = true
+                            publishers {
                                 children {
-                                    subsubKey = true
+                                    uid = true
                                 }
                             }
                         }

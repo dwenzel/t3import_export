@@ -68,6 +68,14 @@ class RemoveFields
 				}
 			}
 			return true;
+		} elseif (is_array($fieldListConfig)) {
+			foreach ($fieldListConfig as $field => $value) {
+
+				if (!$this->validateFieldsList($value)) {
+					return false;
+				}
+			}
+			return true;
 		}
 
 		return ((is_bool($fieldListConfig) && $fieldListConfig) || $fieldListConfig == 'true');
@@ -103,7 +111,12 @@ class RemoveFields
 
 			// if the config says "it goes down there!" and the record is also an subArray fire the recursiveCall
 			if (is_array($value) && is_array($fieldArray[$field]) && isset($value['children'])) {
-				$this->removeFieldInArray($fieldArray[$field], $value['children']);
+				$childCount = count($fieldArray[$field]);
+				for ($i = 0; $i < $childCount; ++$i) {
+					$this->removeFieldInArray($fieldArray[$field][$i], $value['children']);
+				}
+			} elseif (is_array($value) && is_array($fieldArray[$field])) {
+				$this->removeFieldInArray($fieldArray[$field], $value);
 			} else {
 				// remove field from record
 				unset($fieldArray[$field]);
