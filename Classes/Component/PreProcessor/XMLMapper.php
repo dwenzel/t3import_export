@@ -25,7 +25,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * @package CPSIT\T3importExport\PreProcessor
  */
-class RemoveFields
+class XMLMapper
 	extends AbstractPreProcessor
 	implements PreProcessorInterface
 {
@@ -44,7 +44,7 @@ class RemoveFields
 		}
 		foreach ($configuration['fields'] as $field => $value) {
 
-			if (!$this->validateFieldsList($value)) {
+			if (!$this->validateFieldsList($field, $value)) {
 				return false;
 			}
 		}
@@ -52,33 +52,35 @@ class RemoveFields
 		return true;
 	}
 
+
 	/**
-	 * validate config array recursively
-	 *
-	 * @param $fieldListConfig
+	 * @param string $field
+	 * @param array|string $value
 	 * @return bool
 	 */
-	protected function validateFieldsList($fieldListConfig)
+	protected function validateFieldsList($field, $value)
 	{
-		if(is_array($fieldListConfig) && isset($fieldListConfig['children'])) {
-			foreach ($fieldListConfig['children'] as $field => $value) {
+		if(is_array($value) && isset($value['children'])) {
+			foreach ($value['children'] as $subField => $subValue) {
 
-				if (!$this->validateFieldsList($value)) {
+				if (!$this->validateFieldsList($subField, $subValue)) {
 					return false;
 				}
 			}
 			return true;
-		} elseif (is_array($fieldListConfig)) {
-			foreach ($fieldListConfig as $field => $value) {
+		} elseif(is_array($value)) {
+			foreach ($value as $subField => $subValue) {
 
-				if (!$this->validateFieldsList($value)) {
+				if (!$this->validateFieldsList($subField, $subValue)) {
 					return false;
 				}
 			}
+			return true;
+		} elseif ($value == '@attribute' || $field == 'mapTo') {
 			return true;
 		}
 
-		return ((is_bool($fieldListConfig) && $fieldListConfig) || $fieldListConfig == 'true');
+		return false;
 	}
 
 	/**
@@ -89,7 +91,7 @@ class RemoveFields
 	public function process($configuration, &$record)
 	{
 		$fields = $configuration['fields'];
-		$this->removeFieldInArray($record, $fields);
+		$record = $this->remapXMLStructure($record, $fields);
 		
 		return true;
 	}
@@ -100,28 +102,49 @@ class RemoveFields
 	 * @param array $fieldArray
 	 * @param array $subConfig
 	 */
-	protected function removeFieldInArray(&$fieldArray, $subConfig)
+	protected function remapXMLStructure($fieldArray, $subConfig)
 	{
-		// iterate through the config - we only need to compute the config not the entire record
-		foreach ($subConfig as $field => $value) {
-			// if config node not matching with record - skip this step
-			if(!isset($fieldArray[$field])) {
-				continue;
-			}
-
-			// if the config says "it goes down there!" and the record is also an subArray fire the recursiveCall
-			if (is_array($value) && is_array($fieldArray[$field]) && isset($value['children'])) {
-				$childCount = count($fieldArray[$field]);
-				for ($i = 0; $i < $childCount; ++$i) {
-					$this->removeFieldInArray($fieldArray[$field][$i], $value['children']);
+		foreach ($subConfig as $configKey => $value) {
+			// map attributes
+			if ($configKey !== 'mapTo' && isset($fieldArray[$configKey]) && !is_array($fieldArray[$configKey])) {
+				$fieldArray = $this->mapAttributeInArray($fieldArray, $configKey);
+			} elseif ($configKey === 'mapTo') {
+				$fieldArray = $this->mapMapToInArray($fieldArray, $value);
+			} elseif (isset($fieldArray[$configKey]) && is_array($fieldArray[$configKey])) {
+				// check for mapTo here too
+				if (isset($value['children'])) {
+					$subNodes = $fieldArray[$configKey];
+					foreach($subNodes as $nodeKey => $subNode) {
+						$fieldArray[$configKey][$nodeKey] = $this->remapXMLStructure($subNode, $value['children']);
+					}
+					if (isset($value['mapTo'])) {
+						$fieldArray[$configKey] = $this->mapMapToInArray($fieldArray[$configKey], $value['mapTo']);
+					}
+				} else {
+					$fieldArray[$configKey] = $this->remapXMLStructure($fieldArray[$configKey], $value);
 				}
-			} elseif (is_array($value) && is_array($fieldArray[$field])) {
-				// if assoc array do it direct
-				$this->removeFieldInArray($fieldArray[$field], $value);
-			} else {
-				// remove field from record
-				unset($fieldArray[$field]);
+
 			}
 		}
+		return $fieldArray;
+	}
+
+	protected function mapMapToInArray($array, $value)
+	{
+		$array['@mapTo'] = $value;
+		return $array;
+	}
+
+	protected function mapAttributeInArray($array, $mapKey)
+	{
+		if (isset($array[$mapKey])) {
+			if (!isset($array['@attribute'])) {
+				$array['@attribute'] = [];
+			}
+
+			$array['@attribute'][$mapKey] = $array[$mapKey];
+			unset($array[$mapKey]);
+		}
+		return $array;
 	}
 }

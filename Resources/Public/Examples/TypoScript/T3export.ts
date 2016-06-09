@@ -55,9 +55,37 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                     performances {
                         children {
                             uid = true
+                            time = true
                             publishers {
                                 children {
                                     uid = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            3 {
+                class = CPSIT\T3importExport\Component\PreProcessor\XMLMapper
+                config.fields {
+                    repository = @attribute
+                    version = @attribute
+                    state = @attribute
+                    static {
+                        mapTo = statistic
+                        someField = @attribute
+                    }
+                    performances {
+                        mapTo = schedules
+                        children {
+                            mapTo = schedule
+                            location = @attribute
+                            publishers {
+                                mapTo = authors
+                                children {
+                                    mapTo = author
+                                    pubId = @attribute
+                                    rank = @attribute
                                 }
                             }
                         }
@@ -81,27 +109,7 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                     # default node name is row
                     nodeName = event
                     fields {
-                        performances {
-                            # default node name equals field name
-                            nodeName = schedule
-                            fields {
-                                someField {
-                                    nodeName = someNodeName
-                                    value = 12345
-                                    modifier = @attribute
-                                }
-                                abc {
-                                    nodeName = something
 
-                                    fields {
-                                        asd {
-                                            nodeName = other
-                                            modifier = @cdata
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
