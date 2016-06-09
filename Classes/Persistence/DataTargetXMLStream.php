@@ -8,7 +8,7 @@ use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class DataTargetXMLStream extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
+class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInterface, ConfigurableInterface
 {
     const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
     const DEFAULT_ROOT_NODE = 'rows';
@@ -28,6 +28,11 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
     protected $tempFile;
 
     /**
+     * @var \XMLWriter
+     */
+    protected $writer;
+
+    /**
      * @param array|\TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface $object
      * @param array|null $configuration
      * @return void
@@ -35,12 +40,10 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
      */
     public function persist($object, array $configuration = null)
     {
+        // init XML
         $this->initFileIfNotExist($configuration);
-
-        if ($object instanceof DataStreamInterface) {
-            $this->writeData($object->getSteamBuffer());
-            $object->setSteamBuffer(null);
-        }
+        // write object data into array
+        parent::persist($object, $configuration);
     }
 
     /**
@@ -50,43 +53,29 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
      */
     public function persistAll($result = null, array $configuration = null)
     {
-        // close file
-        $foot = '</'.$this->getRootNodeName($configuration).'>';
-        $this->writeData($foot);
+        if (isset($this->writer)) {
+            // close file
+            $this->writer->endElement();
+            // remove writer from memory and remove possible access locks from files
+            $this->writer->flush();
+            unset($this->writer);
+        }
+
+
+        // todo: add filepath
     }
 
     /**
      * @param $buffer
      * @throws FileOperationErrorException
      */
-    protected function writeData($buffer)
+    protected function writeBuffer($buffer)
     {
-        // create new tempFile if non existing
-        if (empty($this->tempFile) || !file_exists($this->tempFile)) {
-            $this->tempFile = $this->createAnonymTempFile();
+        if (isset($this->writer)) {
+            $this->writer->writeRaw($buffer);
+            // write stuff into output
+            $this->writer->flush();
         }
-
-        // file put content
-        if (isset($this->tempFile) && $this->writeDataIntoFile($this->tempFile, $buffer) === false) {
-            throw new FileOperationErrorException(
-                'can\'t write in temp file: \''. $this->tempFile .'\''
-            );
-        }
-    }
-
-    /**
-     * @param string $absoluteFilePath
-     * @param string $data
-     * @return bool
-     */
-    protected function writeDataIntoFile($absoluteFilePath, $data)
-    {
-        $isSuccess = false;
-        if(file_put_contents($absoluteFilePath, $data, FILE_APPEND|LOCK_EX)) {
-            $isSuccess = true;
-        }
-
-        return $isSuccess;
     }
 
     /**
@@ -95,78 +84,20 @@ class DataTargetXMLStream extends DataTargetRepository implements DataTargetInte
      */
     protected function initFileIfNotExist($configuration)
     {
-        if (empty($this->tempFile) || !file_exists($this->tempFile)) {
-            $this->tempFile = $this->createAnonymTempFile();
+        if (!isset($this->writer)) {
 
-            if (isset($this->tempFile) && file_exists($this->tempFile)) {
-                $head = $this->getFileHeader($configuration);
-                $head .= '<'.$this->getRootNodeName($configuration).'>';
-                $this->writeData($head);
+            $this->writer = new \XMLWriter();
+
+            if(isset($configuration['output']) && $configuration['output'] == 'file') {
+                $tmpFileName = $this->createAnonymTempFile();
+            } else {
+                $tmpFileName = 'php://output';
             }
+            $this->writer->openUri($tmpFileName);
+            $this->writer->writeRaw($this->getFileHeader($configuration));
+            $this->writer->startElement($this->getRootNodeName($configuration));
+            $this->writer->flush();
         }
-    }
-
-    /**
-     * @return string
-     * @throws FileOperationErrorException
-     */
-    protected function createAnonymTempFile()
-    {
-        return $this->createTempFile(md5(uniqid(time())));
-    }
-
-    /**
-     * return absolute path of the temp file
-     *
-     * @param $fileName
-     * @return string
-     * @throws FileOperationErrorException
-     */
-    protected function createTempFile($fileName)
-    {
-        $basicFileUtility = $this->objectManager->get('TYPO3\CMS\Core\Utility\File\BasicFileUtility');
-        $tempRelativePath = 'typo3temp/'.$GLOBALS['_EXTKEY'];
-        $absPath = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($tempRelativePath);
-
-        if (!file_exists($absPath)) {
-            if (!GeneralUtility::mkdir($absPath)) {
-                throw new FileOperationErrorException(
-                    'can\'t create temp folder: \''. $tempRelativePath .'\''
-                );
-            }
-        }
-        $absFileName = $basicFileUtility->getUniqueName($fileName, $absPath);
-        if (!touch($absFileName)) {
-            throw new FileOperationErrorException(
-                'can\'t create new temp file: \''.$absFileName .'\''
-            );
-        }
-        return $absFileName;
-    }
-
-    /**
-     * @param array $configuration
-     * @return bool
-     */
-    public function isConfigurationValid(array $configuration)
-    {
-        return true;
-    }
-
-    /**
-     * @return array
-     */
-    public function getConfiguration()
-    {
-        return $this->config;
-    }
-
-    /**
-     * @param array $configuration
-     */
-    public function setConfiguration(array $configuration)
-    {
-        $this->config = $configuration;
     }
 
     /**

@@ -28,6 +28,11 @@ module.tx_t3importexport.settings.importProcessor.tasks {
                 header = <?xml version="1.0" encoding="UTF-8"?>
                 # default is rows
                 rootNodeName = events
+                // output are: direct (outputBuffer)|file (temp file)
+                // direct is default
+                output = direct
+                // cleared record memory if needed after every persist
+                flush = true
             }
         }
         preProcessors {

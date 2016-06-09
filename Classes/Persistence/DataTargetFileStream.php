@@ -33,8 +33,10 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
     public function persist($object, array $configuration = null)
     {
         if ($object instanceof DataStreamInterface) {
-            $this->writeBufferIntoTempFile($object->getSteamBuffer());
-            $object->setSteamBuffer(null);
+            $this->writeBuffer($object->getSteamBuffer());
+            if (isset($configuration['flush'])) {
+                $object->setSteamBuffer(null);
+            }
         }
     }
 
@@ -54,7 +56,7 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
      * @return void
      * @throws FileOperationErrorException
      */
-    protected function writeBufferIntoTempFile($buffer)
+    protected function writeBuffer($buffer)
     {
         if (empty($this->tempFile) || !file_exists($this->tempFile)) {
             $this->tempFile = $this->createAnonymTempFile();
