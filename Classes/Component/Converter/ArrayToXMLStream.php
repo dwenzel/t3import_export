@@ -46,6 +46,9 @@ class ArrayToXMLStream
     const XML_CONFIG_NODE_KEY = 'nodeName';
     const XML_CONFIG_FIELD_KEY = 'fields';
 
+    const XML_CONFIG_FIELD_ATTR = '@attribute';
+    const XML_CONFIG_FIELD_MAP = '@mapTo';
+
     /**
      * @var PropertyMapper
      */
@@ -148,7 +151,19 @@ class ArrayToXMLStream
         $xml = new \XMLWriter();
         $xml->openMemory();
 
+        if (isset($data[self::XML_CONFIG_FIELD_MAP])) {
+            $enclosure = $data[self::XML_CONFIG_FIELD_MAP];
+            unset($data[self::XML_CONFIG_FIELD_MAP]);
+        }
+
         $xml->startElement($enclosure);
+
+        if (!empty($data[self::XML_CONFIG_FIELD_ATTR])) {
+            $this->writeAttributes($xml, $data[self::XML_CONFIG_FIELD_ATTR]);
+            unset($data[self::XML_CONFIG_FIELD_ATTR]);
+        }
+
+
         foreach ($data as $key => $sub) {
 
             $nodeConfig = null;
@@ -171,24 +186,34 @@ class ArrayToXMLStream
      */
     private function xmlRecursive(\XMLWriter $xml, $key, $value, $subFieldConfig = null)
     {
-        $key = $this->getRootEnclosureConfiguration($subFieldConfig, $key);
+        if (is_array($value) && isset($value[self::XML_CONFIG_FIELD_MAP])) {
+            $key = $value[self::XML_CONFIG_FIELD_MAP];
+            unset($value[self::XML_CONFIG_FIELD_MAP]);
+        }
+        $xml->startElement($key);
+
         if (is_array($value)) {
-            $xml->startElement($key);
-            foreach ($value as $key => $sub) {
-                $subConfig = $this->getFieldsConfiguration($subFieldConfig);
-                // get only the matching config otherwise null
-                if (isset($subConfig[$key])) {
-                    $subConfig = $subConfig[$key];
-                } else {
-                    $subConfig = null;
-                }
-                $this->xmlRecursive($xml, $key, $sub, $subConfig);
+
+            if (!empty($value[self::XML_CONFIG_FIELD_ATTR])) {
+                $this->writeAttributes($xml, $value[self::XML_CONFIG_FIELD_ATTR]);
+                unset($value[self::XML_CONFIG_FIELD_ATTR]);
             }
-            $xml->endElement();
+
+            foreach ($value as $subKey => $subValue) {
+                $this->xmlRecursive($xml, $subKey, $subValue);
+            }
+
         } else {
-            $xml->startElement($key);
-            $xml->writeRaw($value);
-            $xml->endElement();
+            $xml->text($value);
+        }
+        $xml->endElement();
+    }
+
+    private function writeAttributes(\XMLWriter $xml, $attributes)
+    {
+        foreach ($attributes as $name => $value)
+        {
+            $xml->writeAttribute($name, $value);
         }
     }
 
