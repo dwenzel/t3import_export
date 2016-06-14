@@ -145,7 +145,7 @@ class ArrayToXMLStream
      * @param null|string $fieldsConfig
      * @return string
      */
-    public function generateXMLStream(array $data, $enclosure, $fieldsConfig = null)
+    protected function generateXMLStream(array $data, $enclosure, $fieldsConfig = null)
     {
         // init xmlBuilder (XMLWriter)
         $xml = new \XMLWriter();
@@ -189,6 +189,10 @@ class ArrayToXMLStream
         if (is_array($value) && isset($value[self::XML_CONFIG_FIELD_MAP])) {
             $key = $value[self::XML_CONFIG_FIELD_MAP];
             unset($value[self::XML_CONFIG_FIELD_MAP]);
+        }
+        // if key not set and @mapTo not exist use default node name
+        if (!is_string($key)) {
+            $key = self::DEFAULT_NODE_NAME;
         }
         $xml->startElement($key);
 
