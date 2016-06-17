@@ -25,19 +25,21 @@ class AddArrays
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['targetField'])
-			OR !is_string($configuration['targetField'])
+	public function isConfigurationValid(array $configuration) 
+	{
+		if (empty($configuration['targetField'])
+			|| !is_string($configuration['targetField'])
 		) {
-			return FALSE;
-		}
-		if (!isset($configuration['fields'])
-			OR !is_string($configuration['fields'])
-		) {
-			return FALSE;
+			return false;
 		}
 
-		return TRUE;
+		if (empty($configuration['fields'])
+			|| !is_string($configuration['fields'])
+		) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
