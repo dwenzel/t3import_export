@@ -42,7 +42,6 @@ class AddArraysTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsInitiallyFalse()
 	{
@@ -54,7 +53,6 @@ class AddArraysTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsFalseIfTargetFieldsIsEmpty()
 	{
@@ -69,7 +67,6 @@ class AddArraysTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
 	{
@@ -84,7 +81,6 @@ class AddArraysTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
 	{
@@ -99,7 +95,6 @@ class AddArraysTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsTrueForValidConfiguration()
 	{
@@ -115,7 +110,7 @@ class AddArraysTest extends BaseTestCase
 	/**
 	 * @test
 	 */
-	public function processMapsFields()
+	public function processAddArrays()
 	{
 		$config = [
 			'targetField' => 'new',
