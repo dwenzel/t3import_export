@@ -36,12 +36,13 @@ class XMLMapper
 	 */
 	public function isConfigurationValid(array $configuration)
 	{
-		if (!isset($configuration['fields'])) {
+		if (empty($configuration['fields'])) {
 			return false;
 		}
 		if (!is_array($configuration['fields'])) {
 			return false;
 		}
+
 		foreach ($configuration['fields'] as $field => $value) {
 
 			if (!$this->validateFieldsList($field, $value)) {
@@ -76,7 +77,7 @@ class XMLMapper
 				}
 			}
 			return true;
-		} elseif ($value == '@attribute' || $field == 'mapTo') {
+		} elseif ($value === '@attribute' || $field === 'mapTo') {
 			return true;
 		}
 
