@@ -110,12 +110,10 @@ class TaskResultTest extends UnitTestCase
 	 * our iterator will act like an iterator
 	 * @param \Iterator|\PHPUnit_Framework_MockObject_MockObject $iterator
 	 * @param array $items
-	 * @param $includeCallsToKey = false
 	 */
 	private function mockIterator(
 		\Iterator $iterator,
-		array $items,
-		$includeCallsToKey = false
+		array $items
 	)
 	{
 		$iterator->expects($this->at(0))
@@ -129,12 +127,6 @@ class TaskResultTest extends UnitTestCase
 			$iterator->expects($this->at($counter++))
 				->method('current')
 				->will($this->returnValue($v));
-			if ($includeCallsToKey)
-			{
-				$iterator->expects($this->at($counter++))
-					->method('key')
-					->will($this->returnValue($k));
-			}
 			$iterator->expects($this->at($counter++))
 				->method('next');
 		}
