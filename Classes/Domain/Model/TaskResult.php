@@ -156,6 +156,8 @@ class TaskResult implements \Iterator
             if ($index >= $this->position && $this->position > 0) {
                 --$this->position;
             }
+            // reindex list
+            $this->list = array_values($this->list);
             return true;
         }
         return false;
