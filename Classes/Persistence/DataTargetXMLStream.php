@@ -4,9 +4,7 @@ namespace CPSIT\T3importExport\Persistence;
 
 
 use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInterface, ConfigurableInterface
 {
@@ -19,13 +17,6 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
      * @var array
      */
     protected $config;
-
-    /**
-     * absolute path to temp file
-     *
-     * @var string
-     */
-    protected $tempFile;
 
     /**
      * @var \XMLWriter
@@ -61,8 +52,7 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
             unset($this->writer);
         }
 
-
-        // todo: add filepath
+        parent::persistAll($result, $configuration);
     }
 
     /**
@@ -89,11 +79,11 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
             $this->writer = new \XMLWriter();
 
             if(isset($configuration['output']) && $configuration['output'] == 'file') {
-                $tmpFileName = $this->createAnonymTempFile();
+                $this->tempFile = $this->createAnonymTempFile();
             } else {
-                $tmpFileName = 'php://output';
+                $this->tempFile = 'php://output';
             }
-            $this->writer->openUri($tmpFileName);
+            $this->writer->openUri($this->tempFile);
             $this->writer->writeRaw($this->getFileHeader($configuration));
             $this->writer->startElement($this->getRootNodeName($configuration));
             $this->writer->flush();

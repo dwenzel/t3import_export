@@ -7,6 +7,7 @@ use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 class DataTargetFileStream extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 {
@@ -47,8 +48,9 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
      */
     public function persistAll($result = null, array $configuration = null)
     {
-        // close
-        //parent::persistAll($result, $configuration);
+        if (isset($result) && $result instanceof TaskResult) {
+            $result->setInfo($this->tempFile);
+        }
     }
 
     /**
