@@ -31,11 +31,11 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
- * Class ImportProcessor
+ * Class DataTransferProcessor
  *
  * @package CPSIT\T3importExport\Service
  */
-class ImportProcessor
+class DataTransferProcessor
 {
 	/**
 	 * Queue

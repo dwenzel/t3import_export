@@ -1,6 +1,6 @@
 # employee.ts
 # import configuration for employees
-module.tx_t3importexport.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.export.tasks {
     xmlTEST {
         source {
             // for XML or other files

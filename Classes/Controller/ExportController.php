@@ -25,9 +25,9 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ImportController extends ActionController
+class ExportController extends ActionController
 {
-	const SETTINGS_KEY = 'import';
+	const SETTINGS_KEY = 'export';
 
 	/**
 	 * @var DataTransferProcessor
@@ -75,7 +75,7 @@ class ImportController extends ActionController
 	public function indexAction()
 	{
 		if (!isset($this->settings[self::SETTINGS_KEY])) {
-			$keysFound = implode('\', \'', array_keys($this->settings));
+			$keysFound = implode(', ', array_keys($this->settings));
 			throw new InvalidConfigurationException(
 				'no config with matching key \'' . self::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
 				123476532
@@ -98,7 +98,7 @@ class ImportController extends ActionController
 	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function importTaskAction($identifier)
+	public function exportTaskAction($identifier)
 	{
 		if (!isset($this->settings[self::SETTINGS_KEY])) {
 			$keysFound = implode(', ', array_keys($this->settings));
@@ -134,7 +134,7 @@ class ImportController extends ActionController
 	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function importSetAction($identifier)
+	public function exportSetAction($identifier)
 	{
 		if (!isset($this->settings[self::SETTINGS_KEY])) {
 			$keysFound = implode(', ', array_keys($this->settings));
