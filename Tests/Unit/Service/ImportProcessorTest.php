@@ -35,7 +35,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * Class ImportCommandControllerTest
  *
  * @package CPSIT\T3importExport\Tests\Service
- * @coversDefaultClass \CPSIT\T3importExport\Service\ImportProcessor
+ * @coversDefaultClass \CPSIT\T3importExport\Service\DataTransferProcessor
  */
 class ImportProcessorTest extends UnitTestCase {
 
