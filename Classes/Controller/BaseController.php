@@ -47,9 +47,9 @@ abstract class BaseController extends ActionController
 	/**
 	 * Injects the event import processor
 	 *
-	 * @param DataTransferProcessor $importProcessor
+	 * @param DataTransferProcessor $dataTransferProcessor
 	 */
-	public function injectImportProcessor(DataTransferProcessor $dataTransferProcessor) {
+	public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor) {
 		$this->dataTransferProcessor = $dataTransferProcessor;
 	}
 

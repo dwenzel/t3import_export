@@ -9,10 +9,8 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\Service\ImportProcessor;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -42,7 +40,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 class ImportProcessorTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3importExport\Service\ImportProcessor
+	 * @var \CPSIT\T3importExport\Service\DataTransferProcessor
 	 */
 	protected $subject;
 
@@ -50,7 +48,7 @@ class ImportProcessorTest extends UnitTestCase {
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
-			ImportProcessor::class,
+			DataTransferProcessor::class,
 			['dummy'], [], '', FALSE);
 	}
 
@@ -218,7 +216,7 @@ class ImportProcessorTest extends UnitTestCase {
 	 */
 	public function processPreProcesses() {
 		$this->subject = $this->getAccessibleMock(
-			ImportProcessor::class,
+			DataTransferProcessor::class,
 			['preProcessSingle']
 		);
 
@@ -268,7 +266,7 @@ class ImportProcessorTest extends UnitTestCase {
 	 */
 	public function processConverts() {
 		$this->subject = $this->getAccessibleMock(
-			ImportProcessor::class,
+			DataTransferProcessor::class,
 			['convertSingle']
 		);
 
@@ -318,7 +316,7 @@ class ImportProcessorTest extends UnitTestCase {
 	 */
 	public function processPostProcesses() {
 		$this->subject = $this->getAccessibleMock(
-			ImportProcessor::class,
+			DataTransferProcessor::class,
 			['postProcessSingle']
 		);
 
@@ -389,7 +387,7 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockTarget = $this->getMock(
 				DataTargetInterface::class);
 		$this->subject = $this->getAccessibleMock(
-				ImportProcessor::class,
+			DataTransferProcessor::class,
 				['convertSingle']
 		);
 		$this->subject->_set('queue', $queue);
@@ -448,7 +446,7 @@ class ImportProcessorTest extends UnitTestCase {
 		$mockTarget = $this->getMock(
 			DataTargetInterface::class);
 		$this->subject = $this->getAccessibleMock(
-			ImportProcessor::class,
+			DataTransferProcessor::class,
 			['convertSingle']
 		);
 		$this->subject->_set('queue', $queue);
