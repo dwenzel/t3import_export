@@ -1,12 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Controller;
 
-use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /***************************************************************
  *  Copyright notice
@@ -25,71 +20,9 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ExportController extends ActionController
+class ExportController extends BaseController
 {
 	const SETTINGS_KEY = 'export';
-
-	/**
-	 * @var DataTransferProcessor
-	 */
-	protected $dataTransferProcessor;
-
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
-	 */
-	protected $importTaskFactory;
-
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportSetFactory
-	 */
-	protected $importSetFactory;
-
-	/**
-	 * Injects the event import processor
-	 *
-	 * @param DataTransferProcessor $importProcessor
-	 */
-	public function injectImportProcessor(DataTransferProcessor $dataTransferProcessor) {
-		$this->dataTransferProcessor = $dataTransferProcessor;
-	}
-
-	/**
-	 * @param ImportTaskFactory $importTaskFactory
-	 */
-	public function injectImportTaskFactory(ImportTaskFactory $importTaskFactory) {
-		$this->importTaskFactory = $importTaskFactory;
-	}
-
-	/**
-	 * @param ImportSetFactory $importSetFactory
-	 */
-	public function injectImportSetFactory(ImportSetFactory $importSetFactory) {
-		$this->importSetFactory = $importSetFactory;
-	}
-
-	/**
-	 * Index action
-	 *
-	 * @throws InvalidConfigurationException
-	 */
-	public function indexAction()
-	{
-		if (!isset($this->settings[self::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . self::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
-
-		$this->view->assignMultiple(
-			[
-				'tasks' => $this->buildTasksFromSettings($this->settings[self::SETTINGS_KEY]['tasks']),
-				'sets' => $this->buildSetsFromSettings($this->settings[self::SETTINGS_KEY]['sets']),
-				'settings' => $this->settings[self::SETTINGS_KEY]
-			]
-		);
-	}
 
 	/**
 	 * Import task action
@@ -98,33 +31,9 @@ class ExportController extends ActionController
 	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function exportTaskAction($identifier)
+	public function importTaskAction($identifier)
 	{
-		if (!isset($this->settings[self::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . self::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
-
-		/** @var ImportDemand $importDemand */
-		$importDemand = $this->objectManager->get(
-			ImportDemand::class
-		);
-		$task = $this->importTaskFactory->get(
-			$this->settings[self::SETTINGS_KEY]['tasks'][$identifier], $identifier
-		);
-		$importDemand->setTasks([$task]);
-
-		$this->dataTransferProcessor->buildQueue($importDemand);
-		$result = $this->dataTransferProcessor->process($importDemand);
-		$this->view->assignMultiple(
-			[
-				'task' => $identifier,
-				'result' => $result
-			]
-		);
+		parent::computeTaskAction($identifier);
 	}
 
 	/**
@@ -134,73 +43,8 @@ class ExportController extends ActionController
 	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function exportSetAction($identifier)
+	public function importSetAction($identifier)
 	{
-		if (!isset($this->settings[self::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . self::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
-
-		/** @var ImportDemand $importDemand */
-		$importDemand = $this->objectManager->get(
-			ImportDemand::class
-		);
-		if (isset($this->settings[self::SETTINGS_KEY]['sets'][$identifier])) {
-			$set = $this->importSetFactory->get(
-				$this->settings[self::SETTINGS_KEY]['sets'][$identifier], $identifier
-			);
-			$importDemand->setTasks($set->getTasks());
-		}
-
-		$this->dataTransferProcessor->buildQueue($importDemand);
-		$result = $this->dataTransferProcessor->process($importDemand);
-		$this->view->assignMultiple(
-			[
-				'set' => $identifier,
-				'result' => $result
-			]
-		);
+		parent::computeSetAction($identifier);
 	}
-
-	/**
-	 * Gets tasks from settings
-	 *
-	 * @param $settings
-	 * @return array
-	 */
-	protected function buildTasksFromSettings($settings) {
-		$tasks = [];
-
-		if (is_array($settings)) {
-			foreach ($settings as $identifier => $taskSettings) {
-				$tasks[$identifier] = $this->importTaskFactory->get(
-					$taskSettings, $identifier
-				);
-			}
-		}
-
-		return $tasks;
-	}
-
-	/**
-	 * Gets tasks from settings
-	 *
-	 * @param $settings
-	 * @return array
-	 */
-	protected function buildSetsFromSettings($settings) {
-		$sets = [];
-
-		if (is_array($settings)) {
-			foreach ($settings as $identifier => $setSettings) {
-				$sets[$identifier] = $this->importSetFactory->get($setSettings, $identifier);
-			}
-		}
-
-		return $sets;
-	}
-
 }
