@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OPENQCAT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.1" xsi:noNamespaceSchemaLocation="openQ-cat.V1.1.xsd">
+    <HEADER>
+        <GENERATOR_INFO>Export OpenQ 3.14.0</GENERATOR_INFO>
+        <CATALOG>
+            <LANGUAGE>deu</LANGUAGE>
+            <CATALOG_ID>32248-1468242960444</CATALOG_ID>
+            <CATALOG_VERSION>Vers_KURSNET</CATALOG_VERSION>
+            <CATALOG_NAME>KURSNET-Export</CATALOG_NAME>
+            <GENERATION_DATE>{{currentTime}}</GENERATION_DATE>
+        </CATALOG>
+        <DOCUMENT_CREATOR>
+            <FIRST_NAME>Exporter</FIRST_NAME>
+            <LAST_NAME>openQ-CAT</LAST_NAME>
+            <PHONE>+49.911.179</PHONE>
+            <ID_DB>nr:444</ID_DB>
+            <ADDRESS>
+                <NAME>IT-Systemhaus</NAME>
+                <STREET>Regensburgerstr. 104</STREET>
+                <ZIP>90478</ZIP>
+                <CITY>Nürnberg</CITY>
+                <COUNTRY>DE</COUNTRY>
+                <URL>http://www.kursnet-online.arbeitsagentur.de</URL>
+                <ID_DB>adr:235</ID_DB>
+            </ADDRESS>
+            <CONTACT_REMARKS>Eugen Riske</CONTACT_REMARKS>
+        </DOCUMENT_CREATOR>
+        <RECIPIENT>
+            <RECIPIENT_ID>BA</RECIPIENT_ID>
+            <RECIPIENT_NAME>Informationssystem KURSNET</RECIPIENT_NAME>
+            <ADDRESS>
+                <NAME>IT-Systemhaus</NAME>
+                <STREET>Regensburgerstr. 104</STREET>
+                <ZIP>90478</ZIP>
+                <CITY>Nürnberg</CITY>
+                <COUNTRY>DE</COUNTRY>
+                <URL>http://www.kursnet-online.arbeitsagentur.de</URL>
+            </ADDRESS>
+        </RECIPIENT>
+        <SUPPLIER>
+            <SUPPLIER_ID type="supplier_specific">{{supplierId}}</SUPPLIER_ID>
+            <SUPPLIER_NAME>Industrie- und Handelskammer Offenbach am Main Bildungszentrum Offenbach</SUPPLIER_NAME>
+            <ADDRESS>
+                <NAME>Industrie- und Handelskammer</NAME>
+                <NAME2>Offenbach am Main</NAME2>
+                <NAME3>Bildungszentrum Offenbach</NAME3>
+                <STREET>Frankfurter Str. 90</STREET>
+                <ZIP>63067</ZIP>
+                <BOXNO>100853</BOXNO>
+                <ZIPBOX>63008</ZIPBOX>
+                <CITY>Offenbach</CITY>
+                <STATE>Hessen</STATE>
+                <COUNTRY>Deutschland</COUNTRY>
+                <PHONE>+49.69.8207342</PHONE>
+                <MOBILE/>
+                <FAX>+49.69.8207319</FAX>
+                <EMAILS>
+                    <EMAIL>service@offenbach.ihk.de</EMAIL>
+                </EMAILS>
+                <URL>http://www.offenbach.ihk.de</URL>
+                <ID_DB>26875</ID_DB>
+            </ADDRESS>
+            <CONTACT>
+                <CONTACT_ROLE type="5">Sonstige</CONTACT_ROLE>
+                <SALUTATION>w</SALUTATION>
+                <FIRST_NAME>Heike</FIRST_NAME>
+                <LAST_NAME>Klepzig</LAST_NAME>
+                <PHONE>+49.69.8207333</PHONE>
+                <MOBILE/>
+                <FAX/>
+                <EMAILS>
+                    <EMAIL>weiterbildung@offenbach.ihk.de</EMAIL>
+                </EMAILS>
+                <ID_DB>188020</ID_DB>
+                <CONTACT_REMARKS/>
+            </CONTACT>
+            <CONTACT>
+                <CONTACT_ROLE type="1">Ansprechpartner</CONTACT_ROLE>
+                <SALUTATION>w</SALUTATION>
+                <LAST_NAME>IHK-Seminarteam</LAST_NAME>
+                <PHONE>+49.69.8207344</PHONE>
+                <MOBILE/>
+                <FAX>+49.69.8207319</FAX>
+                <EMAILS>
+                    <EMAIL>weiterbildung@offenbach.ihk.de</EMAIL>
+                </EMAILS>
+                <ID_DB>19261</ID_DB>
+                <CONTACT_REMARKS/>
+            </CONTACT>
+            <CONTACT>
+                <CONTACT_ROLE type="2">Gesamtansprechpartner</CONTACT_ROLE>
+                <SALUTATION>m</SALUTATION>
+                <LAST_NAME>Rixecker</LAST_NAME>
+                <PHONE>+49.69.8207311</PHONE>
+                <MOBILE/>
+                <FAX/>
+                <EMAILS>
+                    <EMAIL>rixecker@offenbach.ihk.de</EMAIL>
+                </EMAILS>
+                <ID_DB>175</ID_DB>
+                <CONTACT_REMARKS/>
+            </CONTACT>
+            <KEYWORD>Industrie- und Handelskammer Offenbach am Main Bildungszentrum Offenbach</KEYWORD>
+            <KEYWORD>Main</KEYWORD>
+            <KEYWORD>Bildungszentrum</KEYWORD>
+            <KEYWORD>Industrie</KEYWORD>
+            <KEYWORD>Handelskammer</KEYWORD>
+            <KEYWORD>Offenbach</KEYWORD>
+            <EXTENDED_INFO input_type="2">
+                <ORGANIZATIONAL_FORM type="3">Bildungseinrichtung der Industrie- und Handelskammern</ORGANIZATIONAL_FORM>
+            </EXTENDED_INFO>
+        </SUPPLIER>
+    </HEADER>
+    <NEW_CATALOG FULLCATALOG="true">
+        {{CONTENT}}
+    </NEW_CATALOG>
+</OPENQCAT>

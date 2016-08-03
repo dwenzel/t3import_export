@@ -48,6 +48,8 @@ class ArrayToXMLStream
 
     const XML_CONFIG_FIELD_ATTR = '@attribute';
     const XML_CONFIG_FIELD_MAP = '@mapTo';
+    const XML_CONFIG_FIELD_VALUE = '@value';
+    const XML_CONFIG_FIELD_SEPARATE_ROW = '@separateRow';
 
     /**
      * @var PropertyMapper
@@ -151,16 +153,16 @@ class ArrayToXMLStream
         $xml = new \XMLWriter();
         $xml->openMemory();
 
-        if (isset($data[self::XML_CONFIG_FIELD_MAP])) {
-            $enclosure = $data[self::XML_CONFIG_FIELD_MAP];
-            unset($data[self::XML_CONFIG_FIELD_MAP]);
+        if (isset($data[static::XML_CONFIG_FIELD_MAP])) {
+            $enclosure = $data[static::XML_CONFIG_FIELD_MAP];
+            unset($data[static::XML_CONFIG_FIELD_MAP]);
         }
 
         $xml->startElement($enclosure);
 
-        if (!empty($data[self::XML_CONFIG_FIELD_ATTR])) {
-            $this->writeAttributes($xml, $data[self::XML_CONFIG_FIELD_ATTR]);
-            unset($data[self::XML_CONFIG_FIELD_ATTR]);
+        if (!empty($data[static::XML_CONFIG_FIELD_ATTR])) {
+            $this->writeAttributes($xml, $data[static::XML_CONFIG_FIELD_ATTR]);
+            unset($data[static::XML_CONFIG_FIELD_ATTR]);
         }
 
 
@@ -173,6 +175,7 @@ class ArrayToXMLStream
             $this->xmlRecursive($xml, $key, $sub, $nodeConfig);
         }
         $xml->endElement();
+
         $buffer = $xml->outputMemory();
         unset($xml);
 
@@ -186,31 +189,50 @@ class ArrayToXMLStream
      */
     private function xmlRecursive(\XMLWriter $xml, $key, $value, $subFieldConfig = null)
     {
-        if (is_array($value) && isset($value[self::XML_CONFIG_FIELD_MAP])) {
-            $key = $value[self::XML_CONFIG_FIELD_MAP];
-            unset($value[self::XML_CONFIG_FIELD_MAP]);
+        if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_MAP])) {
+            $key = $value[static::XML_CONFIG_FIELD_MAP];
+            unset($value[static::XML_CONFIG_FIELD_MAP]);
         }
+
         // if key not set and @mapTo not exist use default node name
         if (!is_string($key)) {
-            $key = self::DEFAULT_NODE_NAME;
+            $key = static::DEFAULT_NODE_NAME;
         }
-        $xml->startElement($key);
+
+        $asSeparateRowKey = false;
+        if (!is_object($value) && !empty($value[static::XML_CONFIG_FIELD_SEPARATE_ROW])) {
+            unset($value[static::XML_CONFIG_FIELD_SEPARATE_ROW]);
+            $asSeparateRowKey = true;
+        }
+        if (!$asSeparateRowKey) {
+            $xml->startElement($key);
+        }
+
+
+        if (is_array($value) && !empty($value[static::XML_CONFIG_FIELD_ATTR])) {
+            $this->writeAttributes($xml, $value[static::XML_CONFIG_FIELD_ATTR]);
+            unset($value[static::XML_CONFIG_FIELD_ATTR]);
+        }
+
+        if (is_array($value) && !empty($value[static::XML_CONFIG_FIELD_VALUE])) {
+            $xml->text($value[static::XML_CONFIG_FIELD_VALUE]);
+            unset($value[static::XML_CONFIG_FIELD_VALUE]);
+        }
 
         if (is_array($value)) {
 
-            if (!empty($value[self::XML_CONFIG_FIELD_ATTR])) {
-                $this->writeAttributes($xml, $value[self::XML_CONFIG_FIELD_ATTR]);
-                unset($value[self::XML_CONFIG_FIELD_ATTR]);
-            }
-
             foreach ($value as $subKey => $subValue) {
+                if ($asSeparateRowKey) {
+                    $subKey = $key;
+                }
                 $this->xmlRecursive($xml, $subKey, $subValue);
             }
-
-        } else {
+        } elseif (!empty($value) && !is_object($value)  && !is_array($value)) {
             $xml->text($value);
         }
-        $xml->endElement();
+        if (!$asSeparateRowKey) {
+            $xml->endElement();
+        }
     }
 
     private function writeAttributes(\XMLWriter $xml, $attributes)
@@ -283,8 +305,8 @@ class ArrayToXMLStream
      */
     private function getRootEnclosureConfiguration($configuration, $default = self::DEFAULT_NODE_NAME)
     {
-        if (isset($configuration) && isset($configuration[self::XML_CONFIG_NODE_KEY])) {
-            $default = $configuration[self::XML_CONFIG_NODE_KEY];
+        if (isset($configuration) && isset($configuration[static::XML_CONFIG_NODE_KEY])) {
+            $default = $configuration[static::XML_CONFIG_NODE_KEY];
         }
         return $default;
     }
@@ -296,8 +318,8 @@ class ArrayToXMLStream
     private function getFieldsConfiguration($configuration = null)
     {
         $fieldsConfiguration = null;
-        if (isset($configuration) && isset($configuration[self::XML_CONFIG_FIELD_KEY])) {
-            $fieldsConfiguration = $configuration[self::XML_CONFIG_FIELD_KEY];
+        if (isset($configuration) && isset($configuration[static::XML_CONFIG_FIELD_KEY])) {
+            $fieldsConfiguration = $configuration[static::XML_CONFIG_FIELD_KEY];
         }
         return $fieldsConfiguration;
     }

@@ -1,21 +1,113 @@
 # employee.ts
 # import configuration for employees
 module.tx_t3importexport.settings.export.tasks {
-    xmlTEST {
+    xmlKursnet {
         source {
             // for XML or other files
-            class = CPSIT\T3importExport\Persistence\DataSourceDB
-            identifier = test
+            class = CPSIT\T3importExport\Persistence\DataSourceDynamicRepository
             config {
-                table = tx_extensionmanager_domain_model_extension
-                fields = extension_key,repository,version,title,description,state,category,last_updated
-                limit= 10,11
-                //decoderClass = CPSIT\T3importExport\Domain\coder\XMLDecoder
+                class = CPSIT\T3eventsCourse\Domain\Model\Schedule
+                constraints {
+                    AND {
+                        greaterThan {
+                            date = NOW
+                        }
+                        equals {
+                            event\.eventType = 2
+                        }
+                    }
+                }
+                #storagePids = 4086
+                #limit = 0
+                #offset = 0
             }
-            # unique identifier of remote database connection
-            # this connection has to be registered by the
-            # DatabaseConnectionService
         }
+        preProcessors {
+            1 {
+                class = CPSIT\T3importExport\Component\PreProcessor\PerformanceToKursnetArray
+                config {
+                    class = CPSIT\AueEvents\Domain\Model\Schedule
+                    fields {
+                        SUPPLIER_ID_REF = 164382
+                        SUPPLIER_ALT_PID = IHK-OF-3317
+                        /*
+                        0|Keine Zuordnung möglich
+                        100|Allgemeinbildung
+                        101|Berufliche Grundqualifikation
+                        102|Berufsausbildung
+                        103|Gesetzlich/gesetzesähnlich geregelte Fortbildung/Qualifizierung
+                        104|Fortbildung/Qualifizierung
+                        105|Nachholen des Berufsabschlusses
+                        106|Rehabilitation
+                        107|Studienangebot - grundständig
+                        108|Studienangebot - weiterfährend
+                        109|Umschulung
+                        110|Integrationssprachkurse (BAMF)
+                        */
+                        EDUCATION_TYPE = 109
+                    }
+                }
+            }
+            2 {
+                class = CPSIT\T3importExport\Component\PreProcessor\XMLMapper
+                config.fields {
+                    mode = @attribute
+                    SUPPLIER_ID_REF {
+                        type = @attribute
+                        content = @value
+                    }
+                    SERVICE_DETAILS {
+                        KEYWORD = @separateRow
+                        SERVICE_MODULE {
+                            EDUCATION {
+                                type = @attribute
+                                DEGREE {
+                                    type = @attribute
+                                    DEGREE_EXAM {
+                                        type = @attribute
+                                    }
+                                }
+                                EXTENDED_INFO {
+                                    INSTITUTION {
+                                        type = @attribute
+                                    }
+                                    INSTRUCTION_FORM {
+                                        type = @attribute
+                                    }
+                                    EDUCATION_TYPE {
+                                        type = @attribute
+                                    }
+                                }
+                                MODULE_COURSE {
+                                    DURATION {
+                                        type = @attribute
+                                    }
+                                    EXTENDED_INFO {
+                                        SEGMENT_TYPE {
+                                            type = @attribute
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        converters {
+            1 {
+                class = CPSIT\T3importExport\Component\Converter\ArrayToXMLStream
+                config {
+                    targetClass = CPSIT\T3importExport\Domain\Model\DataStream
+                    # default node name is row
+                    nodeName = SERVICE
+                    fields {
+                    }
+                }
+            }
+        }
+
         target {
             // fully qualified class name of the data target. Default is
             class = CPSIT\T3importExport\Persistence\DataTargetXMLStream
@@ -24,10 +116,24 @@ module.tx_t3importexport.settings.export.tasks {
             }
 
             config {
+                # use template instead of dynamic rendering
+                # CONTENT placeholder is important otherwise the tpl logic didn't work
+                template = EXT:t3import_export/Resources/Public/Template/skeleton.tpl.xml
+                # NOW is an placeholder for the current date
+                templateReplace {
+                    currentTime = NOW
+                    supplierId = 32248
+                }
+
                 # default is <?xml version="1.0" encoding="UTF-8"?>
-                header = <?xml version="1.0" encoding="UTF-8"?>
+                #header = <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                 # default is rows
-                rootNodeName = events
+                #rootNodeName = OPENQCAT
+                #rootAttributes {
+                #    xmlns:xsi = http://www.w3.org/2001/XMLSchema-instance
+                #    version = 1.1
+                #    xsi:noNamespaceSchemaLocation = openQ-cat.V1.1.xsd
+                #}
                 // output are: direct (outputBuffer)|file (temp file)
                 // direct is default
                 output = file
@@ -35,82 +141,14 @@ module.tx_t3importexport.settings.export.tasks {
                 flush = true
             }
         }
-        preProcessors {
-            # set language
-            1 {
-                class = CPSIT\T3importExport\Component\PreProcessor\MapFields
-                config.fields {
-                    extension_key = extensionKey
-                    last_updated = lastUpdated
-                }
-            }
-            2 {
-                class = CPSIT\T3importExport\Component\PreProcessor\RemoveFields
-                config.fields {
-                    extension_key = true
-                    last_updated = true
-                    static {
-                        otherField = true
-                    }
-                    performances {
-                        children {
-                            uid = true
-                            time = true
-                            publishers {
-                                children {
-                                    uid = true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            3 {
-                class = CPSIT\T3importExport\Component\PreProcessor\XMLMapper
-                config.fields {
-                    repository = @attribute
-                    version = @attribute
-                    state = @attribute
-                    static {
-                        mapTo = statistic
-                        someField = @attribute
-                    }
-                    performances {
-                        mapTo = schedules
-                        children {
-                            mapTo = schedule
-                            location = @attribute
-                            publishers {
-                                mapTo = authors
-                                children {
-                                    mapTo = author
-                                    pubId = @attribute
-                                    rank = @attribute
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            # set language
-            /*
-            2 {
-                class = CPSIT\T3importExport\Component\PreProcessor\StringToTime
-                config.fields = lastUpdated
-            }
-            */
-        }
-        // types = https://typo3.org/api/typo3cms/class_t_y_p_o3_1_1_c_m_s_1_1_extbase_1_1_property_1_1_type_converter_1_1_abstract_type_converter.html
-        converters {
-            1 {
-                class = CPSIT\T3importExport\Component\Converter\ArrayToXMLStream
-                config {
-                    targetClass = CPSIT\T3importExport\Domain\Model\DataStream
-                    # default node name is row
-                    nodeName = event
-                    fields {
 
-                    }
+        finishers {
+            1 {
+                class = CPSIT\T3importExport\Component\Finisher\DownloadFileStream
+                config {
+                    fileExt = xml
+                    filename = textExport_kursnet
+                    type = text/xml
                 }
             }
         }

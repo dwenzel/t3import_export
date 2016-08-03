@@ -91,7 +91,7 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
     protected function createTempFile($fileName)
     {
         $basicFileUtility = $this->objectManager->get('TYPO3\CMS\Core\Utility\File\BasicFileUtility');
-        $tempRelativePath = 'typo3temp/'.$GLOBALS['_EXTKEY'];
+        $tempRelativePath = 'typo3temp/' . $GLOBALS['_EXTKEY'] .  $GLOBALS['moduleName'];
         $absPath = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($tempRelativePath);
 
         if (!file_exists($absPath)) {

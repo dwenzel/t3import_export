@@ -25,25 +25,25 @@ class ExportController extends BaseController
 	const SETTINGS_KEY = 'export';
 
 	/**
-	 * Import task action
+	 * Export task action
 	 *
 	 * @param string $identifier
 	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function importTaskAction($identifier)
+	public function exportTaskAction($identifier)
 	{
 		parent::computeTaskAction($identifier);
 	}
 
 	/**
-	 * Import
+	 * Export
 	 *
 	 * @param string $identifier
 	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function importSetAction($identifier)
+	public function exportSetAction($identifier)
 	{
 		parent::computeSetAction($identifier);
 	}

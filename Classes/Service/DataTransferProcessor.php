@@ -90,15 +90,16 @@ class DataTransferProcessor
 	 *
 	 * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
 	 */
-	public function buildQueue(DemandInterface $importDemand)
+	public function buildQueue(DemandInterface $demand)
 	{
-		$tasks = $importDemand->getTasks();
+		$tasks = $demand->getTasks();
 		foreach ($tasks as $task) {
 			/** @var ImportTask $task */
 			$dataSource = $task->getSource();
 			$recordsToImport = $dataSource->getRecords(
 				$dataSource->getConfiguration()
 			);
+			
 			$this->queue[$task->getIdentifier()] = $recordsToImport;
 		}
 	}
@@ -129,6 +130,7 @@ class DataTransferProcessor
 				}
 
 				foreach ($records as $record) {
+
 					$this->preProcessSingle($record, $task);
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
