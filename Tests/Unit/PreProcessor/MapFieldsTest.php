@@ -1,8 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\PreProcessor;
 
-use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
-
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -20,6 +18,7 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /**
  * Class MapFieldsTest
@@ -27,7 +26,7 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFields
  */
-class MapFieldsTest extends BaseTestCase {
+class MapFieldsTest extends UnitTestCase {
 
 	/**
 	 * @var \CPSIT\T3importExport\Component\PreProcessor\MapFields

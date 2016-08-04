@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\PreProcessor;
 
-use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
 
 /***************************************************************
@@ -28,7 +28,7 @@ use TYPO3\CMS\Extbase\Service\TypoScriptService;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor
  */
-class AbstractPreProcessorTest extends BaseTestCase {
+class AbstractPreProcessorTest extends UnitTestCase {
 
 	/**
 	 * @var \CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor
