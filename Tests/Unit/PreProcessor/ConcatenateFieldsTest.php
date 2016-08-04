@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
-use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
  */
-class ConcatenateFieldsTest extends BaseTestCase {
+class ConcatenateFieldsTest extends UnitTestCase {
 
 	/**
 	 * @var \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields

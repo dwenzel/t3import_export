@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\PostProcessor;
 
-use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 
 /***************************************************************
@@ -28,7 +28,7 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
  * @package CPSIT\T3importExport\Tests\Service\PostProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
  */
-class SetHiddenPropertiesTest extends BaseTestCase {
+class SetHiddenPropertiesTest extends UnitTestCase {
 
 	/**
 	 * @var \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
