@@ -18,9 +18,12 @@ namespace CPSIT\T3importExport\Tests\Functional\Service;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use CPSIT\T3importExport\Service\ImportProcessor;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\FunctionalTestCase;
-use CPSIT\ZewProjectconf\Service\ZewDbConnectionService;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -37,49 +40,82 @@ class ImportProcessorTest extends FunctionalTestCase {
 	 */
 	protected $importProcessor;
 
+    /**
+     * @var ImportTaskFactory
+     */
+    protected $importTaskFactory;
+
+    /**
+     * @var ObjectManagerInterface
+     */
+    protected $objectManager;
+
 	/**
 	 * @var array
 	 */
-	protected $testExtensionsToLoad = ['typo3/conf/ext/t3import_export'];
+	protected $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
 
 	public function setUp() {
 		parent::setUp();
-		$this->importProcessor = new \CPSIT\T3importExport\Service\ImportProcessor();
-		/** @var ZewDbConnectionService $connectionService */
-		$connectionService = $this->getMock(
-			ZewDbConnectionService::class,
-			[], [], '', FALSE
-		);
-		$connectionService->databaseHandle = $GLOBALS['TYPO3_DB'];
-		$this->importProcessor->injectZewDbConnectionService($connectionService);
-		$this->importDataSet(__DIR__ . '/../Fixtures/zew_imports_external_data.xml');
-	}
+        $this->objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
+		$this->importProcessor = $this->objectManager->get(ImportProcessor::class);
+        $this->importTaskFactory = $this->objectManager->get(ImportTaskFactory::class);
+        $this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');
+    }
 
 	/**
 	 * @test
 	 */
-	public function buildQueueFindsPublishedSeminars() {
-		$expectedQueue = [
-			[
-				'seminar' => [
-					[
-						'id' => 1,
-						'published' => 1,
-						'titel_de' => 'findPublishedSeminars'
-					]
-				]
-			]
-		];
+	public function buildQueueFindsRecords() {
+        $taskIdentifier = 'findFeUser';
+        $localDatabaseIdentifier = 'typo3local';
+        $this->registerTypo3Database($localDatabaseIdentifier);
 
-		$configuration = [
+		$settings = [
+            'source' => [
+                'identifier' => $localDatabaseIdentifier,
+                'config' => [
+                    'table' => 'fe_users',
+                    'where' => 'name="findFeUser"'
+                ]
+            ],
+            'target' => [
 
-		];
+            ]
+        ];
+        $importTask = $this->importTaskFactory->get($settings, $taskIdentifier);
+        $importDemand = new ImportDemand();
+        $importDemand->setTasks([$importTask]);
 
-		$this->importProcessor->buildQueue();
+		$this->importProcessor->buildQueue($importDemand);
 
-		$this->assertEquals(
-			$expectedQueue,
-			$this->importProcessor->getQueue()
+        $queue = $this->importProcessor->getQueue();
+		$this->assertArrayHasKey(
+			$taskIdentifier,
+            $queue
 		);
+        $this->assertEquals(
+            1,
+            count($queue[$taskIdentifier])
+        );
+        $this->assertEquals(
+            $queue[$taskIdentifier][0]['name'],
+            'findFeUser'
+        );
 	}
+
+    /**
+     * @param $localDatabaseIdentifier
+     */
+    protected function registerTypo3Database($localDatabaseIdentifier)
+    {
+        DatabaseConnectionService::register(
+            $localDatabaseIdentifier,
+            $GLOBALS['TYPO3_CONF_VARS']['DB']['host'],
+            $GLOBALS['TYPO3_CONF_VARS']['DB']['database'],
+            $GLOBALS['TYPO3_CONF_VARS']['DB']['username'],
+            $GLOBALS['TYPO3_CONF_VARS']['DB']['password'],
+            $GLOBALS['TYPO3_CONF_VARS']['DB']['port']
+        );
+    }
 }
