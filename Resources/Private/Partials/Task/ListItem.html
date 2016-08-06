@@ -1,7 +1,8 @@
-<li>
-	<label>{task.identifier}</label>
-	<f:link.action
-	class="btn btn-default"
-	action="importTask"
-	arguments="{identifier: '{task.identifier}'}">import</f:link.action>
-</li>
+<div>
+    <h3>{f:if(condition: task.label, then: task.label, else: task.identifier)}</h3>
+    <f:if condition="{task.description}"><p>{task.description}</p></f:if>
+    <f:link.action
+            class="btn btn-default"
+            action="importTask"
+            arguments="{identifier: '{task.identifier}'}">import</f:link.action><br />
+</div>

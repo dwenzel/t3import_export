@@ -100,4 +100,28 @@ class ImportSetTest extends UnitTestCase {
 			$this->subject->getTasks()
 		);
 	}
+
+	/**
+	 * @test
+	 */
+	public function getLabelReturnsInitiallyNull()
+	{
+		$this->assertNull(
+			$this->subject->getLabel()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function setLabelForStringSetsLabel()
+	{
+		$label = 'foo';
+		$this->subject->setLabel($label);
+		$this->assertSame(
+			$label,
+			$this->subject->getLabel()
+		);
+
+	}
 }

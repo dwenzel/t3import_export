@@ -153,6 +153,31 @@ class ImportSetFactoryTest extends UnitTestCase
     /**
      * @test
      */
+    public function getSetsLabel()
+    {
+        $label = 'foo';
+        $settings = [
+            'label' => $label
+        ];
+
+        $mockImportSet = $this->getMock(
+            ImportSet::class, ['setLabel']
+        );
+        $mockObjectManager = $this->mockObjectManager();
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->will($this->returnValue($mockImportSet));
+
+        $mockImportSet->expects($this->once())
+            ->method('setLabel')
+            ->with($label);
+
+        $this->subject->get($settings);
+    }
+
+    /**
+     * @test
+     */
     public function getSetsTask()
     {
         $fooTaskConfiguration = ['baz'];

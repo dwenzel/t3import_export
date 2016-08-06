@@ -80,6 +80,11 @@ class ImportSetFactory extends AbstractFactory {
 			$importSet->setDescription($settings['description']);
 		}
 
+		if (isset($settings['label']))
+		{
+			$importSet->setLabel($settings['label']);
+		}
+
 		return $importSet;
 	}
 

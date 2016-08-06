@@ -231,6 +231,34 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 * @test
 	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 */
+	public function getSetsLabel() {
+		$identifier = 'foo';
+		$label = 'bar';
+		$mockTask = $this->getMock(
+			ImportTask::class, ['setLabel']
+		);
+		$settings = [
+			'label' => $label
+		];
+		/** @var ObjectManager $mockObjectManager */
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class, ['get'], [], '', false
+		);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(ImportTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+		$mockTask->expects($this->once())
+			->method('setLabel')
+			->with($label);
+		$this->subject->get($settings, $identifier);
+	}
+
+	/**
+	 * @test
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+	 */
 	public function getSetsTargetClass() {
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
