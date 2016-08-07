@@ -27,6 +27,13 @@ use TYPO3\CMS\Extbase\Service\TypoScriptService;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+/**
+ * Class ImportCommandController
+ * Provides import commands for cli and scheduler tasks
+ * 
+ * @package CPSIT\T3importExport\Command
+ */
 class ImportCommandController extends CommandController {
 
 	/**
@@ -55,7 +62,7 @@ class ImportCommandController extends CommandController {
 	protected $configurationManager;
 
 	/**
-	 * Injects the event import processor
+	 * Injects the import processor
 	 *
 	 * @param ImportProcessor $importProcessor
 	 */
@@ -64,6 +71,8 @@ class ImportCommandController extends CommandController {
 	}
 
 	/**
+     * Injects the import task factory
+     *
 	 * @param ImportTaskFactory $importTaskFactory
 	 */
 	public function injectImportTaskFactory(ImportTaskFactory $importTaskFactory) {
@@ -71,6 +80,8 @@ class ImportCommandController extends CommandController {
 	}
 
 	/**
+     * Injects the import set factory
+     *
 	 * @param ImportSetFactory $importSetFactory
 	 */
 	public function injectImportSetFactory(ImportSetFactory $importSetFactory) {
@@ -78,6 +89,8 @@ class ImportCommandController extends CommandController {
 	}
 
 	/**
+     * Injects the configuration manager and loads the TypoScript settings
+     *
 	 * @param ConfigurationManager $configurationManager
 	 */
 	public function injectConfigurationManager(ConfigurationManager $configurationManager) {
@@ -95,10 +108,10 @@ class ImportCommandController extends CommandController {
 	 * Import task command
 	 * Performs predefined import tasks
 	 *
-	 * @param string $identifier Task: Identifier of the task which should be performed
-	 * @param bool $dryRun Dry run: If set nothing will be saved
+	 * @param string $identifier Identifier of task which should be performed
+     * @param bool $dryRun If set nothing will be saved
 	 */
-	public function taskCommand($identifier, $dryRun = FALSE) {
+	public function taskCommand($identifier, $dryRun = false) {
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
@@ -119,14 +132,15 @@ class ImportCommandController extends CommandController {
 		}
 	}
 
-	/**
-	 * Import set command
-	 * Performs predefined import sets
-	 *
-	 * @param string $identifier Set: Identifier of the set which should be performed
-	 * @param bool $dryRun Dry run: If set nothing will be saved
-	 */
-	public function setCommand($identifier, $dryRun = FALSE) {
+    /**
+     * Import set command
+     * Performs predefined import sets
+     *
+     * @param string $identifier Identifier of set which should be performed
+     * @param bool $dryRun If set nothing will be saved
+     * @return void
+     */
+	public function setCommand($identifier, $dryRun = false) {
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
