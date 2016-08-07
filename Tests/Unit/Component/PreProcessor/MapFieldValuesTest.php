@@ -1,7 +1,6 @@
 <?php
-namespace CPSIT\T3importExport\Tests\PreProcessor;
+namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -150,4 +149,55 @@ class MapFieldValuesTest extends UnitTestCase {
 			$this->subject->isConfigurationValid($config)
 		);
 	}
+
+    /**
+     * provides data for testing process
+     *
+     * @return array
+     */
+    public function processDataProvider()
+    {
+        $configuration = [
+            'fields' => [
+                'foo' => [
+                    'targetField' => 'foo',
+                    'values' => [
+                        'bar' => 'baz'
+                    ]
+                ]
+            ]
+        ];
+
+        return [
+            [
+                //matching value is replaced
+                $configuration,
+                ['foo' => 'bar'],
+                ['foo' => 'baz']
+            ],
+            [
+                // non matching value is kept
+                $configuration,
+                ['foo' => 'boom'],
+                ['foo' => 'boom']
+            ]
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider processDataProvider
+     * @param array $configuration
+     * @param array $record
+     * @param array $result
+     */
+    public function processMapsFieldValues($configuration, $record, $result)
+    {
+
+        $this->subject->process($configuration, $record);
+        $this->assertEquals(
+            $result,
+            $record
+        );
+    }
 }
