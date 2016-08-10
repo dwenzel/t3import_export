@@ -1,13 +1,13 @@
-<f:layout name="Backend" />
+<f:layout name="Backend"/>
 
 <f:section name="content">
-	<f:if condition="{settings.debug}">
-		<f:debug>{tasks}</f:debug>
-		<f:debug>{sets}</f:debug>
-		<f:debug>{settings}</f:debug>
-	</f:if>
-	<h1>Import</h1>
-	<f:flashMessages />
+    <f:if condition="{settings.debug}">
+        <f:debug>{tasks}</f:debug>
+        <f:debug>{sets}</f:debug>
+        <f:debug>{settings}</f:debug>
+    </f:if>
+    <h1>Import</h1>
+    <f:flashMessages/>
 
 	<h2>Tasks</h2>
 	<p>Select an import task to perform</p>
@@ -17,17 +17,8 @@
 		</f:for>
 	</ul>
 
-	<h2>Sets</h2>
-	<p>Select an import set to perform</p>
-	<f:form
-		action="importSet"
-		name="importSet">
-		<f:form.select
-			name="identifier"
-			options="{sets}"
-			optionValueField="identifier"
-			optionLabelField="identifier"
-			/>
-		<f:form.submit name="submit" value="import" />
-	</f:form>
+    <h2>Sets</h2>
+    <f:for each="{sets}" as="set">
+        <f:render partial="Set/ListItem" arguments="{set: set}"/>
+    </f:for>
 </f:section>

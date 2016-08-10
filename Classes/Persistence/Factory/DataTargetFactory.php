@@ -60,20 +60,16 @@ class DataTargetFactory extends AbstractFactory
                 1451045997
             );
         }
-        if (!isset($settings['object']['class'])) {
-            throw new InvalidConfigurationException(
-                'Invalid configuration for import task ' . $identifier .
-                ': target.object.class not set.',
-                1451043340
-            );
-        }
-        $objectClass = $settings['object']['class'];
-        if (!class_exists($objectClass)) {
-            throw new MissingClassException(
-                'Missing class ' . $objectClass .
-                ' in configuration for task ' . $identifier,
-                1451043367
-            );
+        $objectClass = [];
+        if (isset($settings['object']['class'])) {
+            $objectClass = $settings['object']['class'];
+            if (!class_exists($objectClass)) {
+                throw new MissingClassException(
+                    'Missing class ' . $objectClass .
+                    ' in configuration for task ' . $identifier,
+                    1451043367
+                );
+            }
         }
         /** @var DataTargetInterface $target */
         $target = $this->objectManager->get(

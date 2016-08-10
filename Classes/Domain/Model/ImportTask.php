@@ -42,7 +42,15 @@ class ImportTask
 	 */
 	protected $targetClass;
 
+    /**
+     * Label
+     *
+     * @var string
+     */
+	protected $label;
 	/**
+     * Description
+     *
 	 * @var string
 	 */
 	protected $description;
@@ -157,6 +165,8 @@ class ImportTask
 	}
 
 	/**
+     * Gets the pre-processors
+     *
 	 * @return array
 	 */
 	public function getPreProcessors() {
@@ -164,6 +174,7 @@ class ImportTask
 	}
 
 	/**
+     * Sets the pre-processors
 	 * @param array $preProcessors
 	 */
 	public function setPreProcessors($preProcessors) {
@@ -171,6 +182,8 @@ class ImportTask
 	}
 
 	/**
+     * Gets the post-processors
+     *
 	 * @return array
 	 */
 	public function getPostProcessors() {
@@ -178,6 +191,8 @@ class ImportTask
 	}
 
 	/**
+     * Sets the post-processors
+     *
 	 * @param array $postProcessors
 	 */
 	public function setPostProcessors($postProcessors) {
@@ -185,6 +200,8 @@ class ImportTask
 	}
 
 	/**
+     * Gets the converters
+     *
 	 * @return array
 	 */
 	public function getConverters() {
@@ -192,6 +209,8 @@ class ImportTask
 	}
 
 	/**
+     * Sets the converters
+     *
 	 * @param array $converters
 	 */
 	public function setConverters($converters) {
@@ -199,6 +218,8 @@ class ImportTask
 	}
 
 	/**
+     * Gets the finishers
+     *
 	 * @return array
 	 */
 	public function getFinishers() {
@@ -206,6 +227,8 @@ class ImportTask
 	}
 
 	/**
+     * sets the finishers
+     *
 	 * @param array $finishers
 	 */
 	public function setFinishers($finishers) {
@@ -213,6 +236,8 @@ class ImportTask
 	}
 
 	/**
+     * Gets the initializers
+     *
 	 * @return array
 	 */
 	public function getInitializers() {
@@ -220,9 +245,30 @@ class ImportTask
 	}
 
 	/**
+     * Sets the initializers
+     *
 	 * @param array $initializers
 	 */
 	public function setInitializers($initializers) {
 		$this->initializers = $initializers;
 	}
+
+    /**
+     * Gets the label
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * Sets the label
+     *
+     * @param string $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
 }
