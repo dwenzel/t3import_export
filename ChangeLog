@@ -1,3 +1,13 @@
+2016-08-11         [RELEASE] Release of t3import_export 0.6.0 (Dirk Wenzel)
+2016-08-07 74e72a7 [TASK] php doc annotation for ImportCommandController improved. (Dirk Wenzel)
+2016-08-07 dbac5ff [TASK] unit tests and annotation for pre-processor SetFieldValue added. SetFieldValue->isConfigurationValid now checks if targetField is a string too, value now can be of any type. (Dirk Wenzel)
+2016-08-07 1adb96d [TASK] unit test and annotation for pre-processor MapFieldValues added. (Dirk Wenzel)
+2016-08-07 76756d3 [TASK] unit tests for AddArrays added. (Dirk Wenzel)
+2016-08-07 35ca85a [TASK] ImportTask and ImportSet extended by field label. Templates for backend module improved. (Dirk Wenzel)
+2016-08-06 a8c418d [TASK] functional test for ImportProcessor added. (Dirk Wenzel)
+2016-08-04 49a303b [BUGFIX] missing class BaseTestCase from TYPO3 core replaced. (Dirk Wenzel)
+2016-08-03 0f9c4bc [TASK] DataTargetFactory now does not require setting ['object']['class'] anymore (Dirk Wenzel)
+
 2016-05-25         [RELEASE] Release of t3import_export 0.5.0 (Dirk Wenzel)
 2016-05-18 8490d45 [BUGFIX] typo in table configuration corrected which caused a fatal error when creating new record in BE (Dirk Wenzel)
 2016-05-13 916ebbc [TASK] PreProcessor LookUpDB now keeps the order of records for 'IN' where clauses when keepOrder is set. (Dirk Wenzel)

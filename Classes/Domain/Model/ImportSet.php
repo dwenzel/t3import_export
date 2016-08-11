@@ -39,6 +39,13 @@ class ImportSet implements IdentifiableInterface {
 	protected $description;
 
 	/**
+	 * Label
+	 *
+	 * @var string
+	 */
+	protected $label;
+
+	/**
 	 * Tasks to perform
 	 *
 	 * @var array
@@ -71,5 +78,25 @@ class ImportSet implements IdentifiableInterface {
 	 */
 	public function setTasks($tasks) {
 		$this->tasks = $tasks;
+	}
+
+	/**
+	 * Gets the label
+	 *
+	 * @return string
+	 */
+	public function getLabel()
+	{
+		return $this->label;
+	}
+
+	/**
+	 * Sets the label
+	 *
+	 * @param string $label
+	 */
+	public function setLabel($label)
+	{
+		$this->label = $label;
 	}
 }

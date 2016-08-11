@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<dataset>
-	<seminar>
-		<id>1</id>
-		<published>1</published>
-		<titel_de>findPublishedSeminars</titel_de>
-	</seminar>
-</dataset>

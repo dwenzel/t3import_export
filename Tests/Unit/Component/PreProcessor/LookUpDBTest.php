@@ -4,7 +4,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************

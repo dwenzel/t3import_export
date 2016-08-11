@@ -170,6 +170,10 @@ class ImportTaskFactory extends AbstractFactory {
 		) {
 			$task->setDescription($settings['description']);
 		}
+		if (isset($settings['label']))
+		{
+			$task->setLabel($settings['label']);
+		}
 
 		$this->setTarget($task, $settings, $identifier);
 		$this->setSource($task, $settings, $identifier);
