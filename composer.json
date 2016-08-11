@@ -1,20 +1,30 @@
 {
-	"name": "cpsit/t3import_export",
-	"type": "typo3-cms-extension",
-	"description": "General import and export tool for the TYPO3 CMS",
-	"keywords": ["TYPO3", "extension", "import", "export"],
-	"version": "0.5.0",
-	"license": ["GPL-2.0+"],
-	"authors": [
-		{
-			"name": "Dirk Wenzel",
-			"role": "Developer"
-		}
-	],
-	"require": {
-		"typo3/cms": ">=6.2.0,<8.0"
-	},
-	"require-dev": {
+  "name": "cpsit/t3import_export",
+  "type": "typo3-cms-extension",
+  "description": "General import and export tool for the TYPO3 CMS",
+  "keywords": [
+    "TYPO3",
+    "extension",
+    "import",
+    "export"
+  ],
+  "license": [
+    "GPL-2.0+"
+  ],
+  "authors": [
+    {
+      "name": "Dirk Wenzel",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "typo3/cms": ">=6.2.0,<9.0"
+  },
+  "replace": {
+    "t3import_export": "self.version",
+    "typo3-ter/t3import_export": "self.version"
+  },
+  "require-dev": {
     "mikey179/vfsStream": "1.4.*@dev",
     "phpunit/phpunit": "~4.8.0",
     "satooshi/php-coveralls": "dev-master"
@@ -43,9 +53,9 @@
     ]
   },
   "extra": {
-		"branch-alias": {
-			"dev-master": "0.5.x-dev"
-		},
+    "branch-alias": {
+      "dev-master": "0.6.x-dev"
+    },
     "typo3/cms": {
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
       "web-dir": ".Build/Web"
