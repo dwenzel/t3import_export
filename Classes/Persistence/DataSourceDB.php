@@ -3,6 +3,7 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
 use CPSIT\T3importExport\RenderContentInterface;
@@ -37,17 +38,8 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  ***************************************************************/
 class DataSourceDB
 	implements DataSourceInterface, IdentifiableInterface, RenderContentInterface {
-	use IdentifiableTrait, ConfigurableTrait, RenderContentTrait;
-
-	/**
-	 * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
-	 */
-	protected $connectionService;
-
-	/**
-	 * @var \TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected $database;
+	use IdentifiableTrait, ConfigurableTrait, RenderContentTrait,
+		DatabaseTrait;
 
 	/**
 	 * Unique identifier of the database connection to use.
@@ -56,13 +48,6 @@ class DataSourceDB
 	 * @var string
 	 */
 	protected $identifier;
-
-	/**
-	 * @param DatabaseConnectionService $connectionService
-	 */
-	public function injectDatabaseConnectionService(DatabaseConnectionService $connectionService) {
-		$this->connectionService = $connectionService;
-	}
 
 	/**
 	 * Gets the database connection
