@@ -292,9 +292,6 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase {
 	 * @covers ::build
 	 */
 	public function buildConfiguresAllowedProperties() {
-		$this->markTestSkipped();
-
-		//todo: configure abgefangen!
 		$subject = $this->getAccessibleMock(
 			'CPSIT\\T3importExport\\Property\\PropertyMappingConfigurationBuilder',
 			['configure'], [], '', FALSE);
@@ -318,54 +315,9 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase {
 		$mockObjectManager->expects($this->once())
 			->method('get')
 			->will($this->returnValue($mockMappingConfiguration));
-		$subject->expects($this->exactly(2))
+		$subject->expects($this->once())
 			->method('configure')
-			->withConsecutive(
-				[$configuration],
-				[$configuration['properties']['foo']]
-			);
-
-		$subject->build($configuration);
-	}
-
-
-	/**
-	 * @test
-	 * @covers ::configure
-	 */
-	public function configureDoesNotConfiguresNotAllowedProperties() {
-		$this->markTestSkipped();
-
-		//todo: configure abgefangen!
-		$subject = $this->getAccessibleMock(
-			'CPSIT\\T3importExport\\Property\\PropertyMappingConfigurationBuilder',
-			['configure'], [], '', FALSE);
-		$mockMappingConfiguration = $this->getMock(
-			'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-			['allowProperties'], [], '', FALSE
-		);
-		/** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-			['get']);
-		$subject->injectObjectManager($mockObjectManager);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->will($this->returnValue($mockMappingConfiguration));
-
-		$configuration = [
-			'allowProperties' => 'foo',
-			'properties' => [
-				'foo' => [],
-				'bar' => []
-			]
-		];
-
-		$subject->expects($this->exactly(2))
-			->method('configure')
-			->withConsecutive(
-				[$configuration],
-				[$configuration['properties']['foo']]
-			);
+			->with($configuration, $mockMappingConfiguration);
 
 		$subject->build($configuration);
 	}
