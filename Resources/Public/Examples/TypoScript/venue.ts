@@ -1,6 +1,6 @@
 # venue.ts
 # import configuration for venues (source table venues)
-module.tx_t3importexport.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.import.tasks {
 	venue {
 		class = Webfox\T3events\Domain\Model\EventLocation
 		sourceQueryConfiguration {

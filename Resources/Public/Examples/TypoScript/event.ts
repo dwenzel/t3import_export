@@ -1,6 +1,6 @@
 # event.ts
 # import configuration for events
-module.tx_t3importexport.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.import.tasks {
 	# unique identifier for this task
 	event {
 		source {
