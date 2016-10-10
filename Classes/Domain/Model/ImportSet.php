@@ -20,7 +20,6 @@ namespace CPSIT\T3importExport\Domain\Model;
  ***************************************************************/
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
-use Webfox\T3events\Domain\Model\Task;
 
 /**
  * Class ImportSet
