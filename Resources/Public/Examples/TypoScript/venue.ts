@@ -2,7 +2,7 @@
 # import configuration for venues (source table venues)
 module.tx_t3importexport.settings.importProcessor.tasks {
 	venue {
-		class = Webfox\T3events\Domain\Model\EventLocation
+		class = DWenzel\T3events\Domain\Model\EventLocation
 		sourceQueryConfiguration {
 			identifier = zew
 			table = venues

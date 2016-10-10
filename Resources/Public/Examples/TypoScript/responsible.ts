@@ -2,7 +2,7 @@
 # import configuration for responsibles (source table verantwortlicher)
 module.tx_t3importexport.settings.importProcessor.tasks {
 	responsible {
-		class = Webfox\T3events\Domain\Model\Person
+		class = DWenzel\T3events\Domain\Model\Person
 		sourceQueryConfiguration {
 			identifier = zew
 			table = verantwortlicher

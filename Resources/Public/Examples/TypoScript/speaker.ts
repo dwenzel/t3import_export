@@ -2,7 +2,7 @@
 # import configuration for speakers (source table speakers)
 module.tx_t3importexport.settings.importProcessor.tasks {
 	speaker {
-		class = Webfox\T3events\Domain\Model\Person
+		class = DWenzel\T3events\Domain\Model\Person
 		sourceQueryConfiguration {
 			identifier = zew
 			table = speakers
