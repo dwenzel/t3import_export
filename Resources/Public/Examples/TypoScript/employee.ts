@@ -1,6 +1,6 @@
 # employee.ts
 # import configuration for employees
-module.tx_t3importexport.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.import.tasks {
 	employee {
 		# target class for this import task
 		class = DWenzel\T3events\Domain\Model\Person

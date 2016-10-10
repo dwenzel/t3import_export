@@ -94,4 +94,16 @@ class DataTargetDB
         return true;
     }
 
+    /**
+     * Dummy method
+     * Currently does'nt do anything
+     *
+     * @param null $result
+     * @param array|null $configuration
+     * @return void
+     */
+    public function persistAll($result = null, array $configuration = null)
+    {}
+
+
 }

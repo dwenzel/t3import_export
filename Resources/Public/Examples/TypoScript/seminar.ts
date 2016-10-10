@@ -1,6 +1,6 @@
 # seminar.ts
 # import configuration for seminars (source table seminars)
-module.tx_t3importexport.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.import.tasks {
 	seminar {
 		# get all published seminars
 		class = DWenzel\T3events\Domain\Model\Event

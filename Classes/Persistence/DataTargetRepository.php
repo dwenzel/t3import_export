@@ -103,6 +103,17 @@ class DataTargetRepository
 	}
 
 	/**
+	 * @param array|null $result
+	 * @param array|null $configuration
+	 * @return mixed
+	 */
+	public function persistAll($result = null, array $configuration = null)
+	{
+		$this->persistenceManager->persistAll();
+	}
+
+
+	/**
 	 * Gets the repository
 	 *
 	 * @return Repository

@@ -9,10 +9,13 @@
     <h1>Import</h1>
     <f:flashMessages/>
 
-    <h2>Tasks</h2>
-    <f:for each="{tasks}" as="task">
-        <f:render partial="Task/ListItem" arguments="{task: task}"/>
-    </f:for>
+	<h2>Tasks</h2>
+	<p>Select an import task to perform</p>
+	<ul class="list">
+		<f:for each="{tasks}" as="task">
+			<f:render partial="Task/ImportListItem" arguments="{task: task}" />
+		</f:for>
+	</ul>
 
     <h2>Sets</h2>
     <f:for each="{sets}" as="set">

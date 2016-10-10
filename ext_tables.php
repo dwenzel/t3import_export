@@ -30,5 +30,20 @@ if (TYPO3_MODE === 'BE') {
 			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_import.xlf',
 		]
 	);
+	\TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
+		'CPSIT.' . $_EXTKEY,
+		'system',
+		'Export',
+		'',
+		[
+			'Export' => 'index,exportTask,exportSet',
+		],
+		[
+			'access' => 'user,group',
+			'icon' => 'EXT:' . $_EXTKEY . '/ext_icon.gif',
+			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_export.xlf',
+		]
+	);
+
 	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_t3importexport_domain_model_exporttarget');
 }

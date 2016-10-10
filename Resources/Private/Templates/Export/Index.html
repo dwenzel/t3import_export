@@ -1,0 +1,33 @@
+<f:layout name="Backend" />
+
+<f:section name="content">
+	<f:if condition="{settings.debug}">
+		<f:debug>{tasks}</f:debug>
+		<f:debug>{sets}</f:debug>
+		<f:debug>{settings}</f:debug>
+	</f:if>
+	<h1>Export</h1>
+	<f:flashMessages />
+
+	<h2>Tasks</h2>
+	<p>Select an export task to perform</p>
+	<ul class="list">
+		<f:for each="{tasks}" as="task">
+			<f:render partial="Task/ExportListItem" arguments="{task: task}" />
+		</f:for>
+	</ul>
+
+	<h2>Sets</h2>
+	<p>Select an export set to perform</p>
+	<f:form
+			action="exportSet"
+			name="exportSet">
+		<f:form.select
+				name="identifier"
+				options="{sets}"
+				optionValueField="identifier"
+				optionLabelField="identifier"
+		/>
+		<f:form.submit name="submit" value="export" />
+	</f:form>
+</f:section>

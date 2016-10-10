@@ -40,6 +40,11 @@ class ArrayToDomainObject
 	implements ConverterInterface{
 	const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
+	public function __construct()
+	{
+		$o = 1;
+	}
+
 	/**
 	 * @var PropertyMapper
 	 */

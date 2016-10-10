@@ -26,14 +26,17 @@ use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\TaskResult;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
- * Class ImportProcessor
+ * Class DataTransferProcessor
  *
  * @package CPSIT\T3importExport\Service
  */
-class ImportProcessor {
+class DataTransferProcessor
+{
 	/**
 	 * Queue
 	 * Records to import
@@ -48,12 +51,28 @@ class ImportProcessor {
 	protected $persistenceManager;
 
 	/**
+	 * @var ObjectManagerInterface
+	 */
+	protected $objectManager;
+
+	/**
 	 * injects the persistence manager
 	 *
 	 * @param PersistenceManager $persistenceManager
 	 */
-	public function injectPersistenceManager(PersistenceManager $persistenceManager) {
+	public function injectPersistenceManager(PersistenceManager $persistenceManager)
+	{
 		$this->persistenceManager = $persistenceManager;
+	}
+
+	/**
+	 * injects the object manager
+	 *
+	 * @param ObjectManagerInterface $objectManager
+	 */
+	public function injectObjectManager(ObjectManagerInterface $objectManager)
+	{
+		$this->objectManager = $objectManager;
 	}
 
 	/**
@@ -61,7 +80,8 @@ class ImportProcessor {
 	 *
 	 * @return array
 	 */
-	public function getQueue() {
+	public function getQueue()
+	{
 		return $this->queue;
 	}
 
@@ -70,14 +90,16 @@ class ImportProcessor {
 	 *
 	 * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
 	 */
-	public function buildQueue(DemandInterface $importDemand) {
-		$tasks = $importDemand->getTasks();
+	public function buildQueue(DemandInterface $demand)
+	{
+		$tasks = $demand->getTasks();
 		foreach ($tasks as $task) {
 			/** @var ImportTask $task */
 			$dataSource = $task->getSource();
 			$recordsToImport = $dataSource->getRecords(
 				$dataSource->getConfiguration()
 			);
+			
 			$this->queue[$task->getIdentifier()] = $recordsToImport;
 		}
 	}
@@ -89,7 +111,8 @@ class ImportProcessor {
 	 * @return array
 	 */
 	public function process(DemandInterface $importDemand) {
-		$result = [];
+		/** @var TaskResult $result */
+		$result = $this->objectManager->get(TaskResult::class);
 		$tasks = $importDemand->getTasks();
 		foreach ($tasks as $task) {
 			/** @var ImportTask $task */
@@ -100,19 +123,24 @@ class ImportProcessor {
 			$this->processInitializers($records, $task);
 
 			if ((bool) $records) {
+				$target = $task->getTarget();
+				$targetConfig = null;
+				if ($target instanceof ConfigurableInterface) {
+					$targetConfig = $target->getConfiguration();
+				}
+
 				foreach ($records as $record) {
+
 					$this->preProcessSingle($record, $task);
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
-					$target = $task->getTarget();
-					if ($target instanceof ConfigurableInterface) {
-						$config = $target->getConfiguration();
-					}
-					$target->persist($convertedRecord, $config);
-					$result[] = $convertedRecord;
+					$target->persist($convertedRecord, $targetConfig);
+					$result->add($convertedRecord);
 				}
+
+				$target->persistAll($result, $targetConfig);
 			}
-			$this->persistenceManager->persistAll();
+			
 			$this->processFinishers($records, $task, $result);
 		}
 
@@ -125,8 +153,9 @@ class ImportProcessor {
 	 * @param array $record
 	 * @param ImportTask $task
 	 */
-	protected function preProcessSingle(&$record, $task) {
-		$preProcessors = $task->getPreProcessors($task);
+	protected function preProcessSingle(&$record, ImportTask $task)
+	{
+		$preProcessors = $task->getPreProcessors();
 		foreach ($preProcessors as $preProcessor) {
 			/** @var AbstractPreProcessor $preProcessor */
 			$singleConfig = $preProcessor->getConfiguration();
@@ -143,7 +172,8 @@ class ImportProcessor {
 	 * @param array $record
 	 * @param ImportTask $task
 	 */
-	protected function postProcessSingle(&$convertedRecord, &$record, $task) {
+	protected function postProcessSingle(&$convertedRecord, &$record, $task)
+	{
 		$postProcessors = $task->getPostProcessors();
 		foreach ($postProcessors as $singleProcessor) {
 			/** @var AbstractPostProcessor $singleProcessor */
@@ -165,7 +195,8 @@ class ImportProcessor {
 	 * @param ImportTask $task Import type
 	 * @return mixed The converted object
 	 */
-	protected function convertSingle($record, $task) {
+	protected function convertSingle($record, $task)
+	{
 		$convertedRecord = $record;
 		$converters = $task->getConverters();
 		foreach ($converters as $converter) {
@@ -184,9 +215,10 @@ class ImportProcessor {
 	 *
 	 * @param array $records Processed records
 	 * @param ImportTask $task Import task
-	 * @param array $result
+	 * @param array|\Iterator|null $result
 	 */
-	protected function processFinishers(&$records, $task, &$result) {
+	protected function processFinishers(&$records, $task, &$result)
+	{
 		$finishers = $task->getFinishers();
 		foreach ($finishers as $finisher) {
 			/** @var FinisherInterface $finisher */
@@ -203,7 +235,8 @@ class ImportProcessor {
 	 * @param array $records Processed records
 	 * @param ImportTask $task Import task
 	 */
-	protected function processInitializers(&$records, $task) {
+	protected function processInitializers(&$records, $task)
+	{
 		$initializers = $task->getInitializers();
 		foreach ($initializers as $initializer) {
 			/** @var InitializerInterface $initializer */

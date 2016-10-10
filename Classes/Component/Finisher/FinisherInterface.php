@@ -10,7 +10,7 @@ interface FinisherInterface {
 	/**
 	 * @param array $configuration
 	 * @param array $records Array with prepared records
-	 * @param array $result Array with result records
+	 * @param array|\Iterator|null $result Array with result records
 	 * @return bool
 	 */
 	public function process($configuration, &$records, &$result);
@@ -25,7 +25,7 @@ interface FinisherInterface {
 	 * Tells if the component is disabled
 	 *
 	 * @param array $configuration
-	 * @param array $records Array with prepared records
+	 * @param  array $records Array with prepared records
 	 * @return bool
 	 */
 	public function isDisabled($configuration, $records = []);

@@ -1,6 +1,6 @@
 # sets.ts
 # import configuration for sets
-module.tx_t3importexport.settings.importProcessor.sets {
+module.tx_t3importexport.settings.import.sets {
 	testSet {
 		description = A description for test set
 		tasks = venue,events,seminar

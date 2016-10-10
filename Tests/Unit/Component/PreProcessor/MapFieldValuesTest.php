@@ -2,6 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
 
 /***************************************************************
  *  Copyright notice
