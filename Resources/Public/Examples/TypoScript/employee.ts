@@ -3,7 +3,7 @@
 module.tx_t3importexport.settings.import.tasks {
 	employee {
 		# target class for this import task
-		class = Webfox\T3events\Domain\Model\Person
+		class = DWenzel\T3events\Domain\Model\Person
 		sourceQueryConfiguration {
 			# unique identifier of remote database connection
 			# this connection has to be registered by the

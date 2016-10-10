@@ -19,14 +19,14 @@ module.tx_t3importexport.settings.import.tasks {
 			// fully qualified class name of the data target. Default is
 			#class = CPSIT\T3importExport\Persistence\DataTargetRepository
 			object {
-				class = Webfox\T3events\Domain\Model\Event
+				class = DWenzel\T3events\Domain\Model\Event
 			}
 		}
 		converters {
 			1 {
 				class = CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
 				config {
-					targetClass = Webfox\T3events\Domain\Model\Event
+					targetClass = DWenzel\T3events\Domain\Model\Event
 					allowProperties = headline,subtitle,description,performances,eventType,eventLocation,genre,speakers,zewId,keywords,departments,tags
 					properties {
 						eventType {
@@ -78,7 +78,7 @@ module.tx_t3importexport.settings.import.tasks {
 		}
 		# legacy configuration - see above for current!
 		# target class for this import task
-		class = Webfox\T3events\Domain\Model\Event
+		class = DWenzel\T3events\Domain\Model\Event
 		sourceQueryConfiguration {
 			# database connection as registered
 			identifier = zew

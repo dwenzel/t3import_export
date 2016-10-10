@@ -2,8 +2,8 @@
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
@@ -34,32 +34,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 class LookUpDB
 	extends AbstractPreProcessor
 	implements PreProcessorInterface {
-
-	/**
-	 * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
-	 */
-	protected $connectionService;
-
-	/**
-	 * @var DatabaseConnection
-	 */
-	protected $database;
-
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		if (!$this->database instanceof DatabaseConnection) {
-			$this->database = $GLOBALS['TYPO3_DB'];
-		}
-	}
-
-	/**
-	 * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
-	 */
-	public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService) {
-		$this->connectionService = $dbConnectionService;
-	}
+	use DatabaseTrait;
 
 	/**
 	 * Tells if a given configuration is valid

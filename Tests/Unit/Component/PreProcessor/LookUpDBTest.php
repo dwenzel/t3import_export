@@ -44,23 +44,6 @@ class LookUpDBTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::injectDatabaseConnectionService
-	 */
-	public function injectDatabaseConnectionServiceForObjectSetsConnectionService() {
-		/** @var DatabaseConnectionService $expectedConnectionService */
-		$expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['dummy'], [], '', FALSE);
-
-		$this->subject->injectDatabaseConnectionService($expectedConnectionService);
-
-		$this->assertSame(
-			$expectedConnectionService,
-			$this->subject->_get('connectionService')
-		);
-	}
-
-	/**
-	 * @test
 	 */
 	public function processSetsDatabase() {
 		$configuration = [

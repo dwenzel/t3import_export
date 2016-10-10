@@ -3,7 +3,7 @@
 module.tx_t3importexport.settings.import.tasks {
 	seminar {
 		# get all published seminars
-		class = Webfox\T3events\Domain\Model\Event
+		class = DWenzel\T3events\Domain\Model\Event
 		sourceQueryConfiguration {
 			identifier = zew
 			table = seminars
