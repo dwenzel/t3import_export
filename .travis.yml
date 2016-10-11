@@ -62,4 +62,3 @@ after_script:
     echo "Running coveralls";
     .Build/bin/coveralls -v
   fi
-
