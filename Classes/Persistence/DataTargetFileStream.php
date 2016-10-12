@@ -48,7 +48,11 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
      */
     public function persistAll($result = null, array $configuration = null)
     {
-        if (isset($result) && $result instanceof TaskResult) {
+        if (
+            !is_null($result)
+            && $result instanceof TaskResult
+            && $result->valid()
+        ) {
             $result->setInfo($this->tempFile);
         }
     }

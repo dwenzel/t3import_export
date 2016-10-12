@@ -99,7 +99,7 @@ class DataTransferProcessor
 			$recordsToImport = $dataSource->getRecords(
 				$dataSource->getConfiguration()
 			);
-			
+
 			$this->queue[$task->getIdentifier()] = $recordsToImport;
 		}
 	}
@@ -130,7 +130,6 @@ class DataTransferProcessor
 				}
 
 				foreach ($records as $record) {
-
 					$this->preProcessSingle($record, $task);
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
@@ -140,11 +139,11 @@ class DataTransferProcessor
 
 				$target->persistAll($result, $targetConfig);
 			}
-			
+
 			$this->processFinishers($records, $task, $result);
 		}
 
-		return $result;
+		return $result->toArray();
 	}
 
 	/**
