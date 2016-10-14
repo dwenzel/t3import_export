@@ -41,7 +41,7 @@ if (TYPO3_MODE === 'BE') {
 		[
 			'access' => 'user,group',
 			'icon' => 'EXT:' . $_EXTKEY . '/ext_icon.gif',
-			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_export.xlf',
+			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xlf',
 		]
 	);
 

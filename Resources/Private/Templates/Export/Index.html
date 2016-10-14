@@ -6,28 +6,48 @@
 		<f:debug>{sets}</f:debug>
 		<f:debug>{settings}</f:debug>
 	</f:if>
-	<h1>Export</h1>
+	<h1>{f:translate(key: 'header.export')}</h1>
 	<f:flashMessages />
 
-	<h2>Tasks</h2>
-	<p>Select an export task to perform</p>
-	<ul class="list">
-		<f:for each="{tasks}" as="task">
-			<f:render partial="Task/ExportListItem" arguments="{task: task}" />
-		</f:for>
-	</ul>
+    <h2>{f:translate(key: 'header.tasks')}</h2>
+    <f:if condition="{tasks}">
+		<f:then>
+			<div class="typo3-message message-information">
+                <div class="message-body">{f:translate(key: 'message.chooseExportTask')}</div>
+            </div>
+            <f:for each="{tasks}" as="task">
+                <f:render partial="Task/ExportListItem" arguments="{task: task}" />
+            </f:for>
+		</f:then>
+		<f:else>
+            <div class="typo3-message message-notice">
+                <div class="message-body">{f:translate(key: 'message.noExportTasksFound')}</div>
+            </div>
+		</f:else>
+	</f:if>
 
-	<h2>Sets</h2>
-	<p>Select an export set to perform</p>
-	<f:form
-			action="exportSet"
-			name="exportSet">
-		<f:form.select
-				name="identifier"
-				options="{sets}"
-				optionValueField="identifier"
-				optionLabelField="identifier"
-		/>
-		<f:form.submit name="submit" value="export" />
-	</f:form>
+	<h2>{f:translate(key: 'header.sets')}</h2>
+    <f:if condition="{sets}">
+        <f:then>
+            <div class="typo3-message message-information">
+                <div class="message-body">{f:translate(key: 'message.chooseExportSet')}</div>
+            </div>
+            <f:form
+                    action="exportSet"
+                    name="exportSet">
+                <f:form.select
+                        name="identifier"
+                        options="{sets}"
+                        optionValueField="identifier"
+                        optionLabelField="identifier"
+                />
+                <f:form.submit name="submit" value="{f:translate(key: 'button.export')}}" />
+            </f:form>
+        </f:then>
+        <f:else>
+            <div class="typo3-message message-notice">
+                <div class="message-body">{f:translate(key: 'message.noExportSetsFound')}</div>
+            </div>
+        </f:else>
+    </f:if>
 </f:section>
