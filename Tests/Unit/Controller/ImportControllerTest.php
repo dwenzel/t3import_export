@@ -1,10 +1,12 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Controller;
 
+use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
 use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3importExport\Domain\Model\ImportSet;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Fluid\View\TemplateView;
@@ -41,21 +43,21 @@ class ImportControllerTest extends UnitTestCase {
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Controller\\ImportController',
+		$this->subject = $this->getAccessibleMock(ImportController::class,
 			['dummy'], [], '', FALSE);
 	}
 
 	/**
 	 * @test
-	 * @covers ::injectImportProcessor
+	 * @covers ::injectDataTransferProcessor
 	 */
-	public function injectImportProcessorForObjectSetsImportProcessor() {
-		$expectedProcessor = $this->getMock('CPSIT\\T3importExport\\Service\\ImportProcessor');
-		$this->subject->injectImportProcessor($expectedProcessor);
+	public function injectDataTransferProcessorForObjectSetsDataTransferProcessor() {
+		$expectedProcessor = $this->getMock(DataTransferProcessor::class);
+		$this->subject->injectDataTransferProcessor($expectedProcessor);
 
 		$this->assertSame(
 			$expectedProcessor,
-			$this->subject->_get('importProcessor')
+			$this->subject->_get('dataTransferProcessor')
 		);
 	}
 
@@ -94,7 +96,7 @@ class ImportControllerTest extends UnitTestCase {
 	public function importTaskActionBuildsAndProcessQueueAndAssignsVariables() {
 		$identifier = 'foo';
 		$settings = [
-			'importProcessor' => [
+			'import' => [
 				'tasks' => [
 					$identifier => ['bar']
 				]
@@ -109,17 +111,17 @@ class ImportControllerTest extends UnitTestCase {
 		);
 		$importTaskFactory->expects($this->once())
 			->method('get')
-			->with($settings['importProcessor']['tasks'][$identifier])
+			->with($settings['import']['tasks'][$identifier])
 			->will($this->returnValue($mockTask));
 		$this->subject->injectImportTaskFactory($importTaskFactory);
 
 		$importProcessor = $this->getMock(
-			'CPSIT\\T3importExport\\Service\\ImportProcessor',
+			DataTransferProcessor::class,
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$task = 'foo';
 		$result = ['bar'];
-		$this->subject->injectImportProcessor($importProcessor);
+		$this->subject->injectDataTransferProcessor($importProcessor);
 		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
 			['get']);
 		$this->subject->injectObjectManager($mockObjectManager);
@@ -159,7 +161,7 @@ class ImportControllerTest extends UnitTestCase {
 		$identifierForTask = 'foo';
 		$settingsForTask = ['fooTaskSettings'];
 		$settings = [
-			'importProcessor' => [
+			'import' => [
 				'tasks' => [
 					$identifierForTask => $settingsForTask
 				]
@@ -190,7 +192,7 @@ class ImportControllerTest extends UnitTestCase {
 		$identifierForSet = 'foo';
 		$settingsForSet = ['fooSetSettings'];
 		$settings = [
-			'importProcessor' => [
+			'import' => [
 				'sets' => [
 					$identifierForSet => $settingsForSet
 				]
@@ -222,7 +224,7 @@ class ImportControllerTest extends UnitTestCase {
 	public function importSetActionBuildsAndProcessQueueAndAssignsVariables() {
 		$identifier = 'foo';
 		$settings = [
-			'importProcessor' => [
+			'import' => [
 				'sets' => [
 					$identifier => ['bar']
 				]
@@ -240,17 +242,17 @@ class ImportControllerTest extends UnitTestCase {
 		);
 		$importSetFactory->expects($this->once())
 			->method('get')
-			->with($settings['importProcessor']['sets'][$identifier])
+			->with($settings['import']['sets'][$identifier])
 			->will($this->returnValue($mockSet));
 		$this->subject->injectImportSetFactory($importSetFactory);
 
 		$importProcessor = $this->getMock(
-			'CPSIT\\T3importExport\\Service\\ImportProcessor',
+			DataTransferProcessor::class,
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$set = 'foo';
 		$result = ['bar'];
-		$this->subject->injectImportProcessor($importProcessor);
+		$this->subject->injectDataTransferProcessor($importProcessor);
 		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
 			['get']);
 		$this->subject->injectObjectManager($mockObjectManager);

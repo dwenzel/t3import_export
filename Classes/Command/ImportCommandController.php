@@ -1,10 +1,11 @@
 <?php
 namespace CPSIT\T3importExport\Command;
 
+use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
 use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
-use CPSIT\T3importExport\Service\ImportProcessor;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
@@ -42,7 +43,7 @@ class ImportCommandController extends CommandController {
 	protected $settings;
 
 	/**
-	 * @var ImportProcessor
+	 * @var DataTransferProcessor
 	 */
 	protected $importProcessor;
 
@@ -64,9 +65,9 @@ class ImportCommandController extends CommandController {
 	/**
 	 * Injects the import processor
 	 *
-	 * @param ImportProcessor $importProcessor
+	 * @param DataTransferProcessor $importProcessor
 	 */
-	public function injectImportProcessor(ImportProcessor $importProcessor) {
+	public function injectDataTransferProcessor(DataTransferProcessor $importProcessor) {
 		$this->importProcessor = $importProcessor;
 	}
 
@@ -99,8 +100,9 @@ class ImportCommandController extends CommandController {
 		$extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
 			ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
 		);
-		if (isset($extbaseFrameworkConfiguration['settings']['importProcessor'])) {
-			$this->settings = $extbaseFrameworkConfiguration['settings']['importProcessor'];
+
+		if (isset($extbaseFrameworkConfiguration['settings'][ImportController::SETTINGS_KEY])) {
+			$this->settings = $extbaseFrameworkConfiguration['settings'][ImportController::SETTINGS_KEY];
 		}
 	}
 

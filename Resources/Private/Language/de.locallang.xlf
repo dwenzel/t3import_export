@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2016-10-14T09:48:33Z">
+		<header>
+			<generator>LFEditor</generator>
+		</header>
+		<body>
+		<trans-unit id="button.export" approved="yes" xml:space="preserve">
+			<source>Export</source>
+			<target>Exportieren</target>
+		</trans-unit>
+		<trans-unit id="header.export" approved="yes" xml:space="preserve">
+			<source>Export</source>
+			<target>Export</target>
+		</trans-unit>
+		<trans-unit id="header.import" approved="yes" xml:space="preserve">
+			<source>Import</source>
+			<target>Import</target>
+		</trans-unit>
+		<trans-unit id="header.sets" approved="yes" xml:space="preserve">
+			<source>Sets</source>
+			<target>Sätze</target>
+		</trans-unit>
+		<trans-unit id="header.tasks" approved="yes" xml:space="preserve">
+			<source>Tasks</source>
+			<target>Aufgaben</target>
+		</trans-unit>
+		<trans-unit id="message.chooseExportSet" approved="yes" xml:space="preserve">
+			<source>Choose an export set.</source>
+			<target>Wählen Sie einen Exportsatz.</target>
+		</trans-unit>
+		<trans-unit id="message.chooseExportTask" approved="yes" xml:space="preserve">
+			<source>Choose an export task.</source>
+			<target>Wählen Sie eine Exportaufgabe.</target>
+		</trans-unit>
+		<trans-unit id="message.chooseImportSet" approved="yes" xml:space="preserve">
+			<source>Choose an import set</source>
+			<target>Wählen Sie einen Importsatz.</target>
+		</trans-unit>
+		<trans-unit id="message.noExportSetsFound" approved="yes" xml:space="preserve">
+			<source>No export sets found.</source>
+			<target>Keine Exportsätze gefunden.</target>
+		</trans-unit>
+		<trans-unit id="message.noExportTasksFound" approved="yes" xml:space="preserve">
+			<source>No export tasks found.</source>
+			<target>Keine Exportaufgaben gefunden.</target>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

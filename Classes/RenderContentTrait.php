@@ -40,6 +40,7 @@ trait RenderContentTrait
         if (!$GLOBALS['TSFE'] instanceof TypoScriptFrontendController) {
             $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, 0);
         }
+
     }
 
     /**

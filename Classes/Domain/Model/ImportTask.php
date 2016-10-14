@@ -271,5 +271,4 @@ class ImportTask
     {
         $this->label = $label;
     }
-
 }

@@ -7,6 +7,7 @@ use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\ImportSet;
 use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\Service\ImportProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
@@ -62,12 +63,12 @@ class ImportCommandControllerTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::injectImportProcessor
+	 * @covers ::injectDataTransferProcessor
 	 */
-	public function injectImportProcessorForObjectSetsImportProcessor() {
+	public function injectinjectDataTransferProcessorForObjectSetsDataTransferProcessor() {
 		$expectedProcessor = $this->getMock(
-			ImportProcessor::class);
-		$this->subject->injectImportProcessor($expectedProcessor);
+			DataTransferProcessor::class);
+		$this->subject->injectDataTransferProcessor($expectedProcessor);
 
 		$this->assertSame(
 			$expectedProcessor,
@@ -110,7 +111,7 @@ class ImportCommandControllerTest extends UnitTestCase {
 		$importProcessorSettings = ['foo'];
 		$extbaseFrameWorkConfig = [
 			'settings' => [
-				'importProcessor' => $importProcessorSettings
+				'import' => $importProcessorSettings
 			]
 		];
 		$configurationManager = $this->getAccessibleMock(
@@ -158,7 +159,7 @@ class ImportCommandControllerTest extends UnitTestCase {
 		$this->subject->injectImportTaskFactory($importTaskFactory);
 
 		$importProcessor = $this->getMock(
-			ImportProcessor::class,
+			DataTransferProcessor::class,
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$task = 'foo';
@@ -173,7 +174,7 @@ class ImportCommandControllerTest extends UnitTestCase {
 			->method('process')
 			->with($mockDemand)
 			->will($this->returnValue($result));
-		$this->subject->injectImportProcessor($importProcessor);
+		$this->subject->injectDataTransferProcessor($importProcessor);
 		$mockObjectManager = $this->getMock(
 			ObjectManager::class,
 			['get']);
@@ -213,7 +214,7 @@ class ImportCommandControllerTest extends UnitTestCase {
 		$this->subject->injectImportSetFactory($importSetFactory);
 
 		$importProcessor = $this->getMock(
-			ImportProcessor::class,
+			DataTransferProcessor::class,
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$set = 'foo';
@@ -228,7 +229,7 @@ class ImportCommandControllerTest extends UnitTestCase {
 			->method('process')
 			->with($mockDemand)
 			->will($this->returnValue($result));
-		$this->subject->injectImportProcessor($importProcessor);
+		$this->subject->injectDataTransferProcessor($importProcessor);
 		$mockObjectManager = $this->getMock(
 			ObjectManager::class,
 			['get']);

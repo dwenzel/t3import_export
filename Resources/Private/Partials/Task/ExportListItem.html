@@ -1,0 +1,12 @@
+<div xmlns:f="http://xsd.helmut-hummel.de/ns/TYPO3/CMS/Fluid/ViewHelpers">
+	<h3>{f:if(condition: task.label, then: task.label, else: task.identifier)}</h3>
+	<f:if condition="{task.description}"><f:format.html>{task.description}</f:format.html></f:if>
+	<f:form
+			action="exportTask"
+            arguments="{identifier: '{task.identifier}'}">
+        <f:form.submit
+            name="submit"
+            value="{f:translate(key: 'button.export')}"
+        />
+    </f:form>
+</div>

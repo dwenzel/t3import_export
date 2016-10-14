@@ -1,4 +1,4 @@
-<f:layout name="Backend"/>
+<f:layout name="Backend" />
 
 <f:section name="content">
     <f:if condition="{settings.debug}">
@@ -6,16 +6,48 @@
         <f:debug>{sets}</f:debug>
         <f:debug>{settings}</f:debug>
     </f:if>
-    <h1>Import</h1>
-    <f:flashMessages/>
+    <h1>{f:translate(key: 'header.import')}</h1>
+    <f:flashMessages />
 
-    <h2>Tasks</h2>
-    <f:for each="{tasks}" as="task">
-        <f:render partial="Task/ListItem" arguments="{task: task}"/>
-    </f:for>
+    <h2>{f:translate(key: 'header.tasks')}</h2>
+    <f:if condition="{tasks}">
+        <f:then>
+            <div class="typo3-message message-information">
+                <div class="message-body">{f:translate(key: 'message.chooseImportTask')}</div>
+            </div>
+            <f:for each="{tasks}" as="task">
+                <f:render partial="Task/ImportListItem" arguments="{task: task}" />
+            </f:for>
+        </f:then>
+        <f:else>
+            <div class="typo3-message message-notice">
+                <div class="message-body">{f:translate(key: 'message.noImportTasksFound')}</div>
+            </div>
+        </f:else>
+    </f:if>
 
-    <h2>Sets</h2>
-    <f:for each="{sets}" as="set">
-        <f:render partial="Set/ListItem" arguments="{set: set}"/>
-    </f:for>
+    <h2>{f:translate(key: 'header.sets')}</h2>
+    <f:if condition="{sets}">
+        <f:then>
+            <div class="typo3-message message-information">
+                <div class="message-body">{f:translate(key: 'message.chooseImportSet')}</div>
+            </div>
+            <f:form
+                    action="importSet"
+                    name="importSet">
+                <f:form.select
+                        name="identifier"
+                        options="{sets}"
+                        optionValueField="identifier"
+                        optionLabelField="identifier"
+                />
+                <f:form.submit name="submit" value="{f:translate(key: 'button.import')}}" />
+            </f:form>
+        </f:then>
+        <f:else>
+            <div class="typo3-message message-notice">
+                <div class="message-body">{f:translate(key: 'message.noImportSetsFound')}message.noImportTasksFound</div>
+            </div>
+        </f:else>
+    </f:if>
 </f:section>

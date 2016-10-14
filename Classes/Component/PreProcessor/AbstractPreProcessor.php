@@ -23,7 +23,8 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-abstract class AbstractPreProcessor extends AbstractComponent {
+abstract class AbstractPreProcessor extends AbstractComponent
+{
 	/**
 	 * @param array $configuration
 	 * @param array $record
@@ -39,16 +40,8 @@ abstract class AbstractPreProcessor extends AbstractComponent {
 	 * @param array $configuration
 	 * @return bool
 	 */
-	public function isConfigurationValid(array $configuration) {
-		return TRUE;
-	}
-
-	/**
-	 * @param string $sourceField
-	 * @param string $targetField
-	 * @param array $record
-	 */
-	protected function mapField($sourceField, $targetField, &$record) {
-		$record[$targetField] = $record[$sourceField];
+	public function isConfigurationValid(array $configuration)
+	{
+		return true;
 	}
 }
