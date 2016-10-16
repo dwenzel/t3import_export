@@ -7,16 +7,20 @@ All fields **must** contain strings. If targetField is not empty the result will
 ## Configuration
 
 ### required
-* **class** fully qualified class name, i.e. *CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields*
-* **config.targetField** *string* field name of record to which the content of the fields are added. Field **must** contain a string value.
-* **config.fields** *array* Array with field names as keys. Each key must hold an array!
+* **class** *string*
+    
+    fully qualified class name *CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields*
+* **config.targetField** *string* 
 
-    An array of 
+    field name of record to which the content of the fields are added. Field **must** contain a string value.
+* **config.fields** *array*
+
+    An array of field names as keys. Each key must hold an array!
 ### optional
-* **config.fields.<field name>.wrap *string* 
+* **config.fields.\<field name\>.wrap** *string* 
 
     TypoScript wrap expression. The content will be trimmed and wrapped around the field value 
-* **config.fields.<field name>.noTrimWrap *string* 
+* **config.fields.\<field name\>.noTrimWrap** *string* 
 
     TypoScript noTrimWrap expression. Content will be wrapped and whitespace kept.
 

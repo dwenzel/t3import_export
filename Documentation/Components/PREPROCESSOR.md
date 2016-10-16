@@ -23,9 +23,9 @@ You may add your own PreProcessors. They **must** implement the PreProcessorInte
 PreProcessors for import tasks are configured at the TypoScript path:
 
 ```
-module.tx_t3importexport.settings.import.tasks.<task identifier>.preProcessors
+module.tx_t3importexport.settings.import.tasks.\<task identifier\>.preProcessors
 ```
 The path for export tasks is:
 ```
-module.tx_t3importexport.settings.export.tasks.<task identifier>.preProcessors
+module.tx_t3importexport.settings.export.tasks.\<task identifier\>.preProcessors
 ```

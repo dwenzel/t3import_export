@@ -13,9 +13,9 @@ You may add your own initializers. They **must** implement the InitializerInterf
 Initializers for import tasks are configured at the TypoScript path:
 
 ```
-module.tx_t3importexport.settings.import.tasks.<task identifier>.initializers
+module.tx_t3importexport.settings.import.tasks.\<task identifier\>.initializers
 ```
 The path for export tasks is:
 ```
-module.tx_t3importexport.settings.export.tasks.<task identifier>.initializers
+module.tx_t3importexport.settings.export.tasks.\<task identifier\>.initializers
 ```
