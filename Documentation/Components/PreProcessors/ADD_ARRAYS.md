@@ -7,14 +7,14 @@ Only the target field will be changed. If the content of a field is not an array
 
 ## Configuration
 ## required
-* class fully qualified class name, i.e. *CPSIT\T3importExport\Component\PreProcessor\AddArrays*
-* config.targetField *string* field name of record to which the content of the fields are added. (Should be an array too)
-* config.fields *string* comma separated list of field names in record
+* **class** fully qualified class name, i.e. *CPSIT\T3importExport\Component\PreProcessor\AddArrays*
+* **config.targetField** *string* field name of record to which the content of the fields are added. (Should be an array too)
+* **config.fields** *string* comma separated list of field names in record
 
 ## optional
 * **config.disable** *boolean*
 
-    If the value is 1, the initializer will not be called. 
+    If the value is 1, the PreProcessor will not be called. 
     If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering
     will be interpreted as boolean. 
 

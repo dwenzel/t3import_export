@@ -73,11 +73,11 @@ Each configuration of a task **must** contain the keys
  
  An export task at:
  ```
- module.tx_t3importexport.settings.import.sets.<set identifier>
+ module.tx_t3importexport.settings.export.sets.<set identifier>
  ```
 Identifiers **must** be unique.
 
-Each configuration of a set **must** contain the keys
+Each configuration of a set **must** contain the key
  * tasks
  
  and **may** contain the keys
