@@ -10,7 +10,7 @@ Currently the following types of components are implemented:
 * [Initializers](./Components/INITIALIZER.md)
 * [PreProcessors](./Components/PREPROCESSOR.md)
 * [Converters](./Components/CONVERTER.md)
-* [PostProcessors](./Components/POSTPROCESSORR.md)
+* [PostProcessors](./Components/POSTPROCESSOR.md)
 * [Finishers](./Components/FINISHER.md)
 
 A set of standard components is included. You may write your own components and include them by configuration in TypoScript. 
