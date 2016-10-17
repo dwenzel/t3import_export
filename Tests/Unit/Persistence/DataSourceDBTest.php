@@ -58,7 +58,7 @@ class DataSourceDBTest extends UnitTestCase {
 	 * @covers ::getRecords
 	 */
 	public function getRecordsInitiallyReturnsEmptyArray() {
-		$configuration = ['foo'];
+		$configuration = ['table' => 'foo'];
 		$mockConnectionService = $this->getMock(
 			DatabaseConnectionService::class
 		);
@@ -125,6 +125,7 @@ class DataSourceDBTest extends UnitTestCase {
             ['renderContent'], [], '', FALSE);
 
         $configuration = [
+            'table' => 'baz',
             'foo' => ['bar']
         ];
         $mockConnectionService = $this->getMock(

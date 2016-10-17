@@ -81,11 +81,19 @@ abstract class BaseController extends ActionController
 				123476532
 			);
 		}
+		$tasks = [];
+        $sets = [];
+		if (isset($this->settings[static::SETTINGS_KEY]['tasks'])) {
+		    $tasks = $this->buildTasksFromSettings($this->settings[static::SETTINGS_KEY]['tasks']);
+        }
+        if (isset($this->settings[static::SETTINGS_KEY]['sets'])) {
+            $sets = $this->buildSetsFromSettings($this->settings[static::SETTINGS_KEY]['sets']);
+        }
 
 		$this->view->assignMultiple(
 			[
-				'tasks' => $this->buildTasksFromSettings($this->settings[static::SETTINGS_KEY]['tasks']),
-				'sets' => $this->buildSetsFromSettings($this->settings[static::SETTINGS_KEY]['sets']),
+				'tasks' => $tasks,
+				'sets' => $sets,
 				'settings' => $this->settings[static::SETTINGS_KEY]
 			]
 		);

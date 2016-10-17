@@ -232,7 +232,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 		$identifier = 'foo';
 		$dataSourceClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
 		$expectedDataSource = $this->getMock(
-			$dataSourceClass
+			$dataSourceClass, [], [], '', false
 		);
 		$settings = [
 			'identifier' => $identifier,

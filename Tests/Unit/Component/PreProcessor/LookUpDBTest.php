@@ -68,7 +68,8 @@ class LookUpDBTest extends UnitTestCase {
 		$configuration = [
 			'select' => [
 				'table' => 'fooTable'
-			]
+			],
+            'targetField' => 'bar'
 		];
 		$expectedQueryConfiguration = [
 			'fields' => '*',
@@ -189,7 +190,8 @@ class LookUpDBTest extends UnitTestCase {
 			'identifier' => $validDatabaseIdentifier,
 			'select' => [
                 'table' => 'tableName'
-            ]
+            ],
+            'targetField' => 'bar'
 		];
         DatabaseConnectionService::register(
             $validDatabaseIdentifier,

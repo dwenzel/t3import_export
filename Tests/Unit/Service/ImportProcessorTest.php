@@ -179,7 +179,7 @@ class ImportProcessorTest extends UnitTestCase {
 		$this->createObjectManagerMock();
 
 		$this->assertSame(
-			$this->taskResult,
+			$this->taskResult->toArray(),
 			$this->subject->process($importDemand)
 		);
 	}
@@ -206,7 +206,7 @@ class ImportProcessorTest extends UnitTestCase {
 		$this->createObjectManagerMock();
 
 		$this->assertSame(
-			$this->taskResult,
+			$this->taskResult->toArray(),
 			$this->subject->process($importDemand)
 		);
 	}
@@ -391,7 +391,9 @@ class ImportProcessorTest extends UnitTestCase {
 				['convertSingle']
 		);
 		$this->subject->_set('queue', $queue);
-		$mockTask->expects($this->any())
+
+
+        $mockTask->expects($this->any())
 			->method('getIdentifier')
 			->will($this->returnValue($identifier));
 		$mockTask->expects($this->once())
@@ -407,7 +409,8 @@ class ImportProcessorTest extends UnitTestCase {
 			->method('getConfiguration')
 			->will($this->returnValue($finisherConfig));
 		$mockFinisher->expects($this->once())
-			->method('process');
+			->method('process')
+            ->will($this->returnArgument(2));
 		$mockPersistenceManager = $this->getMock(
 				PersistenceManager::class, ['persistAll']
 		);
