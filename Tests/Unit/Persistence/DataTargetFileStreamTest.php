@@ -7,6 +7,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -109,7 +110,7 @@ class DataTargetFileSteamTest extends UnitTestCase {
 			false
 		);
 
-		$absPath = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName('typo3temp/test_mock_'.uniqid());
+		$absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY.uniqid());
 		$tmpPath = $absPath . '/' . uniqid();
 		@mkdir($absPath,0777,true);
 		$mockedFileUtility->expects($this->once())
@@ -121,6 +122,11 @@ class DataTargetFileSteamTest extends UnitTestCase {
 			->method('get')
 			->with(BasicFileUtility::class)
 			->will($this->returnValue($mockedFileUtility));
+        $this->inject(
+            $this->subject,
+            'objectManager',
+            $mockedObjectManager
+        );
 
 		/** @var DataStreamInterface $streamObject */
 		foreach ($taskResult as $streamObject) {

@@ -6,11 +6,14 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
+use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 class DataTargetFileStream extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 {
+    const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
+
     /**
      * subConfig for Data-Traget
      *
@@ -51,9 +54,11 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
         if (
             !is_null($result)
             && $result instanceof TaskResult
-            && $result->valid()
         ) {
-            $result->setInfo($this->tempFile);
+            $result->rewind();
+            if ($result->valid()) {
+                $result->setInfo($this->tempFile);
+            }
         }
     }
 
@@ -94,17 +99,18 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
      */
     protected function createTempFile($fileName)
     {
+        /** @var BasicFileUtility $basicFileUtility */
         $basicFileUtility = $this->objectManager->get('TYPO3\CMS\Core\Utility\File\BasicFileUtility');
-        $tempRelativePath = 'typo3temp/' . $GLOBALS['_EXTKEY'] .  $GLOBALS['moduleName'];
-        $absPath = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($tempRelativePath);
+        $absPath = GeneralUtility::getFileAbsFileName(static::TEMP_DIRECTORY);
 
         if (!file_exists($absPath)) {
             if (!GeneralUtility::mkdir($absPath)) {
                 throw new FileOperationErrorException(
-                    'can\'t create temp folder: \''. $tempRelativePath .'\''
+                    'can\'t create temp folder: \''. static::TEMP_DIRECTORY.'\''
                 );
             }
         }
+        // todo replace deprecated (TYPO3\CMS\Core\Resource\ResourceStorage->getUniqueName)
         $absFileName = $basicFileUtility->getUniqueName($fileName, $absPath);
         if (!touch($absFileName)) {
             throw new FileOperationErrorException(
