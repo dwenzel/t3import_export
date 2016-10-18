@@ -1,12 +1,12 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Domain\Model;
 
-use CPSIT\T3importExport\Domain\Model\ImportSet;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\TransferSet;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 
 /***************************************************************
  *  Copyright notice
@@ -25,16 +25,16 @@ use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ImportTaskTest extends UnitTestCase {
+class TransferTaskTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Model\ImportTask
+	 * @var \CPSIT\T3importExport\Domain\Model\TransferTask
 	 */
 	protected $subject;
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTask::class, ['dummy'], [], '', FALSE
+			TransferTask::class, ['dummy'], [], '', FALSE
 		);
 	}
 

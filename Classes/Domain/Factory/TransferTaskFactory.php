@@ -11,7 +11,7 @@ use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
@@ -37,12 +37,12 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  ***************************************************************/
 
 /**
- * Class ImportTaskFactory
+ * Class TransferTaskFactory
  * builds import tasks from settings
  *
  * @package CPSIT\T3importExport\Domain\Factory
  */
-class ImportTaskFactory extends AbstractFactory {
+class TransferTaskFactory extends AbstractFactory {
 
 	/**
 	 * @var DataTargetFactory
@@ -147,15 +147,15 @@ class ImportTaskFactory extends AbstractFactory {
 	 *
 	 * @param array $settings
 	 * @param string $identifier
-	 * @return ImportTask
+	 * @return TransferTask
 	 * @throws InvalidConfigurationException
 	 * @throws \CPSIT\T3importExport\MissingClassException
 	 * @throws \CPSIT\T3importExport\MissingInterfaceException
 	 */
 	public function get(array $settings, $identifier = NULL) {
-		/** @var ImportTask $task */
+		/** @var TransferTask $task */
 		$task = $this->objectManager->get(
-			ImportTask::class
+			TransferTask::class
 		);
 		$task->setIdentifier($identifier);
 
@@ -209,7 +209,7 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Sets the target for the import task
 	 *
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
@@ -240,7 +240,7 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Sets the source for the import task
 	 *
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
@@ -271,7 +271,7 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Sets the pre processors for the import task
 	 *
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
@@ -293,7 +293,7 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Sets the post processors for the import task
 	 *
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
@@ -314,7 +314,7 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Sets the converters for the import task
 	 *
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
@@ -335,7 +335,7 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Sets the finishers for the import task
 	 *
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException
@@ -356,7 +356,7 @@ class ImportTaskFactory extends AbstractFactory {
 	/**
 	 * Sets the initializers for the import task
 	 *
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 * @param array $settings
 	 * @param string $identifier
 	 * @throws InvalidConfigurationException

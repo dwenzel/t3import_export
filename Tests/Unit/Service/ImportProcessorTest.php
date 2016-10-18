@@ -3,8 +3,8 @@ namespace CPSIT\T3importExport\Tests\Service;
 
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
@@ -122,11 +122,11 @@ class ImportProcessorTest extends UnitTestCase {
 	public function buildQueueSetsQueue() {
 		$identifier = 'bar';
 		$mockTask = $this->getMock(
-			ImportTask::class,
+			TransferTask::class,
 			['getSource', 'getIdentifier']
 		);
 		$mockDemand = $this->getMock(
-			ImportDemand::class, ['getTasks']
+			TaskDemand::class, ['getTasks']
 		);
 		$tasks = [$mockTask];
 		$mockDemand->expects($this->once())
@@ -170,7 +170,7 @@ class ImportProcessorTest extends UnitTestCase {
 	 */
 	public function processInitiallyReturnsEmptyIterator() {
 		$importDemand = $this->getMock(
-			ImportDemand::class, ['getTasks']
+			TaskDemand::class, ['getTasks']
 		);
 		$importDemand->expects($this->any())
 			->method('getTasks')
@@ -190,10 +190,10 @@ class ImportProcessorTest extends UnitTestCase {
 	public function processDoesNotRunEmptyQueue() {
 		$identifier = 'foo';
 		$importDemand = $this->getMock(
-			ImportDemand::class, ['getTasks']
+			TaskDemand::class, ['getTasks']
 		);
 		$mockTask = $this->getMock(
-			ImportTask::class, ['getIdentifier']
+			TransferTask::class, ['getIdentifier']
 		);
 
 		$importDemand->expects($this->any())
@@ -222,10 +222,10 @@ class ImportProcessorTest extends UnitTestCase {
 
 		$identifier = 'foo';
 		$importDemand = $this->getMock(
-			ImportDemand::class, ['getTasks']
+			TaskDemand::class, ['getTasks']
 		);
 		$mockTask = $this->getMock(
-			ImportTask::class, ['getIdentifier', 'getTarget']
+			TransferTask::class, ['getIdentifier', 'getTarget']
 		);
 		$mockTarget = $this->getMock(
 			DataTargetInterface::class
@@ -272,10 +272,10 @@ class ImportProcessorTest extends UnitTestCase {
 
 		$identifier = 'foo';
 		$importDemand = $this->getMock(
-			ImportDemand::class, ['getTasks']
+			TaskDemand::class, ['getTasks']
 		);
 		$mockTask = $this->getMock(
-			ImportTask::class, ['getIdentifier', 'getTarget']
+			TransferTask::class, ['getIdentifier', 'getTarget']
 		);
 		$mockTarget = $this->getMock(
 			DataTargetInterface::class
@@ -322,10 +322,10 @@ class ImportProcessorTest extends UnitTestCase {
 
 		$identifier = 'foo';
 		$importDemand = $this->getMock(
-			ImportDemand::class, ['getTasks']
+			TaskDemand::class, ['getTasks']
 		);
 		$mockTask = $this->getMock(
-			ImportTask::class, ['getIdentifier', 'getTarget']
+			TransferTask::class, ['getIdentifier', 'getTarget']
 		);
 		$mockTarget = $this->getMock(
 			DataTargetInterface::class
@@ -372,7 +372,7 @@ class ImportProcessorTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-			ImportTask::class,
+			TransferTask::class,
 			['getIdentifier', 'getTarget', 'getFinishers']
 		);
 		$mockFinisher = $this->getMockForAbstractClass(
@@ -380,7 +380,7 @@ class ImportProcessorTest extends UnitTestCase {
 		);
 		$finisherConfig = ['baz'];
 		$mockDemand = $this->getMock(
-				ImportDemand::class, ['getTasks']);
+				TaskDemand::class, ['getTasks']);
 		$mockDemand->expects($this->once())
 			->method('getTasks')
 			->will($this->returnValue([$mockTask]));
@@ -434,7 +434,7 @@ class ImportProcessorTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-			ImportTask::class,
+			TransferTask::class,
 			['getIdentifier', 'getTarget', 'getInitializers']
 		);
 		$mockInitializer = $this->getMockForAbstractClass(
@@ -442,7 +442,7 @@ class ImportProcessorTest extends UnitTestCase {
 		);
 		$initializerConfig = ['baz'];
 		$mockDemand = $this->getMock(
-			ImportDemand::class, ['getTasks']);
+			TaskDemand::class, ['getTasks']);
 		$mockDemand->expects($this->once())
 			->method('getTasks')
 			->will($this->returnValue([$mockTask]));

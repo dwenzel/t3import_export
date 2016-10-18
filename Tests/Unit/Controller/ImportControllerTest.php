@@ -2,10 +2,10 @@
 namespace CPSIT\T3importExport\Tests\Controller;
 
 use CPSIT\T3importExport\Controller\ImportController;
-use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\ImportSet;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\TransferSet;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
@@ -64,28 +64,28 @@ class ImportControllerTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function injectImportTaskFactorySetsFactory() {
+	public function injectTransferTaskFactorySetsFactory() {
 		$factory = $this->getMock(
-			ImportTaskFactory::class
+			TransferTaskFactory::class
 		);
-		$this->subject->injectImportTaskFactory($factory);
+		$this->subject->injectTransferTaskFactory($factory);
 		$this->assertSame(
 			$factory,
-			$this->subject->_get('importTaskFactory')
+			$this->subject->_get('transferTaskFactory')
 		);
 	}
 
 	/**
 	 * @test
 	 */
-	public function injectImportSetFactorySetsFactory() {
+	public function injectTransferSetFactorySetsFactory() {
 		$factory = $this->getMock(
-			ImportSetFactory::class
+			TransferSetFactory::class
 		);
-		$this->subject->injectImportSetFactory($factory);
+		$this->subject->injectTransferSetFactory($factory);
 		$this->assertSame(
 			$factory,
-			$this->subject->_get('importSetFactory')
+			$this->subject->_get('transferSetFactory')
 		);
 	}
 
@@ -103,24 +103,24 @@ class ImportControllerTest extends UnitTestCase {
 		];
 		$this->subject->_set('settings', $settings);
 		$mockTask = $this->getMock(
-			ImportTask::class
+			TransferTask::class
 		);
-		$importTaskFactory = $this->getMock(
-			ImportTaskFactory::class, ['get']
+		$transferTaskFactory = $this->getMock(
+			TransferTaskFactory::class, ['get']
 		);
-		$importTaskFactory->expects($this->once())
+		$transferTaskFactory->expects($this->once())
 			->method('get')
 			->with($settings['import']['tasks'][$identifier])
 			->will($this->returnValue($mockTask));
-		$this->subject->injectImportTaskFactory($importTaskFactory);
+		$this->subject->injectTransferTaskFactory($transferTaskFactory);
 
-		$importProcessor = $this->getMock(
+		$dataTransferProcessor = $this->getMock(
 			DataTransferProcessor::class,
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$task = 'foo';
 		$result = ['bar'];
-		$this->subject->injectDataTransferProcessor($importProcessor);
+		$this->subject->injectDataTransferProcessor($dataTransferProcessor);
 		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
 			['get']);
 		$this->subject->injectObjectManager($mockObjectManager);
@@ -135,10 +135,10 @@ class ImportControllerTest extends UnitTestCase {
 		$mockObjectManager->expects($this->once())
 			->method('get')
 			->will($this->returnValue($mockDemand));
-		$importProcessor->expects($this->once())
+		$dataTransferProcessor->expects($this->once())
 			->method('buildQueue')
 			->with($mockDemand);
-		$importProcessor->expects($this->once())
+		$dataTransferProcessor->expects($this->once())
 			->method('process')
 			->with($mockDemand)
 			->will($this->returnValue($result));
@@ -173,9 +173,9 @@ class ImportControllerTest extends UnitTestCase {
 
 		$this->subject->_set('view', $mockView);
 		$mockTaskFactory = $this->getMock(
-			ImportTaskFactory::class, ['get']
+			TransferTaskFactory::class, ['get']
 		);
-		$this->subject->injectImportTaskFactory($mockTaskFactory);
+		$this->subject->injectTransferTaskFactory($mockTaskFactory);
 
 		$mockTaskFactory->expects($this->once())
 			->method('get')
@@ -204,9 +204,9 @@ class ImportControllerTest extends UnitTestCase {
 
 		$this->subject->_set('view', $mockView);
 		$mockSetFactory = $this->getMock(
-			ImportSetFactory::class, ['get']
+			TransferSetFactory::class, ['get']
 		);
-		$this->subject->injectImportSetFactory($mockSetFactory);
+		$this->subject->injectTransferSetFactory($mockSetFactory);
 
 		$mockSetFactory->expects($this->once())
 			->method('get')
@@ -230,27 +230,27 @@ class ImportControllerTest extends UnitTestCase {
 		];
 		$this->subject->_set('settings', $settings);
 		$mockSet = $this->getMock(
-			ImportSet::class, ['getTasks']
+			TransferSet::class, ['getTasks']
 		);
 		$mockSet->expects($this->once())
 			->method('getTasks')
 			->will($this->returnValue([]));
-		$importSetFactory = $this->getMock(
-			ImportSetFactory::class, ['get']
+		$transferSetFactory = $this->getMock(
+			TransferSetFactory::class, ['get']
 		);
-		$importSetFactory->expects($this->once())
+		$transferSetFactory->expects($this->once())
 			->method('get')
 			->with($settings['import']['sets'][$identifier])
 			->will($this->returnValue($mockSet));
-		$this->subject->injectImportSetFactory($importSetFactory);
+		$this->subject->injectTransferSetFactory($transferSetFactory);
 
-		$importProcessor = $this->getMock(
+		$dataTransferProcessor = $this->getMock(
 			DataTransferProcessor::class,
 			['buildQueue', 'process'], [], '', FALSE
 		);
 		$set = 'foo';
 		$result = ['bar'];
-		$this->subject->injectDataTransferProcessor($importProcessor);
+		$this->subject->injectDataTransferProcessor($dataTransferProcessor);
 		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
 			['get']);
 		$this->subject->injectObjectManager($mockObjectManager);
@@ -265,10 +265,10 @@ class ImportControllerTest extends UnitTestCase {
 		$mockObjectManager->expects($this->once())
 			->method('get')
 			->will($this->returnValue($mockDemand));
-		$importProcessor->expects($this->once())
+		$dataTransferProcessor->expects($this->once())
 			->method('buildQueue')
 			->with($mockDemand);
-		$importProcessor->expects($this->once())
+		$dataTransferProcessor->expects($this->once())
 			->method('process')
 			->with($mockDemand)
 			->will($this->returnValue($result));

@@ -1,9 +1,9 @@
 <?php
 namespace CPSIT\T3importExport\Controller;
 
-use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -34,14 +34,14 @@ abstract class BaseController extends ActionController
 	protected $dataTransferProcessor;
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
 	 */
-	protected $importTaskFactory;
+	protected $transferTaskFactory;
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportSetFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
 	 */
-	protected $importSetFactory;
+	protected $transferSetFactory;
 
 	/**
 	 * Injects the event import processor
@@ -53,17 +53,17 @@ abstract class BaseController extends ActionController
 	}
 
 	/**
-	 * @param ImportTaskFactory $importTaskFactory
+	 * @param TransferTaskFactory $importTaskFactory
 	 */
-	public function injectImportTaskFactory(ImportTaskFactory $importTaskFactory) {
-		$this->importTaskFactory = $importTaskFactory;
+	public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory) {
+		$this->transferTaskFactory = $importTaskFactory;
 	}
 
 	/**
-	 * @param ImportSetFactory $importSetFactory
+	 * @param TransferSetFactory $importSetFactory
 	 */
-	public function injectImportSetFactory(ImportSetFactory $importSetFactory) {
-		$this->importSetFactory = $importSetFactory;
+	public function injectTransferSetFactory(TransferSetFactory $importSetFactory) {
+		$this->transferSetFactory = $importSetFactory;
 	}
 
     /**
@@ -110,11 +110,11 @@ abstract class BaseController extends ActionController
 	{
         $this->validateSettings();
 
-        /** @var ImportDemand $importDemand */
+        /** @var TaskDemand $importDemand */
 		$importDemand = $this->objectManager->get(
-			ImportDemand::class
+			TaskDemand::class
 		);
-		$task = $this->importTaskFactory->get(
+		$task = $this->transferTaskFactory->get(
 			$this->settings[$this->getSettingsKey()]['tasks'][$identifier], $identifier
 		);
 		$importDemand->setTasks([$task]);
@@ -140,12 +140,12 @@ abstract class BaseController extends ActionController
         $this->validateSettings();
         $settingsKey = $this->getSettingsKey();
 
-		/** @var ImportDemand $importDemand */
+		/** @var TaskDemand $importDemand */
 		$importDemand = $this->objectManager->get(
-			ImportDemand::class
+			TaskDemand::class
 		);
 		if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
-			$set = $this->importSetFactory->get(
+			$set = $this->transferSetFactory->get(
 				$this->settings[$settingsKey]['sets'][$identifier], $identifier
 			);
 			$importDemand->setTasks($set->getTasks());
@@ -172,7 +172,7 @@ abstract class BaseController extends ActionController
 
 		if (is_array($settings)) {
 			foreach ($settings as $identifier => $taskSettings) {
-				$tasks[$identifier] = $this->importTaskFactory->get(
+				$tasks[$identifier] = $this->transferTaskFactory->get(
 					$taskSettings, $identifier
 				);
 			}
@@ -192,7 +192,7 @@ abstract class BaseController extends ActionController
 
 		if (is_array($settings)) {
 			foreach ($settings as $identifier => $setSettings) {
-				$sets[$identifier] = $this->importSetFactory->get($setSettings, $identifier);
+				$sets[$identifier] = $this->transferSetFactory->get($setSettings, $identifier);
 			}
 		}
 

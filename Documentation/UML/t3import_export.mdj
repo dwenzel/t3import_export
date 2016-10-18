@@ -48,7 +48,7 @@
 												"$ref": "AAAAAAFRyNuO4jMDT5o="
 											},
 											"name": "task",
-											"documentation": "ImportTask to perform",
+											"documentation": "TransferTask to perform",
 											"visibility": "public",
 											"isStatic": false,
 											"isLeaf": false,
@@ -1667,7 +1667,7 @@
 									"_parent": {
 										"$ref": "-64--88-1-3-3ff5ead6:151ba6dc18d:-8000:0000000000000B69"
 									},
-									"name": "ImportTask",
+									"name": "TransferTask",
 									"ownedElements": [
 										{
 											"_type": "UMLInterfaceRealization",
@@ -2080,7 +2080,7 @@
 									"_parent": {
 										"$ref": "-64--88-1-3-3ff5ead6:151ba6dc18d:-8000:0000000000000B69"
 									},
-									"name": "ImportSet",
+									"name": "TransferSet",
 									"visibility": "public",
 									"attributes": [
 										{
@@ -2245,7 +2245,7 @@
 											"_parent": {
 												"$ref": "AAAAAAFRxNII3gi5HGI="
 											},
-											"name": "ImportDemand",
+											"name": "TaskDemand",
 											"visibility": "public",
 											"operations": [
 												{
@@ -2451,7 +2451,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFRxOiJFAkdosc="
 									},
-									"name": "ImportTaskFactory",
+									"name": "TransferTaskFactory",
 									"ownedElements": [
 										{
 											"_type": "UMLGeneralization",
@@ -2469,7 +2469,7 @@
 											"visibility": "public"
 										}
 									],
-									"documentation": "Builds ImportTask instances.",
+									"documentation": "Builds TransferTask instances.",
 									"visibility": "public",
 									"operations": [
 										{
@@ -2527,7 +2527,7 @@
 														"$ref": "AAAAAAFRxfkYHZWXvnQ="
 													},
 													"name": "return",
-													"documentation": "Builds an ImportTask from settings.",
+													"documentation": "Builds an TransferTask from settings.",
 													"visibility": "public",
 													"isStatic": false,
 													"isLeaf": false,
@@ -2556,7 +2556,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFRxOiJFAkdosc="
 									},
-									"name": "ImportSetFactory",
+									"name": "TransferSetFactory",
 									"ownedElements": [
 										{
 											"_type": "UMLGeneralization",
@@ -2574,7 +2574,7 @@
 											"visibility": "public"
 										}
 									],
-									"documentation": "Builds  ImportSet instances",
+									"documentation": "Builds  TransferSet instances",
 									"visibility": "public",
 									"operations": [
 										{
@@ -2584,7 +2584,7 @@
 												"$ref": "AAAAAAFRxOxBrQlFClI="
 											},
 											"name": "get",
-											"documentation": "Builds an  ImportSet from settings.",
+											"documentation": "Builds an  TransferSet from settings.",
 											"visibility": "public",
 											"isStatic": false,
 											"isLeaf": false,
@@ -14161,7 +14161,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "ImportTask",
+											"text": "TransferTask",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -19286,7 +19286,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "ImportTaskFactory",
+											"text": "TransferTaskFactory",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -19425,7 +19425,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "+get(identifier: string, settings: array, out return: ImportTask)",
+											"text": "+get(identifier: string, settings: array, out return: TransferTask)",
 											"horizontalAlignment": 0,
 											"verticalAlignment": 5
 										}
@@ -19600,7 +19600,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "ImportSetFactory",
+											"text": "TransferSetFactory",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -19739,7 +19739,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "+get(identifier: string, settings: array, out return: ImportSet)",
+											"text": "+get(identifier: string, settings: array, out return: TransferSet)",
 											"horizontalAlignment": 0,
 											"verticalAlignment": 5
 										}

@@ -20,11 +20,11 @@ namespace CPSIT\T3importExport\Domain\Model\Dto;
 	 ***************************************************************/
 
 /**
- * Class ImportDemand
+ * Class TaskDemand
  *
  * @package CPSIT\T3importExport\Domain\Model\Dto
  */
-class ImportDemand implements DemandInterface {
+class TaskDemand implements DemandInterface {
 
 	/**
 	 * @var array

@@ -25,12 +25,12 @@ use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
- * Class ImportTask
- * An import task describes an import from one source to one class
+ * Class TransferTask
+ * An transfer task describes an transfer from one source to one class
  *
  * @package CPSIT\T3importExport\Domain\Model
  */
-class ImportTask
+class TransferTask
 	extends AbstractEntity
 	implements IdentifiableInterface {
 	use IdentifiableTrait;
