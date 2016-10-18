@@ -5,7 +5,7 @@ use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
 use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /***************************************************************
@@ -74,13 +74,7 @@ abstract class BaseController extends ActionController
 	 */
 	public function indexAction()
 	{
-		if (!isset($this->settings[static::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
+        $this->validateSettings();
 		$tasks = [];
         $sets = [];
 		if (isset($this->settings[static::SETTINGS_KEY]['tasks'])) {
@@ -108,15 +102,9 @@ abstract class BaseController extends ActionController
 	 */
 	public function computeTaskAction($identifier)
 	{
-		if (!isset($this->settings[static::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
+        $this->validateSettings();
 
-		/** @var ImportDemand $importDemand */
+        /** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
 		);
@@ -144,13 +132,7 @@ abstract class BaseController extends ActionController
 	 */
 	public function computeSetAction($identifier)
 	{
-		if (!isset($this->settings[static::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
+        $this->validateSettings();
 
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
@@ -210,5 +192,22 @@ abstract class BaseController extends ActionController
 
 		return $sets;
 	}
+
+    /**
+     * Validates the settings
+     *
+     * @return void
+     * @throws InvalidConfigurationException
+     */
+    protected function validateSettings()
+    {
+        if (!isset($this->settings[static::SETTINGS_KEY])) {
+            $keysFound = implode(', ', array_keys($this->settings));
+            throw new InvalidConfigurationException(
+                'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
+                123476532
+            );
+        }
+    }
 
 }
