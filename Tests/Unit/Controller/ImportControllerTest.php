@@ -91,7 +91,6 @@ class ImportControllerTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::importTaskAction
 	 */
 	public function importTaskActionBuildsAndProcessQueueAndAssignsVariables() {
 		$identifier = 'foo';
@@ -219,7 +218,6 @@ class ImportControllerTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::importSetAction
 	 */
 	public function importSetActionBuildsAndProcessQueueAndAssignsVariables() {
 		$identifier = 'foo';
