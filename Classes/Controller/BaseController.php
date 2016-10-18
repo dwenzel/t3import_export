@@ -27,7 +27,6 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  ***************************************************************/
 abstract class BaseController extends ActionController
 {
-	const SETTINGS_KEY = 'BASE_KEY';
 
 	/**
 	 * @var DataTransferProcessor
@@ -67,6 +66,13 @@ abstract class BaseController extends ActionController
 		$this->importSetFactory = $importSetFactory;
 	}
 
+    /**
+     * Gets the settings key
+     *
+     * @return string
+     */
+	abstract public function getSettingsKey();
+
 	/**
 	 * Index action
 	 *
@@ -75,32 +81,32 @@ abstract class BaseController extends ActionController
 	public function indexAction()
 	{
         $this->validateSettings();
+        $settingsKey = $this->getSettingsKey();
 		$tasks = [];
         $sets = [];
-		if (isset($this->settings[static::SETTINGS_KEY]['tasks'])) {
-		    $tasks = $this->buildTasksFromSettings($this->settings[static::SETTINGS_KEY]['tasks']);
+		if (isset($this->settings[$settingsKey]['tasks'])) {
+		    $tasks = $this->buildTasksFromSettings($this->settings[$settingsKey]['tasks']);
         }
-        if (isset($this->settings[static::SETTINGS_KEY]['sets'])) {
-            $sets = $this->buildSetsFromSettings($this->settings[static::SETTINGS_KEY]['sets']);
+        if (isset($this->settings[$settingsKey]['sets'])) {
+            $sets = $this->buildSetsFromSettings($this->settings[$settingsKey]['sets']);
         }
 
 		$this->view->assignMultiple(
 			[
 				'tasks' => $tasks,
 				'sets' => $sets,
-				'settings' => $this->settings[static::SETTINGS_KEY]
+				'settings' => $this->settings[$settingsKey]
 			]
 		);
 	}
 
 	/**
-	 * Import task action
+	 * Performs the task action
 	 *
 	 * @param string $identifier
-	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function computeTaskAction($identifier)
+	protected function doTaskAction($identifier)
 	{
         $this->validateSettings();
 
@@ -109,7 +115,7 @@ abstract class BaseController extends ActionController
 			ImportDemand::class
 		);
 		$task = $this->importTaskFactory->get(
-			$this->settings[static::SETTINGS_KEY]['tasks'][$identifier], $identifier
+			$this->settings[$this->getSettingsKey()]['tasks'][$identifier], $identifier
 		);
 		$importDemand->setTasks([$task]);
 
@@ -124,23 +130,23 @@ abstract class BaseController extends ActionController
 	}
 
 	/**
-	 * Import
+	 * Performs the set action
 	 *
 	 * @param string $identifier
-	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function computeSetAction($identifier)
+	protected function doSetAction($identifier)
 	{
         $this->validateSettings();
+        $settingsKey = $this->getSettingsKey();
 
 		/** @var ImportDemand $importDemand */
 		$importDemand = $this->objectManager->get(
 			ImportDemand::class
 		);
-		if (isset($this->settings[static::SETTINGS_KEY]['sets'][$identifier])) {
+		if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
 			$set = $this->importSetFactory->get(
-				$this->settings[static::SETTINGS_KEY]['sets'][$identifier], $identifier
+				$this->settings[$settingsKey]['sets'][$identifier], $identifier
 			);
 			$importDemand->setTasks($set->getTasks());
 		}
@@ -201,10 +207,10 @@ abstract class BaseController extends ActionController
      */
     protected function validateSettings()
     {
-        if (!isset($this->settings[static::SETTINGS_KEY])) {
+        if (!isset($this->settings[$this->getSettingsKey()])) {
             $keysFound = implode(', ', array_keys($this->settings));
             throw new InvalidConfigurationException(
-                'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
+                'no config with matching key \'' . $this->getSettingsKey() . '\' found, only: (\'' . $keysFound . '\')',
                 123476532
             );
         }

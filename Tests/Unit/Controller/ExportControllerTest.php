@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Controller;
 
-use CPSIT\T3importExport\Controller\ImportController;
+use CPSIT\T3importExport\Controller\ExportController;
 use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
 use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
 use CPSIT\T3importExport\Domain\Model\ImportSet;
@@ -30,20 +30,20 @@ use TYPO3\CMS\Fluid\View\TemplateView;
  ***************************************************************/
 
 /**
- * Class ImportControllerTest
+ * Class ExportControllerTest
  *
  * @package CPSIT\T3importExport\Tests\Controller
- * @coversDefaultClass \CPSIT\T3importExport\Controller\ImportController
+ * @coversDefaultClass \CPSIT\T3importExport\Controller\ExportController
  */
-class ImportControllerTest extends UnitTestCase {
+class ExportControllerTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3importExport\Controller\ImportController
+	 * @var \CPSIT\T3importExport\Controller\ExportController
 	 */
 	protected $subject;
 
 	public function setUp() {
-		$this->subject = $this->getAccessibleMock(ImportController::class,
+		$this->subject = $this->getAccessibleMock(ExportController::class,
 			['dummy'], [], '', FALSE);
 	}
 
@@ -64,7 +64,7 @@ class ImportControllerTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function injectImportTaskFactorySetsFactory() {
+	public function injectExportTaskFactorySetsFactory() {
 		$factory = $this->getMock(
 			ImportTaskFactory::class
 		);
@@ -78,7 +78,7 @@ class ImportControllerTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function injectImportSetFactorySetsFactory() {
+	public function injectExportSetFactorySetsFactory() {
 		$factory = $this->getMock(
 			ImportSetFactory::class
 		);
@@ -92,10 +92,10 @@ class ImportControllerTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function importTaskActionBuildsAndProcessQueueAndAssignsVariables() {
+	public function exportTaskActionBuildsAndProcessQueueAndAssignsVariables() {
 		$identifier = 'foo';
 		$settings = [
-			'import' => [
+			'export' => [
 				'tasks' => [
 					$identifier => ['bar']
 				]
@@ -110,7 +110,7 @@ class ImportControllerTest extends UnitTestCase {
 		);
 		$importTaskFactory->expects($this->once())
 			->method('get')
-			->with($settings['import']['tasks'][$identifier])
+			->with($settings['export']['tasks'][$identifier])
 			->will($this->returnValue($mockTask));
 		$this->subject->injectImportTaskFactory($importTaskFactory);
 
@@ -150,7 +150,7 @@ class ImportControllerTest extends UnitTestCase {
 					'result' => $result
 				]
 			);
-		$this->subject->importTaskAction($task);
+		$this->subject->exportTaskAction($task);
 	}
 
 	/**
@@ -160,7 +160,7 @@ class ImportControllerTest extends UnitTestCase {
 		$identifierForTask = 'foo';
 		$settingsForTask = ['fooTaskSettings'];
 		$settings = [
-			'import' => [
+			'export' => [
 				'tasks' => [
 					$identifierForTask => $settingsForTask
 				]
@@ -191,7 +191,7 @@ class ImportControllerTest extends UnitTestCase {
 		$identifierForSet = 'foo';
 		$settingsForSet = ['fooSetSettings'];
 		$settings = [
-			'import' => [
+			'export' => [
 				'sets' => [
 					$identifierForSet => $settingsForSet
 				]
@@ -219,10 +219,10 @@ class ImportControllerTest extends UnitTestCase {
 	/**
 	 * @test
 	 */
-	public function importSetActionBuildsAndProcessQueueAndAssignsVariables() {
+	public function exportSetActionBuildsAndProcessQueueAndAssignsVariables() {
 		$identifier = 'foo';
 		$settings = [
-			'import' => [
+			'export' => [
 				'sets' => [
 					$identifier => ['bar']
 				]
@@ -240,7 +240,7 @@ class ImportControllerTest extends UnitTestCase {
 		);
 		$importSetFactory->expects($this->once())
 			->method('get')
-			->with($settings['import']['sets'][$identifier])
+			->with($settings['export']['sets'][$identifier])
 			->will($this->returnValue($mockSet));
 		$this->subject->injectImportSetFactory($importSetFactory);
 
@@ -280,7 +280,7 @@ class ImportControllerTest extends UnitTestCase {
 					'result' => $result
 				]
 			);
-		$this->subject->importSetAction($set);
+		$this->subject->exportSetAction($set);
 	}
 
 	/**
@@ -288,7 +288,7 @@ class ImportControllerTest extends UnitTestCase {
      * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
      * @expectedExceptionCode 123476532
      */
-	public function importSetActionThrowsErrorForMissingSettingsKey()
+	public function exportSetActionThrowsErrorForMissingSettingsKey()
     {
         $invalidSettings = [];
         $this->inject(
@@ -296,7 +296,7 @@ class ImportControllerTest extends UnitTestCase {
             'settings',
             $invalidSettings
         );
-        $this->subject->importSetAction('foo');
+        $this->subject->exportSetAction('foo');
     }
 
     /**
@@ -320,7 +320,7 @@ class ImportControllerTest extends UnitTestCase {
      * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
      * @expectedExceptionCode 123476532
      */
-    public function importTaskActionThrowsErrorForMissingSettingsKey()
+    public function exportTaskActionThrowsErrorForMissingSettingsKey()
     {
         $invalidSettings = [];
         $this->inject(
@@ -328,7 +328,7 @@ class ImportControllerTest extends UnitTestCase {
             'settings',
             $invalidSettings
         );
-        $this->subject->importTaskAction('foo');
+        $this->subject->exportTaskAction('foo');
     }
 
     /**
@@ -337,7 +337,7 @@ class ImportControllerTest extends UnitTestCase {
     public function getSettingsKeyReturnsClassConstant()
     {
         $this->assertSame(
-            ImportController::SETTINGS_KEY,
+            ExportController::SETTINGS_KEY,
             $this->subject->getSettingsKey()
         );
     }

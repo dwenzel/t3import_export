@@ -1,8 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Controller;
 
-use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
-
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -20,42 +18,18 @@ use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ExportController extends BaseController
-implements TransferControllerInterface
+
+/**
+ * Interface TransferControllerInterface
+ *
+ * @package CPSIT\T3importExport\Controller
+ */
+interface TransferControllerInterface
 {
-	const SETTINGS_KEY = 'export';
-
-	/**
-	 * Export task action
-	 *
-	 * @param string $identifier
-	 *
-	 * @throws InvalidConfigurationException
-	 */
-	public function exportTaskAction($identifier)
-	{
-		$this->doTaskAction($identifier);
-	}
-
-	/**
-	 * Export
-	 *
-	 * @param string $identifier
-	 *
-	 * @throws InvalidConfigurationException
-	 */
-	public function exportSetAction($identifier)
-	{
-		$this->doSetAction($identifier);
-	}
-
     /**
-     * Gets the settings key
+     * Returns the settings key
      *
      * @return string
      */
-    public function getSettingsKey()
-    {
-        return self::SETTINGS_KEY;
-    }
+    public function getSettingsKey();
 }
