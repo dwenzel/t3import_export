@@ -19,8 +19,8 @@ namespace CPSIT\T3importExport\Tests\Functional\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Tests\FunctionalTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
@@ -40,9 +40,9 @@ class ImportProcessorTest extends FunctionalTestCase {
 	protected $importProcessor;
 
     /**
-     * @var ImportTaskFactory
+     * @var TransferTaskFactory
      */
-    protected $importTaskFactory;
+    protected $transferTaskFactory;
 
     /**
      * @var ObjectManagerInterface
@@ -58,7 +58,7 @@ class ImportProcessorTest extends FunctionalTestCase {
 		parent::setUp();
         $this->objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
 		$this->importProcessor = $this->objectManager->get(DataTransferProcessor::class);
-        $this->importTaskFactory = $this->objectManager->get(ImportTaskFactory::class);
+        $this->transferTaskFactory = $this->objectManager->get(TransferTaskFactory::class);
         $this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');
     }
 
@@ -67,12 +67,9 @@ class ImportProcessorTest extends FunctionalTestCase {
 	 */
 	public function buildQueueFindsRecords() {
         $taskIdentifier = 'findFeUser';
-        $localDatabaseIdentifier = 'typo3local';
-        $this->registerTypo3Database($localDatabaseIdentifier);
 
 		$settings = [
             'source' => [
-                'identifier' => $localDatabaseIdentifier,
                 'config' => [
                     'table' => 'fe_users',
                     'where' => 'name="findFeUser"'
@@ -82,8 +79,8 @@ class ImportProcessorTest extends FunctionalTestCase {
 
             ]
         ];
-        $importTask = $this->importTaskFactory->get($settings, $taskIdentifier);
-        $importDemand = new ImportDemand();
+        $importTask = $this->transferTaskFactory->get($settings, $taskIdentifier);
+        $importDemand = new TaskDemand();
         $importDemand->setTasks([$importTask]);
 
 		$this->importProcessor->buildQueue($importDemand);
@@ -103,18 +100,4 @@ class ImportProcessorTest extends FunctionalTestCase {
         );
 	}
 
-    /**
-     * @param $localDatabaseIdentifier
-     */
-    protected function registerTypo3Database($localDatabaseIdentifier)
-    {
-        DatabaseConnectionService::register(
-            $localDatabaseIdentifier,
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['host'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['database'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['username'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['password'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['port']
-        );
-    }
 }

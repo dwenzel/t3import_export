@@ -1,11 +1,11 @@
 <?php
 namespace CPSIT\T3importExport\Controller;
 
-use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /***************************************************************
@@ -27,7 +27,6 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  ***************************************************************/
 abstract class BaseController extends ActionController
 {
-	const SETTINGS_KEY = 'BASE_KEY';
 
 	/**
 	 * @var DataTransferProcessor
@@ -35,14 +34,14 @@ abstract class BaseController extends ActionController
 	protected $dataTransferProcessor;
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
 	 */
-	protected $importTaskFactory;
+	protected $transferTaskFactory;
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportSetFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
 	 */
-	protected $importSetFactory;
+	protected $transferSetFactory;
 
 	/**
 	 * Injects the event import processor
@@ -54,18 +53,25 @@ abstract class BaseController extends ActionController
 	}
 
 	/**
-	 * @param ImportTaskFactory $importTaskFactory
+	 * @param TransferTaskFactory $importTaskFactory
 	 */
-	public function injectImportTaskFactory(ImportTaskFactory $importTaskFactory) {
-		$this->importTaskFactory = $importTaskFactory;
+	public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory) {
+		$this->transferTaskFactory = $importTaskFactory;
 	}
 
 	/**
-	 * @param ImportSetFactory $importSetFactory
+	 * @param TransferSetFactory $importSetFactory
 	 */
-	public function injectImportSetFactory(ImportSetFactory $importSetFactory) {
-		$this->importSetFactory = $importSetFactory;
+	public function injectTransferSetFactory(TransferSetFactory $importSetFactory) {
+		$this->transferSetFactory = $importSetFactory;
 	}
+
+    /**
+     * Gets the settings key
+     *
+     * @return string
+     */
+	abstract public function getSettingsKey();
 
 	/**
 	 * Index action
@@ -74,46 +80,42 @@ abstract class BaseController extends ActionController
 	 */
 	public function indexAction()
 	{
-		if (!isset($this->settings[static::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
+        $this->validateSettings();
+        $settingsKey = $this->getSettingsKey();
+		$tasks = [];
+        $sets = [];
+		if (isset($this->settings[$settingsKey]['tasks'])) {
+		    $tasks = $this->buildTasksFromSettings($this->settings[$settingsKey]['tasks']);
+        }
+        if (isset($this->settings[$settingsKey]['sets'])) {
+            $sets = $this->buildSetsFromSettings($this->settings[$settingsKey]['sets']);
+        }
 
 		$this->view->assignMultiple(
 			[
-				'tasks' => $this->buildTasksFromSettings($this->settings[static::SETTINGS_KEY]['tasks']),
-				'sets' => $this->buildSetsFromSettings($this->settings[static::SETTINGS_KEY]['sets']),
-				'settings' => $this->settings[static::SETTINGS_KEY]
+				'tasks' => $tasks,
+				'sets' => $sets,
+				'settings' => $this->settings[$settingsKey]
 			]
 		);
 	}
 
 	/**
-	 * Import task action
+	 * Performs the task action
 	 *
 	 * @param string $identifier
-	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function computeTaskAction($identifier)
+	protected function doTaskAction($identifier)
 	{
-		if (!isset($this->settings[static::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
+        $this->validateSettings();
 
-		/** @var ImportDemand $importDemand */
+        /** @var TaskDemand $importDemand */
 		$importDemand = $this->objectManager->get(
-			ImportDemand::class
+			TaskDemand::class
 		);
-		$task = $this->importTaskFactory->get(
-			$this->settings[static::SETTINGS_KEY]['tasks'][$identifier], $identifier
+		$task = $this->transferTaskFactory->get(
+			$this->settings[$this->getSettingsKey()]['tasks'][$identifier], $identifier
 		);
 		$importDemand->setTasks([$task]);
 
@@ -128,29 +130,23 @@ abstract class BaseController extends ActionController
 	}
 
 	/**
-	 * Import
+	 * Performs the set action
 	 *
 	 * @param string $identifier
-	 *
 	 * @throws InvalidConfigurationException
 	 */
-	public function computeSetAction($identifier)
+	protected function doSetAction($identifier)
 	{
-		if (!isset($this->settings[static::SETTINGS_KEY])) {
-			$keysFound = implode(', ', array_keys($this->settings));
-			throw new InvalidConfigurationException(
-				'no config with matching key \'' . static::SETTINGS_KEY . '\' found, only: (\'' . $keysFound . '\')',
-				123476532
-			);
-		}
+        $this->validateSettings();
+        $settingsKey = $this->getSettingsKey();
 
-		/** @var ImportDemand $importDemand */
+		/** @var TaskDemand $importDemand */
 		$importDemand = $this->objectManager->get(
-			ImportDemand::class
+			TaskDemand::class
 		);
-		if (isset($this->settings[static::SETTINGS_KEY]['sets'][$identifier])) {
-			$set = $this->importSetFactory->get(
-				$this->settings[static::SETTINGS_KEY]['sets'][$identifier], $identifier
+		if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
+			$set = $this->transferSetFactory->get(
+				$this->settings[$settingsKey]['sets'][$identifier], $identifier
 			);
 			$importDemand->setTasks($set->getTasks());
 		}
@@ -176,7 +172,7 @@ abstract class BaseController extends ActionController
 
 		if (is_array($settings)) {
 			foreach ($settings as $identifier => $taskSettings) {
-				$tasks[$identifier] = $this->importTaskFactory->get(
+				$tasks[$identifier] = $this->transferTaskFactory->get(
 					$taskSettings, $identifier
 				);
 			}
@@ -196,11 +192,28 @@ abstract class BaseController extends ActionController
 
 		if (is_array($settings)) {
 			foreach ($settings as $identifier => $setSettings) {
-				$sets[$identifier] = $this->importSetFactory->get($setSettings, $identifier);
+				$sets[$identifier] = $this->transferSetFactory->get($setSettings, $identifier);
 			}
 		}
 
 		return $sets;
 	}
+
+    /**
+     * Validates the settings
+     *
+     * @return void
+     * @throws InvalidConfigurationException
+     */
+    protected function validateSettings()
+    {
+        if (!isset($this->settings[$this->getSettingsKey()])) {
+            $keysFound = implode(', ', array_keys($this->settings));
+            throw new InvalidConfigurationException(
+                'no config with matching key \'' . $this->getSettingsKey() . '\' found, only: (\'' . $keysFound . '\')',
+                123476532
+            );
+        }
+    }
 
 }

@@ -22,12 +22,12 @@ use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
 
 /**
- * Class ImportSet
- * A set of import tasks
+ * Class TransferSet
+ * A set of transfer tasks
  *
  * @package CPSIT\T3importExport\Domain\Model
  */
-class ImportSet implements IdentifiableInterface {
+class TransferSet implements IdentifiableInterface {
 	use IdentifiableTrait;
 
 	/**

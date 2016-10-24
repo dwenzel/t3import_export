@@ -169,20 +169,6 @@ class DataSourceFactoryTest extends UnitTestCase {
 	/**
 	 * @test
 	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1451083802
-	 */
-	public function getThrowsExceptionIfIdentifierIsNotSetForIdentifiableSource() {
-		$identifier = 'foo';
-		$settings = [
-			'class' => DummyIdentifiableSourceInterfaceClass::class,
-			'config' => []
-		];
-		$this->subject->get($settings, $identifier);
-	}
-
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 * @expectedExceptionCode 1451086595
 	 */
 	public function getThrowsExceptionForMissingConfig() {
@@ -232,7 +218,7 @@ class DataSourceFactoryTest extends UnitTestCase {
 		$identifier = 'foo';
 		$dataSourceClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
 		$expectedDataSource = $this->getMock(
-			$dataSourceClass
+			$dataSourceClass, [], [], '', false
 		);
 		$settings = [
 			'identifier' => $identifier,

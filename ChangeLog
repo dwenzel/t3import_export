@@ -1,3 +1,21 @@
+2016-10-24         [RELEASE] Release of t3import_export 0.6.3 (Dirk Wenzel)
+2016-10-24 3f919e1 [BUGFIX] DataSourceFactory does not throw exception for missing identifier anymore if data source implements IdentifiableInterface and identifier is not set. (Dirk Wenzel)
+2016-10-24 298d029 [TASK] remove obsolete registration of TYPO3 DB in functional test. (TYPO3 DB is now default connection in DataSourceDB) (Dirk Wenzel)
+2016-10-24 6ed461d [BUGFIX] fixed error in DataSourceDB where default database connection (from constructor) could not be overridden when identifier is set (in method getDatabase) (Dirk Wenzel)
+2016-10-21 60a0a50 [HOTFIX] It is not possible to use a different DB connections in release/0.6.2 (Vladimir Falcon)
+2016-10-18 bb5ac5a [TASK] ImportTask, ImportTaskFactory, ImportSet, ImportSetFactory and ImportDemand renamed to Transfer* (Dirk Wenzel)
+2016-10-18 b1862b3 [TASK] TransferControllerInterface implemented. ExportController, ImportController and BaseController refactored using the interface. Parent call replaced. Unit tests for ExportController added. (Dirk Wenzel)
+2016-10-18 43d7360 [TASK] BaseController refactored. Unit tests added. (Dirk Wenzel)
+2016-10-18 76d6131 [TASK] relax code coverage annotation for ImportController (Dirk Wenzel)
+2016-10-18 02e3d4b [TASK] code coverage on travis.ci enabled. (Dirk Wenzel)
+2016-10-18 7240155 [BUGFIX] DataTargetFileStream now generates the temp file name without values from globals and rewinds TaskResult before validating. Test failing due to missing dependency fixed. (Dirk Wenzel)
+2016-10-18 dc54fa8 [BUGFIX] fixed several errors caused by invalid array access under PHP 7 and changes during refactoring (Dirk Wenzel)
+2016-10-17 fba754f [BUGFIX] swap condition in travis.ci script (Dirk Wenzel)
+2016-10-16 7cc5a60 [TASK] Documentation formatted. (Dirk Wenzel)
+2016-10-16 543aac4 [TASK] documentation for PreProcessor ConcatenateFields and stub pages for other PreProcessors added. (Dirk Wenzel)
+2016-10-16 866076b [TASK] documentation for Initializer TruncateTables and PreProcessor AddArrays added. (Dirk Wenzel)
+2016-10-16 6d35a0f [TASK] documentation added. (Dirk Wenzel)
+
 2016-10-14         [RELEASE] Release of t3import_export 0.6.2 (Dirk Wenzel)
 2016-10-14 8770595 [BUGFIX] missing localized strings added. (Dirk Wenzel)
 2016-10-12 6765f4a [BUGFIX] prevent error caused by null value in result argument in DataTargetFileStream->persistAll. Prevent DataTransferProcessor from returning wrong type. Obsolete template file removed. (Dirk Wenzel)
@@ -89,5 +107,3 @@
 2016-05-23 d4ba35d new model structure ... (Benjamin Rannow)
 2016-05-20 dea7642 add new data stream converter and datasteam context (Benjamin Rannow)
 2016-05-20 5b9252d [TASK] ImportProcessor now delegates persisting result to target. DataTargetInterface and DataTargetRepository extended by method persistAll. (Dirk Wenzel)
-
-

@@ -80,14 +80,18 @@ class TruncateTables
 			$this->database = $this->connectionService
 				->getDatabase($configuration['identifier']);
 		}
-		$tables = GeneralUtility::trimExplode(
-			',',
-			$configuration['tables'],
-			true
-		);
-		foreach ($tables as $table) {
-			$this->database->exec_TRUNCATEquery($table);
-		}
+		if (isset($configuration['tables'])) {
+		    $tables = GeneralUtility::trimExplode(
+                ',',
+                $configuration['tables'],
+                true
+            );
+            if ((bool)$tables) {
+                foreach ($tables as $table) {
+                    $this->database->exec_TRUNCATEquery($table);
+                }
+            }
+        }
 	}
 
 	/**

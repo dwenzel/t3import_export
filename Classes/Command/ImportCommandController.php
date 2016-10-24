@@ -2,9 +2,9 @@
 namespace CPSIT\T3importExport\Command;
 
 use CPSIT\T3importExport\Controller\ImportController;
-use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -48,12 +48,12 @@ class ImportCommandController extends CommandController {
 	protected $importProcessor;
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
 	 */
-	protected $importTaskFactory;
+	protected $transferTaskFactory;
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportSetFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
 	 */
 	protected $importSetFactory;
 
@@ -74,18 +74,18 @@ class ImportCommandController extends CommandController {
 	/**
      * Injects the import task factory
      *
-	 * @param ImportTaskFactory $importTaskFactory
+	 * @param TransferTaskFactory $importTaskFactory
 	 */
-	public function injectImportTaskFactory(ImportTaskFactory $importTaskFactory) {
-		$this->importTaskFactory = $importTaskFactory;
+	public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory) {
+		$this->transferTaskFactory = $importTaskFactory;
 	}
 
 	/**
      * Injects the import set factory
      *
-	 * @param ImportSetFactory $importSetFactory
+	 * @param TransferSetFactory $importSetFactory
 	 */
-	public function injectImportSetFactory(ImportSetFactory $importSetFactory) {
+	public function injectImportSetFactory(TransferSetFactory $importSetFactory) {
 		$this->importSetFactory = $importSetFactory;
 	}
 
@@ -114,14 +114,14 @@ class ImportCommandController extends CommandController {
      * @param bool $dryRun If set nothing will be saved
 	 */
 	public function taskCommand($identifier, $dryRun = false) {
-		/** @var ImportDemand $importDemand */
+		/** @var TaskDemand $importDemand */
 		$importDemand = $this->objectManager->get(
-			ImportDemand::class
+			TaskDemand::class
 		);
 
 		if (isset($this->settings['tasks'][$identifier])) {
 			$taskSettings = $this->settings['tasks'][$identifier];
-			$task = $this->importTaskFactory->get(
+			$task = $this->transferTaskFactory->get(
 				$taskSettings, $identifier
 			);
 
@@ -143,9 +143,9 @@ class ImportCommandController extends CommandController {
      * @return void
      */
 	public function setCommand($identifier, $dryRun = false) {
-		/** @var ImportDemand $importDemand */
+		/** @var TaskDemand $importDemand */
 		$importDemand = $this->objectManager->get(
-			ImportDemand::class
+			TaskDemand::class
 		);
 
 		if (isset($this->settings['sets'][$identifier])) {

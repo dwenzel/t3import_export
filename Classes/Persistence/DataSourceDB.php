@@ -49,7 +49,12 @@ class DataSourceDB
      */
     public function getDatabase()
     {
-        if (!$this->database instanceof DatabaseConnection) {
+        if (
+            !$this->database instanceof DatabaseConnection
+            || (
+                !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
+            )
+        ) {
             $this->database = $this->connectionService->getDatabase($this->identifier);
         }
 

@@ -4,8 +4,10 @@ namespace CPSIT\T3importExport\Tests;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Form\Controller\FrontendController;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /***************************************************************
  *
@@ -40,9 +42,17 @@ class RenderContentTraitTest extends UnitTestCase {
 
 	public function setUp() {
 		$this->subject = $this->getMockForTrait(
-			RenderContentTrait::class
+			RenderContentTrait::class,
+            [], '', true, true, true, ['getTypoScriptFrontendController']
 		);
-	}
+        $mockFrontendController = $this->getMock(
+            TypoScriptFrontendController::class, [], [], '', false
+        );
+        $this->subject->expects($this->any())
+            ->method('getTypoScriptFrontendController')
+            ->will($this->returnValue($mockFrontendController));
+
+    }
 
     /**
      * @return mixed
@@ -63,10 +73,11 @@ class RenderContentTraitTest extends UnitTestCase {
     protected function mockContentObjectRenderer()
     {
         $mockContentObjectRenderer = $this->getMock(
-            ContentObjectRenderer::class, ['getContentObject']
+            ContentObjectRenderer::class,
+            ['render', 'start', 'getContentObject'], [], '', false
         );
-        $this->subject->injectContentObjectRenderer($mockContentObjectRenderer);
 
+        $this->subject->injectContentObjectRenderer($mockContentObjectRenderer);
         return $mockContentObjectRenderer;
     }
 
@@ -89,7 +100,7 @@ class RenderContentTraitTest extends UnitTestCase {
      */
     public function injectContentObjectRendererInjectsObject() {
         $contentObjectRenderer = $this->getMock(
-            ContentObjectRenderer::class
+            ContentObjectRenderer::class, [], [], '', false
         );
 
         $this->subject->injectContentObjectRenderer($contentObjectRenderer);
@@ -105,7 +116,9 @@ class RenderContentTraitTest extends UnitTestCase {
      */
     public function renderContentConvertsPlainArrayToTypoScriptArray()
     {
-        $configuration = ['foo'];
+        $configuration = [
+            '_typoScriptNodeValue' => 'BAR'
+        ];
         $mockTypoScriptService = $this->mockTypoScriptService();
         $mockTypoScriptService->expects($this->once())
             ->method('convertPlainArrayToTypoScriptArray')

@@ -78,9 +78,11 @@ abstract class AbstractComponent
      */
     public function isDisabled($configuration, $record = [])
     {
-        if (
-            isset($configuration['disable'])
-            AND $configuration['disable'] === '1'
+        if (!isset($configuration['disable'])) {
+            return false;
+        }
+
+        if ($configuration['disable'] === '1'
         ) {
             return true;
         }

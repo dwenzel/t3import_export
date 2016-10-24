@@ -73,21 +73,15 @@ class DataSourceFactory extends AbstractFactory {
 			);
 		}
 
-		if (in_array(IdentifiableInterface::class, class_implements($dataSourceClass))) {
-			// dataSourceClass implements IdentifiableInterface but identifier is not set
-			if (!isset($settings['identifier'])) {
-				throw new InvalidConfigurationException(
-					'Invalid configuration for source.
-					Missing identifier for class ' . $dataSourceClass . '.',
-					1451083802
-				);
-			}
+        $dataSource = $this->objectManager->get($dataSourceClass);
+        if (
+		    in_array(IdentifiableInterface::class, class_implements($dataSourceClass))
+            && isset($settings['identifier'])
+        ) {
 			/** @var IdentifiableInterface $dataSource */
-			$dataSource = $this->objectManager->get($dataSourceClass);
 			$dataSource->setIdentifier($settings['identifier']);
-		} else {
-			$dataSource = $this->objectManager->get($dataSourceClass);
 		}
+		
 		$dataSource->setConfiguration(
 			$settings['config']
 		);

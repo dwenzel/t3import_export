@@ -58,7 +58,7 @@ class DataSourceDBTest extends UnitTestCase {
 	 * @covers ::getRecords
 	 */
 	public function getRecordsInitiallyReturnsEmptyArray() {
-		$configuration = ['foo'];
+		$configuration = ['table' => 'foo'];
 		$mockConnectionService = $this->getMock(
 			DatabaseConnectionService::class
 		);
@@ -125,6 +125,7 @@ class DataSourceDBTest extends UnitTestCase {
             ['renderContent'], [], '', FALSE);
 
         $configuration = [
+            'table' => 'baz',
             'foo' => ['bar']
         ];
         $mockConnectionService = $this->getMock(
@@ -202,4 +203,43 @@ class DataSourceDBTest extends UnitTestCase {
 		);
 	}
 
+	/**
+     * @test
+     */
+	public function getDatabaseOverwritesDefaultDatabaseConnectionIfIdentifierIsSet()
+    {
+        $identifier = 'bar';
+        $GLOBALS['TYPO3_DB'] = $this->getMock(DatabaseConnection::class);
+        $this->inject(
+            $this->subject,
+            'identifier',
+            $identifier
+        );
+        $mockConnectionService = $this->getMock(
+            DatabaseConnectionService::class,
+            ['getDatabase']
+        );
+        $this->inject(
+            $this->subject,
+            'connectionService',
+            $mockConnectionService
+        );
+        $mockConnectionForIdentifier = $this->getMock(
+            DatabaseConnection::class
+        );
+        $mockConnectionService->expects($this->once())
+            ->method('getDatabase')
+            ->with($identifier)
+            ->will($this->returnValue($mockConnectionForIdentifier));
+
+        $this->assertSame(
+            $mockConnectionForIdentifier,
+            $this->subject->getDatabase()
+        );
+
+        $this->assertNotSame(
+            $GLOBALS['TYPO3_DB'],
+            $this->subject->getDatabase()
+        );
+    }
 }

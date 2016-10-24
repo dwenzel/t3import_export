@@ -63,6 +63,9 @@ class LookUpDB
 		) {
 			return FALSE;
 		}
+		if (!isset($configuration['targetField']) || !is_string($configuration['targetField'])) {
+		    return false;
+        }
 
 		return TRUE;
 	}

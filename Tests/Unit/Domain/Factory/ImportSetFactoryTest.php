@@ -19,10 +19,10 @@ namespace CPSIT\T3importExport\Tests\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\Domain\Factory\ImportSetFactory;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\ImportSet;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\TransferSet;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -34,7 +34,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class ImportSetFactoryTest extends UnitTestCase
 {
     /**
-     * @var ImportSetFactory
+     * @var TransferSetFactory
      */
     protected $subject;
 
@@ -44,7 +44,7 @@ class ImportSetFactoryTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock(
-            ImportSetFactory::class, ['dummy']
+            TransferSetFactory::class, ['dummy']
         );
     }
 
@@ -67,14 +67,14 @@ class ImportSetFactoryTest extends UnitTestCase
     public function injectImportTaskFactorySetsObject()
     {
         $mockTaskFactory = $this->getMock(
-            ImportTaskFactory::class
+            TransferTaskFactory::class
         );
 
-        $this->subject->injectImportTaskFactory($mockTaskFactory);
+        $this->subject->injectTransferTaskFactory($mockTaskFactory);
 
         $this->assertAttributeSame(
             $mockTaskFactory,
-            'importTaskFactory',
+            'transferTaskFactory',
             $this->subject
         );
     }
@@ -88,12 +88,12 @@ class ImportSetFactoryTest extends UnitTestCase
         $identifier = 'foo';
 
         $mockImportSet = $this->getMock(
-            ImportSet::class
+            TransferSet::class
         );
         $mockObjectManager = $this->mockObjectManager();
         $mockObjectManager->expects($this->once())
             ->method('get')
-            ->with(ImportSet::class)
+            ->with(TransferSet::class)
             ->will($this->returnValue($mockImportSet));
 
         $this->assertSame(
@@ -111,7 +111,7 @@ class ImportSetFactoryTest extends UnitTestCase
         $identifier = 'foo';
 
         $mockImportSet = $this->getMock(
-            ImportSet::class, ['setIdentifier']
+            TransferSet::class, ['setIdentifier']
         );
         $mockObjectManager = $this->mockObjectManager();
         $mockObjectManager->expects($this->once())
@@ -136,7 +136,7 @@ class ImportSetFactoryTest extends UnitTestCase
         ];
 
         $mockImportSet = $this->getMock(
-            ImportSet::class, ['setDescription']
+            TransferSet::class, ['setDescription']
         );
         $mockObjectManager = $this->mockObjectManager();
         $mockObjectManager->expects($this->once())
@@ -161,7 +161,7 @@ class ImportSetFactoryTest extends UnitTestCase
         ];
 
         $mockImportSet = $this->getMock(
-            ImportSet::class, ['setLabel']
+            TransferSet::class, ['setLabel']
         );
         $mockObjectManager = $this->mockObjectManager();
         $mockObjectManager->expects($this->once())
@@ -197,18 +197,18 @@ class ImportSetFactoryTest extends UnitTestCase
             'tasks' => 'foo,bar,,'
         ];
         $mockImportTaskFactory = $this->getMock(
-            ImportTaskFactory::class, ['get']
+            TransferTaskFactory::class, ['get']
         );
 
         $mockImportSet = $this->getMock(
-            ImportSet::class, ['setTasks']
+            TransferSet::class, ['setTasks']
         );
         $mockObjectManager = $this->mockObjectManager();
         $mockObjectManager->expects($this->once())
             ->method('get')
             ->will($this->returnValue($mockImportSet));
         $mockImportTask = $this->getMock(
-            ImportTask::class
+            TransferTask::class
         );
         $mockImportTaskFactory->expects($this->exactly(2))
             ->method('get')
@@ -217,7 +217,7 @@ class ImportSetFactoryTest extends UnitTestCase
                 [$barTaskConfiguration, 'bar']
             )
             ->will($this->returnValue($mockImportTask));
-        $this->subject->injectImportTaskFactory($mockImportTaskFactory);
+        $this->subject->injectTransferTaskFactory($mockImportTaskFactory);
 
         $expectedTasks = [
             'foo' => $mockImportTask,

@@ -54,22 +54,6 @@ class AbstractPreProcessorTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @cover ::injectContentObjectRenderer
-	 */
-	public function injectContentObjectRendererSetsContentObjectRenderer() {
-		$mockContentObjectRenderer = $this->getMock(
-			'TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer'
-		);
-
-		$this->subject->injectContentObjectRenderer($mockContentObjectRenderer);
-		$this->assertSame(
-			$mockContentObjectRenderer,
-			$this->subject->_get('contentObjectRenderer')
-		);
-	}
-
-	/**
-	 * @test
 	 * @cover ::injectTypoScriptService
 	 */
 	public function injectTypoScriptServiceSetsTypoScriptService() {
@@ -105,78 +89,6 @@ class AbstractPreProcessorTest extends UnitTestCase {
 		];
 		$this->assertTrue(
 			$this->subject->isDisabled($configuration)
-		);
-
-	}
-
-	/**
-	 * @test
-	 * @covers ::renderContent
-	 */
-	public function renderContentConvertsTypoScript() {
-		$mockTypoScriptService = $this->getMock(
-			'TYPO3\\CMS\\Extbase\\Service\\TypoScriptService',
-			['convertPlainArrayToTypoScriptArray']
-		);
-		$mockContentObjectRenderer = $this->getMock(
-			'TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer'
-		);
-		$this->subject->_set('typoScriptService', $mockTypoScriptService);
-		$this->subject->_set('contentObjectRenderer', $mockContentObjectRenderer);
-
-		$configuration = [
-			'disable' => [
-				'foo' => 'bar',
-			]
-		];
-		$mockContentObjectRenderer->expects($this->once())
-			->method('getContentObject');
-
-		$mockTypoScriptService->expects($this->once())
-			->method('convertPlainArrayToTypoScriptArray')
-			->with($configuration['disable']);
-		$this->subject->_call('isDisabled', $configuration);
-
-	}
-
-	/**
-	 * @test
-	 * @covers ::renderContent
-	 */
-	public function renderContentEvaluatesTypoScript() {
-		$mockTypoScriptService = $this->getMock(
-			'TYPO3\\CMS\\Extbase\\Service\\TypoScriptService'
-		);
-		$mockContentObjectRenderer = $this->getMock(
-			'TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer',
-			['getContentObject', 'start']
-		);
-		$mockContentObject = $this->getMock(
-			'TYPO3\\CMS\\Frontend\\ContentObject\\TextContentObject',
-			['render'], [], '', FALSE
-		);
-		$this->subject->_set('typoScriptService', $mockTypoScriptService);
-		$this->subject->_set('contentObjectRenderer', $mockContentObjectRenderer);
-
-		$configuration = [
-			'disable' => [
-				'value' => '1',
-				'if' => [
-					'isTrue' => '1'
-				],
-				'_typoScriptNodeValue' => 'TEXT',
-			]
-		];
-
-		$mockContentObjectRenderer->expects($this->once())
-			->method('getContentObject')
-			->will($this->returnValue($mockContentObject));
-		$mockContentObject->expects($this->once())
-			->method('render')
-			->will($this->returnValue('1'));
-
-		$this->assertTrue(
-			$this->subject->_call('isDisabled', $configuration)
 		);
 
 	}

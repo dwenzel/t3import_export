@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 class ImportController extends BaseController
+implements TransferControllerInterface
 {
 	const SETTINGS_KEY = 'import';
 
@@ -33,7 +34,7 @@ class ImportController extends BaseController
 	 */
 	public function importTaskAction($identifier)
 	{
-		parent::computeTaskAction($identifier);
+		$this->doTaskAction($identifier);
 	}
 
 	/**
@@ -45,6 +46,17 @@ class ImportController extends BaseController
 	 */
 	public function importSetAction($identifier)
 	{
-		parent::computeSetAction($identifier);
+		$this->doSetAction($identifier);
 	}
+
+    /**
+     * Returns the settings key
+     *
+     * @return mixed
+     */
+    public function getSettingsKey()
+    {
+        return self::SETTINGS_KEY;
+    }
+
 }
