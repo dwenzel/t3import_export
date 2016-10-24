@@ -3,6 +3,7 @@ namespace CPSIT\T3importExport\Tests\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice
@@ -40,7 +41,19 @@ class ConcatenateFieldsTest extends UnitTestCase {
 			['dummy'], [], '', FALSE);
 	}
 
-	/**
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    public function mockContentObjectRenderer():\PHPUnit_Framework_MockObject_MockObject
+    {
+        $mockContentObjectRenderer = $this->getMock(
+            ContentObjectRenderer::class, ['wrap', 'noTrimWrap']
+        );
+        $this->subject->injectContentObjectRenderer($mockContentObjectRenderer);
+        return $mockContentObjectRenderer;
+    }
+
+    /**
 	 * @test
 	 * @covers ::process
 	 */
@@ -66,7 +79,75 @@ class ConcatenateFieldsTest extends UnitTestCase {
 		$this->assertSame($expectedResult, $mockRecord);
 	}
 
-	/**
+    /**
+     * @test
+     * @covers ::process
+     */
+    public function processWrapsFieldValues() {
+        $originalFieldValue = 'foo';
+        $wrapConfiguration = 'baz-|-boom';
+        $wrappedFieldValue = 'baz-foo-boom';
+
+        $mockRecord = [
+            'fooField' => $originalFieldValue
+        ];
+        $configuration = [
+            'targetField' => 'baz',
+            'fields' => [
+                'fooField' => [
+                    'wrap' => $wrapConfiguration
+                ],
+            ]
+        ];
+        $mockContentObjectRenderer = $this->mockContentObjectRenderer();
+        $mockContentObjectRenderer->expects($this->once())
+            ->method('wrap')
+            ->with($originalFieldValue, $wrapConfiguration)
+            ->will($this->returnValue($wrappedFieldValue));
+
+        $expectedResult = [
+            'fooField' => $wrappedFieldValue,
+            'baz' => $wrappedFieldValue
+        ];
+        $this->subject->process($configuration, $mockRecord);
+        $this->assertSame($expectedResult, $mockRecord);
+    }
+
+    /**
+     * @test
+     * @covers ::process
+     */
+    public function processNoTrimWrapsFieldValues() {
+        $originalFieldValue = 'foo';
+        $wrapConfiguration = 'baz- | -boom';
+        $wrappedFieldValue = 'baz-foo-boom';
+
+        $mockRecord = [
+            'fooField' => $originalFieldValue
+        ];
+        $configuration = [
+            'targetField' => 'baz',
+            'fields' => [
+                'fooField' => [
+                    'noTrimWrap' => $wrapConfiguration
+                ],
+            ]
+        ];
+        $mockContentObjectRenderer = $this->mockContentObjectRenderer();
+        $mockContentObjectRenderer->expects($this->once())
+            ->method('noTrimWrap')
+            ->with($originalFieldValue, $wrapConfiguration)
+            ->will($this->returnValue($wrappedFieldValue));
+
+        $expectedResult = [
+            'fooField' => $wrappedFieldValue,
+            'baz' => $wrappedFieldValue
+        ];
+        $this->subject->process($configuration, $mockRecord);
+        $this->assertSame($expectedResult, $mockRecord);
+    }
+
+    /**
 	 * @test
 	 * @covers ::isConfigurationValid
 	 */
