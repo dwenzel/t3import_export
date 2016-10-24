@@ -36,7 +36,7 @@ class XMLMapper
 	 */
 	public function isConfigurationValid(array $configuration)
 	{
-		if (empty($configuration['fields'])) {
+		if (!isset($configuration['fields'])) {
 			return false;
 		}
 		if (!is_array($configuration['fields'])) {
