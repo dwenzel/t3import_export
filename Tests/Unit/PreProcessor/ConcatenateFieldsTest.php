@@ -44,7 +44,7 @@ class ConcatenateFieldsTest extends UnitTestCase {
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
-    public function mockContentObjectRenderer():\PHPUnit_Framework_MockObject_MockObject
+    public function mockContentObjectRenderer()
     {
         $mockContentObjectRenderer = $this->getMock(
             ContentObjectRenderer::class, ['wrap', 'noTrimWrap']
