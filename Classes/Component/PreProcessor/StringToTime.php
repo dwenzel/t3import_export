@@ -2,6 +2,7 @@
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
+
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -20,57 +21,61 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 class StringToTime
-	extends AbstractPreProcessor
-	implements PreProcessorInterface {
+    extends AbstractPreProcessor
+    implements PreProcessorInterface
+{
 
-	/**
-	 * @var array
-	 */
-	protected $fields = [];
+    /**
+     * @var array
+     */
+    protected $fields = [];
 
-	/**
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['fields'])) {
-			return FALSE;
-		}
+    /**
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['fields'])) {
+            return FALSE;
+        }
 
-		return TRUE;
-	}
+        return TRUE;
+    }
 
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return TRUE
-	 */
-	public function process($configuration, &$record) {
-		$this->fields = ArrayUtility::trimExplode(',', $configuration['fields'], TRUE);
-		$this->convertFields($record);
-		if (isset($configuration['multipleRowFields'])) {
-			$multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], TRUE);
-			foreach ($multipleRowFields as $field) {
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return TRUE
+     */
+    public function process($configuration, &$record)
+    {
+        $this->fields = ArrayUtility::trimExplode(',', $configuration['fields'], TRUE);
+        $this->convertFields($record);
+        if (isset($configuration['multipleRowFields'])) {
+            $multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], TRUE);
+            foreach ($multipleRowFields as $field) {
                 if (is_array($record[$field])) {
                     foreach ($record[$field] as $key => $row) {
                         $this->convertFields($row);
-						$record[$field][$key] = $row;
-					}
-				}
-			}
-		}
+                        $record[$field][$key] = $row;
+                    }
+                }
+            }
+        }
 
-		return TRUE;
-	}
+        return TRUE;
+    }
 
-	/**
-	 * @param $row
-	 */
-	protected function convertFields(&$row) {
-		foreach ($this->fields as $fieldName) {
-			if (isset($row[$fieldName]) && is_string($row[$fieldName])) {
-			    $row[$fieldName] = strtotime($row[$fieldName]);
-			}
-		}
-	}
+    /**
+     * @param $row
+     */
+    protected function convertFields(&$row)
+    {
+        foreach ($this->fields as $fieldName) {
+            if (isset($row[$fieldName]) && is_string($row[$fieldName])) {
+                $row[$fieldName] = strtotime($row[$fieldName]);
+            }
+        }
+    }
 }
