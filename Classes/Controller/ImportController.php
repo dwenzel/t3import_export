@@ -33,7 +33,7 @@ class ImportController extends BaseController
 	 */
 	public function importTaskAction($identifier)
 	{
-		parent::computeTaskAction($identifier);
+		$this->computeTaskAction($identifier);
 	}
 
 	/**
@@ -45,7 +45,6 @@ class ImportController extends BaseController
 	 */
 	public function importSetAction($identifier)
 	{
-		// don't use parent or the magic didn't happen
-		parent::computeSetAction($identifier);
+		$this->computeSetAction($identifier);
 	}
 }

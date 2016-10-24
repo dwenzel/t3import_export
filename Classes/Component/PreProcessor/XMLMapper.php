@@ -77,7 +77,7 @@ class XMLMapper
 				}
 			}
 			return true;
-		} elseif ($value === '@attribute' || $field === 'mapTo') {
+		} elseif ($value === '@attribute' || $value === '@value' || $field === 'mapTo' || $value === '@separateRow') {
 			return true;
 		}
 
@@ -100,41 +100,78 @@ class XMLMapper
 	/**
 	 * remove array nodes with an config
 	 *
-	 * @param array $fieldArray
-	 * @param array $subConfig
+	 * @param $fieldArray
+	 * @param $subConfig
+	 * @return mixed
 	 */
 	protected function remapXMLStructure($fieldArray, $subConfig)
 	{
 		foreach ($subConfig as $configKey => $value) {
-			// map attributes
-			if ($configKey !== 'mapTo' && isset($fieldArray[$configKey]) && !is_array($fieldArray[$configKey])) {
-				$fieldArray = $this->mapAttributeInArray($fieldArray, $configKey);
-			} elseif ($configKey === 'mapTo') {
-				$fieldArray = $this->mapMapToInArray($fieldArray, $value);
-			} elseif (isset($fieldArray[$configKey]) && is_array($fieldArray[$configKey])) {
-				// check for mapTo here too
-				if (isset($value['children'])) {
-					$subNodes = $fieldArray[$configKey];
-					foreach($subNodes as $nodeKey => $subNode) {
-						$fieldArray[$configKey][$nodeKey] = $this->remapXMLStructure($subNode, $value['children']);
-					}
-					if (isset($value['mapTo'])) {
-						$fieldArray[$configKey] = $this->mapMapToInArray($fieldArray[$configKey], $value['mapTo']);
-					}
-				} else {
-					$fieldArray[$configKey] = $this->remapXMLStructure($fieldArray[$configKey], $value);
-				}
 
-			}
+            if (is_array($value) && !empty($fieldArray[$configKey]) && !is_array($fieldArray[$configKey])) {
+                $fieldArray[$configKey] = [
+                    '@value' => $fieldArray[$configKey]
+                ];
+            }
+
+            if(is_array($value) && !empty($fieldArray[$configKey]) && is_array($fieldArray[$configKey])) {
+                $fieldArray[$configKey] = $this->remapXMLStructure($fieldArray[$configKey], $value);
+            }
+
+            if ($configKey === 'children' && is_array($value)) {
+                foreach ($fieldArray as $key => $val) {
+                    if(is_array($val)) {
+                        $fieldArray[$key] = $this->remapXMLStructure($val, $value);
+                    }
+                }
+            }
+
+            if ($value === '@attribute') {
+                $fieldArray = $this->mapAttributeInArray($fieldArray, $configKey);
+            } elseif ($value === '@separateRow') {
+                $fieldArray = $this->mapSeparateRow($fieldArray, $configKey);
+            } elseif ($configKey === 'mapTo') {
+                $fieldArray = $this->mapMapToInArray($fieldArray, $value);
+            } elseif ($value === '@value') {
+                $fieldArray = $this->mapValueInArray($fieldArray, $configKey);
+            }
 		}
 		return $fieldArray;
 	}
 
 	protected function mapMapToInArray($array, $value)
 	{
+		if (!is_array($array)) {
+			$array = [
+				'@value' => $array
+			];
+		}
+
+        if (isset($value['mapTo'])) {
+            $value = $value['mapTo'];
+        }
+
 		$array['@mapTo'] = $value;
+
 		return $array;
 	}
+
+    protected function mapSeparateRow($array, $mapKey)
+    {
+        if (isset($array[$mapKey])) {
+            $array[$mapKey]['@separateRow'] = true;
+        }
+
+        return $array;
+    }
+
+    protected function mapValueInArray($array, $mapKey)
+    {
+        $array['@value'] = $array[$mapKey];
+        unset($array[$mapKey]);
+
+        return $array;
+    }
 
 	protected function mapAttributeInArray($array, $mapKey)
 	{
