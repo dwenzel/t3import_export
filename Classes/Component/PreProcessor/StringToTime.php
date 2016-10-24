@@ -51,9 +51,9 @@ class StringToTime
 		if (isset($configuration['multipleRowFields'])) {
 			$multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], TRUE);
 			foreach ($multipleRowFields as $field) {
-				if (is_array($record[$field])) {
-					foreach ($record[$field] as $key => $row) {
-						$this->convertFields($row);
+                if (is_array($record[$field])) {
+                    foreach ($record[$field] as $key => $row) {
+                        $this->convertFields($row);
 						$record[$field][$key] = $row;
 					}
 				}
@@ -68,8 +68,8 @@ class StringToTime
 	 */
 	protected function convertFields(&$row) {
 		foreach ($this->fields as $fieldName) {
-			if (isset($row[$fieldName])) {
-				$row[$fieldName] = strtotime($row[$fieldName]);
+			if (isset($row[$fieldName]) && is_string($row[$fieldName])) {
+			    $row[$fieldName] = strtotime($row[$fieldName]);
 			}
 		}
 	}
