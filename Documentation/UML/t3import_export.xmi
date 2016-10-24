@@ -186,7 +186,7 @@
 							<upperValue xmi:id="AAAAAAFRxhjOrTLatSw=" xmi:type="uml:LiteralUnlimitedNatural" value="*"/>
 						</ownedAttribute>
 					</packagedElement>
-					<packagedElement xmi:id="-64--88-1-3-3ff5ead6:151ba6dc18d:-8000:0000000000000B5A" name="ImportTask" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
+					<packagedElement xmi:id="-64--88-1-3-3ff5ead6:151ba6dc18d:-8000:0000000000000B5A" name="TransferTask" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
 						<ownedAttribute xmi:id="AAAAAAFRvny3o/4uVd0=" name="identifier" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRvHhY/f1ZAUc=" isReadOnly="false" isOrdered="false" isUnique="true" xmi:type="uml:Property" aggregation="none" isDerived="false" isID="false">
 							<xmi:Extension extender="StarUML">
 								<documentation value="Unique identifier of this task. To be used as key in the TypoScript configuration."/>
@@ -231,7 +231,7 @@
 					<packagedElement xmi:id="-64--88-1-3-3ff5ead6:151ba6dc18d:-8000:0000000000000B70" name="ExportInterface" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Interface">
 						<ownedOperation xmi:id="AAAAAAFRxL2ut5WIQvg=" name="getIdentifier" visibility="public" isStatic="false" isLeaf="false" concurrency="sequential" isQuery="false" isAbstract="false" xmi:type="uml:Operation"/>
 					</packagedElement>
-					<packagedElement xmi:id="AAAAAAFRv1CMSwEuRwE=" name="ImportSet" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
+					<packagedElement xmi:id="AAAAAAFRv1CMSwEuRwE=" name="TransferSet" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
 						<ownedAttribute xmi:id="AAAAAAFRv1DKKgEye5g=" name="tasks" visibility="public" isStatic="false" isLeaf="false" type="-64--88-1-3-3ff5ead6:151ba6dc18d:-8000:0000000000000B5A" isReadOnly="false" isOrdered="false" isUnique="false" xmi:type="uml:Property" aggregation="none" isDerived="false" isID="false"/>
 						<ownedAttribute xmi:id="AAAAAAFRv1GxZgE3Xgw=" name="identifier" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRvHhY/f1ZAUc=" isReadOnly="false" isOrdered="false" isUnique="true" xmi:type="uml:Property" aggregation="none" isDerived="false" isID="false">
 							<lowerValue xmi:id="AAAAAAFRxhjOrTLlgM8=" xmi:type="uml:LiteralInteger" value="1"/>
@@ -248,7 +248,7 @@
 								<ownedParameter xmi:id="AAAAAAFRxNSRoAjPPfY=" name="tasks" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRvHWN9f1Oe/g=" isReadOnly="false" isOrdered="false" isUnique="false" direction="in" xmi:type="uml:Parameter"/>
 							</ownedOperation>
 						</packagedElement>
-						<packagedElement xmi:id="AAAAAAFRxNXQXQjU7c4=" name="ImportDemand" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
+						<packagedElement xmi:id="AAAAAAFRxNXQXQjU7c4=" name="TaskDemand" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
 							<ownedOperation xmi:id="AAAAAAFRxNvjVJWM0yQ=" name="getTasks" visibility="public" isStatic="false" isLeaf="false" concurrency="sequential" isQuery="false" isAbstract="false" xmi:type="uml:Operation">
 								<ownedParameter xmi:id="AAAAAAFRxNvjVJWNMh0=" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRvHWN9f1Oe/g=" isReadOnly="false" isOrdered="false" isUnique="false" direction="return" xmi:type="uml:Parameter"/>
 							</ownedOperation>
@@ -272,9 +272,9 @@
 							<ownedParameter xmi:id="AAAAAAFRxOsH6Qk5cac=" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRxOrKbgk18no=" isReadOnly="false" isOrdered="false" isUnique="false" direction="out" xmi:type="uml:Parameter"/>
 						</ownedOperation>
 					</packagedElement>
-					<packagedElement xmi:id="AAAAAAFRxOt5NAlA78M=" name="ImportTaskFactory" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
+					<packagedElement xmi:id="AAAAAAFRxOt5NAlA78M=" name="TransferTaskFactory" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
 						<xmi:Extension extender="StarUML">
-							<documentation value="Builds ImportTask instances."/>
+							<documentation value="Builds TransferTask instances."/>
 						</xmi:Extension>
 						<ownedOperation xmi:id="AAAAAAFRxfkYHZWXvnQ=" name="get" visibility="public" isStatic="false" isLeaf="false" concurrency="sequential" isQuery="false" isAbstract="true" xmi:type="uml:Operation">
 							<xmi:Extension extender="StarUML">
@@ -284,19 +284,19 @@
 							<ownedParameter xmi:id="AAAAAAFRxfkYHZWZMtA=" name="settings" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRvHWN9f1Oe/g=" isReadOnly="false" isOrdered="false" isUnique="false" direction="in" xmi:type="uml:Parameter"/>
 							<ownedParameter xmi:id="AAAAAAFRxfkYHZWaEh8=" name="return" visibility="public" isStatic="false" isLeaf="false" type="-64--88-1-3-3ff5ead6:151ba6dc18d:-8000:0000000000000B5A" isReadOnly="false" isOrdered="false" isUnique="false" direction="out" xmi:type="uml:Parameter">
 								<xmi:Extension extender="StarUML">
-									<documentation value="Builds an ImportTask from settings."/>
+									<documentation value="Builds an TransferTask from settings."/>
 								</xmi:Extension>
 							</ownedParameter>
 						</ownedOperation>
 						<generalization xmi:id="AAAAAAFRxcskejJMpIE=" name="extends" visibility="public" xmi:type="uml:Generalization" specific="AAAAAAFRxOt5NAlA78M=" general="AAAAAAFRxOkgPwkhkjc="/>
 					</packagedElement>
-					<packagedElement xmi:id="AAAAAAFRxOxBrQlFClI=" name="ImportSetFactory" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
+					<packagedElement xmi:id="AAAAAAFRxOxBrQlFClI=" name="TransferSetFactory" visibility="public" isAbstract="false" isFinalSpecialization="false" isLeaf="false" xmi:type="uml:Class" isActive="false">
 						<xmi:Extension extender="StarUML">
-							<documentation value="Builds  ImportSet instances"/>
+							<documentation value="Builds  TransferSet instances"/>
 						</xmi:Extension>
 						<ownedOperation xmi:id="AAAAAAFRxfno0pWb0WI=" name="get" visibility="public" isStatic="false" isLeaf="false" concurrency="sequential" isQuery="false" isAbstract="true" xmi:type="uml:Operation">
 							<xmi:Extension extender="StarUML">
-								<documentation value="Builds an  ImportSet from settings."/>
+								<documentation value="Builds an  TransferSet from settings."/>
 							</xmi:Extension>
 							<ownedParameter xmi:id="AAAAAAFRxfno0pWctUs=" name="identifier" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRvHhY/f1ZAUc=" isReadOnly="false" isOrdered="false" isUnique="false" direction="in" xmi:type="uml:Parameter"/>
 							<ownedParameter xmi:id="AAAAAAFRxfno0pWduMw=" name="settings" visibility="public" isStatic="false" isLeaf="false" type="AAAAAAFRvHWN9f1Oe/g=" isReadOnly="false" isOrdered="false" isUnique="false" direction="in" xmi:type="uml:Parameter"/>

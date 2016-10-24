@@ -8,7 +8,6 @@ module.tx_t3importexport {
 		layoutRootPath = EXT:t3import_export/Resources/Private/Layouts/
 	}
 	settings {
-		# Don't touch this (this is just to let the extension know, that there is TypoScript included)
-		staticTemplate = 1
+
 	}
 }

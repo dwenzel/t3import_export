@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2016-10-11T07:18:13Z">
+		<header>
+			<type>database</type>
+			<description>Language labels for database tables/fields belonging to extension 't3events'</description>
+			<generator>LFEditor</generator>
+			<authorName>Dirk Wenzel</authorName>
+			<authorEmail>t3events@gmx.de</authorEmail>
+		</header>
+		<body>
+		<trans-unit id="tx_t3importexport_domain_model_exporttarget" approved="yes" xml:space="preserve">
+			<source>Export Target</source>
+			<target>Exportziel</target>
+		</trans-unit>
+		<trans-unit id="tx_t3importexport_domain_model_exporttarget.title" approved="yes" xml:space="preserve">
+			<source>Title</source>
+			<target>Titel</target>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>

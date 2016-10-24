@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-	<file source-language="en" datatype="plaintext" original="messages" date="2016-05-18T15:06:45Z">
+	<file source-language="en" datatype="plaintext" original="messages" date="2016-10-11T07:18:13Z">
 		<header>
 			<type>database</type>
 			<description>Language labels for database tables/fields belonging to extension 't3events'</description>
@@ -9,12 +9,18 @@
 			<authorEmail>t3events@gmx.de</authorEmail>
 		</header>
 		<body>
+		<trans-unit id="tx_t3importexport_domain_model_exporttarget" xml:space="preserve">
+			<source>Export Target</source>
+		</trans-unit>
+		<trans-unit id="tx_t3importexport_domain_model_exporttarget.title" xml:space="preserve">
+			<source>Title</source>
+		</trans-unit>
 		<trans-unit id="tx_t3importexport_domain_model_queue" xml:space="preserve">
 			<source>Queue</source>
 		</trans-unit>
 		<trans-unit id="tx_t3importexport_domain_model_queueitem" xml:space="preserve">
-            <source>Queue Item</source>
-        </trans-unit>
+			<source>Queue Item</source>
+		</trans-unit>
 		</body>
 	</file>
 </xliff>

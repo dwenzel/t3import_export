@@ -1,9 +1,9 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Domain\Model;
 
-use CPSIT\T3importExport\Domain\Model\ImportSet;
+use CPSIT\T3importExport\Domain\Model\TransferSet;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 
 /***************************************************************
  *  Copyright notice
@@ -22,16 +22,16 @@ use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ImportSetTest extends UnitTestCase {
+class TransferSetTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Model\ImportSet
+	 * @var \CPSIT\T3importExport\Domain\Model\TransferSet
 	 */
 	protected $subject;
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
-			ImportSet::class, ['dummy'], [], '', FALSE
+			TransferSet::class, ['dummy'], [], '', FALSE
 		);
 	}
 
@@ -99,5 +99,29 @@ class ImportSetTest extends UnitTestCase {
 			$tasks,
 			$this->subject->getTasks()
 		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getLabelReturnsInitiallyNull()
+	{
+		$this->assertNull(
+			$this->subject->getLabel()
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function setLabelForStringSetsLabel()
+	{
+		$label = 'foo';
+		$this->subject->setLabel($label);
+		$this->assertSame(
+			$label,
+			$this->subject->getLabel()
+		);
+
 	}
 }

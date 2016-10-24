@@ -95,17 +95,6 @@ class DataTargetFactoryTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1451043340
-	 */
-	public function getThrowsExceptionIfObjectClassIsNotSet() {
-		$identifier = 'foo';
-		$settings = [];
-		$this->subject->get($settings, $identifier);
-	}
-
-	/**
-	 * @test
 	 * @expectedException \CPSIT\T3importExport\MissingClassException
 	 * @expectedExceptionCode 1451043367
 	 */

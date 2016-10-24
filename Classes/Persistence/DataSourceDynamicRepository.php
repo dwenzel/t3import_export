@@ -75,9 +75,9 @@ class DataSourceDynamicRepository implements DataSourceInterface
      */
     private function getRepositoryFromEntityClass($entityClassName)
     {
-        if ($entityClassName{0} !== '\\') {
+        /*if ($entityClassName{0} !== '\\') {
             $entityClassName = '\\' . $entityClassName;
-        }
+        }*/
 
         if ($this->objectManager->isRegistered($entityClassName)) {
             return $this->findRepositoryByManipulateEntityName($entityClassName);
@@ -194,7 +194,7 @@ class DataSourceDynamicRepository implements DataSourceInterface
                 return;
             }
         }
-        $query->getQuerySettings()->setRespectStoragePage(true);
+        $query->getQuerySettings()->setRespectSysLanguage(true);
     }
 
     /**

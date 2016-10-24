@@ -18,28 +18,30 @@ namespace CPSIT\T3importExport\Domain\Factory;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\Domain\Model\ImportSet;
+use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class ImportSetFactory
+ * Class TransferSetFactory
  * builds import sets from settings
  *
  * @package CPSIT\T3importExport\Domain\Repository
  */
-class ImportSetFactory extends AbstractFactory {
+class TransferSetFactory extends AbstractFactory {
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
 	 */
-	protected $importTaskFactory;
+	protected $transferTaskFactory;
 
 	/**
-	 * @param ImportTaskFactory $importTaskFactory
+     * Injects the transfer task factory
+     *
+	 * @param TransferTaskFactory $transferTaskFactory
 	 */
-	public function injectImportTaskFactory(ImportTaskFactory $importTaskFactory) {
-		$this->importTaskFactory = $importTaskFactory;
+	public function injectTransferTaskFactory(TransferTaskFactory $transferTaskFactory) {
+		$this->transferTaskFactory = $transferTaskFactory;
 	}
 
 	/**
@@ -47,16 +49,16 @@ class ImportSetFactory extends AbstractFactory {
 	 *
 	 * @param array $settings
 	 * @param string $identifier
-	 * @return ImportSet
+	 * @return TransferSet
 	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
 	 */
 	public function get(array $settings, $identifier = null) {
-		/** @var ImportSet $importSet */
-		$importSet = $this->objectManager->get(
-			ImportSet::class
+		/** @var TransferSet $transferSet */
+		$transferSet = $this->objectManager->get(
+			TransferSet::class
 		);
 
-		$importSet->setIdentifier($identifier);
+		$transferSet->setIdentifier($identifier);
 
 		if (isset($settings['tasks'])
 			AND is_string($settings['tasks'])
@@ -65,22 +67,27 @@ class ImportSetFactory extends AbstractFactory {
 			$tasks = [];
 			foreach ($taskIdentifiers as $taskIdentifier) {
 				if (isset($this->settings['importProcessor']['tasks'][$taskIdentifier])) {
-					$task = $this->importTaskFactory->get(
+					$task = $this->transferTaskFactory->get(
 						$this->settings['importProcessor']['tasks'][$taskIdentifier], $taskIdentifier
 					);
 					$tasks[$taskIdentifier] = $task;
 				}
 			}
-			$importSet->setTasks($tasks);
+			$transferSet->setTasks($tasks);
 		}
 
 		if (isset($settings['description'])
 			AND is_string($settings['description'])
 		) {
-			$importSet->setDescription($settings['description']);
+			$transferSet->setDescription($settings['description']);
 		}
 
-		return $importSet;
+		if (isset($settings['label']))
+		{
+			$transferSet->setLabel($settings['label']);
+		}
+
+		return $transferSet;
 	}
 
 }

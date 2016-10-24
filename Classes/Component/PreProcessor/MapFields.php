@@ -65,4 +65,12 @@ class MapFields
 		return TRUE;
 	}
 
+	/**
+	 * @param string $sourceField
+	 * @param string $targetField
+	 * @param array $record
+	 */
+	protected function mapField($sourceField, $targetField, &$record) {
+		$record[$targetField] = $record[$sourceField];
+	}
 }

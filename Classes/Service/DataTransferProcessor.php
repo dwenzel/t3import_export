@@ -25,7 +25,7 @@ use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
@@ -94,11 +94,12 @@ class DataTransferProcessor
 	{
 		$tasks = $demand->getTasks();
 		foreach ($tasks as $task) {
-			/** @var ImportTask $task */
+			/** @var TransferTask $task */
 			$dataSource = $task->getSource();
 			$recordsToImport = $dataSource->getRecords(
 				$dataSource->getConfiguration()
 			);
+
 			$this->queue[$task->getIdentifier()] = $recordsToImport;
 		}
 	}
@@ -114,7 +115,7 @@ class DataTransferProcessor
 		$result = $this->objectManager->get(TaskResult::class);
 		$tasks = $importDemand->getTasks();
 		foreach ($tasks as $task) {
-			/** @var ImportTask $task */
+			/** @var TransferTask $task */
 			if (!isset($this->queue[$task->getIdentifier()])) {
 				continue;
 			}
@@ -139,20 +140,20 @@ class DataTransferProcessor
 
 				$target->persistAll($result, $targetConfig);
 			}
-			
+
 			$this->processFinishers($records, $task, $result);
 		}
 
-		return $result;
+		return $result->toArray();
 	}
 
 	/**
 	 * Pre processes a single record if any preprocessor is configured
 	 *
 	 * @param array $record
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 */
-	protected function preProcessSingle(&$record, ImportTask $task)
+	protected function preProcessSingle(&$record, TransferTask $task)
 	{
 		$preProcessors = $task->getPreProcessors();
 		foreach ($preProcessors as $preProcessor) {
@@ -169,7 +170,7 @@ class DataTransferProcessor
 	 *
 	 * @param mixed $convertedRecord
 	 * @param array $record
-	 * @param ImportTask $task
+	 * @param TransferTask $task
 	 */
 	protected function postProcessSingle(&$convertedRecord, &$record, $task)
 	{
@@ -191,7 +192,7 @@ class DataTransferProcessor
 	 * Converts a record into an object
 	 *
 	 * @param array $record Record which should be converted
-	 * @param ImportTask $task Import type
+	 * @param TransferTask $task Import type
 	 * @return mixed The converted object
 	 */
 	protected function convertSingle($record, $task)
@@ -213,7 +214,7 @@ class DataTransferProcessor
 	 * Processes all finishers
 	 *
 	 * @param array $records Processed records
-	 * @param ImportTask $task Import task
+	 * @param TransferTask $task Import task
 	 * @param array|\Iterator|null $result
 	 */
 	protected function processFinishers(&$records, $task, &$result)
@@ -232,7 +233,7 @@ class DataTransferProcessor
 	 * Processes all initializers
 	 *
 	 * @param array $records Processed records
-	 * @param ImportTask $task Import task
+	 * @param TransferTask $task Import task
 	 */
 	protected function processInitializers(&$records, $task)
 	{

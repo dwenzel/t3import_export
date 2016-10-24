@@ -12,8 +12,8 @@ use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
-use CPSIT\T3importExport\Domain\Factory\ImportTaskFactory;
-use CPSIT\T3importExport\Domain\Model\ImportTask;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
@@ -47,18 +47,18 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class ImportTaskFactoryTest
  *
  * @package CPSIT\T3importExport\Tests\Domain\Factory
- * @coversDefaultClass \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
+ * @coversDefaultClass \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
  */
 class ImportTaskFactoryTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\ImportTaskFactory
+	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
 	 */
 	protected $subject;
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class, ['dummy'], [], '', FALSE
+			TransferTaskFactory::class, ['dummy'], [], '', FALSE
 		);
 	}
 
@@ -188,7 +188,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	public function getGetsImportTaskFromObjectManager() {
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
-			ImportTask::class, []
+			TransferTask::class, []
 		);
 		$settings = [];
 		/** @var ObjectManager $mockObjectManager */
@@ -196,7 +196,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -210,7 +210,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	public function getSetsIdentifier() {
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setIdentifier']
+			TransferTask::class, ['setIdentifier']
 		);
 		$settings = [];
 		/** @var ObjectManager $mockObjectManager */
@@ -218,7 +218,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 		$mockTask->expects($this->once())
@@ -231,10 +231,38 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 * @test
 	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
 	 */
+	public function getSetsLabel() {
+		$identifier = 'foo';
+		$label = 'bar';
+		$mockTask = $this->getMock(
+			TransferTask::class, ['setLabel']
+		);
+		$settings = [
+			'label' => $label
+		];
+		/** @var ObjectManager $mockObjectManager */
+		$mockObjectManager = $this->getMock(
+			ObjectManager::class, ['get'], [], '', false
+		);
+		$mockObjectManager->expects($this->once())
+			->method('get')
+			->with(TransferTask::class)
+			->will($this->returnValue($mockTask));
+		$this->subject->injectObjectManager($mockObjectManager);
+		$mockTask->expects($this->once())
+			->method('setLabel')
+			->with($label);
+		$this->subject->get($settings, $identifier);
+	}
+
+	/**
+	 * @test
+	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+	 */
 	public function getSetsTargetClass() {
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setTargetClass']
+			TransferTask::class, ['setTargetClass']
 		);
 		$targetClass = 'fooClassName';
 		$settings = [
@@ -245,7 +273,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -263,7 +291,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	public function getSetsDescription() {
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setDescription']
+			TransferTask::class, ['setDescription']
 		);
 		$description = 'fooDescription';
 		$settings = [
@@ -274,7 +302,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -290,13 +318,13 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getSetsTarget() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class, ['setSource'], [], '', FALSE
+			TransferTaskFactory::class, ['setSource'], [], '', FALSE
 		);
 		$this->subject->expects($this->once())
 			->method('setSource');
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setTarget']
+			TransferTask::class, ['setTarget']
 		);
 		$settings = [
 			'target' => [
@@ -309,7 +337,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 		$mockTarget = $this->getMock(DataTargetInterface::class);
@@ -339,7 +367,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 		$identifier = 'foo';
 		$settings = ['foo'];
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setTarget']
+			TransferTask::class, ['setTarget']
 		);
 		/** @var ObjectManager $mockObjectManager */
 		$mockObjectManager = $this->getMock(
@@ -347,7 +375,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -361,14 +389,14 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getThrowsExceptionForMissingSource() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class, ['setTarget'], [], '', FALSE
+			TransferTaskFactory::class, ['setTarget'], [], '', FALSE
 		);
 		$this->subject->expects($this->once())
 			->method('setTarget');
 		$identifier = 'foo';
 		$settings = ['foo'];
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setTarget']
+			TransferTask::class, ['setTarget']
 		);
 		/** @var ObjectManager $mockObjectManager */
 		$mockObjectManager = $this->getMock(
@@ -376,7 +404,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -388,13 +416,13 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getSetsSource() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class, ['setTarget'], [], '', FALSE
+			TransferTaskFactory::class, ['setTarget'], [], '', FALSE
 		);
 		$this->subject->expects($this->once())
 			->method('setTarget');
 		$identifier = 'foo';
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setSource']
+			TransferTask::class, ['setSource']
 		);
 		$settings = [
 			'source' => [
@@ -407,7 +435,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 		$mockSource = $this->getMock(
@@ -435,7 +463,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getSetsPreProcessors() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class,
+			TransferTaskFactory::class,
 			['setTarget', 'setSource'], [], '', FALSE
 		);
 
@@ -451,14 +479,14 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setPreProcessors']
+			TransferTask::class, ['setPreProcessors']
 		);
 		$mockObjectManager = $this->getMock(
 			ObjectManager::class,
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -487,7 +515,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getSetsPostProcessors() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class,
+			TransferTaskFactory::class,
 			['setTarget', 'setSource'], [], '', FALSE
 		);
 
@@ -503,14 +531,14 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setPostProcessors']
+			TransferTask::class, ['setPostProcessors']
 		);
 		$mockObjectManager = $this->getMock(
 			ObjectManager::class,
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -540,7 +568,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getSetsConverters() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class,
+			TransferTaskFactory::class,
 			['setTarget', 'setSource'], [], '', FALSE
 		);
 
@@ -556,14 +584,14 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setConverters']
+			TransferTask::class, ['setConverters']
 		);
 		$mockObjectManager = $this->getMock(
 			ObjectManager::class,
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -592,7 +620,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getSetsFinishers() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class,
+			TransferTaskFactory::class,
 			['setTarget', 'setSource'], [], '', FALSE
 		);
 
@@ -608,14 +636,14 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setFinishers']
+			TransferTask::class, ['setFinishers']
 		);
 		$mockObjectManager = $this->getMock(
 			ObjectManager::class,
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 
@@ -644,7 +672,7 @@ class ImportTaskFactoryTest extends UnitTestCase {
 	 */
 	public function getSetsInitializers() {
 		$this->subject = $this->getAccessibleMock(
-			ImportTaskFactory::class,
+			TransferTaskFactory::class,
 			['setTarget', 'setSource'], [], '', FALSE
 		);
 
@@ -660,14 +688,14 @@ class ImportTaskFactoryTest extends UnitTestCase {
 			]
 		];
 		$mockTask = $this->getMock(
-			ImportTask::class, ['setInitializers']
+			TransferTask::class, ['setInitializers']
 		);
 		$mockObjectManager = $this->getMock(
 			ObjectManager::class,
 			['get'], [], '', FALSE);
 		$mockObjectManager->expects($this->once())
 			->method('get')
-			->with(ImportTask::class)
+			->with(TransferTask::class)
 			->will($this->returnValue($mockTask));
 		$this->subject->injectObjectManager($mockObjectManager);
 

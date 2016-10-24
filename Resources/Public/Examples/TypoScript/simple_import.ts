@@ -1,6 +1,6 @@
 # employee.ts
 # import configuration for employees
-module.tx_t3importexport.settings.importProcessor.tasks {
+module.tx_t3importexport.settings.import.tasks {
     employee {
         source {
             // need to be a registration in ext_localconf for this identifier

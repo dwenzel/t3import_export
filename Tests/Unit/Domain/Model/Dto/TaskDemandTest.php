@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Domain\Model\Dto;
 
 use TYPO3\CMS\Core\Tests\UnitTestCase;
-use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 
 /***************************************************************
  *  Copyright notice
@@ -21,16 +21,22 @@ use CPSIT\T3importExport\Domain\Model\Dto\ImportDemand;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ImportDemandTest extends UnitTestCase {
+
+/**
+ * Class TaskDemandTest
+ *
+ * @package CPSIT\T3importExport\Tests\Domain\Model\Dto
+ */
+class TaskDemandTest extends UnitTestCase {
 
 	/**
-	 * @var \CPSIT\T3importExport\Domain\Model\Dto\ImportDemand
+	 * @var \CPSIT\T3importExport\Domain\Model\Dto\TaskDemand
 	 */
 	protected $subject;
 
 	public function setUp() {
 		$this->subject = $this->getAccessibleMock(
-			ImportDemand::class, ['dummy'], [], '', FALSE
+			TaskDemand::class, ['dummy'], [], '', FALSE
 		);
 	}
 

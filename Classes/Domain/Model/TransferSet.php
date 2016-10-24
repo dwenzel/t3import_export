@@ -20,15 +20,14 @@ namespace CPSIT\T3importExport\Domain\Model;
  ***************************************************************/
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
-use Webfox\T3events\Domain\Model\Task;
 
 /**
- * Class ImportSet
- * A set of import tasks
+ * Class TransferSet
+ * A set of transfer tasks
  *
  * @package CPSIT\T3importExport\Domain\Model
  */
-class ImportSet implements IdentifiableInterface {
+class TransferSet implements IdentifiableInterface {
 	use IdentifiableTrait;
 
 	/**
@@ -37,6 +36,13 @@ class ImportSet implements IdentifiableInterface {
 	 * @var string
 	 */
 	protected $description;
+
+	/**
+	 * Label
+	 *
+	 * @var string
+	 */
+	protected $label;
 
 	/**
 	 * Tasks to perform
@@ -71,5 +77,25 @@ class ImportSet implements IdentifiableInterface {
 	 */
 	public function setTasks($tasks) {
 		$this->tasks = $tasks;
+	}
+
+	/**
+	 * Gets the label
+	 *
+	 * @return string
+	 */
+	public function getLabel()
+	{
+		return $this->label;
+	}
+
+	/**
+	 * Sets the label
+	 *
+	 * @param string $label
+	 */
+	public function setLabel($label)
+	{
+		$this->label = $label;
 	}
 }

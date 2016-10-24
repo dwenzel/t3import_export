@@ -1,0 +1,292 @@
+﻿TypoScript Config für Import Export
+
+DataSourceDynamicRepository 
+class 
+Die Zeilentity die geladen werden soll mit vollem Klassennamen
+
+source {
+    class = CPSIT\T3importExport\Persistence\DataSourceDynamicRepository
+    config {
+        class = CPSIT\IhkofEvents\Domain\Model\Schedule
+
+Die Ziel Entity Klasse kann eine Beliebige Entity auf den System sein. Hier ist zwingend notwendig das eine Repository Klasse zu dieser Entity Existert 
+im Beispiel ' CPSIT\IhkofEvents\Domain\Model\Schedule' muss die Repository Datei unter ' CPSIT\IhkofEvents\Domain\Repository\ScheduleRepository' Liegen
+
+constraints 
+Logische bedingunen die, in zb. SQL, zu einer WHERE bedingung gebaut werden.
+
+constraints {
+    AND {
+        greaterThan {
+            date = NOW
+        }
+        equals {
+            event\.eventType = 2
+        }
+        in {
+            uid = 1,2,3,4,5,6
+        }
+        contains {
+            headline = missing dog
+        }
+        OR {
+            NOT {
+                equals {
+                    pid  = 1
+                }
+            }
+            like {
+                title = %My Dog is Big%
+            }
+        }
+    }
+}
+LOGICAL CONJUNCTION sind
+
+AND
+OR
+NOT
+
+
+
+
+LOGICAL CRITERION sind 
+
+equals
+contains
+like
+in
+
+greaterThan
+lessThan
+greaterThanOrEquals
+lessThanOrEquals
+
+PLACEHOLDER sind 
+
+NOW - aktueller unix timestamp
+
+groß und Kleinschreibung ist egal. Alles was in ein LOGISCHEN NOT steht wird verneint, auch unterelemente in LOGISCHEN AND und LOGISCHEN OR, LOGICAL CONJUNCTION werden selber nicht verneint sondern nur LOGICAL CRITERION.
+ein LOGISCHES NOT in ein LOGISCHEN NOT hebt die Negierung für LOGICAL CRITERION wieder auf, usw...
+
+storagePids
+
+Eine Komma Seperierte Liste aus aus PageIds welche als StoragePids bei der Abfrage gesetzt werden. 
+Wenn dieser eintrag fehlt oder Leer gelassen wird, wird die StoragePage nicht Respektiert beim abfragen und es werden alle Datensätze des Systems einbezogen.
+
+
+limit 
+
+Wieviele Datensätze geladen werden sollen.
+
+
+offset
+
+wieviele Datensätze übersprungen werden sollen
+
+
+
+
+
+
+
+
+
+
+PreProcessor – PerformanceToKursnetArray
+
+Class
+Prüft ob der Record vom Typ  CLASS ist, andernfalls wird das mapping nicht ausgeführt.
+fields {
+    SUPPLIER_ID_REF = 12345
+}
+
+PreProcessor – XMLMapper
+
+Config Fields
+config.fields {
+    mode = @attribute
+    SUPPLIER_ID_REF {
+        type = @attribute
+        content = @value
+    }
+    static {
+        mapTo = statistic
+        someField = @attribute
+    }
+    performances {
+        mapTo = schedules
+        children {
+            mapTo = schedule
+            location = @attribute
+            publishers {
+                mapTo = authors
+                children {
+                    mapTo = author
+                    pubId = @attribute
+                }
+            }
+        }
+    }
+}
+
+XMLMapper ist dafür zuständig meta informationen für den Parser bereitzustellen
+
+KeyWords
+
+arrayKey = @attribute
+mapTo = newStringName
+arrayKey = @value
+arrayKey = @separateRow
+children {}
+
+@attribute ist dafür zuständig ein wert des arrayKeys als Attribut des Darüberliegenden Array-Nodes zu deklarieren. 
+Array: 
+$array [
+	primaryNode => [
+                     id => 12345
+                     content => my Dog is a Hairy Beast!
+            ]
+]
+TypoScript: 
+config.fields {
+	 primaryNode {
+		id = @attribute
+	}
+}
+Output: 
+<primaryNode id=“12345“>
+	<content>my Dog is a Hairy Beast!</content>
+</primaryNode>
+
+
+mapTo bennet den jeweiligen arrayKey um. Der Value wird hier nicht verändert.
+Array: 
+gleiches wie bei @attribute
+TypoScript: 
+config.fields {
+	 primaryNode {
+		mapTo = missingDog
+		id = @attribute
+		 content {
+			mapTo = description
+		}
+	}
+}
+Output: 
+<missingDog id=“12345“>
+	<description>my Dog is a Hairy Beast!</description>
+</missingDog>
+@value definiert den Content eines Nodes
+Array: 
+gleiches wie bei @attribute
+TypoScript: 
+config.fields {
+	 primaryNode {
+		mapTo = missingDog
+		id = @attribute
+		 content  = @value
+	}
+}
+Output:
+<missingDog id=“12345“>my Dog is a Hairy Beast!</ missingDog>
+children ist für den Mapper die anweisung das sich auf dieser Ebene mehrere Elemente befinden (liste) die alle gleich behandelt werden sollen.
+Array: 
+$array [
+	dogs => [
+                     0 => [
+			id => 1
+			name => CptnFluffy
+		],
+		1 => [
+			id => 2
+			name => Muffles the Village Destroyer
+		]
+            ]
+]
+TypoScript:
+config.fields {
+	dogs {
+		mapTo = missingDogs
+		children {
+			mapTo = dog
+			id = @attribute
+			name = @value
+		}
+	}
+}
+Output: 
+<missingDogs>
+	<dog id=“1“>CptnFluffy</dog>
+	<dog id=“2“>Muffles the Village Destroyer</dog>
+</missingDogs>
+@separateRow sorgt dafür das ein eine Liste nicht gewarpt wird.
+Array: 
+$array [
+	dogSettings [
+		breed => [
+			0 => ‘Beagle‘,
+			1 => ‘German Shepherd‘,
+			2 => ‘Bulldog‘
+            	]
+	]
+]
+TypoScript: 
+config.fields {
+	 dogSettings {
+		breed=  @separateRow
+	}
+}
+Output: 
+< dogSettings>
+	<breed>Beagle</breed>
+	<breed>German Shepherd</breed>
+	<breed>Bulldog</breed>
+</dogSettings>
+
+Die TypoScript Einstellungen werden als Meta Informationen an den Record gehangen und erst zu einem späterem Zeitpunt Ausgewertet. (ArrayToXMLStream)
+
+
+Conveter – ArrayToXMLStream
+Convertiert ein Array Record zu ein XMLStream und gibt ein Objekt der TargetClass zurück, wenn die TargetClass das Interface DataStreamInterface implementiert, andernfals wird der XMLStream direkt zurückgegeben.
+DataStreamInterface implementiert ein StreamBuffer in der TargetClass worin der XMLStream hinterlegt wird.
+Jeder Record wird in ein Element geschachtelt welches man über den nodeName im typoScript geändert werden kann. Standard ist “row“
+
+Target – DataTargetXMLStream
+
+Erwartet ein objekt von Typ DataStream.
+DataTargetXMLStream erzeugt aus den DataStream‘s eine Finale XML die entweder in ein TempFile oder Direkt in den output stream von PHP geschrieben wird.
+Der Schreibprozess ist Record basiert und schreibt direkt jeden Record weg sobald er ihn erhält somit wird der Speicher geschonnt.
+config
+Ausgabe im TempFile im typo3temp
+output = file
+Ausgabe direkt in php://output
+output = direct 
+Löscht den Steam buffer des jeweiligen DataStream direkt nach den Schreibprozess (Speicher Optimierung)
+flush = true
+Template vs. Dynamic
+Es ist möglich den XML körper als Template zu hinterlegen oder Direct Dynamisch zu genierieren.
+Dynamic 
+Hier wird der Header definiert der in die erste zeile der Datei geschrieben wird
+header = <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+der Name des Obersten Elementes
+rootNodeName = root
+Attribute des Obersten Elementes
+rootAttributes {
+	xmlns:xsi = http://www.w3.org/2001/XMLSchema-instance
+	version = 1.1
+	xsi:noNamespaceSchemaLocation = openQ-cat.V1.1.xsd
+	fancyKey = value
+}
+Template
+das Template ist die Bequemste und Variabelste Methode eine XML zu generieren besonders wenn sehr viel statischer Inhalt vorhanden ist.
+
+Hier wird der Pfad zum Template definiert
+template = EXT:t3import_export/Resources/Public/Template/skeleton.tpl.xml
+Hier werden im Template platzhalter Definiert “{{platzhalter}}“ die dann beim schreiben mit content ausgetauscht werden.
+templateReplace {
+    currentTime = NOW
+    supplierId = 32248
+}
+Es gibt aktuell eine Statische Konstante “NOW“ hier wird in das aktuelle Datum in ein W3C conformes Datum convertiert und ausgtauscht
+der {{content}} platzhalter ist EXTREM WICHTIG er definiert worin der DataStream buffer geschrieben wird. Dieser Platzhalter darf nicht in templateReplace benutzt werden. Desweiteren MUSS dieser Platzhalter genau einmal (und nicht mehrmals) vorkommen.

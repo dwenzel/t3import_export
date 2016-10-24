@@ -55,26 +55,10 @@ class DataSourceDBTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::injectDatabaseConnectionService
-	 */
-	public function injectConnectionServiceForObjectSetsConnectionService() {
-		$expectedConnectionService = $this->getAccessibleMock(
-			'CPSIT\\T3importExport\\Service\\DatabaseConnectionService',
-			['dummy'], [], '', FALSE);
-		$this->subject->injectDatabaseConnectionService($expectedConnectionService);
-
-		$this->assertSame(
-			$expectedConnectionService,
-			$this->subject->_get('connectionService')
-		);
-	}
-
-	/**
-	 * @test
 	 * @covers ::getRecords
 	 */
 	public function getRecordsInitiallyReturnsEmptyArray() {
-		$configuration = ['foo'];
+		$configuration = ['table' => 'foo'];
 		$mockConnectionService = $this->getMock(
 			DatabaseConnectionService::class
 		);
@@ -141,6 +125,7 @@ class DataSourceDBTest extends UnitTestCase {
             ['renderContent'], [], '', FALSE);
 
         $configuration = [
+            'table' => 'baz',
             'foo' => ['bar']
         ];
         $mockConnectionService = $this->getMock(

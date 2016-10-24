@@ -4,7 +4,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\Unit\Resource\BaseTestCase;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -45,23 +44,6 @@ class LookUpDBTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::injectDatabaseConnectionService
-	 */
-	public function injectDatabaseConnectionServiceForObjectSetsConnectionService() {
-		/** @var DatabaseConnectionService $expectedConnectionService */
-		$expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['dummy'], [], '', FALSE);
-
-		$this->subject->injectDatabaseConnectionService($expectedConnectionService);
-
-		$this->assertSame(
-			$expectedConnectionService,
-			$this->subject->_get('connectionService')
-		);
-	}
-
-	/**
-	 * @test
 	 */
 	public function processSetsDatabase() {
 		$configuration = [
@@ -86,7 +68,8 @@ class LookUpDBTest extends UnitTestCase {
 		$configuration = [
 			'select' => [
 				'table' => 'fooTable'
-			]
+			],
+            'targetField' => 'bar'
 		];
 		$expectedQueryConfiguration = [
 			'fields' => '*',
@@ -207,7 +190,8 @@ class LookUpDBTest extends UnitTestCase {
 			'identifier' => $validDatabaseIdentifier,
 			'select' => [
                 'table' => 'tableName'
-            ]
+            ],
+            'targetField' => 'bar'
 		];
         DatabaseConnectionService::register(
             $validDatabaseIdentifier,

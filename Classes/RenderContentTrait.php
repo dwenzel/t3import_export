@@ -37,9 +37,10 @@ trait RenderContentTrait
          * ContentObjectRenderer fails in method cObjGetSingle since
          * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
          */
-        if (!$GLOBALS['TSFE'] instanceof TypoScriptFrontendController) {
+       if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
             $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, 0);
-        }
+       }
+
     }
 
     /**
@@ -74,5 +75,16 @@ trait RenderContentTrait
         }
 
         return null;
+    }
+
+    /**
+     * Gets the TypoScriptFrontendController
+     * only for testing
+     *
+     * @return TypoScriptFrontendController
+     */
+    public function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
     }
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2016-10-14T09:48:33Z">
+		<header>
+			<generator>LFEditor</generator>
+		</header>
+		<body>
+		<trans-unit id="button.export" xml:space="preserve">
+			<source>Export</source>
+		</trans-unit>
+		<trans-unit id="header.export" xml:space="preserve">
+			<source>Export</source>
+		</trans-unit>
+		<trans-unit id="header.import" xml:space="preserve">
+			<source>Import</source>
+		</trans-unit>
+		<trans-unit id="header.sets" xml:space="preserve">
+			<source>Sets</source>
+		</trans-unit>
+		<trans-unit id="header.tasks" xml:space="preserve">
+			<source>Tasks</source>
+		</trans-unit>
+		<trans-unit id="message.chooseExportSet" xml:space="preserve">
+			<source>Choose an export set.</source>
+		</trans-unit>
+		<trans-unit id="message.chooseExportTask" xml:space="preserve">
+			<source>Choose an export task.</source>
+		</trans-unit>
+		<trans-unit id="message.chooseImportSet" xml:space="preserve">
+			<source>Choose an import set</source>
+		</trans-unit>
+		<trans-unit id="message.noExportSetsFound" xml:space="preserve">
+			<source>No export sets found.</source>
+		</trans-unit>
+		<trans-unit id="message.noExportTasksFound" xml:space="preserve">
+			<source>No export tasks found.</source>
+		</trans-unit>
+		<trans-unit id="mlang_labels_tabdescr" xml:space="preserve">
+			<source>Perform predefined export tasks</source>
+		</trans-unit>
+		<trans-unit id="mlang_labels_tablabel" xml:space="preserve">
+			<source>Perform predefined export tasks</source>
+		</trans-unit>
+		<trans-unit id="mlang_tabs_tab" xml:space="preserve">
+			<source>Exports</source>
+		</trans-unit>
+		</body>
+	</file>
+</xliff>
