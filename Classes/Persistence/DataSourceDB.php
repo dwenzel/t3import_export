@@ -51,7 +51,9 @@ class DataSourceDB
     {
         if (
             !$this->database instanceof DatabaseConnection
-            && !empty($this->identifier)
+            || (
+                !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
+            )
         ) {
             $this->database = $this->connectionService->getDatabase($this->identifier);
         }
