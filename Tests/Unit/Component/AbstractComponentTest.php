@@ -43,7 +43,7 @@ class AbstractComponentTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMockForAbstractClass(
+        $this->subject = $this->getMockForAbstractClass(
             AbstractComponent::class, [], '', true, true, true, ['renderContent']
         );
     }
@@ -82,9 +82,10 @@ class AbstractComponentTest extends UnitTestCase
         );
 
         $this->subject->injectSignalSlotDispatcher($mockDispatcher);
-        $this->assertSame(
+        $this->assertAttributeSame(
             $mockDispatcher,
-            $this->subject->_get('signalSlotDispatcher')
+            'signalSlotDispatcher',
+            $this->subject
         );
     }
 
