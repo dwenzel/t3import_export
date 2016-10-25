@@ -27,7 +27,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class ImportProcessorTest
+ * Class DataTransferProcessorTest
  * Functional tests for CPSIT\T3importExport\Service\DataTransferProcessor
  *
  * @package CPSIT\T3importExport\Tests\Functional\Service
