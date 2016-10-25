@@ -29,49 +29,63 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Provides services to translate domain objects
  */
-class TranslationService implements SingletonInterface {
+class TranslationService implements DomainObjectTranslatorInterface, SingletonInterface
+{
 
-	/**
-	 * @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper
-	 * @inject
-	 */
-	protected $dataMapper;
+    /**
+     * @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper
+     * @inject
+     */
+    protected $dataMapper;
 
-	/**
-	 * Translates a domain object
-	 *
-	 * @param DomainObjectInterface $origin
-	 * @param DomainObjectInterface $translation
-	 * @param int $language
-	 * @throws \Exception
-	 * @return void
-	 */
-	public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, $language) {
-		if (get_class($origin) !== get_class($translation)) {
-			throw new \Exception('Origin and translation must be the same type.', 1432499926);
-		}
+    /**
+     * Translates a domain object
+     *
+     * @param DomainObjectInterface $origin
+     * @param DomainObjectInterface $translation
+     * @param int $language
+     * @throws \Exception
+     * @return void
+     */
+    public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, $language)
+    {
+        if (!$this->haveSameClass($origin, $translation)) {
+            throw new \Exception('Origin and translation must be the same type.', 1432499926);
+        }
 
-		if ($origin === $translation) {
-			throw new \Exception('Origin can\'t be translation of its own.', 1432502696);
-		}
+        if ($origin === $translation) {
+            throw new \Exception('Origin can\'t be translation of its own.', 1432502696);
+        }
 
-		$dataMap = $this->dataMapper->getDataMap(get_class($origin));
+        $dataMap = $this->dataMapper->getDataMap(get_class($origin));
 
-		if (!$dataMap->getTranslationOriginColumnName()) {
-			throw new \Exception('The type is not translatable.', 1432500079);
-		}
+        if (!$dataMap->getTranslationOriginColumnName()) {
+            throw new \Exception('The type is not translatable.', 1432500079);
+        }
 
-		$propertyName = GeneralUtility::underscoredToLowerCamelCase($dataMap->getTranslationOriginColumnName());
+        $propertyName = GeneralUtility::underscoredToLowerCamelCase($dataMap->getTranslationOriginColumnName());
 
-		if ($translation->_setProperty($propertyName, $origin) === FALSE) {
-			$columnMap = $dataMap->getColumnMap($propertyName);
-			$columnMap->setTypeOfRelation(ColumnMap::RELATION_HAS_ONE);
-			$columnMap->setType($dataMap->getClassName());
-			$columnMap->setChildTableName($dataMap->getTableName());
+        if ($translation->_setProperty($propertyName, $origin) === FALSE) {
+            $columnMap = $dataMap->getColumnMap($propertyName);
+            $columnMap->setTypeOfRelation(ColumnMap::RELATION_HAS_ONE);
+            $columnMap->setType($dataMap->getClassName());
+            $columnMap->setChildTableName($dataMap->getTableName());
 
-			$translation->{$propertyName} = $origin;
-		}
+            $translation->{$propertyName} = $origin;
+        }
 
-		$translation->_setProperty('_languageUid', $language);
-	}
+        $translation->_setProperty('_languageUid', $language);
+    }
+
+    /**
+     * Tells if two object are instances of the same class
+     *
+     * @param DomainObjectInterface $origin
+     * @param DomainObjectInterface $translation
+     * @return bool
+     */
+    protected function haveSameClass(DomainObjectInterface $origin, DomainObjectInterface $translation)
+    {
+        return get_class($origin) === get_class($translation);
+    }
 }
