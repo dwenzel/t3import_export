@@ -27,7 +27,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class ImportProcessorTest
+ * Class DataTransferProcessorTest
  * Functional tests for CPSIT\T3importExport\Service\DataTransferProcessor
  *
  * @package CPSIT\T3importExport\Tests\Functional\Service
@@ -67,12 +67,9 @@ class ImportProcessorTest extends FunctionalTestCase {
 	 */
 	public function buildQueueFindsRecords() {
         $taskIdentifier = 'findFeUser';
-        $localDatabaseIdentifier = 'typo3local';
-        $this->registerTypo3Database($localDatabaseIdentifier);
 
 		$settings = [
             'source' => [
-                'identifier' => $localDatabaseIdentifier,
                 'config' => [
                     'table' => 'fe_users',
                     'where' => 'name="findFeUser"'
@@ -103,18 +100,4 @@ class ImportProcessorTest extends FunctionalTestCase {
         );
 	}
 
-    /**
-     * @param $localDatabaseIdentifier
-     */
-    protected function registerTypo3Database($localDatabaseIdentifier)
-    {
-        DatabaseConnectionService::register(
-            $localDatabaseIdentifier,
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['host'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['database'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['username'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['password'],
-            $GLOBALS['TYPO3_CONF_VARS']['DB']['port']
-        );
-    }
 }

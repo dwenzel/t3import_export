@@ -178,4 +178,43 @@ class RenderContentTraitTest extends UnitTestCase {
             $this->subject->renderContent([], $configuration)
         );
     }
+
+    /**
+     * @test
+     */
+    public function getTypoScriptFrontendControllerReturnsObjectFromGlobals()
+    {
+        // setup mocks method 'getTypoScriptFrontendController
+        $this->subject = $this->getMockForTrait(
+            RenderContentTrait::class,
+            [], '', true, true, true, []
+        );
+
+        $GLOBALS['TSFE'] = new \stdClass();
+        $this->assertSame(
+            $GLOBALS['TSFE'],
+            $this->subject->getTypoScriptFrontendController()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function injectContentObjectRendererSetsMissingTypoScriptFrontendController()
+    {
+        // setup mocks method 'getTypoScriptFrontendController
+        $this->subject = $this->getMockForTrait(
+            RenderContentTrait::class,
+            [], '', true, true, true, []
+        );
+
+        $mockContentObjectRenderer = $this->getMock(
+            ContentObjectRenderer::class
+        );
+        $this->subject->injectContentObjectRenderer($mockContentObjectRenderer);
+        $this->assertInstanceOf(
+            TypoScriptFrontendController::class,
+            $GLOBALS['TSFE']
+        );
+    }
 }

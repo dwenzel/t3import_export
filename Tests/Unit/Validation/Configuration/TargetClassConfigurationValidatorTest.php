@@ -79,4 +79,18 @@ class TargetClassConfigurationValidatorTest extends UnitTestCase {
 		$this->subject->validate($configuration);
 	}
 
+    /**
+     * @test
+     */
+	public function validateReturnsTrueForValidConfiguration()
+    {
+        $existingClassName = \stdClass::class;
+        $validConfiguration = [
+            'targetClass' => $existingClassName
+        ];
+
+        $this->assertTrue(
+            $this->subject->validate($validConfiguration)
+        );
+    }
 }

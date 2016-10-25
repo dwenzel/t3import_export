@@ -31,8 +31,21 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  ***************************************************************/
 class TaskResultTest extends UnitTestCase
 {
+    /**
+     * Subject
+     *
+     * @var TaskResult
+     */
+    protected $subject;
 
-	/**
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            TaskResult::class, ['dummy']
+        );
+    }
+
+    /**
 	 * @test
 	 */
 	public function testAddAndRemoveObjectsToIterator()
@@ -134,4 +147,65 @@ class TaskResultTest extends UnitTestCase
 			->method('valid')
 			->will($this->returnValue(false));
 	}
+
+	/**
+     * @test
+     */
+	public function removeElementsReturnsFalseForNonExistingElement()
+    {
+        $nonExistingElement = 'foo';
+        $this->assertFalse(
+            $this->subject->removeElement($nonExistingElement)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function keyInitiallyReturnsZero()
+    {
+        $this->assertSame(
+            0,
+            $this->subject->key()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function keyReturnsPosition()
+    {
+        $position = 5;
+        $this->subject->_set('position', $position);
+
+        $this->assertSame(
+            $position,
+            $this->subject->key()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function countInitiallyReturnsZero()
+    {
+        $this->assertSame(
+            0,
+            $this->subject->count()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function countReturnsSize()
+    {
+        $size = 10;
+        $this->subject->_set('size', $size);
+
+        $this->assertSame(
+            $size,
+            $this->subject->count()
+        );
+    }
 }
