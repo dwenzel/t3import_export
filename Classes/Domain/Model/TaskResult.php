@@ -32,17 +32,17 @@ class TaskResult implements \Iterator
     /**
      * @var int
      */
-    private $position = 0;
+    protected $position = 0;
 
     /**
      * @var array
      */
-    private $list = [];
+    protected $list = [];
 
     /**
      * @var int
      */
-    private $size = 0;
+    protected $size = 0;
 
     /**
      * @var null|mixed
