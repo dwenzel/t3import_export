@@ -58,11 +58,23 @@ class XMLMapperTest extends UnitTestCase
 	public function configurationIsInvalid()
 	{
 		$testConfig = [
+			'foo' => 'bar',
+			'bar' => []
+		];
+
+		// required field 'fields'
+		$this->assertFalse(
+			$this->subject->isConfigurationValid($testConfig)
+		);
+
+
+		$testConfig = [
 			'fields' => [],
 			'otherShit' => true
 		];
 
-		$this->assertFalse(
+		// accept empty fields array
+		$this->assertTrue(
 			$this->subject->isConfigurationValid($testConfig)
 		);
 

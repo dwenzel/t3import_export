@@ -130,6 +130,7 @@ class DataTransferProcessor
 				}
 
 				foreach ($records as $record) {
+
 					$this->preProcessSingle($record, $task);
 					$convertedRecord = $this->convertSingle($record, $task);
 					$this->postProcessSingle($convertedRecord, $record, $task);
