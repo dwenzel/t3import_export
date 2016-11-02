@@ -3,6 +3,7 @@ namespace CPSIT\T3importExport\Tests\PostProcessor;
 
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
 /***************************************************************
  *  Copyright notice
@@ -183,7 +184,8 @@ class SetHiddenPropertiesTest extends UnitTestCase {
     /**
      * @test
      */
-    public function processSetsPropertiesRecursiveWithSubAbstractDomainObject() {
+    public function processSetsPropertiesRecursiveWithSubAbstractDomainObject()
+    {
         $fieldName = 'languageUid';
         $config = [
             'fields' => [
@@ -211,6 +213,54 @@ class SetHiddenPropertiesTest extends UnitTestCase {
         $convertedRecord->expects($this->once())
             ->method('_getProperty')
             ->willReturn($convertedRecordChild);
+
+        $convertedRecordChild->expects($this->once())
+            ->method('_setProperty')
+            ->with(
+                $this->equalTo('_'.$fieldName),
+                $this->equalTo($record[$fieldName])
+            )
+            ->will($this->returnValue(true));
+
+        $this->subject->process($config, $convertedRecord, $record);
+    }
+
+    /**
+     * @test
+     */
+    public function processSetsPropertiesRecursiveWithChildAbstractDomainObject()
+    {
+        $fieldName = 'languageUid';
+        $config = [
+            'fields' => [
+                'languageUid' => 1
+            ],
+            'children' => [
+                'languageUid' => 1
+            ]
+        ];
+        $record = [
+            $fieldName => 1
+        ];
+        $convertedRecord = $this->getAccessibleMock(
+            AbstractDomainObject::class,
+            ['_hasProperty', '_getProperty']
+        );
+
+        $convertedRecordChild = $this->getAccessibleMock(
+            AbstractDomainObject::class,
+            ['_hasProperty', '_setProperty']
+        );
+
+        $objStorage = new ObjectStorage();
+        $objStorage->attach($convertedRecordChild);
+
+        $convertedRecord->expects($this->any())
+            ->method('_hasProperty')
+            ->will($this->returnValue(TRUE));
+        $convertedRecord->expects($this->once())
+            ->method('_getProperty')
+            ->willReturn($objStorage);
 
         $convertedRecordChild->expects($this->once())
             ->method('_setProperty')
