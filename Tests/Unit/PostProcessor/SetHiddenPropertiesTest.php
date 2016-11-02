@@ -214,14 +214,11 @@ class SetHiddenPropertiesTest extends UnitTestCase {
 
         $convertedRecordChild->expects($this->once())
             ->method('_setProperty')
-            ->with($this->callback(
-                function ($value) use ($fieldName) {
-                    if ($value === '_'.$fieldName) {
-                        return true;
-                    }
-                    return false;
-                })
-            )->will($this->returnValue(true));
+            ->with(
+                $this->equalTo('_'.$fieldName),
+                $this->equalTo($record[$fieldName])
+            )
+            ->will($this->returnValue(true));
 
         $this->subject->process($config, $convertedRecord, $record);
     }
