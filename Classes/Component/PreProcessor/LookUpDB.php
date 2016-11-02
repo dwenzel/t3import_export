@@ -165,7 +165,11 @@ class LookUpDB
 
 						if (isset($value['value'])) {
 							//read field value from record
-							$whereClause .= $prefix . $record[$value['value']] . '"';
+							$whereClause .= $prefix .
+								$this->database->quoteStr(
+									$record[$value['value']],
+									$queryConfiguration['table']
+								) . '"';
 						}
 					}
 					if ($operator === 'IN') {
