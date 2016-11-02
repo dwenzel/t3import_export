@@ -29,315 +29,315 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  */
 class XMLMapperTest extends UnitTestCase
 {
-	/**
-	 * @var \CPSIT\T3importExport\Component\PreProcessor\XMLMapper
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\PreProcessor\XMLMapper
+     */
+    protected $subject;
 
-	public function setUp()
-	{
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\XMLMapper',
-			['dummy'], [], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\XMLMapper',
+            ['dummy'], [], '', FALSE);
+    }
 
-	/**
-	 * @test
-	 */
-	public function configurationIsEmpty()
-	{
-		$testConfig = [];
+    /**
+     * @test
+     */
+    public function configurationIsEmpty()
+    {
+        $testConfig = [];
 
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($testConfig)
-		);
-	}
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($testConfig)
+        );
+    }
 
-	/**
-	 * @return array
-	 */
-	public function isConfigurationInvalidDataProvider()
-	{
-		return [
-			[
-				[
-					'foo' => 'bar',
-					'bar' => []
-				]
-			],
-			[
-				[
-					'fields' => 'bar',
-					'otherShit' => true
-				]
-			],
-			[
-				[
-					'foo' => true,
-					'stuff' => '@something'
-				]
-			],
-			[
-				[
-					'fields' => [
-						'staticSub' => [
-							'foo' => false,
-						]
-					]
-				]
-			],
-			[
-				[
-					'fields' => [
-						'manyChildren' => [
-							'children' => [
-								'id' => false
-							],
-						]
-					]
-				]
-			],
-		];
-	}
+    /**
+     * @return array
+     */
+    public function isConfigurationInvalidDataProvider()
+    {
+        return [
+            [
+                [
+                    'foo' => 'bar',
+                    'bar' => []
+                ]
+            ],
+            [
+                [
+                    'fields' => 'bar',
+                    'otherShit' => true
+                ]
+            ],
+            [
+                [
+                    'foo' => true,
+                    'stuff' => '@something'
+                ]
+            ],
+            [
+                [
+                    'fields' => [
+                        'staticSub' => [
+                            'foo' => false,
+                        ]
+                    ]
+                ]
+            ],
+            [
+                [
+                    'fields' => [
+                        'manyChildren' => [
+                            'children' => [
+                                'id' => false
+                            ],
+                        ]
+                    ]
+                ]
+            ],
+        ];
+    }
 
-	/**
-	 * @test
-	 * @dataProvider isConfigurationInvalidDataProvider
-	 * @param array $testConfig
-	 */
-	public function configurationIsInvalid($testConfig)
-	{
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($testConfig)
-		);
-	}
+    /**
+     * @test
+     * @dataProvider isConfigurationInvalidDataProvider
+     * @param array $testConfig
+     */
+    public function configurationIsInvalid($testConfig)
+    {
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($testConfig)
+        );
+    }
 
-	/**
-	 * @return array
-	 */
-	public function isConfigurationValidDataProvider()
-	{
-		return [
-			// empty is valid, only the key 'fields' is required
-			[
-				[
-					'fields' => [],
-					'otherShit' => true
-				]
-			],
-			// recursion with list array
-			[
-				[
-					'fields' => [
-						'manyChildren' => [
-							'children' => [
-								'id' => '@attribute'
-							]
-						]
-					]
-				]
-			],
-			// recursion with assoc array
-			[
-				[
-					'fields' => [
-						'single' => [
-							'id' => '@attribute'
-						]
-					]
-				]
-			]
-		];
-	}
-
-
-
-	/**
-	 * @test
-	 * @dataProvider isConfigurationValidDataProvider
-	 * @param array $testConfig
-	 */
-	public function configurationIsValid($testConfig)
-	{
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($testConfig)
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	public function processWithValidConfigDataProvider()
-	{
-		return [
-			// check attribute
-			[
-				[
-					'id' => 123
-				],
-				[
-					'fields' => [
-						'id' => '@attribute'
-					]
-				],
-				[
-					'@attribute' => [
-						'id' => 123
-					]
-				]
-			],
-			// check separate row in 1 dimension
-			[
-				[
-					'setting' => [
-						'foo'
-					]
-				],
-				[
-					'fields' => [
-						'setting' => '@separateRow'
-					]
-				],
-				[
-					'setting' => [
-						'foo',
-						'@separateRow' => true
-					]
-				]
-			],
-			// check separate row in multi dimensions
-			[
-				[
-					'setting' => [
-						'foo'
-					]
-				],
-				[
-					'fields' => [
-						'setting' => [
-							'@separateRow' => true
-						]
-					]
-				],
-				[
-					'setting' => [
-						'foo',
-						'@separateRow' => true
-					]
-				]
-			],
-
-			// check mapTo in sub element
-			[
-				[
-					'setting' => [
-						'foo'
-					]
-				],
-				[
-					'fields' => [
-						'setting' => [
-							'mapTo' => 'setup'
-						]
-					]
-				],
-				[
-					'setting' => [
-						'foo',
-						'@mapTo' => 'setup'
-					]
-				]
-			],
-			// check mapTo in direct element
-			[
-				[
-					'foo' => 1
-				],
-				[
-					'fields' => [
-						'foo' => [
-							'mapTo' => 'bar'
-						]
-					]
-				],
-				[
-					'foo' => [
-						'@value' => 1,
-						'@mapTo' => 'bar'
-					]
-				]
-			],
-
-			// check value
-			[
-				[
-					'element' => [
-						'content' => 'fooBar'
-
-					]
-				],
-				[
-					'fields' => [
-						'element' => [
-							'content' => '@value'
-						]
-					]
-				],
-				[
-					'element' => [
-						'@value' => 'fooBar',
-					]
-				]
-			],
-
-			// check children element with mapTo and value
-			[
-				[
-					'element' => [
-						[
-							'foo' => 'bar'
-						],
-						[
-							'foo' => 'bar'
-						]
-					]
-				],
-				[
-					'fields' => [
-						'element' => [
-							'children' => [
-								'mapTo' => 'item',
-								'foo' => '@value'
-							]
-						]
-					]
-				],
-				[
-					'element' => [
-						[
-							'@value' => 'bar',
-							'@mapTo' => 'item'
-						],
-						[
-							'@value' => 'bar',
-							'@mapTo' => 'item'
-						]
-					]
-				]
-			],
-		];
-	}
+    /**
+     * @return array
+     */
+    public function isConfigurationValidDataProvider()
+    {
+        return [
+            // empty is valid, only the key 'fields' is required
+            [
+                [
+                    'fields' => [],
+                    'otherShit' => true
+                ]
+            ],
+            // recursion with list array
+            [
+                [
+                    'fields' => [
+                        'manyChildren' => [
+                            'children' => [
+                                'id' => '@attribute'
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            // recursion with assoc array
+            [
+                [
+                    'fields' => [
+                        'single' => [
+                            'id' => '@attribute'
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
 
 
-	/**
-	 * @test
-	 * @dataProvider processWithValidConfigDataProvider
-	 * @param array $testConfig
-	 * @param array $data
-	 * @param array $expectedData
-	 */
-	public function processWithValidConfig($data, $testConfig, $expectedData)
-	{
-		$this->subject->process($testConfig, $data);
-		$this->assertEquals($data, $expectedData);
-	}
+
+    /**
+     * @test
+     * @dataProvider isConfigurationValidDataProvider
+     * @param array $testConfig
+     */
+    public function configurationIsValid($testConfig)
+    {
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($testConfig)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function processWithValidConfigDataProvider()
+    {
+        return [
+            // check attribute
+            [
+                [
+                    'id' => 123
+                ],
+                [
+                    'fields' => [
+                        'id' => '@attribute'
+                    ]
+                ],
+                [
+                    '@attribute' => [
+                        'id' => 123
+                    ]
+                ]
+            ],
+            // check separate row in 1 dimension
+            [
+                [
+                    'setting' => [
+                        'foo'
+                    ]
+                ],
+                [
+                    'fields' => [
+                        'setting' => '@separateRow'
+                    ]
+                ],
+                [
+                    'setting' => [
+                        'foo',
+                        '@separateRow' => true
+                    ]
+                ]
+            ],
+            // check separate row in multi dimensions
+            [
+                [
+                    'setting' => [
+                        'foo'
+                    ]
+                ],
+                [
+                    'fields' => [
+                        'setting' => [
+                            '@separateRow' => true
+                        ]
+                    ]
+                ],
+                [
+                    'setting' => [
+                        'foo',
+                        '@separateRow' => true
+                    ]
+                ]
+            ],
+
+            // check mapTo in sub element
+            [
+                [
+                    'setting' => [
+                        'foo'
+                    ]
+                ],
+                [
+                    'fields' => [
+                        'setting' => [
+                            'mapTo' => 'setup'
+                        ]
+                    ]
+                ],
+                [
+                    'setting' => [
+                        'foo',
+                        '@mapTo' => 'setup'
+                    ]
+                ]
+            ],
+            // check mapTo in direct element
+            [
+                [
+                    'foo' => 1
+                ],
+                [
+                    'fields' => [
+                        'foo' => [
+                            'mapTo' => 'bar'
+                        ]
+                    ]
+                ],
+                [
+                    'foo' => [
+                        '@value' => 1,
+                        '@mapTo' => 'bar'
+                    ]
+                ]
+            ],
+
+            // check value
+            [
+                [
+                    'element' => [
+                        'content' => 'fooBar'
+
+                    ]
+                ],
+                [
+                    'fields' => [
+                        'element' => [
+                            'content' => '@value'
+                        ]
+                    ]
+                ],
+                [
+                    'element' => [
+                        '@value' => 'fooBar',
+                    ]
+                ]
+            ],
+
+            // check children element with mapTo and value
+            [
+                [
+                    'element' => [
+                        [
+                            'foo' => 'bar'
+                        ],
+                        [
+                            'foo' => 'bar'
+                        ]
+                    ]
+                ],
+                [
+                    'fields' => [
+                        'element' => [
+                            'children' => [
+                                'mapTo' => 'item',
+                                'foo' => '@value'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'element' => [
+                        [
+                            '@value' => 'bar',
+                            '@mapTo' => 'item'
+                        ],
+                        [
+                            '@value' => 'bar',
+                            '@mapTo' => 'item'
+                        ]
+                    ]
+                ]
+            ],
+        ];
+    }
+
+
+    /**
+     * @test
+     * @dataProvider processWithValidConfigDataProvider
+     * @param array $testConfig
+     * @param array $data
+     * @param array $expectedData
+     */
+    public function processWithValidConfig($data, $testConfig, $expectedData)
+    {
+        $this->subject->process($testConfig, $data);
+        $this->assertEquals($data, $expectedData);
+    }
 }
