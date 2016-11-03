@@ -70,6 +70,7 @@ class DatabaseConnectionService implements SingletonInterface
             $database->setDatabaseUsername($userName);
             $database->setDatabasePassword($password);
             $database->setDatabasePort($port);
+            $database->initialize();
             self::$dataBases[$identifier] = $database;
         }
     }
