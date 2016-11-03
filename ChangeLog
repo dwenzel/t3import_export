@@ -1,3 +1,6 @@
+2016-11-03         [RELEASE] Release of t3import_export 0.6.4 (Dirk Wenzel)
+2016-11-03 8ca93ea [BUGFIX] Initialize database connection to avoid conflicts with Database Abstraction Layer dbal (Vladimir Falcon)
+
 2016-10-24         [RELEASE] Release of t3import_export 0.6.3 (Dirk Wenzel)
 2016-10-24 3f919e1 [BUGFIX] DataSourceFactory does not throw exception for missing identifier anymore if data source implements IdentifiableInterface and identifier is not set. (Dirk Wenzel)
 2016-10-24 298d029 [TASK] remove obsolete registration of TYPO3 DB in functional test. (TYPO3 DB is now default connection in DataSourceDB) (Dirk Wenzel)
