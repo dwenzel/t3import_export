@@ -41,6 +41,10 @@
 			<source>Choose an import set</source>
 			<target>Wählen Sie einen Importsatz.</target>
 		</trans-unit>
+		<trans-unit id="message.chooseImportTask" xml:space="preserve">
+			<source>Choose an import task</source>
+			<target>Wählen Sie eine Importaufgabe.</target>
+		</trans-unit>
 		<trans-unit id="message.noExportSetsFound" approved="yes" xml:space="preserve">
 			<source>No export sets found.</source>
 			<target>Keine Exportsätze gefunden.</target>

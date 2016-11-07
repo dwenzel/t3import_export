@@ -32,6 +32,9 @@
 		<trans-unit id="message.chooseImportSet" xml:space="preserve">
 			<source>Choose an import set</source>
 		</trans-unit>
+		<trans-unit id="message.chooseImportTask" xml:space="preserve">
+			<source>Choose an import task</source>
+		</trans-unit>
 		<trans-unit id="message.noExportSetsFound" xml:space="preserve">
 			<source>No export sets found.</source>
 		</trans-unit>
