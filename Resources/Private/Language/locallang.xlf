@@ -8,6 +8,9 @@
 		<trans-unit id="button.export" xml:space="preserve">
 			<source>Export</source>
 		</trans-unit>
+		<trans-unit id="button.import" xml:space="preserve">
+			<source>Import</source>
+		</trans-unit>
 		<trans-unit id="header.export" xml:space="preserve">
 			<source>Export</source>
 		</trans-unit>

@@ -9,6 +9,10 @@
 			<source>Export</source>
 			<target>Exportieren</target>
 		</trans-unit>
+		<trans-unit id="button.import" approved="yes" xml:space="preserve">
+			<source>Import</source>
+			<target>Importieren</target>
+		</trans-unit>
 		<trans-unit id="header.export" approved="yes" xml:space="preserve">
 			<source>Export</source>
 			<target>Export</target>
