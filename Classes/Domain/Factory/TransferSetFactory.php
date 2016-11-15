@@ -66,9 +66,9 @@ class TransferSetFactory extends AbstractFactory {
 			$taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
 			$tasks = [];
 			foreach ($taskIdentifiers as $taskIdentifier) {
-				if (isset($this->settings['importProcessor']['tasks'][$taskIdentifier])) {
+				if (isset($this->settings['import']['tasks'][$taskIdentifier])) {
 					$task = $this->transferTaskFactory->get(
-						$this->settings['importProcessor']['tasks'][$taskIdentifier], $taskIdentifier
+						$this->settings['import']['tasks'][$taskIdentifier], $taskIdentifier
 					);
 					$tasks[$taskIdentifier] = $task;
 				}

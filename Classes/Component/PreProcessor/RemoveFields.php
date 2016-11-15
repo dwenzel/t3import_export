@@ -21,7 +21,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
  * Class RemoveFields
- * Maps one field of a record to another. Existing fields are overwritten!
+ * Removes fields from an incoming array (recursively)
  *
  * @package CPSIT\T3importExport\PreProcessor
  */

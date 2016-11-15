@@ -9,6 +9,10 @@
 			<source>Export</source>
 			<target>Exportieren</target>
 		</trans-unit>
+		<trans-unit id="button.import" approved="yes" xml:space="preserve">
+			<source>Import</source>
+			<target>Importieren</target>
+		</trans-unit>
 		<trans-unit id="header.export" approved="yes" xml:space="preserve">
 			<source>Export</source>
 			<target>Export</target>
@@ -36,6 +40,10 @@
 		<trans-unit id="message.chooseImportSet" approved="yes" xml:space="preserve">
 			<source>Choose an import set</source>
 			<target>Wählen Sie einen Importsatz.</target>
+		</trans-unit>
+		<trans-unit id="message.chooseImportTask" xml:space="preserve">
+			<source>Choose an import task</source>
+			<target>Wählen Sie eine Importaufgabe.</target>
 		</trans-unit>
 		<trans-unit id="message.noExportSetsFound" approved="yes" xml:space="preserve">
 			<source>No export sets found.</source>

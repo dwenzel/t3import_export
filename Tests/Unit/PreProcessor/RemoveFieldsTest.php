@@ -24,7 +24,6 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
 /**
  * Class RemoveFieldsTest
  *
- * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\RemoveFields
  */
 class RemoveFieldsTest extends UnitTestCase
@@ -61,7 +60,7 @@ class RemoveFieldsTest extends UnitTestCase
 	/**
 	 * @test
 	 */
-	public function configurationWithNestedChildrenIsValid()
+	public function isConfigurationValidReturnsTrueForValidNestedConfiguration()
 	{
 		$testConfig = [
 			'fields' => [
@@ -83,7 +82,7 @@ class RemoveFieldsTest extends UnitTestCase
 	/**
 	 * @test
 	 */
-	public function configurationIsEmpty()
+	public function isConfigurationValidReturnsFalseForEmptyConfiguration()
 	{
 		$testConfig = [];
 
@@ -91,6 +90,20 @@ class RemoveFieldsTest extends UnitTestCase
 			$this->subject->isConfigurationValid($testConfig)
 		);
 	}
+
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    {
+        $invalidConfig = [
+            'fields' => 'foo'
+        ];
+
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($invalidConfig)
+        );
+    }
 
 	/**
 	 * @test

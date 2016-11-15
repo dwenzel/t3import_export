@@ -8,6 +8,9 @@
 		<trans-unit id="button.export" xml:space="preserve">
 			<source>Export</source>
 		</trans-unit>
+		<trans-unit id="button.import" xml:space="preserve">
+			<source>Import</source>
+		</trans-unit>
 		<trans-unit id="header.export" xml:space="preserve">
 			<source>Export</source>
 		</trans-unit>
@@ -28,6 +31,9 @@
 		</trans-unit>
 		<trans-unit id="message.chooseImportSet" xml:space="preserve">
 			<source>Choose an import set</source>
+		</trans-unit>
+		<trans-unit id="message.chooseImportTask" xml:space="preserve">
+			<source>Choose an import task</source>
 		</trans-unit>
 		<trans-unit id="message.noExportSetsFound" xml:space="preserve">
 			<source>No export sets found.</source>

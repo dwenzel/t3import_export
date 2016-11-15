@@ -183,7 +183,7 @@ class ImportSetFactoryTest extends UnitTestCase
         $fooTaskConfiguration = ['baz'];
         $barTaskConfiguration = ['bam'];
         $frameworkSettings = [
-            'importProcessor' => [
+            'import' => [
                 'tasks' => [
                     'foo' => $fooTaskConfiguration,
                     'bar' => $barTaskConfiguration
