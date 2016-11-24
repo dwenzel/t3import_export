@@ -1,8 +1,8 @@
 <div>
 	<h3>{f:if(condition: set.label, then: set.label, else: set.identifier)}</h3>
-	<f:if condition="{set.description}"><p>{set.description}</p></f:if>
+	<f:if condition="{set.description}"><p><f:format.html>{set.description}</f:format.html></p></f:if>
 	<f:link.action
-	class="btn btn-default"
-	action="importSet"
-	arguments="{identifier: '{set.identifier}'}">import</f:link.action><br />
+			class="btn btn-default"
+			action="importSet"
+			arguments="{identifier: '{set.identifier}'}">{f:translate(key: 'button.import')}</f:link.action><br />
 </div>

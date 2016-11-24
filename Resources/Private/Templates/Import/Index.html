@@ -32,17 +32,9 @@
             <div class="typo3-message message-information">
                 <div class="message-body">{f:translate(key: 'message.chooseImportSet')}</div>
             </div>
-            <f:form
-                    action="importSet"
-                    name="importSet">
-                <f:form.select
-                        name="identifier"
-                        options="{sets}"
-                        optionValueField="identifier"
-                        optionLabelField="identifier"
-                />
-                <f:form.submit name="submit" value="{f:translate(key: 'button.import')}}" />
-            </f:form>
+            <f:for each="{sets}" as="set">
+                <f:render partial="Set/ListItem" arguments="{set: set}" />
+            </f:for>
         </f:then>
         <f:else>
             <div class="typo3-message message-notice">
