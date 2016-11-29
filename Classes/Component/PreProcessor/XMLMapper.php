@@ -77,7 +77,13 @@ class XMLMapper
                 }
             }
             return true;
-        } elseif ($value === '@attribute' || $value === '@value' || $field === 'mapTo' || $value === '@separateRow') {
+        } elseif (
+            $value === '@attribute' ||
+            $value === '@cdata' ||
+            $value === '@value' ||
+            $field === 'mapTo' ||
+            $value === '@separateRow'
+        ) {
             return true;
         }
 
@@ -87,7 +93,7 @@ class XMLMapper
             $multiValue = explode('|', $value);
         }
 
-        if (!empty($multiValue) && is_array($multiValue)) {
+        if (!empty($multiValue) && is_array($multiValue) && count($multiValue) > 1) {
             foreach ($multiValue as $subValue) {
                 if (!$this->validateFieldsList($field, $subValue)) {
                     return false;
