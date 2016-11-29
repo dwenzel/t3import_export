@@ -145,6 +145,24 @@ class XMLMapperTest extends UnitTestCase
                         ]
                     ]
                 ]
+            ],
+            // CDATA
+            [
+                [
+                    'fields' => [
+                        'element' => '@cdata'
+                    ]
+                ]
+            ],
+            // ADVANCED CDATA
+            [
+                [
+                    'fields' => [
+                        'element' => [
+                            'content' => '@value|@cdata'
+                        ]
+                    ]
+                ]
             ]
         ];
     }
@@ -285,6 +303,47 @@ class XMLMapperTest extends UnitTestCase
                 [
                     'element' => [
                         '@value' => 'fooBar',
+                    ]
+                ]
+            ],
+
+            // check simple CDATA
+            [
+                [
+                    'element' => 'fooBar'
+                ],
+                [
+                    'fields' => [
+                        'element' => '@cdata'
+                    ]
+                ],
+                [
+                    'element' => [
+                        '@value' => 'fooBar',
+                        '@cdata' => true
+                    ]
+                ]
+            ],
+
+            // check complex simple CDATA
+            [
+                [
+                    'element' => [
+                        'content' => 'fooBar'
+
+                    ]
+                ],
+                [
+                    'fields' => [
+                        'element' => [
+                            'content' => '@value|@cdata'
+                        ]
+                    ]
+                ],
+                [
+                    'element' => [
+                        '@value' => 'fooBar',
+                        '@cdata' => true
                     ]
                 ]
             ],

@@ -81,6 +81,21 @@ class XMLMapper
             return true;
         }
 
+        // check for multi single line statements (Recursion)
+        $multiValue = [];
+        if (is_string($value)) {
+            $multiValue = explode('|', $value);
+        }
+
+        if (!empty($multiValue) && is_array($multiValue)) {
+            foreach ($multiValue as $subValue) {
+                if (!$this->validateFieldsList($field, $subValue)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         return false;
     }
 
@@ -126,7 +141,21 @@ class XMLMapper
                 }
             }
 
-            if ($value === '@attribute') {
+            $multiValue = [];
+            if (is_string($value)) {
+                $multiValue = explode('|', $value);
+            }
+
+            if (
+                !empty($multiValue) &&
+                is_array($multiValue) &&
+                count($multiValue) > 1 &&
+                in_array('@cdata', $multiValue) &&
+                in_array('@value', $multiValue)
+            ) {
+                $fieldArray = $this->mapValueInArray($fieldArray, $configKey);
+                $fieldArray = $this->mapCdataInArray($fieldArray, $configKey);
+            } elseif ($value === '@attribute') {
                 $fieldArray = $this->mapAttributeInArray($fieldArray, $configKey);
             } elseif ($value === '@separateRow' || $configKey === '@separateRow') {
                 $fieldArray = $this->mapSeparateRow($fieldArray, $configKey);
@@ -134,6 +163,8 @@ class XMLMapper
                 $fieldArray = $this->mapMapToInArray($fieldArray, $value);
             } elseif ($value === '@value') {
                 $fieldArray = $this->mapValueInArray($fieldArray, $configKey);
+            } elseif ($value === '@cdata') {
+                $fieldArray = $this->mapCdataInArray($fieldArray, $configKey);
             }
         }
         return $fieldArray;
@@ -176,6 +207,25 @@ class XMLMapper
     {
         $array['@value'] = $array[$mapKey];
         unset($array[$mapKey]);
+
+        return $array;
+    }
+
+    /**
+     * @param $array
+     * @param $mapKey
+     * @return array
+     */
+    protected function mapCdataInArray($array, $mapKey)
+    {
+        if (isset($array[$mapKey]) && !is_array($array[$mapKey])) {
+            $array[$mapKey] = [
+                '@value' => $array[$mapKey],
+                '@cdata' => true
+            ];
+        } elseif (isset($array['@value'])) {
+            $array['@cdata'] = true;
+        }
 
         return $array;
     }
