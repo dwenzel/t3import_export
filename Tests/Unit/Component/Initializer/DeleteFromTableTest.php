@@ -13,7 +13,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use CPSIT\T3importExport\Component\Initializer\DeleteFromTable;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
@@ -34,7 +33,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::injectDatabaseConnectionService
 	 */
 	public function injectDatabaseConnectionServiceForObjectSetsConnectionService() {
 		/** @var DatabaseConnectionService $expectedConnectionService */
@@ -77,7 +75,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsFalseIfTableIsNotSet() {
 		$mockConfiguration = [];
@@ -88,7 +85,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsFalseIfTableIsNotString() {
 		$mockConfiguration = [
@@ -101,7 +97,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
     /**
      * @test
-     * @covers ::isConfigurationValid
      */
     public function isConfigurationValidReturnsFalseIfWhereIsNotSet() {
         $mockConfiguration = [
@@ -114,7 +109,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
     /**
      * @test
-     * @covers ::isConfigurationValid
      */
     public function isConfigurationValidReturnsFalseIfWhereIsNotString() {
         $mockConfiguration = [
@@ -128,7 +122,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
     /**
      * @test
-     * @covers ::isConfigurationValid
      */
     public function isConfigurationValidReturnsFalseIfIdentifierIsNotString() {
         $mockConfiguration = [
@@ -143,7 +136,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
     /**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsTrueForValidConfiguration() {
 		$validConfiguration = [
@@ -157,7 +149,6 @@ class DeleteFromTableTest extends UnitTestCase {
 
 	/**
 	 * @test
-	 * @covers ::isConfigurationValid
 	 */
 	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
 		/** @var DatabaseConnectionService $mockConnectionService */
