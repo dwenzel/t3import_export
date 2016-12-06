@@ -7,7 +7,7 @@ Each task has a data source and target and may request sub-tasks which will be p
 
 Currently the following types of components are implemented:
 
-* [Initializers](./Components/INITIALIZER.md)
+* [Initializers](./Components/Initializer.md)
 * [PreProcessors](./Components/PREPROCESSOR.md)
 * [Converters](./Components/CONVERTER.md)
 * [PostProcessors](./Components/POSTPROCESSOR.md)

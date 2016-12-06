@@ -19,6 +19,8 @@ Thanks for contribution and feedback
 * [Sebastian Kreideweiss](https://github.com/kreidewe)
 * [Benjamin Rannow](https://github.com/brannow)
 * [Nicole Cordes](https://github.com/IchHabRecht)
+* Vladimir Falcón Piva
+* [Benjamin Schütz](https://github.com/schuetzbenjamin)
 
 This extension has been developed at [CPS IT GmbH](https://cps-it.de).
 
