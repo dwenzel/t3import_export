@@ -6,4 +6,10 @@
 	<div class="message">
 		<p><f:count>{result}</f:count> records imported for task {task}</p>
 	</div>
+	<f:link.action
+			class="btn btn-default"
+			action="index"
+	>{f:translate(key: 'button.back', default: 'back to list')}
+	</f:link.action>
+
 </f:section>

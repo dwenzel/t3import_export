@@ -7,5 +7,10 @@
 	<div class="message">
 		<p><f:count>{result}</f:count> records imported for set {set}</p>
 	</div>
+	<f:link.action
+			class="btn btn-default"
+			action="index"
+			>{f:translate(key: 'button.back', default: 'back to list')}
+	</f:link.action>
 
 </f:section>
