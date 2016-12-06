@@ -35,7 +35,7 @@ class SetFieldValue
      * $configuration must contain a key 'targetField'
      * and a key 'value'
      * Example:
-     * configuration {
+     * config {
      *   targetField = foo
      *   value = bar
      * }
