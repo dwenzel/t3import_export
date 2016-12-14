@@ -1,3 +1,8 @@
+2016-12-14         [RELEASE] Release of t3import_export 0.7.0 (Dirk Wenzel)
+2016-11-29 6b0e3c5 Fix Recusion loop in config check for xmlmapper (Benjamin Rannow)
+2016-11-29 16602d2 Add new XML Parser Config element for CDATA fields (Benjamin Rannow)
+2016-11-24 2e0f83d [TASK] templates for sets edited. (Dirk Wenzel)
+
 2016-11-15         [RELEASE] Release of t3import_export 0.6.5 (Dirk Wenzel)
 2016-11-08 7cc3d8d [BUGFIX] fixed error in TransferSetFactory caused by legacy settings path. (Dirk Wenzel)
 2016-11-07 45219eb Add missing translation of "message.chooseImportTask" (Benjamin Schütz)
