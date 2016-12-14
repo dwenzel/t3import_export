@@ -49,6 +49,7 @@ class ArrayToXMLStream
     const XML_CONFIG_FIELD_ATTR = '@attribute';
     const XML_CONFIG_FIELD_MAP = '@mapTo';
     const XML_CONFIG_FIELD_VALUE = '@value';
+    const XML_CONFIG_FIELD_CDATA = '@cdata';
     const XML_CONFIG_FIELD_SEPARATE_ROW = '@separateRow';
 
     /**
@@ -200,7 +201,7 @@ class ArrayToXMLStream
         }
 
         $asSeparateRowKey = false;
-        if (!is_object($value) && !empty($value[static::XML_CONFIG_FIELD_SEPARATE_ROW])) {
+        if (!is_object($value) && isset($value[static::XML_CONFIG_FIELD_SEPARATE_ROW])) {
             unset($value[static::XML_CONFIG_FIELD_SEPARATE_ROW]);
             $asSeparateRowKey = true;
         }
@@ -209,14 +210,21 @@ class ArrayToXMLStream
         }
 
 
-        if (is_array($value) && !empty($value[static::XML_CONFIG_FIELD_ATTR])) {
-            $this->writeAttributes($xml, $value[static::XML_CONFIG_FIELD_ATTR]);
+        if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_ATTR])) {
+            if (!empty($value[static::XML_CONFIG_FIELD_ATTR])) {
+                $this->writeAttributes($xml, $value[static::XML_CONFIG_FIELD_ATTR]);
+            }
             unset($value[static::XML_CONFIG_FIELD_ATTR]);
         }
 
-        if (is_array($value) && !empty($value[static::XML_CONFIG_FIELD_VALUE])) {
-            $xml->text($value[static::XML_CONFIG_FIELD_VALUE]);
+        if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_VALUE])) {
+            if (isset($value[static::XML_CONFIG_FIELD_CDATA])) {
+                $xml->writeCdata($value[static::XML_CONFIG_FIELD_VALUE]);
+            } elseif(!empty($value[static::XML_CONFIG_FIELD_VALUE])) {
+                $xml->text($value[static::XML_CONFIG_FIELD_VALUE]);
+            }
             unset($value[static::XML_CONFIG_FIELD_VALUE]);
+            unset($value[static::XML_CONFIG_FIELD_CDATA]);
         }
 
         if (is_array($value)) {

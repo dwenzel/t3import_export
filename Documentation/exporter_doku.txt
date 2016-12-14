@@ -137,6 +137,7 @@ KeyWords
 arrayKey = @attribute
 mapTo = newStringName
 arrayKey = @value
+arrayKey = @cdata
 arrayKey = @separateRow
 children {}
 
@@ -185,11 +186,34 @@ config.fields {
 	 primaryNode {
 		mapTo = missingDog
 		id = @attribute
-		 content  = @value
+		content  = @value
 	}
 }
 Output:
 <missingDog id=“12345“>my Dog is a Hairy Beast!</ missingDog>
+
+@cdata definiert ob der Content eines Nodes in ein CDATA element eingepackt werden soll
+Array:
+$array [
+	primaryNode => [
+                     id => 12345
+                     content => my Dog is a Hairy Beast!
+            ]
+    secondNode => 'HELLO WORLD'
+]
+TypoScript:
+config.fields {
+	 primaryNode {
+		mapTo = missingDog
+		id = @attribute
+		content  = @value|@cdata
+	}
+	secondNode = @cdata
+}
+Output:
+<missingDog id=“12345“><![CDATA[my Dog is a Hairy Beast!]]></missingDog>
+<secondNode><![CDATA[HELLO WORLD]]></secondNode>
+
 children ist für den Mapper die anweisung das sich auf dieser Ebene mehrere Elemente befinden (liste) die alle gleich behandelt werden sollen.
 Array: 
 $array [
