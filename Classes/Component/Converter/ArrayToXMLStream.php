@@ -350,17 +350,17 @@ class ArrayToXMLStream
     public function isValueEmpty($value)
     {
         if ($value === null) {
-            return false;
-        }
-
-        if (is_object($value)) {
             return true;
         }
 
-        if (is_array($value)) {
-            return !empty($value);
+        if (is_object($value)) {
+            return false;
         }
 
-        return isset($value) && strlen($value) > 0;
+        if (is_array($value)) {
+            return empty($value);
+        }
+
+        return !(isset($value) && strlen($value) > 0);
     }
 }
