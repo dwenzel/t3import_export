@@ -211,7 +211,7 @@ class ArrayToXMLStream
 
 
         if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_ATTR])) {
-            if (!empty($value[static::XML_CONFIG_FIELD_ATTR])) {
+            if (!$this->isValueEmpty($value[static::XML_CONFIG_FIELD_ATTR])) {
                 $this->writeAttributes($xml, $value[static::XML_CONFIG_FIELD_ATTR]);
             }
             unset($value[static::XML_CONFIG_FIELD_ATTR]);
@@ -220,7 +220,7 @@ class ArrayToXMLStream
         if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_VALUE])) {
             if (isset($value[static::XML_CONFIG_FIELD_CDATA])) {
                 $xml->writeCdata($value[static::XML_CONFIG_FIELD_VALUE]);
-            } elseif(!empty($value[static::XML_CONFIG_FIELD_VALUE])) {
+            } elseif(!$this->isValueEmpty($value[static::XML_CONFIG_FIELD_VALUE])) {
                 $xml->text($value[static::XML_CONFIG_FIELD_VALUE]);
             }
             unset($value[static::XML_CONFIG_FIELD_VALUE]);
@@ -235,7 +235,7 @@ class ArrayToXMLStream
                 }
                 $this->xmlRecursive($xml, $subKey, $subValue);
             }
-        } elseif (!empty($value) && !is_object($value)  && !is_array($value)) {
+        } elseif (!$this->isValueEmpty($value) && !is_object($value) && !is_array($value)) {
             $xml->text($value);
         }
         if (!$asSeparateRowKey) {
@@ -330,5 +330,37 @@ class ArrayToXMLStream
             $fieldsConfiguration = $configuration[static::XML_CONFIG_FIELD_KEY];
         }
         return $fieldsConfiguration;
+    }
+
+    /**
+     * checked if an value (mixed) is empty; diference from php standard function 'empty' is,
+     * it allows 0 as NOT empty
+     *
+     * '' => true
+     * ' ' => false
+     * '1' => false
+     * 'asd' => false
+     * 0 => false
+     * false => false
+     * true => false
+     *
+     * @param $value
+     * @return bool
+     */
+    public function isValueEmpty($value)
+    {
+        if ($value === null) {
+            return false;
+        }
+
+        if (is_object($value)) {
+            return true;
+        }
+
+        if (is_array($value)) {
+            return !empty($value);
+        }
+
+        return isset($value) && strlen($value) > 0;
     }
 }
