@@ -3,6 +3,7 @@ namespace CPSIT\T3importExport\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
@@ -76,6 +77,9 @@ class DataTargetFactory extends AbstractFactory
             $dataTargetClass,
             $objectClass
         );
+        if ($target instanceof IdentifiableInterface && isset($settings['identifier'])) {
+            $target->setIdentifier($settings['identifier']);
+        }
 
         if ($target instanceof ConfigurableInterface && isset($settings['config'])) {
             /** @var ConfigurableInterface $target */

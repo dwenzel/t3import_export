@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3importExport\Persistence\DataTargetDB;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
@@ -182,5 +183,32 @@ class DataTargetDBTest extends UnitTestCase
             $record,
             $configuration
         );
+    }
+
+    /**
+     * @test
+     * @covers ::getDatabase
+     */
+    public function getDatabaseReturnsDatabaseFromConnectionService()
+    {
+        $identifier = 'foo';
+        $this->subject->setIdentifier($identifier);
+        /** @var DatabaseConnectionService | \PHPUnit_Framework_MockObject_MockObject $mockConnectionService */
+        $mockConnectionService = $this->getMock(
+            DatabaseConnectionService::class, ['getDatabase'], [], '', false
+        );
+        $mockDataBase = $this->getMock(
+            DatabaseConnection::class);
+        $this->subject->injectDatabaseConnectionService($mockConnectionService);
+        $mockConnectionService->expects($this->once())
+            ->method('getDatabase')
+            ->with($identifier)
+            ->will($this->returnValue($mockDataBase));
+
+        $this->assertSame(
+            $mockDataBase,
+            $this->subject->getDatabase()
+        );
+
     }
 }

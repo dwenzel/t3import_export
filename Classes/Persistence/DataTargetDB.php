@@ -5,6 +5,9 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\T3importExport\IdentifiableInterface;
+use CPSIT\T3importExport\IdentifiableTrait;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
@@ -30,10 +33,16 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  * @package CPSIT\T3importExport\Persistence
  */
 class DataTargetDB
-    implements DataTargetInterface, ConfigurableInterface
+    implements DataTargetInterface, ConfigurableInterface, IdentifiableInterface
 {
-    use ConfigurableTrait, DatabaseTrait;
+    use ConfigurableTrait, DatabaseTrait, IdentifiableTrait;
 
+    /**
+     * Tells if the configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
     public function isConfigurationValid(array $configuration)
     {
         if (!isset($configuration['table'])) {
@@ -47,6 +56,26 @@ class DataTargetDB
         }
 
         return true;
+    }
+
+    /**
+     * Gets the database connection
+     *
+     * @return DatabaseConnection
+     * @throws \CPSIT\T3importExport\MissingDatabaseException
+     */
+    public function getDatabase()
+    {
+        if (
+            !$this->database instanceof DatabaseConnection
+            || (
+                !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
+            )
+        ) {
+            $this->database = $this->connectionService->getDatabase($this->identifier);
+        }
+
+        return $this->database;
     }
 
     /**
@@ -77,7 +106,7 @@ class DataTargetDB
         if (isset($object['__identity'])) {
             $uid = $object['__identity'];
             unset($object['__identity']);
-            $this->database->exec_UPDATEquery(
+            $this->getDatabase()->exec_UPDATEquery(
                 $tableName,
                 'uid = ' . $uid,
                 $object
@@ -86,7 +115,7 @@ class DataTargetDB
             return true;
         }
 
-        $this->database->exec_INSERTquery(
+        $this->getDatabase()->exec_INSERTquery(
             $tableName,
             $object
         );
