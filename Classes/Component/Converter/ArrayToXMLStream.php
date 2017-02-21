@@ -200,6 +200,10 @@ class ArrayToXMLStream
             $key = static::DEFAULT_NODE_NAME;
         }
 
+        if ($this->isValueEmpty($value)) {
+            return;
+        }
+
         $asSeparateRowKey = false;
         if (!is_object($value) && isset($value[static::XML_CONFIG_FIELD_SEPARATE_ROW])) {
             unset($value[static::XML_CONFIG_FIELD_SEPARATE_ROW]);
