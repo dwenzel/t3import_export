@@ -187,7 +187,6 @@ class DataTargetDBTest extends UnitTestCase
 
     /**
      * @test
-     * @covers ::getDatabase
      */
     public function getDatabaseReturnsDatabaseFromConnectionService()
     {
