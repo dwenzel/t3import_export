@@ -16,6 +16,7 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\ResourceTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -24,7 +25,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class DataSourceXML
     implements DataSourceInterface
 {
-    use IdentifiableTrait, ConfigurableTrait;
+    use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
 
     /**
      * Tells if a given configuration is valid
@@ -76,23 +77,11 @@ class DataSourceXML
     public function getRecords(array $configuration)
     {
         $records = [];
-        if (isset($configuration['file'])) {
-            $resourcePath = $configuration['file'];
-        }
 
-        if (isset($configuration['url'])) {
-            $resourcePath = $configuration['url'];
-        }
-
-        $absoluteFilePath = $this->getAbsoluteFilePath($resourcePath);
-        if (is_file($absoluteFilePath) === true) {
-            $resource = GeneralUtility::getURL($absoluteFilePath, 0, false);
-        } elseif (GeneralUtility::isValidUrl($resourcePath) === true) {
-            $resource = GeneralUtility::getURL($resourcePath, 0, false);
-        }
+        $resource = $this->loadResource($configuration);
 
         if (!empty($resource)) {
-            $xml = new \SimpleXMLElement($resource);
+            $xml = new \SimpleXMLElement($resource, LIBXML_NOCDATA);
 
             if (isset($configuration['expression'])) {
                 $queryResult = $xml->xpath($configuration['expression']);
@@ -108,16 +97,4 @@ class DataSourceXML
 
         return $records;
     }
-
-    /**
-     * Wrapper method for testing purposes
-     *
-     * @param $path
-     * @return string
-     */
-    protected function getAbsoluteFilePath($path)
-    {
-        return GeneralUtility::getFileAbsFileName($path);
-    }
-
 }
