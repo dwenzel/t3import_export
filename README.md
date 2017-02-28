@@ -8,10 +8,16 @@ Tasks can be executed manually via backend module or command line or automatical
 
 
 ## Table of contents
-- [Installation and requirements](/Documentation/INSTALL.md)
-- [Overview](/Documentation/OVERVIEW.md)
-- [Components](/Documentation/COMPONENT.md)
-- [Configuration](/Documentation/CONFIGURATION.md)
+* [Installation and requirements](/Documentation/INSTALL.md)
+* [Overview](/Documentation/OVERVIEW.md)
+* [Components](/Documentation/COMPONENT.md)
+    * [Initializers](./Documentation/Components/Initializer.md)
+    * [PreProcessors](./Documentation/Components/PREPROCESSOR.md)
+    * [Converters](./Documentation/Components/CONVERTER.md)
+    * [PostProcessors](./Documentation/Components/POSTPROCESSOR.md)
+    * [Finishers](./Documentation/Components/FINISHER.md)
+* [Persistence](./Documentation/Persistence.md)
+* [Configuration](/Documentation/CONFIGURATION.md)
 
 ## Credits
 Thanks for contribution and feedback
@@ -23,4 +29,3 @@ Thanks for contribution and feedback
 * [Benjamin Schütz](https://github.com/schuetzbenjamin)
 
 This extension has been developed at [CPS IT GmbH](https://cps-it.de).
-
