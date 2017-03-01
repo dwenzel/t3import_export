@@ -151,7 +151,8 @@ class DataSourceDBTest extends UnitTestCase {
 	public function getDatabaseReturnsDatabaseFromConnectionService() {
 		$identifier = 'foo';
 		$this->subject->setIdentifier($identifier);
-		$mockConnectionService = $this->getMock(
+        /** @var DatabaseConnectionService | \PHPUnit_Framework_MockObject_MockObject $mockConnectionService */
+        $mockConnectionService = $this->getMock(
 			DatabaseConnectionService::class, ['getDatabase'], [], '', false
 		);
 		$mockDataBase = $this->getMock(

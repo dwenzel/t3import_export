@@ -1,7 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
-use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
@@ -40,7 +39,9 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
-class DummyMissingSourceInterfaceClass {}
+class DummyMissingSourceInterfaceClass
+{
+}
 
 /**
  * Class DummyMissingConfigurableInterfaceClass
@@ -48,248 +49,270 @@ class DummyMissingSourceInterfaceClass {}
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingConfigurableInterfaceClass
-	{
-	use IdentifiableTrait;
-	/**
-	 * Fake method matches DataSourceInterface
-	 *
-	 * @param array $configuration
-	 * @return array
-	 */
-	public function getRecords(array $configuration) {
-		return [];
-	}
+{
+    use IdentifiableTrait;
+
+    /**
+     * Fake method matches DataSourceInterface
+     *
+     * @param array $configuration
+     * @return array
+     */
+    public function getRecords(array $configuration)
+    {
+        return [];
+    }
 }
+
 /**
  * Class DummyIdentifiableSourceInterfaceClass
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyIdentifiableSourceInterfaceClass
-	implements DataSourceInterface, IdentifiableInterface {
-	use IdentifiableTrait, ConfigurableTrait;
+    implements DataSourceInterface, IdentifiableInterface
+{
+    use IdentifiableTrait, ConfigurableTrait;
 
-	/**
-	 * Fake method matches DataSourceInterface
-	 *
-	 * @param array $configuration
-	 * @return array
-	 */
-	public function getRecords(array $configuration) {
-		return [];
-	}
+    /**
+     * Fake method matches DataSourceInterface
+     *
+     * @param array $configuration
+     * @return array
+     */
+    public function getRecords(array $configuration)
+    {
+        return [];
+    }
 
-	/**
-	 * Fake method matches abstract method in ConfigurableInterface
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		return true;
-	}
+    /**
+     * Fake method matches abstract method in ConfigurableInterface
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return true;
+    }
 }
+
 /**
  * Class DummySourceInterfaceClass
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummySourceClass
-	implements DataSourceInterface {
-	use ConfigurableTrait;
+    implements DataSourceInterface
+{
+    use ConfigurableTrait;
 
-	/**
-	 * Fake method matches DataSourceInterface
-	 *
-	 * @param array $configuration
-	 * @return array
-	 */
-	public function getRecords(array $configuration) {
-		return [];
-	}
-	/**
-	 * Fake method matches abstract method in ConfigurableInterface
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		return true;
-	}
+    /**
+     * Fake method matches DataSourceInterface
+     *
+     * @param array $configuration
+     * @return array
+     */
+    public function getRecords(array $configuration)
+    {
+        return [];
+    }
+
+    /**
+     * Fake method matches abstract method in ConfigurableInterface
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return true;
+    }
 
 }
+
 /**
  * Class DataSourceFactoryTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataSourceFactory
  */
-class DataSourceFactoryTest extends UnitTestCase {
+class DataSourceFactoryTest extends UnitTestCase
+{
 
-	/**
-	 * @var DataSourceFactory
-	 */
-	protected $subject;
+    /**
+     * @var DataSourceFactory
+     */
+    protected $subject;
 
-	/**
-	 * set up
-	 */
-	public function setUp() {
-		$this->subject = $this->getMock(
-			DataSourceFactory::class, ['dummy']
-		);
-	}
+    /**
+     * set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getMock(
+            DataSourceFactory::class, ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\MissingClassException
-	 * @expectedExceptionCode 1451060913
-	 */
-	public function getThrowsExceptionForMissingSourceClass() {
-		$identifier = 'foo';
-		$settings = [
-			'class' => 'NonExistingSourceClass'
-		];
-		$this->subject->get($settings, $identifier);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\MissingClassException
+     * @expectedExceptionCode 1451060913
+     */
+    public function getThrowsExceptionForMissingSourceClass()
+    {
+        $identifier = 'foo';
+        $settings = [
+            'class' => 'NonExistingSourceClass'
+        ];
+        $this->subject->get($settings, $identifier);
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\MissingInterfaceException
-	 * @expectedExceptionCode 1451061361
-	 */
-	public function getThrowsExceptionForMissingDataSourceInterface() {
-		$identifier = 'foo';
-		$settings = [
-			'class' => DummyMissingSourceInterfaceClass::class
-		];
-		$this->subject->get($settings, $identifier);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\MissingInterfaceException
+     * @expectedExceptionCode 1451061361
+     */
+    public function getThrowsExceptionForMissingDataSourceInterface()
+    {
+        $identifier = 'foo';
+        $settings = [
+            'class' => DummyMissingSourceInterfaceClass::class
+        ];
+        $this->subject->get($settings, $identifier);
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1451086595
-	 */
-	public function getThrowsExceptionForMissingConfig() {
-		$identifier = 'foo';
-		$dataSourceClass = DummySourceClass::class;
-		$settings = [
-			'class' => $dataSourceClass,
-		];
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1451086595
+     */
+    public function getThrowsExceptionForMissingConfig()
+    {
+        $identifier = 'foo';
+        $dataSourceClass = DummySourceClass::class;
+        $settings = [
+            'class' => $dataSourceClass,
+        ];
 
-		$this->subject->get($settings, $identifier);
-	}
+        $this->subject->get($settings, $identifier);
+    }
 
-	/**
-	 * @test
-	 */
-	public function getSetsIdentifierForIdentifiableSource() {
-		$identifier = 'foo';
-		$dataSourceClass = DummyIdentifiableSourceInterfaceClass::class;
-		$settings = [
-			'class' => $dataSourceClass,
-			'identifier' => 'barSourceIdentifier',
-			'config' => []
-		];
-		$mockDataSource = $this->getMock(
-			$dataSourceClass,
-			['setIdentifier']
-		);
-		$mockDataSource->expects($this->once())
-			->method('setIdentifier')
-			->with($settings['identifier']);
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class, ['get']
-		);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with($dataSourceClass)
-			->will($this->returnValue($mockDataSource));
-		$this->subject->injectObjectManager($mockObjectManager);
+    /**
+     * @test
+     */
+    public function getSetsIdentifierForIdentifiableSource()
+    {
+        $identifier = 'foo';
+        $dataSourceClass = DummyIdentifiableSourceInterfaceClass::class;
+        $settings = [
+            'class' => $dataSourceClass,
+            'identifier' => 'barSourceIdentifier',
+            'config' => []
+        ];
+        $mockDataSource = $this->getMock(
+            $dataSourceClass,
+            ['setIdentifier']
+        );
+        $mockDataSource->expects($this->once())
+            ->method('setIdentifier')
+            ->with($settings['identifier']);
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class, ['get']
+        );
+        /** @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject $mockObjectManager */
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with($dataSourceClass)
+            ->will($this->returnValue($mockDataSource));
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$this->subject->get($settings, $identifier);
-	}
+        $this->subject->get($settings, $identifier);
+    }
 
-	/**
-	 * @test
-	 */
-	public function getReturnsDefaultDataSource() {
-		$identifier = 'foo';
-		$dataSourceClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
-		$expectedDataSource = $this->getMock(
-			$dataSourceClass, [], [], '', false
-		);
-		$settings = [
-			'identifier' => $identifier,
-			'config' => []
-		];
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class, ['get']
-		);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with($dataSourceClass)
-			->will($this->returnValue($expectedDataSource));
-		$this->subject->injectObjectManager($mockObjectManager);
-		$this->assertSame(
-			$expectedDataSource,
-			$this->subject->get($settings, $identifier)
-		);
-	}
+    /**
+     * @test
+     */
+    public function getReturnsDefaultDataSource()
+    {
+        $identifier = 'foo';
+        $dataSourceClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
+        $expectedDataSource = $this->getMock(
+            $dataSourceClass, [], [], '', false
+        );
+        $settings = [
+            'identifier' => $identifier,
+            'config' => []
+        ];
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class, ['get']
+        );
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with($dataSourceClass)
+            ->will($this->returnValue($expectedDataSource));
+        $this->subject->injectObjectManager($mockObjectManager);
+        $this->assertSame(
+            $expectedDataSource,
+            $this->subject->get($settings, $identifier)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getReturnsDataSource() {
-		$identifier = 'foo';
-		$dataSourceClass = DummySourceClass::class;
-		$expectedDataSource = $this->getMock(
-			$dataSourceClass
-		);
-		$settings = [
-			'class' => $dataSourceClass,
-			'config' => []
-		];
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class, ['get']
-		);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with($dataSourceClass)
-			->will($this->returnValue($expectedDataSource));
-		$this->subject->injectObjectManager($mockObjectManager);
-		$this->assertSame(
-			$expectedDataSource,
-			$this->subject->get($settings, $identifier)
-		);
-	}
+    /**
+     * @test
+     */
+    public function getReturnsDataSource()
+    {
+        $identifier = 'foo';
+        $dataSourceClass = DummySourceClass::class;
+        $expectedDataSource = $this->getMock(
+            $dataSourceClass
+        );
+        $settings = [
+            'class' => $dataSourceClass,
+            'config' => []
+        ];
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class, ['get']
+        );
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with($dataSourceClass)
+            ->will($this->returnValue($expectedDataSource));
+        $this->subject->injectObjectManager($mockObjectManager);
+        $this->assertSame(
+            $expectedDataSource,
+            $this->subject->get($settings, $identifier)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getSetsConfiguration() {
-		$identifier = 'foo';
-		$dataSourceClass = DummySourceClass::class;
-		$mockDataSource = $this->getMock(
-			$dataSourceClass
-		);
-		$settings = [
-			'class' => $dataSourceClass,
-			'config' => []
-		];
-		$mockDataSource->expects($this->once())
-			->method('setConfiguration')
-			->with($settings['config']);
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class, ['get']
-		);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with($dataSourceClass)
-			->will($this->returnValue($mockDataSource));
-		$this->subject->injectObjectManager($mockObjectManager);
+    /**
+     * @test
+     */
+    public function getSetsConfiguration()
+    {
+        $identifier = 'foo';
+        $dataSourceClass = DummySourceClass::class;
+        $mockDataSource = $this->getMock(
+            $dataSourceClass
+        );
+        $settings = [
+            'class' => $dataSourceClass,
+            'config' => []
+        ];
+        $mockDataSource->expects($this->once())
+            ->method('setConfiguration')
+            ->with($settings['config']);
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class, ['get']
+        );
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with($dataSourceClass)
+            ->will($this->returnValue($mockDataSource));
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$this->subject->get($settings, $identifier);
-	}
+        $this->subject->get($settings, $identifier);
+    }
 }
