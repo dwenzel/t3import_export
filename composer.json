@@ -21,7 +21,9 @@
     "typo3/cms-core": ">=6.2.0,<8.9.99"
   },
   "replace": {
-    "t3import_export": "self.version",
+    "t3import-export": "self.version",
+    "cpsit/t3import-export": "self.version",
+    "typo3-ter/t3import-export": "self.version",
     "typo3-ter/t3import_export": "self.version"
   },
   "require-dev": {
@@ -59,7 +61,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "0.7.x-dev"
+      "dev-master": "0.8.x-dev"
     },
     "typo3/cms": {
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
