@@ -1,3 +1,6 @@
+2017-03-17         [RELEASE] Release of t3import_export 0.8.1 (Dirk Wenzel)
+2017-03-17 f2cf8bf [BUGFIX] fixed error in composer.json which prevented TYPO3 installer from installing package correctly. (Dirk Wenzel)
+
 2017-03-01         [RELEASE] Release of t3import_export 0.8.0 (Dirk Wenzel)
 2017-02-28 b7b987c [TASK] documentation for DataSourceXML added. (Dirk Wenzel)
 2017-02-27 17e1fa8 [TASK] ResourceTrait implemented, DataSourceXML refactored using it. (Dirk Wenzel)
