@@ -31,7 +31,7 @@ use CPSIT\T3importExport\MissingClassException;
 class TargetClassConfigurationValidator implements ConfigurationValidatorInterface {
 	/**
 	 * @param array $config
-	 * * @throws \CPSIT\T3importExport\InvalidConfigurationException
+	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
 	 * @throws MissingClassException
 	 * @return bool
 	 */
