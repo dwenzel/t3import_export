@@ -2,11 +2,11 @@
 # import configuration for sets
 module.tx_t3importexport.settings.import.sets {
 	testSet {
-		description = A description for test set
-		tasks = venue,events,seminar
-	}
-	persons {
-		description = all person types for events
-		tasks = employee,responsible,speaker
+		label = Example Set
+		description (
+          An example import set containing the tasks <i>foo, bar, baz</i>.<br />
+		  Note: This set will fail since none of its task exist!
+		)
+		tasks = foo,bar,baz
 	}
 }
