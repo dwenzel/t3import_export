@@ -22,16 +22,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 trait ResourceTrait
 {
     /**
-     * @var ResourcePathConfigurationValidator
+     * @var \CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator
      */
     protected $pathValidator;
 
     /**
      * Inject the resource path validator
      *
-     * @param ConfigurationValidatorInterface $validator
+     * @param \CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator $validator
      */
-    public function injectResourcePathConfigurationValidator(ConfigurationValidatorInterface $validator)
+    public function injectResourcePathConfigurationValidator(ResourcePathConfigurationValidator $validator)
     {
         $this->pathValidator = $validator;
     }
