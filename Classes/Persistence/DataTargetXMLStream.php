@@ -2,7 +2,6 @@
 
 namespace CPSIT\T3importExport\Persistence;
 
-
 use CPSIT\T3importExport\ConfigurableInterface;
 use FluidTYPO3\Flux\Form\Field\DateTime;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
@@ -92,10 +91,9 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
     protected function initFileIfNotExist($configuration)
     {
         if (!isset($this->writer)) {
-
             $this->writer = new \XMLWriter();
 
-            if(isset($configuration['output']) && $configuration['output'] == 'file') {
+            if (isset($configuration['output']) && $configuration['output'] == 'file') {
                 $this->tempFile = $this->createAnonymTempFile();
             } else {
                 $this->tempFile = 'php://output';
@@ -143,8 +141,7 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
         $this->writer->startElement($this->getRootNodeName($configuration));
 
         if (isset($configuration['rootAttributes']) && is_array($configuration['rootAttributes'])) {
-            foreach ($configuration['rootAttributes'] as $name => $value)
-            {
+            foreach ($configuration['rootAttributes'] as $name => $value) {
                 $this->writer->writeAttribute($name, $value);
             }
         }
@@ -248,7 +245,6 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
     {
         $path = $this->getAbsTemplatePath($configuration);
         if (!empty($path) && file_exists($path)) {
-
             return true;
         }
 
@@ -261,7 +257,6 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
      */
     protected function loadTemplate($configuration)
     {
-
         if ($this->existTemplate($configuration)) {
             $path = $this->getAbsTemplatePath($configuration);
 
@@ -289,7 +284,7 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
      * @param array $configuration
      * @return string
      */
-    protected function  getRootNodeName($configuration = null)
+    protected function getRootNodeName($configuration = null)
     {
         $nodeName = self::DEFAULT_ROOT_NODE;
         if (isset($configuration) && isset($configuration['rootNodeName'])) {

@@ -26,9 +26,7 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ClearCache
-    extends AbstractFinisher
-    implements FinisherInterface, ConfigurableInterface
+class ClearCache extends AbstractFinisher implements FinisherInterface, ConfigurableInterface
 {
     /**
      * @var CacheService
@@ -100,8 +98,7 @@ class ClearCache
             return true;
         }
 
-        if ($this->shouldClearAll($configuration))
-        {
+        if ($this->shouldClearAll($configuration)) {
             $this->cacheService->clearPageCache();
             return true;
         }
@@ -164,5 +161,4 @@ class ClearCache
             $pagesToClear = array_unique(array_merge($pagesToClear, $pages));
         }
     }
-
 }

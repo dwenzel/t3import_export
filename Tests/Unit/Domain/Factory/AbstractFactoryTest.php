@@ -31,61 +31,64 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3importExport\Tests\Domain\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Factory\AbstractFactory
  */
-class AbstractFactoryTest extends UnitTestCase {
+class AbstractFactoryTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Factory\AbstractFactory
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Factory\AbstractFactory
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			\CPSIT\T3importExport\Factory\AbstractFactory::class, ['get'], [], '', FALSE
-		);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            \CPSIT\T3importExport\Factory\AbstractFactory::class, ['get'], [], '', false
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::injectObjectManager
-	 */
-	public function injectObjectManagerForObjectSetsObjectManager() {
-		/** @var ObjectManager $mockObjectManager */
-		$mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-			[], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::injectObjectManager
+     */
+    public function injectObjectManagerForObjectSetsObjectManager()
+    {
+        /** @var ObjectManager $mockObjectManager */
+        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
+            [], [], '', false);
 
-		$this->subject->injectObjectManager($mockObjectManager);
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$this->assertSame(
-			$mockObjectManager,
-			$this->subject->_get('objectManager')
-		);
-	}
+        $this->assertSame(
+            $mockObjectManager,
+            $this->subject->_get('objectManager')
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::injectConfigurationManager
-	 */
-	public function injectConfigurationManagerForObjectSetsConfigurationManager() {
-		/** @var ConfigurationManager $mockConfigurationManager */
-		$mockConfigurationManager = $this->getMock(
-			'TYPO3\\CMS\\Extbase\\Configuration\\ConfigurationManager',
-			['getConfiguration'], [], '', FALSE);
-		$mockSettings = ['foo'];
+    /**
+     * @test
+     * @covers ::injectConfigurationManager
+     */
+    public function injectConfigurationManagerForObjectSetsConfigurationManager()
+    {
+        /** @var ConfigurationManager $mockConfigurationManager */
+        $mockConfigurationManager = $this->getMock(
+            'TYPO3\\CMS\\Extbase\\Configuration\\ConfigurationManager',
+            ['getConfiguration'], [], '', false);
+        $mockSettings = ['foo'];
 
-		$mockConfigurationManager->expects($this->once())
-			->method('getConfiguration')
-			->with(ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS)
-			->will($this->returnValue($mockSettings));
+        $mockConfigurationManager->expects($this->once())
+            ->method('getConfiguration')
+            ->with(ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS)
+            ->will($this->returnValue($mockSettings));
 
-		$this->subject->injectConfigurationManager($mockConfigurationManager);
-		$this->assertSame(
-			$mockConfigurationManager,
-			$this->subject->_get('configurationManager')
-		);
-		$this->assertSame(
-			$mockSettings,
-			$this->subject->_get('settings')
-		);
-	}
-
+        $this->subject->injectConfigurationManager($mockConfigurationManager);
+        $this->assertSame(
+            $mockConfigurationManager,
+            $this->subject->_get('configurationManager')
+        );
+        $this->assertSame(
+            $mockSettings,
+            $this->subject->_get('settings')
+        );
+    }
 }

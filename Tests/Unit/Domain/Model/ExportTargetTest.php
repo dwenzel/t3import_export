@@ -28,60 +28,66 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ExportTargetTest extends UnitTestCase {
+class ExportTargetTest extends UnitTestCase
+{
 
-	/**
-	 * @var ExportTarget
-	 */
-	protected $subject;
+    /**
+     * @var ExportTarget
+     */
+    protected $subject;
 
-	/**
-	 * set up
-	 */
-	public function setUp() {
-		$this->subject= $this->getAccessibleMock(
-			ExportTarget::class, ['dummy']
-		);
-	}
+    /**
+     * set up
+     */
+    public function setUp()
+    {
+        $this->subject= $this->getAccessibleMock(
+            ExportTarget::class, ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getTitleForStringInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getTitle()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getTitleForStringInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getTitle()
+        );
+    }
 
 
-	/**
-	 * @test
-	 */
-	public function getDescriptionForStringInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getDescription()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getDescriptionForStringInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getDescription()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function titleCanBeSet() {
-		$this->subject->setTitle('foo');
-		$this->assertSame(
-			'foo',
-			$this->subject->getTitle()
-		);
-	}
+    /**
+     * @test
+     */
+    public function titleCanBeSet()
+    {
+        $this->subject->setTitle('foo');
+        $this->assertSame(
+            'foo',
+            $this->subject->getTitle()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function descriptionCanBeSet() {
-		$this->subject->setDescription('foo');
-		$this->assertSame(
-			'foo',
-			$this->subject->getDescription()
-		);
-	}
+    /**
+     * @test
+     */
+    public function descriptionCanBeSet()
+    {
+        $this->subject->setDescription('foo');
+        $this->assertSame(
+            'foo',
+            $this->subject->getDescription()
+        );
+    }
 }

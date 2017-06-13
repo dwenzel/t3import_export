@@ -2,7 +2,6 @@
 
 namespace CPSIT\T3importExport;
 
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait ResourceTrait
@@ -45,5 +44,4 @@ trait ResourceTrait
 
         return $resource;
     }
-
 }

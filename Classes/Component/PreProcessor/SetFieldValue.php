@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-    /***************************************************************
+/***************************************************************
      *  Copyright notice
      *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
      *  All rights reserved
@@ -25,9 +25,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * @package CPSIT\T3importExport\Component\PreProcessor
  */
-class SetFieldValue
-    extends AbstractPreProcessor
-    implements PreProcessorInterface
+class SetFieldValue extends AbstractPreProcessor implements PreProcessorInterface
 {
 
     /**

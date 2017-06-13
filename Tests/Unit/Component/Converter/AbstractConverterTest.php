@@ -35,28 +35,31 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\AbstractConverter
  */
-class AbstractConverterTest extends UnitTestCase {
+class AbstractConverterTest extends UnitTestCase
+{
 
-	/**
-	 * @var AbstractConverter
-	 */
-	protected $subject;
+    /**
+     * @var AbstractConverter
+     */
+    protected $subject;
 
-	/**
-	 * set up
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMockForAbstractClass(
-			AbstractConverter::class
-		);
-	}
+    /**
+     * set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMockForAbstractClass(
+            AbstractConverter::class
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidInitiallyReturnsTrue() {
-		$this->assertTrue(
-			$this->subject->isConfigurationValid([])
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidInitiallyReturnsTrue()
+    {
+        $this->assertTrue(
+            $this->subject->isConfigurationValid([])
+        );
+    }
 }

@@ -21,9 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Inserts predefined rows into a table
  * @package CPSIT\T3importExport\Component\Initializer
  */
-class InsertMultiple
-    extends AbstractComponent
-    implements InitializerInterface
+class InsertMultiple extends AbstractComponent implements InitializerInterface
 {
     use DatabaseTrait;
 
@@ -35,20 +33,16 @@ class InsertMultiple
      */
     public function isConfigurationValid(array $configuration)
     {
-        if (!(isset($configuration['table']) && is_string($configuration['table'])))
-        {
+        if (!(isset($configuration['table']) && is_string($configuration['table']))) {
             return false;
         }
-        if (!(isset($configuration['fields']) && is_string($configuration['fields'])))
-        {
+        if (!(isset($configuration['fields']) && is_string($configuration['fields']))) {
             return false;
         }
-        if (!(isset($configuration['rows']) && is_array($configuration['rows'])))
-        {
+        if (!(isset($configuration['rows']) && is_array($configuration['rows']))) {
             return false;
         }
-        if (isset($configuration['identifier']) && !is_string($configuration['identifier']))
-        {
+        if (isset($configuration['identifier']) && !is_string($configuration['identifier'])) {
             return false;
         }
         if (isset($configuration['identifier'])
@@ -75,12 +69,10 @@ class InsertMultiple
         $table = $configuration['table'];
         $fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         $values = [];
-        foreach ($configuration['rows'] as $row)
-        {
+        foreach ($configuration['rows'] as $row) {
             $values[] = GeneralUtility::trimExplode(',', $row, true);
         }
 
         return (bool) $this->database->exec_INSERTmultipleRows($table, $fields, $values);
     }
-
 }

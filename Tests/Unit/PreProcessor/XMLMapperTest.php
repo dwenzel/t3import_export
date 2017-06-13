@@ -1,7 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\PreProcessor;
 
-
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -37,7 +36,7 @@ class XMLMapperTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\XMLMapper',
-            ['dummy'], [], '', FALSE);
+            ['dummy'], [], '', false);
     }
 
     /**

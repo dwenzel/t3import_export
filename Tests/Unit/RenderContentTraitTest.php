@@ -33,25 +33,26 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class RenderContentTraitTest extends UnitTestCase {
+class RenderContentTraitTest extends UnitTestCase
+{
 
-	/**
-	 * @var RenderContentTrait
-	 */
-	protected $subject;
+    /**
+     * @var RenderContentTrait
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getMockForTrait(
-			RenderContentTrait::class,
+    public function setUp()
+    {
+        $this->subject = $this->getMockForTrait(
+            RenderContentTrait::class,
             [], '', true, true, true, ['getTypoScriptFrontendController']
-		);
+        );
         $mockFrontendController = $this->getMock(
             TypoScriptFrontendController::class, [], [], '', false
         );
         $this->subject->expects($this->any())
             ->method('getTypoScriptFrontendController')
             ->will($this->returnValue($mockFrontendController));
-
     }
 
     /**
@@ -82,23 +83,25 @@ class RenderContentTraitTest extends UnitTestCase {
     }
 
     /**
-	 * @test
-	 * @cover ::injectTypoScriptService
-	 */
-	public function injectTypoScriptServiceSetsTypoScriptService() {
+     * @test
+     * @cover ::injectTypoScriptService
+     */
+    public function injectTypoScriptServiceSetsTypoScriptService()
+    {
         $mockTypoScriptService = $this->mockTypoScriptService();
-		$this->assertAttributeSame(
-			$mockTypoScriptService,
+        $this->assertAttributeSame(
+            $mockTypoScriptService,
             'typoScriptService',
-			$this->subject
-		);
-	}
+            $this->subject
+        );
+    }
 
     /**
      * @test
      * @cover ::injectContentObjectRenderer
      */
-    public function injectContentObjectRendererInjectsObject() {
+    public function injectContentObjectRendererInjectsObject()
+    {
         $contentObjectRenderer = $this->getMock(
             ContentObjectRenderer::class, [], [], '', false
         );

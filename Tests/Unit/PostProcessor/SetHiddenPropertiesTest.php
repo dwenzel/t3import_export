@@ -29,23 +29,26 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  * @package CPSIT\T3importExport\Tests\Service\PostProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
  */
-class SetHiddenPropertiesTest extends UnitTestCase {
+class SetHiddenPropertiesTest extends UnitTestCase
+{
 
     /**
      * @var \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
      */
     protected $subject;
 
-    public function setUp() {
+    public function setUp()
+    {
         $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PostProcessor\\SetHiddenProperties',
-            ['dummy'], [], '', FALSE);
+            ['dummy'], [], '', false);
     }
 
     /**
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsInitiallyFalse() {
+    public function isConfigurationValidReturnsInitiallyFalse()
+    {
         $mockConfiguration = ['foo'];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -56,7 +59,8 @@ class SetHiddenPropertiesTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray() {
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    {
         $config = [
             'fields' => 'foo'
         ];
@@ -69,7 +73,8 @@ class SetHiddenPropertiesTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString() {
+    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
+    {
         $config = [
             'fields' => [
                 'foo' => 0
@@ -84,7 +89,8 @@ class SetHiddenPropertiesTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty() {
+    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
+    {
         $config = [
             'fields' => [
                 'foo' => ''
@@ -99,7 +105,8 @@ class SetHiddenPropertiesTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration() {
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
         $config = [
             'fields' => [
                 'foo' => 'bar',
@@ -116,7 +123,8 @@ class SetHiddenPropertiesTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfChildrenIsNotArray() {
+    public function isConfigurationValidReturnsFalseIfChildrenIsNotArray()
+    {
         $config = [
             'fields' => [
                 'foo' => 'bar',
@@ -131,7 +139,8 @@ class SetHiddenPropertiesTest extends UnitTestCase {
     /**
      * @test
      */
-    public function processSetsExistingHiddenField() {
+    public function processSetsExistingHiddenField()
+    {
         $fieldName = 'languageUid';
         $config = [
             'fields' => [
@@ -147,15 +156,15 @@ class SetHiddenPropertiesTest extends UnitTestCase {
         $this->subject->process($config, $convertedRecord, $record);
 
         $this->assertSame(
-            $convertedRecord->_getProperty('_' . $fieldName)
-            , $record[$fieldName]
+            $convertedRecord->_getProperty('_' . $fieldName), $record[$fieldName]
         );
     }
 
     /**
      * @test
      */
-    public function processSetsPropertiesRecursive() {
+    public function processSetsPropertiesRecursive()
+    {
         $fieldName = 'languageUid';
         $config = [
             'fields' => [
@@ -174,7 +183,7 @@ class SetHiddenPropertiesTest extends UnitTestCase {
         );
         $convertedRecord->expects($this->any())
             ->method('_hasProperty')
-            ->will($this->returnValue(TRUE));
+            ->will($this->returnValue(true));
         $convertedRecord->expects($this->once())
             ->method('_getProperty');
 
@@ -209,7 +218,7 @@ class SetHiddenPropertiesTest extends UnitTestCase {
 
         $convertedRecord->expects($this->any())
             ->method('_hasProperty')
-            ->will($this->returnValue(TRUE));
+            ->will($this->returnValue(true));
         $convertedRecord->expects($this->once())
             ->method('_getProperty')
             ->willReturn($convertedRecordChild);
@@ -257,7 +266,7 @@ class SetHiddenPropertiesTest extends UnitTestCase {
 
         $convertedRecord->expects($this->any())
             ->method('_hasProperty')
-            ->will($this->returnValue(TRUE));
+            ->will($this->returnValue(true));
         $convertedRecord->expects($this->once())
             ->method('_getProperty')
             ->willReturn($objStorage);

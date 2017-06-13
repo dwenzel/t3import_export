@@ -35,163 +35,171 @@ use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
  *
  * @package CPSIT\T3importExport\Component\PostProcessor
  */
-class TranslateObject
-	extends AbstractPostProcessor
-	implements PostProcessorInterface {
+class TranslateObject extends AbstractPostProcessor implements PostProcessorInterface
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Service\TranslationService
-	 */
-	protected $translationService;
+    /**
+     * @var \CPSIT\T3importExport\Service\TranslationService
+     */
+    protected $translationService;
 
-	/**
-	 * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
-	 */
-	protected $persistenceManager;
+    /**
+     * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
+     */
+    protected $persistenceManager;
 
-	/**
-	 * @var PropertyMappingConfigurationBuilder
-	 */
-	protected $propertyMappingConfigurationBuilder;
+    /**
+     * @var PropertyMappingConfigurationBuilder
+     */
+    protected $propertyMappingConfigurationBuilder;
 
-	/**
-	 * @var PropertyMappingConfiguration
-	 */
-	protected $propertyMappingConfiguration;
+    /**
+     * @var PropertyMappingConfiguration
+     */
+    protected $propertyMappingConfiguration;
 
-	/**
-	 * @var TargetClassConfigurationValidator
-	 */
-	protected $targetClassConfigurationValidator;
+    /**
+     * @var TargetClassConfigurationValidator
+     */
+    protected $targetClassConfigurationValidator;
 
-	/**
-	 * @var MappingConfigurationValidator
-	 */
-	protected $mappingConfigurationValidator;
+    /**
+     * @var MappingConfigurationValidator
+     */
+    protected $mappingConfigurationValidator;
 
-	/**
-	 * injects the property mapping configuration builder
-	 *
-	 * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
-	 */
-	public function injectPropertyMappingConfigurationBuilder(PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder) {
-		$this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
-	}
+    /**
+     * injects the property mapping configuration builder
+     *
+     * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
+     */
+    public function injectPropertyMappingConfigurationBuilder(PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder)
+    {
+        $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
+    }
 
-	/**
-	 * @param TranslationService $translationService
-	 */
-	public function injectTranslationService(TranslationService $translationService) {
-		$this->translationService = $translationService;
-	}
+    /**
+     * @param TranslationService $translationService
+     */
+    public function injectTranslationService(TranslationService $translationService)
+    {
+        $this->translationService = $translationService;
+    }
 
-	/**
-	 * injects the TargetClassConfigurationValidator
-	 *
-	 * @param TargetClassConfigurationValidator $validator
-	 */
-	public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator) {
-		$this->targetClassConfigurationValidator = $validator;
-	}
+    /**
+     * injects the TargetClassConfigurationValidator
+     *
+     * @param TargetClassConfigurationValidator $validator
+     */
+    public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator)
+    {
+        $this->targetClassConfigurationValidator = $validator;
+    }
 
-	/**
-	 * injects the MappingConfigurationValidator
-	 *
-	 * @param MappingConfigurationValidator $validator
-	 */
-	public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator) {
-		$this->mappingConfigurationValidator = $validator;
-	}
+    /**
+     * injects the MappingConfigurationValidator
+     *
+     * @param MappingConfigurationValidator $validator
+     */
+    public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator)
+    {
+        $this->mappingConfigurationValidator = $validator;
+    }
 
-	/**
-	 * @var \TYPO3\CMS\Extbase\Property\TypeConverterInterface
-	 */
-	protected $typeConverter;
+    /**
+     * @var \TYPO3\CMS\Extbase\Property\TypeConverterInterface
+     */
+    protected $typeConverter;
 
-	/**
-	 * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
-	 */
-	public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager) {
-		$this->persistenceManager = $persistenceManager;
-	}
+    /**
+     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
+     */
+    public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager)
+    {
+        $this->persistenceManager = $persistenceManager;
+    }
 
-	/**
-	 * @param PersistentObjectConverter $typeConverter
-	 */
-	public function injectPersistentObjectConverter(PersistentObjectConverter $typeConverter) {
-		$this->typeConverter = $typeConverter;
-	}
+    /**
+     * @param PersistentObjectConverter $typeConverter
+     */
+    public function injectPersistentObjectConverter(PersistentObjectConverter $typeConverter)
+    {
+        $this->typeConverter = $typeConverter;
+    }
 
-	/**
-	 * Tells whether a given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['parentField'])
-			OR !isset($configuration['language'])) {
-			return false;
-		}
+    /**
+     * Tells whether a given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['parentField'])
+            or !isset($configuration['language'])) {
+            return false;
+        }
 
-		if (isset($configuration['mapping'])) {
-			$mappingConfiguration = $configuration['mapping'];
-			if (isset($mappingConfiguration['targetClass'])
-				AND !$this->targetClassConfigurationValidator->validate($mappingConfiguration)) {
-				return false;
-			}
-			if (isset($mappingConfiguration['config'])
-				AND !$this->mappingConfigurationValidator->validate($mappingConfiguration)) {
-				return false;
-			}
-		}
+        if (isset($configuration['mapping'])) {
+            $mappingConfiguration = $configuration['mapping'];
+            if (isset($mappingConfiguration['targetClass'])
+                and !$this->targetClassConfigurationValidator->validate($mappingConfiguration)) {
+                return false;
+            }
+            if (isset($mappingConfiguration['config'])
+                and !$this->mappingConfigurationValidator->validate($mappingConfiguration)) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Finds the localization parent of the converted record
-	 * and translates it (adding the converted record as translation)
-	 *
-	 * @param array $configuration
-	 * @param DomainObjectInterface $convertedRecord
-	 * @param array $record
-	 * @return bool
-	 */
-	function process($configuration, &$convertedRecord, &$record) {
-		$targetType = get_class($convertedRecord);
+    /**
+     * Finds the localization parent of the converted record
+     * and translates it (adding the converted record as translation)
+     *
+     * @param array $configuration
+     * @param DomainObjectInterface $convertedRecord
+     * @param array $record
+     * @return bool
+     */
+    public function process($configuration, &$convertedRecord, &$record)
+    {
+        $targetType = get_class($convertedRecord);
 
-		//Translate only if parent set and parent found by identity
-		if (isset($record[$configuration['parentField']])) {
-			$identity = $record[$configuration['parentField']];
+        //Translate only if parent set and parent found by identity
+        if (isset($record[$configuration['parentField']])) {
+            $identity = $record[$configuration['parentField']];
 
-			$parentObject = $this->getLocalizationParent($identity, $targetType);
+            $parentObject = $this->getLocalizationParent($identity, $targetType);
 
-			if ($parentObject) {
-				$this->translationService->translate(
-					$parentObject,
-					$convertedRecord,
-					(int)$configuration['language']
-				);
-			}
-		}
-	}
+            if ($parentObject) {
+                $this->translationService->translate(
+                    $parentObject,
+                    $convertedRecord,
+                    (int)$configuration['language']
+                );
+            }
+        }
+    }
 
-	/**
-	 * @param $identity
-	 * @param $targetType
-	 * @return object
-	 */
-	protected function getLocalizationParent($identity, $targetType) {
-		$query = $this->persistenceManager->createQueryForType($targetType);
-		$querySettings = $query->getQuerySettings();
+    /**
+     * @param $identity
+     * @param $targetType
+     * @return object
+     */
+    protected function getLocalizationParent($identity, $targetType)
+    {
+        $query = $this->persistenceManager->createQueryForType($targetType);
+        $querySettings = $query->getQuerySettings();
 
-		$querySettings->setIgnoreEnableFields(true);
-		$querySettings->setRespectStoragePage(false);
-		$querySettings->setLanguageUid(0);
-		$query->setQuerySettings($querySettings);
-		$parentObject = $query->matching($query->equals('uid', $identity))->execute()->getFirst();
+        $querySettings->setIgnoreEnableFields(true);
+        $querySettings->setRespectStoragePage(false);
+        $querySettings->setLanguageUid(0);
+        $query->setQuerySettings($querySettings);
+        $parentObject = $query->matching($query->equals('uid', $identity))->execute()->getFirst();
 
-		return $parentObject;
-	}
+        return $parentObject;
+    }
 }

@@ -35,28 +35,31 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Initializer
  * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\AbstractInitializer
  */
-class AbstractInitializerTest extends UnitTestCase {
+class AbstractInitializerTest extends UnitTestCase
+{
 
-	/**
-	 * @var AbstractInitializer
-	 */
-	protected $subject;
+    /**
+     * @var AbstractInitializer
+     */
+    protected $subject;
 
-	/**
-	 * set up
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMockForAbstractClass(
-			AbstractInitializer::class
-		);
-	}
+    /**
+     * set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMockForAbstractClass(
+            AbstractInitializer::class
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidInitiallyReturnsTrue() {
-		$this->assertTrue(
-			$this->subject->isConfigurationValid([])
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidInitiallyReturnsTrue()
+    {
+        $this->assertTrue(
+            $this->subject->isConfigurationValid([])
+        );
+    }
 }

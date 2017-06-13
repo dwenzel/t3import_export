@@ -27,24 +27,26 @@ use CPSIT\T3importExport\Component\AbstractComponent;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-abstract class AbstractFinisher extends AbstractComponent {
-	/**
-	 * @param array $configuration
-	 * @param array $records Array with prepared records
-	 * @param array $result Array with result records
-	 * @return bool
-	 */
-	abstract public function process($configuration, &$records, &$result);
+abstract class AbstractFinisher extends AbstractComponent
+{
+    /**
+     * @param array $configuration
+     * @param array $records Array with prepared records
+     * @param array $result Array with result records
+     * @return bool
+     */
+    abstract public function process($configuration, &$records, &$result);
 
-	/**
-	 * Tells whether a given configuration is valid
-	 * Override this method in order to perform validation of
-	 * configuration
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		return TRUE;
-	}
+    /**
+     * Tells whether a given configuration is valid
+     * Override this method in order to perform validation of
+     * configuration
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return true;
+    }
 }

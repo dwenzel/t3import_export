@@ -42,335 +42,350 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  * @package CPSIT\T3importExport\Domain\Factory
  */
-class TransferTaskFactory extends AbstractFactory {
+class TransferTaskFactory extends AbstractFactory
+{
 
-	/**
-	 * @var DataTargetFactory
-	 */
-	protected $dataTargetFactory;
+    /**
+     * @var DataTargetFactory
+     */
+    protected $dataTargetFactory;
 
-	/**
-	 * @var DataSourceFactory
-	 */
-	protected $dataSourceFactory;
+    /**
+     * @var DataSourceFactory
+     */
+    protected $dataSourceFactory;
 
-	/**
-	 * @var PreProcessorFactory
-	 */
-	protected $preProcessorFactory;
+    /**
+     * @var PreProcessorFactory
+     */
+    protected $preProcessorFactory;
 
-	/**
-	 * @var PostProcessorFactory
-	 */
-	protected $postProcessorFactory;
+    /**
+     * @var PostProcessorFactory
+     */
+    protected $postProcessorFactory;
 
-	/**
-	 * @var ConverterFactory
-	 */
-	protected $converterFactory;
+    /**
+     * @var ConverterFactory
+     */
+    protected $converterFactory;
 
-	/**
-	 * @var FinisherFactory
-	 */
-	protected $finisherFactory;
+    /**
+     * @var FinisherFactory
+     */
+    protected $finisherFactory;
 
-	/**
-	 * @var InitializerFactory
-	 */
-	protected $initializerFactory;
+    /**
+     * @var InitializerFactory
+     */
+    protected $initializerFactory;
 
-	/**
-	 * injects the data target factory
-	 *
-	 * @param DataTargetFactory $factory
-	 */
-	public function injectDataTargetFactory(DataTargetFactory $factory) {
-		$this->dataTargetFactory = $factory;
-	}
+    /**
+     * injects the data target factory
+     *
+     * @param DataTargetFactory $factory
+     */
+    public function injectDataTargetFactory(DataTargetFactory $factory)
+    {
+        $this->dataTargetFactory = $factory;
+    }
 
-	/**
-	 * injects the data source factory
-	 *
-	 * @param DataSourceFactory $factory
-	 */
-	public function injectDataSourceFactory(DataSourceFactory $factory) {
-		$this->dataSourceFactory = $factory;
-	}
+    /**
+     * injects the data source factory
+     *
+     * @param DataSourceFactory $factory
+     */
+    public function injectDataSourceFactory(DataSourceFactory $factory)
+    {
+        $this->dataSourceFactory = $factory;
+    }
 
-	/**
-	 * injects the pre processor factory
-	 *
-	 * @param PreProcessorFactory $factory
-	 */
-	public function injectPreProcessorFactory(PreProcessorFactory $factory) {
-		$this->preProcessorFactory = $factory;
-	}
+    /**
+     * injects the pre processor factory
+     *
+     * @param PreProcessorFactory $factory
+     */
+    public function injectPreProcessorFactory(PreProcessorFactory $factory)
+    {
+        $this->preProcessorFactory = $factory;
+    }
 
-	/**
-	 * injects the post processor factory
-	 *
-	 * @param PostProcessorFactory $factory
-	 */
-	public function injectPostProcessorFactory(PostProcessorFactory $factory) {
-		$this->postProcessorFactory = $factory;
-	}
+    /**
+     * injects the post processor factory
+     *
+     * @param PostProcessorFactory $factory
+     */
+    public function injectPostProcessorFactory(PostProcessorFactory $factory)
+    {
+        $this->postProcessorFactory = $factory;
+    }
 
-	/**
-	 * injects the converter factory
-	 *
-	 * @param ConverterFactory $factory
-	 */
-	public function injectConverterFactory(ConverterFactory $factory) {
-		$this->converterFactory = $factory;
-	}
+    /**
+     * injects the converter factory
+     *
+     * @param ConverterFactory $factory
+     */
+    public function injectConverterFactory(ConverterFactory $factory)
+    {
+        $this->converterFactory = $factory;
+    }
 
-	/**
-	 * injects the finisher factory
-	 *
-	 * @param FinisherFactory $factory
-	 */
-	public function injectFinisherFactory(FinisherFactory $factory) {
-		$this->finisherFactory = $factory;
-	}
+    /**
+     * injects the finisher factory
+     *
+     * @param FinisherFactory $factory
+     */
+    public function injectFinisherFactory(FinisherFactory $factory)
+    {
+        $this->finisherFactory = $factory;
+    }
 
-	/**
-	 * injects the initializer factory
-	 *
-	 * @param InitializerFactory $factory
-	 */
-	public function injectInitializerFactory(InitializerFactory $factory) {
-		$this->initializerFactory = $factory;
-	}
+    /**
+     * injects the initializer factory
+     *
+     * @param InitializerFactory $factory
+     */
+    public function injectInitializerFactory(InitializerFactory $factory)
+    {
+        $this->initializerFactory = $factory;
+    }
 
-	/**
-	 * Builds a task
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @return TransferTask
-	 * @throws InvalidConfigurationException
-	 * @throws \CPSIT\T3importExport\MissingClassException
-	 * @throws \CPSIT\T3importExport\MissingInterfaceException
-	 */
-	public function get(array $settings, $identifier = NULL) {
-		/** @var TransferTask $task */
-		$task = $this->objectManager->get(
-			TransferTask::class
-		);
-		$task->setIdentifier($identifier);
+    /**
+     * Builds a task
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @return TransferTask
+     * @throws InvalidConfigurationException
+     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws \CPSIT\T3importExport\MissingInterfaceException
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        /** @var TransferTask $task */
+        $task = $this->objectManager->get(
+            TransferTask::class
+        );
+        $task->setIdentifier($identifier);
 
-		if (isset($settings['class'])
-			AND is_string($settings['class'])
-		) {
-			$task->setTargetClass($settings['class']);
-		}
+        if (isset($settings['class'])
+            and is_string($settings['class'])
+        ) {
+            $task->setTargetClass($settings['class']);
+        }
 
-		if (isset($settings['description'])
-			AND is_string($settings['description'])
-		) {
-			$task->setDescription($settings['description']);
-		}
-		if (isset($settings['label']))
-		{
-			$task->setLabel($settings['label']);
-		}
+        if (isset($settings['description'])
+            and is_string($settings['description'])
+        ) {
+            $task->setDescription($settings['description']);
+        }
+        if (isset($settings['label'])) {
+            $task->setLabel($settings['label']);
+        }
 
-		$this->setTarget($task, $settings, $identifier);
-		$this->setSource($task, $settings, $identifier);
-		if (isset($settings['preProcessors'])
-			AND is_array($settings['preProcessors'])
-		) {
-			$this->setPreProcessors($task, $settings['preProcessors'], $identifier);
-		}
-		if (isset($settings['postProcessors'])
-			AND is_array($settings['postProcessors'])
-		) {
-			$this->setPostProcessors($task, $settings['postProcessors'], $identifier);
-		}
-		if (isset($settings['converters'])
-			AND is_array($settings['converters'])
-		) {
-			$this->setConverters($task, $settings['converters'], $identifier);
-		}
-		if (isset($settings['finishers'])
-			AND is_array($settings['finishers'])
-		) {
-			$this->setFinishers($task, $settings['finishers'], $identifier);
-		}
-		if (isset($settings['initializers'])
-			AND is_array($settings['initializers'])
-		) {
-			$this->setInitializers($task, $settings['initializers'], $identifier);
-		}
+        $this->setTarget($task, $settings, $identifier);
+        $this->setSource($task, $settings, $identifier);
+        if (isset($settings['preProcessors'])
+            and is_array($settings['preProcessors'])
+        ) {
+            $this->setPreProcessors($task, $settings['preProcessors'], $identifier);
+        }
+        if (isset($settings['postProcessors'])
+            and is_array($settings['postProcessors'])
+        ) {
+            $this->setPostProcessors($task, $settings['postProcessors'], $identifier);
+        }
+        if (isset($settings['converters'])
+            and is_array($settings['converters'])
+        ) {
+            $this->setConverters($task, $settings['converters'], $identifier);
+        }
+        if (isset($settings['finishers'])
+            and is_array($settings['finishers'])
+        ) {
+            $this->setFinishers($task, $settings['finishers'], $identifier);
+        }
+        if (isset($settings['initializers'])
+            and is_array($settings['initializers'])
+        ) {
+            $this->setInitializers($task, $settings['initializers'], $identifier);
+        }
 
-		return $task;
-	}
+        return $task;
+    }
 
-	/**
-	 * Sets the target for the import task
-	 *
-	 * @param TransferTask $task
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 * @throws \CPSIT\T3importExport\MissingClassException
-	 * @throws \CPSIT\T3importExport\MissingInterfaceException
-	 */
-	protected function setTarget(&$task, array $settings, $identifier) {
-		if (!isset($settings['target'])
-			OR !is_array(($settings['target']))
-		) {
-			throw new InvalidConfigurationException(
-				'Invalid configuration for import task ' . $identifier .
-				'. Target is missing or is not an array.',
-				1451052262
-			);
-		}
-		$targetIdentifier = NULL;
-		if (isset($settings['target']['identifier'])
-			AND is_string($settings['target']['identifier'])
-		) {
-			$targetIdentifier = $settings['target']['identifier'];
-		}
-		$task->setTarget(
-			$this->dataTargetFactory->get($settings['target'], $targetIdentifier)
-		);
-	}
+    /**
+     * Sets the target for the import task
+     *
+     * @param TransferTask $task
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws \CPSIT\T3importExport\MissingInterfaceException
+     */
+    protected function setTarget(&$task, array $settings, $identifier)
+    {
+        if (!isset($settings['target'])
+            or !is_array(($settings['target']))
+        ) {
+            throw new InvalidConfigurationException(
+                'Invalid configuration for import task ' . $identifier .
+                '. Target is missing or is not an array.',
+                1451052262
+            );
+        }
+        $targetIdentifier = null;
+        if (isset($settings['target']['identifier'])
+            and is_string($settings['target']['identifier'])
+        ) {
+            $targetIdentifier = $settings['target']['identifier'];
+        }
+        $task->setTarget(
+            $this->dataTargetFactory->get($settings['target'], $targetIdentifier)
+        );
+    }
 
-	/**
-	 * Sets the source for the import task
-	 *
-	 * @param TransferTask $task
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 * @throws \CPSIT\T3importExport\MissingClassException
-	 * @throws \CPSIT\T3importExport\MissingInterfaceException
-	 */
-	protected function setSource(&$task, array $settings, $identifier) {
-		if (!isset($settings['source'])
-			OR !is_array(($settings['source']))
-		) {
-			throw new InvalidConfigurationException(
-				'Invalid configuration for import task ' . $identifier .
-				' Source is missing or is not an array.',
-				1451206701
-			);
-		}
-		$sourceIdentifier = NULL;
-		if (isset($settings['source']['identifier'])
-			AND is_string($settings['source']['identifier'])
-		) {
-			$sourceIdentifier = $settings['source']['identifier'];
-		}
-		$task->setSource(
-			$this->dataSourceFactory->get($settings['source'], $sourceIdentifier)
-		);
-	}
+    /**
+     * Sets the source for the import task
+     *
+     * @param TransferTask $task
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws \CPSIT\T3importExport\MissingInterfaceException
+     */
+    protected function setSource(&$task, array $settings, $identifier)
+    {
+        if (!isset($settings['source'])
+            or !is_array(($settings['source']))
+        ) {
+            throw new InvalidConfigurationException(
+                'Invalid configuration for import task ' . $identifier .
+                ' Source is missing or is not an array.',
+                1451206701
+            );
+        }
+        $sourceIdentifier = null;
+        if (isset($settings['source']['identifier'])
+            and is_string($settings['source']['identifier'])
+        ) {
+            $sourceIdentifier = $settings['source']['identifier'];
+        }
+        $task->setSource(
+            $this->dataSourceFactory->get($settings['source'], $sourceIdentifier)
+        );
+    }
 
-	/**
-	 * Sets the pre processors for the import task
-	 *
-	 * @param TransferTask $task
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 */
-	protected function setPreProcessors(&$task, array $settings, $identifier) {
-		$preProcessors = [];
-		foreach ($settings as $key => $singleSettings) {
-			/** @var PreProcessorInterface $instance */
-			$instance = $this->preProcessorFactory->get($singleSettings, $identifier);
-			if (isset($singleSettings['config'])) {
-				$instance->setConfiguration($singleSettings['config']);
-			}
+    /**
+     * Sets the pre processors for the import task
+     *
+     * @param TransferTask $task
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     */
+    protected function setPreProcessors(&$task, array $settings, $identifier)
+    {
+        $preProcessors = [];
+        foreach ($settings as $key => $singleSettings) {
+            /** @var PreProcessorInterface $instance */
+            $instance = $this->preProcessorFactory->get($singleSettings, $identifier);
+            if (isset($singleSettings['config'])) {
+                $instance->setConfiguration($singleSettings['config']);
+            }
 
-			$preProcessors[$key] = $instance;
-		}
-		$task->setPreProcessors($preProcessors);
-	}
+            $preProcessors[$key] = $instance;
+        }
+        $task->setPreProcessors($preProcessors);
+    }
 
-	/**
-	 * Sets the post processors for the import task
-	 *
-	 * @param TransferTask $task
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
-	 */
-	protected function setPostProcessors(&$task, array $settings, $identifier) {
-		$postProcessors = [];
-		foreach ($settings as $key => $singleSettings) {
-			/** @var PostProcessorInterface $instance */
-			$instance = $this->postProcessorFactory->get($singleSettings, $identifier);
-			if (isset($singleSettings['config'])) {
-				$instance->setConfiguration($singleSettings['config']);
-			}
-			$postProcessors[$key] = $instance;
-		}
-		$task->setPostProcessors($postProcessors);
-	}
+    /**
+     * Sets the post processors for the import task
+     *
+     * @param TransferTask $task
+     * @param array $settings
+     * @param string $identifier
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     */
+    protected function setPostProcessors(&$task, array $settings, $identifier)
+    {
+        $postProcessors = [];
+        foreach ($settings as $key => $singleSettings) {
+            /** @var PostProcessorInterface $instance */
+            $instance = $this->postProcessorFactory->get($singleSettings, $identifier);
+            if (isset($singleSettings['config'])) {
+                $instance->setConfiguration($singleSettings['config']);
+            }
+            $postProcessors[$key] = $instance;
+        }
+        $task->setPostProcessors($postProcessors);
+    }
 
-	/**
-	 * Sets the converters for the import task
-	 *
-	 * @param TransferTask $task
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 */
-	protected function setConverters(&$task, array $settings, $identifier) {
-		$converters = [];
-		foreach ($settings as $key => $singleSettings) {
-			/** @var ConverterInterface $instance */
-			$instance = $this->converterFactory->get($singleSettings, $identifier);
-			if (isset($singleSettings['config'])) {
-				$instance->setConfiguration($singleSettings['config']);
-			}
-			$converters[$key] = $instance;
-		}
-		$task->setConverters($converters);
-	}
+    /**
+     * Sets the converters for the import task
+     *
+     * @param TransferTask $task
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     */
+    protected function setConverters(&$task, array $settings, $identifier)
+    {
+        $converters = [];
+        foreach ($settings as $key => $singleSettings) {
+            /** @var ConverterInterface $instance */
+            $instance = $this->converterFactory->get($singleSettings, $identifier);
+            if (isset($singleSettings['config'])) {
+                $instance->setConfiguration($singleSettings['config']);
+            }
+            $converters[$key] = $instance;
+        }
+        $task->setConverters($converters);
+    }
 
-	/**
-	 * Sets the finishers for the import task
-	 *
-	 * @param TransferTask $task
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 */
-	protected function setFinishers(&$task, array $settings, $identifier) {
-		$finishers = [];
-		foreach ($settings as $key => $singleSettings) {
-			/** @var FinisherInterface $instance */
-			$instance = $this->finisherFactory->get($singleSettings, $identifier);
-			if (isset($singleSettings['config'])) {
-				$instance->setConfiguration($singleSettings['config']);
-			}
-			$finishers[$key] = $instance;
-		}
-		$task->setFinishers($finishers);
-	}
+    /**
+     * Sets the finishers for the import task
+     *
+     * @param TransferTask $task
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     */
+    protected function setFinishers(&$task, array $settings, $identifier)
+    {
+        $finishers = [];
+        foreach ($settings as $key => $singleSettings) {
+            /** @var FinisherInterface $instance */
+            $instance = $this->finisherFactory->get($singleSettings, $identifier);
+            if (isset($singleSettings['config'])) {
+                $instance->setConfiguration($singleSettings['config']);
+            }
+            $finishers[$key] = $instance;
+        }
+        $task->setFinishers($finishers);
+    }
 
-	/**
-	 * Sets the initializers for the import task
-	 *
-	 * @param TransferTask $task
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 */
-	protected function setInitializers(&$task, array $settings, $identifier) {
-		$initializers = [];
-		foreach ($settings as $key => $singleSettings) {
-			/** @var InitializerInterface $instance */
-			$instance = $this->initializerFactory->get($singleSettings, $identifier);
-			if (isset($singleSettings['config'])) {
-				$instance->setConfiguration($singleSettings['config']);
-			}
-			$initializers[$key] = $instance;
-		}
-		$task->setInitializers($initializers);
-	}
+    /**
+     * Sets the initializers for the import task
+     *
+     * @param TransferTask $task
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     */
+    protected function setInitializers(&$task, array $settings, $identifier)
+    {
+        $initializers = [];
+        foreach ($settings as $key => $singleSettings) {
+            /** @var InitializerInterface $instance */
+            $instance = $this->initializerFactory->get($singleSettings, $identifier);
+            if (isset($singleSettings['config'])) {
+                $instance->setConfiguration($singleSettings['config']);
+            }
+            $initializers[$key] = $instance;
+        }
+        $task->setInitializers($initializers);
+    }
 }

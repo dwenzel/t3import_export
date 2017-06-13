@@ -8,27 +8,28 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  * @package CPSIT\T3importExport
  */
-interface ConfigurableInterface {
+interface ConfigurableInterface
+{
 
-	/**
-	 * Tells if a given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration);
+    /**
+     * Tells if a given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration);
 
-	/**
-	 * @return array
-	 */
-	public function getConfiguration();
+    /**
+     * @return array
+     */
+    public function getConfiguration();
 
-	/**
-	 * Sets the configuration if it is valid.
-	 * Throws an exception otherwise.
-	 *
-	 * @param array $configuration
-	 * @throws InvalidConfigurationException
-	 */
-	public function setConfiguration(array $configuration);
+    /**
+     * Sets the configuration if it is valid.
+     * Throws an exception otherwise.
+     *
+     * @param array $configuration
+     * @throws InvalidConfigurationException
+     */
+    public function setConfiguration(array $configuration);
 }

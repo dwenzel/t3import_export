@@ -98,8 +98,7 @@ class AbstractComponentTest extends UnitTestCase
     public function isDisabledReturnsCorrectValue($configuration, $expectedResult)
     {
         $record = [];
-        if (isset($configuration['disable']) && is_array($configuration['disable']))
-        {
+        if (isset($configuration['disable']) && is_array($configuration['disable'])) {
             $this->subject->expects($this->any())
                 ->method('renderContent')
                 ->with($record, $configuration['disable'])

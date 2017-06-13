@@ -18,49 +18,49 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class AddArrays
-	extends AbstractPreProcessor
-	implements PreProcessorInterface {
-	/**
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) 
-	{
-		if (empty($configuration['targetField'])
-			|| !is_string($configuration['targetField'])
-		) {
-			return false;
-		}
+class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
+{
+    /**
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (empty($configuration['targetField'])
+            || !is_string($configuration['targetField'])
+        ) {
+            return false;
+        }
 
-		if (empty($configuration['fields'])
-			|| !is_string($configuration['fields'])
-		) {
-			return false;
-		}
+        if (empty($configuration['fields'])
+            || !is_string($configuration['fields'])
+        ) {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return bool
-	 */
-	public function process($configuration, &$record) {
-		$fields = explode(',', $configuration['fields']);
-		$targetField = $configuration['targetField'];
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return bool
+     */
+    public function process($configuration, &$record)
+    {
+        $fields = explode(',', $configuration['fields']);
+        $targetField = $configuration['targetField'];
 
-		foreach ($fields as $field) {
-			if (isset($record[$field])
-				AND is_array($record[$field])
-			) {
-				foreach ($record[$field] as $value) {
-					$record[$targetField][] = $value;
-				}
-			}
-		}
+        foreach ($fields as $field) {
+            if (isset($record[$field])
+                and is_array($record[$field])
+            ) {
+                foreach ($record[$field] as $value) {
+                    $record[$targetField][] = $value;
+                }
+            }
+        }
 
-		return TRUE;
-	}
+        return true;
+    }
 }

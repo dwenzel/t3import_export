@@ -31,232 +31,236 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *
  * @package CPSIT\T3importExport\PreProcessor
  */
-class LookUpDB
-	extends AbstractPreProcessor
-	implements PreProcessorInterface {
-	use DatabaseTrait;
+class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
+{
+    use DatabaseTrait;
 
-	/**
-	 * Tells if a given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['select'])
-			OR !is_array($configuration['select'])
-		) {
-			return FALSE;
-		}
-		if (!isset($configuration['select']['table'])
-			OR !is_string(($configuration['select']['table']))
-		) {
-			return FALSE;
-		}
-		if (isset($configuration['identifier'])
-			AND !is_string($configuration['identifier'])
-		) {
-			return FALSE;
-		}
-		if (isset($configuration['identifier'])
-			AND !DatabaseConnectionService::isRegistered($configuration['identifier'])
-		) {
-			return FALSE;
-		}
-		if (!isset($configuration['targetField']) || !is_string($configuration['targetField'])) {
-		    return false;
+    /**
+     * Tells if a given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['select'])
+            or !is_array($configuration['select'])
+        ) {
+            return false;
+        }
+        if (!isset($configuration['select']['table'])
+            or !is_string(($configuration['select']['table']))
+        ) {
+            return false;
+        }
+        if (isset($configuration['identifier'])
+            and !is_string($configuration['identifier'])
+        ) {
+            return false;
+        }
+        if (isset($configuration['identifier'])
+            and !DatabaseConnectionService::isRegistered($configuration['identifier'])
+        ) {
+            return false;
+        }
+        if (!isset($configuration['targetField']) || !is_string($configuration['targetField'])) {
+            return false;
         }
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return bool
-	 */
-	public function process($configuration, &$record) {
-		if (isset($configuration['identifier'])) {
-			$this->database = $this->connectionService
-				->getDatabase($configuration['identifier']);
-		}
-		if (isset($configuration['childRecords'])
-			AND is_array($record[$configuration['childRecords']])
-		) {
-			$localConfiguration = $configuration;
-			unset($localConfiguration['childRecords']);
-			foreach ($record[$configuration['childRecords']] as &$childRecord) {
-				$this->process($localConfiguration, $childRecord);
-			}
-			return TRUE;
-		}
-		$queryConfiguration = $this->getQueryConfiguration($configuration);
-		$queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
-		if ($queryConfiguration == FALSE) {
-			return FALSE;
-		}
-		$queryResult = $this->performQuery($queryConfiguration);
-		$targetFieldName = $configuration['targetField'];
-		if ($queryResult) {
-			if ($queryConfiguration['singleRow']) {
-				$this->mapFields($record, $queryResult, $configuration);
-			} else {
-				$mappedRecords = [];
-				foreach ($queryResult as $row) {
-					$mappedRecord = [];
-					$this->mapFields($mappedRecord, $row, $configuration);
-					$mappedRecords[] = $mappedRecord;
-				}
-				$record[$targetFieldName] = $mappedRecords;
-			}
-		} elseif (isset($configuration['targetField'])
-			AND is_string($configuration['targetField'])
-		) {
-			unset($record[$targetFieldName]);
-		}
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return bool
+     */
+    public function process($configuration, &$record)
+    {
+        if (isset($configuration['identifier'])) {
+            $this->database = $this->connectionService
+                ->getDatabase($configuration['identifier']);
+        }
+        if (isset($configuration['childRecords'])
+            and is_array($record[$configuration['childRecords']])
+        ) {
+            $localConfiguration = $configuration;
+            unset($localConfiguration['childRecords']);
+            foreach ($record[$configuration['childRecords']] as &$childRecord) {
+                $this->process($localConfiguration, $childRecord);
+            }
+            return true;
+        }
+        $queryConfiguration = $this->getQueryConfiguration($configuration);
+        $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
+        if ($queryConfiguration == false) {
+            return false;
+        }
+        $queryResult = $this->performQuery($queryConfiguration);
+        $targetFieldName = $configuration['targetField'];
+        if ($queryResult) {
+            if ($queryConfiguration['singleRow']) {
+                $this->mapFields($record, $queryResult, $configuration);
+            } else {
+                $mappedRecords = [];
+                foreach ($queryResult as $row) {
+                    $mappedRecord = [];
+                    $this->mapFields($mappedRecord, $row, $configuration);
+                    $mappedRecords[] = $mappedRecord;
+                }
+                $record[$targetFieldName] = $mappedRecords;
+            }
+        } elseif (isset($configuration['targetField'])
+            and is_string($configuration['targetField'])
+        ) {
+            unset($record[$targetFieldName]);
+        }
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * @param $configuration
-	 * @return array
-	 */
-	protected function getQueryConfiguration($configuration) {
-		$queryConfiguration = [
-			'fields' => '*',
-			'where' => '',
-			'groupBy' => '',
-			'orderBy' => '',
-			'limit' => ''
-		];
-		ArrayUtility::mergeRecursiveWithOverrule(
-			$queryConfiguration,
-			$configuration['select'],
-			TRUE,
-			FALSE
-		);
+    /**
+     * @param $configuration
+     * @return array
+     */
+    protected function getQueryConfiguration($configuration)
+    {
+        $queryConfiguration = [
+            'fields' => '*',
+            'where' => '',
+            'groupBy' => '',
+            'orderBy' => '',
+            'limit' => ''
+        ];
+        ArrayUtility::mergeRecursiveWithOverrule(
+            $queryConfiguration,
+            $configuration['select'],
+            true,
+            false
+        );
 
-		return $queryConfiguration;
-	}
+        return $queryConfiguration;
+    }
 
-	/**
-	 * Parses the constraints of a query configuration into a
-	 * WHERE clause
-	 *
-	 * @param $record
-	 * @param $queryConfiguration
-	 * @return array | FALSE Parsed query configuration
-	 */
-	protected function parseQueryConstraints(&$record, $queryConfiguration) {
-		if (!empty($queryConfiguration['where'])) {
-			if (is_array($queryConfiguration['where'])) {
-				$whereClause = '';
-				foreach ($queryConfiguration['where'] as $operator => $value) {
-					if ($operator === 'AND' OR $operator === 'OR') {
-						if ($whereClause == '' AND $operator === 'AND') {
-							$operator = '';
-						}
-						$whereClause .= $operator . ' ' . $value['condition'];
-						$prefix = '"';
-						if (isset($value['prefix'])) {
-							$prefix .= $value['prefix'];
-						}
+    /**
+     * Parses the constraints of a query configuration into a
+     * WHERE clause
+     *
+     * @param $record
+     * @param $queryConfiguration
+     * @return array | FALSE Parsed query configuration
+     */
+    protected function parseQueryConstraints(&$record, $queryConfiguration)
+    {
+        if (!empty($queryConfiguration['where'])) {
+            if (is_array($queryConfiguration['where'])) {
+                $whereClause = '';
+                foreach ($queryConfiguration['where'] as $operator => $value) {
+                    if ($operator === 'AND' or $operator === 'OR') {
+                        if ($whereClause == '' and $operator === 'AND') {
+                            $operator = '';
+                        }
+                        $whereClause .= $operator . ' ' . $value['condition'];
+                        $prefix = '"';
+                        if (isset($value['prefix'])) {
+                            $prefix .= $value['prefix'];
+                        }
 
-						if (isset($value['value'])) {
-							//read field value from record
-							$whereClause .= $prefix .
-								$this->database->quoteStr(
-									$record[$value['value']],
-									$queryConfiguration['table']
-								) . '"';
-						}
-					}
-					if ($operator === 'IN') {
-						if (isset($value['values'])
-							AND isset($value['field'])
-						) {
-							$childConfig = $value['values'];
+                        if (isset($value['value'])) {
+                            //read field value from record
+                            $whereClause .= $prefix .
+                                $this->database->quoteStr(
+                                    $record[$value['value']],
+                                    $queryConfiguration['table']
+                                ) . '"';
+                        }
+                    }
+                    if ($operator === 'IN') {
+                        if (isset($value['values'])
+                            and isset($value['field'])
+                        ) {
+                            $childConfig = $value['values'];
 
-							if (is_array($childConfig)
-								AND isset($childConfig['field'])
-								AND isset($childConfig['value'])
-								AND is_array($record[$childConfig['field']])
-							) {
-								$prefix = '"';
-								if (isset($childConfig['prefix'])) {
-									$prefix .= $childConfig['prefix'];
-								}
+                            if (is_array($childConfig)
+                                and isset($childConfig['field'])
+                                and isset($childConfig['value'])
+                                and is_array($record[$childConfig['field']])
+                            ) {
+                                $prefix = '"';
+                                if (isset($childConfig['prefix'])) {
+                                    $prefix .= $childConfig['prefix'];
+                                }
 
-								$whereClause .= ' ' . $value['field'] . ' IN (';
-								$childValues = [];
-								foreach ($record[$childConfig['field']] as $child) {
-									$childValues[] = $prefix . $child[$childConfig['value']] . '"';
-								}
-								$whereClause .= implode(',', $childValues) . ')';
+                                $whereClause .= ' ' . $value['field'] . ' IN (';
+                                $childValues = [];
+                                foreach ($record[$childConfig['field']] as $child) {
+                                    $childValues[] = $prefix . $child[$childConfig['value']] . '"';
+                                }
+                                $whereClause .= implode(',', $childValues) . ')';
                                 if (isset($value['keepOrder'])) {
                                     $whereClause .= ' ORDER BY FIELD (' . $value['field'] . ',' . implode(',', $childValues) . ')';
                                 }
-							} else {
-								return FALSE;
-							}
-						}
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                $queryConfiguration['where'] = $whereClause;
+            }
+        }
 
-					}
-				}
-				$queryConfiguration['where'] = $whereClause;
-			}
-		}
+        return $queryConfiguration;
+    }
 
-		return $queryConfiguration;
-	}
+    /**
+     * Maps fields
+     *
+     * @param array $record target record
+     * @param array $source Source: record
+     * @param array $config Mapping configuration
+     */
+    protected function mapFields(&$record, $source, $config)
+    {
+        if (!isset($config['fields'])
+            or !is_array($config['fields'])
+        ) {
+            return;
+        }
+        foreach ($config['fields'] as $fieldName => $singleConfig) {
+            if (isset($singleConfig['mapTo'])
+                and is_string($singleConfig['mapTo'])
+            ) {
+                $record[$singleConfig['mapTo']] = $source[$fieldName];
+            }
+        }
+    }
 
-	/**
-	 * Maps fields
-	 *
-	 * @param array $record target record
-	 * @param array $source Source: record
-	 * @param array $config Mapping configuration
-	 */
-	protected function mapFields(&$record, $source, $config) {
-		if (!isset($config['fields'])
-			OR !is_array($config['fields'])
-		) {
-			return;
-		}
-		foreach ($config['fields'] as $fieldName => $singleConfig) {
-			if (isset($singleConfig['mapTo'])
-				AND is_string($singleConfig['mapTo'])
-			) {
-				$record[$singleConfig['mapTo']] = $source[$fieldName];
-			}
-		}
-	}
+    /**
+     * @param $queryConfiguration
+     * @return array|NULL
+     */
+    protected function performQuery($queryConfiguration)
+    {
+        if ($queryConfiguration['singleRow']) {
+            $queryResult = $this->database->exec_SELECTgetSingleRow(
+                $queryConfiguration['fields'],
+                $queryConfiguration['table'],
+                $queryConfiguration['where'],
+                $queryConfiguration['groupBy'],
+                $queryConfiguration['orderBy']
+            );
+        } else {
+            $queryResult = $this->database->exec_SELECTgetRows(
+                $queryConfiguration['fields'],
+                $queryConfiguration['table'],
+                $queryConfiguration['where'],
+                $queryConfiguration['groupBy'],
+                $queryConfiguration['orderBy'],
+                $queryConfiguration['limit']
+            );
+        }
 
-	/**
-	 * @param $queryConfiguration
-	 * @return array|NULL
-	 */
-	protected function performQuery($queryConfiguration) {
-		if ($queryConfiguration['singleRow']) {
-			$queryResult = $this->database->exec_SELECTgetSingleRow(
-				$queryConfiguration['fields'],
-				$queryConfiguration['table'],
-				$queryConfiguration['where'],
-				$queryConfiguration['groupBy'],
-				$queryConfiguration['orderBy']
-			);
-		} else {
-			$queryResult = $this->database->exec_SELECTgetRows(
-				$queryConfiguration['fields'],
-				$queryConfiguration['table'],
-				$queryConfiguration['where'],
-				$queryConfiguration['groupBy'],
-				$queryConfiguration['orderBy'],
-				$queryConfiguration['limit']
-			);
-		}
-
-		return $queryResult;
-	}
+        return $queryResult;
+    }
 }

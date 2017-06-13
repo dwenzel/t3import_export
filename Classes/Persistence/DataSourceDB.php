@@ -27,8 +27,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataSourceDB
-    implements DataSourceInterface, IdentifiableInterface, RenderContentInterface
+class DataSourceDB implements DataSourceInterface, IdentifiableInterface, RenderContentInterface
 {
     use IdentifiableTrait, ConfigurableTrait, RenderContentTrait,
         DatabaseTrait;
@@ -116,7 +115,7 @@ class DataSourceDB
     public function isConfigurationValid(array $configuration)
     {
         if (!isset($configuration['table'])
-            OR !is_string($configuration['table'])
+            or !is_string($configuration['table'])
         ) {
             return false;
         }

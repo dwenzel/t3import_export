@@ -20,9 +20,7 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class StringToTime
-    extends AbstractPreProcessor
-    implements PreProcessorInterface
+class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
 {
 
     /**
@@ -37,10 +35,10 @@ class StringToTime
     public function isConfigurationValid(array $configuration)
     {
         if (!isset($configuration['fields'])) {
-            return FALSE;
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -50,10 +48,10 @@ class StringToTime
      */
     public function process($configuration, &$record)
     {
-        $this->fields = ArrayUtility::trimExplode(',', $configuration['fields'], TRUE);
+        $this->fields = ArrayUtility::trimExplode(',', $configuration['fields'], true);
         $this->convertFields($record);
         if (isset($configuration['multipleRowFields'])) {
-            $multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], TRUE);
+            $multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], true);
             foreach ($multipleRowFields as $field) {
                 if (is_array($record[$field])) {
                     foreach ($record[$field] as $key => $row) {
@@ -64,7 +62,7 @@ class StringToTime
             }
         }
 
-        return TRUE;
+        return true;
     }
 
     /**

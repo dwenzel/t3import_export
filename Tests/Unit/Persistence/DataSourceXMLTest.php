@@ -26,9 +26,8 @@ class DataSourceXMLTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock(DataSourceXML::class,
-            ['dummy', 'getAbsoluteFilePath'], [], '', FALSE);
+            ['dummy', 'getAbsoluteFilePath'], [], '', false);
         vfsStreamWrapper::register();
-
     }
 
     /**
@@ -93,7 +92,6 @@ class DataSourceXMLTest extends UnitTestCase
      */
     public function isConfigurationValidReturnsTrueForValidConfiguration()
     {
-
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.xml';
         $relativePath = $fileDirectory . '/' . $fileName;
@@ -141,7 +139,6 @@ class DataSourceXMLTest extends UnitTestCase
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
-
     }
 
     /**
@@ -182,6 +179,5 @@ class DataSourceXMLTest extends UnitTestCase
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
-
     }
 }

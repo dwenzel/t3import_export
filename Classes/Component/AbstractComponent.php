@@ -36,8 +36,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @package CPSIT\T3importExport\Component
  */
-abstract class AbstractComponent
-    implements ConfigurableInterface, RenderContentInterface
+abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
 {
     use ConfigurableTrait, RenderContentTrait;
 
@@ -115,5 +114,4 @@ abstract class AbstractComponent
         $slotResult = $this->signalSlotDispatcher->dispatch(get_class($this), $name, [$arguments]);
         $arguments = $slotResult[0];
     }
-
 }

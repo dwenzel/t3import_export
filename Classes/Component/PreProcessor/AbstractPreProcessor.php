@@ -25,23 +25,23 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  ***************************************************************/
 abstract class AbstractPreProcessor extends AbstractComponent
 {
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return bool
-	 */
-	abstract function process($configuration, &$record);
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return bool
+     */
+    abstract public function process($configuration, &$record);
 
-	/**
-	 * Tells whether a given configuration is valid
-	 * Override this method in order to perform validation of
-	 * configuration
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration)
-	{
-		return true;
-	}
+    /**
+     * Tells whether a given configuration is valid
+     * Override this method in order to perform validation of
+     * configuration
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return true;
+    }
 }

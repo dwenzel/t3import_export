@@ -28,66 +28,67 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @package CPSIT\T3importExport\Domain\Repository
  */
-class TransferSetFactory extends AbstractFactory {
+class TransferSetFactory extends AbstractFactory
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
-	 */
-	protected $transferTaskFactory;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
+     */
+    protected $transferTaskFactory;
 
-	/**
+    /**
      * Injects the transfer task factory
      *
-	 * @param TransferTaskFactory $transferTaskFactory
-	 */
-	public function injectTransferTaskFactory(TransferTaskFactory $transferTaskFactory) {
-		$this->transferTaskFactory = $transferTaskFactory;
-	}
+     * @param TransferTaskFactory $transferTaskFactory
+     */
+    public function injectTransferTaskFactory(TransferTaskFactory $transferTaskFactory)
+    {
+        $this->transferTaskFactory = $transferTaskFactory;
+    }
 
-	/**
-	 * Builds a set of tasks
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @return TransferSet
-	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
-	 */
-	public function get(array $settings, $identifier = null) {
-		/** @var TransferSet $transferSet */
-		$transferSet = $this->objectManager->get(
-			TransferSet::class
-		);
+    /**
+     * Builds a set of tasks
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @return TransferSet
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        /** @var TransferSet $transferSet */
+        $transferSet = $this->objectManager->get(
+            TransferSet::class
+        );
 
-		$transferSet->setIdentifier($identifier);
+        $transferSet->setIdentifier($identifier);
 
-		if (isset($settings['tasks'])
-			AND is_string($settings['tasks'])
-		) {
-			$taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
-			$tasks = [];
-			foreach ($taskIdentifiers as $taskIdentifier) {
-				if (isset($this->settings['import']['tasks'][$taskIdentifier])) {
-					$task = $this->transferTaskFactory->get(
-						$this->settings['import']['tasks'][$taskIdentifier], $taskIdentifier
-					);
-					$tasks[$taskIdentifier] = $task;
-				}
-			}
-			$transferSet->setTasks($tasks);
-		}
+        if (isset($settings['tasks'])
+            and is_string($settings['tasks'])
+        ) {
+            $taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
+            $tasks = [];
+            foreach ($taskIdentifiers as $taskIdentifier) {
+                if (isset($this->settings['import']['tasks'][$taskIdentifier])) {
+                    $task = $this->transferTaskFactory->get(
+                        $this->settings['import']['tasks'][$taskIdentifier], $taskIdentifier
+                    );
+                    $tasks[$taskIdentifier] = $task;
+                }
+            }
+            $transferSet->setTasks($tasks);
+        }
 
-		if (isset($settings['description'])
-			AND is_string($settings['description'])
-		) {
-			$transferSet->setDescription($settings['description']);
-		}
+        if (isset($settings['description'])
+            and is_string($settings['description'])
+        ) {
+            $transferSet->setDescription($settings['description']);
+        }
 
-		if (isset($settings['label']))
-		{
-			$transferSet->setLabel($settings['label']);
-		}
+        if (isset($settings['label'])) {
+            $transferSet->setLabel($settings['label']);
+        }
 
-		return $transferSet;
-	}
-
+        return $transferSet;
+    }
 }

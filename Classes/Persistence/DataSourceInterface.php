@@ -10,12 +10,13 @@ use CPSIT\T3importExport\ConfigurableInterface;
  *
  * @package CPSIT\T3importExport\Persistence
  */
-interface DataSourceInterface extends ConfigurableInterface {
-	/**
-	 * Fetches records from a data source.
-	 *
-	 * @param array $configuration Source query configuration
-	 * @return array Array of records or empty array
-	 */
-	public function getRecords(array $configuration);
+interface DataSourceInterface extends ConfigurableInterface
+{
+    /**
+     * Fetches records from a data source.
+     *
+     * @param array $configuration Source query configuration
+     * @return array Array of records or empty array
+     */
+    public function getRecords(array $configuration);
 }

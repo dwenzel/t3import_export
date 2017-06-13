@@ -32,107 +32,113 @@ use TYPO3\CMS\Extbase\Service\TypoScriptService;
 /**
  * Class ImportCommandController
  * Provides import commands for cli and scheduler tasks
- * 
+ *
  * @package CPSIT\T3importExport\Command
  */
-class ImportCommandController extends CommandController {
+class ImportCommandController extends CommandController
+{
 
-	/**
-	 * @var array
-	 */
-	protected $settings;
+    /**
+     * @var array
+     */
+    protected $settings;
 
-	/**
-	 * @var DataTransferProcessor
-	 */
-	protected $importProcessor;
+    /**
+     * @var DataTransferProcessor
+     */
+    protected $importProcessor;
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
-	 */
-	protected $transferTaskFactory;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
+     */
+    protected $transferTaskFactory;
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
-	 */
-	protected $importSetFactory;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
+     */
+    protected $importSetFactory;
 
-	/**
-	 * @var ConfigurationManager
-	 */
-	protected $configurationManager;
+    /**
+     * @var ConfigurationManager
+     */
+    protected $configurationManager;
 
-	/**
-	 * Injects the import processor
-	 *
-	 * @param DataTransferProcessor $importProcessor
-	 */
-	public function injectDataTransferProcessor(DataTransferProcessor $importProcessor) {
-		$this->importProcessor = $importProcessor;
-	}
+    /**
+     * Injects the import processor
+     *
+     * @param DataTransferProcessor $importProcessor
+     */
+    public function injectDataTransferProcessor(DataTransferProcessor $importProcessor)
+    {
+        $this->importProcessor = $importProcessor;
+    }
 
-	/**
+    /**
      * Injects the import task factory
      *
-	 * @param TransferTaskFactory $importTaskFactory
-	 */
-	public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory) {
-		$this->transferTaskFactory = $importTaskFactory;
-	}
+     * @param TransferTaskFactory $importTaskFactory
+     */
+    public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory)
+    {
+        $this->transferTaskFactory = $importTaskFactory;
+    }
 
-	/**
+    /**
      * Injects the import set factory
      *
-	 * @param TransferSetFactory $importSetFactory
-	 */
-	public function injectImportSetFactory(TransferSetFactory $importSetFactory) {
-		$this->importSetFactory = $importSetFactory;
-	}
+     * @param TransferSetFactory $importSetFactory
+     */
+    public function injectImportSetFactory(TransferSetFactory $importSetFactory)
+    {
+        $this->importSetFactory = $importSetFactory;
+    }
 
-	/**
+    /**
      * Injects the configuration manager and loads the TypoScript settings
      *
-	 * @param ConfigurationManager $configurationManager
-	 */
-	public function injectConfigurationManager(ConfigurationManager $configurationManager) {
-		$this->configurationManager = $configurationManager;
+     * @param ConfigurationManager $configurationManager
+     */
+    public function injectConfigurationManager(ConfigurationManager $configurationManager)
+    {
+        $this->configurationManager = $configurationManager;
 
-		$extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
-			ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
-		);
+        $extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
+        );
 
-		if (isset($extbaseFrameworkConfiguration['settings'][ImportController::SETTINGS_KEY])) {
-			$this->settings = $extbaseFrameworkConfiguration['settings'][ImportController::SETTINGS_KEY];
-		}
-	}
+        if (isset($extbaseFrameworkConfiguration['settings'][ImportController::SETTINGS_KEY])) {
+            $this->settings = $extbaseFrameworkConfiguration['settings'][ImportController::SETTINGS_KEY];
+        }
+    }
 
-	/**
-	 * Import task command
-	 * Performs predefined import tasks
-	 *
-	 * @param string $identifier Identifier of task which should be performed
+    /**
+     * Import task command
+     * Performs predefined import tasks
+     *
+     * @param string $identifier Identifier of task which should be performed
      * @param bool $dryRun If set nothing will be saved
-	 */
-	public function taskCommand($identifier, $dryRun = false) {
-		/** @var TaskDemand $importDemand */
-		$importDemand = $this->objectManager->get(
-			TaskDemand::class
-		);
+     */
+    public function taskCommand($identifier, $dryRun = false)
+    {
+        /** @var TaskDemand $importDemand */
+        $importDemand = $this->objectManager->get(
+            TaskDemand::class
+        );
 
-		if (isset($this->settings['tasks'][$identifier])) {
-			$taskSettings = $this->settings['tasks'][$identifier];
-			$task = $this->transferTaskFactory->get(
-				$taskSettings, $identifier
-			);
+        if (isset($this->settings['tasks'][$identifier])) {
+            $taskSettings = $this->settings['tasks'][$identifier];
+            $task = $this->transferTaskFactory->get(
+                $taskSettings, $identifier
+            );
 
-			$importDemand->setTasks([$task]);
+            $importDemand->setTasks([$task]);
 
-			$this->importProcessor->buildQueue($importDemand);
-			if (!$dryRun) {
-				$result = $this->importProcessor->process($importDemand);
-			}
-		}
-	}
+            $this->importProcessor->buildQueue($importDemand);
+            if (!$dryRun) {
+                $result = $this->importProcessor->process($importDemand);
+            }
+        }
+    }
 
     /**
      * Import set command
@@ -142,21 +148,22 @@ class ImportCommandController extends CommandController {
      * @param bool $dryRun If set nothing will be saved
      * @return void
      */
-	public function setCommand($identifier, $dryRun = false) {
-		/** @var TaskDemand $importDemand */
-		$importDemand = $this->objectManager->get(
-			TaskDemand::class
-		);
+    public function setCommand($identifier, $dryRun = false)
+    {
+        /** @var TaskDemand $importDemand */
+        $importDemand = $this->objectManager->get(
+            TaskDemand::class
+        );
 
-		if (isset($this->settings['sets'][$identifier])) {
-			$set = $this->importSetFactory->get(
-				$this->settings['sets'][$identifier], $identifier
-			);
-			$importDemand->setTasks($set->getTasks());
-			$this->importProcessor->buildQueue($importDemand);
-			if (!$dryRun) {
-				$result = $this->importProcessor->process($importDemand);
-			}
-		}
-	}
+        if (isset($this->settings['sets'][$identifier])) {
+            $set = $this->importSetFactory->get(
+                $this->settings['sets'][$identifier], $identifier
+            );
+            $importDemand->setTasks($set->getTasks());
+            $this->importProcessor->buildQueue($importDemand);
+            if (!$dryRun) {
+                $result = $this->importProcessor->process($importDemand);
+            }
+        }
+    }
 }

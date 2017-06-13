@@ -9,6 +9,7 @@ use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\RenderContentTrait;
 
 /***************************************************************
  *
@@ -34,58 +35,62 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataSourceFactory extends AbstractFactory {
-	const DEFAULT_DATA_SOURCE_CLASS = DataSourceDB::class;
+class DataSourceFactory extends AbstractFactory
+{
+    use RenderContentTrait;
 
-	/**
-	 * Builds a DataSource object
-	 *
-	 * @param array $settings Configuration for the data source
-	 * @param string $identifier Identifier
-	 * @return DataSourceInterface
-	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
-	 * @throws \CPSIT\T3importExport\MissingClassException
-	 * @throws MissingInterfaceException
-	 */
-	public function get(array $settings, $identifier = null) {
-		$dataSourceClass = self::DEFAULT_DATA_SOURCE_CLASS;
-		if (isset($settings['class'])) {
-			$dataSourceClass = $settings['class'];
-		}
-		if (!class_exists($dataSourceClass)) {
-			throw new MissingClassException(
-				'Missing source.class ' . $dataSourceClass . '.',
-				1451060913
-			);
-		}
-		if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass))) {
-			throw new MissingInterfaceException(
-				'Missing interface in configuration for source. Class ' . $dataSourceClass .
-				' must implement interface ' . DataSourceInterface::class . '.',
-				1451061361
-			);
-		}
-		if (!isset($settings['config'])) {
-			throw new InvalidConfigurationException(
-				'Missing configuration option config for class ' .
-				$dataSourceClass,
-				1451086595
-			);
-		}
+    const DEFAULT_DATA_SOURCE_CLASS = DataSourceDB::class;
+
+    /**
+     * Builds a DataSource object
+     *
+     * @param array $settings Configuration for the data source
+     * @param string $identifier Identifier
+     * @return DataSourceInterface
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws MissingInterfaceException
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        $dataSourceClass = self::DEFAULT_DATA_SOURCE_CLASS;
+        if (isset($settings['class'])) {
+            $dataSourceClass = $settings['class'];
+        }
+        if (!class_exists($dataSourceClass)) {
+            throw new MissingClassException(
+                'Missing source.class ' . $dataSourceClass . '.',
+                1451060913
+            );
+        }
+        if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass))) {
+            throw new MissingInterfaceException(
+                'Missing interface in configuration for source. Class ' . $dataSourceClass .
+                ' must implement interface ' . DataSourceInterface::class . '.',
+                1451061361
+            );
+        }
+        if (!isset($settings['config'])) {
+            throw new InvalidConfigurationException(
+                'Missing configuration option config for class ' .
+                $dataSourceClass,
+                1451086595
+            );
+        }
 
         $dataSource = $this->objectManager->get($dataSourceClass);
         if (
-		    in_array(IdentifiableInterface::class, class_implements($dataSourceClass))
+            in_array(IdentifiableInterface::class, class_implements($dataSourceClass))
             && isset($settings['identifier'])
         ) {
-			/** @var IdentifiableInterface $dataSource */
-			$dataSource->setIdentifier($settings['identifier']);
-		}
-		
-		$dataSource->setConfiguration(
-			$settings['config']
-		);
+            /** @var IdentifiableInterface $dataSource */
+            $dataSource->setIdentifier($settings['identifier']);
+        }
 
-		return $dataSource;
-	}
+        $dataSource->setConfiguration(
+            $settings['config']
+        );
+
+        return $dataSource;
+    }
 }

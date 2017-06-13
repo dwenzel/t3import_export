@@ -44,334 +44,348 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
  */
-class ArrayToDomainObjectTest extends UnitTestCase {
+class ArrayToDomainObjectTest extends UnitTestCase
+{
 
-	/**
-	 * @var ArrayToDomainObject
-	 */
-	protected $subject;
+    /**
+     * @var ArrayToDomainObject
+     */
+    protected $subject;
 
-	/**
-	 *
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			ArrayToDomainObject::class,
-			['dummy']
-		);
-	}
+    /**
+     *
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            ArrayToDomainObject::class,
+            ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::injectPropertyMapper
-	 */
-	public function injectPropertyMapperForObjectSetsPropertyMapper() {
-		/** @var PropertyMapper $mockPropertyMapper */
-		$mockPropertyMapper = $this->getMock(PropertyMapper::class,
-			[], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::injectPropertyMapper
+     */
+    public function injectPropertyMapperForObjectSetsPropertyMapper()
+    {
+        /** @var PropertyMapper $mockPropertyMapper */
+        $mockPropertyMapper = $this->getMock(PropertyMapper::class,
+            [], [], '', false);
 
-		$this->subject->injectPropertyMapper($mockPropertyMapper);
+        $this->subject->injectPropertyMapper($mockPropertyMapper);
 
-		$this->assertSame(
-			$mockPropertyMapper,
-			$this->subject->_get('propertyMapper')
-		);
-	}
+        $this->assertSame(
+            $mockPropertyMapper,
+            $this->subject->_get('propertyMapper')
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::injectPropertyMappingConfigurationBuilder
-	 */
-	public function injectPropertyMappingConfigurationBuilderForObjectSetsPropertyMappingConfigurationBuilder() {
-		/** @var PropertyMappingConfigurationBuilder $mockPropertyMappingConfigurationBuilder */
-		$mockPropertyMappingConfigurationBuilder = $this->getMock(PropertyMappingConfigurationBuilder::class,
-			[], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::injectPropertyMappingConfigurationBuilder
+     */
+    public function injectPropertyMappingConfigurationBuilderForObjectSetsPropertyMappingConfigurationBuilder()
+    {
+        /** @var PropertyMappingConfigurationBuilder $mockPropertyMappingConfigurationBuilder */
+        $mockPropertyMappingConfigurationBuilder = $this->getMock(PropertyMappingConfigurationBuilder::class,
+            [], [], '', false);
 
-		$this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingConfigurationBuilder);
+        $this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingConfigurationBuilder);
 
-		$this->assertSame(
-			$mockPropertyMappingConfigurationBuilder,
-			$this->subject->_get('propertyMappingConfigurationBuilder')
-		);
-	}
+        $this->assertSame(
+            $mockPropertyMappingConfigurationBuilder,
+            $this->subject->_get('propertyMappingConfigurationBuilder')
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::injectObjectManager
-	 */
-	public function injectObjectManagerForObjectSetsObjectManager() {
-		/** @var ObjectManager $mockObjectManager */
-		$mockObjectManager = $this->getMock(ObjectManager::class,
-			[], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::injectObjectManager
+     */
+    public function injectObjectManagerForObjectSetsObjectManager()
+    {
+        /** @var ObjectManager $mockObjectManager */
+        $mockObjectManager = $this->getMock(ObjectManager::class,
+            [], [], '', false);
 
-		$this->subject->injectObjectManager($mockObjectManager);
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$this->assertSame(
-			$mockObjectManager,
-			$this->subject->_get('objectManager')
-		);
-	}
+        $this->assertSame(
+            $mockObjectManager,
+            $this->subject->_get('objectManager')
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function injectTargetClassConfigurationValidatorSetsValidator() {
-		$mockValidator = $this->getAccessibleMock(
-			TargetClassConfigurationValidator::class
-		);
-		$this->subject->injectTargetClassConfigurationValidator($mockValidator);
+    /**
+     * @test
+     */
+    public function injectTargetClassConfigurationValidatorSetsValidator()
+    {
+        $mockValidator = $this->getAccessibleMock(
+            TargetClassConfigurationValidator::class
+        );
+        $this->subject->injectTargetClassConfigurationValidator($mockValidator);
 
-		$this->assertAttributeSame(
-			$mockValidator,
-			'targetClassConfigurationValidator',
-			$this->subject
-		);
-	}
+        $this->assertAttributeSame(
+            $mockValidator,
+            'targetClassConfigurationValidator',
+            $this->subject
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function injectMappingConfigurationValidatorSetsValidator() {
-		$mockValidator = $this->getAccessibleMock(
-			MappingConfigurationValidator::class
-		);
-		$this->subject->injectMappingConfigurationValidator($mockValidator);
+    /**
+     * @test
+     */
+    public function injectMappingConfigurationValidatorSetsValidator()
+    {
+        $mockValidator = $this->getAccessibleMock(
+            MappingConfigurationValidator::class
+        );
+        $this->subject->injectMappingConfigurationValidator($mockValidator);
 
-		$this->assertAttributeSame(
-			$mockValidator,
-			'mappingConfigurationValidator',
-			$this->subject
-		);
-	}
+        $this->assertAttributeSame(
+            $mockValidator,
+            'mappingConfigurationValidator',
+            $this->subject
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getMappingConfigurationInitiallyReturnsDefaultPropertyMappingConfiguration() {
-		$mockMappingConfiguration = $this->getMock(
-			PropertyMappingConfiguration::class,
-			[
-				'setTypeConverterOptions',
-				'forProperty',
-				'forProperties',
-				'skipUnknownProperties',
-				'allowProperties'
-			]
-		);
-		$mockMappingConfiguration->expects($this->any())
-			->method('setTypeConverterOptions')
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockMappingConfiguration->expects($this->any())
-			->method('skipUnknownProperties')
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockMappingConfiguration->expects($this->any())
-			->method('forProperty')
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockMappingConfiguration->expects($this->any())
-			->method('allowProperties')
-			->will($this->returnValue($mockMappingConfiguration));
+    /**
+     * @test
+     */
+    public function getMappingConfigurationInitiallyReturnsDefaultPropertyMappingConfiguration()
+    {
+        $mockMappingConfiguration = $this->getMock(
+            PropertyMappingConfiguration::class,
+            [
+                'setTypeConverterOptions',
+                'forProperty',
+                'forProperties',
+                'skipUnknownProperties',
+                'allowProperties'
+            ]
+        );
+        $mockMappingConfiguration->expects($this->any())
+            ->method('setTypeConverterOptions')
+            ->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfiguration->expects($this->any())
+            ->method('skipUnknownProperties')
+            ->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfiguration->expects($this->any())
+            ->method('forProperty')
+            ->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfiguration->expects($this->any())
+            ->method('allowProperties')
+            ->will($this->returnValue($mockMappingConfiguration));
 
-		$mockObjectManager = $this->getMock(ObjectManager::class,
-			['get']);
-		$this->subject->injectObjectManager($mockObjectManager);
+        $mockObjectManager = $this->getMock(ObjectManager::class,
+            ['get']);
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with(PropertyMappingConfiguration::class)
-			->will($this->returnValue($mockMappingConfiguration));
-		$this->assertSame(
-			$mockMappingConfiguration,
-			$this->subject->getMappingConfiguration([])
-		);
-	}
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with(PropertyMappingConfiguration::class)
+            ->will($this->returnValue($mockMappingConfiguration));
+        $this->assertSame(
+            $mockMappingConfiguration,
+            $this->subject->getMappingConfiguration([])
+        );
+    }
 
 
-	/**
-	 * @test
-	 */
-	public function getMappingConfigurationSetsTypeConverterOptions() {
-		$mockMappingConfiguration = $this->getMock(
-			'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-			[
-				'setTypeConverterOptions',
-				'forProperty',
-				'forProperties',
-				'skipUnknownProperties',
-				'allowProperties'
-			]
-		);
-		$mockObjectManager = $this->getMock(ObjectManager::class,
-			['get']);
-		$this->subject->injectObjectManager($mockObjectManager);
+    /**
+     * @test
+     */
+    public function getMappingConfigurationSetsTypeConverterOptions()
+    {
+        $mockMappingConfiguration = $this->getMock(
+            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
+            [
+                'setTypeConverterOptions',
+                'forProperty',
+                'forProperties',
+                'skipUnknownProperties',
+                'allowProperties'
+            ]
+        );
+        $mockObjectManager = $this->getMock(ObjectManager::class,
+            ['get']);
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with(PropertyMappingConfiguration::class)
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockMappingConfiguration->expects($this->any())
-			->method('skipUnknownProperties')
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockMappingConfiguration->expects($this->any())
-			->method('forProperty')
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockMappingConfiguration->expects($this->any())
-			->method('allowProperties')
-			->will($this->returnValue($mockMappingConfiguration));
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with(PropertyMappingConfiguration::class)
+            ->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfiguration->expects($this->any())
+            ->method('skipUnknownProperties')
+            ->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfiguration->expects($this->any())
+            ->method('forProperty')
+            ->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfiguration->expects($this->any())
+            ->method('allowProperties')
+            ->will($this->returnValue($mockMappingConfiguration));
 
-		$mockMappingConfiguration->expects($this->any())
-			->method('setTypeConverterOptions')
-			->with(
-				PersistentObjectConverter::class,
-				[
-					PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => TRUE,
-					PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => TRUE
-				]
-			)
-			->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfiguration->expects($this->any())
+            ->method('setTypeConverterOptions')
+            ->with(
+                PersistentObjectConverter::class,
+                [
+                    PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
+                    PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
+                ]
+            )
+            ->will($this->returnValue($mockMappingConfiguration));
 
-		$this->subject->getMappingConfiguration([]);
-	}
+        $this->subject->getMappingConfiguration([]);
+    }
 
-	/**
-	 * @test
-	 */
-	public function getMappingConfigurationReturnsMappingConfigurationIfSet() {
-		$mappingConfiguration = $this->getMock(
-			PropertyMappingConfiguration::class
-		);
+    /**
+     * @test
+     */
+    public function getMappingConfigurationReturnsMappingConfigurationIfSet()
+    {
+        $mappingConfiguration = $this->getMock(
+            PropertyMappingConfiguration::class
+        );
 
-		$this->subject->_set('propertyMappingConfiguration', $mappingConfiguration);
-		$this->assertEquals(
-			$mappingConfiguration,
-			$this->subject->getMappingConfiguration([])
-		);
-	}
+        $this->subject->_set('propertyMappingConfiguration', $mappingConfiguration);
+        $this->assertEquals(
+            $mappingConfiguration,
+            $this->subject->getMappingConfiguration([])
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getMappingConfigurationBuildsAndReturnsConfigurationForType() {
-		$configuration = ['foo'];
+    /**
+     * @test
+     */
+    public function getMappingConfigurationBuildsAndReturnsConfigurationForType()
+    {
+        $configuration = ['foo'];
 
-		$mockMappingConfigurationBuilder = $this->getMock(
-			PropertyMappingConfigurationBuilder::class,
-			['build']
-		);
-		$this->subject->injectPropertyMappingConfigurationBuilder(
-			$mockMappingConfigurationBuilder
-		);
-		$mockMappingConfiguration = $this->getMock(
-			PropertyMappingConfiguration::class
-		);
+        $mockMappingConfigurationBuilder = $this->getMock(
+            PropertyMappingConfigurationBuilder::class,
+            ['build']
+        );
+        $this->subject->injectPropertyMappingConfigurationBuilder(
+            $mockMappingConfigurationBuilder
+        );
+        $mockMappingConfiguration = $this->getMock(
+            PropertyMappingConfiguration::class
+        );
 
-		$mockMappingConfigurationBuilder->expects($this->once())
-			->method('build')
-			->with($configuration)
-			->will($this->returnValue($mockMappingConfiguration));
+        $mockMappingConfigurationBuilder->expects($this->once())
+            ->method('build')
+            ->with($configuration)
+            ->will($this->returnValue($mockMappingConfiguration));
 
-		$this->assertEquals(
-			$mockMappingConfiguration,
-			$this->subject->getMappingConfiguration($configuration)
-		);
-	}
+        $this->assertEquals(
+            $mockMappingConfiguration,
+            $this->subject->getMappingConfiguration($configuration)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function convertGetsMappingConfiguration() {
-		$this->subject = $this->getAccessibleMock(
-			ArrayToDomainObject::class,
-			['getMappingConfiguration', 'emitSignal']
-		);
-		$configuration = [
-			'targetClass' => 'FooClassName'
-		];
-		$mappingConfiguration = $configuration;
-		unset($mappingConfiguration['targetClass']);
-		$mockPropertyMapper = $this->getMock(
-			PropertyMapper::class, ['convert']
-		);
-		$record = [];
-		$this->subject->injectPropertyMapper($mockPropertyMapper);
+    /**
+     * @test
+     */
+    public function convertGetsMappingConfiguration()
+    {
+        $this->subject = $this->getAccessibleMock(
+            ArrayToDomainObject::class,
+            ['getMappingConfiguration', 'emitSignal']
+        );
+        $configuration = [
+            'targetClass' => 'FooClassName'
+        ];
+        $mappingConfiguration = $configuration;
+        unset($mappingConfiguration['targetClass']);
+        $mockPropertyMapper = $this->getMock(
+            PropertyMapper::class, ['convert']
+        );
+        $record = [];
+        $this->subject->injectPropertyMapper($mockPropertyMapper);
 
-		$this->subject->expects($this->once())
-			->method('getMappingConfiguration')
-			->with($mappingConfiguration);
+        $this->subject->expects($this->once())
+            ->method('getMappingConfiguration')
+            ->with($mappingConfiguration);
 
-		$this->subject->convert($record, $configuration);
-	}
+        $this->subject->convert($record, $configuration);
+    }
 
-	/**
-	 * @test
-	 */
-	public function convertReturnsConvertedObject() {
-		$record = [];
-		$this->subject = $this->getAccessibleMock(
-			ArrayToDomainObject::class,
-			['getMappingConfiguration', 'emitSignal']
-		);
-		$expectedObject = $this->getMock(
-			DomainObjectInterface::class
-		);
-		$configuration = [
-			'targetClass' => 'FooClassName'
-		];
-		$mappingConfiguration = $configuration;
-		unset($mappingConfiguration['targetClass']);
-		$mockPropertyMapper = $this->getMock(
-			PropertyMapper::class, ['convert']
-		);
-		$mockMappingConfiguration = $this->getMock(
-			PropertyMappingConfiguration::class
-		);
-		$this->subject->expects($this->once())
-			->method('getMappingConfiguration')
-			->with($mappingConfiguration)
-			->will($this->returnValue($mockMappingConfiguration));
-		$mockPropertyMapper->expects($this->once())
-			->method('convert')
-			->with(
-				$record,
-				$configuration['targetClass'],
-				$mockMappingConfiguration
-			)
-			->will($this->returnValue($expectedObject));
-		$this->subject->injectPropertyMapper($mockPropertyMapper);
+    /**
+     * @test
+     */
+    public function convertReturnsConvertedObject()
+    {
+        $record = [];
+        $this->subject = $this->getAccessibleMock(
+            ArrayToDomainObject::class,
+            ['getMappingConfiguration', 'emitSignal']
+        );
+        $expectedObject = $this->getMock(
+            DomainObjectInterface::class
+        );
+        $configuration = [
+            'targetClass' => 'FooClassName'
+        ];
+        $mappingConfiguration = $configuration;
+        unset($mappingConfiguration['targetClass']);
+        $mockPropertyMapper = $this->getMock(
+            PropertyMapper::class, ['convert']
+        );
+        $mockMappingConfiguration = $this->getMock(
+            PropertyMappingConfiguration::class
+        );
+        $this->subject->expects($this->once())
+            ->method('getMappingConfiguration')
+            ->with($mappingConfiguration)
+            ->will($this->returnValue($mockMappingConfiguration));
+        $mockPropertyMapper->expects($this->once())
+            ->method('convert')
+            ->with(
+                $record,
+                $configuration['targetClass'],
+                $mockMappingConfiguration
+            )
+            ->will($this->returnValue($expectedObject));
+        $this->subject->injectPropertyMapper($mockPropertyMapper);
 
-		$this->assertSame(
-			$expectedObject,
-			$this->subject->convert($record, $configuration)
-		);
-	}
+        $this->assertSame(
+            $expectedObject,
+            $this->subject->convert($record, $configuration)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidValidates() {
-		$mockTargetClassValidator = $this->getAccessibleMock(
-			TargetClassConfigurationValidator::class,
-			['validate']
-		);
-		$mockMappingConfigurationValidator = $this->getAccessibleMock(
-			MappingConfigurationValidator::class,
-			['validate']
-		);
-		$config = ['foo'];
-		$this->subject->injectTargetClassConfigurationValidator($mockTargetClassValidator);
-		$this->subject->injectMappingConfigurationValidator($mockMappingConfigurationValidator);
+    /**
+     * @test
+     */
+    public function isConfigurationValidValidates()
+    {
+        $mockTargetClassValidator = $this->getAccessibleMock(
+            TargetClassConfigurationValidator::class,
+            ['validate']
+        );
+        $mockMappingConfigurationValidator = $this->getAccessibleMock(
+            MappingConfigurationValidator::class,
+            ['validate']
+        );
+        $config = ['foo'];
+        $this->subject->injectTargetClassConfigurationValidator($mockTargetClassValidator);
+        $this->subject->injectMappingConfigurationValidator($mockMappingConfigurationValidator);
 
-		$mockTargetClassValidator->expects($this->once())
-			->method('validate')
-			->with($config)
-			->will($this->returnValue(true));
+        $mockTargetClassValidator->expects($this->once())
+            ->method('validate')
+            ->with($config)
+            ->will($this->returnValue(true));
 
-		$mockMappingConfigurationValidator->expects($this->once())
-			->method('validate')
-			->with($config)
-			->will($this->returnValue(true));
+        $mockMappingConfigurationValidator->expects($this->once())
+            ->method('validate')
+            ->with($config)
+            ->will($this->returnValue(true));
 
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 }

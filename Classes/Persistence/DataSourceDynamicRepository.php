@@ -9,7 +9,6 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 
-
 class DataSourceDynamicRepository implements DataSourceInterface
 {
     use ConfigurableTrait;
@@ -126,7 +125,7 @@ class DataSourceDynamicRepository implements DataSourceInterface
             // set and to default
             reset($constraints);
             $firstKey = strtolower(key($constraints));
-            if(count($constraints) != 1 ||
+            if (count($constraints) != 1 ||
                 (
                     count($constraints) == 1 &&
                     (
@@ -208,7 +207,7 @@ class DataSourceDynamicRepository implements DataSourceInterface
         $constrains = [];
         foreach ($config as $key => $value) {
             // LOGICAL CONJUNCTION
-            if(strtolower($key) === self::LOGICAL_AND) {
+            if (strtolower($key) === self::LOGICAL_AND) {
                 $subConstrains = $this->generateConstrainForQuery($query, $config[$key], $negative);
                 if (!empty($subConstrains)) {
                     $constrains[] = $query->logicalAnd($subConstrains);

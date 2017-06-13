@@ -35,28 +35,31 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Finisher
  * @coversDefaultClass \CPSIT\T3importExport\Component\Finisher\AbstractFinisher
  */
-class AbstractFinisherTest extends UnitTestCase {
+class AbstractFinisherTest extends UnitTestCase
+{
 
-	/**
-	 * @var AbstractFinisher
-	 */
-	protected $subject;
+    /**
+     * @var AbstractFinisher
+     */
+    protected $subject;
 
-	/**
-	 * set up
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMockForAbstractClass(
-			AbstractFinisher::class
-		);
-	}
+    /**
+     * set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMockForAbstractClass(
+            AbstractFinisher::class
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidInitiallyReturnsTrue() {
-		$this->assertTrue(
-			$this->subject->isConfigurationValid([])
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidInitiallyReturnsTrue()
+    {
+        $this->assertTrue(
+            $this->subject->isConfigurationValid([])
+        );
+    }
 }

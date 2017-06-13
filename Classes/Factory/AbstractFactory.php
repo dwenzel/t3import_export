@@ -26,51 +26,53 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
  *
  * @package CPSIT\T3importExport\Domain\Factory
  */
-abstract class AbstractFactory {
+abstract class AbstractFactory
+{
 
-	/**
-	 * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
-	 */
-	protected $objectManager;
+    /**
+     * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
+     */
+    protected $objectManager;
 
-	/**
-	 * @var array
-	 */
-	protected $settings;
+    /**
+     * @var array
+     */
+    protected $settings;
 
-	/**
-	 * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
-	 */
-	protected $configurationManager;
+    /**
+     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
+     */
+    protected $configurationManager;
 
-	/**
-	 * Injects the object manager
-	 *
-	 * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
-	 * @return void
-	 */
-	public function injectObjectManager(ObjectManagerInterface $objectManager) {
-		$this->objectManager = $objectManager;
-	}
+    /**
+     * Injects the object manager
+     *
+     * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
+     * @return void
+     */
+    public function injectObjectManager(ObjectManagerInterface $objectManager)
+    {
+        $this->objectManager = $objectManager;
+    }
 
-	/**
-	 * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
-	 * @return void
-	 */
-	public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager) {
-		$this->configurationManager = $configurationManager;
-		$this->settings = $this->configurationManager->getConfiguration(
-			ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS
-		);
-	}
+    /**
+     * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
+     * @return void
+     */
+    public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
+    {
+        $this->configurationManager = $configurationManager;
+        $this->settings = $this->configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS
+        );
+    }
 
-	/**
-	 * Builds a factory object
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @return object
-	 */
-	abstract public function get(array $settings, $identifier = null);
-
+    /**
+     * Builds a factory object
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @return object
+     */
+    abstract public function get(array $settings, $identifier = null);
 }

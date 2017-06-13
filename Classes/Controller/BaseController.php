@@ -28,176 +28,181 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 abstract class BaseController extends ActionController
 {
 
-	/**
-	 * @var DataTransferProcessor
-	 */
-	protected $dataTransferProcessor;
+    /**
+     * @var DataTransferProcessor
+     */
+    protected $dataTransferProcessor;
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
-	 */
-	protected $transferTaskFactory;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
+     */
+    protected $transferTaskFactory;
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
-	 */
-	protected $transferSetFactory;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
+     */
+    protected $transferSetFactory;
 
-	/**
-	 * Injects the event import processor
-	 *
-	 * @param DataTransferProcessor $dataTransferProcessor
-	 */
-	public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor) {
-		$this->dataTransferProcessor = $dataTransferProcessor;
-	}
+    /**
+     * Injects the event import processor
+     *
+     * @param DataTransferProcessor $dataTransferProcessor
+     */
+    public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor)
+    {
+        $this->dataTransferProcessor = $dataTransferProcessor;
+    }
 
-	/**
-	 * @param TransferTaskFactory $importTaskFactory
-	 */
-	public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory) {
-		$this->transferTaskFactory = $importTaskFactory;
-	}
+    /**
+     * @param TransferTaskFactory $importTaskFactory
+     */
+    public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory)
+    {
+        $this->transferTaskFactory = $importTaskFactory;
+    }
 
-	/**
-	 * @param TransferSetFactory $importSetFactory
-	 */
-	public function injectTransferSetFactory(TransferSetFactory $importSetFactory) {
-		$this->transferSetFactory = $importSetFactory;
-	}
+    /**
+     * @param TransferSetFactory $importSetFactory
+     */
+    public function injectTransferSetFactory(TransferSetFactory $importSetFactory)
+    {
+        $this->transferSetFactory = $importSetFactory;
+    }
 
     /**
      * Gets the settings key
      *
      * @return string
      */
-	abstract public function getSettingsKey();
+    abstract public function getSettingsKey();
 
-	/**
-	 * Index action
-	 *
-	 * @throws InvalidConfigurationException
-	 */
-	public function indexAction()
-	{
+    /**
+     * Index action
+     *
+     * @throws InvalidConfigurationException
+     */
+    public function indexAction()
+    {
         $this->validateSettings();
         $settingsKey = $this->getSettingsKey();
-		$tasks = [];
+        $tasks = [];
         $sets = [];
-		if (isset($this->settings[$settingsKey]['tasks'])) {
-		    $tasks = $this->buildTasksFromSettings($this->settings[$settingsKey]['tasks']);
+        if (isset($this->settings[$settingsKey]['tasks'])) {
+            $tasks = $this->buildTasksFromSettings($this->settings[$settingsKey]['tasks']);
         }
         if (isset($this->settings[$settingsKey]['sets'])) {
             $sets = $this->buildSetsFromSettings($this->settings[$settingsKey]['sets']);
         }
 
-		$this->view->assignMultiple(
-			[
-				'tasks' => $tasks,
-				'sets' => $sets,
-				'settings' => $this->settings[$settingsKey]
-			]
-		);
-	}
+        $this->view->assignMultiple(
+            [
+                'tasks' => $tasks,
+                'sets' => $sets,
+                'settings' => $this->settings[$settingsKey]
+            ]
+        );
+    }
 
-	/**
-	 * Performs the task action
-	 *
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 */
-	protected function doTaskAction($identifier)
-	{
+    /**
+     * Performs the task action
+     *
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     */
+    protected function doTaskAction($identifier)
+    {
         $this->validateSettings();
 
         /** @var TaskDemand $importDemand */
-		$importDemand = $this->objectManager->get(
-			TaskDemand::class
-		);
-		$task = $this->transferTaskFactory->get(
-			$this->settings[$this->getSettingsKey()]['tasks'][$identifier], $identifier
-		);
-		$importDemand->setTasks([$task]);
+        $importDemand = $this->objectManager->get(
+            TaskDemand::class
+        );
+        $task = $this->transferTaskFactory->get(
+            $this->settings[$this->getSettingsKey()]['tasks'][$identifier], $identifier
+        );
+        $importDemand->setTasks([$task]);
 
-		$this->dataTransferProcessor->buildQueue($importDemand);
-		$result = $this->dataTransferProcessor->process($importDemand);
-		$this->view->assignMultiple(
-			[
-				'task' => $identifier,
-				'result' => $result
-			]
-		);
-	}
+        $this->dataTransferProcessor->buildQueue($importDemand);
+        $result = $this->dataTransferProcessor->process($importDemand);
+        $this->view->assignMultiple(
+            [
+                'task' => $identifier,
+                'result' => $result
+            ]
+        );
+    }
 
-	/**
-	 * Performs the set action
-	 *
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 */
-	protected function doSetAction($identifier)
-	{
+    /**
+     * Performs the set action
+     *
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     */
+    protected function doSetAction($identifier)
+    {
         $this->validateSettings();
         $settingsKey = $this->getSettingsKey();
 
-		/** @var TaskDemand $importDemand */
-		$importDemand = $this->objectManager->get(
-			TaskDemand::class
-		);
-		if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
-			$set = $this->transferSetFactory->get(
-				$this->settings[$settingsKey]['sets'][$identifier], $identifier
-			);
-			$importDemand->setTasks($set->getTasks());
-		}
+        /** @var TaskDemand $importDemand */
+        $importDemand = $this->objectManager->get(
+            TaskDemand::class
+        );
+        if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
+            $set = $this->transferSetFactory->get(
+                $this->settings[$settingsKey]['sets'][$identifier], $identifier
+            );
+            $importDemand->setTasks($set->getTasks());
+        }
 
-		$this->dataTransferProcessor->buildQueue($importDemand);
-		$result = $this->dataTransferProcessor->process($importDemand);
-		$this->view->assignMultiple(
-			[
-				'set' => $identifier,
-				'result' => $result
-			]
-		);
-	}
+        $this->dataTransferProcessor->buildQueue($importDemand);
+        $result = $this->dataTransferProcessor->process($importDemand);
+        $this->view->assignMultiple(
+            [
+                'set' => $identifier,
+                'result' => $result
+            ]
+        );
+    }
 
-	/**
-	 * Gets tasks from settings
-	 *
-	 * @param $settings
-	 * @return array
-	 */
-	protected function buildTasksFromSettings($settings) {
-		$tasks = [];
+    /**
+     * Gets tasks from settings
+     *
+     * @param $settings
+     * @return array
+     */
+    protected function buildTasksFromSettings($settings)
+    {
+        $tasks = [];
 
-		if (is_array($settings)) {
-			foreach ($settings as $identifier => $taskSettings) {
-				$tasks[$identifier] = $this->transferTaskFactory->get(
-					$taskSettings, $identifier
-				);
-			}
-		}
+        if (is_array($settings)) {
+            foreach ($settings as $identifier => $taskSettings) {
+                $tasks[$identifier] = $this->transferTaskFactory->get(
+                    $taskSettings, $identifier
+                );
+            }
+        }
 
-		return $tasks;
-	}
+        return $tasks;
+    }
 
-	/**
-	 * Gets tasks from settings
-	 *
-	 * @param $settings
-	 * @return array
-	 */
-	protected function buildSetsFromSettings($settings) {
-		$sets = [];
+    /**
+     * Gets tasks from settings
+     *
+     * @param $settings
+     * @return array
+     */
+    protected function buildSetsFromSettings($settings)
+    {
+        $sets = [];
 
-		if (is_array($settings)) {
-			foreach ($settings as $identifier => $setSettings) {
-				$sets[$identifier] = $this->transferSetFactory->get($setSettings, $identifier);
-			}
-		}
+        if (is_array($settings)) {
+            foreach ($settings as $identifier => $setSettings) {
+                $sets[$identifier] = $this->transferSetFactory->get($setSettings, $identifier);
+            }
+        }
 
-		return $sets;
-	}
+        return $sets;
+    }
 
     /**
      * Validates the settings
@@ -215,5 +220,4 @@ abstract class BaseController extends ActionController
             );
         }
     }
-
 }

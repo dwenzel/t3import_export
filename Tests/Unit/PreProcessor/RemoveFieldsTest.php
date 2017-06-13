@@ -1,7 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\PreProcessor;
 
-
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -28,68 +27,68 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  */
 class RemoveFieldsTest extends UnitTestCase
 {
-	/**
-	 * @var \CPSIT\T3importExport\Component\PreProcessor\RemoveFields
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\PreProcessor\RemoveFields
+     */
+    protected $subject;
 
-	public function setUp()
-	{
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\RemoveFields',
-			['dummy'], [], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\RemoveFields',
+            ['dummy'], [], '', false);
+    }
 
-	/**
-	 * @test
-	 */
-	public function configurationContainsIllegalStructure()
-	{
-		$testConfig = [
-			'fields' => [
-				'myStuff' => 'fooBar',
-				'children' => [],
-				'otherStuff' => 2
-			]
-		];
+    /**
+     * @test
+     */
+    public function configurationContainsIllegalStructure()
+    {
+        $testConfig = [
+            'fields' => [
+                'myStuff' => 'fooBar',
+                'children' => [],
+                'otherStuff' => 2
+            ]
+        ];
 
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($testConfig)
-		);
-	}
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($testConfig)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsTrueForValidNestedConfiguration()
-	{
-		$testConfig = [
-			'fields' => [
-				'FieldC' => true,
-				'children' => [
-					'fieldB' => true,
-					'children' => [
-						'fieldA' => true
-					]
-				]
-			]
-		];
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsTrueForValidNestedConfiguration()
+    {
+        $testConfig = [
+            'fields' => [
+                'FieldC' => true,
+                'children' => [
+                    'fieldB' => true,
+                    'children' => [
+                        'fieldA' => true
+                    ]
+                ]
+            ]
+        ];
 
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($testConfig)
-		);
-	}
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($testConfig)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsFalseForEmptyConfiguration()
-	{
-		$testConfig = [];
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseForEmptyConfiguration()
+    {
+        $testConfig = [];
 
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($testConfig)
-		);
-	}
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($testConfig)
+        );
+    }
 
     /**
      * @test
@@ -105,109 +104,109 @@ class RemoveFieldsTest extends UnitTestCase
         );
     }
 
-	/**
-	 * @test
-	 */
-	public function processWithValidConfig()
-	{
-		$testConfig = [
-			'fields' => [
-				'foo' => true,
-				'otherFields' => true,
-				'notExistingField' => true,
-				'staticArray' => [
-					'subField' => true
-				],
-				'multiChildrenField' => [
-					'children' => [
-						'foo' => true,
-						'subMultiChildrenField' => [
-							'children' => [
-								'foo' => true
-							]
-						],
-						'staticField' => [
-							'foo' => true
-						]
-					]
-				]
-			]
-		];
+    /**
+     * @test
+     */
+    public function processWithValidConfig()
+    {
+        $testConfig = [
+            'fields' => [
+                'foo' => true,
+                'otherFields' => true,
+                'notExistingField' => true,
+                'staticArray' => [
+                    'subField' => true
+                ],
+                'multiChildrenField' => [
+                    'children' => [
+                        'foo' => true,
+                        'subMultiChildrenField' => [
+                            'children' => [
+                                'foo' => true
+                            ]
+                        ],
+                        'staticField' => [
+                            'foo' => true
+                        ]
+                    ]
+                ]
+            ]
+        ];
 
-		$testData = [
-			'constField' => 'Dur',
-			'foo' => 'bar',
-			'otherFields' => [
-				'subField' => 123
-			],
-			'staticArray' => [
-				'subField' => 'a',
-				'keepField' => 'a'
-			],
-			'multiChildrenField' => [
-				[
-					'foo' => 'bar',
-					'keepField' => 'a',
-					'staticField' => [
-						'keepField' => 'a',
-						'foo' => 'bar'
-					],
-					'subMultiChildrenField' => [
-						[
-							'foo' => 'bar',
-							'keepField' => 'a'
-						],
-						[
-							'foo' => 'bar',
-							'keepField' => 'a'
-						]
-					]
-				],
-				[
-					'foo' => 'bar',
-					'keepField' => 'a',
-					'staticField' => [
-						'keepField' => 'a',
-						'foo' => 'bar'
-					]
-				]
-			]
-		];
+        $testData = [
+            'constField' => 'Dur',
+            'foo' => 'bar',
+            'otherFields' => [
+                'subField' => 123
+            ],
+            'staticArray' => [
+                'subField' => 'a',
+                'keepField' => 'a'
+            ],
+            'multiChildrenField' => [
+                [
+                    'foo' => 'bar',
+                    'keepField' => 'a',
+                    'staticField' => [
+                        'keepField' => 'a',
+                        'foo' => 'bar'
+                    ],
+                    'subMultiChildrenField' => [
+                        [
+                            'foo' => 'bar',
+                            'keepField' => 'a'
+                        ],
+                        [
+                            'foo' => 'bar',
+                            'keepField' => 'a'
+                        ]
+                    ]
+                ],
+                [
+                    'foo' => 'bar',
+                    'keepField' => 'a',
+                    'staticField' => [
+                        'keepField' => 'a',
+                        'foo' => 'bar'
+                    ]
+                ]
+            ]
+        ];
 
-		$expectedResult = [
-			'constField' => 'Dur',
-			'staticArray' => [
-				'keepField' => 'a'
-			],
-			'multiChildrenField' => [
-				[
-					'keepField' => 'a',
-					'staticField' => [
-						'keepField' => 'a',
-					],
-					'subMultiChildrenField' => [
-						[
-							'keepField' => 'a'
-						],
-						[
-							'keepField' => 'a'
-						]
-					]
-				],
-				[
-					'keepField' => 'a',
-					'staticField' => [
-						'keepField' => 'a',
-					],
-				]
-			]
-		];
+        $expectedResult = [
+            'constField' => 'Dur',
+            'staticArray' => [
+                'keepField' => 'a'
+            ],
+            'multiChildrenField' => [
+                [
+                    'keepField' => 'a',
+                    'staticField' => [
+                        'keepField' => 'a',
+                    ],
+                    'subMultiChildrenField' => [
+                        [
+                            'keepField' => 'a'
+                        ],
+                        [
+                            'keepField' => 'a'
+                        ]
+                    ]
+                ],
+                [
+                    'keepField' => 'a',
+                    'staticField' => [
+                        'keepField' => 'a',
+                    ],
+                ]
+            ]
+        ];
 
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($testConfig)
-		);
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($testConfig)
+        );
 
-		$this->subject->process($testConfig, $testData);
-		$this->assertEquals($expectedResult, $testData);
-	}
+        $this->subject->process($testConfig, $testData);
+        $this->assertEquals($expectedResult, $testData);
+    }
 }

@@ -36,9 +36,7 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ArrayToXMLStream
-    extends AbstractConverter
-    implements ConverterInterface
+class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 {
     const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
@@ -168,7 +166,6 @@ class ArrayToXMLStream
 
 
         foreach ($data as $key => $sub) {
-
             $nodeConfig = null;
             if (isset($fieldsConfig[$key])) {
                 $nodeConfig = $fieldsConfig[$key];
@@ -224,7 +221,7 @@ class ArrayToXMLStream
         if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_VALUE])) {
             if (isset($value[static::XML_CONFIG_FIELD_CDATA])) {
                 $xml->writeCdata($value[static::XML_CONFIG_FIELD_VALUE]);
-            } elseif(!$this->isValueEmpty($value[static::XML_CONFIG_FIELD_VALUE])) {
+            } elseif (!$this->isValueEmpty($value[static::XML_CONFIG_FIELD_VALUE])) {
                 $xml->text($value[static::XML_CONFIG_FIELD_VALUE]);
             }
             unset($value[static::XML_CONFIG_FIELD_VALUE]);
@@ -232,7 +229,6 @@ class ArrayToXMLStream
         }
 
         if (is_array($value)) {
-
             foreach ($value as $subKey => $subValue) {
                 if ($asSeparateRowKey) {
                     $subKey = $key;
@@ -249,8 +245,7 @@ class ArrayToXMLStream
 
     private function writeAttributes(\XMLWriter $xml, $attributes)
     {
-        foreach ($attributes as $name => $value)
-        {
+        foreach ($attributes as $name => $value) {
             $xml->writeAttribute($name, $value);
         }
     }
@@ -281,7 +276,6 @@ class ArrayToXMLStream
 
         if (empty($configuration)) {
             $propertyMappingConfiguration = $this->getDefaultMappingConfiguration();
-
         } else {
             $propertyMappingConfiguration = $this->propertyMappingConfigurationBuilder
                 ->build($configuration);

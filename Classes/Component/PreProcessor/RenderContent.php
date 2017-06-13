@@ -18,66 +18,67 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class RenderContent
-	extends AbstractPreProcessor
-	implements PreProcessorInterface {
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return bool
-	 */
-	function process($configuration, &$record) {
-		$this->renderFields($configuration, $record);
+class RenderContent extends AbstractPreProcessor implements PreProcessorInterface
+{
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return bool
+     */
+    public function process($configuration, &$record)
+    {
+        $this->renderFields($configuration, $record);
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * Tells whether a given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['fields'])) {
-			return FALSE;
-		}
-		if (!is_array($configuration['fields'])) {
-			return FALSE;
-		}
-		foreach ($configuration['fields'] as $field => $value) {
-			if (!is_array($value)
-				OR empty($value)
-			) {
-				return FALSE;
-			}
-		}
+    /**
+     * Tells whether a given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['fields'])) {
+            return false;
+        }
+        if (!is_array($configuration['fields'])) {
+            return false;
+        }
+        foreach ($configuration['fields'] as $field => $value) {
+            if (!is_array($value)
+                or empty($value)
+            ) {
+                return false;
+            }
+        }
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * @param $configuration
-	 * @param $record
-	 * @return array
-	 */
-	protected function renderFields($configuration, &$record) {
-		foreach ($configuration['fields'] as $fieldName => $localConfiguration) {
-			if (isset($localConfiguration['multipleRows'])) {
-				$childRecords = $record[$fieldName];
-				if (!is_array($childRecords)) {
-					continue;
-				}
-				foreach ($childRecords as $key => &$childRecord) {
-					$this->renderFields($localConfiguration, $childRecord);
-				}
-				$record[$fieldName] = $childRecords;
-			} elseif (isset($localConfiguration['singleRow'])) {
-				$record[$fieldName] = $this->renderFields($localConfiguration, $record[$fieldName]);
-			} else {
-				$record[$fieldName] = $this->renderContent($record, $localConfiguration);
-			}
-		}
-	}
-
+    /**
+     * @param $configuration
+     * @param $record
+     * @return array
+     */
+    protected function renderFields($configuration, &$record)
+    {
+        foreach ($configuration['fields'] as $fieldName => $localConfiguration) {
+            if (isset($localConfiguration['multipleRows'])) {
+                $childRecords = $record[$fieldName];
+                if (!is_array($childRecords)) {
+                    continue;
+                }
+                foreach ($childRecords as $key => &$childRecord) {
+                    $this->renderFields($localConfiguration, $childRecord);
+                }
+                $record[$fieldName] = $childRecords;
+            } elseif (isset($localConfiguration['singleRow'])) {
+                $record[$fieldName] = $this->renderFields($localConfiguration, $record[$fieldName]);
+            } else {
+                $record[$fieldName] = $this->renderContent($record, $localConfiguration);
+            }
+        }
+    }
 }

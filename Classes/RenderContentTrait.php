@@ -38,9 +38,8 @@ trait RenderContentTrait
          * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
          */
        if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
-            $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, 0);
+           $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, 0);
        }
-
     }
 
     /**
@@ -60,7 +59,7 @@ trait RenderContentTrait
      * @return mixed|null Returns rendered content for each valid TypoScript object or null.
      * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
      */
-    public function renderContent(array $record, array $configuration)
+    public function  renderContent(array $record, array $configuration)
     {
         $typoScriptConf = $this->typoScriptService
             ->convertPlainArrayToTypoScriptArray($configuration);

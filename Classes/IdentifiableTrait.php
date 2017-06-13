@@ -6,31 +6,34 @@ namespace CPSIT\T3importExport;
  *
  * @package CPSIT\T3importExport\Persistence\Factory
  */
-trait IdentifiableTrait {
+trait IdentifiableTrait
+{
 
-	/**
-	 * Unique identifier
-	 *
-	 * @var string
-	 */
-	protected $identifier;
+    /**
+     * Unique identifier
+     *
+     * @var string
+     */
+    protected $identifier;
 
-	/**
-	 * Sets the identifier
-	 *
-	 * @param string $identifier
-	 * @return mixed
-	 */
-	public function setIdentifier($identifier) {
-		$this->identifier = $identifier;
-	}
+    /**
+     * Sets the identifier
+     *
+     * @param string $identifier
+     * @return mixed
+     */
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
+    }
 
-	/**
-	 * Gets the identifier
-	 *
-	 * @return string
-	 */
-	public function getIdentifier() {
-		return $this->identifier;
-	}
+    /**
+     * Gets the identifier
+     *
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
 }

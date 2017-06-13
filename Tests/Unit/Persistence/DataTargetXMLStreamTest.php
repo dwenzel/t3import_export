@@ -13,6 +13,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
+
 /***************************************************************
  *
  *  Copyright notice
@@ -44,169 +45,170 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
-class DataTargetXMLSteamTest extends UnitTestCase {
+class DataTargetXMLSteamTest extends UnitTestCase
+{
 
-	/**
-	 * @var DataTargetFileStream|\PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
-	 */
-	protected $subject;
+    /**
+     * @var DataTargetFileStream|\PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
+     */
+    protected $subject;
 
-	/**
-	 * Set up
-	 */
-	public function setUp()
-	{
-		$this->subject = $this->getAccessibleMock(
-			DataTargetXMLStream::class, ['dummy'], [], '', false
-		);
-	}
+    /**
+     * Set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            DataTargetXMLStream::class, ['dummy'], [], '', false
+        );
+    }
 
-	public function createDataStreamWithSampleBuffer($buffer)
-	{
-		$ds = new DataStream();
-		$ds->setSteamBuffer($buffer);
-		return $ds;
-	}
+    public function createDataStreamWithSampleBuffer($buffer)
+    {
+        $ds = new DataStream();
+        $ds->setSteamBuffer($buffer);
+        return $ds;
+    }
 
-	/**
-	 * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
-	 */
-	protected function injectObjectManager()
-	{
-		/** @var ObjectManager $mockObjectManager */
-		$mockObjectManager = $this->getMock(ObjectManager::class,
-			[], [], '', FALSE);
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
+     */
+    protected function injectObjectManager()
+    {
+        /** @var ObjectManager $mockObjectManager */
+        $mockObjectManager = $this->getMock(ObjectManager::class,
+            [], [], '', false);
 
-		$this->subject->injectObjectManager($mockObjectManager);
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$this->assertSame(
-			$mockObjectManager,
-			$this->subject->_get('objectManager')
-		);
+        $this->assertSame(
+            $mockObjectManager,
+            $this->subject->_get('objectManager')
+        );
 
-		return $mockObjectManager;
-	}
+        return $mockObjectManager;
+    }
 
-	/**
-	 * @test
-	 * @outputBuffering enabled
-	 */
-	public function persistDataSteamInTaskResultIteratorWithDirectOutput()
-	{
-		$taskResult = new TaskResult();
-		$taskResult->setElements(
-			[
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-			]
-		);
+    /**
+     * @test
+     * @outputBuffering enabled
+     */
+    public function persistDataSteamInTaskResultIteratorWithDirectOutput()
+    {
+        $taskResult = new TaskResult();
+        $taskResult->setElements(
+            [
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+            ]
+        );
 
-		$config = [
-			'flush' => true
-		];
+        $config = [
+            'flush' => true
+        ];
 
-		/** @var DataStreamInterface $streamObject */
-		foreach ($taskResult as $streamObject) {
-			$this->subject->persist($streamObject, $config);
-			$this->assertNull($streamObject->getSteamBuffer());
-		}
+        /** @var DataStreamInterface $streamObject */
+        foreach ($taskResult as $streamObject) {
+            $this->subject->persist($streamObject, $config);
+            $this->assertNull($streamObject->getSteamBuffer());
+        }
 
-		$this->subject->persistAll($taskResult, $config);
-		$this->expectOutputString('<?xml version="1.0" encoding="UTF-8"?><rows><a>b</a><a>b</a><a>b</a><a>b</a></rows>');
-	}
+        $this->subject->persistAll($taskResult, $config);
+        $this->expectOutputString('<?xml version="1.0" encoding="UTF-8"?><rows><a>b</a><a>b</a><a>b</a><a>b</a></rows>');
+    }
 
-	/**
-	 * @test
-	 * @outputBuffering enabled
-	 */
-	public function persistDataSteamInTaskResultIteratorWithDirectOutputAndCustomConfig()
-	{
-		$taskResult = new TaskResult();
-		$taskResult->setElements(
-			[
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-			]
-		);
+    /**
+     * @test
+     * @outputBuffering enabled
+     */
+    public function persistDataSteamInTaskResultIteratorWithDirectOutputAndCustomConfig()
+    {
+        $taskResult = new TaskResult();
+        $taskResult->setElements(
+            [
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+            ]
+        );
 
-		$config = [
-			'rootNodeName' => 'test',
-			'header' => '<xml myheader="123">',
-			'flush' => true
-		];
+        $config = [
+            'rootNodeName' => 'test',
+            'header' => '<xml myheader="123">',
+            'flush' => true
+        ];
 
-		/** @var DataStreamInterface $streamObject */
-		foreach ($taskResult as $streamObject) {
-			$this->subject->persist($streamObject, $config);
-			$this->assertNull($streamObject->getSteamBuffer());
-		}
+        /** @var DataStreamInterface $streamObject */
+        foreach ($taskResult as $streamObject) {
+            $this->subject->persist($streamObject, $config);
+            $this->assertNull($streamObject->getSteamBuffer());
+        }
 
-		$this->subject->persistAll($taskResult, $config);
-		$this->expectOutputString($config['header'].'<test><a>b</a><a>b</a><a>b</a><a>b</a></test>');
-	}
+        $this->subject->persistAll($taskResult, $config);
+        $this->expectOutputString($config['header'].'<test><a>b</a><a>b</a><a>b</a><a>b</a></test>');
+    }
 
-	/**
-	 * @test
-	 */
-	public function persistDataSteamXMLInTaskResultIteratorWithFileOutput()
-	{
-		$taskResult = new TaskResult();
-		$taskResult->setElements(
-			[
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-				$this->createDataStreamWithSampleBuffer('<a>b</a>'),
-			]
-		);
+    /**
+     * @test
+     */
+    public function persistDataSteamXMLInTaskResultIteratorWithFileOutput()
+    {
+        $taskResult = new TaskResult();
+        $taskResult->setElements(
+            [
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>b</a>'),
+            ]
+        );
 
-		$config = [
-			'rootNodeName' => 'test',
-			'header' => '<xml myheader="123">',
-			'flush' => true,
-			'output' => 'file'
-		];
+        $config = [
+            'rootNodeName' => 'test',
+            'header' => '<xml myheader="123">',
+            'flush' => true,
+            'output' => 'file'
+        ];
 
-		$mockedFileUtility = $this->getAccessibleMock(
-			BasicFileUtility::class,
-			['getUniqueName'],
-			[],
-			'',
-			false
-		);
+        $mockedFileUtility = $this->getAccessibleMock(
+            BasicFileUtility::class,
+            ['getUniqueName'],
+            [],
+            '',
+            false
+        );
 
-		$absPath = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName('typo3temp/test_mock_'.uniqid());
-		$tmpPath = $absPath . '/' . uniqid();
-		@mkdir($absPath,0777,true);
-		$mockedFileUtility->expects($this->once())
-			->method('getUniqueName')
-			->will($this->returnValue($tmpPath));
+        $absPath = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName('typo3temp/test_mock_'.uniqid());
+        $tmpPath = $absPath . '/' . uniqid();
+        @mkdir($absPath, 0777, true);
+        $mockedFileUtility->expects($this->once())
+            ->method('getUniqueName')
+            ->will($this->returnValue($tmpPath));
 
-		$mockedObjectManager = $this->injectObjectManager();
-		$mockedObjectManager->expects($this->once())
-			->method('get')
-			->with(BasicFileUtility::class)
-			->will($this->returnValue($mockedFileUtility));
+        $mockedObjectManager = $this->injectObjectManager();
+        $mockedObjectManager->expects($this->once())
+            ->method('get')
+            ->with(BasicFileUtility::class)
+            ->will($this->returnValue($mockedFileUtility));
 
-		/** @var DataStreamInterface $streamObject */
-		foreach ($taskResult as $streamObject) {
-			$this->subject->persist($streamObject, $config);
-			$this->assertNull($streamObject->getSteamBuffer());
-		}
+        /** @var DataStreamInterface $streamObject */
+        foreach ($taskResult as $streamObject) {
+            $this->subject->persist($streamObject, $config);
+            $this->assertNull($streamObject->getSteamBuffer());
+        }
 
-		$this->subject->persistAll($taskResult);
-		$path = $taskResult->getInfo();
-		$this->assertEquals($tmpPath, $path);
-		$this->assertFileExists($path);
+        $this->subject->persistAll($taskResult);
+        $path = $taskResult->getInfo();
+        $this->assertEquals($tmpPath, $path);
+        $this->assertFileExists($path);
 
-		$content = file_get_contents($path);
-		$this->assertEquals($config['header'].'<test><a>b</a><a>b</a><a>b</a><a>b</a></test>', $content);
+        $content = file_get_contents($path);
+        $this->assertEquals($config['header'].'<test><a>b</a><a>b</a><a>b</a><a>b</a></test>', $content);
 
-		unlink($tmpPath);
-		rmdir($absPath);
-	}
+        unlink($tmpPath);
+        rmdir($absPath);
+    }
 }

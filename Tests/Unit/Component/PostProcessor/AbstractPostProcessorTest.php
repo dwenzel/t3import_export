@@ -27,28 +27,30 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
  */
-class AbstractPostProcessorTest extends UnitTestCase {
+class AbstractPostProcessorTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMockForAbstractClass(
-			AbstractPostProcessor::class,
-			['process'], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMockForAbstractClass(
+            AbstractPostProcessor::class,
+            ['process'], '', false);
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsAlwaysTrue() {
-		$mockConfiguration = ['foo'];
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
-
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsAlwaysTrue()
+    {
+        $mockConfiguration = ['foo'];
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 }

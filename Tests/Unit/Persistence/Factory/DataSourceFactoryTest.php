@@ -69,8 +69,7 @@ class DummyMissingConfigurableInterfaceClass
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
-class DummyIdentifiableSourceInterfaceClass
-    implements DataSourceInterface, IdentifiableInterface
+class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, IdentifiableInterface
 {
     use IdentifiableTrait, ConfigurableTrait;
 
@@ -102,8 +101,7 @@ class DummyIdentifiableSourceInterfaceClass
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
-class DummySourceClass
-    implements DataSourceInterface
+class DummySourceClass implements DataSourceInterface
 {
     use ConfigurableTrait;
 
@@ -128,7 +126,6 @@ class DummySourceClass
     {
         return true;
     }
-
 }
 
 /**

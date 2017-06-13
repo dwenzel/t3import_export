@@ -30,169 +30,180 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
  */
-class LookUpDBTest extends UnitTestCase {
+class LookUpDBTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(LookUpDB::class,
-			['getQueryConfiguration'], [], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(LookUpDB::class,
+            ['getQueryConfiguration'], [], '', false);
+    }
 
-	/**
-	 * @test
-	 */
-	public function processSetsDatabase() {
-		$configuration = [
-			'identifier' => 'fooDatabase'
-		];
-		/** @var DatabaseConnectionService $connectionService */
-		$connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['getDatabase'], [], '', FALSE);
-		$connectionService->expects($this->once())
-			->method('getDatabase')
-			->with($configuration['identifier']);
-		$record = [];
-		$this->subject->injectDatabaseConnectionService($connectionService);
+    /**
+     * @test
+     */
+    public function processSetsDatabase()
+    {
+        $configuration = [
+            'identifier' => 'fooDatabase'
+        ];
+        /** @var DatabaseConnectionService $connectionService */
+        $connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            ['getDatabase'], [], '', false);
+        $connectionService->expects($this->once())
+            ->method('getDatabase')
+            ->with($configuration['identifier']);
+        $record = [];
+        $this->subject->injectDatabaseConnectionService($connectionService);
 
-		$this->subject->process($configuration, $record);
-	}
+        $this->subject->process($configuration, $record);
+    }
 
-	/**
-	 * @test
-	 */
-	public function processGetsQueryConfiguration() {
-		$configuration = [
-			'select' => [
-				'table' => 'fooTable'
-			],
+    /**
+     * @test
+     */
+    public function processGetsQueryConfiguration()
+    {
+        $configuration = [
+            'select' => [
+                'table' => 'fooTable'
+            ],
             'targetField' => 'bar'
-		];
-		$expectedQueryConfiguration = [
-			'fields' => '*',
-			'where' => '',
-			'groupBy' => '',
-			'orderBy' => '',
-			'limit' => '',
-			'table' => 'fooTable'
-		];
-		$record = [];
-		$this->subject = $this->getAccessibleMock(
-			LookUpDB::class,
-			['performQuery'], [], '', FALSE);
+        ];
+        $expectedQueryConfiguration = [
+            'fields' => '*',
+            'where' => '',
+            'groupBy' => '',
+            'orderBy' => '',
+            'limit' => '',
+            'table' => 'fooTable'
+        ];
+        $record = [];
+        $this->subject = $this->getAccessibleMock(
+            LookUpDB::class,
+            ['performQuery'], [], '', false);
 
-		$this->subject->expects($this->once())
-			->method('performQuery')
-			->with($expectedQueryConfiguration)
-			->will($this->returnValue(null));
+        $this->subject->expects($this->once())
+            ->method('performQuery')
+            ->with($expectedQueryConfiguration)
+            ->will($this->returnValue(null));
 
-		$this->subject->process($configuration, $record);
-	}
+        $this->subject->process($configuration, $record);
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet() {
-		$mockConfiguration = ['foo'];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet()
+    {
+        $mockConfiguration = ['foo'];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString() {
-		$mockConfiguration = [
-			'targetField' => 1,
-			'fields' => []
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString()
+    {
+        $mockConfiguration = [
+            'targetField' => 1,
+            'fields' => []
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotSet() {
-		$mockConfiguration = [
-			'select' => [
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfTableIsNotSet()
+    {
+        $mockConfiguration = [
+            'select' => [
 
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotString() {
-		$mockConfiguration = [
-			'select' => [
-				'table' => 1
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfTableIsNotString()
+    {
+        $mockConfiguration = [
+            'select' => [
+                'table' => 1
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfSourceIsNotSet() {
-		$mockConfiguration = [
-			'targetField' => 'foo'
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfSourceIsNotSet()
+    {
+        $mockConfiguration = [
+            'targetField' => 'foo'
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfSourceIsNotArray() {
-		$mockConfiguration = [
-			'targetField' => 'foo',
-			'source' => 'invalidStringValue'
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfSourceIsNotArray()
+    {
+        $mockConfiguration = [
+            'targetField' => 'foo',
+            'source' => 'invalidStringValue'
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsTrueForValidConfiguration() {
-		/** @var DatabaseConnectionService $mockConnectionService */
-		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			[], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
+        /** @var DatabaseConnectionService $mockConnectionService */
+        $mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            [], [], '', false);
 
-		$this->subject->injectDatabaseConnectionService($mockConnectionService);
+        $this->subject->injectDatabaseConnectionService($mockConnectionService);
 
-		$validDatabaseIdentifier = 'fooDatabaseIdentifier';
-		$validConfiguration = [
-			'identifier' => $validDatabaseIdentifier,
-			'select' => [
+        $validDatabaseIdentifier = 'fooDatabaseIdentifier';
+        $validConfiguration = [
+            'identifier' => $validDatabaseIdentifier,
+            'select' => [
                 'table' => 'tableName'
             ],
             'targetField' => 'bar'
-		];
+        ];
         DatabaseConnectionService::register(
             $validDatabaseIdentifier,
             'hostname',
@@ -202,61 +213,64 @@ class LookUpDBTest extends UnitTestCase {
         );
 
         $this->assertTrue(
-			$this->subject->isConfigurationValid($validConfiguration)
-		);
-	}
+            $this->subject->isConfigurationValid($validConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseForInvalidIdentifier() {
-		$mockConfiguration = [
-			'identifier' => [],
-			'select' => [
-				'table' => 'fooTable'
-			],
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseForInvalidIdentifier()
+    {
+        $mockConfiguration = [
+            'identifier' => [],
+            'select' => [
+                'table' => 'fooTable'
+            ],
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
-		/** @var DatabaseConnectionService $mockConnectionService */
-		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			[], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered()
+    {
+        /** @var DatabaseConnectionService $mockConnectionService */
+        $mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            [], [], '', false);
 
-		$this->subject->injectDatabaseConnectionService($mockConnectionService);
+        $this->subject->injectDatabaseConnectionService($mockConnectionService);
 
-		$mockConfiguration = [
-			'identifier' => 'missingDatabaseIdentifier',
-			'select' => [
-				'table' => 'fooTable'
-			],
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+        $mockConfiguration = [
+            'identifier' => 'missingDatabaseIdentifier',
+            'select' => [
+                'table' => 'fooTable'
+            ],
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
 
-	/**
-	 * @test
-	 */
-	public function constructorSetsDefaultDatabase() {
-		$GLOBALS['TYPO3_DB'] = $this->getMock(
-			DatabaseConnection::class, [], [], '', false
-		);
-		$this->subject->__construct();
+    /**
+     * @test
+     */
+    public function constructorSetsDefaultDatabase()
+    {
+        $GLOBALS['TYPO3_DB'] = $this->getMock(
+            DatabaseConnection::class, [], [], '', false
+        );
+        $this->subject->__construct();
 
-		$this->assertSame(
-			$GLOBALS['TYPO3_DB'],
-			$this->subject->_get('database')
-		);
-	}
+        $this->assertSame(
+            $GLOBALS['TYPO3_DB'],
+            $this->subject->_get('database')
+        );
+    }
 }
