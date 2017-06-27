@@ -1,13 +1,10 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\Persistence\DataSourceXML;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /**
  * Class DataSourceXMLTest
@@ -70,7 +67,7 @@ class DataSourceXMLTest extends UnitTestCase
     /**
      * @test
      */
-    public function isConfigurationValidReturnsFalseIfForInvalidFilePath()
+    public function isConfigurationValidReturnsFalseForInvalidFilePath()
     {
         $invalidPath = 'fooPath';
         $configuration = [
