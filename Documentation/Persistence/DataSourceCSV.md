@@ -1,4 +1,4 @@
-DataSourceXML
+DataSourceCSV
 =============
 
 Reads data from CSV sources into an array of records.  
@@ -16,8 +16,8 @@ In order to keep the configuration lean a few defaults are assumed.
 ## required
 * **class** fully qualified class name, i.e. *CPSIT\T3importExport\Persistence\DataSourceCSV*
 * **config.url** or **config.file** One of them must be set (see below)
-* **config.url** *string* URL where to fetch XML from. Protocol must be present.
-* **config.file** *string* Path to XML file. Allowed are absolute and relative path which can be reached by the script. 
+* **config.url** *string* URL where to fetch CSV file from. Protocol must be present.
+* **config.file** *string* Path to CSV file. Allowed are absolute and relative paths which can be reached by the script. 
 `EXT:extension_name/path` expressions are evaluated.
 
 ## optional
