@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Persistence\DataSourceCSV;
@@ -62,8 +63,7 @@ CSV;
     /**
      * @test
      */
-    public
-    function getRecordsInitiallyReturnsEmptyArray()
+    public function getRecordsInitiallyReturnsEmptyArray()
     {
         $configuration = [];
 
@@ -76,8 +76,7 @@ CSV;
     /**
      * @test
      */
-    public
-    function isConfigurationValidValidatesPathConfiguration()
+    public function isConfigurationValidValidatesPathConfiguration()
     {
         $config = ['foo'];
         $this->pathValidator->expects($this->once())
@@ -89,8 +88,7 @@ CSV;
     /**
      * Data provider for invalid configurations
      */
-    public
-    function invalidConfigurationDataProvider()
+    public function invalidConfigurationDataProvider()
     {
         return [
             // fields must be string
@@ -124,8 +122,7 @@ CSV;
      * @dataProvider invalidConfigurationDataProvider
      * @param array $configuration
      */
-    public
-    function isConfigurationValidReturnsFalseForInvalidValues(array $configuration)
+    public function isConfigurationValidReturnsFalseForInvalidValues(array $configuration)
     {
         $this->pathValidator->expects($this->once())
             ->method('validate')->will($this->returnValue(true));
@@ -138,8 +135,7 @@ CSV;
     /**
      * @test
      */
-    public
-    function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
     {
         $configuration = [
             'file' => 'foo.csv',
@@ -162,8 +158,7 @@ CSV;
      * @param string $csvString
      * @param array $expectedArray
      */
-    public
-    function getRecordsReturnsArrayFromValidCsvWithHeaders($csvString, $expectedArray)
+    public function getRecordsReturnsArrayFromValidCsvWithHeaders($csvString, $expectedArray)
     {
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.csv';
@@ -193,8 +188,7 @@ CSV;
     /**
      * @test
      */
-    public
-    function getRecordsReturnsArrayFromValidCsvWithoutHeaders()
+    public function getRecordsReturnsArrayFromValidCsvWithoutHeaders()
     {
         $csvString = <<<CSV
 "foo1","bar1","baz1"
@@ -222,6 +216,93 @@ CSV;
                 'bang' => 'baz2'
             ]
         ];
+
+        vfsStream::setup($fileDirectory);
+        $mockFile = vfsStream::newFile($fileName);
+        $mockFile->setContent($csvString);
+        vfsStreamWrapper::getRoot()->addChild($mockFile);
+
+        $this->subject->expects($this->once())
+            ->method('getAbsoluteFilePath')
+            ->with($relativePath)
+            ->will($this->returnValue(vfsStream::url($relativePath)));
+
+        $this->assertSame(
+            $expectedArray,
+            $this->subject->getRecords($configuration)
+        );
+
+    }
+
+    /**
+     * Data provider for custom characters
+     */
+    public function customCharactersDataProvider()
+    {
+        $fileDirectory = 'typo3temp';
+        $fileName = 'foo.csv';
+        $relativePath = $fileDirectory . '/' . $fileName;
+
+        $configuration = [
+            'file' => $relativePath,
+            'fields' => 'boom,bam,bang',
+        ];
+
+        $defaultExpected = [
+            [
+                'boom' => 'foo1',
+                'bam' => 'bar1',
+                'bang' => 'baz1'
+            ]
+        ];
+
+        // delimiter
+        $delimiterCSV = <<<CSV
+"foo1";"bar1";"baz1"
+CSV;
+        $delimiterConfiguration = $configuration;
+        $delimiterConfiguration['delimiter'] = ';';
+
+        // enclosure
+        $enclosureCSV = <<<CSV
+|foo1|,|bar1|,|baz1|
+CSV;
+        $enclosureConfiguration = $configuration;
+        $enclosureConfiguration['enclosure'] = '|';
+
+        // escape
+        $escapeCSV = <<<CSV
+"foo1","bar1","|"baz1"
+CSV;
+        $escapeConfiguration = $configuration;
+        $escapeConfiguration['escape'] = '|';
+        $escapeExpected = [
+            [
+                'boom' => 'foo1',
+                'bam' => 'bar1',
+                'bang' => '|"baz1'
+            ]
+        ];
+
+        return [
+            [$delimiterConfiguration, $delimiterCSV, $defaultExpected, $fileDirectory, $fileName],
+            [$enclosureConfiguration, $enclosureCSV, $defaultExpected, $fileDirectory, $fileName],
+            [$escapeConfiguration, $escapeCSV, $escapeExpected, $fileDirectory, $fileName]
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider customCharactersDataProvider
+     * @param array $configuration
+     * @param string $csvString
+     * @param array $expectedArray
+     * @param string $fileDirectory
+     * @param string, $fileName
+     */
+    public function getRecordsReturnsArrayFromValidCsvWithCustomCharacters($configuration, $csvString, $expectedArray, $fileDirectory, $fileName)
+    {
+        $relativePath = $fileDirectory . '/' . $fileName;
 
         vfsStream::setup($fileDirectory);
         $mockFile = vfsStream::newFile($fileName);
