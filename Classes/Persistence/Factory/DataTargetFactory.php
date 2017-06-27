@@ -88,5 +88,4 @@ class DataTargetFactory extends AbstractFactory
 
         return $target;
     }
-
 }

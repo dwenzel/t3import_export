@@ -130,7 +130,8 @@ class ClearCacheTest extends UnitTestCase
     /**
      * @test
      */
-    public function processClearsAllCachesIfResultClassMatchesConfiguration() {
+    public function processClearsAllCachesIfResultClassMatchesConfiguration()
+    {
         $configuration = [
             'classes' => [
                 'stdClass' => [
@@ -154,7 +155,8 @@ class ClearCacheTest extends UnitTestCase
     /**
      * @test
      */
-    public function processClearsSelectedPageCachesIfResultClassMatchesConfiguration() {
+    public function processClearsSelectedPageCachesIfResultClassMatchesConfiguration()
+    {
         $configuration = [
             'classes' => [
                 'stdClass' => [

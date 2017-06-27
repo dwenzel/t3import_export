@@ -28,128 +28,137 @@ use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
  */
-class MapFieldValuesTest extends UnitTestCase {
+class MapFieldValuesTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\MapFieldValues',
-			['dummy'], [], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\MapFieldValues',
+            ['dummy'], [], '', false);
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsInitiallyFalse() {
-		$mockConfiguration = ['foo'];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsInitiallyFalse()
+    {
+        $mockConfiguration = ['foo'];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfFieldsIsNotArray() {
-		$config = [
-			'fields' => 'foo'
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    {
+        $config = [
+            'fields' => 'foo'
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet() {
-		$config = [
-			'fields' => [
-				'foo' => ['bar']
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet()
+    {
+        $config = [
+            'fields' => [
+                'foo' => ['bar']
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString() {
-		$config = [
-			'fields' => [
-				'foo' => [
-					'targetField' => 99
-				]
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString()
+    {
+        $config = [
+            'fields' => [
+                'foo' => [
+                    'targetField' => 99
+                ]
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfValuesIsNotSet() {
-		$config = [
-			'fields' => [
-				'foo' => [
-					'targetField' => 'bar',
-				]
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfValuesIsNotSet()
+    {
+        $config = [
+            'fields' => [
+                'foo' => [
+                    'targetField' => 'bar',
+                ]
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfValuesIsNotArray() {
-		$config = [
-			'fields' => [
-				'foo' => [
-					'targetField' => 'bar',
-					'values' => 'illegalStringValue'
-				]
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfValuesIsNotArray()
+    {
+        $config = [
+            'fields' => [
+                'foo' => [
+                    'targetField' => 'bar',
+                    'values' => 'illegalStringValue'
+                ]
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsTrueForValidConfiguration() {
-		$config = [
-			'fields' => [
-				'foo' => [
-					'targetField' => 'bar',
-					'values' => [
-						'baz' => 0
-					]
-				]
-			]
-		];
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
+        $config = [
+            'fields' => [
+                'foo' => [
+                    'targetField' => 'bar',
+                    'values' => [
+                        'baz' => 0
+                    ]
+                ]
+            ]
+        ];
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
     /**
      * provides data for testing process
@@ -194,7 +203,6 @@ class MapFieldValuesTest extends UnitTestCase {
      */
     public function processMapsFieldValues($configuration, $record, $result)
     {
-
         $this->subject->process($configuration, $record);
         $this->assertEquals(
             $result,

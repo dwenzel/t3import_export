@@ -28,37 +28,41 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class IdentifiableTraitTest extends UnitTestCase {
+class IdentifiableTraitTest extends UnitTestCase
+{
 
-	/**
-	 * @var IdentifiableTrait
-	 */
-	protected $subject;
+    /**
+     * @var IdentifiableTrait
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getObjectForTrait(
-			IdentifiableTrait::class, ['dummy']
-		);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getObjectForTrait(
+            IdentifiableTrait::class, ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getIdentifierInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getIdentifier()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getIdentifierInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getIdentifier()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setIdentifierSetsIdentifier() {
-		$identifier = 'foo';
-		$this->subject->setIdentifier($identifier);
-		$this->assertSame(
-			$identifier,
-			$this->subject->getIdentifier()
-		);
-	}
+    /**
+     * @test
+     */
+    public function setIdentifierSetsIdentifier()
+    {
+        $identifier = 'foo';
+        $this->subject->setIdentifier($identifier);
+        $this->assertSame(
+            $identifier,
+            $this->subject->getIdentifier()
+        );
+    }
 }

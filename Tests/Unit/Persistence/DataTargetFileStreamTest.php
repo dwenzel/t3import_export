@@ -13,6 +13,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
+
 /***************************************************************
  *
  *  Copyright notice
@@ -44,105 +45,106 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
-class DataTargetFileSteamTest extends UnitTestCase {
+class DataTargetFileSteamTest extends UnitTestCase
+{
 
-	/**
-	 * @var DataTargetFileStream|\PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
-	 */
-	protected $subject;
+    /**
+     * @var DataTargetFileStream|\PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
+     */
+    protected $subject;
 
-	/**
-	 * Set up
-	 */
-	public function setUp()
-	{
-		$this->subject = $this->getAccessibleMock(
-			DataTargetFileStream::class, ['dummy'], [], '', false
-		);
-	}
+    /**
+     * Set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            DataTargetFileStream::class, ['dummy'], [], '', false
+        );
+    }
 
-	public function createDataStreamWithSampleBuffer($buffer)
-	{
-		$ds = new DataStream();
-		$ds->setSteamBuffer($buffer);
-		return $ds;
-	}
+    public function createDataStreamWithSampleBuffer($buffer)
+    {
+        $ds = new DataStream();
+        $ds->setSteamBuffer($buffer);
+        return $ds;
+    }
 
-	/**
-	 * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
-	 */
-	protected function injectObjectManager()
-	{
-		/** @var ObjectManager $mockObjectManager */
-		$mockObjectManager = $this->getMock(ObjectManager::class,
-			[], [], '', FALSE);
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
+     */
+    protected function injectObjectManager()
+    {
+        /** @var ObjectManager $mockObjectManager */
+        $mockObjectManager = $this->getMock(ObjectManager::class,
+            [], [], '', false);
 
-		$this->subject->injectObjectManager($mockObjectManager);
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$this->assertSame(
-			$mockObjectManager,
-			$this->subject->_get('objectManager')
-		);
+        $this->assertSame(
+            $mockObjectManager,
+            $this->subject->_get('objectManager')
+        );
 
-		return $mockObjectManager;
-	}
+        return $mockObjectManager;
+    }
 
-	/**
-	 * @test
-	 */
-	public function persistDataSteamInTaskResultIterator()
-	{
-		$taskResult = new TaskResult();
-		$taskResult->setElements(
-			[
-				$this->createDataStreamWithSampleBuffer('aaaaaaa'),
-				$this->createDataStreamWithSampleBuffer('bbbbbbb'),
-				$this->createDataStreamWithSampleBuffer('ccccccc'),
-				$this->createDataStreamWithSampleBuffer('ddddddd'),
-			]
-		);
+    /**
+     * @test
+     */
+    public function persistDataSteamInTaskResultIterator()
+    {
+        $taskResult = new TaskResult();
+        $taskResult->setElements(
+            [
+                $this->createDataStreamWithSampleBuffer('aaaaaaa'),
+                $this->createDataStreamWithSampleBuffer('bbbbbbb'),
+                $this->createDataStreamWithSampleBuffer('ccccccc'),
+                $this->createDataStreamWithSampleBuffer('ddddddd'),
+            ]
+        );
 
-		$mockedFileUtility = $this->getAccessibleMock(
-			BasicFileUtility::class,
-			['getUniqueName'],
-			[],
-			'',
-			false
-		);
+        $mockedFileUtility = $this->getAccessibleMock(
+            BasicFileUtility::class,
+            ['getUniqueName'],
+            [],
+            '',
+            false
+        );
 
-		$absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY.uniqid());
-		$tmpPath = $absPath . '/' . uniqid();
-		@mkdir($absPath,0777,true);
-		$mockedFileUtility->expects($this->once())
-			->method('getUniqueName')
-			->will($this->returnValue($tmpPath));
+        $absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY.uniqid());
+        $tmpPath = $absPath . '/' . uniqid();
+        @mkdir($absPath, 0777, true);
+        $mockedFileUtility->expects($this->once())
+            ->method('getUniqueName')
+            ->will($this->returnValue($tmpPath));
 
-		$mockedObjectManager = $this->injectObjectManager();
-		$mockedObjectManager->expects($this->once())
-			->method('get')
-			->with(BasicFileUtility::class)
-			->will($this->returnValue($mockedFileUtility));
+        $mockedObjectManager = $this->injectObjectManager();
+        $mockedObjectManager->expects($this->once())
+            ->method('get')
+            ->with(BasicFileUtility::class)
+            ->will($this->returnValue($mockedFileUtility));
         $this->inject(
             $this->subject,
             'objectManager',
             $mockedObjectManager
         );
 
-		/** @var DataStreamInterface $streamObject */
-		foreach ($taskResult as $streamObject) {
-			$this->subject->persist($streamObject, ['flush' => true]);
-			$this->assertNull($streamObject->getSteamBuffer());
-		}
+        /** @var DataStreamInterface $streamObject */
+        foreach ($taskResult as $streamObject) {
+            $this->subject->persist($streamObject, ['flush' => true]);
+            $this->assertNull($streamObject->getSteamBuffer());
+        }
 
-		$this->subject->persistAll($taskResult);
-		$path = $taskResult->getInfo();
-		$this->assertEquals($tmpPath, $path);
-		$this->assertFileExists($path);
+        $this->subject->persistAll($taskResult);
+        $path = $taskResult->getInfo();
+        $this->assertEquals($tmpPath, $path);
+        $this->assertFileExists($path);
 
-		$content = file_get_contents($path);
-		$this->assertEquals('aaaaaaabbbbbbbcccccccddddddd', $content);
+        $content = file_get_contents($path);
+        $this->assertEquals('aaaaaaabbbbbbbcccccccddddddd', $content);
 
-		unlink($tmpPath);
-		rmdir($absPath);
-	}
+        unlink($tmpPath);
+        rmdir($absPath);
+    }
 }

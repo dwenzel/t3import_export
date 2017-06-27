@@ -6,19 +6,20 @@ namespace CPSIT\T3importExport;
  *
  * @package CPSIT\T3importExport\Persistence\Factory
  */
-interface IdentifiableInterface {
-	/**
-	 * Sets the identifier
-	 *
-	 * @param string $identifier
-	 * @return mixed
-	 */
-	public function setIdentifier($identifier);
+interface IdentifiableInterface
+{
+    /**
+     * Sets the identifier
+     *
+     * @param string $identifier
+     * @return mixed
+     */
+    public function setIdentifier($identifier);
 
-	/**
-	 * Gets the identifier
-	 *
-	 * @return string
-	 */
-	public function getIdentifier();
+    /**
+     * Gets the identifier
+     *
+     * @return string
+     */
+    public function getIdentifier();
 }

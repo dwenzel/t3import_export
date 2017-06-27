@@ -2,7 +2,6 @@
 
 namespace CPSIT\T3importExport\Tests\Service;
 
-
 use CPSIT\T3importExport\Service\TranslationService;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;

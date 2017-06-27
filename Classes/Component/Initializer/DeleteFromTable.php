@@ -24,9 +24,7 @@ use CPSIT\T3importExport\Service\DatabaseConnectionService;
  * Records to delete are determined by a where clause
  * @package \CPSIT\T3importExport\Component\Initializer
  */
-class DeleteFromTable
-    extends AbstractInitializer
-    implements InitializerInterface
+class DeleteFromTable extends AbstractInitializer implements InitializerInterface
 {
     use DatabaseTrait;
 
@@ -68,7 +66,7 @@ class DeleteFromTable
         }
 
         if (isset($configuration['identifier'])
-            AND !DatabaseConnectionService::isRegistered($configuration['identifier'])
+            and !DatabaseConnectionService::isRegistered($configuration['identifier'])
         ) {
             return false;
         }

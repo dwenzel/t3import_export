@@ -23,24 +23,26 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-abstract class AbstractPostProcessor extends AbstractComponent {
-	/**
-	 * processes the converted record
-	 *
-	 * @param array $configuration
-	 * @param mixed $convertedRecord
-	 * @param array $record
-	 * @return bool
-	 */
-	abstract function process($configuration, &$convertedRecord, &$record);
+abstract class AbstractPostProcessor extends AbstractComponent
+{
+    /**
+     * processes the converted record
+     *
+     * @param array $configuration
+     * @param mixed $convertedRecord
+     * @param array $record
+     * @return bool
+     */
+    abstract public function process($configuration, &$convertedRecord, &$record);
 
-	/**
-	 * Tells whether a given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		return TRUE;
-	}
+    /**
+     * Tells whether a given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return true;
+    }
 }

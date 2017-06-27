@@ -35,149 +35,155 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ArrayToDomainObject
-	extends AbstractConverter
-	implements ConverterInterface{
-	const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
+class ArrayToDomainObject extends AbstractConverter implements ConverterInterface
+{
+    const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
-	public function __construct()
-	{
-		$o = 1;
-	}
+    public function __construct()
+    {
+        $o = 1;
+    }
 
-	/**
-	 * @var PropertyMapper
-	 */
-	protected $propertyMapper;
+    /**
+     * @var PropertyMapper
+     */
+    protected $propertyMapper;
 
-	/**
-	 * @var PropertyMappingConfiguration
-	 */
-	protected $propertyMappingConfiguration;
+    /**
+     * @var PropertyMappingConfiguration
+     */
+    protected $propertyMappingConfiguration;
 
-	/**
-	 * @var PropertyMappingConfigurationBuilder
-	 */
-	protected $propertyMappingConfigurationBuilder;
-	/**
-	 * @var TargetClassConfigurationValidator
-	 */
-	protected $targetClassConfigurationValidator;
+    /**
+     * @var PropertyMappingConfigurationBuilder
+     */
+    protected $propertyMappingConfigurationBuilder;
+    /**
+     * @var TargetClassConfigurationValidator
+     */
+    protected $targetClassConfigurationValidator;
 
-	/**
-	 * @var MappingConfigurationValidator
-	 */
-	protected $mappingConfigurationValidator;
+    /**
+     * @var MappingConfigurationValidator
+     */
+    protected $mappingConfigurationValidator;
 
-	/**
-	 * injects the property mapper
-	 *
-	 * @param PropertyMapper $propertyMapper
-	 */
-	public function injectPropertyMapper(PropertyMapper $propertyMapper) {
-		$this->propertyMapper = $propertyMapper;
-	}
+    /**
+     * injects the property mapper
+     *
+     * @param PropertyMapper $propertyMapper
+     */
+    public function injectPropertyMapper(PropertyMapper $propertyMapper)
+    {
+        $this->propertyMapper = $propertyMapper;
+    }
 
-	/**
-	 * injects the property mapping configuration builder
-	 *
-	 * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
-	 */
-	public function injectPropertyMappingConfigurationBuilder(PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder) {
-		$this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
-	}
+    /**
+     * injects the property mapping configuration builder
+     *
+     * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
+     */
+    public function injectPropertyMappingConfigurationBuilder(PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder)
+    {
+        $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
+    }
 
-	/**
-	 * injects the TargetClassConfigurationValidator
-	 *
-	 * @param TargetClassConfigurationValidator $validator
-	 */
-	public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator) {
-		$this->targetClassConfigurationValidator = $validator;
-	}
+    /**
+     * injects the TargetClassConfigurationValidator
+     *
+     * @param TargetClassConfigurationValidator $validator
+     */
+    public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator)
+    {
+        $this->targetClassConfigurationValidator = $validator;
+    }
 
-	/**
-	 * injects the MappingConfigurationValidator
-	 *
-	 * @param MappingConfigurationValidator $validator
-	 */
-	public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator) {
-		$this->mappingConfigurationValidator = $validator;
-	}
+    /**
+     * injects the MappingConfigurationValidator
+     *
+     * @param MappingConfigurationValidator $validator
+     */
+    public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator)
+    {
+        $this->mappingConfigurationValidator = $validator;
+    }
 
-	/**
-	 * Converts the record
-	 *
-	 * @param array $configuration
-	 * @param array $record
-	 * @return DomainObjectInterface
-	 */
-	public function convert(array $record, array $configuration) {
-		$mappingConfiguration = $configuration;
-		unset($mappingConfiguration['targetClass']);
-		$mappingConfiguration = $this->getMappingConfiguration($mappingConfiguration);
-		$slotVariables = [
-			'configuration' => $configuration,
-			'record' => $record
-		];
-		$this->emitSignal(self::BEFORE_CONVERT_SIGNAL,  $slotVariables);
-		return $this->propertyMapper->convert(
-			$record,
-			$configuration['targetClass'],
-			$mappingConfiguration
-		);
-	}
+    /**
+     * Converts the record
+     *
+     * @param array $configuration
+     * @param array $record
+     * @return DomainObjectInterface
+     */
+    public function convert(array $record, array $configuration)
+    {
+        $mappingConfiguration = $configuration;
+        unset($mappingConfiguration['targetClass']);
+        $mappingConfiguration = $this->getMappingConfiguration($mappingConfiguration);
+        $slotVariables = [
+            'configuration' => $configuration,
+            'record' => $record
+        ];
+        $this->emitSignal(self::BEFORE_CONVERT_SIGNAL, $slotVariables);
+        return $this->propertyMapper->convert(
+            $record,
+            $configuration['targetClass'],
+            $mappingConfiguration
+        );
+    }
 
-	/**
-	 * @param array $configuration
-	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
-	 * @throws MissingClassException
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		return (
-			$this->targetClassConfigurationValidator->validate($configuration)
-			&& $this->mappingConfigurationValidator->validate($configuration)
-		);
-	}
+    /**
+     * @param array $configuration
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws MissingClassException
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return (
+            $this->targetClassConfigurationValidator->validate($configuration)
+            && $this->mappingConfigurationValidator->validate($configuration)
+        );
+    }
 
-	/**
-	 * @param array|null $configuration Configuration array from TypoScript
-	 * @return PropertyMappingConfiguration
-	 */
-	public function getMappingConfiguration($configuration = null) {
-		if ($this->propertyMappingConfiguration instanceof PropertyMappingConfiguration) {
-			return $this->propertyMappingConfiguration;
-		}
+    /**
+     * @param array|null $configuration Configuration array from TypoScript
+     * @return PropertyMappingConfiguration
+     */
+    public function getMappingConfiguration($configuration = null)
+    {
+        if ($this->propertyMappingConfiguration instanceof PropertyMappingConfiguration) {
+            return $this->propertyMappingConfiguration;
+        }
 
-		if (empty($configuration)) {
-			$propertyMappingConfiguration = $this->getDefaultMappingConfiguration();
+        if (empty($configuration)) {
+            $propertyMappingConfiguration = $this->getDefaultMappingConfiguration();
+        } else {
+            $propertyMappingConfiguration = $this->propertyMappingConfigurationBuilder
+                ->build($configuration);
+        }
+        $this->propertyMappingConfiguration = $propertyMappingConfiguration;
 
-		} else {
-			$propertyMappingConfiguration = $this->propertyMappingConfigurationBuilder
-				->build($configuration);
-		}
-		$this->propertyMappingConfiguration = $propertyMappingConfiguration;
+        return $propertyMappingConfiguration;
+    }
 
-		return $propertyMappingConfiguration;
-	}
+    /**
+     * @return PropertyMappingConfiguration
+     */
+    protected function getDefaultMappingConfiguration()
+    {
+        /** @var PropertyMappingConfiguration $propertyMappingConfiguration */
+        $propertyMappingConfiguration = $this->objectManager->get(
+            PropertyMappingConfiguration::class
+        );
+        $propertyMappingConfiguration->setTypeConverterOptions(
+            PersistentObjectConverter::class,
+            [
+                PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
+                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
+            ]
+        )->skipUnknownProperties();
 
-	/**
-	 * @return PropertyMappingConfiguration
-	 */
-	protected function getDefaultMappingConfiguration() {
-		/** @var PropertyMappingConfiguration $propertyMappingConfiguration */
-		$propertyMappingConfiguration = $this->objectManager->get(
-			PropertyMappingConfiguration::class
-		);
-		$propertyMappingConfiguration->setTypeConverterOptions(
-			PersistentObjectConverter::class,
-			[
-				PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => TRUE,
-				PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => TRUE
-			]
-		)->skipUnknownProperties();
-
-		return $propertyMappingConfiguration;
-	}
+        return $propertyMappingConfiguration;
+    }
 }

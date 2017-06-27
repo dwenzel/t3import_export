@@ -32,94 +32,96 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  *
  * @package CPSIT\T3importExport\PreProcessor
  */
-class SetHiddenProperties
-	extends AbstractPostProcessor
-	implements \CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface {
+class SetHiddenProperties extends AbstractPostProcessor implements \CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface
+{
 
-	/**
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['fields'])) {
-			return FALSE;
-		}
-		if (!is_array($configuration['fields'])) {
-			return FALSE;
-		}
-		foreach ($configuration['fields'] as $field => $value) {
-			if (!is_string($field)
-				OR empty($value)
-			) {
-				return FALSE;
-			}
-		}
-		if (isset($configuration['children'])
-			AND !is_array($configuration['children'])
-		) {
-			return FALSE;
-		}
+    /**
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['fields'])) {
+            return false;
+        }
+        if (!is_array($configuration['fields'])) {
+            return false;
+        }
+        foreach ($configuration['fields'] as $field => $value) {
+            if (!is_string($field)
+                or empty($value)
+            ) {
+                return false;
+            }
+        }
+        if (isset($configuration['children'])
+            and !is_array($configuration['children'])
+        ) {
+            return false;
+        }
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * @param array $configuration
-	 * @param AbstractDomainObject $convertedRecord
-	 * @param array $record
-	 * @return TRUE
-	 */
-	public function process($configuration, &$convertedRecord, &$record) {
-		$fields = $configuration['fields'];
-		foreach ($fields as $fieldName => $localConfiguration) {
-			$value = $record[$fieldName];
-			$this->setHiddenProperty(
-				$configuration,
-				$convertedRecord,
-				$fieldName,
-				$value
-			);
-		}
+    /**
+     * @param array $configuration
+     * @param AbstractDomainObject $convertedRecord
+     * @param array $record
+     * @return TRUE
+     */
+    public function process($configuration, &$convertedRecord, &$record)
+    {
+        $fields = $configuration['fields'];
+        foreach ($fields as $fieldName => $localConfiguration) {
+            $value = $record[$fieldName];
+            $this->setHiddenProperty(
+                $configuration,
+                $convertedRecord,
+                $fieldName,
+                $value
+            );
+        }
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * @param array $configuration
-	 * @param AbstractDomainObject $convertedRecord
-	 * @param string $fieldName
-	 * @param $value
-	 */
-	protected function setHiddenProperty($configuration, &$convertedRecord, $fieldName, $value) {
-		$convertedRecord->_setProperty('_' . $fieldName, $value);
-		if (isset($configuration['children'])) {
-			$localConf = $configuration['children'];
-			$this->setPropertiesRecursive($convertedRecord, $fieldName, $value, $localConf);
-		}
-	}
+    /**
+     * @param array $configuration
+     * @param AbstractDomainObject $convertedRecord
+     * @param string $fieldName
+     * @param $value
+     */
+    protected function setHiddenProperty($configuration, &$convertedRecord, $fieldName, $value)
+    {
+        $convertedRecord->_setProperty('_' . $fieldName, $value);
+        if (isset($configuration['children'])) {
+            $localConf = $configuration['children'];
+            $this->setPropertiesRecursive($convertedRecord, $fieldName, $value, $localConf);
+        }
+    }
 
-	/**
-	 * @param AbstractDomainObject $convertedRecord
-	 * @param string $fieldName
-	 * @param $value
-	 * @param array $configuration
-	 */
-	protected function setPropertiesRecursive(&$convertedRecord, $fieldName, $value, $configuration) {
-		foreach ($configuration as $propertyName => $childConfig) {
-			if ($convertedRecord->_hasProperty($propertyName)) {
-				$propertyValue = $convertedRecord->_getProperty($propertyName);
+    /**
+     * @param AbstractDomainObject $convertedRecord
+     * @param string $fieldName
+     * @param $value
+     * @param array $configuration
+     */
+    protected function setPropertiesRecursive(&$convertedRecord, $fieldName, $value, $configuration)
+    {
+        foreach ($configuration as $propertyName => $childConfig) {
+            if ($convertedRecord->_hasProperty($propertyName)) {
+                $propertyValue = $convertedRecord->_getProperty($propertyName);
 
-				if ($propertyValue instanceof ObjectStorage) {
-					/** ObjectStorage $propertyValue */
-					foreach ($propertyValue as $child) {
-						$this->setHiddenProperty($childConfig, $child, $fieldName, $value);
-					}
-				}
-				if ($propertyValue instanceof AbstractDomainObject) {
-					$propertyValue->_setProperty('_' . $fieldName, $value);
-				}
-			}
-		}
-	}
-
+                if ($propertyValue instanceof ObjectStorage) {
+                    /** ObjectStorage $propertyValue */
+                    foreach ($propertyValue as $child) {
+                        $this->setHiddenProperty($childConfig, $child, $fieldName, $value);
+                    }
+                }
+                if ($propertyValue instanceof AbstractDomainObject) {
+                    $propertyValue->_setProperty('_' . $fieldName, $value);
+                }
+            }
+        }
+    }
 }

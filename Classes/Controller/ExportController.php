@@ -20,34 +20,33 @@ use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ExportController extends BaseController
-implements TransferControllerInterface
+class ExportController extends BaseController implements TransferControllerInterface
 {
-	const SETTINGS_KEY = 'export';
+    const SETTINGS_KEY = 'export';
 
-	/**
-	 * Export task action
-	 *
-	 * @param string $identifier
-	 *
-	 * @throws InvalidConfigurationException
-	 */
-	public function exportTaskAction($identifier)
-	{
-		$this->doTaskAction($identifier);
-	}
+    /**
+     * Export task action
+     *
+     * @param string $identifier
+     *
+     * @throws InvalidConfigurationException
+     */
+    public function exportTaskAction($identifier)
+    {
+        $this->doTaskAction($identifier);
+    }
 
-	/**
-	 * Export
-	 *
-	 * @param string $identifier
-	 *
-	 * @throws InvalidConfigurationException
-	 */
-	public function exportSetAction($identifier)
-	{
-		$this->doSetAction($identifier);
-	}
+    /**
+     * Export
+     *
+     * @param string $identifier
+     *
+     * @throws InvalidConfigurationException
+     */
+    public function exportSetAction($identifier)
+    {
+        $this->doSetAction($identifier);
+    }
 
     /**
      * Gets the settings key

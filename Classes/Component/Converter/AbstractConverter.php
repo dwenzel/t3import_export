@@ -27,24 +27,25 @@ use CPSIT\T3importExport\Component\AbstractComponent;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-abstract class AbstractConverter extends AbstractComponent {
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return bool
-	 */
-	abstract public function convert(array $record, array $configuration);
+abstract class AbstractConverter extends AbstractComponent
+{
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return bool
+     */
+    abstract public function convert(array $record, array $configuration);
 
-	/**
-	 * Tells whether a given configuration is valid.
-	 * Override this method in order to perform validation of
-	 * configuration.
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		return TRUE;
-	}
-
+    /**
+     * Tells whether a given configuration is valid.
+     * Override this method in order to perform validation of
+     * configuration.
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return true;
+    }
 }

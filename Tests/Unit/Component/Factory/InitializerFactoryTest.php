@@ -37,7 +37,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  * @package CPSIT\T3importExport\Tests\Component\Factory
  */
-class DummyInvalidInitializer {
+class DummyInvalidInitializer
+{
 }
 
 /**
@@ -45,17 +46,17 @@ class DummyInvalidInitializer {
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class DummyValidInitializer
-	extends AbstractInitializer
-	implements InitializerInterface {
-	/**
-	 * @param array $configuration
-	 * @param array $records
-	 * @return bool
-	 */
-	public function process($configuration, &$records) {
-		return true;
-	}
+class DummyValidInitializer extends AbstractInitializer implements InitializerInterface
+{
+    /**
+     * @param array $configuration
+     * @param array $records
+     * @return bool
+     */
+    public function process($configuration, &$records)
+    {
+        return true;
+    }
 }
 
 /**
@@ -63,83 +64,89 @@ class DummyValidInitializer
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class InitializerFactoryTest extends UnitTestCase {
+class InitializerFactoryTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\Factory\InitializerFactory
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\Factory\InitializerFactory
+     */
+    protected $subject;
 
-	/**
-	 *
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			InitializerFactory::class,
-			['dummy']
-		);
-	}
+    /**
+     *
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            InitializerFactory::class,
+            ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1454588350
-	 */
-	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
-		$configurationWithoutClassName = ['bar'];
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1454588350
+     */
+    public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    {
+        $configurationWithoutClassName = ['bar'];
 
-		$this->subject->get($configurationWithoutClassName, 'fooIdentifier');
-	}
+        $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1454588360
-	 */
-	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
-		$configurationWithNonExistingClass = [
-			'class' => 'NonExistingClass'
-		];
-		$this->subject->get(
-			$configurationWithNonExistingClass
-		);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1454588360
+     */
+    public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    {
+        $configurationWithNonExistingClass = [
+            'class' => 'NonExistingClass'
+        ];
+        $this->subject->get(
+            $configurationWithNonExistingClass
+        );
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1454588370
-	 */
-	public function getThrowsExceptionIfClassDoesNotImplementInitializerInterface() {
-		$configurationWithExistingClass = [
-			'class' => DummyInvalidInitializer::class
-		];
-		$this->subject->get(
-			$configurationWithExistingClass
-		);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1454588370
+     */
+    public function getThrowsExceptionIfClassDoesNotImplementInitializerInterface()
+    {
+        $configurationWithExistingClass = [
+            'class' => DummyInvalidInitializer::class
+        ];
+        $this->subject->get(
+            $configurationWithExistingClass
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getReturnsInitializer() {
-		$identifier = 'fooIdentifier';
-		$validClass = DummyValidInitializer::class;
-		$settings = [
-			'class' => $validClass,
-		];
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class, ['get']
-		);
-		$this->subject->injectObjectManager($mockObjectManager);
-		$mockInitializer = $this->getMock($validClass);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with($validClass)
-			->will($this->returnValue($mockInitializer));
-		$this->assertEquals(
-			$mockInitializer,
-			$this->subject->get($settings, $identifier)
-		);
-	}
+    /**
+     * @test
+     */
+    public function getReturnsInitializer()
+    {
+        $identifier = 'fooIdentifier';
+        $validClass = DummyValidInitializer::class;
+        $settings = [
+            'class' => $validClass,
+        ];
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class, ['get']
+        );
+        $this->subject->injectObjectManager($mockObjectManager);
+        $mockInitializer = $this->getMock($validClass);
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with($validClass)
+            ->will($this->returnValue($mockInitializer));
+        $this->assertEquals(
+            $mockInitializer,
+            $this->subject->get($settings, $identifier)
+        );
+    }
 }

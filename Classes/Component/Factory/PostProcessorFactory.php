@@ -29,45 +29,46 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class PostProcessorFactory extends AbstractFactory {
-	/**
-	 * Builds a PostProcessor object
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws \CPSIT\T3importExport\InvalidConfigurationException
-	 * @return \CPSIT\T3importExport\Component\Factory\PostProcessorFactory
-	 */
-	public function get(array $settings, $identifier = NULL) {
-		$additionalInformation = '.';
-		if (!is_null($identifier)) {
-			$additionalInformation = ' for ' . $identifier;
-		}
-		if (!isset($settings['class'])) {
-			throw new InvalidConfigurationException(
-				'Missing class in post processor configuration ' . $additionalInformation,
-				1447864207
-			);
-		}
-		$className = $settings['class'];
+class PostProcessorFactory extends AbstractFactory
+{
+    /**
+     * Builds a PostProcessor object
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @return \CPSIT\T3importExport\Component\Factory\PostProcessorFactory
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        $additionalInformation = '.';
+        if (!is_null($identifier)) {
+            $additionalInformation = ' for ' . $identifier;
+        }
+        if (!isset($settings['class'])) {
+            throw new InvalidConfigurationException(
+                'Missing class in post processor configuration ' . $additionalInformation,
+                1447864207
+            );
+        }
+        $className = $settings['class'];
 
-		if (!class_exists($className)) {
-			throw new InvalidConfigurationException(
-				'Post-processor class ' . $className . ' in configuration for' . $additionalInformation
-				. ' does not exist.',
-				1447864223
-			);
-		}
+        if (!class_exists($className)) {
+            throw new InvalidConfigurationException(
+                'Post-processor class ' . $className . ' in configuration for' . $additionalInformation
+                . ' does not exist.',
+                1447864223
+            );
+        }
 
-		if (!in_array(PostProcessorInterface::class, class_implements($className))) {
-			throw new InvalidConfigurationException(
-				'Post-processor class ' . $className . ' in configuration for' . $additionalInformation
-				. ' must implement PostProcessorInterface.',
-				1447864243
-			);
-		}
+        if (!in_array(PostProcessorInterface::class, class_implements($className))) {
+            throw new InvalidConfigurationException(
+                'Post-processor class ' . $className . ' in configuration for' . $additionalInformation
+                . ' must implement PostProcessorInterface.',
+                1447864243
+            );
+        }
 
-		return $this->objectManager->get($className);
-	}
-
+        return $this->objectManager->get($className);
+    }
 }

@@ -27,39 +27,43 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  *
  * @package CPSIT\T3importExport\Tests\Domain\Model\Dto
  */
-class TaskDemandTest extends UnitTestCase {
+class TaskDemandTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Model\Dto\TaskDemand
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Model\Dto\TaskDemand
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			TaskDemand::class, ['dummy'], [], '', FALSE
-		);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            TaskDemand::class, ['dummy'], [], '', false
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getTasksInitiallyReturnsEmptyArray() {
-		$this->assertSame(
-			[],
-			$this->subject->getTasks()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getTasksInitiallyReturnsEmptyArray()
+    {
+        $this->assertSame(
+            [],
+            $this->subject->getTasks()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getTaskForArraySetsTask() {
-		$expectedArray = ['foo'];
-		$this->subject->setTasks($expectedArray);
+    /**
+     * @test
+     */
+    public function getTaskForArraySetsTask()
+    {
+        $expectedArray = ['foo'];
+        $this->subject->setTasks($expectedArray);
 
-		$this->assertSame(
-			$expectedArray,
-			$this->subject->getTasks()
-		);
-	}
+        $this->assertSame(
+            $expectedArray,
+            $this->subject->getTasks()
+        );
+    }
 }

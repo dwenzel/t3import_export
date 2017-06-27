@@ -18,41 +18,42 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-interface PreProcessorInterface {
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return bool
-	 */
-	public function process($configuration, &$record);
+interface PreProcessorInterface
+{
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return bool
+     */
+    public function process($configuration, &$record);
 
-	/**
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration);
+    /**
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration);
 
-	/**
-	 * Tells if the component is disabled
-	 *
-	 * @param array $configuration
-	 * @param array $record
-	 * @return bool
-	 */
-	public function isDisabled($configuration, $record);
+    /**
+     * Tells if the component is disabled
+     *
+     * @param array $configuration
+     * @param array $record
+     * @return bool
+     */
+    public function isDisabled($configuration, $record);
 
-	/**
-	 * Sets the configuration
-	 *
-	 * @param array $configuration
-	 * @return mixed
-	 */
-	public function setConfiguration(array $configuration);
+    /**
+     * Sets the configuration
+     *
+     * @param array $configuration
+     * @return mixed
+     */
+    public function setConfiguration(array $configuration);
 
-	/**
-	 * Returns the configuration
-	 *
-	 * @return array | null
-	 */
-	public function getConfiguration();
+    /**
+     * Returns the configuration
+     *
+     * @return array | null
+     */
+    public function getConfiguration();
 }

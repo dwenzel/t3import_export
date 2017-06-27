@@ -32,8 +32,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  *
  * @package CPSIT\T3importExport\Persistence
  */
-class DataTargetDB
-    implements DataTargetInterface, ConfigurableInterface, IdentifiableInterface
+class DataTargetDB implements DataTargetInterface, ConfigurableInterface, IdentifiableInterface
 {
     use ConfigurableTrait, DatabaseTrait, IdentifiableTrait;
 
@@ -50,8 +49,7 @@ class DataTargetDB
         }
 
         if (isset($configuration['unsetKeys'])
-        && !is_string($configuration['unsetKeys']))
-        {
+        && !is_string($configuration['unsetKeys'])) {
             return false;
         }
 
@@ -132,7 +130,6 @@ class DataTargetDB
      * @return void
      */
     public function persistAll($result = null, array $configuration = null)
-    {}
-
-
+    {
+    }
 }

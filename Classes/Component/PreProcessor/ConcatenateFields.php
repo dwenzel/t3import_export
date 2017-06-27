@@ -26,57 +26,57 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * @package CPSIT\T3importExport\PreProcessor
  */
-class ConcatenateFields
-	extends AbstractPreProcessor
-	implements PreProcessorInterface {
+class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
+{
 
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return void
-	 */
-	public function process($configuration, &$record) {
-		$targetFieldName = $configuration['targetField'];
-		foreach ($configuration['fields'] as $key => $value) {
-			if (isset($value['wrap'])
-				AND !empty($record[$key])
-			) {
-				$record[$key] = $this->contentObjectRenderer->wrap(
-					$record[$key],
-					$value['wrap']
-				);
-			}
-			if (isset($value['noTrimWrap'])
-				AND !empty($record[$key])
-			) {
-				$record[$key] = $this->contentObjectRenderer->noTrimWrap(
-					$record[$key],
-					$value['noTrimWrap']
-				);
-			}
-			$record[$targetFieldName] .= $record[$key];
-		}
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return void
+     */
+    public function process($configuration, &$record)
+    {
+        $targetFieldName = $configuration['targetField'];
+        foreach ($configuration['fields'] as $key => $value) {
+            if (isset($value['wrap'])
+                and !empty($record[$key])
+            ) {
+                $record[$key] = $this->contentObjectRenderer->wrap(
+                    $record[$key],
+                    $value['wrap']
+                );
+            }
+            if (isset($value['noTrimWrap'])
+                and !empty($record[$key])
+            ) {
+                $record[$key] = $this->contentObjectRenderer->noTrimWrap(
+                    $record[$key],
+                    $value['noTrimWrap']
+                );
+            }
+            $record[$targetFieldName] .= $record[$key];
+        }
+    }
 
-	}
+    /**
+     * Tells if a given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['targetField'])
+            or !is_string($configuration['targetField'])
+        ) {
+            return false;
+        }
+        if (!isset($configuration['fields'])
+            or !is_array($configuration['fields'])
+        ) {
+            return false;
+        }
 
-	/**
-	 * Tells if a given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['targetField'])
-			OR !is_string($configuration['targetField'])
-		) {
-			return FALSE;
-		}
-		if (!isset($configuration['fields'])
-			OR !is_array($configuration['fields'])
-		) {
-			return FALSE;
-		}
-
-		return TRUE;
-	}
+        return true;
+    }
 }

@@ -42,307 +42,307 @@ use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
  */
-class ArrayToXMLStreamTest extends UnitTestCase {
+class ArrayToXMLStreamTest extends UnitTestCase
+{
 
-	/**
-	 * @var \PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface|ArrayToXMLStream
-	 */
-	protected $subject;
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface|ArrayToXMLStream
+     */
+    protected $subject;
 
-	/**
-	 *
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			ArrayToXMLStream::class,
-			['dummy']
-		);
-	}
+    /**
+     *
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            ArrayToXMLStream::class,
+            ['dummy']
+        );
+    }
 
-	/**
-	 * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
-	 */
-	protected function injectObjectManager()
-	{
-		/** @var ObjectManager $mockObjectManager */
-		$mockObjectManager = $this->getMock(ObjectManager::class,
-			[], [], '', FALSE);
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
+     */
+    protected function injectObjectManager()
+    {
+        /** @var ObjectManager $mockObjectManager */
+        $mockObjectManager = $this->getMock(ObjectManager::class,
+            [], [], '', false);
 
-		$this->subject->injectObjectManager($mockObjectManager);
+        $this->subject->injectObjectManager($mockObjectManager);
 
-		$this->assertSame(
-			$mockObjectManager,
-			$this->subject->_get('objectManager')
-		);
+        $this->assertSame(
+            $mockObjectManager,
+            $this->subject->_get('objectManager')
+        );
 
-		return $mockObjectManager;
-	}
+        return $mockObjectManager;
+    }
 
-	protected function injectPropertyMapperObject()
-	{
-		/** @var PropertyMapper $mockPropertyMapper */
-		$mockPropertyMapper = $this->getAccessibleMock(
-			PropertyMapper::class,
-			['dummy']
-		);
+    protected function injectPropertyMapperObject()
+    {
+        /** @var PropertyMapper $mockPropertyMapper */
+        $mockPropertyMapper = $this->getAccessibleMock(
+            PropertyMapper::class,
+            ['dummy']
+        );
 
-		$this->subject->injectPropertyMapper($mockPropertyMapper);
+        $this->subject->injectPropertyMapper($mockPropertyMapper);
 
-		$this->assertSame(
-			$mockPropertyMapper,
-			$this->subject->_get('propertyMapper')
-		);
+        $this->assertSame(
+            $mockPropertyMapper,
+            $this->subject->_get('propertyMapper')
+        );
 
-		return $mockPropertyMapper;
-	}
+        return $mockPropertyMapper;
+    }
 
-	protected function injectPropertyMappingConfigurationBuilderObject()
-	{
-
-
-		/** @var PropertyMappingConfigurationBuilder $mockPropertyMappingBuilder */
-		$mockPropertyMappingBuilder = $this->getAccessibleMock(
-			PropertyMappingConfigurationBuilder::class,
-			['dummy']
-		);
-
-		$this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingBuilder);
-
-		$this->assertSame(
-			$mockPropertyMappingBuilder,
-			$this->subject->_get('propertyMappingConfigurationBuilder')
-		);
-
-		return $mockPropertyMappingBuilder;
-	}
-
-	protected function injectTargetClassConfigurationValidatorObject()
-	{
-		/** @var TargetClassConfigurationValidator $MockTargetValidator */
-		$MockTargetValidator = $this->getAccessibleMock(
-			TargetClassConfigurationValidator::class,
-			['dummy']
-		);
-
-		$this->subject->injectTargetClassConfigurationValidator($MockTargetValidator);
-
-		$this->assertSame(
-			$MockTargetValidator,
-			$this->subject->_get('targetClassConfigurationValidator')
-		);
-
-		return $MockTargetValidator;
-	}
-
-	protected function injectMappingConfigurationValidatorObject()
-	{
-		/** @var MappingConfigurationValidator $configurationValidator */
-		$configurationValidator = $this->getAccessibleMock(
-			MappingConfigurationValidator::class,
-			['dummy']
-		);
-
-		$this->subject->injectMappingConfigurationValidator($configurationValidator);
-
-		$this->assertSame(
-			$configurationValidator,
-			$this->subject->_get('mappingConfigurationValidator')
-		);
-
-		return $configurationValidator;
-	}
-
-	/**
-	 * @test
-	 */
-	public function getMappingConfigurationTest()
-	{
-		// test for default configurator
-		$mockedObjectManager = $this->injectObjectManager();
-		$mockPropertyMapping = $this->getMock(PropertyMappingConfiguration::class,
-			['setTypeConverterOptions', 'skipUnknownProperties'], [], '', FALSE);
-		$mockPropertyMapping->expects($this->once())
-			->method('setTypeConverterOptions')
-			->will($this->returnValue($mockPropertyMapping));
-
-		$mockedObjectManager->expects($this->once())
-			->method('get')
-			->with(PropertyMappingConfiguration::class)
-			->will($this->returnValue($mockPropertyMapping));
-
-		$configurator = $this->subject->getMappingConfiguration();
-
-		$this->assertSame(
-			$mockPropertyMapping,
-			$configurator
-		);
-
-		// test storage
-		$configurator = $this->subject->getMappingConfiguration();
-
-		$this->assertSame(
-			$mockPropertyMapping,
-			$configurator
-		);
-
-		/*
-		$this->injectMappingConfigurationValidatorObject();
-		$this->injectPropertyMapperObject();
-		$this->injectPropertyMappingConfigurationBuilderObject();
-		$this->injectTargetClassConfigurationValidatorObject();*/
-	}
-
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidValidatesTargetClass()
-	{
-		/** @var TargetClassConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedTargetValidator */
-		$mockedTargetValidator = $this->getMock(
-			TargetClassConfigurationValidator::class, ['validate']
-		);
-		$this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
-
-		/** @var MappingConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedMappingValidator */
-		$mockedMappingValidator = $this->getMock(
-			MappingConfigurationValidator::class
-		);
-		$this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
+    protected function injectPropertyMappingConfigurationBuilderObject()
+    {
 
 
-		$config = [
-			'targetClass' => "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
-		];
-		
-		$mockedTargetValidator->expects($this->once())
-			->method('validate')
-			->with($config);
-		$this->subject->isConfigurationValid($config);
-	}
+        /** @var PropertyMappingConfigurationBuilder $mockPropertyMappingBuilder */
+        $mockPropertyMappingBuilder = $this->getAccessibleMock(
+            PropertyMappingConfigurationBuilder::class,
+            ['dummy']
+        );
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidValidatesMappingClass()
-	{
-		/** @var TargetClassConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedTargetValidator */
-		$mockedTargetValidator = $this->getMock(
-			TargetClassConfigurationValidator::class, ['validate']
-		);
-		$this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
+        $this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingBuilder);
+
+        $this->assertSame(
+            $mockPropertyMappingBuilder,
+            $this->subject->_get('propertyMappingConfigurationBuilder')
+        );
+
+        return $mockPropertyMappingBuilder;
+    }
+
+    protected function injectTargetClassConfigurationValidatorObject()
+    {
+        /** @var TargetClassConfigurationValidator $MockTargetValidator */
+        $MockTargetValidator = $this->getAccessibleMock(
+            TargetClassConfigurationValidator::class,
+            ['dummy']
+        );
+
+        $this->subject->injectTargetClassConfigurationValidator($MockTargetValidator);
+
+        $this->assertSame(
+            $MockTargetValidator,
+            $this->subject->_get('targetClassConfigurationValidator')
+        );
+
+        return $MockTargetValidator;
+    }
+
+    protected function injectMappingConfigurationValidatorObject()
+    {
+        /** @var MappingConfigurationValidator $configurationValidator */
+        $configurationValidator = $this->getAccessibleMock(
+            MappingConfigurationValidator::class,
+            ['dummy']
+        );
+
+        $this->subject->injectMappingConfigurationValidator($configurationValidator);
+
+        $this->assertSame(
+            $configurationValidator,
+            $this->subject->_get('mappingConfigurationValidator')
+        );
+
+        return $configurationValidator;
+    }
+
+    /**
+     * @test
+     */
+    public function getMappingConfigurationTest()
+    {
+        // test for default configurator
+        $mockedObjectManager = $this->injectObjectManager();
+        $mockPropertyMapping = $this->getMock(PropertyMappingConfiguration::class,
+            ['setTypeConverterOptions', 'skipUnknownProperties'], [], '', false);
+        $mockPropertyMapping->expects($this->once())
+            ->method('setTypeConverterOptions')
+            ->will($this->returnValue($mockPropertyMapping));
+
+        $mockedObjectManager->expects($this->once())
+            ->method('get')
+            ->with(PropertyMappingConfiguration::class)
+            ->will($this->returnValue($mockPropertyMapping));
+
+        $configurator = $this->subject->getMappingConfiguration();
+
+        $this->assertSame(
+            $mockPropertyMapping,
+            $configurator
+        );
+
+        // test storage
+        $configurator = $this->subject->getMappingConfiguration();
+
+        $this->assertSame(
+            $mockPropertyMapping,
+            $configurator
+        );
+
+        /*
+        $this->injectMappingConfigurationValidatorObject();
+        $this->injectPropertyMapperObject();
+        $this->injectPropertyMappingConfigurationBuilderObject();
+        $this->injectTargetClassConfigurationValidatorObject();*/
+    }
+
+    /**
+     * @test
+     */
+    public function isConfigurationValidValidatesTargetClass()
+    {
+        /** @var TargetClassConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedTargetValidator */
+        $mockedTargetValidator = $this->getMock(
+            TargetClassConfigurationValidator::class, ['validate']
+        );
+        $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
+
+        /** @var MappingConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedMappingValidator */
+        $mockedMappingValidator = $this->getMock(
+            MappingConfigurationValidator::class
+        );
+        $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 
 
-		/** @var MappingConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedMappingValidator */
-		$mockedMappingValidator = $this->getMock(
-			MappingConfigurationValidator::class,  ['validate']
-		);
-		$this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
+        $config = [
+            'targetClass' => "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
+        ];
+        
+        $mockedTargetValidator->expects($this->once())
+            ->method('validate')
+            ->with($config);
+        $this->subject->isConfigurationValid($config);
+    }
+
+    /**
+     * @test
+     */
+    public function isConfigurationValidValidatesMappingClass()
+    {
+        /** @var TargetClassConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedTargetValidator */
+        $mockedTargetValidator = $this->getMock(
+            TargetClassConfigurationValidator::class, ['validate']
+        );
+        $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
 
 
-		$config = [
-			'targetClass' => "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
-		];
+        /** @var MappingConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedMappingValidator */
+        $mockedMappingValidator = $this->getMock(
+            MappingConfigurationValidator::class, ['validate']
+        );
+        $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 
-		$mockedTargetValidator->expects($this->once())
-			->method('validate')
-			->with($config)
-			->willReturn(true);
-		$mockedMappingValidator->expects($this->once())
-			->method('validate')
-			->with($config);
-		$this->subject->isConfigurationValid($config);
-	}
 
-	/**
-	 * @test
-	 */
-	public function defaultConfigurationRootEnclosure()
-	{
-		$testArray = ['value' => 'a'];
-		$testConfig = [
-			'targetClass' => DataStream::class
-		];
-		$resultObject = new DataStream();
+        $config = [
+            'targetClass' => "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
+        ];
 
-		$objectManager = $this->injectObjectManager();
-		$objectManager->expects($this->once())
-			->method('get')
-			->with(DataStream::class)
-			->willReturn($resultObject);
+        $mockedTargetValidator->expects($this->once())
+            ->method('validate')
+            ->with($config)
+            ->willReturn(true);
+        $mockedMappingValidator->expects($this->once())
+            ->method('validate')
+            ->with($config);
+        $this->subject->isConfigurationValid($config);
+    }
 
-		/** @var DataStream $result */
-		$result = $this->subject->convert($testArray, $testConfig);
-		$this->assertSame($resultObject, $result);
-		$this->assertEquals($result->getSteamBuffer(), '<row><value>a</value></row>');
+    /**
+     * @test
+     */
+    public function defaultConfigurationRootEnclosure()
+    {
+        $testArray = ['value' => 'a'];
+        $testConfig = [
+            'targetClass' => DataStream::class
+        ];
+        $resultObject = new DataStream();
 
-	}
+        $objectManager = $this->injectObjectManager();
+        $objectManager->expects($this->once())
+            ->method('get')
+            ->with(DataStream::class)
+            ->willReturn($resultObject);
 
-	/**
-	 * @test
-	 */
-	public function customConfigurationRootEnclosure()
-	{
-		$testArray = ['value' => 'a'];
-		$testConfig = [
-			'targetClass' => DataStream::class,
-			'nodeName' => 'unitTest'
-		];
-		$resultObject = new DataStream();
+        /** @var DataStream $result */
+        $result = $this->subject->convert($testArray, $testConfig);
+        $this->assertSame($resultObject, $result);
+        $this->assertEquals($result->getSteamBuffer(), '<row><value>a</value></row>');
+    }
 
-		$objectManager = $this->injectObjectManager();
-		$objectManager->expects($this->once())
-			->method('get')
-			->with(DataStream::class)
-			->willReturn($resultObject);
+    /**
+     * @test
+     */
+    public function customConfigurationRootEnclosure()
+    {
+        $testArray = ['value' => 'a'];
+        $testConfig = [
+            'targetClass' => DataStream::class,
+            'nodeName' => 'unitTest'
+        ];
+        $resultObject = new DataStream();
 
-		/** @var DataStream $result */
-		$result = $this->subject->convert($testArray, $testConfig);
-		$this->assertSame($resultObject, $result);
-		$expected = '<unitTest><value>a</value></unitTest>';
-		$this->assertEquals($expected, $result->getSteamBuffer());
+        $objectManager = $this->injectObjectManager();
+        $objectManager->expects($this->once())
+            ->method('get')
+            ->with(DataStream::class)
+            ->willReturn($resultObject);
 
-	}
+        /** @var DataStream $result */
+        $result = $this->subject->convert($testArray, $testConfig);
+        $this->assertSame($resultObject, $result);
+        $expected = '<unitTest><value>a</value></unitTest>';
+        $this->assertEquals($expected, $result->getSteamBuffer());
+    }
 
-	/**
-	 * @test
-	 */
-	public function mappingXMLGeneration()
-	{
-		$testArray = [
-			'value' => 'a',
-			'@mapTo' => 'unitTest',
-			'childNodeArray' => [
-				'@mapTo' => 'customSubNode',
-				'v' => 'a'
-			],
-			'childs' => [
-				'@mapTo' => 'someChilds',
-				[
-					'@mapTo' => 'child',
-					'v' => 'a'
-				],
-				[
-					'@mapTo' => 'child',
-					'v' => 'a'
-				]
-			]
-		];
-		$testConfig = [
-			'targetClass' => DataStream::class
-		];
-		$resultObject = new DataStream();
+    /**
+     * @test
+     */
+    public function mappingXMLGeneration()
+    {
+        $testArray = [
+            'value' => 'a',
+            '@mapTo' => 'unitTest',
+            'childNodeArray' => [
+                '@mapTo' => 'customSubNode',
+                'v' => 'a'
+            ],
+            'childs' => [
+                '@mapTo' => 'someChilds',
+                [
+                    '@mapTo' => 'child',
+                    'v' => 'a'
+                ],
+                [
+                    '@mapTo' => 'child',
+                    'v' => 'a'
+                ]
+            ]
+        ];
+        $testConfig = [
+            'targetClass' => DataStream::class
+        ];
+        $resultObject = new DataStream();
 
-		$objectManager = $this->injectObjectManager();
-		$objectManager->expects($this->once())
-			->method('get')
-			->with(DataStream::class)
-			->willReturn($resultObject);
+        $objectManager = $this->injectObjectManager();
+        $objectManager->expects($this->once())
+            ->method('get')
+            ->with(DataStream::class)
+            ->willReturn($resultObject);
 
-		/** @var DataStream $result */
-		$result = $this->subject->convert($testArray, $testConfig);
-		$this->assertSame($resultObject, $result);
+        /** @var DataStream $result */
+        $result = $this->subject->convert($testArray, $testConfig);
+        $this->assertSame($resultObject, $result);
 
-		$expected = '<unitTest>
+        $expected = '<unitTest>
 			<value>a</value>
 			<customSubNode>
 				<v>a</v>
@@ -356,59 +356,59 @@ class ArrayToXMLStreamTest extends UnitTestCase {
 				</child>
 			</someChilds>
 		</unitTest>';
-		$expected = preg_replace("/\r|\n|\t/", "", $expected);
-		$this->assertEquals($expected, $result->getSteamBuffer());
-	}
+        $expected = preg_replace("/\r|\n|\t/", "", $expected);
+        $this->assertEquals($expected, $result->getSteamBuffer());
+    }
 
-	/**
-	 * @test
-	 */
-	public function attributeXMLGeneration()
-	{
-		$testArray = [
-			'value' => 'a',
-			'@attribute' => [
-				'key' => '1',
-				'otherKey' => '2'
-			],
-			'childNodeArray' => [
-				'v' => 'a',
-				'@attribute' => [
-					'key' => '1',
-					'otherKey' => '2'
-				]
-			],
-			'childs' => [
-				'@attribute' => [
-					'key' => '1'
-				],
-				[
-					'v' => 'a',
-					'@attribute' => [
-						'key' => '1'
-					]
-				],
-				[
-					'v' => 'a'
-				]
-			]
-		];
-		$testConfig = [
-			'targetClass' => DataStream::class
-		];
-		$resultObject = new DataStream();
+    /**
+     * @test
+     */
+    public function attributeXMLGeneration()
+    {
+        $testArray = [
+            'value' => 'a',
+            '@attribute' => [
+                'key' => '1',
+                'otherKey' => '2'
+            ],
+            'childNodeArray' => [
+                'v' => 'a',
+                '@attribute' => [
+                    'key' => '1',
+                    'otherKey' => '2'
+                ]
+            ],
+            'childs' => [
+                '@attribute' => [
+                    'key' => '1'
+                ],
+                [
+                    'v' => 'a',
+                    '@attribute' => [
+                        'key' => '1'
+                    ]
+                ],
+                [
+                    'v' => 'a'
+                ]
+            ]
+        ];
+        $testConfig = [
+            'targetClass' => DataStream::class
+        ];
+        $resultObject = new DataStream();
 
-		$objectManager = $this->injectObjectManager();
-		$objectManager->expects($this->once())
-			->method('get')
-			->with(DataStream::class)
-			->willReturn($resultObject);
+        $objectManager = $this->injectObjectManager();
+        $objectManager->expects($this->once())
+            ->method('get')
+            ->with(DataStream::class)
+            ->willReturn($resultObject);
 
-		/** @var DataStream $result */
-		$result = $this->subject->convert($testArray, $testConfig);
-		$this->assertSame($resultObject, $result);
+        /** @var DataStream $result */
+        $result = $this->subject->convert($testArray, $testConfig);
+        $this->assertSame($resultObject, $result);
 
-		$expected = '<row key="1" otherKey="2">
+        $expected = '<row key="1" otherKey="2">
 						<value>a</value>
 						<childNodeArray key="1" otherKey="2">
 							<v>a</v>
@@ -422,7 +422,7 @@ class ArrayToXMLStreamTest extends UnitTestCase {
 							</row>
 						</childs>
 					</row>';
-		$expected = preg_replace("/\r|\n|\t/", "", $expected);
-		$this->assertEquals($expected, $result->getSteamBuffer());
-	}
+        $expected = preg_replace("/\r|\n|\t/", "", $expected);
+        $this->assertEquals($expected, $result->getSteamBuffer());
+    }
 }

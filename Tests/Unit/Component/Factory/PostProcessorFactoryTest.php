@@ -12,21 +12,20 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class DummyValidPostProcessor
-	extends AbstractPostProcessor
-	implements PostProcessorInterface {
-	/**
-	 * processes the converted record
-	 *
-	 * @param array $configuration
-	 * @param mixed $convertedRecord
-	 * @param array $record
-	 * @return bool
-	 */
-	function process($configuration, &$convertedRecord, &$record) {
-		return true;
-	}
-
+class DummyValidPostProcessor extends AbstractPostProcessor implements PostProcessorInterface
+{
+    /**
+     * processes the converted record
+     *
+     * @param array $configuration
+     * @param mixed $convertedRecord
+     * @param array $record
+     * @return bool
+     */
+    public function process($configuration, &$convertedRecord, &$record)
+    {
+        return true;
+    }
 }
 
 /***************************************************************
@@ -60,87 +59,93 @@ class DummyValidPostProcessor
  *
  * @package CPSIT\T3importExport\Tests\Component\Factory
  */
-class DummyInvalidPostProcessor {
+class DummyInvalidPostProcessor
+{
 }
 /**
  * Class PostProcessorFactoryTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class PostProcessorFactoryTest extends UnitTestCase {
+class PostProcessorFactoryTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\Factory\PostProcessorFactory
-	 */
-	protected $subject;
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-				PostProcessorFactory::class, ['dummy']
-		);
-	}
+    /**
+     * @var \CPSIT\T3importExport\Component\Factory\PostProcessorFactory
+     */
+    protected $subject;
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+                PostProcessorFactory::class, ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1447864207
-	 */
-	public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet() {
-		$configurationWithoutClassName = ['bar'];
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1447864207
+     */
+    public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    {
+        $configurationWithoutClassName = ['bar'];
 
-		$this->subject->get($configurationWithoutClassName, 'fooIdentifier');
-	}
+        $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1447864223
-	 */
-	public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist() {
-		$configurationWithNonExistingClass = [
-			'class' => 'NonExistingClass'
-		];
-		$this->subject->get(
-			$configurationWithNonExistingClass
-		);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1447864223
+     */
+    public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    {
+        $configurationWithNonExistingClass = [
+            'class' => 'NonExistingClass'
+        ];
+        $this->subject->get(
+            $configurationWithNonExistingClass
+        );
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1447864243
-	 */
-	public function getThrowsExceptionIfClassDoesNotImplementPostProcessorInterface() {
-		$configurationWithExistingClass = [
-			'class' => DummyInvalidPostProcessor::class
-		];
-		$this->subject->get(
-			$configurationWithExistingClass
-		);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1447864243
+     */
+    public function getThrowsExceptionIfClassDoesNotImplementPostProcessorInterface()
+    {
+        $configurationWithExistingClass = [
+            'class' => DummyInvalidPostProcessor::class
+        ];
+        $this->subject->get(
+            $configurationWithExistingClass
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getReturnsPostProcessor() {
-		$identifier = 'fooIdentifier';
-		$validClass = DummyValidPostProcessor::class;
-		$validSingleConfiguration = ['foo' => 'bar'];
-		$settings = [
-			'class' => $validClass,
-		];
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class, ['get']
-		);
-		$this->subject->injectObjectManager($mockObjectManager);
-		$mockPreProcessor = $this->getMock($validClass);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->with($validClass)
-			->will($this->returnValue($mockPreProcessor));
-		$this->assertEquals(
-			$mockPreProcessor,
-			$this->subject->get($settings, $identifier)
-		);
-	}
-
+    /**
+     * @test
+     */
+    public function getReturnsPostProcessor()
+    {
+        $identifier = 'fooIdentifier';
+        $validClass = DummyValidPostProcessor::class;
+        $validSingleConfiguration = ['foo' => 'bar'];
+        $settings = [
+            'class' => $validClass,
+        ];
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class, ['get']
+        );
+        $this->subject->injectObjectManager($mockObjectManager);
+        $mockPreProcessor = $this->getMock($validClass);
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->with($validClass)
+            ->will($this->returnValue($mockPreProcessor));
+        $this->assertEquals(
+            $mockPreProcessor,
+            $this->subject->get($settings, $identifier)
+        );
+    }
 }

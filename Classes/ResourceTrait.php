@@ -75,5 +75,4 @@ trait ResourceTrait
 
         return $resource;
     }
-
 }

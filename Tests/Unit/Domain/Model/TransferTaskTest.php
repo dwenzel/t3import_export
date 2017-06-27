@@ -25,253 +25,273 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TransferTaskTest extends UnitTestCase {
+class TransferTaskTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Model\TransferTask
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Model\TransferTask
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			TransferTask::class, ['dummy'], [], '', FALSE
-		);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            TransferTask::class, ['dummy'], [], '', false
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getIdentifierInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getIdentifier()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getIdentifierInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getIdentifier()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getDescriptionInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getDescription()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getDescriptionInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getDescription()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setDescriptionForStringSetsDescription() {
-		$identifier = 'foo';
-		$this->subject->setDescription($identifier);
+    /**
+     * @test
+     */
+    public function setDescriptionForStringSetsDescription()
+    {
+        $identifier = 'foo';
+        $this->subject->setDescription($identifier);
 
-		$this->assertSame(
-			$identifier,
-			$this->subject->getDescription()
-		);
-	}
+        $this->assertSame(
+            $identifier,
+            $this->subject->getDescription()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getTargetClassInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getTargetClass()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getTargetClassInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getTargetClass()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setTargetClassForStringSetsTargetClass() {
-		$identifier = 'foo';
-		$this->subject->setTargetClass($identifier);
+    /**
+     * @test
+     */
+    public function setTargetClassForStringSetsTargetClass()
+    {
+        $identifier = 'foo';
+        $this->subject->setTargetClass($identifier);
 
-		$this->assertSame(
-			$identifier,
-			$this->subject->getTargetClass()
-		);
-	}
+        $this->assertSame(
+            $identifier,
+            $this->subject->getTargetClass()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getTargetInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getTarget()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getTargetInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getTarget()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getSourceInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getSource()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getSourceInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getSource()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setTargetForObjectSetsTarget() {
-		$target = $this->getMock(
-			DataTargetInterface::class,
-			[], [], '', false
-		);
-		$this->subject->setTarget($target);
-		$this->assertSame(
-			$target,
-			$this->subject->getTarget()
-		);
-	}
+    /**
+     * @test
+     */
+    public function setTargetForObjectSetsTarget()
+    {
+        $target = $this->getMock(
+            DataTargetInterface::class,
+            [], [], '', false
+        );
+        $this->subject->setTarget($target);
+        $this->assertSame(
+            $target,
+            $this->subject->getTarget()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setSourceForObjectSetsSource() {
-		$source = $this->getMock(
-			DataSourceInterface::class,
-			[], [], '', false
-		);
-		$this->subject->setSource($source);
-		$this->assertSame(
-			$source,
-			$this->subject->getSource()
-		);
-	}
+    /**
+     * @test
+     */
+    public function setSourceForObjectSetsSource()
+    {
+        $source = $this->getMock(
+            DataSourceInterface::class,
+            [], [], '', false
+        );
+        $this->subject->setSource($source);
+        $this->assertSame(
+            $source,
+            $this->subject->getSource()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getPreProcessorsInitiallyReturnsEmptyArray() {
-		$this->assertSame(
-			[],
-			$this->subject->getPreProcessors()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getPreProcessorsInitiallyReturnsEmptyArray()
+    {
+        $this->assertSame(
+            [],
+            $this->subject->getPreProcessors()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function preProcessorsCanBeSet() {
-		$processors = ['foo'];
-		$this->subject->setPreProcessors($processors);
-		$this->assertSame(
-			$processors,
-			$this->subject->getPreProcessors()
-		);
-	}
+    /**
+     * @test
+     */
+    public function preProcessorsCanBeSet()
+    {
+        $processors = ['foo'];
+        $this->subject->setPreProcessors($processors);
+        $this->assertSame(
+            $processors,
+            $this->subject->getPreProcessors()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getPostProcessorsInitiallyReturnsEmptyArray() {
-		$this->assertSame(
-			[],
-			$this->subject->getPostProcessors()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getPostProcessorsInitiallyReturnsEmptyArray()
+    {
+        $this->assertSame(
+            [],
+            $this->subject->getPostProcessors()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function postProcessorsCanBeSet() {
-		$processors = ['foo'];
-		$this->subject->setPostProcessors($processors);
-		$this->assertSame(
-			$processors,
-			$this->subject->getPostProcessors()
-		);
-	}
+    /**
+     * @test
+     */
+    public function postProcessorsCanBeSet()
+    {
+        $processors = ['foo'];
+        $this->subject->setPostProcessors($processors);
+        $this->assertSame(
+            $processors,
+            $this->subject->getPostProcessors()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getConvertersInitiallyReturnsEmptyArray() {
-		$this->assertSame(
-			[],
-			$this->subject->getConverters()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getConvertersInitiallyReturnsEmptyArray()
+    {
+        $this->assertSame(
+            [],
+            $this->subject->getConverters()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function convertersCanBeSet() {
-		$processors = ['foo'];
-		$this->subject->setConverters($processors);
-		$this->assertSame(
-			$processors,
-			$this->subject->getConverters()
-		);
-	}
+    /**
+     * @test
+     */
+    public function convertersCanBeSet()
+    {
+        $processors = ['foo'];
+        $this->subject->setConverters($processors);
+        $this->assertSame(
+            $processors,
+            $this->subject->getConverters()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getFinishersInitiallyReturnsEmptyArray() {
-		$this->assertSame(
-			[],
-			$this->subject->getFinishers()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getFinishersInitiallyReturnsEmptyArray()
+    {
+        $this->assertSame(
+            [],
+            $this->subject->getFinishers()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function finishersCanBeSet() {
-		$finishers = ['foo'];
-		$this->subject->setFinishers($finishers);
+    /**
+     * @test
+     */
+    public function finishersCanBeSet()
+    {
+        $finishers = ['foo'];
+        $this->subject->setFinishers($finishers);
 
-		$this->assertSame(
-			$finishers,
-			$this->subject->getFinishers()
-		);
-	}
+        $this->assertSame(
+            $finishers,
+            $this->subject->getFinishers()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getInitializersInitiallyReturnsEmptyArray() {
-		$this->assertSame(
-			[],
-			$this->subject->getInitializers()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getInitializersInitiallyReturnsEmptyArray()
+    {
+        $this->assertSame(
+            [],
+            $this->subject->getInitializers()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function initializersCanBeSet() {
-		$initializers = ['foo'];
-		$this->subject->setInitializers($initializers);
+    /**
+     * @test
+     */
+    public function initializersCanBeSet()
+    {
+        $initializers = ['foo'];
+        $this->subject->setInitializers($initializers);
 
-		$this->assertSame(
-			$initializers,
-			$this->subject->getInitializers()
-		);
-	}
+        $this->assertSame(
+            $initializers,
+            $this->subject->getInitializers()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getLabelReturnsInitiallyNull()
-	{
-		$this->assertNull(
-			$this->subject->getLabel()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getLabelReturnsInitiallyNull()
+    {
+        $this->assertNull(
+            $this->subject->getLabel()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setLabelForStringSetsLabel()
-	{
-		$label = 'foo';
-		$this->subject->setLabel($label);
-		$this->assertSame(
-			$label,
-			$this->subject->getLabel()
-		);
-
-	}
+    /**
+     * @test
+     */
+    public function setLabelForStringSetsLabel()
+    {
+        $label = 'foo';
+        $this->subject->setLabel($label);
+        $this->assertSame(
+            $label,
+            $this->subject->getLabel()
+        );
+    }
 }

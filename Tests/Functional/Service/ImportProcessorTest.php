@@ -32,12 +32,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @package CPSIT\T3importExport\Tests\Functional\Service
  */
-class ImportProcessorTest extends FunctionalTestCase {
+class ImportProcessorTest extends FunctionalTestCase
+{
 
-	/**
-	 * @var DataTransferProcessor
-	 */
-	protected $importProcessor;
+    /**
+     * @var DataTransferProcessor
+     */
+    protected $importProcessor;
 
     /**
      * @var TransferTaskFactory
@@ -49,26 +50,28 @@ class ImportProcessorTest extends FunctionalTestCase {
      */
     protected $objectManager;
 
-	/**
-	 * @var array
-	 */
-	protected $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
+    /**
+     * @var array
+     */
+    protected $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
 
-	public function setUp() {
-		parent::setUp();
+    public function setUp()
+    {
+        parent::setUp();
         $this->objectManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
-		$this->importProcessor = $this->objectManager->get(DataTransferProcessor::class);
+        $this->importProcessor = $this->objectManager->get(DataTransferProcessor::class);
         $this->transferTaskFactory = $this->objectManager->get(TransferTaskFactory::class);
         $this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');
     }
 
-	/**
-	 * @test
-	 */
-	public function buildQueueFindsRecords() {
+    /**
+     * @test
+     */
+    public function buildQueueFindsRecords()
+    {
         $taskIdentifier = 'findFeUser';
 
-		$settings = [
+        $settings = [
             'source' => [
                 'config' => [
                     'table' => 'fe_users',
@@ -83,13 +86,13 @@ class ImportProcessorTest extends FunctionalTestCase {
         $importDemand = new TaskDemand();
         $importDemand->setTasks([$importTask]);
 
-		$this->importProcessor->buildQueue($importDemand);
+        $this->importProcessor->buildQueue($importDemand);
 
         $queue = $this->importProcessor->getQueue();
-		$this->assertArrayHasKey(
-			$taskIdentifier,
+        $this->assertArrayHasKey(
+            $taskIdentifier,
             $queue
-		);
+        );
         $this->assertEquals(
             1,
             count($queue[$taskIdentifier])
@@ -98,6 +101,5 @@ class ImportProcessorTest extends FunctionalTestCase {
             $queue[$taskIdentifier][0]['name'],
             'findFeUser'
         );
-	}
-
+    }
 }

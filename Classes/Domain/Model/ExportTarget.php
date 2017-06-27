@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Domain\Model;
 
- /***************************************************************
+/***************************************************************
  *
  *  Copyright notice
  *
@@ -33,44 +33,48 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  *
 *@package Domain\Model
  */
-class ExportTarget extends AbstractEntity {
+class ExportTarget extends AbstractEntity
+{
 
-	/**
-	 * @var string
-	 */
-	protected $title;
+    /**
+     * @var string
+     */
+    protected $title;
 
-	/**
-	 * @var string
-	 */
-	protected $description;
+    /**
+     * @var string
+     */
+    protected $description;
 
-	/**
-	 * @return string
-	 */
-	public function getTitle() {
-		return $this->title;
-	}
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
 
-	/**
-	 * @param string $title
-	 */
-	public function setTitle($title) {
-		$this->title = $title;
-	}
+    /**
+     * @param string $title
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getDescription() {
-		return $this->description;
-	}
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 
-	/**
-	 * @param string $description
-	 */
-	public function setDescription($description) {
-		$this->description = $description;
-	}
-
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
 }

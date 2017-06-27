@@ -2,7 +2,6 @@
 
 namespace CPSIT\T3importExport\Persistence;
 
-
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
