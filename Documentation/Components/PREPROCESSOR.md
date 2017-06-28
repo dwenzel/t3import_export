@@ -15,6 +15,7 @@ Available PreProcessors:
 * [RemoveFields](./PreProcessors/REMOVE_FIELDS.md)
 * [RenderContent](./PreProcessors/RENDER_CONTENT.md)
 * [SetFieldValue](./PreProcessors/SET_FIELD_VALUE.md)
+* [UnsetEmptyFields](./PreProcessors/UnsetEmptyFields.md)
 * [StringToTime](./PreProcessors/STRING_TO_TIME.md)
 * [XMLMapper](./PreProcessors/XML_MAPPER.md)
 
