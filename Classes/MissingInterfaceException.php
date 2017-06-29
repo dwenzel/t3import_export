@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport;
 
- /***************************************************************
+/***************************************************************
  *
  *  Copyright notice
  *
@@ -25,4 +25,6 @@ namespace CPSIT\T3importExport;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class MissingInterfaceException extends  \Exception {}
+class MissingInterfaceException extends \Exception
+{
+}

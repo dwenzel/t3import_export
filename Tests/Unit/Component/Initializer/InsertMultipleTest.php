@@ -31,90 +31,97 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service\Initializer
  * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\InsertMultiple
  */
-class InsertMultipleTest extends UnitTestCase {
+class InsertMultipleTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\Initializer\InsertMultiple|AccessibleObjectInterface|\PHPUnit_Framework_MockObject_MockObject
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\Initializer\InsertMultiple|AccessibleObjectInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(InsertMultiple::class,
-			['dummy'], [], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(InsertMultiple::class,
+            ['dummy'], [], '', false);
+    }
 
-	/**
-	 * @test
-	 * @covers ::injectDatabaseConnectionService
-	 */
-	public function injectDatabaseConnectionServiceForObjectSetsConnectionService() {
-		/** @var DatabaseConnectionService $expectedConnectionService */
-		$expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['dummy'], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::injectDatabaseConnectionService
+     */
+    public function injectDatabaseConnectionServiceForObjectSetsConnectionService()
+    {
+        /** @var DatabaseConnectionService $expectedConnectionService */
+        $expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            ['dummy'], [], '', false);
 
-		$this->subject->injectDatabaseConnectionService($expectedConnectionService);
+        $this->subject->injectDatabaseConnectionService($expectedConnectionService);
 
-		$this->assertSame(
-			$expectedConnectionService,
-			$this->subject->_get('connectionService')
-		);
-	}
+        $this->assertSame(
+            $expectedConnectionService,
+            $this->subject->_get('connectionService')
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function processSetsDatabase() {
-		$configuration = [
-		    'table' => 'foo',
+    /**
+     * @test
+     */
+    public function processSetsDatabase()
+    {
+        $configuration = [
+            'table' => 'foo',
             'fields' => 'bar',
             'rows' => [],
-			'identifier' => 'fooDatabase'
-		];
+            'identifier' => 'fooDatabase'
+        ];
         $mockDatabase = $this->getMock(
             DatabaseConnection::class, ['exec_INSERTmultipleRows'], [], '', false);
         /** @var DatabaseConnectionService $connectionService|\PHPUnit_Framework_MockObject_MockObject */
-		$connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['getDatabase'], [], '', false);
-		$connectionService->expects($this->once())
-			->method('getDatabase')
-			->with($configuration['identifier'])
+        $connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            ['getDatabase'], [], '', false);
+        $connectionService->expects($this->once())
+            ->method('getDatabase')
+            ->with($configuration['identifier'])
             ->will($this->returnValue($mockDatabase));
 
-		$record = [];
-		$this->subject->injectDatabaseConnectionService($connectionService);
+        $record = [];
+        $this->subject->injectDatabaseConnectionService($connectionService);
 
-		$this->subject->process($configuration, $record);
-	}
-
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotSet() {
-		$mockConfiguration = [];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
-
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotString() {
-		$mockConfiguration = [
-			'table' => 1
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+        $this->subject->process($configuration, $record);
+    }
 
     /**
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotSet() {
+    public function isConfigurationValidReturnsFalseIfTableIsNotSet()
+    {
+        $mockConfiguration = [];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
+
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfTableIsNotString()
+    {
+        $mockConfiguration = [
+            'table' => 1
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
+
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotSet()
+    {
         $mockConfiguration = [
             'table' => 'foo'
         ];
@@ -127,7 +134,8 @@ class InsertMultipleTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotString() {
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotString()
+    {
         $mockConfiguration = [
             'table' => 'foo',
             'fields' => 1
@@ -141,7 +149,8 @@ class InsertMultipleTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfRowsIsNotSet() {
+    public function isConfigurationValidReturnsFalseIfRowsIsNotSet()
+    {
         $mockConfiguration = [
             'table' => 'foo',
             'fields' => 'bar'
@@ -155,7 +164,8 @@ class InsertMultipleTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfRowsIsNotArray() {
+    public function isConfigurationValidReturnsFalseIfRowsIsNotArray()
+    {
         $mockConfiguration = [
             'table' => 'foo',
             'fields' => 'bar',
@@ -170,7 +180,8 @@ class InsertMultipleTest extends UnitTestCase {
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfIdentifierIsNotString() {
+    public function isConfigurationValidReturnsFalseIfIdentifierIsNotString()
+    {
         $mockConfiguration = [
             'table' => 'foo',
             'fields' => 'bar',
@@ -183,83 +194,87 @@ class InsertMultipleTest extends UnitTestCase {
     }
 
     /**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsTrueForValidConfiguration() {
-		$validConfiguration = [
-			'table' => 'tableName',
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
+        $validConfiguration = [
+            'table' => 'tableName',
             'fields' => 'foo,bar',
             'rows' => [
                 '1' => 'bar,baz'
             ]
-		];
+        ];
         $this->assertTrue(
-			$this->subject->isConfigurationValid($validConfiguration)
-		);
-	}
+            $this->subject->isConfigurationValid($validConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
-		/** @var DatabaseConnectionService $mockConnectionService */
-		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			[], [], '', FALSE);
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered()
+    {
+        /** @var DatabaseConnectionService $mockConnectionService */
+        $mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            [], [], '', false);
 
-		$this->subject->injectDatabaseConnectionService($mockConnectionService);
+        $this->subject->injectDatabaseConnectionService($mockConnectionService);
 
-		$mockConfiguration = [
-			'identifier' => 'missingDatabaseIdentifier',
-			'table' => 'fooTable',
+        $mockConfiguration = [
+            'identifier' => 'missingDatabaseIdentifier',
+            'table' => 'fooTable',
             'fields' => 'bar',
             'rows' => []
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function constructorSetsDefaultDatabase() {
-		$GLOBALS['TYPO3_DB'] = $this->getMock(
-			DatabaseConnection::class, [], [], '', false
-		);
-		$this->subject->__construct();
+    /**
+     * @test
+     */
+    public function constructorSetsDefaultDatabase()
+    {
+        $GLOBALS['TYPO3_DB'] = $this->getMock(
+            DatabaseConnection::class, [], [], '', false
+        );
+        $this->subject->__construct();
 
-		$this->assertSame(
-			$GLOBALS['TYPO3_DB'],
-			$this->subject->_get('database')
-		);
-	}
+        $this->assertSame(
+            $GLOBALS['TYPO3_DB'],
+            $this->subject->_get('database')
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function processInsertsMultipleRecordsIntoTable() {
-		$tableName = 'fooTable';
-		$fields = 'foo,bar';
-		$rows = [
+    /**
+     * @test
+     */
+    public function processInsertsMultipleRecordsIntoTable()
+    {
+        $tableName = 'fooTable';
+        $fields = 'foo,bar';
+        $rows = [
             '10' => 'baz,boom',
             '20' => 'boing,peng'
         ];
-		$config = [
-			'table' => $tableName,
+        $config = [
+            'table' => $tableName,
             'fields' => $fields,
             'rows' => $rows
-		];
-		$records = [];
-		$mockDatabase = $this->getMock(
-			DatabaseConnection::class, ['exec_INSERTmultipleRows']
-		);
-		$mockDatabase->expects($this->once())
-			->method('exec_INSERTmultipleRows')
-			->with($tableName);
-		$this->subject->_set('database', $mockDatabase);
+        ];
+        $records = [];
+        $mockDatabase = $this->getMock(
+            DatabaseConnection::class, ['exec_INSERTmultipleRows']
+        );
+        $mockDatabase->expects($this->once())
+            ->method('exec_INSERTmultipleRows')
+            ->with($tableName);
+        $this->subject->_set('database', $mockDatabase);
 
-		$this->subject->process($config, $records);
-	}
+        $this->subject->process($config, $records);
+    }
 }

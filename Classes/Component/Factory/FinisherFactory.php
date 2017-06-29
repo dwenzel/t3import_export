@@ -30,44 +30,46 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class FinisherFactory extends AbstractFactory {
-	/**
-	 * Builds a Finisher object
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 * @return \CPSIT\T3importExport\Component\Finisher\FinisherInterface
-	 */
-	public function get(array $settings, $identifier = NULL) {
-		$additionalInformation = '.';
-		if (!is_null($identifier)) {
-			$additionalInformation = ' for ' . $identifier;
-		}
-		if (!isset($settings['class'])) {
-			throw new InvalidConfigurationException(
-				'Missing class in finisher configuration' . $additionalInformation,
-				1454187892
-			);
-		}
-		$className = $settings['class'];
+class FinisherFactory extends AbstractFactory
+{
+    /**
+     * Builds a Finisher object
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     * @return \CPSIT\T3importExport\Component\Finisher\FinisherInterface
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        $additionalInformation = '.';
+        if (!is_null($identifier)) {
+            $additionalInformation = ' for ' . $identifier;
+        }
+        if (!isset($settings['class'])) {
+            throw new InvalidConfigurationException(
+                'Missing class in finisher configuration' . $additionalInformation,
+                1454187892
+            );
+        }
+        $className = $settings['class'];
 
-		if (!class_exists($className)) {
-			throw new InvalidConfigurationException(
-				'Finisher class ' . $className . ' in configuration for' . $additionalInformation
-				. ' does not exist.',
-				1454187903
-			);
-		}
+        if (!class_exists($className)) {
+            throw new InvalidConfigurationException(
+                'Finisher class ' . $className . ' in configuration for' . $additionalInformation
+                . ' does not exist.',
+                1454187903
+            );
+        }
 
-		if (!in_array(FinisherInterface::class, class_implements($className))) {
-			throw new InvalidConfigurationException(
-				'Finisher class ' . $className . ' in configuration for' . $additionalInformation
-				. ' must implement FinisherInterface.',
-				1454187910
-			);
-		}
+        if (!in_array(FinisherInterface::class, class_implements($className))) {
+            throw new InvalidConfigurationException(
+                'Finisher class ' . $className . ' in configuration for' . $additionalInformation
+                . ' must implement FinisherInterface.',
+                1454187910
+            );
+        }
 
-		return $this->objectManager->get($className);
-	}
+        return $this->objectManager->get($className);
+    }
 }

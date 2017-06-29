@@ -1,5 +1,6 @@
 <?php
 namespace CPSIT\T3importExport;
+
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 
@@ -48,7 +49,8 @@ trait DatabaseTrait
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         if (!$this->database instanceof DatabaseConnection) {
             $this->database = $GLOBALS['TYPO3_DB'];
         }
@@ -59,7 +61,8 @@ trait DatabaseTrait
      *
      * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
      */
-    public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService) {
+    public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService)
+    {
         $this->connectionService = $dbConnectionService;
     }
 }

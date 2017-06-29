@@ -1,13 +1,10 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\Persistence\DataSourceXML;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /**
  * Class DataSourceXMLTest
@@ -26,9 +23,8 @@ class DataSourceXMLTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock(DataSourceXML::class,
-            ['dummy', 'getAbsoluteFilePath'], [], '', FALSE);
+            ['dummy', 'getAbsoluteFilePath'], [], '', false);
         vfsStreamWrapper::register();
-
     }
 
     /**
@@ -70,7 +66,7 @@ class DataSourceXMLTest extends UnitTestCase
     /**
      * @test
      */
-    public function isConfigurationValidReturnsFalseIfForInvalidFilePath()
+    public function isConfigurationValidReturnsFalseForInvalidFilePath()
     {
         $invalidPath = 'fooPath';
         $configuration = [
@@ -93,7 +89,6 @@ class DataSourceXMLTest extends UnitTestCase
      */
     public function isConfigurationValidReturnsTrueForValidConfiguration()
     {
-
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.xml';
         $relativePath = $fileDirectory . '/' . $fileName;
@@ -141,7 +136,6 @@ class DataSourceXMLTest extends UnitTestCase
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
-
     }
 
     /**
@@ -182,6 +176,5 @@ class DataSourceXMLTest extends UnitTestCase
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
-
     }
 }

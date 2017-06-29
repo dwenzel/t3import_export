@@ -28,56 +28,61 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ConfigurableTraitTest extends UnitTestCase {
+class ConfigurableTraitTest extends UnitTestCase
+{
 
-	/**
-	 * @var ConfigurableTrait
-	 */
-	protected $subject;
+    /**
+     * @var ConfigurableTrait
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getMockForTrait(
-			ConfigurableTrait::class
-		);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getMockForTrait(
+            ConfigurableTrait::class
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getConfigurationInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getConfiguration()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getConfigurationInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getConfiguration()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setConfigurationSetsValidConfiguration() {
-		$configuration = ['foo'];
+    /**
+     * @test
+     */
+    public function setConfigurationSetsValidConfiguration()
+    {
+        $configuration = ['foo'];
 
-		$this->subject->expects($this->once())
-			->method('isConfigurationValid')
-			->will($this->returnValue(true));
-		$this->subject->setConfiguration($configuration);
+        $this->subject->expects($this->once())
+            ->method('isConfigurationValid')
+            ->will($this->returnValue(true));
+        $this->subject->setConfiguration($configuration);
 
-		$this->assertSame(
-			$configuration,
-			$this->subject->getConfiguration()
-		);
-	}
+        $this->assertSame(
+            $configuration,
+            $this->subject->getConfiguration()
+        );
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1451659793
-	 */
-	public function setConfigurationThrowsExceptionForInvalidConfiguration() {
-		$configuration = ['foo'];
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1451659793
+     */
+    public function setConfigurationThrowsExceptionForInvalidConfiguration()
+    {
+        $configuration = ['foo'];
 
-		$this->subject->expects($this->once())
-			->method('isConfigurationValid')
-			->will($this->returnValue(false));
-		$this->subject->setConfiguration($configuration);
-	}
+        $this->subject->expects($this->once())
+            ->method('isConfigurationValid')
+            ->will($this->returnValue(false));
+        $this->subject->setConfiguration($configuration);
+    }
 }

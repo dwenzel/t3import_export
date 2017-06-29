@@ -27,75 +27,80 @@ use CPSIT\T3importExport\IdentifiableTrait;
  *
  * @package CPSIT\T3importExport\Domain\Model
  */
-class TransferSet implements IdentifiableInterface {
-	use IdentifiableTrait;
+class TransferSet implements IdentifiableInterface
+{
+    use IdentifiableTrait;
 
-	/**
-	 * Description
-	 *
-	 * @var string
-	 */
-	protected $description;
+    /**
+     * Description
+     *
+     * @var string
+     */
+    protected $description;
 
-	/**
-	 * Label
-	 *
-	 * @var string
-	 */
-	protected $label;
+    /**
+     * Label
+     *
+     * @var string
+     */
+    protected $label;
 
-	/**
-	 * Tasks to perform
-	 *
-	 * @var array
-	 */
-	protected $tasks;
+    /**
+     * Tasks to perform
+     *
+     * @var array
+     */
+    protected $tasks;
 
-	/**
-	 * @return string
-	 */
-	public function getDescription() {
-		return $this->description;
-	}
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 
-	/**
-	 * @param string $description
-	 */
-	public function setDescription($description) {
-		$this->description = $description;
-	}
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
 
-	/**
-	 * @return array
-	 */
-	public function getTasks() {
-		return $this->tasks;
-	}
+    /**
+     * @return array
+     */
+    public function getTasks()
+    {
+        return $this->tasks;
+    }
 
-	/**
-	 * @param array $tasks
-	 */
-	public function setTasks($tasks) {
-		$this->tasks = $tasks;
-	}
+    /**
+     * @param array $tasks
+     */
+    public function setTasks($tasks)
+    {
+        $this->tasks = $tasks;
+    }
 
-	/**
-	 * Gets the label
-	 *
-	 * @return string
-	 */
-	public function getLabel()
-	{
-		return $this->label;
-	}
+    /**
+     * Gets the label
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 
-	/**
-	 * Sets the label
-	 *
-	 * @param string $label
-	 */
-	public function setLabel($label)
-	{
-		$this->label = $label;
-	}
+    /**
+     * Sets the label
+     *
+     * @param string $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
 }

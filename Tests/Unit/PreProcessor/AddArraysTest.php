@@ -1,7 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\PreProcessor;
 
-
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -29,113 +28,113 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  */
 class AddArraysTest extends UnitTestCase
 {
-	/**
-	 * @var \CPSIT\T3importExport\Component\PreProcessor\MapFields
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\PreProcessor\MapFields
+     */
+    protected $subject;
 
-	public function setUp()
-	{
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\AddArrays',
-			['dummy'], [], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\AddArrays',
+            ['dummy'], [], '', false);
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsInitiallyFalse()
-	{
-		$mockConfiguration = ['foo'];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsInitiallyFalse()
+    {
+        $mockConfiguration = ['foo'];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsFalseIfTargetFieldsIsEmpty()
-	{
-		$config = [
-			'targetField' => '',
-			'fields' => 'foo'
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfTargetFieldsIsEmpty()
+    {
+        $config = [
+            'targetField' => '',
+            'fields' => 'foo'
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
-	{
-		$config = [
-			'targetField' => [],
-			'fields' => true
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
+    {
+        $config = [
+            'targetField' => [],
+            'fields' => true
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
-	{
-		$config = [
-			'targetField' => 'foo',
-			'fields' => ''
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
+    {
+        $config = [
+            'targetField' => 'foo',
+            'fields' => ''
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsTrueForValidConfiguration()
-	{
-		$config = [
-			'targetField' => 'fooBar',
-			'fields' => 'foo,bar,dur'
-		];
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
+        $config = [
+            'targetField' => 'fooBar',
+            'fields' => 'foo,bar,dur'
+        ];
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function processAddArrays()
-	{
-		$config = [
-			'targetField' => 'new',
-			'fields' => 'bar,dur'
-		];
-		$record = [
-			'foo' => 'a',
-			'bar' => [
-				'a'
-			],
-			'dur' => [
-				'a'
-			]
-		];
+    /**
+     * @test
+     */
+    public function processAddArrays()
+    {
+        $config = [
+            'targetField' => 'new',
+            'fields' => 'bar,dur'
+        ];
+        $record = [
+            'foo' => 'a',
+            'bar' => [
+                'a'
+            ],
+            'dur' => [
+                'a'
+            ]
+        ];
 
-		$expectedResult = $record;
-		$expectedResult['new'] = [
-			'a',
-			'a'
-		];
-		$this->subject->process($config, $record);
+        $expectedResult = $record;
+        $expectedResult['new'] = [
+            'a',
+            'a'
+        ];
+        $this->subject->process($config, $record);
 
-		$this->assertEquals(
-			$expectedResult,
-			$record
-		);
-	}
+        $this->assertEquals(
+            $expectedResult,
+            $record
+        );
+    }
 }

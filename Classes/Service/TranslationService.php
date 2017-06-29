@@ -65,7 +65,7 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
 
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($dataMap->getTranslationOriginColumnName());
 
-        if ($translation->_setProperty($propertyName, $origin) === FALSE) {
+        if ($translation->_setProperty($propertyName, $origin) === false) {
             $columnMap = $dataMap->getColumnMap($propertyName);
             $columnMap->setTypeOfRelation(ColumnMap::RELATION_HAS_ONE);
             $columnMap->setType($dataMap->getClassName());

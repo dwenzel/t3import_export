@@ -25,52 +25,54 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * @package CPSIT\T3importExport\PreProcessor
  */
-class MapFields
-	extends AbstractPreProcessor
-	implements PreProcessorInterface {
+class MapFields extends AbstractPreProcessor implements PreProcessorInterface
+{
 
-	/**
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['fields'])) {
-			return FALSE;
-		}
-		if (!is_array($configuration['fields'])) {
-			return FALSE;
-		}
-		foreach ($configuration['fields'] as $field => $value) {
-			if (!is_string($value)
-				OR empty($value)
-			) {
-				return FALSE;
-			}
-		}
+    /**
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['fields'])) {
+            return false;
+        }
+        if (!is_array($configuration['fields'])) {
+            return false;
+        }
+        foreach ($configuration['fields'] as $field => $value) {
+            if (!is_string($value)
+                or empty($value)
+            ) {
+                return false;
+            }
+        }
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * @param array $configuration
-	 * @param array $record
-	 * @return TRUE
-	 */
-	public function process($configuration, &$record) {
-		$fields = $configuration['fields'];
-		foreach ($fields as $sourceField => $targetField) {
-			$this->mapField($sourceField, $targetField, $record);
-		}
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @return TRUE
+     */
+    public function process($configuration, &$record)
+    {
+        $fields = $configuration['fields'];
+        foreach ($fields as $sourceField => $targetField) {
+            $this->mapField($sourceField, $targetField, $record);
+        }
 
-		return TRUE;
-	}
+        return true;
+    }
 
-	/**
-	 * @param string $sourceField
-	 * @param string $targetField
-	 * @param array $record
-	 */
-	protected function mapField($sourceField, $targetField, &$record) {
-		$record[$targetField] = $record[$sourceField];
-	}
+    /**
+     * @param string $sourceField
+     * @param string $targetField
+     * @param array $record
+     */
+    protected function mapField($sourceField, $targetField, &$record)
+    {
+        $record[$targetField] = $record[$sourceField];
+    }
 }

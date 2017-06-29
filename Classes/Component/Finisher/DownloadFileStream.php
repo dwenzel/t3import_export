@@ -27,9 +27,7 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DownloadFileStream
-    extends AbstractFinisher
-    implements FinisherInterface, ConfigurableInterface
+class DownloadFileStream extends AbstractFinisher implements FinisherInterface, ConfigurableInterface
 {
 
     /**
@@ -63,7 +61,6 @@ class DownloadFileStream
     protected function prepareFileToDownload($filePath, $configuration)
     {
         if (file_exists($filePath)) {
-
             $cType = 'application/octet-stream';
             $fileName = 'file_' . time();
             $fileExt = '.dat';

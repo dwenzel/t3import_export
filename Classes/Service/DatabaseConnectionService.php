@@ -105,5 +105,4 @@ class DatabaseConnectionService implements SingletonInterface
     {
         return isset(self::$dataBases[$identifier]);
     }
-
 }

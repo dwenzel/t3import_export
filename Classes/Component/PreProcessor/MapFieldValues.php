@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-    /***************************************************************
+/***************************************************************
      *  Copyright notice
      *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
      *  All rights reserved
@@ -25,9 +25,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * @package CPSIT\T3importExport\Component\PreProcessor
  */
-class MapFieldValues
-    extends AbstractPreProcessor
-    implements PreProcessorInterface
+class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterface
 {
 
     /**
@@ -59,18 +57,18 @@ class MapFieldValues
             return false;
         }
         if (isset($configuration['fields'])
-            AND !is_array($configuration['fields'])
+            and !is_array($configuration['fields'])
         ) {
             return false;
         }
         foreach ($configuration['fields'] as $field) {
             if (!isset($field['targetField'])
-                OR !is_string(($field['targetField']))
+                or !is_string(($field['targetField']))
             ) {
                 return false;
             }
             if (!isset($field['values'])
-                OR !is_array($field['values'])
+                or !is_array($field['values'])
             ) {
                 return false;
             }

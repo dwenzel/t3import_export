@@ -19,86 +19,93 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\AccessibleObjectInterface;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
-class DeleteFromTableTest extends UnitTestCase {
+class DeleteFromTableTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\Initializer\DeleteFromTable|AccessibleObjectInterface|\PHPUnit_Framework_MockObject_MockObject
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\Initializer\DeleteFromTable|AccessibleObjectInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(DeleteFromTable::class,
-			['dummy'], [], '', false);
-	}
-
-	/**
-	 * @test
-	 */
-	public function injectDatabaseConnectionServiceForObjectSetsConnectionService() {
-		/** @var DatabaseConnectionService $expectedConnectionService */
-		$expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['dummy'], [], '', false);
-
-		$this->subject->injectDatabaseConnectionService($expectedConnectionService);
-
-		$this->assertSame(
-			$expectedConnectionService,
-			$this->subject->_get('connectionService')
-		);
-	}
-
-	/**
-	 * @test
-	 */
-	public function processSetsDatabase() {
-		$configuration = [
-		    'table' => 'foo',
-            'fields' => 'bar',
-            'rows' => [],
-			'identifier' => 'fooDatabase'
-		];
-        $mockDatabase = $this->getMock(
-            DatabaseConnection::class, ['exec_DELETEquery'], [], '', false);
-        /** @var DatabaseConnectionService $connectionService|\PHPUnit_Framework_MockObject_MockObject */
-		$connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			['getDatabase'], [], '', false);
-		$connectionService->expects($this->once())
-			->method('getDatabase')
-			->with($configuration['identifier'])
-            ->will($this->returnValue($mockDatabase));
-
-		$record = [];
-		$this->subject->injectDatabaseConnectionService($connectionService);
-
-		$this->subject->process($configuration, $record);
-	}
-
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotSet() {
-		$mockConfiguration = [];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
-
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsFalseIfTableIsNotString() {
-		$mockConfiguration = [
-			'table' => 1
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(DeleteFromTable::class,
+            ['dummy'], [], '', false);
+    }
 
     /**
      * @test
      */
-    public function isConfigurationValidReturnsFalseIfWhereIsNotSet() {
+    public function injectDatabaseConnectionServiceForObjectSetsConnectionService()
+    {
+        /** @var DatabaseConnectionService $expectedConnectionService */
+        $expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            ['dummy'], [], '', false);
+
+        $this->subject->injectDatabaseConnectionService($expectedConnectionService);
+
+        $this->assertSame(
+            $expectedConnectionService,
+            $this->subject->_get('connectionService')
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function processSetsDatabase()
+    {
+        $configuration = [
+            'table' => 'foo',
+            'fields' => 'bar',
+            'rows' => [],
+            'identifier' => 'fooDatabase'
+        ];
+        $mockDatabase = $this->getMock(
+            DatabaseConnection::class, ['exec_DELETEquery'], [], '', false);
+        /** @var DatabaseConnectionService $connectionService|\PHPUnit_Framework_MockObject_MockObject */
+        $connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            ['getDatabase'], [], '', false);
+        $connectionService->expects($this->once())
+            ->method('getDatabase')
+            ->with($configuration['identifier'])
+            ->will($this->returnValue($mockDatabase));
+
+        $record = [];
+        $this->subject->injectDatabaseConnectionService($connectionService);
+
+        $this->subject->process($configuration, $record);
+    }
+
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfTableIsNotSet()
+    {
+        $mockConfiguration = [];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfTableIsNotString()
+    {
+        $mockConfiguration = [
+            'table' => 1
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfWhereIsNotSet()
+    {
         $mockConfiguration = [
             'table' => 'foo'
         ];
@@ -110,7 +117,8 @@ class DeleteFromTableTest extends UnitTestCase {
     /**
      * @test
      */
-    public function isConfigurationValidReturnsFalseIfWhereIsNotString() {
+    public function isConfigurationValidReturnsFalseIfWhereIsNotString()
+    {
         $mockConfiguration = [
             'table' => 'foo',
             'where' => []
@@ -123,7 +131,8 @@ class DeleteFromTableTest extends UnitTestCase {
     /**
      * @test
      */
-    public function isConfigurationValidReturnsFalseIfIdentifierIsNotString() {
+    public function isConfigurationValidReturnsFalseIfIdentifierIsNotString()
+    {
         $mockConfiguration = [
             'table' => 'foo',
             'where' => 'bar',
@@ -135,72 +144,76 @@ class DeleteFromTableTest extends UnitTestCase {
     }
 
     /**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsTrueForValidConfiguration() {
-		$validConfiguration = [
-			'table' => 'tableName',
+     * @test
+     */
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
+        $validConfiguration = [
+            'table' => 'tableName',
             'where' => 'foo,bar',
-		];
+        ];
         $this->assertTrue(
-			$this->subject->isConfigurationValid($validConfiguration)
-		);
-	}
+            $this->subject->isConfigurationValid($validConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered() {
-		/** @var DatabaseConnectionService $mockConnectionService */
-		$mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-			[], [], '', false);
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered()
+    {
+        /** @var DatabaseConnectionService $mockConnectionService */
+        $mockConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
+            [], [], '', false);
 
-		$this->subject->injectDatabaseConnectionService($mockConnectionService);
+        $this->subject->injectDatabaseConnectionService($mockConnectionService);
 
-		$mockConfiguration = [
-			'identifier' => 'missingDatabaseIdentifier',
-			'table' => 'fooTable',
+        $mockConfiguration = [
+            'identifier' => 'missingDatabaseIdentifier',
+            'table' => 'fooTable',
             'where' => 'bar',
-      	];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+          ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function constructorSetsDefaultDatabase() {
-		$GLOBALS['TYPO3_DB'] = $this->getMock(
-			DatabaseConnection::class, [], [], '', false
-		);
-		$this->subject->__construct();
+    /**
+     * @test
+     */
+    public function constructorSetsDefaultDatabase()
+    {
+        $GLOBALS['TYPO3_DB'] = $this->getMock(
+            DatabaseConnection::class, [], [], '', false
+        );
+        $this->subject->__construct();
 
-		$this->assertSame(
-			$GLOBALS['TYPO3_DB'],
-			$this->subject->_get('database')
-		);
-	}
+        $this->assertSame(
+            $GLOBALS['TYPO3_DB'],
+            $this->subject->_get('database')
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function processDeletesRecordsFromTable() {
-		$tableName = 'fooTable';
-		$where = 'foo=bar';
-		$config = [
-			'table' => $tableName,
+    /**
+     * @test
+     */
+    public function processDeletesRecordsFromTable()
+    {
+        $tableName = 'fooTable';
+        $where = 'foo=bar';
+        $config = [
+            'table' => $tableName,
             'where' => $where,
-		];
-		$records = [];
-		$mockDatabase = $this->getMock(
-			DatabaseConnection::class, ['exec_DELETEquery']
-		);
-		$mockDatabase->expects($this->once())
-			->method('exec_DELETEquery')
-			->with($tableName);
-		$this->subject->_set('database', $mockDatabase);
+        ];
+        $records = [];
+        $mockDatabase = $this->getMock(
+            DatabaseConnection::class, ['exec_DELETEquery']
+        );
+        $mockDatabase->expects($this->once())
+            ->method('exec_DELETEquery')
+            ->with($tableName);
+        $this->subject->_set('database', $mockDatabase);
 
-		$this->subject->process($config, $records);
-	}
+        $this->subject->process($config, $records);
+    }
 }

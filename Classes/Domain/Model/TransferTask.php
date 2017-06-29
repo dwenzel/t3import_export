@@ -30,228 +30,245 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  *
  * @package CPSIT\T3importExport\Domain\Model
  */
-class TransferTask
-	extends AbstractEntity
-	implements IdentifiableInterface {
-	use IdentifiableTrait;
+class TransferTask extends AbstractEntity implements IdentifiableInterface
+{
+    use IdentifiableTrait;
 
-	/**
-	 * Target class name
-	 *
-	 * @var string
-	 */
-	protected $targetClass;
+    /**
+     * Target class name
+     *
+     * @var string
+     */
+    protected $targetClass;
 
     /**
      * Label
      *
      * @var string
      */
-	protected $label;
-	/**
+    protected $label;
+    /**
      * Description
      *
-	 * @var string
-	 */
-	protected $description;
+     * @var string
+     */
+    protected $description;
 
-	/**
-	 * @var DataSourceInterface
-	 */
-	protected $source;
+    /**
+     * @var DataSourceInterface
+     */
+    protected $source;
 
-	/**
-	 * @var DataTargetInterface
-	 */
-	protected $target;
+    /**
+     * @var DataTargetInterface
+     */
+    protected $target;
 
-	/**
-	 * Pre Processors
-	 *
-	 * @var array
-	 */
-	protected $preProcessors = [];
+    /**
+     * Pre Processors
+     *
+     * @var array
+     */
+    protected $preProcessors = [];
 
-	/**
-	 * Post Processors
-	 *
-	 * @var array
-	 */
-	protected $postProcessors = [];
+    /**
+     * Post Processors
+     *
+     * @var array
+     */
+    protected $postProcessors = [];
 
-	/**
-	 * Converters
-	 *
-	 * @var array
-	 */
-	protected $converters = [];
+    /**
+     * Converters
+     *
+     * @var array
+     */
+    protected $converters = [];
 
-	/**
-	 * Finishers
-	 *
-	 * @var array
-	 */
-	protected $finishers = [];
+    /**
+     * Finishers
+     *
+     * @var array
+     */
+    protected $finishers = [];
 
-	/**
-	 * Initializers
-	 *
-	 * @var array
-	 */
-	protected $initializers = [];
+    /**
+     * Initializers
+     *
+     * @var array
+     */
+    protected $initializers = [];
 
-	/**
-	 * @return string
-	 */
-	public function getDescription() {
-		return $this->description;
-	}
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 
-	/**
-	 * @param string $description
-	 */
-	public function setDescription($description) {
-		$this->description = $description;
-	}
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getTargetClass() {
-		return $this->targetClass;
-	}
+    /**
+     * @return string
+     */
+    public function getTargetClass()
+    {
+        return $this->targetClass;
+    }
 
-	/**
-	 * @param string $targetClass
-	 */
-	public function setTargetClass($targetClass) {
-		$this->targetClass = $targetClass;
-	}
+    /**
+     * @param string $targetClass
+     */
+    public function setTargetClass($targetClass)
+    {
+        $this->targetClass = $targetClass;
+    }
 
-	/**
-	 * Gets the source of import
-	 *
-	 * @return DataSourceInterface
-	 */
-	public function getSource() {
-		return $this->source;
-	}
+    /**
+     * Gets the source of import
+     *
+     * @return DataSourceInterface
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
 
-	/**
-	 * Sets the source of import
-	 *
-	 * @param DataSourceInterface $source
-	 */
-	public function setSource(DataSourceInterface $source) {
-		$this->source = $source;
-	}
+    /**
+     * Sets the source of import
+     *
+     * @param DataSourceInterface $source
+     */
+    public function setSource(DataSourceInterface $source)
+    {
+        $this->source = $source;
+    }
 
-	/**
-	 * Gets the target of import
-	 *
-	 * @return DataTargetInterface
-	 */
-	public function getTarget() {
-		return $this->target;
-	}
+    /**
+     * Gets the target of import
+     *
+     * @return DataTargetInterface
+     */
+    public function getTarget()
+    {
+        return $this->target;
+    }
 
-	/**
-	 * Sets the target of import
-	 *
-	 * @param DataTargetInterface $target
-	 */
-	public function setTarget(DataTargetInterface $target) {
-		$this->target = $target;
-	}
+    /**
+     * Sets the target of import
+     *
+     * @param DataTargetInterface $target
+     */
+    public function setTarget(DataTargetInterface $target)
+    {
+        $this->target = $target;
+    }
 
-	/**
+    /**
      * Gets the pre-processors
      *
-	 * @return array
-	 */
-	public function getPreProcessors() {
-		return $this->preProcessors;
-	}
+     * @return array
+     */
+    public function getPreProcessors()
+    {
+        return $this->preProcessors;
+    }
 
-	/**
+    /**
      * Sets the pre-processors
-	 * @param array $preProcessors
-	 */
-	public function setPreProcessors($preProcessors) {
-		$this->preProcessors = $preProcessors;
-	}
+     * @param array $preProcessors
+     */
+    public function setPreProcessors($preProcessors)
+    {
+        $this->preProcessors = $preProcessors;
+    }
 
-	/**
+    /**
      * Gets the post-processors
      *
-	 * @return array
-	 */
-	public function getPostProcessors() {
-		return $this->postProcessors;
-	}
+     * @return array
+     */
+    public function getPostProcessors()
+    {
+        return $this->postProcessors;
+    }
 
-	/**
+    /**
      * Sets the post-processors
      *
-	 * @param array $postProcessors
-	 */
-	public function setPostProcessors($postProcessors) {
-		$this->postProcessors = $postProcessors;
-	}
+     * @param array $postProcessors
+     */
+    public function setPostProcessors($postProcessors)
+    {
+        $this->postProcessors = $postProcessors;
+    }
 
-	/**
+    /**
      * Gets the converters
      *
-	 * @return array
-	 */
-	public function getConverters() {
-		return $this->converters;
-	}
+     * @return array
+     */
+    public function getConverters()
+    {
+        return $this->converters;
+    }
 
-	/**
+    /**
      * Sets the converters
      *
-	 * @param array $converters
-	 */
-	public function setConverters($converters) {
-		$this->converters = $converters;
-	}
+     * @param array $converters
+     */
+    public function setConverters($converters)
+    {
+        $this->converters = $converters;
+    }
 
-	/**
+    /**
      * Gets the finishers
      *
-	 * @return array
-	 */
-	public function getFinishers() {
-		return $this->finishers;
-	}
+     * @return array
+     */
+    public function getFinishers()
+    {
+        return $this->finishers;
+    }
 
-	/**
+    /**
      * sets the finishers
      *
-	 * @param array $finishers
-	 */
-	public function setFinishers($finishers) {
-		$this->finishers = $finishers;
-	}
+     * @param array $finishers
+     */
+    public function setFinishers($finishers)
+    {
+        $this->finishers = $finishers;
+    }
 
-	/**
+    /**
      * Gets the initializers
      *
-	 * @return array
-	 */
-	public function getInitializers() {
-		return $this->initializers;
-	}
+     * @return array
+     */
+    public function getInitializers()
+    {
+        return $this->initializers;
+    }
 
-	/**
+    /**
      * Sets the initializers
      *
-	 * @param array $initializers
-	 */
-	public function setInitializers($initializers) {
-		$this->initializers = $initializers;
-	}
+     * @param array $initializers
+     */
+    public function setInitializers($initializers)
+    {
+        $this->initializers = $initializers;
+    }
 
     /**
      * Gets the label

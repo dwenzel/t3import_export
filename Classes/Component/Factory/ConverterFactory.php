@@ -29,44 +29,46 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ConverterFactory extends AbstractFactory {
-	/**
-	 * Builds a Converter object
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 * @return \CPSIT\T3importExport\Component\Converter\ConverterInterface
-	 */
-	public function get(array $settings, $identifier = NULL) {
-		$additionalInformation = '.';
-		if (!is_null($identifier)) {
-			$additionalInformation = ' for ' . $identifier;
-		}
-		if (!isset($settings['class'])) {
-			throw new InvalidConfigurationException(
-				'Missing class in converter configuration' . $additionalInformation,
-				1451566686
-			);
-		}
-		$className = $settings['class'];
+class ConverterFactory extends AbstractFactory
+{
+    /**
+     * Builds a Converter object
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     * @return \CPSIT\T3importExport\Component\Converter\ConverterInterface
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        $additionalInformation = '.';
+        if (!is_null($identifier)) {
+            $additionalInformation = ' for ' . $identifier;
+        }
+        if (!isset($settings['class'])) {
+            throw new InvalidConfigurationException(
+                'Missing class in converter configuration' . $additionalInformation,
+                1451566686
+            );
+        }
+        $className = $settings['class'];
 
-		if (!class_exists($className)) {
-			throw new InvalidConfigurationException(
-				'Converter class ' . $className . ' in configuration for' . $additionalInformation
-				. ' does not exist.',
-				1451566699
-			);
-		}
+        if (!class_exists($className)) {
+            throw new InvalidConfigurationException(
+                'Converter class ' . $className . ' in configuration for' . $additionalInformation
+                . ' does not exist.',
+                1451566699
+            );
+        }
 
-		if (!in_array(ConverterInterface::class, class_implements($className))) {
-			throw new InvalidConfigurationException(
-				'Converter class ' . $className . ' in configuration for' . $additionalInformation
-				. ' must implement ConverterInterface.',
-				1451566706
-			);
-		}
+        if (!in_array(ConverterInterface::class, class_implements($className))) {
+            throw new InvalidConfigurationException(
+                'Converter class ' . $className . ' in configuration for' . $additionalInformation
+                . ' must implement ConverterInterface.',
+                1451566706
+            );
+        }
 
-		return $this->objectManager->get($className);
-	}
+        return $this->objectManager->get($className);
+    }
 }

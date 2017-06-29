@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-    /***************************************************************
+/***************************************************************
      *  Copyright notice
      *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
      *  All rights reserved
@@ -25,9 +25,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * @package CPSIT\T3importExport\PreProcessor
  */
-class XMLMapper
-    extends AbstractPreProcessor
-    implements PreProcessorInterface
+class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
 {
 
     /**
@@ -44,7 +42,6 @@ class XMLMapper
         }
 
         foreach ($configuration['fields'] as $field => $value) {
-
             if (!$this->validateFieldsList($field, $value)) {
                 return false;
             }
@@ -61,17 +58,15 @@ class XMLMapper
      */
     protected function validateFieldsList($field, $value)
     {
-        if(is_array($value) && isset($value['children'])) {
+        if (is_array($value) && isset($value['children'])) {
             foreach ($value['children'] as $subField => $subValue) {
-
                 if (!$this->validateFieldsList($subField, $subValue)) {
                     return false;
                 }
             }
             return true;
-        } elseif(is_array($value)) {
+        } elseif (is_array($value)) {
             foreach ($value as $subField => $subValue) {
-
                 if (!$this->validateFieldsList($subField, $subValue)) {
                     return false;
                 }
@@ -128,20 +123,19 @@ class XMLMapper
     protected function remapXMLStructure($fieldArray, $subConfig)
     {
         foreach ($subConfig as $configKey => $value) {
-
             if (is_array($value) && !empty($fieldArray[$configKey]) && !is_array($fieldArray[$configKey])) {
                 $fieldArray[$configKey] = [
                     '@value' => $fieldArray[$configKey]
                 ];
             }
 
-            if(is_array($value) && !empty($fieldArray[$configKey]) && is_array($fieldArray[$configKey])) {
+            if (is_array($value) && !empty($fieldArray[$configKey]) && is_array($fieldArray[$configKey])) {
                 $fieldArray[$configKey] = $this->remapXMLStructure($fieldArray[$configKey], $value);
             }
 
             if ($configKey === 'children' && is_array($value)) {
                 foreach ($fieldArray as $key => $val) {
-                    if(is_array($val)) {
+                    if (is_array($val)) {
                         $fieldArray[$key] = $this->remapXMLStructure($val, $value);
                     }
                 }

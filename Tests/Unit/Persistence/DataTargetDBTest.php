@@ -208,6 +208,5 @@ class DataTargetDBTest extends UnitTestCase
             $mockDataBase,
             $this->subject->getDatabase()
         );
-
     }
 }

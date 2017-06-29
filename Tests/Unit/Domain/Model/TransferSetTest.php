@@ -22,106 +22,113 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TransferSetTest extends UnitTestCase {
+class TransferSetTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Domain\Model\TransferSet
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Domain\Model\TransferSet
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			TransferSet::class, ['dummy'], [], '', FALSE
-		);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            TransferSet::class, ['dummy'], [], '', false
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getIdentifierInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getIdentifier()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getIdentifierInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getIdentifier()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setIdentifierForStringSetsIdentifier() {
-		$identifier = 'foo';
-		$this->subject->setIdentifier($identifier);
+    /**
+     * @test
+     */
+    public function setIdentifierForStringSetsIdentifier()
+    {
+        $identifier = 'foo';
+        $this->subject->setIdentifier($identifier);
 
-		$this->assertSame(
-			$identifier,
-			$this->subject->getIdentifier()
-		);
-	}
+        $this->assertSame(
+            $identifier,
+            $this->subject->getIdentifier()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getDescriptionInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getDescription()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getDescriptionInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getDescription()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setDescriptionForStringSetsDescription() {
-		$identifier = 'foo';
-		$this->subject->setDescription($identifier);
+    /**
+     * @test
+     */
+    public function setDescriptionForStringSetsDescription()
+    {
+        $identifier = 'foo';
+        $this->subject->setDescription($identifier);
 
-		$this->assertSame(
-			$identifier,
-			$this->subject->getDescription()
-		);
-	}
+        $this->assertSame(
+            $identifier,
+            $this->subject->getDescription()
+        );
+    }
 
-	/**
-	 * @tests
-	 */
-	public function getTasksInitiallyReturnsNull() {
-		$this->assertNull(
-			$this->subject->getTasks()
-		);
-	}
+    /**
+     * @tests
+     */
+    public function getTasksInitiallyReturnsNull()
+    {
+        $this->assertNull(
+            $this->subject->getTasks()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setTasksForArraySetsTasks() {
-		$tasks = ['foo'];
-		$this->subject->setTasks($tasks);
+    /**
+     * @test
+     */
+    public function setTasksForArraySetsTasks()
+    {
+        $tasks = ['foo'];
+        $this->subject->setTasks($tasks);
 
-		$this->assertSame(
-			$tasks,
-			$this->subject->getTasks()
-		);
-	}
+        $this->assertSame(
+            $tasks,
+            $this->subject->getTasks()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function getLabelReturnsInitiallyNull()
-	{
-		$this->assertNull(
-			$this->subject->getLabel()
-		);
-	}
+    /**
+     * @test
+     */
+    public function getLabelReturnsInitiallyNull()
+    {
+        $this->assertNull(
+            $this->subject->getLabel()
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function setLabelForStringSetsLabel()
-	{
-		$label = 'foo';
-		$this->subject->setLabel($label);
-		$this->assertSame(
-			$label,
-			$this->subject->getLabel()
-		);
-
-	}
+    /**
+     * @test
+     */
+    public function setLabelForStringSetsLabel()
+    {
+        $label = 'foo';
+        $this->subject->setLabel($label);
+        $this->assertSame(
+            $label,
+            $this->subject->getLabel()
+        );
+    }
 }

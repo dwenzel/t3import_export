@@ -26,113 +26,121 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFields
  */
-class MapFieldsTest extends UnitTestCase {
+class MapFieldsTest extends UnitTestCase
+{
 
-	/**
-	 * @var \CPSIT\T3importExport\Component\PreProcessor\MapFields
-	 */
-	protected $subject;
+    /**
+     * @var \CPSIT\T3importExport\Component\PreProcessor\MapFields
+     */
+    protected $subject;
 
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields',
-			['dummy'], [], '', FALSE);
-	}
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields',
+            ['dummy'], [], '', false);
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsInitiallyFalse() {
-		$mockConfiguration = ['foo'];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($mockConfiguration)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsInitiallyFalse()
+    {
+        $mockConfiguration = ['foo'];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($mockConfiguration)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfFieldsIsNotArray() {
-		$config = [
-			'fields' => 'foo'
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    {
+        $config = [
+            'fields' => 'foo'
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfFieldValueIsNotString() {
-		$config = [
-			'fields' => [
-				'foo' => 0
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
+    {
+        $config = [
+            'fields' => [
+                'foo' => 0
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty() {
-		$config = [
-			'fields' => [
-				'foo' => ''
-			]
-		];
-		$this->assertFalse(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
+    {
+        $config = [
+            'fields' => [
+                'foo' => ''
+            ]
+        ];
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::isConfigurationValid
-	 */
-	public function isConfigurationValidReturnsTrueForValidConfiguration() {
-		$config = [
-			'fields' => [
-				'foo' => 'bar',
-				'baz' => 'fooBar'
-			]
-		];
-		$this->assertTrue(
-			$this->subject->isConfigurationValid($config)
-		);
-	}
+    /**
+     * @test
+     * @covers ::isConfigurationValid
+     */
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
+        $config = [
+            'fields' => [
+                'foo' => 'bar',
+                'baz' => 'fooBar'
+            ]
+        ];
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($config)
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function processMapsFields() {
-		$config = [
-			'fields' => [
-				'firstSourceField' => 'firstTargetField',
-				'secondSourceField' => 'secondTargetField'
-			]
-		];
-		$record = [
-			'firstSourceField' => 'firstValue',
-			'secondSourceField' => 'secondValue'
-		];
-		$expectedResult = [
-			'firstSourceField' => 'firstValue',
-			'secondSourceField' => 'secondValue',
-			'firstTargetField' => 'firstValue',
-			'secondTargetField' => 'secondValue'
-		];
-		$this->subject->process($config, $record);
+    /**
+     * @test
+     */
+    public function processMapsFields()
+    {
+        $config = [
+            'fields' => [
+                'firstSourceField' => 'firstTargetField',
+                'secondSourceField' => 'secondTargetField'
+            ]
+        ];
+        $record = [
+            'firstSourceField' => 'firstValue',
+            'secondSourceField' => 'secondValue'
+        ];
+        $expectedResult = [
+            'firstSourceField' => 'firstValue',
+            'secondSourceField' => 'secondValue',
+            'firstTargetField' => 'firstValue',
+            'secondTargetField' => 'secondValue'
+        ];
+        $this->subject->process($config, $record);
 
-		$this->assertEquals(
-			$expectedResult,
-			$record
-		);
-	}
+        $this->assertEquals(
+            $expectedResult,
+            $record
+        );
+    }
 }

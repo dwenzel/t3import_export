@@ -56,8 +56,7 @@ class DummyTargetObjectClass
 /**
  * Class DummyIdentifiableTargetInterfaceClass
  */
-class DummyIdentifiableTargetInterfaceClass
-    implements DataTargetInterface, IdentifiableInterface
+class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, IdentifiableInterface
 {
     use IdentifiableTrait, ConfigurableTrait;
 
@@ -91,7 +90,8 @@ class DummyIdentifiableTargetInterfaceClass
      * @return bool
      */
     public function persist($object, array $configuration = null)
-    {}
+    {
+    }
     /**
      * Dummy method
      * Currently does'nt do anything
@@ -231,5 +231,4 @@ class DataTargetFactoryTest extends UnitTestCase
 
         $this->subject->get($settings, $identifier);
     }
-
 }

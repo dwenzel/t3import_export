@@ -35,44 +35,46 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  * @package CPSIT\T3importExport\Component\Factory
  */
-class InitializerFactory extends AbstractFactory {
-	/**
-	 * Builds a Initializer object
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 * @return \CPSIT\T3importExport\Component\Initializer\InitializerInterface
-	 */
-	public function get(array $settings, $identifier = NULL) {
-		$additionalInformation = '.';
-		if (!is_null($identifier)) {
-			$additionalInformation = ' for ' . $identifier;
-		}
-		if (!isset($settings['class'])) {
-			throw new InvalidConfigurationException(
-				'Missing class in initializer configuration' . $additionalInformation,
-				1454588350
-			);
-		}
-		$className = $settings['class'];
+class InitializerFactory extends AbstractFactory
+{
+    /**
+     * Builds a Initializer object
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     * @return \CPSIT\T3importExport\Component\Initializer\InitializerInterface
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        $additionalInformation = '.';
+        if (!is_null($identifier)) {
+            $additionalInformation = ' for ' . $identifier;
+        }
+        if (!isset($settings['class'])) {
+            throw new InvalidConfigurationException(
+                'Missing class in initializer configuration' . $additionalInformation,
+                1454588350
+            );
+        }
+        $className = $settings['class'];
 
-		if (!class_exists($className)) {
-			throw new InvalidConfigurationException(
-				'Initializer class ' . $className . ' in configuration for' . $additionalInformation
-				. ' does not exist.',
-				1454588360
-			);
-		}
+        if (!class_exists($className)) {
+            throw new InvalidConfigurationException(
+                'Initializer class ' . $className . ' in configuration for' . $additionalInformation
+                . ' does not exist.',
+                1454588360
+            );
+        }
 
-		if (!in_array(InitializerInterface::class, class_implements($className))) {
-			throw new InvalidConfigurationException(
-				'Initializer class ' . $className . ' in configuration for' . $additionalInformation
-				. ' must implement InitializerInterface.',
-				1454588370
-			);
-		}
+        if (!in_array(InitializerInterface::class, class_implements($className))) {
+            throw new InvalidConfigurationException(
+                'Initializer class ' . $className . ' in configuration for' . $additionalInformation
+                . ' must implement InitializerInterface.',
+                1454588370
+            );
+        }
 
-		return $this->objectManager->get($className);
-	}
+        return $this->objectManager->get($className);
+    }
 }

@@ -28,61 +28,66 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TargetClassConfigurationValidatorTest extends UnitTestCase {
+class TargetClassConfigurationValidatorTest extends UnitTestCase
+{
 
-	/**
-	 * @var TargetClassConfigurationValidator
-	 */
-	protected $subject;
+    /**
+     * @var TargetClassConfigurationValidator
+     */
+    protected $subject;
 
-	/**
-	 * set up
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			TargetClassConfigurationValidator::class,
-			['dummy']
-		);
-	}
+    /**
+     * set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            TargetClassConfigurationValidator::class,
+            ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1451146126
-	 */
-	public function validateThrowsExceptionIfTargetClassIsNotSet() {
-		$configuration = ['foo'];
-		$this->subject->validate($configuration);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1451146126
+     */
+    public function validateThrowsExceptionIfTargetClassIsNotSet()
+    {
+        $configuration = ['foo'];
+        $this->subject->validate($configuration);
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-	 * @expectedExceptionCode 1451146384
-	 */
-	public function validateThrowsExceptionIfTargetClassIsNotString() {
-		$configuration = [
-			'targetClass' => 1
-		];
-		$this->subject->validate($configuration);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
+     * @expectedExceptionCode 1451146384
+     */
+    public function validateThrowsExceptionIfTargetClassIsNotString()
+    {
+        $configuration = [
+            'targetClass' => 1
+        ];
+        $this->subject->validate($configuration);
+    }
 
-	/**
-	 * @test
-	 * @expectedException \CPSIT\T3importExport\MissingClassException
-	 * @expectedExceptionCode 1451146564
-	 */
-	public function validateThrowsExceptionIfTargetClassDoesNotExist() {
-		$configuration = [
-			'targetClass' => 'NonExistingClassName'
-		];
-		$this->subject->validate($configuration);
-	}
+    /**
+     * @test
+     * @expectedException \CPSIT\T3importExport\MissingClassException
+     * @expectedExceptionCode 1451146564
+     */
+    public function validateThrowsExceptionIfTargetClassDoesNotExist()
+    {
+        $configuration = [
+            'targetClass' => 'NonExistingClassName'
+        ];
+        $this->subject->validate($configuration);
+    }
 
     /**
      * @test
      */
-	public function validateReturnsTrueForValidConfiguration()
+    public function validateReturnsTrueForValidConfiguration()
     {
         $existingClassName = \stdClass::class;
         $validConfiguration = [

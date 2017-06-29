@@ -45,200 +45,207 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3importExport\Tests\Unit\Command
  * @coversDefaultClass \CPSIT\T3importExport\Command\ImportCommandController
  */
-class ImportCommandControllerTest extends UnitTestCase {
+class ImportCommandControllerTest extends UnitTestCase
+{
 
-	/**
-	 * @var ImportCommandController
-	 */
-	protected $subject;
+    /**
+     * @var ImportCommandController
+     */
+    protected $subject;
 
-	/**
-	 * set up
-	 */
-	public function setUp() {
-		$this->subject = $this->getAccessibleMock(
-			ImportCommandController::class, ['dummy']
-		);
-	}
+    /**
+     * set up
+     */
+    public function setUp()
+    {
+        $this->subject = $this->getAccessibleMock(
+            ImportCommandController::class, ['dummy']
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::injectDataTransferProcessor
-	 */
-	public function injectinjectDataTransferProcessorForObjectSetsDataTransferProcessor() {
-		$expectedProcessor = $this->getMock(
-			DataTransferProcessor::class);
-		$this->subject->injectDataTransferProcessor($expectedProcessor);
+    /**
+     * @test
+     * @covers ::injectDataTransferProcessor
+     */
+    public function injectinjectDataTransferProcessorForObjectSetsDataTransferProcessor()
+    {
+        $expectedProcessor = $this->getMock(
+            DataTransferProcessor::class);
+        $this->subject->injectDataTransferProcessor($expectedProcessor);
 
-		$this->assertSame(
-			$expectedProcessor,
-			$this->subject->_get('importProcessor')
-		);
-	}
+        $this->assertSame(
+            $expectedProcessor,
+            $this->subject->_get('importProcessor')
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function injectTransferTaskFactorySetsFactory() {
-		$factory = $this->getMock(
-			TransferTaskFactory::class
-		);
-		$this->subject->injectTransferTaskFactory($factory);
-		$this->assertSame(
-			$factory,
-			$this->subject->_get('transferTaskFactory')
-		);
-	}
+    /**
+     * @test
+     */
+    public function injectTransferTaskFactorySetsFactory()
+    {
+        $factory = $this->getMock(
+            TransferTaskFactory::class
+        );
+        $this->subject->injectTransferTaskFactory($factory);
+        $this->assertSame(
+            $factory,
+            $this->subject->_get('transferTaskFactory')
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function injectImportSetFactorySetsFactory() {
-		$factory = $this->getMock(
-			TransferSetFactory::class
-		);
-		$this->subject->injectImportSetFactory($factory);
-		$this->assertSame(
-			$factory,
-			$this->subject->_get('importSetFactory')
-		);
-	}
+    /**
+     * @test
+     */
+    public function injectImportSetFactorySetsFactory()
+    {
+        $factory = $this->getMock(
+            TransferSetFactory::class
+        );
+        $this->subject->injectImportSetFactory($factory);
+        $this->assertSame(
+            $factory,
+            $this->subject->_get('importSetFactory')
+        );
+    }
 
-	/**
-	 * @test
-	 */
-	public function injectConfigurationManagerSetsConfigurationManagerAndSettings() {
-		$importProcessorSettings = ['foo'];
-		$extbaseFrameWorkConfig = [
-			'settings' => [
-				'import' => $importProcessorSettings
-			]
-		];
-		$configurationManager = $this->getAccessibleMock(
-			ConfigurationManager::class,
-			['getConfiguration']
-		);
-		$configurationManager->expects($this->once())
-			->method('getConfiguration')
-			->with(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK)
-			->will($this->returnValue($extbaseFrameWorkConfig));
-		$this->subject->injectConfigurationManager($configurationManager);
+    /**
+     * @test
+     */
+    public function injectConfigurationManagerSetsConfigurationManagerAndSettings()
+    {
+        $importProcessorSettings = ['foo'];
+        $extbaseFrameWorkConfig = [
+            'settings' => [
+                'import' => $importProcessorSettings
+            ]
+        ];
+        $configurationManager = $this->getAccessibleMock(
+            ConfigurationManager::class,
+            ['getConfiguration']
+        );
+        $configurationManager->expects($this->once())
+            ->method('getConfiguration')
+            ->with(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK)
+            ->will($this->returnValue($extbaseFrameWorkConfig));
+        $this->subject->injectConfigurationManager($configurationManager);
 
-		$this->assertSame(
-			$configurationManager,
-			$this->subject->_get('configurationManager')
-		);
-		$this->assertSame(
-			$importProcessorSettings,
-			$this->subject->_get('settings')
-		);
-	}
+        $this->assertSame(
+            $configurationManager,
+            $this->subject->_get('configurationManager')
+        );
+        $this->assertSame(
+            $importProcessorSettings,
+            $this->subject->_get('settings')
+        );
+    }
 
-	/**
-	 * @test
-	 * @covers ::taskCommand
-	 */
-	public function taskCommandBuildsAndProcessesQueue() {
-		$identifier = 'foo';
-		$settings = [
-			'tasks' => [
-				$identifier => ['bar']
-			]
-		];
-		$this->subject->_set('settings', $settings);
-		$mockTask = $this->getMock(
-			TransferTask::class
-		);
-		$transferTaskFactory = $this->getMock(
-			TransferTaskFactory::class, ['get']
-		);
-		$transferTaskFactory->expects($this->once())
-			->method('get')
-			->with($settings['tasks'][$identifier])
-			->will($this->returnValue($mockTask));
-		$this->subject->injectTransferTaskFactory($transferTaskFactory);
+    /**
+     * @test
+     * @covers ::taskCommand
+     */
+    public function taskCommandBuildsAndProcessesQueue()
+    {
+        $identifier = 'foo';
+        $settings = [
+            'tasks' => [
+                $identifier => ['bar']
+            ]
+        ];
+        $this->subject->_set('settings', $settings);
+        $mockTask = $this->getMock(
+            TransferTask::class
+        );
+        $transferTaskFactory = $this->getMock(
+            TransferTaskFactory::class, ['get']
+        );
+        $transferTaskFactory->expects($this->once())
+            ->method('get')
+            ->with($settings['tasks'][$identifier])
+            ->will($this->returnValue($mockTask));
+        $this->subject->injectTransferTaskFactory($transferTaskFactory);
 
-		$importProcessor = $this->getMock(
-			DataTransferProcessor::class,
-			['buildQueue', 'process'], [], '', FALSE
-		);
-		$task = 'foo';
-		$result = ['bar'];
-		$mockDemand = $this->getMock(
-			DemandInterface::class
-		);
-		$importProcessor->expects($this->once())
-			->method('buildQueue')
-			->with($mockDemand);
-		$importProcessor->expects($this->once())
-			->method('process')
-			->with($mockDemand)
-			->will($this->returnValue($result));
-		$this->subject->injectDataTransferProcessor($importProcessor);
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class,
-			['get']);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->will($this->returnValue($mockDemand));
-		$this->subject->_set('objectManager', $mockObjectManager);
+        $importProcessor = $this->getMock(
+            DataTransferProcessor::class,
+            ['buildQueue', 'process'], [], '', false
+        );
+        $task = 'foo';
+        $result = ['bar'];
+        $mockDemand = $this->getMock(
+            DemandInterface::class
+        );
+        $importProcessor->expects($this->once())
+            ->method('buildQueue')
+            ->with($mockDemand);
+        $importProcessor->expects($this->once())
+            ->method('process')
+            ->with($mockDemand)
+            ->will($this->returnValue($result));
+        $this->subject->injectDataTransferProcessor($importProcessor);
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class,
+            ['get']);
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->will($this->returnValue($mockDemand));
+        $this->subject->_set('objectManager', $mockObjectManager);
 
-		$this->subject->taskCommand($task);
-	}
+        $this->subject->taskCommand($task);
+    }
 
-	/**
-	 * @test
-	 * @covers ::setCommand
-	 */
-	public function setCommandBuildsAndProcessesQueue() {
-		$identifier = 'foo';
-		$settings = [
-			'sets' => [
-				$identifier => ['bar']
-			]
-		];
-		$this->subject->_set('settings', $settings);
-		$mockSet = $this->getMock(
-			TransferSet::class, ['getTasks']
-		);
-		$mockSet->expects($this->once())
-			->method('getTasks')
-			->will($this->returnValue([]));
-		$importSetFactory = $this->getMock(
-			TransferSetFactory::class, ['get']
-		);
-		$importSetFactory->expects($this->once())
-			->method('get')
-			->with($settings['sets'][$identifier])
-			->will($this->returnValue($mockSet));
-		$this->subject->injectImportSetFactory($importSetFactory);
+    /**
+     * @test
+     * @covers ::setCommand
+     */
+    public function setCommandBuildsAndProcessesQueue()
+    {
+        $identifier = 'foo';
+        $settings = [
+            'sets' => [
+                $identifier => ['bar']
+            ]
+        ];
+        $this->subject->_set('settings', $settings);
+        $mockSet = $this->getMock(
+            TransferSet::class, ['getTasks']
+        );
+        $mockSet->expects($this->once())
+            ->method('getTasks')
+            ->will($this->returnValue([]));
+        $importSetFactory = $this->getMock(
+            TransferSetFactory::class, ['get']
+        );
+        $importSetFactory->expects($this->once())
+            ->method('get')
+            ->with($settings['sets'][$identifier])
+            ->will($this->returnValue($mockSet));
+        $this->subject->injectImportSetFactory($importSetFactory);
 
-		$importProcessor = $this->getMock(
-			DataTransferProcessor::class,
-			['buildQueue', 'process'], [], '', FALSE
-		);
-		$set = 'foo';
-		$result = ['bar'];
-		$mockDemand = $this->getMock(
-			DemandInterface::class
-		);
-		$importProcessor->expects($this->once())
-			->method('buildQueue')
-			->with($mockDemand);
-		$importProcessor->expects($this->once())
-			->method('process')
-			->with($mockDemand)
-			->will($this->returnValue($result));
-		$this->subject->injectDataTransferProcessor($importProcessor);
-		$mockObjectManager = $this->getMock(
-			ObjectManager::class,
-			['get']);
-		$mockObjectManager->expects($this->once())
-			->method('get')
-			->will($this->returnValue($mockDemand));
-		$this->subject->_set('objectManager', $mockObjectManager);
+        $importProcessor = $this->getMock(
+            DataTransferProcessor::class,
+            ['buildQueue', 'process'], [], '', false
+        );
+        $set = 'foo';
+        $result = ['bar'];
+        $mockDemand = $this->getMock(
+            DemandInterface::class
+        );
+        $importProcessor->expects($this->once())
+            ->method('buildQueue')
+            ->with($mockDemand);
+        $importProcessor->expects($this->once())
+            ->method('process')
+            ->with($mockDemand)
+            ->will($this->returnValue($result));
+        $this->subject->injectDataTransferProcessor($importProcessor);
+        $mockObjectManager = $this->getMock(
+            ObjectManager::class,
+            ['get']);
+        $mockObjectManager->expects($this->once())
+            ->method('get')
+            ->will($this->returnValue($mockDemand));
+        $this->subject->_set('objectManager', $mockObjectManager);
 
-		$this->subject->setCommand($set);
-	}
-
+        $this->subject->setCommand($set);
+    }
 }

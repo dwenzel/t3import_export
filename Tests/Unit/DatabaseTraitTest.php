@@ -87,10 +87,11 @@ class DatabaseTraitTest extends UnitTestCase
     /**
      * @test
      */
-    public function databaseConnectionServiceCanBeInjected() {
+    public function databaseConnectionServiceCanBeInjected()
+    {
         /** @var DatabaseConnectionService $expectedConnectionService */
         $expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-            ['dummy'], [], '', FALSE);
+            ['dummy'], [], '', false);
 
         $this->subject->injectDatabaseConnectionService($expectedConnectionService);
 
@@ -100,5 +101,4 @@ class DatabaseTraitTest extends UnitTestCase
             $this->subject
         );
     }
-
 }

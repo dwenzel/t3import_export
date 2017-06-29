@@ -29,45 +29,46 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class PreProcessorFactory extends AbstractFactory {
-	/**
-	 * Builds a PreProcessor object
-	 *
-	 * @param array $settings
-	 * @param string $identifier
-	 * @throws InvalidConfigurationException
-	 * @return \CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface
-	 */
-	public function get(array $settings, $identifier = NULL) {
-		$additionalInformation = '.';
-		if (!is_null($identifier)) {
-			$additionalInformation = ' for ' . $identifier;
-		}
-		if (!isset($settings['class'])) {
-			throw new InvalidConfigurationException(
-				'Missing class in pre processor configuration' . $additionalInformation,
-				1447427020
-			);
-		}
-		$className = $settings['class'];
+class PreProcessorFactory extends AbstractFactory
+{
+    /**
+     * Builds a PreProcessor object
+     *
+     * @param array $settings
+     * @param string $identifier
+     * @throws InvalidConfigurationException
+     * @return \CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface
+     */
+    public function get(array $settings, $identifier = null)
+    {
+        $additionalInformation = '.';
+        if (!is_null($identifier)) {
+            $additionalInformation = ' for ' . $identifier;
+        }
+        if (!isset($settings['class'])) {
+            throw new InvalidConfigurationException(
+                'Missing class in pre processor configuration' . $additionalInformation,
+                1447427020
+            );
+        }
+        $className = $settings['class'];
 
-		if (!class_exists($className)) {
-			throw new InvalidConfigurationException(
-				'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
-				. ' does not exist.',
-				1447427184
-			);
-		}
+        if (!class_exists($className)) {
+            throw new InvalidConfigurationException(
+                'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
+                . ' does not exist.',
+                1447427184
+            );
+        }
 
-		if (!in_array(PreProcessorInterface::class, class_implements($className))) {
-			throw new InvalidConfigurationException(
-				'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
-				. ' must implement PreProcessorInterface.',
-				1447428235
-			);
-		}
+        if (!in_array(PreProcessorInterface::class, class_implements($className))) {
+            throw new InvalidConfigurationException(
+                'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
+                . ' must implement PreProcessorInterface.',
+                1447428235
+            );
+        }
 
-		return $this->objectManager->get($className);
-	}
-
+        return $this->objectManager->get($className);
+    }
 }

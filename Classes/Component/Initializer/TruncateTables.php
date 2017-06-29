@@ -39,49 +39,51 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @package CPSIT\T3importExport\Component\Initializer
  */
-class TruncateTables
-	extends AbstractInitializer
-	implements InitializerInterface, ConfigurableInterface {
-	use ConfigurableTrait;
+class TruncateTables extends AbstractInitializer implements InitializerInterface, ConfigurableInterface
+{
+    use ConfigurableTrait;
 
-	/**
-	 * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
-	 */
-	protected $connectionService;
+    /**
+     * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
+     */
+    protected $connectionService;
 
-	/**
-	 * @var DatabaseConnection
-	 */
-	protected $database;
+    /**
+     * @var DatabaseConnection
+     */
+    protected $database;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		if (!$this->database instanceof DatabaseConnection) {
-			$this->database = $GLOBALS['TYPO3_DB'];
-		}
-	}
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        if (!$this->database instanceof DatabaseConnection) {
+            $this->database = $GLOBALS['TYPO3_DB'];
+        }
+    }
 
-	/**
-	 * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
-	 */
-	public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService) {
-		$this->connectionService = $dbConnectionService;
-	}
+    /**
+     * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
+     */
+    public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService)
+    {
+        $this->connectionService = $dbConnectionService;
+    }
 
-	/**
-	 * @param array $configuration
-	 * @param array $records Array with prepared records
-	 * @return bool
-	 */
-	public function process($configuration, &$records) {
-		if (isset($configuration['identifier'])) {
-			$this->database = $this->connectionService
-				->getDatabase($configuration['identifier']);
-		}
-		if (isset($configuration['tables'])) {
-		    $tables = GeneralUtility::trimExplode(
+    /**
+     * @param array $configuration
+     * @param array $records Array with prepared records
+     * @return bool
+     */
+    public function process($configuration, &$records)
+    {
+        if (isset($configuration['identifier'])) {
+            $this->database = $this->connectionService
+                ->getDatabase($configuration['identifier']);
+        }
+        if (isset($configuration['tables'])) {
+            $tables = GeneralUtility::trimExplode(
                 ',',
                 $configuration['tables'],
                 true
@@ -92,30 +94,31 @@ class TruncateTables
                 }
             }
         }
-	}
+    }
 
-	/**
-	 * Tells whether the given configuration is valid
-	 *
-	 * @param array $configuration
-	 * @return bool
-	 */
-	public function isConfigurationValid(array $configuration) {
-		if (!isset($configuration['tables'])
-			|| !is_string($configuration['tables'])) {
-			return false;
-		}
-		if (isset($configuration['identifier'])
-			AND !is_string($configuration['identifier'])
-		) {
-			return false;
-		}
-		if (isset($configuration['identifier'])
-			AND !DatabaseConnectionService::isRegistered($configuration['identifier'])
-		) {
-			return false;
-		}
+    /**
+     * Tells whether the given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        if (!isset($configuration['tables'])
+            || !is_string($configuration['tables'])) {
+            return false;
+        }
+        if (isset($configuration['identifier'])
+            and !is_string($configuration['identifier'])
+        ) {
+            return false;
+        }
+        if (isset($configuration['identifier'])
+            and !DatabaseConnectionService::isRegistered($configuration['identifier'])
+        ) {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

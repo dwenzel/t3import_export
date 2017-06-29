@@ -22,8 +22,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class DataSourceXML
  */
-class DataSourceXML
-    implements DataSourceInterface
+class DataSourceXML implements DataSourceInterface
 {
     use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
 
@@ -39,8 +38,7 @@ class DataSourceXML
             return false;
         }
 
-        if (isset($configuration['file']) && isset($configuration['url']))
-        {
+        if (isset($configuration['file']) && isset($configuration['url'])) {
             return false;
         }
 
@@ -52,7 +50,7 @@ class DataSourceXML
             return false;
         }
 
-        if (isset($configuration['file']) && empty($this->getAbsoluteFilePath($configuration['file']))){
+        if (isset($configuration['file']) && empty($this->getAbsoluteFilePath($configuration['file']))) {
             return false;
         }
 
@@ -60,8 +58,7 @@ class DataSourceXML
             return false;
         }
 
-        if (isset($configuration['expression']) && !is_string($configuration['expression']))
-        {
+        if (isset($configuration['expression']) && !is_string($configuration['expression'])) {
             return false;
         }
 

@@ -26,7 +26,6 @@
 
 namespace CPSIT\T3importExport\Domain\Model;
 
-
 class TaskResult implements \Iterator
 {
     /**
