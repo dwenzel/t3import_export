@@ -28,8 +28,8 @@
   },
   "require-dev": {
     "mikey179/vfsStream": "~1.6.0",
-    "phpunit/phpunit": "~4.8.0 || ^5.6",
-    "nimut/testing-framework": "^1.1"
+    "nimut/testing-framework": "^1.1",
+    "phpunit/phpunit": "^4.8 || ^5.6"
   },
   "autoload": {
     "psr-4": {
@@ -38,9 +38,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "CPSIT\\T3importExport\\Tests\\": "Tests",
-      "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/",
-      "TYPO3\\CMS\\Fluid\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/fluid/Tests/"
+      "CPSIT\\T3importExport\\Tests\\": "Tests"
     }
   },
   "config": {

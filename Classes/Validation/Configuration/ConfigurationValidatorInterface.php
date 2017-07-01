@@ -3,13 +3,6 @@ namespace CPSIT\T3importExport\Validation\Configuration;
 
 /**
  * Interface ConfigurationValidatorInterface
- *
- * @package CPSIT\T3importExport\Validation\Configuration
- */
-/**
- * Interface ConfigurationValidatorInterface
- *
- * @package CPSIT\T3importExport\Validation\Configuration
  */
 interface ConfigurationValidatorInterface
 {
