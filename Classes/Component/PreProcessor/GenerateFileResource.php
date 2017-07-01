@@ -17,7 +17,6 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use CPSIT\T3importExport\Messaging\Message;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -226,32 +225,4 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
         return true;
     }
 
-    /**
-     * Creates an error message and adds it to the message container
-     *
-     * @param int $id Error id
-     * @param array $arguments Optional arguments. Will be used as arguments for formatted message.
-     */
-    public function logError($id, $arguments = null)
-    {
-        $title = self::ERROR_UNKNOWN_TITLE;
-        $description = self::ERROR_UNKNOWN_MESSAGE;
-
-        if (isset(self::$errors[$id])) {
-            $title = self::$errors[$id][0];
-            $description = self::$errors[$id][1];
-            if (null !== $arguments) {
-                $description = call_user_func('sprintf', $arguments);
-            }
-        }
-        $description .= PHP_EOL . 'Error ID ' . $id . ' in component ' . get_class($this);
-
-        $message = $this->objectManager->get(
-            Message::class,
-            $description,
-            $title,
-            Message::ERROR
-        );
-        $this->messageContainer->addMessage($message);
-    }
 }

@@ -4,6 +4,7 @@ namespace CPSIT\T3importExport\Component;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\MessageContainerTrait;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
@@ -36,9 +37,7 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  */
 abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
 {
-    use ConfigurableTrait, RenderContentTrait, MessageContainerTrait;
-    const ERROR_UNKNOWN_TITLE = 'Unknown error';
-    const ERROR_UNKNOWN_MESSAGE = 'An unknown error occurred';
+    use ConfigurableTrait, RenderContentTrait, LoggingTrait;
 
     /**
      * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
@@ -46,26 +45,11 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
     protected $signalSlotDispatcher;
 
     /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
      * @param Dispatcher $signalSlotDispatcher
      */
     public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
     {
         $this->signalSlotDispatcher = $signalSlotDispatcher;
-    }
-
-    /**
-     * injects the object manager
-     *
-     * @param ObjectManager $objectManager
-     */
-    public function injectObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
     }
 
     /**
