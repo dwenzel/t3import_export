@@ -57,27 +57,17 @@ class GenerateFileResourceTest extends UnitTestCase
         $this->subject = $this->getMockBuilder(GenerateFileResource::class)
             ->setMethods(['logError'])->getMock();
 
-        $this->storage = $this->getMockBuilder(ResourceStorage::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['hasFolder', 'getConfiguration'])->getMock();
-        $this->inject(
-            $this->subject,
-            'storage',
-            $this->storage
-        );
         $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
             ->setMethods([])->getMock();
         $this->subject->injectResourceFactory($this->resourceFactory);
         $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
             ->setMethods(['findByUid'])->getMock();
-        $this->storageRepository->expects($this->any())->method('findByUid')
-            ->will($this->returnValue($this->storage));
 
         $this->subject->injectStorageRepository($this->storageRepository);
 
     }
 
-    public function configurationDataProvider()
+    public function invalidConfigurationDataProvider()
     {
         // $configuration, $expected, $errorId
         return [
@@ -107,8 +97,8 @@ class GenerateFileResourceTest extends UnitTestCase
                 1497427335,
                 null
             ],
-            //@todo test for missing storage
-/*            [
+            // missing storage
+            [
                 [
                     'storageId' => 'foo',
                     'targetDirectoryPath' => 'bar',
@@ -118,19 +108,18 @@ class GenerateFileResourceTest extends UnitTestCase
                 1497427346,
                 ['foo']
             ],
-*/
         ];
     }
 
     /**
      * @test
-     * @dataProvider configurationDataProvider
+     * @dataProvider invalidConfigurationDataProvider
      * @param array $configuration
      * @param bool $expected
-     * @param string $errorTitle
-     * @param string $errorMessage
+     * @param $expectedErrorId
+     * @param $expectedErrorArguments
      */
-    public function isConfigurationValidReturnsCorrectValues($configuration, $expected, $expectedErrorId, $expectedErrorArguments)
+    public function isConfigurationValidReturnsCorrectValuesForInvalidConfiguration($configuration, $expected, $expectedErrorId, $expectedErrorArguments)
     {
         $this->subject->expects($this->once())
             ->method('logError')
@@ -147,6 +136,10 @@ class GenerateFileResourceTest extends UnitTestCase
      */
     public function isConfigurationValidReturnsFalseForMissingDirectory()
     {
+        $this->storage = $this->getMockBuilder(ResourceStorage::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['hasFolder', 'getConfiguration'])->getMock();
+
         $configuration = [
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
@@ -155,6 +148,11 @@ class GenerateFileResourceTest extends UnitTestCase
         $storageConfiguration = ['basePath' => 'baz'];
         $expectedErrorId = 1497427363;
         $expectedErrorArguments = [$storageConfiguration['basePath'] . ltrim($configuration['targetDirectoryPath'], '/\\')];
+
+        $this->storageRepository->expects($this->once())
+            ->method('findByUid')
+            ->with($configuration['storageId'])
+            ->will($this->returnValue($this->storage));
 
         $this->storage->expects($this->once())
             ->method('hasFolder')
@@ -171,5 +169,40 @@ class GenerateFileResourceTest extends UnitTestCase
         $this->subject->isConfigurationValid($configuration);
     }
 
+    /**
+     * @test
+     */
+    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    {
+        $this->storage = $this->getMockBuilder(ResourceStorage::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['hasFolder', 'getConfiguration'])->getMock();
+
+        $configuration = [
+            'storageId' => 3,
+            'targetDirectoryPath' => 'foo',
+            'fieldName' => 'bar'
+        ];
+
+        $this->storageRepository->expects($this->once())
+            ->method('findByUid')
+            ->with($configuration['storageId'])
+            ->will($this->returnValue($this->storage));
+
+        $this->storage->expects($this->once())
+            ->method('hasFolder')
+            ->with($configuration['targetDirectoryPath'])
+            ->will($this->returnValue(true));
+
+        $this->storage->expects($this->never())
+            ->method('getConfiguration');
+
+        $this->subject->expects($this->never())
+            ->method('logError');
+
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($configuration)
+        );
+    }
 
 }
