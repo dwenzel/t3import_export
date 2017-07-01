@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3importExport\Tests\PreProcessor;
+namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
