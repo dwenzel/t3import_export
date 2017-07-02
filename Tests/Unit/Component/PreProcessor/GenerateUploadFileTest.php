@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
@@ -34,7 +35,7 @@ class GenerateUploadFileTest extends UnitTestCase
     /**
      * @var \TYPO3\CMS\Core\Resource\ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $storage;
+    protected $resourceStorage;
 
     /**
      * @var \TYPO3\CMS\Core\Resource\StorageRepository|\PHPUnit_Framework_MockObject_MockObject
@@ -47,13 +48,17 @@ class GenerateUploadFileTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
-            ->setMethods(['logError'])->getMock();
+            ->setMethods(['getAbsoluteFilePath'])->getMock();
 
-        $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
-            ->setMethods(['findByUid'])->getMock();
+        $this->resourceStorage = $this->getMockBuilder( ResourceStorage::class)->disableOriginalConstructor()
+            ->setMethods(['getConfiguration'])->getMock();
 
-        $this->subject->injectStorageRepository($this->storageRepository);
-
+        $this->inject(
+            $this->subject,
+            'resourceStorage',
+            $this->resourceStorage
+        );
+        
     }
 
     /**
@@ -87,4 +92,26 @@ class GenerateUploadFileTest extends UnitTestCase
         );
     }
 
+    /**
+     * @test
+     */
+    public function getFileInitiallyReturnsEmptyString()
+    {
+        $sourceFilePath = 'bang';
+        $storageConfiguration = [
+            'basePath' => ''
+        ];
+        $configuration = [
+            'targetDirectoryPath' => 'foo'
+        ];
+
+        $this->resourceStorage->expects($this->once())
+            ->method('getConfiguration')
+            ->will($this->returnValue($storageConfiguration));
+
+        $this->assertSame(
+            '',
+            $this->subject->getFile($configuration, $sourceFilePath)
+        );
+    }
 }

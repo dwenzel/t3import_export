@@ -14,6 +14,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use CPSIT\T3importExport\ResourceTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -23,7 +24,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInterface
 {
-    use GenerateFileTrait;
+    use GenerateFileTrait, ResourceTrait;
 
     /**
      * Generates a file path for a TYPO3 upload file field
@@ -40,7 +41,7 @@ class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInt
 
         $storageConfiguration = $this->resourceStorage->getConfiguration();
 
-        $targetDirectoryPath = rtrim(GeneralUtility::getFileAbsFileName($storageConfiguration['basePath']),
+        $targetDirectoryPath = rtrim($this->getAbsoluteFilePath($storageConfiguration['basePath']),
                 '/') . $configuration['targetDirectoryPath'];
 
         if (@copy($sourceFilePath, $targetDirectoryPath . $pathParts['basename'])) {
