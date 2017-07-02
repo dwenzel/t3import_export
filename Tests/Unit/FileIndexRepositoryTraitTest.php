@@ -19,19 +19,19 @@ namespace CPSIT\T3importExport\Tests\Unit;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\ObjectManagerTrait;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use CPSIT\T3importExport\FileIndexRepositoryTrait;
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /**
- * Class ObjectManagerTraitTest
+ * Class FileIndexRepositoryTraitTest
  */
-class ObjectManagerTraitTest extends UnitTestCase
+class FileIndexRepositoryTraitTest extends UnitTestCase
 {
 
     /**
      * subject
-     * @var ObjectManagerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var FileIndexRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
@@ -40,21 +40,21 @@ class ObjectManagerTraitTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getMockBuilder(ObjectManagerTrait::class)
+        $this->subject = $this->getMockBuilder(FileIndexRepositoryTrait::class)
             ->getMockForTrait();
     }
 
     /**
      * @test
      */
-    public function objectManagerCanBeInjected()
+    public function fileIndexRepositoryCanBeInjected()
     {
-        $objectManager = $this->getMockBuilder(ObjectManager::class)->getMock();
-        $this->subject->injectObjectManager($objectManager);
+        $fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)->getMock();
+        $this->subject->injectFileIndexRepository($fileIndexRepository);
 
         $this->assertAttributeSame(
-            $objectManager,
-            'objectManager',
+            $fileIndexRepository,
+            'fileIndexRepository',
             $this->subject
         );
     }

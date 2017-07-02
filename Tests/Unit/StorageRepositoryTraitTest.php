@@ -19,19 +19,19 @@ namespace CPSIT\T3importExport\Tests\Unit;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\ObjectManagerTrait;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use CPSIT\T3importExport\StorageRepositoryTrait;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /**
- * Class ObjectManagerTraitTest
+ * Class StorageRepositoryTraitTest
  */
-class ObjectManagerTraitTest extends UnitTestCase
+class StorageRepositoryTraitTest extends UnitTestCase
 {
 
     /**
      * subject
-     * @var ObjectManagerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var StorageRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
@@ -40,21 +40,21 @@ class ObjectManagerTraitTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getMockBuilder(ObjectManagerTrait::class)
+        $this->subject = $this->getMockBuilder(StorageRepositoryTrait::class)
             ->getMockForTrait();
     }
 
     /**
      * @test
      */
-    public function objectManagerCanBeInjected()
+    public function storageRepositoryCanBeInjected()
     {
-        $objectManager = $this->getMockBuilder(ObjectManager::class)->getMock();
-        $this->subject->injectObjectManager($objectManager);
+        $storageRepository = $this->getMockBuilder(StorageRepository::class)->getMock();
+        $this->subject->injectStorageRepository($storageRepository);
 
         $this->assertAttributeSame(
-            $objectManager,
-            'objectManager',
+            $storageRepository,
+            'storageRepository',
             $this->subject
         );
     }
