@@ -19,7 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
@@ -34,11 +34,6 @@ class GenerateFileResourceTest extends UnitTestCase
     protected $subject;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceFactory|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $resourceFactory;
-
-    /**
      * @var \TYPO3\CMS\Core\Resource\ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $storage;
@@ -48,7 +43,6 @@ class GenerateFileResourceTest extends UnitTestCase
      */
     protected $storageRepository;
 
-
     /**
      * set up subject
      */
@@ -57,9 +51,6 @@ class GenerateFileResourceTest extends UnitTestCase
         $this->subject = $this->getMockBuilder(GenerateFileResource::class)
             ->setMethods(['logError'])->getMock();
 
-        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
-            ->setMethods([])->getMock();
-        $this->subject->injectResourceFactory($this->resourceFactory);
         $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
             ->setMethods(['findByUid'])->getMock();
 
@@ -75,13 +66,13 @@ class GenerateFileResourceTest extends UnitTestCase
             [
                 [],
                 false,
-                1497427302,
+                1499007587,
                 null
             ],
             // missing target directory path
             [
                 [
-                    'storageId' => 'foo'
+                    'foo' => 'bar'
                 ],
                 false,
                 1497427320,
@@ -90,14 +81,23 @@ class GenerateFileResourceTest extends UnitTestCase
             // missing field name
             [
                 [
-                    'storageId' => 'foo',
                     'targetDirectoryPath' => 'bar'
                 ],
                 false,
                 1497427335,
                 null
             ],
-            // missing storage
+            // missing storage id
+            [
+                [
+                    'targetDirectoryPath' => 'bar',
+                    'fieldName' => 'baz'
+                ],
+                false,
+                1497427302,
+                null
+            ],
+            // missing resourceStorage
             [
                 [
                     'storageId' => 'foo',
@@ -202,6 +202,38 @@ class GenerateFileResourceTest extends UnitTestCase
 
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
+        );
+    }
+
+    /**
+     * Provides depencies for injection tests
+     */
+    public function dependenciesDataProvider()
+    {
+        return [
+            [StorageRepository::class, 'storageRepository'],
+            [FileIndexRepository::class, 'fileIndexRepository']
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dependenciesDataProvider
+     * @param string $class Class name of the dependency to inject
+     * @param string $propertyName The property holding the dependency
+     */
+    public function dependenciesCanBeInjected($class, $propertyName)
+    {
+        $mockDependency = $this->getMockBuilder($class)->disableOriginalConstructor()
+            ->getMock();
+
+        $methodName = 'inject' . ucfirst($propertyName);
+        $this->subject->{$methodName}($mockDependency);
+
+        $this->assertAttributeSame(
+            $mockDependency,
+            $propertyName,
+            $this->subject
         );
     }
 

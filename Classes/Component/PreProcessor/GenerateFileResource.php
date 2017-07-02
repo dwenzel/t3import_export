@@ -17,10 +17,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use CPSIT\T3importExport\FileIndexRepositoryTrait;
+use CPSIT\T3importExport\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
-use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -38,30 +37,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Finally the file object is added to the target field of
  * the record. Fields with single file references and object
  * storage of file references are handled.
- *
- * @package CPSIT\AhkImport\Component\PreProcessor
  */
 class GenerateFileResource extends AbstractPreProcessor implements PreProcessorInterface
 {
-    /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceFactory
-     */
-    protected $resourceFactory;
-
-    /**
-     * @var \TYPO3\CMS\Core\Resource\Index\FileIndexRepository
-     */
-    protected $fileIndexRepository;
-
-    /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceStorage
-     */
-    protected $storage;
-
-    /**
-     * @var \TYPO3\CMS\Core\Resource\StorageRepository
-     */
-    protected $storageRepository;
+    use FileIndexRepositoryTrait, ResourceStorageTrait;
 
     /**
      * Errors by id
@@ -69,6 +48,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
      * @var array
      */
     static protected $errors = [
+        1499007587 => ['Empty configuration', 'Configuration must not be empty'],
         1497427302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
         1497427320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
         1497427335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
@@ -77,37 +57,8 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
     ];
 
     /**
-     * Injects the storage repository
-     *
-     * @param StorageRepository $storageRepository
-     */
-    public function injectStorageRepository(StorageRepository $storageRepository)
-    {
-        $this->storageRepository = $storageRepository;
-    }
-
-    /**
-     * Injects the resource factory
-     *
-     * @param ResourceFactory $resourceFactory
-     */
-    public function injectResourceFactory(ResourceFactory $resourceFactory)
-    {
-        $this->resourceFactory = $resourceFactory;
-    }
-
-    /**
-     * Injects the file index repository
-     *
-     * @param FileIndexRepository $fileIndexRepository
-     */
-    public function injectFileIndexRepository(FileIndexRepository $fileIndexRepository)
-    {
-        $this->fileIndexRepository = $fileIndexRepository;
-    }
-
-    /**
-     * Process file upload
+     * Process record
+     * Generates one or multiple file objects, adds them to the repository and the record field
      *
      * @param array $configuration
      * @param array $record
@@ -125,15 +76,20 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
         if (isset($configuration['sourcePath'])) {
             $filePaths = preg_filter('/^/', $configuration['sourcePath'], $filePaths);
         }
-        $fileObjects = [];
+
         if ($configuration['multipleRows']) {
+            $fieldValue = [];
+
             foreach ($filePaths as $filePath) {
-                $fileObjects[] = $this->generateFileObject($configuration, $filePath);
+                $singleValue = $this->getFileObject($configuration, $filePath);
+                $fieldValue[] = $singleValue;
             }
-            $record[$configuration['fieldName']] = $fileObjects;
+
         } else {
-            $record[$configuration['fieldName']] = $this->generateFileObject($configuration, $filePaths[0]);
+            $fieldValue = $this->getFileObject($configuration, $filePaths[0]);
         }
+
+        $record[$configuration['fieldName']] = $fieldValue;
 
         return true;
     }
@@ -145,44 +101,32 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
      * @param $file
      * @return \TYPO3\CMS\Core\Resource\File|string|null
      */
-    public function generateFileObject($configuration, $file)
+    public function getFileObject($configuration, $file)
     {
         $pathParts = pathinfo($file);
+        $filePath = $configuration['targetDirectoryPath'] . $pathParts['basename'];
 
-        if ((!isset($configuration['fieldType']) || $configuration['fieldType'] !== 'string')
-            && $this->storage->hasFile($configuration['targetDirectoryPath'] . $pathParts['basename'])
+        if ($this->resourceStorage->hasFile($filePath)
         ) {
-            return $this->storage->getFile($configuration['targetDirectoryPath'] . $pathParts['basename']);
+            return $this->resourceStorage->getFile($filePath);
         }
 
-        $storageConfiguration = $this->storage->getConfiguration();
+        $storageConfiguration = $this->resourceStorage->getConfiguration();
 
         $targetDirectoryPath = rtrim(GeneralUtility::getFileAbsFileName($storageConfiguration['basePath']),
                 '/') . $configuration['targetDirectoryPath'];
 
+        // @todo allow reading remote resource too!
         if (@copy($file, $targetDirectoryPath . $pathParts['basename'])) {
-            if (isset($configuration['fieldType']) && $configuration['fieldType'] == 'string') {
-                $fileObject = $storageConfiguration['basePath'] . ltrim($configuration['targetDirectoryPath'] . $pathParts['basename'], '/\\');
-            } else {
-                /** @var \TYPO3\CMS\Core\Resource\File $fileObject */
-                $fileObject = $this->storage->getFile($configuration['targetDirectoryPath'] . $pathParts['basename']);
-                $this->fileIndexRepository->add($fileObject);
-            }
+            // @todo add error message on failure
+            /** @var \TYPO3\CMS\Core\Resource\File $fileObject */
+            $fileObject = $this->resourceStorage->getFile($filePath);
+            $this->fileIndexRepository->add($fileObject);
 
             return $fileObject;
         }
 
         return null;
-    }
-
-    /**
-     * Initializes the resource storage
-     *
-     * @param array $configuration
-     */
-    public function initializeStorage($configuration)
-    {
-        $this->storage = $this->storageRepository->findByUid($configuration['storageId']);
     }
 
     /**
@@ -193,11 +137,10 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
      */
     public function isConfigurationValid(array $configuration)
     {
-        if (!isset($configuration['storageId'])) {
-            $this->logError(1497427302);
+        if (empty($configuration)) {
+            $this->logError(1499007587);
             return false;
         }
-
         if (!isset($configuration['targetDirectoryPath'])) {
             $this->logError(1497427320);
             return false;
@@ -208,15 +151,20 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
             return false;
         }
 
+        if (!isset($configuration['storageId'])) {
+            $this->logError(1497427302);
+            return false;
+        }
+
         $this->initializeStorage($configuration);
 
-        if (!$this->storage instanceof ResourceStorage) {
+        if (!$this->resourceStorage instanceof ResourceStorage) {
             $this->logError(1497427346, [$configuration['storageId']]);
             return false;
         }
 
-        if (!$this->storage->hasFolder($configuration['targetDirectoryPath'])) {
-            $storageConfiguration = $this->storage->getConfiguration();
+        if (!$this->resourceStorage->hasFolder($configuration['targetDirectoryPath'])) {
+            $storageConfiguration = $this->resourceStorage->getConfiguration();
             $this->logError(1497427363, [$storageConfiguration['basePath'] . ltrim($configuration['targetDirectoryPath'], '/\\')]);
 
             return false;
@@ -224,5 +172,6 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
 
         return true;
     }
+
 
 }
