@@ -340,4 +340,47 @@ class GenerateFileTraitTest extends UnitTestCase
             $record
         );
     }
+
+    /**
+     * @test
+     */
+    public function processRespectsSeparator()
+    {
+        $fieldName = 'foo';
+        $separator = '|';
+
+        $record = [
+            $fieldName => 'baz|boom'
+        ];
+
+        $configuration = [
+            'fieldName' => 'foo',
+            'multipleRows' => '1',
+            'separator' => $separator
+        ];
+
+
+        $bazValue = 'bazValue';
+        $boomValue = 'boomValue';
+
+
+        $expectedRecord = [
+            $fieldName => [$bazValue, $boomValue]
+        ];
+
+        $this->subject->expects($this->exactly(2))
+            ->method('getFile')
+            ->withConsecutive(
+                [$configuration, 'baz'],
+                [$configuration, 'boom']
+            )
+            ->will($this->onConsecutiveCalls($bazValue, $boomValue));
+
+        $this->subject->process($configuration, $record);
+
+        $this->assertSame(
+            $expectedRecord,
+            $record
+        );
+    }
 }
