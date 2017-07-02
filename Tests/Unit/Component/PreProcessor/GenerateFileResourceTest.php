@@ -19,7 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
@@ -35,7 +37,7 @@ class GenerateFileResourceTest extends UnitTestCase
     /**
      * @var \TYPO3\CMS\Core\Resource\ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $storage;
+    protected $resourceStorage;
 
     /**
      * @var \TYPO3\CMS\Core\Resource\StorageRepository|\PHPUnit_Framework_MockObject_MockObject
@@ -50,15 +52,17 @@ class GenerateFileResourceTest extends UnitTestCase
         $this->subject = $this->getMockBuilder(GenerateFileResource::class)
             ->setMethods(['logError'])->getMock();
 
-        $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
-            ->setMethods(['findByUid'])->getMock();
-
-        $this->subject->injectStorageRepository($this->storageRepository);
-
+        $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)->disableOriginalConstructor()
+            ->setMethods(['hasFile', 'getFile'])->getMock();
+        $this->inject(
+            $this->subject,
+            'resourceStorage',
+            $this->resourceStorage
+        );
     }
 
     /**
-     * Provides depencies for injection tests
+     * Provides dependencies for injection tests
      */
     public function dependenciesDataProvider()
     {
@@ -89,4 +93,35 @@ class GenerateFileResourceTest extends UnitTestCase
         );
     }
 
+    /**
+     * @test
+     */
+    public function getFileReturnsExistingFileFromResourceStorage()
+    {
+        $mockFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
+
+        $targetDirectoryPath = 'foo/';
+        $fileName = 'bar.x';
+        $filePath = 'sourcePath/' . $fileName;
+        $expectedPath = $targetDirectoryPath . $fileName;
+
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectoryPath
+        ];
+
+        $this->resourceStorage->expects($this->once())
+            ->method('hasFile')
+            ->with($expectedPath)
+            ->will($this->returnValue(true));
+
+        $this->resourceStorage->expects($this->once())
+            ->method('getFile')
+            ->with($expectedPath)
+            ->will($this->returnValue($mockFile));
+
+        $this->assertSame(
+            $mockFile,
+            $this->subject->getFile($configuration, $filePath)
+        );
+    }
 }
