@@ -4,12 +4,8 @@ namespace CPSIT\T3importExport\Component;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\LoggingTrait;
-use CPSIT\T3importExport\MessageContainerTrait;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /***************************************************************
@@ -37,7 +33,7 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  */
 abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
 {
-    use ConfigurableTrait, RenderContentTrait, LoggingTrait;
+    use ConfigurableTrait, RenderContentTrait;
 
     /**
      * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher

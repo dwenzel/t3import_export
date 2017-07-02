@@ -116,22 +116,22 @@ class LoggingTraitTest extends UnitTestCase
     /**
      * @test
      */
-    public function logErrorCreatesMessageFromExistingErrorEntry(){
+    public function logErrorCreatesMessageFromExistingErrorEntry()
+    {
         $fooErrorId = 1498948185;
         $arguments = ['bar'];
 
-        $errors = [
+        $errorCodes = [
             $fooErrorId => ['Foo title', 'bar message with argument %s']
         ];
-        $this->inject(
-            $this->subject,
-            'errors',
-            $errors
-        );
+        $this->subject->expects($this->once())
+            ->method('getErrorCodes')
+            ->will($this->returnValue($errorCodes));
+
         $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()->getMock();
 
-        $expectedTitle = $errors[$fooErrorId][0];
-        $expectedDescription = $errors[$fooErrorId][1];
+        $expectedTitle = $errorCodes[$fooErrorId][0];
+        $expectedDescription = $errorCodes[$fooErrorId][1];
         $expectedDescription = sprintf($expectedDescription, $arguments[0]);
         $expectedDescription .= PHP_EOL . 'Error ID ' . $fooErrorId
             . ' in component ' . get_class($this->subject);

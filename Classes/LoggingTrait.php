@@ -27,11 +27,15 @@ trait LoggingTrait
     use MessageContainerTrait, ObjectManagerTrait;
 
     /**
-     * Errors by id
-     *
-     * @var array
+     * Returns error codes for current component.
+     * Must be an array in the form
+     * [
+     *  <id> => ['errorTitle', 'errorDescription']
+     * ]
+     * 'errorDescription' may contain placeholder (%s) for arguments.
+     * @return array
      */
-    static protected $errors = [];
+    abstract public function getErrorCodes();
 
     /**
      * Creates an error message and adds it to the message container
@@ -44,9 +48,11 @@ trait LoggingTrait
         $title = LoggingInterface::ERROR_UNKNOWN_TITLE;
         $description = LoggingInterface::ERROR_UNKNOWN_MESSAGE;
 
-        if (isset(static::$errors[$id])) {
-            $title = static::$errors[$id][0];
-            $description = static::$errors[$id][1];
+        $errorCodes = $this->getErrorCodes();
+
+        if (isset($errorCodes[$id])) {
+            $title = $errorCodes[$id][0];
+            $description = $errorCodes[$id][1];
             if (null !== $arguments) {
                 array_unshift($arguments, $description);
                 $description = call_user_func_array('sprintf', $arguments);
