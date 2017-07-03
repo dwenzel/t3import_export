@@ -15,7 +15,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * The TYPO3 project - inspiring people to share!
  */
 use CPSIT\T3importExport\ResourceTrait;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Class GenerateUploadFile
@@ -36,18 +36,33 @@ class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInt
      */
     public function getFile($configuration, $sourceFilePath)
     {
-        $filePath = '';
-        $pathParts = pathinfo($sourceFilePath);
+        $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
-        $storageConfiguration = $this->resourceStorage->getConfiguration();
-
-        $targetDirectoryPath = rtrim($this->getAbsoluteFilePath($storageConfiguration['basePath']),
-                '/') . $configuration['targetDirectoryPath'];
-
-        if (@copy($sourceFilePath, $targetDirectoryPath . $pathParts['basename'])) {
-            $filePath = $storageConfiguration['basePath'] . ltrim($configuration['targetDirectoryPath'] . $pathParts['basename'], '/\\');
+        if (!@copy($sourceFilePath, $this->getAbsoluteFilePath($targetPath))) {
+            $targetPath = '';
+            // @todo log error from error_get_last()
         }
 
-        return $filePath;
+        return $targetPath;
     }
+
+    /**
+     * @param array $configuration
+     * @param string $sourcePath
+     * @return string
+     */
+    protected function getTargetPath($configuration, $sourcePath)
+    {
+        $storageConfiguration = $this->resourceStorage->getConfiguration();
+
+        $targetDirectoryPath = $this->filePathFactory->createFromParts(
+            [
+                $storageConfiguration['basePath'],
+                $configuration['targetDirectoryPath'],
+            ]
+        );
+
+        return $targetDirectoryPath . PathUtility::basename($sourcePath);
+    }
+
 }

@@ -18,9 +18,13 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  */
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
+use CPSIT\T3importExport\Factory\FilePathFactory;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
+
 
 /**
  * Class GenerateUploadFileTest
@@ -43,6 +47,11 @@ class GenerateUploadFileTest extends UnitTestCase
     protected $storageRepository;
 
     /**
+     * @var FilePathFactory|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $filePathFactory;
+
+    /**
      * set up subject
      */
     public function setUp()
@@ -50,7 +59,7 @@ class GenerateUploadFileTest extends UnitTestCase
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
             ->setMethods(['getAbsoluteFilePath'])->getMock();
 
-        $this->resourceStorage = $this->getMockBuilder( ResourceStorage::class)->disableOriginalConstructor()
+        $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)->disableOriginalConstructor()
             ->setMethods(['getConfiguration'])->getMock();
 
         $this->inject(
@@ -58,11 +67,14 @@ class GenerateUploadFileTest extends UnitTestCase
             'resourceStorage',
             $this->resourceStorage
         );
-        
+
+        $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)->setMethods(['createFromParts'])->getMock();
+        $this->subject->injectFilePathFactory($this->filePathFactory);
+        vfsStreamWrapper::register();
     }
 
     /**
-     * Provides dependenccies for injection tests
+     * Provides dependencies for injection tests
      */
     public function dependenciesDataProvider()
     {
@@ -111,6 +123,59 @@ class GenerateUploadFileTest extends UnitTestCase
 
         $this->assertSame(
             '',
+            $this->subject->getFile($configuration, $sourceFilePath)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function getFileCopiesFileToTarget()
+    {
+        $rootDirectory = 'root';
+
+        $sourceFileContent = 'source file content';
+
+        $sourceDirectory = 'sourceDir';
+        $sourceFileName = 'foo.csv';
+        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $targetDirectory = 'targetDir';
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectory
+        ];
+
+        $fileStructure = [
+            $sourceDirectory => [
+                $sourceFileName => $sourceFileContent
+            ],
+            $targetDirectory => []
+        ];
+
+        vfsStream::setup($rootDirectory, null, $fileStructure);
+
+        $storageConfiguration = [
+            'basePath' => $rootDirectory
+        ];
+
+
+        $this->resourceStorage->expects($this->once())
+            ->method('getConfiguration')
+            ->will($this->returnValue($storageConfiguration));
+
+        $expectedFilePath = $storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $configuration['targetDirectoryPath'] . DIRECTORY_SEPARATOR . $sourceFileName;
+
+        $this->filePathFactory->expects($this->once())
+            ->method('createFromParts')
+            ->with([$storageConfiguration['basePath'], $configuration['targetDirectoryPath']])
+            ->will($this->returnValue($storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $configuration['targetDirectoryPath'] . DIRECTORY_SEPARATOR));
+
+        $this->subject->expects($this->once())
+            ->method('getAbsoluteFilePath')
+            ->with($expectedFilePath)
+            ->will($this->returnValue(vfsStream::url($expectedFilePath)));
+
+        $this->assertSame(
+            $expectedFilePath,
             $this->subject->getFile($configuration, $sourceFilePath)
         );
     }
