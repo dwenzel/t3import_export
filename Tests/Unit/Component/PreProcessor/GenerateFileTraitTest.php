@@ -18,6 +18,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  */
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileTrait;
+use CPSIT\T3importExport\Factory\FilePathFactory;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -56,6 +57,39 @@ class GenerateFileTraitTest extends UnitTestCase
         $this->subject->injectStorageRepository($this->storageRepository);
 
     }
+
+
+    /**
+     * Provides dependencies for injection tests
+     */
+    public function dependenciesDataProvider()
+    {
+        return [
+            [FilePathFactory::class, 'filePathFactory']
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dependenciesDataProvider
+     * @param string $class Class name of the dependency to inject
+     * @param string $propertyName The property holding the dependency
+     */
+    public function dependenciesCanBeInjected($class, $propertyName)
+    {
+        $mockDependency = $this->getMockBuilder($class)->disableOriginalConstructor()
+            ->getMock();
+
+        $methodName = 'inject' . ucfirst($propertyName);
+        $this->subject->{$methodName}($mockDependency);
+
+        $this->assertAttributeSame(
+            $mockDependency,
+            $propertyName,
+            $this->subject
+        );
+    }
+
 
     public function invalidConfigurationDataProvider()
     {

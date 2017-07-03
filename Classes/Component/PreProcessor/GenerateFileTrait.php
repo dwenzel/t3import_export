@@ -15,6 +15,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * The TYPO3 project - inspiring people to share!
  */
 
+use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -40,6 +41,18 @@ trait GenerateFileTrait
         1497427346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
         1497427363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
     ];
+
+    /**
+     * @var FilePathFactory
+     */
+    protected $filePathFactory;
+
+    /**
+     * injects the file path factory
+     */
+    public function injectFilePathFactory(FilePathFactory $factory){
+        $this->filePathFactory = $factory;
+    }
 
     /**
      * Get File object
