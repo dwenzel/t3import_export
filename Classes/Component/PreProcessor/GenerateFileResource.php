@@ -18,7 +18,8 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 
 use CPSIT\T3importExport\FileIndexRepositoryTrait;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\T3importExport\ResourceTrait;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Class GenerateFileResource
@@ -38,41 +39,36 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class GenerateFileResource extends AbstractPreProcessor implements PreProcessorInterface
 {
-    use FileIndexRepositoryTrait, GenerateFileTrait;
+    use FileIndexRepositoryTrait, GenerateFileTrait, ResourceTrait;
 
     /**
      * Get File object
      *
-     * @param $configuration
-     * @param $file
-     * @return \TYPO3\CMS\Core\Resource\File|string|null
+     * @param array $configuration
+     * @param string $sourceFilePath
+     * @return \TYPO3\CMS\Core\Resource\FileInterface|null
      */
-    public function getFile($configuration, $file)
+    public function getFile($configuration, $sourceFilePath)
     {
-        $pathParts = pathinfo($file);
-        $filePath = $configuration['targetDirectoryPath'] . $pathParts['basename'];
+        $filePath = PathUtility::sanitizeTrailingSeparator($configuration['targetDirectoryPath'], DIRECTORY_SEPARATOR) . PathUtility::basename($sourceFilePath);
 
         if ($this->resourceStorage->hasFile($filePath)
         ) {
             return $this->resourceStorage->getFile($filePath);
         }
 
-        $storageConfiguration = $this->resourceStorage->getConfiguration();
+        $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
-        $targetDirectoryPath = rtrim(GeneralUtility::getFileAbsFileName($storageConfiguration['basePath']),
-                '/') . $configuration['targetDirectoryPath'];
-
-        // @todo allow reading remote resource too!
-        if (@copy($file, $targetDirectoryPath . $pathParts['basename'])) {
-            // @todo add error message on failure
-            /** @var \TYPO3\CMS\Core\Resource\File $fileObject */
-            $fileObject = $this->resourceStorage->getFile($filePath);
-            $this->fileIndexRepository->add($fileObject);
-
-            return $fileObject;
+        if (!@copy($sourceFilePath, $this->getAbsoluteFilePath($targetPath))) {
+            // @todo log error from error_get_last()
+            return null;
         }
 
-        return null;
+        /** @var \TYPO3\CMS\Core\Resource\FileInterface|\TYPO3\CMS\Core\Resource\File $fileObject */
+        $fileObject = $this->resourceStorage->getFile($filePath);
+        $this->fileIndexRepository->add($fileObject);
+
+        return $fileObject;
     }
 
 }

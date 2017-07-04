@@ -20,6 +20,7 @@ use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Trait GenerateFileTrait
@@ -59,10 +60,10 @@ trait GenerateFileTrait
      * Method must fetch the file and return the correct value for the target field (either a file object or string or null).
      *
      * @param array $configuration
-     * @param string $file
+     * @param string $sourceFilePath
      * @return \TYPO3\CMS\Core\Resource\File|string|null
      */
-    abstract public function getFile($configuration, $file);
+    abstract public function getFile($configuration, $sourceFilePath);
 
     /**
      * Returns error codes for current component.
@@ -158,5 +159,24 @@ trait GenerateFileTrait
         }
 
         return true;
+    }
+
+    /**
+     * @param array $configuration
+     * @param string $sourcePath
+     * @return string
+     */
+    protected function getTargetPath($configuration, $sourcePath)
+    {
+        $storageConfiguration = $this->resourceStorage->getConfiguration();
+
+        $targetDirectoryPath = $this->filePathFactory->createFromParts(
+            [
+                $storageConfiguration['basePath'],
+                $configuration['targetDirectoryPath'],
+            ]
+        );
+
+        return $targetDirectoryPath . PathUtility::basename($sourcePath);
     }
 }
