@@ -204,4 +204,55 @@ class GenerateFileResourceTest extends UnitTestCase
         );
     }
 
+    /**
+     * @test
+     */
+    public function getFileReturnsNullOnFailure()
+    {
+        $rootDirectory = 'root';
+
+        $sourceFileContent = 'source file content';
+
+        $sourceDirectory = 'sourceDir';
+        $sourceFileName = 'foo.csv';
+        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $targetDirectory = 'invalidDirectory';
+
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectory
+        ];
+
+        $fileStructure = [
+            $sourceDirectory => [
+                $sourceFileName => $sourceFileContent
+            ]
+        ];
+
+        vfsStream::setup($rootDirectory, null, $fileStructure);
+
+        $storageConfiguration = [
+            'basePath' => $rootDirectory
+        ];
+
+
+        $this->resourceStorage->expects($this->once())
+            ->method('getConfiguration')
+            ->will($this->returnValue($storageConfiguration));
+
+        $expectedFilePath = $storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $configuration['targetDirectoryPath'] . DIRECTORY_SEPARATOR . $sourceFileName;
+
+        $this->filePathFactory->expects($this->once())
+            ->method('createFromParts')
+            ->with([$storageConfiguration['basePath'], $configuration['targetDirectoryPath']])
+            ->will($this->returnValue($storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $configuration['targetDirectoryPath'] . DIRECTORY_SEPARATOR));
+
+        $this->subject->expects($this->once())
+            ->method('getAbsoluteFilePath')
+            ->with($expectedFilePath)
+            ->will($this->returnValue(vfsStream::url($expectedFilePath)));
+
+        $this->assertNull(
+            $this->subject->getFile($configuration, $sourceFilePath)
+        );
+    }
 }
