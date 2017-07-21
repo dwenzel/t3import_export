@@ -15,13 +15,9 @@ preProcessors {
 		config {
 			fields {
 				title = header
-				actors = actors
-				are_effects_retroactive = effectsretroactive
-				authors = authors
-				date_effect = dateofeffect
-				date_publication = dateofpublication
-				full_text_source_in_english = fulltextsourceen
-				leading_country = leadingcountry
+				authors = tx_myext_authors
+				full_text_source_in_english = bodytext
+				leading_country = tx_myext_country
 			}
 		}
 	}
