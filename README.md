@@ -18,6 +18,9 @@ Tasks can be executed manually via backend module or command line or automatical
     * [PostProcessors](./Documentation/Components/POSTPROCESSOR.md)
     * [Finishers](./Documentation/Components/FINISHER.md)
 * [Persistence](./Documentation/Persistence.md)
+* Services
+    * [DatabaseConnectionService](./Documentation/Service/DatabaseConnectionService.md)
+    
 ## Credits
 Thanks for contribution and feedback
 
