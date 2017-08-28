@@ -73,7 +73,7 @@ class DataSourceCSV
     {
         $records = [];
 
-        $resource = $this->loadResource($configuration);
+        $resource = rtrim($this->loadResource($configuration));
 
         if (!empty($resource)) {
             $delimiter = null;
