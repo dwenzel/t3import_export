@@ -5,7 +5,7 @@ Cleans or transforms string fields by default PHP functions.
 
 The source field has to be defined by name. Each field needs a process instruction.
 
-All function are just routed to the original PHP functions without any parameters.
+Most functions are just routed to the original PHP functions without any parameters.
 
 The function **strip_empty_tags** is an exception and used a RegEx to remove empty HTML tags.
 
@@ -24,8 +24,9 @@ preProcessors {
 						replace = https://
 					}
 					stripslashes = true
-					strip_empty_tags = true
+					strip_emptytags = true
 					strip_tags = true
+					strip_spaces = true
 					htmlspecialchars = true
 					trim = true
 					ltrim = true

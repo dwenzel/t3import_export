@@ -64,14 +64,20 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
 				if(isset($localConfig['stripslashes']))
 					$record[$fieldName] = stripslashes($record[$fieldName]);
 
-				if(isset($localConfig['strip_empty_tags']))
-					$record[$fieldName] = $this->strip_empty_tags($record[$fieldName]);
+				if(isset($localConfig['strip_emptytags']))
+					$record[$fieldName] = $this->strip_emptytags($record[$fieldName]);
 
 				if(isset($localConfig['strip_tags']))
 					$record[$fieldName] = strip_tags($record[$fieldName]);
 
 				if(isset($localConfig['htmlspecialchars']))
 					$record[$fieldName] = htmlspecialchars($record[$fieldName]);
+
+				if(isset($localConfig['strip_spaces']))
+					$record[$fieldName] = preg_replace('/\s+/', '', $record[$fieldName]);
+
+				if(isset($localConfig['trim']))
+					$record[$fieldName] = trim($record[$fieldName]);
 
 				if(isset($localConfig['trim']))
 					$record[$fieldName] = trim($record[$fieldName]);
@@ -94,7 +100,7 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
 	}
 
 
-	private function strip_empty_tags($string, $replaceTo = null){
+	private function strip_emptytags($string, $replaceTo = null){
 		// Return if string not given or empty
 		if (!is_string($string) || trim($string) == '') return $string;
 
