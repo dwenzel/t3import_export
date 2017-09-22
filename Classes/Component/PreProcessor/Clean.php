@@ -58,6 +58,9 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
 		foreach ($fields as $fieldName => $localConfig) {
 			if(is_array($localConfig) && isset($record[$fieldName]) && is_string($record[$fieldName])){
 			
+				if(isset($localConfig['str_replace']) && is_array($localConfig['str_replace']) && isset($localConfig['str_replace']['search']) && is_string($localConfig['str_replace']['search']) && isset($localConfig['str_replace']['replace']) && is_string($localConfig['str_replace']['replace']))
+					$record[$fieldName] = str_replace($localConfig['str_replace']['search'],$localConfig['str_replace']['replace'],$record[$fieldName]);
+
 				if(isset($localConfig['stripslashes']))
 					$record[$fieldName] = stripslashes($record[$fieldName]);
 

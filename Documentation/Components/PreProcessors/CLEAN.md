@@ -19,6 +19,10 @@ preProcessors {
 		config {
 			fields {
 				abstract {
+					str_replace {
+						search = http://
+						replace = https://
+					}
 					stripslashes = true
 					strip_empty_tags = true
 					strip_tags = true
