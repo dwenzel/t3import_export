@@ -38,8 +38,14 @@
 		<trans-unit id="message.noExportSetsFound" xml:space="preserve">
 			<source>No export sets found.</source>
 		</trans-unit>
+			<trans-unit id="message.noImportSetsFound" xml:space="preserve">
+			<source>No import sets found.</source>
+		</trans-unit>
 		<trans-unit id="message.noExportTasksFound" xml:space="preserve">
 			<source>No export tasks found.</source>
+		</trans-unit>
+			<trans-unit id="message.noImportTasksFound" xml:space="preserve">
+			<source>No import tasks found.</source>
 		</trans-unit>
 		<trans-unit id="mlang_labels_tabdescr" xml:space="preserve">
 			<source>Perform predefined export tasks</source>
