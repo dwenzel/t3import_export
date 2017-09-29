@@ -19,7 +19,7 @@ namespace CPSIT\T3importExport;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Trait ObjectManagerTrait
@@ -28,17 +28,17 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 trait ObjectManagerTrait
 {
     /**
-     * @var ObjectManagerInterface
+     * @var ObjectManager
      */
     protected $objectManager;
 
     /**
      * Inject the object manager
      *
-     * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $factory
+     * @param \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager
      */
-    public function injectObjectManager(ObjectManagerInterface $factory)
+    public function injectObjectManager(ObjectManager $objectManager)
     {
-        $this->objectManager = $factory;
+        $this->objectManager = $objectManager;
     }
 }

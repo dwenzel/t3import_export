@@ -22,7 +22,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\ObjectManagerTrait;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class ObjectManagerTraitTest
@@ -49,8 +49,8 @@ class ObjectManagerTraitTest extends UnitTestCase
      */
     public function objectManagerCanBeInjected()
     {
-        /** @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $objectManager = $this->getMockBuilder(ObjectManagerInterface::class)
+        /** @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject $objectManager */
+        $objectManager = $this->getMockBuilder(ObjectManager::class)
             ->getMock();
         $this->subject->injectObjectManager($objectManager);
         $this->assertAttributeSame(

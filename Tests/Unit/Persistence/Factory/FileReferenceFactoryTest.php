@@ -6,7 +6,7 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
  *
@@ -48,7 +48,7 @@ class FileReferenceFactoryTest extends UnitTestCase
     protected $subject;
 
     /**
-     * @var ObjectManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $objectManager;
 
@@ -64,7 +64,7 @@ class FileReferenceFactoryTest extends UnitTestCase
     {
         $this->subject = $this->getMockBuilder(FileReferenceFactory::class)
             ->setMethods(['dummy'])->getMock();
-        $this->objectManager = $this->getMockBuilder(ObjectManagerInterface::class)
+        $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->setMethods(['get'])->getMockForAbstractClass();
         $this->subject->injectObjectManager($this->objectManager);
         $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
