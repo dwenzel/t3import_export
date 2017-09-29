@@ -73,7 +73,7 @@ class DataSourceCSV
     {
         $records = [];
 
-        $resource = $this->loadResource($configuration);
+        $resource = rtrim($this->loadResource($configuration));
 
         if (!empty($resource)) {
             $delimiter = null;
@@ -90,7 +90,8 @@ class DataSourceCSV
                 $escape = $configuration['escape'];
             }
 
-            $rows = str_getcsv($resource, "\n");
+            $rows = array_filter(str_getcsv($resource, "\n"));
+
             $records = array_map(function ($d) use ($delimiter, $enclosure, $escape) {
                 return str_getcsv($d, $delimiter, $enclosure, $escape);
             }, $rows);
@@ -101,7 +102,7 @@ class DataSourceCSV
             } else {
                 array_shift($records); // remove column header
             }
-            
+
             array_walk($records, function (&$a) use ($records, $headers) {
                 $a = array_combine($headers, $a);
             });

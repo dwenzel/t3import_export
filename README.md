@@ -1,5 +1,7 @@
 t3import_export
 ===============
+[![code coverage](https://codecov.io/gh/dwenzel/t3import_export/branch/master/graph/badge.svg)](https://codecov.io/gh/dwenzel/t3import_export)
+[![Build Status](https://travis-ci.org/dwenzel/t3import_export.svg?branch=master)](https://travis-ci.org/dwenzel/t3import_export)
 
 Imports data from different sources into TYPO3 and exports from TYPO3 to different targets.
 Possible data sources and targets are databases, and files (XML, CSV...).
