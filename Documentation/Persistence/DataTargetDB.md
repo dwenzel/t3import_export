@@ -27,7 +27,7 @@ If a record has a field with the special key `__identity` its value will be set 
 Persist records into table _tt_content_ of TYPO3 DB 
 ```
 module.tx_t3importexport.settings.import.tasks.exampleTask {
-  source {
+  target {
     class = CPSIT\T3importExport\Persistence\DataTargetDB
     config {
       table = tt_content
@@ -40,7 +40,7 @@ module.tx_t3importexport.settings.import.tasks.exampleTask {
 1. Save into a the table _foo_ of a database registered with identifier _bar_
 ```
 module.tx_t3importexport.settings.import.tasks.exampleTask {
-  source {
+  target {
     identifier = bar
     class = CPSIT\T3importExport\Persistence\DataTargetDB
     config {
@@ -53,7 +53,7 @@ module.tx_t3importexport.settings.import.tasks.exampleTask {
 2. unset keys _foo_ and _bar_ of each record before persisting
 ```
 module.tx_t3importexport.settings.import.tasks.exampleTask {
-  source {
+  target {
     class = CPSIT\T3importExport\Persistence\DataTargetDB
     config {
       table = tt_content
