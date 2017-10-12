@@ -14,25 +14,27 @@ namespace CPSIT\T3importExport;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 
 /**
- * Trait ObjectManagerTrait
+ * Trait FileIndexRepositoryTrait
+ * Provides a FileIndexRepository
  */
-trait ObjectManagerTrait
+trait FileIndexRepositoryTrait
 {
     /**
-     * @var ObjectManager
+     * @var \TYPO3\CMS\Core\Resource\Index\FileIndexRepository
      */
-    protected $objectManager;
+    protected $fileIndexRepository;
 
     /**
-     * injects the object manager
+     * Injects the file index repository
      *
-     * @param ObjectManager $objectManager
+     * @param FileIndexRepository $fileIndexRepository
      */
-    public function injectObjectManager(ObjectManager $objectManager)
+    public function injectFileIndexRepository(FileIndexRepository $fileIndexRepository)
     {
-        $this->objectManager = $objectManager;
+        $this->fileIndexRepository = $fileIndexRepository;
     }
 }

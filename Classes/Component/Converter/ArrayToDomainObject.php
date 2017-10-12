@@ -1,15 +1,6 @@
 <?php
-namespace CPSIT\T3importExport\Component\Converter;
 
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Property\PropertyMapper;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
+namespace CPSIT\T3importExport\Component\Converter;
 
 /***************************************************************
  *
@@ -35,25 +26,33 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\ObjectManagerTrait;
+use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use TYPO3\CMS\Extbase\Property\PropertyMapper;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
+use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
+
+/**
+ * Class ArrayToDomainObject
+ */
 class ArrayToDomainObject extends AbstractConverter implements ConverterInterface
 {
+    use ObjectManagerTrait;
+
     const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
-
-    public function __construct()
-    {
-        $o = 1;
-    }
-
     /**
      * @var PropertyMapper
      */
     protected $propertyMapper;
-
     /**
      * @var PropertyMappingConfiguration
      */
     protected $propertyMappingConfiguration;
-
     /**
      * @var PropertyMappingConfigurationBuilder
      */
@@ -62,11 +61,15 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
      * @var TargetClassConfigurationValidator
      */
     protected $targetClassConfigurationValidator;
-
     /**
      * @var MappingConfigurationValidator
      */
     protected $mappingConfigurationValidator;
+
+    public function __construct()
+    {
+        $o = 1;
+    }
 
     /**
      * injects the property mapper
@@ -133,20 +136,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     }
 
     /**
-     * @param array $configuration
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
-     * @throws MissingClassException
-     * @return bool
-     */
-    public function isConfigurationValid(array $configuration)
-    {
-        return (
-            $this->targetClassConfigurationValidator->validate($configuration)
-            && $this->mappingConfigurationValidator->validate($configuration)
-        );
-    }
-
-    /**
      * @param array|null $configuration Configuration array from TypoScript
      * @return PropertyMappingConfiguration
      */
@@ -185,5 +174,19 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
         )->skipUnknownProperties();
 
         return $propertyMappingConfiguration;
+    }
+
+    /**
+     * @param array $configuration
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws MissingClassException
+     * @return bool
+     */
+    public function isConfigurationValid(array $configuration)
+    {
+        return (
+            $this->targetClassConfigurationValidator->validate($configuration)
+            && $this->mappingConfigurationValidator->validate($configuration)
+        );
     }
 }

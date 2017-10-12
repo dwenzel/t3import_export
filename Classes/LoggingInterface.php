@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport;
 
+
 /**
  * This file is part of the TYPO3 CMS project.
  *
@@ -14,25 +15,9 @@ namespace CPSIT\T3importExport;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-/**
- * Trait ObjectManagerTrait
- */
-trait ObjectManagerTrait
+interface LoggingInterface
 {
-    /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
-     * injects the object manager
-     *
-     * @param ObjectManager $objectManager
-     */
-    public function injectObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
+    const ERROR_UNKNOWN_MESSAGE = 'An unknown error occurred';
+    const ERROR_UNKNOWN_TITLE = 'Unknown error';
 }
