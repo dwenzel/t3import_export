@@ -17,9 +17,10 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use CPSIT\T3importExport\FileIndexRepositoryTrait;
-use CPSIT\T3importExport\ResourceTrait;
+use CPSIT\T3importExport\Resource\FileReferenceFactoryTrait;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
+use CPSIT\T3importExport\Resource\ResourceTrait;
 
 /**
  * Class GenerateFileResource

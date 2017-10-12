@@ -19,9 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\StorageRepositoryTrait;
-use TYPO3\CMS\Core\Resource\StorageRepository;
+use CPSIT\T3importExport\Resource\StorageRepositoryTrait;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
  * Class StorageRepositoryTraitTest
@@ -31,7 +31,7 @@ class StorageRepositoryTraitTest extends UnitTestCase
 
     /**
      * subject
-     * @var StorageRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var \CPSIT\T3importExport\Resource\StorageRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 

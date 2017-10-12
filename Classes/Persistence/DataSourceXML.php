@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence;
 
 /**
@@ -16,7 +17,7 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\ResourceTrait;
+use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**

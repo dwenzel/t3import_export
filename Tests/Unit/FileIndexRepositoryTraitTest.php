@@ -19,9 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\FileIndexRepositoryTrait;
-use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
+use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 
 /**
  * Class FileIndexRepositoryTraitTest
@@ -31,7 +31,7 @@ class FileIndexRepositoryTraitTest extends UnitTestCase
 
     /**
      * subject
-     * @var FileIndexRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var \CPSIT\T3importExport\Resource\FileIndexRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 

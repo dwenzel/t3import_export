@@ -1,6 +1,6 @@
 <?php
 
-namespace CPSIT\T3importExport;
+namespace CPSIT\T3importExport\Resource;
 
 /**
  * This file is part of the TYPO3 CMS project.

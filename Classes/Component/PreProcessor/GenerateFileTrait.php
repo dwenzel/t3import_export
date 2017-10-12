@@ -17,10 +17,10 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\LoggingTrait;
-use CPSIT\T3importExport\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 
 /**
  * Trait GenerateFileTrait
@@ -50,6 +50,7 @@ trait GenerateFileTrait
 
     /**
      * injects the file path factory
+     * @param FilePathFactory $factory
      */
     public function injectFilePathFactory(FilePathFactory $factory){
         $this->filePathFactory = $factory;

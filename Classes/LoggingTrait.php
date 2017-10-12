@@ -17,6 +17,7 @@ namespace CPSIT\T3importExport;
  */
 
 use CPSIT\T3importExport\Messaging\Message;
+use CPSIT\T3importExport\Messaging\MessageContainerTrait;
 
 /**
  * Trait LoggingTrait

@@ -14,7 +14,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\T3importExport\ResourceStorageTrait;
+use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 class ResourceStorageTraitTest extends UnitTestCase
 {
     /**
-     * @var ResourceStorageTrait |\PHPUnit_Framework_MockObject_MockObject
+     * @var \CPSIT\T3importExport\Resource\ResourceStorageTrait |\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 

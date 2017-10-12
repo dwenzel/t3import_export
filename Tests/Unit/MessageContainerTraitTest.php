@@ -2,8 +2,8 @@
 
 namespace CPSIT\T3importExport\Tests\Unit;
 
-use CPSIT\T3importExport\MessageContainerTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\T3importExport\Messaging\MessageContainerTrait;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /***************************************************************
@@ -31,7 +31,7 @@ class MessageContainerTraitTest extends UnitTestCase
 
     /**
      * subject
-     * @var MessageContainerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var \CPSIT\T3importExport\Messaging\MessageContainerTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
