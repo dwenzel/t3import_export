@@ -223,7 +223,6 @@ class ImportControllerTest extends UnitTestCase
         $this->subject->indexAction();
     }
 
-
     /**
      * @test
      */
@@ -290,54 +289,6 @@ class ImportControllerTest extends UnitTestCase
                 ]
             );
         $this->subject->importSetAction($set);
-    }
-
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 123476532
-     */
-    public function importSetActionThrowsErrorForMissingSettingsKey()
-    {
-        $invalidSettings = [];
-        $this->inject(
-            $this->subject,
-            'settings',
-            $invalidSettings
-        );
-        $this->subject->importSetAction('foo');
-    }
-
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 123476532
-     */
-    public function indexActionThrowsErrorForMissingSettingsKey()
-    {
-        $invalidSettings = [];
-        $this->inject(
-            $this->subject,
-            'settings',
-            $invalidSettings
-        );
-        $this->subject->indexAction('foo');
-    }
-
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 123476532
-     */
-    public function importTaskActionThrowsErrorForMissingSettingsKey()
-    {
-        $invalidSettings = [];
-        $this->inject(
-            $this->subject,
-            'settings',
-            $invalidSettings
-        );
-        $this->subject->importTaskAction('foo');
     }
 
     /**

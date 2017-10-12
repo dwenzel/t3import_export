@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Controller;
 
 use CPSIT\T3importExport\Controller\ExportController;
@@ -290,54 +291,6 @@ class ExportControllerTest extends UnitTestCase
                 ]
             );
         $this->subject->exportSetAction($set);
-    }
-
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 123476532
-     */
-    public function exportSetActionThrowsErrorForMissingSettingsKey()
-    {
-        $invalidSettings = [];
-        $this->inject(
-            $this->subject,
-            'settings',
-            $invalidSettings
-        );
-        $this->subject->exportSetAction('foo');
-    }
-
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 123476532
-     */
-    public function indexActionThrowsErrorForMissingSettingsKey()
-    {
-        $invalidSettings = [];
-        $this->inject(
-            $this->subject,
-            'settings',
-            $invalidSettings
-        );
-        $this->subject->indexAction('foo');
-    }
-
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 123476532
-     */
-    public function exportTaskActionThrowsErrorForMissingSettingsKey()
-    {
-        $invalidSettings = [];
-        $this->inject(
-            $this->subject,
-            'settings',
-            $invalidSettings
-        );
-        $this->subject->exportTaskAction('foo');
     }
 
     /**

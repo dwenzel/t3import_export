@@ -9,16 +9,16 @@
 			<authorEmail>t3events@gmx.de</authorEmail>
 		</header>
 		<body>
-		<trans-unit id="tx_t3importexport_domain_model_exporttarget" xml:space="preserve">
+		<trans-unit id="tx_t3importexport_domain_model_exporttarget">
 			<source>Export Target</source>
 		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_exporttarget.title" xml:space="preserve">
+		<trans-unit id="tx_t3importexport_domain_model_exporttarget.title">
 			<source>Title</source>
 		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_queue" xml:space="preserve">
+		<trans-unit id="tx_t3importexport_domain_model_queue">
 			<source>Queue</source>
 		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_queueitem" xml:space="preserve">
+		<trans-unit id="tx_t3importexport_domain_model_queueitem">
 			<source>Queue Item</source>
 		</trans-unit>
 		</body>

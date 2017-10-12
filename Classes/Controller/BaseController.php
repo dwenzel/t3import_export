@@ -83,7 +83,6 @@ abstract class BaseController extends ActionController
      */
     public function indexAction()
     {
-        $this->validateSettings();
         $settingsKey = $this->getSettingsKey();
         $tasks = [];
         $sets = [];
@@ -111,9 +110,7 @@ abstract class BaseController extends ActionController
      */
     protected function doTaskAction($identifier)
     {
-        $this->validateSettings();
-
-        /** @var TaskDemand $importDemand */
+       /** @var TaskDemand $importDemand */
         $importDemand = $this->objectManager->get(
             TaskDemand::class
         );
@@ -140,7 +137,6 @@ abstract class BaseController extends ActionController
      */
     protected function doSetAction($identifier)
     {
-        $this->validateSettings();
         $settingsKey = $this->getSettingsKey();
 
         /** @var TaskDemand $importDemand */
@@ -202,22 +198,5 @@ abstract class BaseController extends ActionController
         }
 
         return $sets;
-    }
-
-    /**
-     * Validates the settings
-     *
-     * @return void
-     * @throws InvalidConfigurationException
-     */
-    protected function validateSettings()
-    {
-        if (!isset($this->settings[$this->getSettingsKey()])) {
-            $keysFound = implode(', ', array_keys($this->settings));
-            throw new InvalidConfigurationException(
-                'no config with matching key \'' . $this->getSettingsKey() . '\' found, only: (\'' . $keysFound . '\')',
-                123476532
-            );
-        }
     }
 }
