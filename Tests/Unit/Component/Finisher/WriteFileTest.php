@@ -5,7 +5,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 use CPSIT\T3importExport\Component\Finisher\WriteFile;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
-use DWenzel\T3events\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 
