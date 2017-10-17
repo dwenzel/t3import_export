@@ -54,12 +54,12 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             return false;
         }
         if (isset($configuration['identifier'])
-            and !is_string($configuration['identifier'])
+            && !is_string($configuration['identifier'])
         ) {
             return false;
         }
         if (isset($configuration['identifier'])
-            and !DatabaseConnectionService::isRegistered($configuration['identifier'])
+            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
         ) {
             return false;
         }
@@ -82,7 +82,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
                 ->getDatabase($configuration['identifier']);
         }
         if (isset($configuration['childRecords'])
-            and is_array($record[$configuration['childRecords']])
+            && is_array($record[$configuration['childRecords']])
         ) {
             $localConfiguration = $configuration;
             unset($localConfiguration['childRecords']);
@@ -111,7 +111,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
                 $record[$targetFieldName] = $mappedRecords;
             }
         } elseif (isset($configuration['targetField'])
-            and is_string($configuration['targetField'])
+            && is_string($configuration['targetField'])
         ) {
             unset($record[$targetFieldName]);
         }
@@ -157,7 +157,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
                 $whereClause = '';
                 foreach ($queryConfiguration['where'] as $operator => $value) {
                     if ($operator === 'AND' || $operator === 'OR') {
-                        if ($whereClause == '' and $operator === 'AND') {
+                        if ($whereClause == '' && $operator === 'AND') {
                             $operator = '';
                         }
                         $whereClause .= $operator . ' ' . $value['condition'];

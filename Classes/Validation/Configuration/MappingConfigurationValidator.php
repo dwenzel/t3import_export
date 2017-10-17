@@ -47,7 +47,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
     protected function validatePropertyConfiguration(array $configuration)
     {
         if (isset($configuration['allowProperties'])
-            and !is_string($configuration['allowProperties'])
+            && !is_string($configuration['allowProperties'])
         ) {
             throw new InvalidConfigurationException(
                 'Invalid configuration for ' . __CLASS__ .

@@ -136,7 +136,7 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
     public function isConfigurationValid(array $configuration)
     {
         if (!isset($configuration['parentField'])
-            or !isset($configuration['language'])) {
+            || !isset($configuration['language'])) {
             return false;
         }
 
