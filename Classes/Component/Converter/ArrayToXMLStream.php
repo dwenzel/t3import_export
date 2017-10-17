@@ -141,7 +141,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         // fetch target class (DataStream) if not set return xml buffer instead
         $result = $this->objectManager->get($configuration['targetClass']);
         if ($result instanceof DataStreamInterface) {
-            $result->setSteamBuffer($buffer);
+            $result->setStreamBuffer($buffer);
         } else {
             $result = $buffer;
         }

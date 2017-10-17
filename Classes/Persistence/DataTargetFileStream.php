@@ -36,9 +36,9 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
     public function persist($object, array $configuration = null)
     {
         if ($object instanceof DataStreamInterface) {
-            $this->writeBuffer($object->getSteamBuffer());
+            $this->writeBuffer($object->getStreamBuffer());
             if (isset($configuration['flush'])) {
-                $object->setSteamBuffer(null);
+                $object->setStreamBuffer(null);
             }
         }
     }

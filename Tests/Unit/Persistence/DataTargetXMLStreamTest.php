@@ -8,11 +8,7 @@ use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use CPSIT\T3importExport\Persistence\DataTargetXMLStream;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
-use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
-use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /***************************************************************
  *
@@ -45,7 +41,7 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
-class DataTargetXMLSteamTest extends UnitTestCase
+class DataTargetXMLStreamTest extends UnitTestCase
 {
 
     /**
@@ -66,7 +62,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
     public function createDataStreamWithSampleBuffer($buffer)
     {
         $ds = new DataStream();
-        $ds->setSteamBuffer($buffer);
+        $ds->setStreamBuffer($buffer);
         return $ds;
     }
 
@@ -93,7 +89,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
      * @test
      * @outputBuffering enabled
      */
-    public function persistDataSteamInTaskResultIteratorWithDirectOutput()
+    public function persistDataStreamInTaskResultIteratorWithDirectOutput()
     {
         $taskResult = new TaskResult();
         $taskResult->setElements(
@@ -112,7 +108,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
             $this->subject->persist($streamObject, $config);
-            $this->assertNull($streamObject->getSteamBuffer());
+            $this->assertNull($streamObject->getStreamBuffer());
         }
 
         $this->subject->persistAll($taskResult, $config);
@@ -123,7 +119,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
      * @test
      * @outputBuffering enabled
      */
-    public function persistDataSteamInTaskResultIteratorWithDirectOutputAndCustomConfig()
+    public function persistDataStreamInTaskResultIteratorWithDirectOutputAndCustomConfig()
     {
         $taskResult = new TaskResult();
         $taskResult->setElements(
@@ -144,7 +140,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
             $this->subject->persist($streamObject, $config);
-            $this->assertNull($streamObject->getSteamBuffer());
+            $this->assertNull($streamObject->getStreamBuffer());
         }
 
         $this->subject->persistAll($taskResult, $config);
@@ -197,7 +193,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
             $this->subject->persist($streamObject, $config);
-            $this->assertNull($streamObject->getSteamBuffer());
+            $this->assertNull($streamObject->getStreamBuffer());
         }
 
         $this->subject->persistAll($taskResult);

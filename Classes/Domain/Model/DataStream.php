@@ -36,7 +36,7 @@ class DataStream extends AbstractEntity implements DataStreamInterface
      * @param $buffer
      * @return mixed
      */
-    public function setSteamBuffer($buffer)
+    public function setStreamBuffer($buffer)
     {
         $this->buffer = $buffer;
     }
@@ -44,7 +44,7 @@ class DataStream extends AbstractEntity implements DataStreamInterface
     /**
      * @return mixed
      */
-    public function getSteamBuffer()
+    public function getStreamBuffer()
     {
         return $this->buffer;
     }

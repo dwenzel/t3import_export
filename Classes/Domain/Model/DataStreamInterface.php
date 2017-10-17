@@ -8,10 +8,10 @@ interface DataStreamInterface
      * @param $buffer
      * @return string
      */
-    public function setSteamBuffer($buffer);
+    public function setStreamBuffer($buffer);
 
     /**
      * @return string
      */
-    public function getSteamBuffer();
+    public function getStreamBuffer();
 }

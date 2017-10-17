@@ -66,7 +66,7 @@ class DataTargetFileSteamTest extends UnitTestCase
     public function createDataStreamWithSampleBuffer($buffer)
     {
         $ds = new DataStream();
-        $ds->setSteamBuffer($buffer);
+        $ds->setStreamBuffer($buffer);
         return $ds;
     }
 
