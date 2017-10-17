@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -18,6 +19,10 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+/**
+ * Class Clean
+ */
 class Clean extends AbstractPreProcessor implements PreProcessorInterface
 {
 
@@ -48,67 +53,91 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
     }
 
     /**
+     * Performs cleaning
+     *
      * @param array $configuration
      * @param array $record
-     * @return TRUE
+     * @return boolean
      */
     public function process($configuration, &$record)
     {
-		$fields = $configuration['fields'];
-		foreach ($fields as $fieldName => $localConfig) {
-			if(is_array($localConfig) && isset($record[$fieldName]) && is_string($record[$fieldName])){
-			
-				if(isset($localConfig['str_replace']) && is_array($localConfig['str_replace']) && isset($localConfig['str_replace']['search']) && is_string($localConfig['str_replace']['search']) && isset($localConfig['str_replace']['replace']) && is_string($localConfig['str_replace']['replace']))
-					$record[$fieldName] = str_replace($localConfig['str_replace']['search'],$localConfig['str_replace']['replace'],$record[$fieldName]);
+        $fields = $configuration['fields'];
+        foreach ($fields as $fieldName => $localConfig) {
+            if (
+                is_array($localConfig)
+                && isset($record[$fieldName])
+                && is_string($record[$fieldName])
+            ) {
 
-				if(isset($localConfig['stripslashes']))
-					$record[$fieldName] = stripslashes($record[$fieldName]);
+                if (
+                    isset($localConfig['str_replace'])
+                    && is_array($localConfig['str_replace'])
+                    && isset($localConfig['str_replace']['search'])
+                    && is_string($localConfig['str_replace']['search'])
+                    && isset($localConfig['str_replace']['replace'])
+                    && is_string($localConfig['str_replace']['replace'])
+                ) {
+                    $record[$fieldName] = str_replace($localConfig['str_replace']['search'], $localConfig['str_replace']['replace'], $record[$fieldName]);
+                }
 
-				if(isset($localConfig['strip_emptytags']))
-					$record[$fieldName] = $this->strip_emptytags($record[$fieldName]);
+                if (isset($localConfig['stripslashes']))
+                    $record[$fieldName] = stripslashes($record[$fieldName]);
 
-				if(isset($localConfig['strip_tags']))
-					$record[$fieldName] = strip_tags($record[$fieldName]);
+                if (isset($localConfig['strip_emptytags']))
+                    $record[$fieldName] = $this->stripEmptyTags($record[$fieldName]);
 
-				if(isset($localConfig['htmlspecialchars']))
-					$record[$fieldName] = htmlspecialchars($record[$fieldName]);
+                if (isset($localConfig['strip_tags']))
+                    $record[$fieldName] = strip_tags($record[$fieldName]);
 
-				if(isset($localConfig['strip_spaces']))
-					$record[$fieldName] = preg_replace('/\s+/', '', $record[$fieldName]);
+                if (isset($localConfig['htmlspecialchars']))
+                    $record[$fieldName] = htmlspecialchars($record[$fieldName]);
 
-				if(isset($localConfig['trim']))
-					$record[$fieldName] = trim($record[$fieldName]);
+                if (isset($localConfig['strip_spaces']))
+                    $record[$fieldName] = preg_replace('/\s+/', '', $record[$fieldName]);
 
-				if(isset($localConfig['trim']))
-					$record[$fieldName] = trim($record[$fieldName]);
+                if (isset($localConfig['trim']))
+                    $record[$fieldName] = trim($record[$fieldName]);
 
-				if(isset($localConfig['ltrim']))
-					$record[$fieldName] = ltrim($record[$fieldName]);
-				
-				if(isset($localConfig['rtrim']))
-					$record[$fieldName] = rtrim($record[$fieldName]);
+                if (isset($localConfig['trim']))
+                    $record[$fieldName] = trim($record[$fieldName]);
 
-				if(isset($localConfig['strtolower']))
-					$record[$fieldName] = strtolower($record[$fieldName]);
-				
-				if(isset($localConfig['strtoupper']))
-					$record[$fieldName] = strtoupper($record[$fieldName]);
+                if (isset($localConfig['ltrim']))
+                    $record[$fieldName] = ltrim($record[$fieldName]);
 
-			}
-		}
-		return true;
-	}
+                if (isset($localConfig['rtrim']))
+                    $record[$fieldName] = rtrim($record[$fieldName]);
+
+                if (isset($localConfig['strtolower']))
+                    $record[$fieldName] = strtolower($record[$fieldName]);
+
+                if (isset($localConfig['strtoupper']))
+                    $record[$fieldName] = strtoupper($record[$fieldName]);
+
+            }
+        }
+
+        return true;
+    }
 
 
-	private function strip_emptytags($string, $replaceTo = null){
-		// Return if string not given or empty
-		if (!is_string($string) || trim($string) == '') return $string;
+    /**
+     * Removes or replaces empty tags
+     *
+     * @param string $string
+     * @param string|null $replacement
+     * @return string
+     */
+    private function stripEmptyTags($string, $replacement = null)
+    {
+        if (!is_string($string) || trim($string) == '') {
+            return $string;
+        }
 
-		// Recursive empty HTML tags
-		return preg_replace(
-	    	'/<(\w+)\b(?:\s+[\w\-.:]+(?:\s*=\s*(?:"[^"]*"|"[^"]*"|[\w\-.:]+))?)*\s*\/?>\s*<\/\1\s*>/',
-	    	!is_string($replaceTo) ? '' : $replaceTo,
-	    	$string
-		);
-	}
+        // Recursive empty HTML tags
+        return preg_replace(
+            '/<(\w+)\b(?:\s+[\w\-.:]+(?:\s*=\s*(?:"[^"]*"|"[^"]*"|[\w\-.:]+))?)*\s*\/?>\s*<\/\1\s*>/',
+            !is_string($replacement) ? '' : $replacement,
+            $string
+        );
+    }
 }
