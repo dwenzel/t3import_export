@@ -215,7 +215,7 @@ class ArrayToXMLStreamTest extends UnitTestCase
         $config = [
             'targetClass' => "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
         ];
-        
+
         $mockedTargetValidator->expects($this->once())
             ->method('validate')
             ->with($config);
@@ -275,7 +275,7 @@ class ArrayToXMLStreamTest extends UnitTestCase
         /** @var DataStream $result */
         $result = $this->subject->convert($testArray, $testConfig);
         $this->assertSame($resultObject, $result);
-        $this->assertEquals($result->getSteamBuffer(), '<row><value>a</value></row>');
+        $this->assertEquals($result->getStreamBuffer(), '<row><value>a</value></row>');
     }
 
     /**
@@ -300,7 +300,7 @@ class ArrayToXMLStreamTest extends UnitTestCase
         $result = $this->subject->convert($testArray, $testConfig);
         $this->assertSame($resultObject, $result);
         $expected = '<unitTest><value>a</value></unitTest>';
-        $this->assertEquals($expected, $result->getSteamBuffer());
+        $this->assertEquals($expected, $result->getStreamBuffer());
     }
 
     /**
@@ -357,7 +357,7 @@ class ArrayToXMLStreamTest extends UnitTestCase
 			</someChilds>
 		</unitTest>';
         $expected = preg_replace("/\r|\n|\t/", "", $expected);
-        $this->assertEquals($expected, $result->getSteamBuffer());
+        $this->assertEquals($expected, $result->getStreamBuffer());
     }
 
     /**
@@ -423,6 +423,6 @@ class ArrayToXMLStreamTest extends UnitTestCase
 						</childs>
 					</row>';
         $expected = preg_replace("/\r|\n|\t/", "", $expected);
-        $this->assertEquals($expected, $result->getSteamBuffer());
+        $this->assertEquals($expected, $result->getStreamBuffer());
     }
 }

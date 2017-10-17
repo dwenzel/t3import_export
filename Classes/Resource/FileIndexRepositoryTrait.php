@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
  * Trait FileIndexRepositoryTrait
  * Provides a FileIndexRepository
  */
+
 trait FileIndexRepositoryTrait
 {
     /**
