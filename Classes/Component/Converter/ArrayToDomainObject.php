@@ -66,11 +66,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
      */
     protected $mappingConfigurationValidator;
 
-    public function __construct()
-    {
-        $o = 1;
-    }
-
     /**
      * injects the property mapper
      *

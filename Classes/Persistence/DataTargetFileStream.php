@@ -109,7 +109,7 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
                 );
             }
         }
-        // todo replace deprecated (TYPO3\CMS\Core\Resource\ResourceStorage->getUniqueName)
+
         $absFileName = $basicFileUtility->getUniqueName($fileName, $absPath);
         if (!touch($absFileName)) {
             throw new FileOperationErrorException(

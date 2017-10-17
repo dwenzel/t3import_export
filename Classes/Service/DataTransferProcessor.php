@@ -172,7 +172,7 @@ class DataTransferProcessor
      * @param array $record
      * @param TransferTask $task
      */
-    protected function postProcessSingle(&$convertedRecord, &$record, $task)
+    protected function postProcessSingle(&$convertedRecord, &$record, TransferTask $task)
     {
         $postProcessors = $task->getPostProcessors();
         foreach ($postProcessors as $singleProcessor) {
@@ -195,7 +195,7 @@ class DataTransferProcessor
      * @param TransferTask $task Import type
      * @return mixed The converted object
      */
-    protected function convertSingle($record, $task)
+    protected function convertSingle(array $record, TransferTask $task)
     {
         $convertedRecord = $record;
         $converters = $task->getConverters();
@@ -217,7 +217,7 @@ class DataTransferProcessor
      * @param TransferTask $task Import task
      * @param array|\Iterator|null $result
      */
-    protected function processFinishers(&$records, $task, &$result)
+    protected function processFinishers(&$records, TransferTask $task, &$result)
     {
         $finishers = $task->getFinishers();
         foreach ($finishers as $finisher) {
@@ -235,7 +235,7 @@ class DataTransferProcessor
      * @param array $records Processed records
      * @param TransferTask $task Import task
      */
-    protected function processInitializers(&$records, $task)
+    protected function processInitializers(&$records, TransferTask $task)
     {
         $initializers = $task->getInitializers();
         foreach ($initializers as $initializer) {

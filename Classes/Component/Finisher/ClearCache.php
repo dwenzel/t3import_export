@@ -44,18 +44,6 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
     }
 
     /**
-     * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
-     */
-    public function isConfigurationValid(array $configuration)
-    {
-        return parent::isConfigurationValid($configuration);
-        // TODO: validate global/classes config (array, class names), pages (string)
-    }
-
-    /**
      * Clears the page class depending on result and configuration
      *
      * Configuration examples (TypoScript):

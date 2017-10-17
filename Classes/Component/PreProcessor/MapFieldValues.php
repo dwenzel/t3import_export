@@ -57,18 +57,18 @@ class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterfa
             return false;
         }
         if (isset($configuration['fields'])
-            and !is_array($configuration['fields'])
+            && !is_array($configuration['fields'])
         ) {
             return false;
         }
         foreach ($configuration['fields'] as $field) {
             if (!isset($field['targetField'])
-                or !is_string(($field['targetField']))
+                || !is_string(($field['targetField']))
             ) {
                 return false;
             }
             if (!isset($field['values'])
-                or !is_array($field['values'])
+                || !is_array($field['values'])
             ) {
                 return false;
             }

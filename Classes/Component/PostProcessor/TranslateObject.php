@@ -143,11 +143,11 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
         if (isset($configuration['mapping'])) {
             $mappingConfiguration = $configuration['mapping'];
             if (isset($mappingConfiguration['targetClass'])
-                and !$this->targetClassConfigurationValidator->validate($mappingConfiguration)) {
+                && !$this->targetClassConfigurationValidator->validate($mappingConfiguration)) {
                 return false;
             }
             if (isset($mappingConfiguration['config'])
-                and !$this->mappingConfigurationValidator->validate($mappingConfiguration)) {
+                && !$this->mappingConfigurationValidator->validate($mappingConfiguration)) {
                 return false;
             }
         }

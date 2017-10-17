@@ -53,7 +53,7 @@ class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
 
         foreach ($fields as $field) {
             if (isset($record[$field])
-                and is_array($record[$field])
+                && is_array($record[$field])
             ) {
                 foreach ($record[$field] as $value) {
                     $record[$targetField][] = $value;

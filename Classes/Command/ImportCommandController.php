@@ -32,8 +32,6 @@ use TYPO3\CMS\Extbase\Service\TypoScriptService;
 /**
  * Class ImportCommandController
  * Provides import commands for cli and scheduler tasks
- *
- * @package CPSIT\T3importExport\Command
  */
 class ImportCommandController extends CommandController
 {
@@ -135,7 +133,7 @@ class ImportCommandController extends CommandController
 
             $this->importProcessor->buildQueue($importDemand);
             if (!$dryRun) {
-                $result = $this->importProcessor->process($importDemand);
+                $this->importProcessor->process($importDemand);
             }
         }
     }
@@ -162,7 +160,7 @@ class ImportCommandController extends CommandController
             $importDemand->setTasks($set->getTasks());
             $this->importProcessor->buildQueue($importDemand);
             if (!$dryRun) {
-                $result = $this->importProcessor->process($importDemand);
+                $this->importProcessor->process($importDemand);
             }
         }
     }

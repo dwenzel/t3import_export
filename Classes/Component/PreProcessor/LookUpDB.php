@@ -1,7 +1,7 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -44,12 +44,12 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
     public function isConfigurationValid(array $configuration)
     {
         if (!isset($configuration['select'])
-            or !is_array($configuration['select'])
+            || !is_array($configuration['select'])
         ) {
             return false;
         }
         if (!isset($configuration['select']['table'])
-            or !is_string(($configuration['select']['table']))
+            || !is_string(($configuration['select']['table']))
         ) {
             return false;
         }
@@ -156,7 +156,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             if (is_array($queryConfiguration['where'])) {
                 $whereClause = '';
                 foreach ($queryConfiguration['where'] as $operator => $value) {
-                    if ($operator === 'AND' or $operator === 'OR') {
+                    if ($operator === 'AND' || $operator === 'OR') {
                         if ($whereClause == '' and $operator === 'AND') {
                             $operator = '';
                         }
@@ -177,14 +177,14 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
                     }
                     if ($operator === 'IN') {
                         if (isset($value['values'])
-                            and isset($value['field'])
+                            && isset($value['field'])
                         ) {
                             $childConfig = $value['values'];
 
                             if (is_array($childConfig)
-                                and isset($childConfig['field'])
-                                and isset($childConfig['value'])
-                                and is_array($record[$childConfig['field']])
+                                && isset($childConfig['field'])
+                                && isset($childConfig['value'])
+                                && is_array($record[$childConfig['field']])
                             ) {
                                 $prefix = '"';
                                 if (isset($childConfig['prefix'])) {
@@ -223,13 +223,13 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
     protected function mapFields(&$record, $source, $config)
     {
         if (!isset($config['fields'])
-            or !is_array($config['fields'])
+            || !is_array($config['fields'])
         ) {
             return;
         }
         foreach ($config['fields'] as $fieldName => $singleConfig) {
             if (isset($singleConfig['mapTo'])
-                and is_string($singleConfig['mapTo'])
+                && is_string($singleConfig['mapTo'])
             ) {
                 $record[$singleConfig['mapTo']] = $source[$fieldName];
             }

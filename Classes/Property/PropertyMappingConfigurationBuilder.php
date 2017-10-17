@@ -42,10 +42,10 @@ class PropertyMappingConfigurationBuilder
     }
 
     /**
-     * @param $configuration
+     * @param array$configuration
      * @return PropertyMappingConfiguration
      */
-    public function build($configuration)
+    public function build(array $configuration)
     {
         /** @var PropertyMappingConfiguration $propertyMappingConfiguration */
         $propertyMappingConfiguration = $this->objectManager->get(
@@ -66,7 +66,7 @@ class PropertyMappingConfigurationBuilder
     protected function getTypeConverterClass($configuration)
     {
         if (isset($configuration['typeConverter']['class'])
-            and is_string($configuration['typeConverter']['class'])
+            && is_string($configuration['typeConverter']['class'])
         ) {
             return $configuration['typeConverter']['class'];
         }
@@ -89,7 +89,7 @@ class PropertyMappingConfigurationBuilder
         ];
 
         if (isset($configuration['typeConverter']['options'])
-            and is_array($configuration['typeConverter']['options'])
+            && is_array($configuration['typeConverter']['options'])
         ) {
             $options = ArrayUtility::arrayMergeRecursiveOverrule(
                 $options,
@@ -110,7 +110,7 @@ class PropertyMappingConfigurationBuilder
     protected function getAllowedProperties($configuration)
     {
         if (isset($configuration['allowProperties'])
-            and is_string($configuration['allowProperties'])
+            && is_string($configuration['allowProperties'])
         ) {
             $allowedProperties = ArrayUtility::trimExplode(
                 ',',
@@ -133,7 +133,7 @@ class PropertyMappingConfigurationBuilder
     protected function getAllowAllProperties($configuration)
     {
         if (isset($configuration['allowAllProperties'])
-            and (bool) $configuration['allowAllProperties']
+            && (bool) $configuration['allowAllProperties']
         ) {
             return true;
         }
@@ -145,7 +145,7 @@ class PropertyMappingConfigurationBuilder
      * @param array $configuration
      * @param PropertyMappingConfiguration $propertyMappingConfiguration
      */
-    protected function configure($configuration, $propertyMappingConfiguration)
+    protected function configure(array $configuration, PropertyMappingConfiguration $propertyMappingConfiguration)
     {
         $propertyMappingConfiguration->setTypeConverterOptions(
             $this->getTypeConverterClass($configuration),
@@ -177,7 +177,7 @@ class PropertyMappingConfigurationBuilder
                 );
 
                 if (!(isset($localConfiguration['children'])
-                    and isset($localConfiguration['children']['maxItems']))
+                    && isset($localConfiguration['children']['maxItems']))
                 ) {
                     continue;
                 }
@@ -201,7 +201,7 @@ class PropertyMappingConfigurationBuilder
     {
         $properties = [];
         if (isset($configuration['properties'])
-            and is_array($configuration['properties'])
+            && is_array($configuration['properties'])
         ) {
             $properties = $configuration['properties'];
         }

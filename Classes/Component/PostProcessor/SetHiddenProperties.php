@@ -49,13 +49,13 @@ class SetHiddenProperties extends AbstractPostProcessor implements \CPSIT\T3impo
         }
         foreach ($configuration['fields'] as $field => $value) {
             if (!is_string($field)
-                or empty($value)
+                || empty($value)
             ) {
                 return false;
             }
         }
         if (isset($configuration['children'])
-            and !is_array($configuration['children'])
+            && !is_array($configuration['children'])
         ) {
             return false;
         }
