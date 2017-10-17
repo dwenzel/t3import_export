@@ -1,6 +1,6 @@
 <?php
 
-namespace CPSIT\T3importExport;
+namespace CPSIT\T3importExport\Messaging;
 /**
  * Copyright notice
  * (c) 2017. Dirk Wenzel <wenzel@cps-it.de>
@@ -15,7 +15,6 @@ namespace CPSIT\T3importExport;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  */
-use CPSIT\T3importExport\Messaging\MessageContainer;
 
 /**
  * Trait ErrorReportingTrait

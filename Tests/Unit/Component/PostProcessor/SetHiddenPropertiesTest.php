@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3importExport\Tests\PostProcessor;
+namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;

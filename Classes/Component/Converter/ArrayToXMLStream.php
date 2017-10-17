@@ -2,16 +2,6 @@
 
 namespace CPSIT\T3importExport\Component\Converter;
 
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Property\PropertyMapper;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
-
 /***************************************************************
  *
  *  Copyright notice
@@ -36,8 +26,25 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\ObjectManagerTrait;
+use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use TYPO3\CMS\Extbase\Property\PropertyMapper;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
+use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
+
+/**
+ * Class ArrayToXMLStream
+ */
 class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 {
+    use ObjectManagerTrait;
+
     const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
 
     const DEFAULT_NODE_NAME = 'row';
@@ -91,7 +98,8 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
      */
     public function injectPropertyMappingConfigurationBuilder(
         PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
-    ) {
+    )
+    {
         $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
     }
 
@@ -141,6 +149,31 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     }
 
     /**
+     * @param array $configuration
+     * @return string
+     */
+    private function getRootEnclosureConfiguration($configuration, $default = self::DEFAULT_NODE_NAME)
+    {
+        if (isset($configuration) && isset($configuration[static::XML_CONFIG_NODE_KEY])) {
+            $default = $configuration[static::XML_CONFIG_NODE_KEY];
+        }
+        return $default;
+    }
+
+    /**
+     * @param array $configuration
+     * @return array|null
+     */
+    private function getFieldsConfiguration($configuration = null)
+    {
+        $fieldsConfiguration = null;
+        if (isset($configuration) && isset($configuration[static::XML_CONFIG_FIELD_KEY])) {
+            $fieldsConfiguration = $configuration[static::XML_CONFIG_FIELD_KEY];
+        }
+        return $fieldsConfiguration;
+    }
+
+    /**
      * @param array $data
      * @param $enclosure
      * @param null|string $fieldsConfig
@@ -178,6 +211,13 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         unset($xml);
 
         return $buffer;
+    }
+
+    private function writeAttributes(\XMLWriter $xml, $attributes)
+    {
+        foreach ($attributes as $name => $value) {
+            $xml->writeAttribute($name, $value);
+        }
     }
 
     /**
@@ -243,11 +283,36 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         }
     }
 
-    private function writeAttributes(\XMLWriter $xml, $attributes)
+    /**
+     * checked if an value (mixed) is empty; diference from php standard function 'empty' is,
+     * it allows 0 as NOT empty
+     *
+     * '' => true
+     * ' ' => false
+     * '1' => false
+     * 'asd' => false
+     * 0 => false
+     * false => false
+     * true => false
+     *
+     * @param $value
+     * @return bool
+     */
+    public function isValueEmpty($value)
     {
-        foreach ($attributes as $name => $value) {
-            $xml->writeAttribute($name, $value);
+        if ($value === null) {
+            return true;
         }
+
+        if (is_object($value)) {
+            return false;
+        }
+
+        if (is_array($value)) {
+            return empty($value);
+        }
+
+        return !(isset($value) && strlen($value) > 0);
     }
 
     /**
@@ -303,62 +368,5 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         )->skipUnknownProperties();
 
         return $propertyMappingConfiguration;
-    }
-
-    /**
-     * @param array $configuration
-     * @return string
-     */
-    private function getRootEnclosureConfiguration($configuration, $default = self::DEFAULT_NODE_NAME)
-    {
-        if (isset($configuration) && isset($configuration[static::XML_CONFIG_NODE_KEY])) {
-            $default = $configuration[static::XML_CONFIG_NODE_KEY];
-        }
-        return $default;
-    }
-
-    /**
-     * @param array $configuration
-     * @return array|null
-     */
-    private function getFieldsConfiguration($configuration = null)
-    {
-        $fieldsConfiguration = null;
-        if (isset($configuration) && isset($configuration[static::XML_CONFIG_FIELD_KEY])) {
-            $fieldsConfiguration = $configuration[static::XML_CONFIG_FIELD_KEY];
-        }
-        return $fieldsConfiguration;
-    }
-
-    /**
-     * checked if an value (mixed) is empty; diference from php standard function 'empty' is,
-     * it allows 0 as NOT empty
-     *
-     * '' => true
-     * ' ' => false
-     * '1' => false
-     * 'asd' => false
-     * 0 => false
-     * false => false
-     * true => false
-     *
-     * @param $value
-     * @return bool
-     */
-    public function isValueEmpty($value)
-    {
-        if ($value === null) {
-            return true;
-        }
-
-        if (is_object($value)) {
-            return false;
-        }
-
-        if (is_array($value)) {
-            return empty($value);
-        }
-
-        return !(isset($value) && strlen($value) > 0);
     }
 }

@@ -2,10 +2,6 @@
 
 namespace CPSIT\T3importExport\Persistence\Factory;
 
-use CPSIT\T3importExport\ObjectManagerTrait;
-use CPSIT\T3importExport\ResourceFactoryTrait;
-use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-
 /***************************************************************
  *  Copyright notice
  *
@@ -22,6 +18,14 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\ObjectManagerTrait;
+use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+
+/**
+ * Class FileReferenceFactory
+ */
 class FileReferenceFactory
 {
     use ObjectManagerTrait, ResourceFactoryTrait;

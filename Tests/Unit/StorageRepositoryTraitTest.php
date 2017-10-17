@@ -2,10 +2,6 @@
 
 namespace CPSIT\T3importExport\Tests\Unit;
 
-use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Messaging\MessageContainerTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-
 /***************************************************************
  *  Copyright notice
  *
@@ -23,15 +19,19 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\T3importExport\Resource\StorageRepositoryTrait;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Resource\StorageRepository;
+
 /**
- * Class MessageContainerTraitTest
+ * Class StorageRepositoryTraitTest
  */
-class MessageContainerTraitTest extends UnitTestCase
+class StorageRepositoryTraitTest extends UnitTestCase
 {
 
     /**
      * subject
-     * @var \CPSIT\T3importExport\Messaging\MessageContainerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var \CPSIT\T3importExport\Resource\StorageRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
@@ -40,21 +40,21 @@ class MessageContainerTraitTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getMockBuilder(MessageContainerTrait::class)
+        $this->subject = $this->getMockBuilder(StorageRepositoryTrait::class)
             ->getMockForTrait();
     }
 
     /**
      * @test
      */
-    public function messageContainerCanBeInjected()
+    public function storageRepositoryCanBeInjected()
     {
-        $messageContainer = $this->getMockBuilder(MessageContainer::class)->getMock();
-        $this->subject->injectMessageContainer($messageContainer);
+        $storageRepository = $this->getMockBuilder(StorageRepository::class)->getMock();
+        $this->subject->injectStorageRepository($storageRepository);
 
         $this->assertAttributeSame(
-            $messageContainer,
-            'messageContainer',
+            $storageRepository,
+            'storageRepository',
             $this->subject
         );
     }

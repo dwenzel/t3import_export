@@ -2,10 +2,6 @@
 
 namespace CPSIT\T3importExport\Tests\Unit;
 
-use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Messaging\MessageContainerTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-
 /***************************************************************
  *  Copyright notice
  *
@@ -23,15 +19,19 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
+
 /**
- * Class MessageContainerTraitTest
+ * Class FileIndexRepositoryTraitTest
  */
-class MessageContainerTraitTest extends UnitTestCase
+class FileIndexRepositoryTraitTest extends UnitTestCase
 {
 
     /**
      * subject
-     * @var \CPSIT\T3importExport\Messaging\MessageContainerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var \CPSIT\T3importExport\Resource\FileIndexRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
@@ -40,21 +40,21 @@ class MessageContainerTraitTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getMockBuilder(MessageContainerTrait::class)
+        $this->subject = $this->getMockBuilder(FileIndexRepositoryTrait::class)
             ->getMockForTrait();
     }
 
     /**
      * @test
      */
-    public function messageContainerCanBeInjected()
+    public function fileIndexRepositoryCanBeInjected()
     {
-        $messageContainer = $this->getMockBuilder(MessageContainer::class)->getMock();
-        $this->subject->injectMessageContainer($messageContainer);
+        $fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)->getMock();
+        $this->subject->injectFileIndexRepository($fileIndexRepository);
 
         $this->assertAttributeSame(
-            $messageContainer,
-            'messageContainer',
+            $fileIndexRepository,
+            'fileIndexRepository',
             $this->subject
         );
     }

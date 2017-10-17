@@ -11,7 +11,7 @@ Currently the following types of components are implemented:
 * [PreProcessors](./Components/PREPROCESSOR.md)
 * [Converters](./Components/CONVERTER.md)
 * [PostProcessors](./Components/POSTPROCESSOR.md)
-* [Finishers](./Components/FINISHER.md)
+* [Finishers](./Components/Finisher.md)
 
 A set of standard components is included. You may write your own components and include them by configuration in TypoScript. 
 

@@ -1,7 +1,6 @@
 <?php
 
-namespace CPSIT\T3importExport;
-
+namespace CPSIT\T3importExport\Resource;
 /**
  * This file is part of the TYPO3 CMS project.
  *
@@ -14,25 +13,27 @@ namespace CPSIT\T3importExport;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
- * Trait ObjectManagerTrait
+ * Trait ResourceStorageTrait
+ * Provides a resource storage
  */
-trait ObjectManagerTrait
+trait ResourceStorageTrait
 {
+    use StorageRepositoryTrait;
     /**
-     * @var ObjectManager
+     * @var \TYPO3\CMS\Core\Resource\ResourceStorage
      */
-    protected $objectManager;
+    protected $resourceStorage;
 
     /**
-     * injects the object manager
+     * Initializes the resource resourceStorage
      *
-     * @param ObjectManager $objectManager
+     * @param array $configuration
      */
-    public function injectObjectManager(ObjectManager $objectManager)
+    public function initializeStorage($configuration)
     {
-        $this->objectManager = $objectManager;
+        $this->resourceStorage = $this->storageRepository->findByUid($configuration['storageId']);
     }
+
 }

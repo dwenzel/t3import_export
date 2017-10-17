@@ -20,8 +20,8 @@ namespace CPSIT\T3importExport\Tests\Unit;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\FileReferenceFactoryTrait;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
+use CPSIT\T3importExport\Resource\FileReferenceFactoryTrait;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /**
@@ -30,7 +30,7 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 class FileReferenceFactoryTraitTest extends UnitTestCase
 {
     /**
-     * @var FileReferenceFactoryTrait
+     * @var \CPSIT\T3importExport\Resource\FileReferenceFactoryTrait
      */
     protected $subject;
 

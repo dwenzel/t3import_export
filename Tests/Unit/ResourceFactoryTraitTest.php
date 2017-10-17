@@ -20,9 +20,9 @@ namespace CPSIT\T3importExport\Tests\Unit;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\ResourceFactoryTrait;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 /**
  * Class ResourceFactoryTraitTest
@@ -30,7 +30,7 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 class ResourceFactoryTraitTest extends UnitTestCase
 {
     /**
-     * @var ResourceFactoryTrait
+     * @var \CPSIT\T3importExport\Resource\ResourceFactoryTrait
      */
     protected $subject;
 
