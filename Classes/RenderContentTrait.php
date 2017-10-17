@@ -59,7 +59,7 @@ trait RenderContentTrait
      * @return mixed|null Returns rendered content for each valid TypoScript object or null.
      * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
      */
-    public function  renderContent(array $record, array $configuration)
+    public function renderContent(array $record, array $configuration)
     {
         $typoScriptConf = $this->typoScriptService
             ->convertPlainArrayToTypoScriptArray($configuration);

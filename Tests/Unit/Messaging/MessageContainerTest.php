@@ -1,5 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Unit\Messaging;
+
 /**
  * Copyright notice
  * (c) 2017. Dirk Wenzel <wenzel@cps-it.de>
@@ -18,7 +19,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
-
 
 /**
  * Class MessageReportingTraitTest

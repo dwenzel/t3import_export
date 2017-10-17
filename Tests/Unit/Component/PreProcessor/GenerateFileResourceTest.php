@@ -79,7 +79,6 @@ class GenerateFileResourceTest extends UnitTestCase
         $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)->setMethods(['createFromParts'])->getMock();
         $this->subject->injectFilePathFactory($this->filePathFactory);
         vfsStreamWrapper::register();
-
     }
 
     /**

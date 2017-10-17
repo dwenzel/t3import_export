@@ -71,5 +71,4 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
 
         return $fileObject;
     }
-
 }

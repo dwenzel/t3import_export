@@ -32,14 +32,16 @@ class FilePathFactoryTest extends UnitTestCase
     /**
      * set up subject
      */
-    public function setUp(){
+    public function setUp()
+    {
         $this->subject = $this->getMockBuilder(FilePathFactory::class)->setMethods(['dummy'])->getMock();
     }
 
     /**
      * @test
      */
-    public function createFromPartsSanitizesTrailingSlashes() {
+    public function createFromPartsSanitizesTrailingSlashes()
+    {
         $parts = [
             'foo/',
             'bar//'

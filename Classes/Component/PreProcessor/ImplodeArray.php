@@ -55,34 +55,33 @@ class ImplodeArray extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process($configuration, &$record)
     {
-		$fields = $configuration['fields'];
-		foreach ($fields as $fieldName => $localConfig) {
-			if(is_array($localConfig)){
-				if(isset($localConfig['child']) && is_string($localConfig['child'])){
-					if(isset($record[$fieldName]) && isset($record[$fieldName][$localConfig['child']])){
-						if(is_string($record[$fieldName][$localConfig['child']])){
-							$record[$fieldName] = $record[$fieldName][$localConfig['child']];
-						}elseif (is_array($record[$fieldName][$localConfig['child']])) {
-							if (isset($localConfig['wrap'])) {
-								$record[$fieldName] = implode($localConfig['wrap'],$record[$fieldName][$localConfig['child']]);
-							}else{
-								$record[$fieldName] = implode(',',$record[$fieldName][$localConfig['child']]);
-							}
-						}
-					}
-				}else{
-					if(isset($record[$fieldName])){
-						if(is_array($record[$fieldName])) {
-							if (isset($localConfig['wrap'])) {
-								$record[$fieldName] = implode($localConfig['wrap'],$record[$fieldName]);
-							}else{
-								$record[$fieldName] = implode(',',$record[$fieldName]);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
+        $fields = $configuration['fields'];
+        foreach ($fields as $fieldName => $localConfig) {
+            if (is_array($localConfig)) {
+                if (isset($localConfig['child']) && is_string($localConfig['child'])) {
+                    if (isset($record[$fieldName]) && isset($record[$fieldName][$localConfig['child']])) {
+                        if (is_string($record[$fieldName][$localConfig['child']])) {
+                            $record[$fieldName] = $record[$fieldName][$localConfig['child']];
+                        } elseif (is_array($record[$fieldName][$localConfig['child']])) {
+                            if (isset($localConfig['wrap'])) {
+                                $record[$fieldName] = implode($localConfig['wrap'], $record[$fieldName][$localConfig['child']]);
+                            } else {
+                                $record[$fieldName] = implode(',', $record[$fieldName][$localConfig['child']]);
+                            }
+                        }
+                    }
+                } else {
+                    if (isset($record[$fieldName])) {
+                        if (is_array($record[$fieldName])) {
+                            if (isset($localConfig['wrap'])) {
+                                $record[$fieldName] = implode($localConfig['wrap'], $record[$fieldName]);
+                            } else {
+                                $record[$fieldName] = implode(',', $record[$fieldName]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -69,5 +69,4 @@ class ResourcePathConfigurationValidator implements ConfigurationValidatorInterf
     {
         return GeneralUtility::getFileAbsFileName($path);
     }
-
 }

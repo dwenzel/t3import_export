@@ -98,8 +98,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
      */
     public function injectPropertyMappingConfigurationBuilder(
         PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
-    )
-    {
+    ) {
         $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
     }
 

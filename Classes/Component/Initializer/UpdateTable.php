@@ -44,7 +44,7 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
         }
         $table = $configuration['table'];
         $where = $configuration['where'];
-		$setfields = $configuration['setfields'];
+        $setfields = $configuration['setfields'];
 
         return (bool)$this->database->exec_UPDATEquery($table, $where, $setfields);
     }
@@ -69,11 +69,11 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
             return false;
         }
 
-		if (!isset($configuration['setfields'])
-		    || !is_array($configuration['setfields'])
-		) {
-		    return false;
-		}
+        if (!isset($configuration['setfields'])
+            || !is_array($configuration['setfields'])
+        ) {
+            return false;
+        }
 
         if (isset($configuration['identifier'])
             and !DatabaseConnectionService::isRegistered($configuration['identifier'])

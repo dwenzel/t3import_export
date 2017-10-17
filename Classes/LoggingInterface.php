@@ -2,7 +2,6 @@
 
 namespace CPSIT\T3importExport;
 
-
 /**
  * This file is part of the TYPO3 CMS project.
  *

@@ -1,5 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Messaging;
+
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 
 /***************************************************************
@@ -22,7 +23,8 @@ use TYPO3\CMS\Core\Messaging\AbstractMessage;
 /**
  * Class Message
  */
-class Message extends AbstractMessage {
+class Message extends AbstractMessage
+{
 
     /**
      * constructor

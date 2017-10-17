@@ -149,6 +149,5 @@ class LoggingTraitTest extends UnitTestCase
             ->with($mockMessage);
 
         $this->subject->logError($fooErrorId, $arguments);
-
     }
 }

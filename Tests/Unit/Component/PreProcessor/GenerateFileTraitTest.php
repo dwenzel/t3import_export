@@ -55,7 +55,6 @@ class GenerateFileTraitTest extends UnitTestCase
             ->setMethods(['findByUid'])->getMock();
 
         $this->subject->injectStorageRepository($this->storageRepository);
-
     }
 
 

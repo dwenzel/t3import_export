@@ -24,7 +24,8 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 /**
  * Class MessageTest
  */
-class MessageTest extends UnitTestCase {
+class MessageTest extends UnitTestCase
+{
 
     /**
      * @var Message|\PHPUnit_Framework_MockObject_MockObject
@@ -89,7 +90,5 @@ class MessageTest extends UnitTestCase {
             $defaultSeverity,
             $this->subject->getSeverity()
         );
-
-
     }
 }

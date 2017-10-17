@@ -1,6 +1,7 @@
 <?php
 
 namespace CPSIT\T3importExport;
+
 /**
  * Copyright notice
  * (c) 2017. Dirk Wenzel <wenzel@cps-it.de>
@@ -70,5 +71,4 @@ trait LoggingTrait
         );
         $this->messageContainer->addMessage($message);
     }
-
 }

@@ -68,7 +68,6 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
                 && isset($record[$fieldName])
                 && is_string($record[$fieldName])
             ) {
-
                 if (
                     isset($localConfig['str_replace'])
                     && is_array($localConfig['str_replace'])
@@ -80,39 +79,49 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
                     $record[$fieldName] = str_replace($localConfig['str_replace']['search'], $localConfig['str_replace']['replace'], $record[$fieldName]);
                 }
 
-                if (isset($localConfig['stripslashes']))
+                if (isset($localConfig['stripslashes'])) {
                     $record[$fieldName] = stripslashes($record[$fieldName]);
+                }
 
-                if (isset($localConfig['strip_emptytags']))
+                if (isset($localConfig['strip_emptytags'])) {
                     $record[$fieldName] = $this->stripEmptyTags($record[$fieldName]);
+                }
 
-                if (isset($localConfig['strip_tags']))
+                if (isset($localConfig['strip_tags'])) {
                     $record[$fieldName] = strip_tags($record[$fieldName]);
+                }
 
-                if (isset($localConfig['htmlspecialchars']))
+                if (isset($localConfig['htmlspecialchars'])) {
                     $record[$fieldName] = htmlspecialchars($record[$fieldName]);
+                }
 
-                if (isset($localConfig['strip_spaces']))
+                if (isset($localConfig['strip_spaces'])) {
                     $record[$fieldName] = preg_replace('/\s+/', '', $record[$fieldName]);
+                }
 
-                if (isset($localConfig['trim']))
+                if (isset($localConfig['trim'])) {
                     $record[$fieldName] = trim($record[$fieldName]);
+                }
 
-                if (isset($localConfig['trim']))
+                if (isset($localConfig['trim'])) {
                     $record[$fieldName] = trim($record[$fieldName]);
+                }
 
-                if (isset($localConfig['ltrim']))
+                if (isset($localConfig['ltrim'])) {
                     $record[$fieldName] = ltrim($record[$fieldName]);
+                }
 
-                if (isset($localConfig['rtrim']))
+                if (isset($localConfig['rtrim'])) {
                     $record[$fieldName] = rtrim($record[$fieldName]);
+                }
 
-                if (isset($localConfig['strtolower']))
+                if (isset($localConfig['strtolower'])) {
                     $record[$fieldName] = strtolower($record[$fieldName]);
+                }
 
-                if (isset($localConfig['strtoupper']))
+                if (isset($localConfig['strtoupper'])) {
                     $record[$fieldName] = strtoupper($record[$fieldName]);
-
+                }
             }
         }
 

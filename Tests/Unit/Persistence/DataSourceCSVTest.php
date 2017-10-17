@@ -30,7 +30,7 @@ class DataSourceCSVTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock(DataSourceCSV::class,
-            ['dummy', 'getAbsoluteFilePath'], [], '', FALSE);
+            ['dummy', 'getAbsoluteFilePath'], [], '', false);
 
         $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->setMethods(['validate'])->getMock();
@@ -56,7 +56,6 @@ CSV;
             ]
         ];
         return [[$csvString, $expectedArray]];
-
     }
 
 
@@ -114,7 +113,6 @@ CSV;
             // escape must not be empty
             [['escape' => '']],
         ];
-
     }
 
     /**
@@ -182,7 +180,6 @@ CSV;
             $expectedArray,
             $this->subject->getRecords($configuration)
         );
-
     }
 
     /**
@@ -231,7 +228,6 @@ CSV;
             $expectedArray,
             $this->subject->getRecords($configuration)
         );
-
     }
 
     /**
@@ -318,7 +314,5 @@ CSV;
             $expectedArray,
             $this->subject->getRecords($configuration)
         );
-
     }
-
 }

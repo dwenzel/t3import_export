@@ -1,7 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
-
 /**
  * This file is part of the TYPO3 CMS project.
  *
@@ -92,7 +91,6 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
      */
     public function validateReturnsTrueForValidConfiguration()
     {
-
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.xml';
         $relativePath = $fileDirectory . '/' . $fileName;
@@ -140,7 +138,6 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
         $this->assertFalse(
             $this->subject->validate($configuration)
         );
-
     }
 
     /**

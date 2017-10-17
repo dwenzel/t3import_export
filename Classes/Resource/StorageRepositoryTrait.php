@@ -1,6 +1,7 @@
 <?php
 
 namespace CPSIT\T3importExport\Resource;
+
 /**
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,7 +16,6 @@ namespace CPSIT\T3importExport\Resource;
  */
 
 use TYPO3\CMS\Core\Resource\StorageRepository;
-
 
 /**
  * Trait StorageRepositoryTrait
@@ -36,5 +36,4 @@ trait StorageRepositoryTrait
     {
         $this->storageRepository = $storageRepository;
     }
-
 }

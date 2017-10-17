@@ -23,8 +23,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class DataSourceCSV
  */
-class DataSourceCSV
-    implements DataSourceInterface
+class DataSourceCSV implements DataSourceInterface
 {
     use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
 
@@ -107,7 +106,6 @@ class DataSourceCSV
             array_walk($records, function (&$a) use ($records, $headers) {
                 $a = array_combine($headers, $a);
             });
-
         }
 
         return $records;
