@@ -76,8 +76,6 @@ class DataSourceCSV
     {
         $records = [];
 
-
-var_dump($configuration);
         $resource = rtrim($this->loadResource($configuration));
         if (!empty($resource)) {
         
@@ -104,7 +102,6 @@ var_dump($configuration);
 		        if($enclosure) $csv->enclosure = $enclosure;
 		        // parse data
 		        $csv->parse($resource);
-		        // print_r($csv->data);
 		        $records = $csv->data;
 			}else{
 	            $rows = array_filter(str_getcsv($resource, "\n"));
