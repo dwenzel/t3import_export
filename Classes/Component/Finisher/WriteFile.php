@@ -85,6 +85,19 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
         } else {
             $storage = $this->resourceFactory->getDefaultStorage();
         }
+        $folder = $storage->getDefaultFolder();
+        if (isset($configuration['target']['directory'])) {
+            $targetDirectory = $configuration['target']['directory'];
+            if (!$storage->hasFolder($targetDirectory)) {
+                $folder = $storage->createFolder($targetDirectory);
+            }
+        }
+
+        $storage->addFile(
+            $fileInfo->getRealPath(),
+            $folder,
+            $configuration['target']['name']
+        );
 
         return true;
     }
