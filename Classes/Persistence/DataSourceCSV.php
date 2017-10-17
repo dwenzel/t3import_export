@@ -19,6 +19,8 @@ use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\T3importExport\Vendor\parseCSV;
+
 
 /**
  * Class DataSourceCSV
@@ -75,27 +77,39 @@ class DataSourceCSV
         $records = [];
 
         $resource = rtrim($this->loadResource($configuration));
-
         if (!empty($resource)) {
-            $delimiter = null;
-            $enclosure = null;
-            $escape = null;
+        
+	        $delimiter = null;
+	        $enclosure = null;
+	        $escape = null;
 
-            if (isset($configuration['delimiter'])) {
-                $delimiter = $configuration['delimiter'];
-            }
-            if (isset($configuration['enclosure'])) {
-                $enclosure = $configuration['enclosure'];
-            }
-            if (isset($configuration['escape'])) {
-                $escape = $configuration['escape'];
-            }
-
-            $rows = array_filter(str_getcsv($resource, "\n"));
-
-            $records = array_map(function ($d) use ($delimiter, $enclosure, $escape) {
-                return str_getcsv($d, $delimiter, $enclosure, $escape);
-            }, $rows);
+	        if (isset($configuration['delimiter'])) {
+	            $delimiter = $configuration['delimiter'];
+	        }
+	        if (isset($configuration['enclosure'])) {
+	            $enclosure = $configuration['enclosure'];
+	        }
+	        if (isset($configuration['escape'])) {
+	            $escape = $configuration['escape'];
+	        }	        
+	        
+	        if($configuration['parser']=='parseCSV'){
+	        	// initialise parseSCV
+		        $csv = new parseCSV();
+		        // configure the paser
+		        $csv->encoding('UTF-16', 'UTF-8');
+		        if($delimiter) $csv->delimiter = $delimiter;
+		        if($enclosure) $csv->enclosure = $enclosure;
+		        // parse data
+		        $csv->parse($resource);
+		        $records = $csv->data;
+			}else{
+	            $rows = array_filter(str_getcsv($resource, "\n"));
+				$records = array_map(function ($d) use ($delimiter, $enclosure, $escape) {
+    				return str_getcsv($d, $delimiter, $enclosure, $escape);
+				}, $rows);
+	        }
+	        
 
             $headers = $records[0];
             if (isset($configuration['fields'])) {
@@ -107,6 +121,7 @@ class DataSourceCSV
             array_walk($records, function (&$a) use ($records, $headers) {
                 $a = array_combine($headers, $a);
             });
+
 
         }
 
