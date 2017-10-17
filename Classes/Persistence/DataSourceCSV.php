@@ -84,7 +84,6 @@ var_dump($configuration);
 	        $delimiter = null;
 	        $enclosure = null;
 	        $escape = null;
-	        $offset = null;
 
 	        if (isset($configuration['delimiter'])) {
 	            $delimiter = $configuration['delimiter'];
@@ -94,11 +93,7 @@ var_dump($configuration);
 	        }
 	        if (isset($configuration['escape'])) {
 	            $escape = $configuration['escape'];
-	        }
-	        if (isset($configuration['offset'])) {
-	            $escape = $configuration['offset'];
-	        }
-	        
+	        }	        
 	        
 	        if($configuration['parser']=='parseCSV'){
 	        	// initialise parseSCV
@@ -107,7 +102,6 @@ var_dump($configuration);
 		        $csv->encoding('UTF-16', 'UTF-8');
 		        if($delimiter) $csv->delimiter = $delimiter;
 		        if($enclosure) $csv->enclosure = $enclosure;
-		        if($offset) $csv->offset = $offset;
 		        // parse data
 		        $csv->parse($resource);
 		        // print_r($csv->data);
