@@ -110,14 +110,15 @@ var_dump($configuration);
 		        if($offset) $csv->offset = $offset;
 		        // parse data
 		        $csv->parse($resource);
-		        print_r($csv->data);
+		        // print_r($csv->data);
+		        $records = $csv->data;
 			}else{
 	            $rows = array_filter(str_getcsv($resource, "\n"));
+				$records = array_map(function ($d) use ($delimiter, $enclosure, $escape) {
+    				return str_getcsv($d, $delimiter, $enclosure, $escape);
+				}, $rows);
 	        }
 	        
-            $records = array_map(function ($d) use ($delimiter, $enclosure, $escape) {
-                return str_getcsv($d, $delimiter, $enclosure, $escape);
-            }, $rows);
 
             $headers = $records[0];
             if (isset($configuration['fields'])) {
