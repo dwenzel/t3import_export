@@ -3,6 +3,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Domain\Model\DataStream;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use CPSIT\T3importExport\Persistence\DataTargetXMLStream;
@@ -50,6 +51,11 @@ class DataTargetXMLStreamTest extends UnitTestCase
     protected $subject;
 
     /**
+     * @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $objectManager;
+
+    /**
      * Set up
      */
     public function setUp()
@@ -57,6 +63,11 @@ class DataTargetXMLStreamTest extends UnitTestCase
         $this->subject = $this->getAccessibleMock(
             DataTargetXMLStream::class, ['dummy'], [], '', false
         );
+
+        $this->objectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()->setMethods(['get'])->getMock();
+
+        $this->subject->injectObjectManager($this->objectManager);
     }
 
     public function createDataStreamWithSampleBuffer($buffer)
@@ -64,25 +75,6 @@ class DataTargetXMLStreamTest extends UnitTestCase
         $ds = new DataStream();
         $ds->setStreamBuffer($buffer);
         return $ds;
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
-     */
-    protected function injectObjectManager()
-    {
-        /** @var ObjectManager $mockObjectManager */
-        $mockObjectManager = $this->getMock(ObjectManager::class,
-            [], [], '', false);
-
-        $this->subject->injectObjectManager($mockObjectManager);
-
-        $this->assertSame(
-            $mockObjectManager,
-            $this->subject->_get('objectManager')
-        );
-
-        return $mockObjectManager;
     }
 
     /**
@@ -184,11 +176,17 @@ class DataTargetXMLStreamTest extends UnitTestCase
             ->method('getUniqueName')
             ->will($this->returnValue($tmpPath));
 
-        $mockedObjectManager = $this->injectObjectManager();
-        $mockedObjectManager->expects($this->once())
+        /** @var FileInfo $mockFileInfo */
+        $mockFileInfo = new FileInfo($tmpPath);
+
+        $this->objectManager->expects($this->at(0))
             ->method('get')
             ->with(BasicFileUtility::class)
             ->will($this->returnValue($mockedFileUtility));
+        $this->objectManager->expects($this->at(1))
+            ->method('get')
+            ->with(FileInfo::class)
+            ->will($this->returnValue($mockFileInfo));
 
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
@@ -197,11 +195,14 @@ class DataTargetXMLStreamTest extends UnitTestCase
         }
 
         $this->subject->persistAll($taskResult);
-        $path = $taskResult->getInfo();
-        $this->assertEquals($tmpPath, $path);
-        $this->assertFileExists($path);
+        $this->assertInstanceOf(
+            FileInfo::class,
+            $taskResult->getInfo()
+        );
 
-        $content = file_get_contents($path);
+        $this->assertFileExists($tmpPath);
+
+        $content = file_get_contents($tmpPath);
         $this->assertEquals($config['header'].'<test><a>b</a><a>b</a><a>b</a><a>b</a></test>', $content);
 
         unlink($tmpPath);

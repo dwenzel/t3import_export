@@ -3,7 +3,9 @@
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -11,6 +13,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 class DataTargetFileStream extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 {
+    use ConfigurableTrait;
     const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
     /**
@@ -56,7 +59,9 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
         ) {
             $result->rewind();
             if ($result->valid()) {
-                $result->setInfo($this->tempFile);
+                $fileInfo = $this->objectManager->get(FileInfo::class, $this->tempFile);
+
+                $result->setInfo($fileInfo);
             }
         }
     }
@@ -122,15 +127,5 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
     public function isConfigurationValid(array $configuration)
     {
         return true;
-    }
-
-    public function getConfiguration()
-    {
-        return $this->config;
-    }
-
-    public function setConfiguration(array $configuration)
-    {
-        $this->config = $configuration;
     }
 }

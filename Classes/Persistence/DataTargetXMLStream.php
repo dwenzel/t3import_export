@@ -3,34 +3,23 @@
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\ObjectManagerTrait;
 use FluidTYPO3\Flux\Form\Field\DateTime;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInterface, ConfigurableInterface
 {
+    use ObjectManagerTrait;
     const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
     const DEFAULT_ROOT_NODE = 'rows';
 
     const TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
 
     /**
-     * subConfig for Data-Traget
-     *
-     * @var array
-     */
-    protected $config;
-
-    /**
      * @var \XMLWriter
      */
     protected $writer;
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager
-     * @inject
-     */
-    protected $objectManager;
 
     /**
      * @param array|\TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface $object
@@ -216,7 +205,7 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
     {
         if ($replacement === 'NOW') {
             $dt = new \DateTime();
-            
+
             return $dt->format(DATE_W3C);
         }
 
