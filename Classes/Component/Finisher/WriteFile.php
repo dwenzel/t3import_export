@@ -34,6 +34,20 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
 {
     use ResourceFactoryTrait, ResourceStorageTrait;
 
+    const CONFLICT_MODE_CANCEL = 'cancel';
+    const CONFLICT_MODE_CHANGENAME = 'changeName';
+    const CONFLICT_MODE_REPLACE= 'replace';
+
+    /**
+     * Valid values for conflict modes (during file actions)
+     * @var array
+     */
+    protected static $validConflictModes = [
+        self::CONFLICT_MODE_CANCEL,
+        self::CONFLICT_MODE_CHANGENAME,
+        self::CONFLICT_MODE_REPLACE
+    ];
+
     /**
      * Tells whether the given configuration is valid
      *
@@ -58,6 +72,17 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
         if (!empty($configuration['target']['directory']) && !is_string($configuration['target']['directory'])) {
             return false;
         }
+        if (isset($configuration['target']['conflictMode'])) {
+            $conflictMode = $configuration['target']['conflictMode'];
+            if (
+                empty($conflictMode)
+                || !is_string($conflictMode)
+                || !in_array($conflictMode, static::$validConflictModes)
+            ) {
+                return false;
+            }
+        }
+
 
         return true;
     }
@@ -90,13 +115,21 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
             $targetDirectory = $configuration['target']['directory'];
             if (!$storage->hasFolder($targetDirectory)) {
                 $folder = $storage->createFolder($targetDirectory);
+            } else {
+                $folder = $storage->getFolder($targetDirectory);
             }
+        }
+
+        $conflictMode = self::CONFLICT_MODE_CHANGENAME;
+        if (!empty($configuration['target']['conflictMode'])) {
+            $conflictMode = $configuration['target']['conflictMode'];
         }
 
         $storage->addFile(
             $fileInfo->getRealPath(),
             $folder,
-            $configuration['target']['name']
+            $configuration['target']['name'],
+            $conflictMode
         );
 
         return true;

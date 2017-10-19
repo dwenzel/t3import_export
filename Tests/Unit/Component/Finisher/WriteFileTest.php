@@ -134,6 +134,30 @@ class WriteFileTest extends UnitTestCase
                     ]
                 ]
             ],
+            'invalid target conflictMode: foo' => [
+                [
+                    'target' => [
+                        'name' => 'foo',
+                        'conflictMode' => 'foo',
+                    ]
+                ]
+            ],
+            'invalid target conflictMode: empty string' => [
+                [
+                    'target' => [
+                        'name' => 'foo',
+                        'conflictMode' => '',
+                    ]
+                ]
+            ],
+            'invalid target conflictMode: array' => [
+                [
+                    'target' => [
+                        'name' => 'foo',
+                        'conflictMode' => [],
+                    ]
+                ]
+            ],
         ];
     }
 
@@ -160,6 +184,30 @@ class WriteFileTest extends UnitTestCase
                 [
                     'target' => [
                         'name' => 'bar'
+                    ]
+                ]
+            ],
+            'file name and valid conflictMode: cancel' => [
+                [
+                    'target' => [
+                        'name' => 'bar',
+                        'conflictMode' => WriteFile::CONFLICT_MODE_CANCEL
+                    ]
+                ]
+            ],
+            'file name and valid conflictMode: changeName' => [
+                [
+                    'target' => [
+                        'name' => 'bar',
+                        'conflictMode' => WriteFile::CONFLICT_MODE_CHANGENAME
+                    ]
+                ]
+            ],
+            'file name and valid conflictMode: replace' => [
+                [
+                    'target' => [
+                        'name' => 'bar',
+                        'conflictMode' => WriteFile::CONFLICT_MODE_REPLACE
                     ]
                 ]
             ],
@@ -366,6 +414,45 @@ class WriteFileTest extends UnitTestCase
 
         $this->subject->process(
             $configurationWithStorage,
+            $records,
+            $result
+        );
+
+    }
+
+    /**
+     * @test
+     */
+    public function processRespectsConflictModeFromConfiguration()
+    {
+        $records = [];
+        $conflictMode = WriteFile::CONFLICT_MODE_REPLACE;
+        $configuration = [
+            'target' => [
+                'name' => 'bar.xml',
+                'conflictMode' => $conflictMode
+            ]
+        ];
+        $fileInfo = $this->getMockBuilder(FileInfo::class)
+            ->disableOriginalConstructor()
+            ->setMethods([])->getMock();
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->setMethods(['getInfo'])->getMock();
+        $result->expects($this->atLeast(1))->method('getInfo')
+            ->will($this->returnValue($fileInfo));
+        $this->resourceStorage
+            ->expects($this->once())
+            ->method('addFile')
+            ->with(
+                null,
+                $this->folder,
+                $configuration['target']['name'],
+                $conflictMode
+            )
+            ->will($this->returnValue(false));
+
+        $this->subject->process(
+            $configuration,
             $records,
             $result
         );
