@@ -32,19 +32,25 @@ class ValidateXML extends AbstractFinisher
     use ResourceTrait, LoggingTrait;
 
     /**
-     * @var \XMLReader
+     * Notice by id
+     * <unique id> => ['Title', ['Message']
      */
-    protected $xmlReader;
-
+    const NOTICE_CODES = [
+        1508776068 => ['Validation failed', 'XML is invalid. There %1s %d %2s.']
+    ];
 
     /**
      * Error by id
      * <unique id> => ['Title', ['Message']
-     * @var array
      */
-    protected static $errors = [
-
+    const ERROR_CODES = [
+        1508774170 => ['Invalid type for target schema', 'config[\'target\'][\'schema\'] must be a string, %s given.']
     ];
+
+    /**
+     * @var \XMLReader
+     */
+    protected $xmlReader;
 
     /**
      * Returns error codes for current component.
@@ -57,17 +63,31 @@ class ValidateXML extends AbstractFinisher
      */
     public function getErrorCodes()
     {
-        return static::$errors;
+        return static::ERROR_CODES;
+    }
+
+    /**
+     * Returns notice codes for current component.
+     * Must be an array in the form
+     * [
+     *  <id> => ['title', 'description']
+     * ]
+     * 'description' may contain placeholder (%s) for arguments.
+     * @return array
+     */
+    public function getNoticeCodes()
+    {
+        return static::NOTICE_CODES;
     }
 
     /**
      * Inject the XMLReader
      * @param \XMLReader $reader
      */
-    public function injectXMLReader(\XMLReader $reader) {
+    public function injectXMLReader(\XMLReader $reader)
+    {
         $this->xmlReader = $reader;
     }
-
 
     /**
      * Tells whether a given configuration is valid
@@ -83,11 +103,12 @@ class ValidateXML extends AbstractFinisher
             return false;
         }
         if (isset($configuration['target']['schema'])
-           && !is_string($configuration['target']['schema']) ) {
+            && !is_string($configuration['target']['schema'])) {
+            $this->logError(1508774170, [gettype($configuration['target']['schema'])]);
             return false;
         }
 
-       return true;
+        return true;
     }
 
     /**
@@ -105,8 +126,7 @@ class ValidateXML extends AbstractFinisher
         }
         libxml_use_internal_errors(true);
 
-        //$this->xmlReader->XML($resource, null, LIBXML_DTDVALID);
-        $this->xmlReader->XML($resource);
+        $this->xmlReader->XML($resource, null, LIBXML_DTDVALID);
         $this->xmlReader->setParserProperty(\XMLReader::VALIDATE, true);
 
         if (!empty($configuration['schema']['file'])) {
@@ -118,7 +138,11 @@ class ValidateXML extends AbstractFinisher
         $this->xmlReader->close();
 
         if (!$isValid = $this->xmlReader->isValid()) {
-            $errors = libxml_get_errors();
+            $validationErrors = libxml_get_errors();
+            $errorCount = count($validationErrors);
+            $string1 = ($errorCount > 1)? 'were' : 'was';
+            $string2 = ($errorCount > 1)? 'errors' : 'error';
+            $this->logNotice(1508776068, [$string1, $errorCount, $string2], $validationErrors);
         }
         //disable user error handling - will also clear any existing libxml errors
         libxml_use_internal_errors(false);
