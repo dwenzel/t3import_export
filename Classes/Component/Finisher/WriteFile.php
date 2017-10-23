@@ -34,15 +34,25 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
 {
     use ResourceFactoryTrait, ResourceStorageTrait;
 
+    /**
+     * cancel file operation
+     */
     const CONFLICT_MODE_CANCEL = 'cancel';
-    const CONFLICT_MODE_CHANGENAME = 'changeName';
-    const CONFLICT_MODE_REPLACE= 'replace';
 
     /**
-     * Valid values for conflict modes (during file actions)
-     * @var array
+     * change name of new file according to TYPO3 conventions
      */
-    protected static $validConflictModes = [
+    const CONFLICT_MODE_CHANGENAME = 'changeName';
+
+    /**
+     * replace existing file
+     */
+    const CONFLICT_MODE_REPLACE = 'replace';
+
+    /**
+     * Valid values for conflict modes (for file operations)
+     */
+    const CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_CHANGENAME,
         self::CONFLICT_MODE_REPLACE
@@ -58,9 +68,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
     {
         if (
             empty($configuration)
-            ||
-            (
-                isset($configuration['target'])
+            || (isset($configuration['target'])
                 && is_array($configuration['target'])
                 && (empty($configuration['target']['name']) || !is_string($configuration['target']['name'])))
         ) {
@@ -77,22 +85,28 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
             if (
                 empty($conflictMode)
                 || !is_string($conflictMode)
-                || !in_array($conflictMode, static::$validConflictModes)
+                || !in_array($conflictMode, self::CONFLICT_MODES)
             ) {
                 return false;
             }
         }
 
-
         return true;
     }
 
     /**
-     *
+     * Process the result:
+     * write file from fileInfo field of
+     * TaskResult object to a configured storage/folder/file name
+     * If no storage or folder is configured, the file is written
+     * to the default folder in the default storage.
+     * If a file with target file name already exists the conflictMode
+     * determines the result: cancel, rename, replace are allowed.
+     * Default is rename (according to TYPO3 conventions)
      * @param array $configuration
      * @param array $records
-     * @param array $result
-     * @return bool
+     * @param array|TaskResult $result
+     * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      */
     public function process($configuration, &$records, &$result)
     {
