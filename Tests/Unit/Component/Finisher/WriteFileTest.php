@@ -46,7 +46,7 @@ class WriteFileTest extends UnitTestCase
     /**
      * @var ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $resourceStorage;
+    protected $storage;
 
     /**
      * @var Folder|\PHPUnit_Framework_MockObject_MockObject
@@ -66,15 +66,22 @@ class WriteFileTest extends UnitTestCase
             ->setMethods(['getStorageObject', 'getDefaultStorage'])
             ->getMock();
         $this->subject->injectResourceFactory($this->resourceFactory);
-        $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
-            ->disableOriginalConstructor()->setMethods(['getDefaultFolder', 'hasFolder', 'createFolder', 'addFile'])
+        $this->storage = $this->getMockBuilder(ResourceStorage::class)
+            ->disableOriginalConstructor()
+            ->setMethods([
+                'getDefaultFolder',
+                'hasFolder',
+                'getFolder',
+                'createFolder',
+                'addFile'
+            ])
             ->getMock();
         $this->resourceFactory->expects($this->any())
             ->method('getDefaultStorage')
-            ->will($this->returnValue($this->resourceStorage));
+            ->will($this->returnValue($this->storage));
         $this->folder = $this->getMockBuilder(Folder::class)
             ->disableOriginalConstructor()->getMock();
-        $this->resourceStorage->expects($this->any())
+        $this->storage->expects($this->any())
             ->method('getDefaultFolder')
             ->will($this->returnValue($this->folder));
     }
@@ -292,8 +299,8 @@ class WriteFileTest extends UnitTestCase
             ->will($this->returnValue($fileInfo));
         $this->resourceFactory->expects($this->once())
             ->method('getDefaultStorage')
-            ->will($this->returnValue($this->resourceStorage));
-        $this->resourceStorage->expects($this->once())
+            ->will($this->returnValue($this->storage));
+        $this->storage->expects($this->once())
         ->method('getDefaultFolder')
             ->will($this->returnValue($this->folder));
 
@@ -328,8 +335,8 @@ class WriteFileTest extends UnitTestCase
         $this->resourceFactory->expects($this->once())
             ->method('getStorageObject')
             ->with((int)$storageId)
-            ->will($this->returnValue($this->resourceStorage));
-        $this->resourceStorage->expects($this->once())
+            ->will($this->returnValue($this->storage));
+        $this->storage->expects($this->once())
             ->method('getDefaultFolder')
             ->will($this->returnValue($this->folder));
 
@@ -366,7 +373,7 @@ class WriteFileTest extends UnitTestCase
         $result->expects($this->atLeast(1))->method('getInfo')
             ->will($this->returnValue($fileInfo));
 
-        $this->resourceStorage->expects($this->once())
+        $this->storage->expects($this->once())
             ->method('addFile')
             ->with(
                 $realPath,
@@ -402,13 +409,51 @@ class WriteFileTest extends UnitTestCase
             ->setMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->will($this->returnValue($fileInfo));
-        $this->resourceStorage
+        $this->storage
             ->expects($this->once())
             ->method('hasFolder')
             ->with($directory)
             ->will($this->returnValue(false));
-        $this->resourceStorage->expects($this->once())
+        $this->storage->expects($this->once())
             ->method('createFolder')
+            ->with($directory)
+            ->will($this->returnValue($this->folder));
+
+        $this->subject->process(
+            $configurationWithStorage,
+            $records,
+            $result
+        );
+
+    }
+
+    /**
+     * @test
+     */
+    public function processGetsExistingFolderFromStorage()
+    {
+        $records = [];
+        $directory = 'baz';
+        $configurationWithStorage = [
+            'target' => [
+                'name' => 'bar.xml',
+                'directory' => $directory
+            ]
+        ];
+        $fileInfo = $this->getMockBuilder(FileInfo::class)
+            ->disableOriginalConstructor()
+            ->setMethods([])->getMock();
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->setMethods(['getInfo'])->getMock();
+        $result->expects($this->atLeast(1))->method('getInfo')
+            ->will($this->returnValue($fileInfo));
+        $this->storage
+            ->expects($this->once())
+            ->method('hasFolder')
+            ->with($directory)
+            ->will($this->returnValue(true));
+        $this->storage->expects($this->once())
+            ->method('getFolder')
             ->with($directory)
             ->will($this->returnValue($this->folder));
 
@@ -440,7 +485,7 @@ class WriteFileTest extends UnitTestCase
             ->setMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->will($this->returnValue($fileInfo));
-        $this->resourceStorage
+        $this->storage
             ->expects($this->once())
             ->method('addFile')
             ->with(
