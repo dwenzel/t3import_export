@@ -61,6 +61,24 @@ class MessageContainer
     }
 
     /**
+     * Tells by id if a container has a certain message
+     * Note: not all messages must have an id!
+     *
+     * @param $id
+     * @return boolean
+     */
+    public function hasMessageWithId($id) {
+        /** @var Message $message */
+        foreach ($this->getMessages() as $message) {
+            if ($id === $message->getId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Reset messages
      */
     public function clear()

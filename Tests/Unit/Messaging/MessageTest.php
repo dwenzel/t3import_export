@@ -51,8 +51,10 @@ class MessageTest extends UnitTestCase
         $message = 'foo';
         $title = 'bar';
         $severity = Message::ERROR;
+        $id = 12;
+        $additionalInformation = ['baz'];
 
-        $this->subject->__construct($message, $title, $severity);
+        $this->subject->__construct($message, $title, $severity, $id, $additionalInformation);
 
         $this->assertSame(
             $message,
@@ -68,6 +70,16 @@ class MessageTest extends UnitTestCase
             $severity,
             $this->subject->getSeverity()
         );
+
+        $this->assertSame(
+            $id,
+            $this->subject->getId()
+        );
+
+        $this->assertSame(
+            $additionalInformation,
+            $this->subject->getAdditionalInformation()
+        );
     }
 
     /**
@@ -78,6 +90,7 @@ class MessageTest extends UnitTestCase
         $message = 'foo';
         $defaultTitle = '';
         $defaultSeverity = Message::OK;
+        $additionalInformation = [];
 
         $this->subject->__construct($message);
 
@@ -89,6 +102,14 @@ class MessageTest extends UnitTestCase
         $this->assertSame(
             $defaultSeverity,
             $this->subject->getSeverity()
+        );
+
+        $this->assertSame(
+            $additionalInformation,
+            $this->subject->getAdditionalInformation()
+        );
+        $this->assertNull(
+            $this->subject->getId()
         );
     }
 }

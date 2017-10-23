@@ -53,9 +53,10 @@ class LoggingTraitTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getMockForTrait(
-            LoggingTrait::class, [], '', false
-        );
+        $this->subject = $this->getMockBuilder(LoggingTrait::class)
+            ->setMethods(['getErrorCodes', 'getNoticeCodes'])
+            ->getMockForTrait();
+
         $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->setMethods(['get'])->getMock();
 
@@ -94,8 +95,9 @@ class LoggingTraitTest extends UnitTestCase
     {
         $fooErrorId = 0;
         $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()->getMock();
-
-        $expectedDescription = LoggingInterface::ERROR_UNKNOWN_MESSAGE . PHP_EOL . 'Error ID ' . $fooErrorId
+        $this->subject->expects($this->any())->method('getErrorCodes')
+            ->willReturn([]);
+        $expectedDescription = LoggingInterface::ERROR_UNKNOWN_MESSAGE . PHP_EOL . 'Message ID ' . $fooErrorId
             . ' in component ' . get_class($this->subject);
 
         $this->objectManager->expects($this->once())
@@ -133,7 +135,7 @@ class LoggingTraitTest extends UnitTestCase
         $expectedTitle = $errorCodes[$fooErrorId][0];
         $expectedDescription = $errorCodes[$fooErrorId][1];
         $expectedDescription = sprintf($expectedDescription, $arguments[0]);
-        $expectedDescription .= PHP_EOL . 'Error ID ' . $fooErrorId
+        $expectedDescription .= PHP_EOL . 'Message ID ' . $fooErrorId
             . ' in component ' . get_class($this->subject);
 
         $this->objectManager->expects($this->once())
@@ -149,5 +151,108 @@ class LoggingTraitTest extends UnitTestCase
             ->with($mockMessage);
 
         $this->subject->logError($fooErrorId, $arguments);
+    }
+
+    /**
+     * @test
+     */
+    public function getNoticeCodesInitiallyReturnsEmptyArray() {
+        $this->subject = $this->getMockBuilder(LoggingTrait::class)
+            ->setMethods(['dummy'])
+            ->getMockForTrait();
+        $expected = [];
+        $this->assertSame(
+            $expected,
+            $this->subject->getNoticeCodes()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function logNoticeCreatesDefaultMessage()
+    {
+        $fooNoticeId = 0;
+        $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()->getMock();
+        $this->subject->expects($this->any())->method('getNoticeCodes')
+            ->willReturn([]);
+        $expectedDescription = LoggingInterface::NOTICE_UNKNOWN_MESSAGE . PHP_EOL . 'Message ID ' . $fooNoticeId
+            . ' in component ' . get_class($this->subject);
+
+        $this->objectManager->expects($this->once())
+            ->method('get')
+            ->with(
+                Message::class,
+                $expectedDescription,
+                LoggingInterface::NOTICE_UNKNOWN_TITLE,
+                Message::NOTICE)
+            ->will($this->returnValue($mockMessage));
+        $this->messageContainer->expects($this->once())
+            ->method('addMessage')
+            ->with($mockMessage);
+
+        $this->subject->logNotice($fooNoticeId);
+    }
+
+    /**
+     * @test
+     */
+    public function logNoticeCreatesMessageFromExistingNoticeEntry()
+    {
+        $fooNoticeId = 1498948185;
+        $arguments = ['bar'];
+
+        $noticeCodes = [
+            $fooNoticeId => ['Foo title', 'bar message with argument %s']
+        ];
+        $this->subject->expects($this->once())
+            ->method('getNoticeCodes')
+            ->will($this->returnValue($noticeCodes));
+
+        $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()->getMock();
+
+        $expectedTitle = $noticeCodes[$fooNoticeId][0];
+        $expectedDescription = $noticeCodes[$fooNoticeId][1];
+        $expectedDescription = sprintf($expectedDescription, $arguments[0]);
+        $expectedDescription .= PHP_EOL . 'Message ID ' . $fooNoticeId
+            . ' in component ' . get_class($this->subject);
+
+        $this->objectManager->expects($this->once())
+            ->method('get')
+            ->with(
+                Message::class,
+                $expectedDescription,
+                $expectedTitle,
+                Message::NOTICE)
+            ->will($this->returnValue($mockMessage));
+        $this->messageContainer->expects($this->once())
+            ->method('addMessage')
+            ->with($mockMessage);
+
+        $this->subject->logNotice($fooNoticeId, $arguments);
+    }
+
+    /**
+     * @test
+     */
+    public function logMessageAddsMessageToContainer() {
+        $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()->getMock();
+
+        $expectedTitle = 'bar';
+        $expectedDescription = 'foo';
+
+        $this->objectManager->expects($this->once())
+            ->method('get')
+            ->with(
+                Message::class,
+                $expectedDescription,
+                $expectedTitle,
+                Message::OK)
+            ->will($this->returnValue($mockMessage));
+        $this->messageContainer->expects($this->once())
+            ->method('addMessage')
+            ->with($mockMessage);
+
+        $this->subject->logMessage($expectedTitle, $expectedDescription);
     }
 }
