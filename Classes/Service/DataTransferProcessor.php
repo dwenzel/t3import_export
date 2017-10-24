@@ -230,7 +230,7 @@ class DataTransferProcessor
         foreach ($finishers as $finisher) {
             /** @var FinisherInterface $finisher */
             $config = $finisher->getConfiguration();
-            if (!$finisher->isDisabled($config, null, $result)) {
+            if (!$finisher->isDisabled($config, [], $result)) {
                 $finisher->process($config, $records, $result);
             }
             $this->gatherMessages($finisher, $result);
@@ -250,7 +250,7 @@ class DataTransferProcessor
         foreach ($initializers as $initializer) {
             /** @var InitializerInterface $initializer */
             $config = $initializer->getConfiguration();
-            if (!$initializer->isDisabled($config, null, $result)) {
+            if (!$initializer->isDisabled($config, [], $result)) {
                 $initializer->process($config, $records);
             }
             $this->gatherMessages($initializer, $result);
