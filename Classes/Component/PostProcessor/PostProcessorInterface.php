@@ -18,6 +18,12 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\Domain\Model\TaskResult;
+
+/**
+ * Interface PostProcessorInterface
+ */
 interface PostProcessorInterface
 {
     /**
@@ -36,12 +42,12 @@ interface PostProcessorInterface
 
     /**
      * Tells if the component is disabled
-     *
      * @param array $configuration
      * @param array $record
-     * @return bool
+     * @param TaskResult|\Iterator|array $result
+     * @return mixed
      */
-    public function isDisabled($configuration, $record);
+    public function isDisabled($configuration, $record = null, TaskResult $result = null);
 
     /**
      * Sets the configuration

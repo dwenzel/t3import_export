@@ -161,7 +161,7 @@ class DataTransferProcessor
         foreach ($preProcessors as $preProcessor) {
             /** @var AbstractPreProcessor $preProcessor */
             $singleConfig = $preProcessor->getConfiguration();
-            if (!$preProcessor->isDisabled($singleConfig, $record)) {
+            if (!$preProcessor->isDisabled($singleConfig, $record, $result)) {
                 $preProcessor->process($singleConfig, $record);
             }
             $this->gatherMessages($preProcessor, $result);
@@ -182,7 +182,7 @@ class DataTransferProcessor
         foreach ($postProcessors as $postProcessor) {
             /** @var AbstractPostProcessor $postProcessor */
             $config = $postProcessor->getConfiguration();
-            if (!$postProcessor->isDisabled($config, $record)) {
+            if (!$postProcessor->isDisabled($config, $record, $result)) {
                 $postProcessor->process(
                     $config,
                     $convertedRecord,
@@ -208,7 +208,7 @@ class DataTransferProcessor
         foreach ($converters as $converter) {
             /** @var AbstractConverter $converter */
             $config = $converter->getConfiguration();
-            if (!$converter->isDisabled($config)) {
+            if (!$converter->isDisabled($config, $record, $result)) {
                 $convertedRecord = $converter->convert($convertedRecord, $config);
             }
             $this->gatherMessages($converter, $result);
@@ -230,7 +230,7 @@ class DataTransferProcessor
         foreach ($finishers as $finisher) {
             /** @var FinisherInterface $finisher */
             $config = $finisher->getConfiguration();
-            if (!$finisher->isDisabled($config)) {
+            if (!$finisher->isDisabled($config, null, $result)) {
                 $finisher->process($config, $records, $result);
             }
             $this->gatherMessages($finisher, $result);
@@ -250,7 +250,7 @@ class DataTransferProcessor
         foreach ($initializers as $initializer) {
             /** @var InitializerInterface $initializer */
             $config = $initializer->getConfiguration();
-            if (!$initializer->isDisabled($config)) {
+            if (!$initializer->isDisabled($config, null, $result)) {
                 $initializer->process($config, $records);
             }
             $this->gatherMessages($initializer, $result);
