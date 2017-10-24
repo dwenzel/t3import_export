@@ -27,6 +27,7 @@ use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\LoggingInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
@@ -121,7 +122,7 @@ class DataTransferProcessor
                 continue;
             }
             $records = $this->queue[$task->getIdentifier()];
-            $this->processInitializers($records, $task);
+            $this->processInitializers($records, $task, $result);
 
             if ((bool) $records) {
                 $target = $task->getTarget();
@@ -131,9 +132,9 @@ class DataTransferProcessor
                 }
 
                 foreach ($records as $record) {
-                    $this->preProcessSingle($record, $task);
-                    $convertedRecord = $this->convertSingle($record, $task);
-                    $this->postProcessSingle($convertedRecord, $record, $task);
+                    $this->preProcessSingle($record, $task, $result);
+                    $convertedRecord = $this->convertSingle($record, $task, $result);
+                    $this->postProcessSingle($convertedRecord, $record, $task, $result);
                     $target->persist($convertedRecord, $targetConfig);
                     $result->add($convertedRecord);
                 }
@@ -152,8 +153,9 @@ class DataTransferProcessor
      *
      * @param array $record
      * @param TransferTask $task
+     * @param TaskResult $result
      */
-    protected function preProcessSingle(&$record, TransferTask $task)
+    protected function preProcessSingle(&$record, TransferTask $task, TaskResult $result)
     {
         $preProcessors = $task->getPreProcessors();
         foreach ($preProcessors as $preProcessor) {
@@ -162,6 +164,7 @@ class DataTransferProcessor
             if (!$preProcessor->isDisabled($singleConfig, $record)) {
                 $preProcessor->process($singleConfig, $record);
             }
+            $this->gatherMessages($preProcessor, $result);
         }
     }
 
@@ -171,20 +174,22 @@ class DataTransferProcessor
      * @param mixed $convertedRecord
      * @param array $record
      * @param TransferTask $task
+     * @param TaskResult $result
      */
-    protected function postProcessSingle(&$convertedRecord, &$record, TransferTask $task)
+    protected function postProcessSingle(&$convertedRecord, &$record, TransferTask $task, TaskResult $result)
     {
         $postProcessors = $task->getPostProcessors();
-        foreach ($postProcessors as $singleProcessor) {
-            /** @var AbstractPostProcessor $singleProcessor */
-            $config = $singleProcessor->getConfiguration();
-            if (!$singleProcessor->isDisabled($config, $record)) {
-                $singleProcessor->process(
+        foreach ($postProcessors as $postProcessor) {
+            /** @var AbstractPostProcessor $postProcessor */
+            $config = $postProcessor->getConfiguration();
+            if (!$postProcessor->isDisabled($config, $record)) {
+                $postProcessor->process(
                     $config,
                     $convertedRecord,
                     $record
                 );
             }
+            $this->gatherMessages($postProcessor, $result);
         }
     }
 
@@ -193,9 +198,10 @@ class DataTransferProcessor
      *
      * @param array $record Record which should be converted
      * @param TransferTask $task Import type
+     * @param TaskResult $result
      * @return mixed The converted object
      */
-    protected function convertSingle(array $record, TransferTask $task)
+    protected function convertSingle(array $record, TransferTask $task, TaskResult $result)
     {
         $convertedRecord = $record;
         $converters = $task->getConverters();
@@ -205,6 +211,7 @@ class DataTransferProcessor
             if (!$converter->isDisabled($config)) {
                 $convertedRecord = $converter->convert($convertedRecord, $config);
             }
+            $this->gatherMessages($converter, $result);
         }
 
         return $convertedRecord;
@@ -226,6 +233,7 @@ class DataTransferProcessor
             if (!$finisher->isDisabled($config)) {
                 $finisher->process($config, $records, $result);
             }
+            $this->gatherMessages($finisher, $result);
         }
     }
 
@@ -234,8 +242,9 @@ class DataTransferProcessor
      *
      * @param array $records Processed records
      * @param TransferTask $task Import task
+     * @param TaskResult $result
      */
-    protected function processInitializers(&$records, TransferTask $task)
+    protected function processInitializers(&$records, TransferTask $task, TaskResult $result)
     {
         $initializers = $task->getInitializers();
         foreach ($initializers as $initializer) {
@@ -244,6 +253,23 @@ class DataTransferProcessor
             if (!$initializer->isDisabled($config)) {
                 $initializer->process($config, $records);
             }
+            $this->gatherMessages($initializer, $result);
+        }
+    }
+
+    /**
+     * Gathers messages from component and
+     * adds them to the message queue of the result
+     * @param object $component
+     * @param array|\Iterator|TaskResult $result
+     */
+    protected function gatherMessages($component, TaskResult $result) {
+        if ($component instanceof LoggingInterface
+            && $result instanceof TaskResult
+        ) {
+            $result->addMessages(
+                $component->getMessages()
+            );
         }
     }
 }
