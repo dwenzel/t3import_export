@@ -23,4 +23,10 @@ interface LoggingInterface
     const ERROR_UNKNOWN_TITLE = 'Unknown error';
     const NOTICE_UNKNOWN_MESSAGE = 'Notice with unknown ID';
     const NOTICE_UNKNOWN_TITLE = 'Notice';
+
+    /**
+     * Gets all messages
+     * @return array
+     */
+    public function getMessages();
 }

@@ -36,4 +36,13 @@ trait MessageContainerTrait
     {
         $this->messageContainer = $messageContainer;
     }
+
+    /**
+     * Returns all messages.
+     * Messages are kept.
+     * @return array
+     */
+    public function getMessages() {
+        return $this->messageContainer->getMessages();
+    }
 }
