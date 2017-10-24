@@ -26,8 +26,13 @@
 
 namespace CPSIT\T3importExport\Domain\Model;
 
+use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+
 class TaskResult implements \Iterator
 {
+    use MessageContainerTrait;
+
+
     /**
      * @var int
      */
@@ -182,5 +187,15 @@ class TaskResult implements \Iterator
     public function getInfo()
     {
         return $this->info;
+    }
+
+    /**
+     * Adds all messages.
+     * Existing messages are kept.
+     *
+     * @param array $messages
+     */
+    public function addMessages(array $messages) {
+        $this->messageContainer->addMessages($messages);
     }
 }

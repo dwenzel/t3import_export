@@ -3,6 +3,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\T3importExport\Domain\Model\ExportTarget;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -34,15 +35,14 @@ class TaskResultTest extends UnitTestCase
     /**
      * Subject
      *
-     * @var TaskResult
+     * @var TaskResult|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            TaskResult::class, ['dummy']
-        );
+        $this->subject = $this->getMockBuilder(TaskResult::class)
+            ->setMethods(['dummy'])->getMock();
     }
 
     /**
@@ -173,7 +173,7 @@ class TaskResultTest extends UnitTestCase
     public function keyReturnsPosition()
     {
         $position = 5;
-        $this->subject->_set('position', $position);
+        $this->inject($this->subject, 'position', $position);
 
         $this->assertSame(
             $position,
@@ -198,11 +198,29 @@ class TaskResultTest extends UnitTestCase
     public function countReturnsSize()
     {
         $size = 10;
-        $this->subject->_set('size', $size);
+        $this->inject($this->subject, 'size', $size);
 
         $this->assertSame(
             $size,
             $this->subject->count()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function getMessagesReturnsMessagesFromContainer() {
+        $messages = ['foo'];
+        $messageContainer = $this->getMockBuilder(MessageContainer::class)
+            ->setMethods(['getMessages'])->getMock();
+        $this->subject->injectMessageContainer($messageContainer);
+        $messageContainer->expects($this->once())
+            ->method('getMessages')
+            ->willReturn($messages);
+
+        $this->assertSame(
+            $messages,
+            $this->subject->getMessages()
         );
     }
 }

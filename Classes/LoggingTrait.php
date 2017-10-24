@@ -29,14 +29,6 @@ trait LoggingTrait
     use MessageContainerTrait, ObjectManagerTrait;
 
     /**
-     * Notice codes.
-     * Override this property in instances with actual codes.
-     *
-     * @var array
-     */
-    protected $noticeCodes = [];
-
-    /**
      * Returns error codes for current component.
      * Must be an array in the form
      * [
@@ -49,6 +41,7 @@ trait LoggingTrait
 
     /**
      * Returns notice codes for current component.
+     * Override this method in instances with actual codes.
      * Must be an array in the form
      * [
      *  <id> => ['title', 'description']
@@ -58,7 +51,7 @@ trait LoggingTrait
      */
     public function getNoticeCodes()
     {
-        return $this->noticeCodes;
+        return [];
     }
 
     /**
