@@ -36,7 +36,8 @@ class ValidateXML extends AbstractFinisher
      * <unique id> => ['Title', ['Message']
      */
     const NOTICE_CODES = [
-        1508776068 => ['Validation failed', 'XML is invalid. There %1s %d %2s.']
+        1508776068 => ['Validation failed', 'XML is invalid. There %1s %d %2s.'],
+        1508914030 => ['Validation succeed', 'XML is valid.'],
     ];
 
     /**
@@ -44,7 +45,8 @@ class ValidateXML extends AbstractFinisher
      * <unique id> => ['Title', ['Message']
      */
     const ERROR_CODES = [
-        1508774170 => ['Invalid type for target schema', 'config[\'target\'][\'schema\'] must be a string, %s given.']
+        1508774170 => ['Invalid type for target schema', 'config[\'target\'][\'schema\'] must be a string, %s given.'],
+        1508914547 => ['Empty resource', 'Could not load resource or resource empty'],
     ];
 
     /**
@@ -122,6 +124,8 @@ class ValidateXML extends AbstractFinisher
 
         $resource = $this->loadResource($configuration);
         if (empty($resource)) {
+            $this->logError(1508914547, null, [$configuration]);
+
             return false;
         }
         libxml_use_internal_errors(true);
@@ -143,9 +147,13 @@ class ValidateXML extends AbstractFinisher
             $string1 = ($errorCount > 1)? 'were' : 'was';
             $string2 = ($errorCount > 1)? 'errors' : 'error';
             $this->logNotice(1508776068, [$string1, $errorCount, $string2], $validationErrors);
+        } else {
+            // notification about validation success
+            $this->logNotice(1508914030);
         }
         //disable user error handling - will also clear any existing libxml errors
         libxml_use_internal_errors(false);
+
 
         return true;
     }
