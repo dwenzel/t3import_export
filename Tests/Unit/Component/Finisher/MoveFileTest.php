@@ -62,7 +62,7 @@ class MoveFileTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock(
-            MoveFile::class, ['logError']
+            MoveFile::class, ['logError', 'logNotice']
         );
         $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
             ->disableOriginalConstructor()

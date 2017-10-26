@@ -62,12 +62,21 @@ class MoveFile extends AbstractFinisher
 
     /**
      * Error by id
-     * <unique id> => ['Title', ['Message']
+     * <unique id> => ['title', ['message']
      */
     const ERROR_CODES = [
         1509011717 => ['Empty configuration', 'Configuration must not be empty'],
         1509011925 => ['Missing target', 'config.target.name. must be a string'],
         1509022342 => ['Missing source', 'config.source.name. must be a string'],
+        1509023738 => ['Missing source file', 'File %1s could not be found.'],
+    ];
+
+    /**
+     * Notice by id
+     * <unique id> => ['title', ['message']
+     */
+    const NOTICE_CODES = [
+        1509024162 => ['File moved', 'File %1s has been moved succesfully to %2s.'],
     ];
 
     /**
@@ -82,6 +91,20 @@ class MoveFile extends AbstractFinisher
     public function getErrorCodes()
     {
         return self::ERROR_CODES;
+    }
+
+    /**
+     * Returns notice codes for current component.
+     * Must be an array in the form
+     * [
+     *  <id> => ['title', 'description']
+     * ]
+     * 'description' may contain placeholder (%s) for arguments.
+     * @return array
+     */
+    public function getNoticeCodes()
+    {
+        return static::NOTICE_CODES;
     }
 
     /**
@@ -172,7 +195,7 @@ class MoveFile extends AbstractFinisher
         }
 
         if (!$sourceStorage->hasFileInFolder($sourceFileName, $sourceFolder)) {
-            // todo add message missing file
+            $this->logError(1509023738, [$sourceFileName], $configuration);
             return false;
         }
 
@@ -198,12 +221,14 @@ class MoveFile extends AbstractFinisher
             $conflictMode = $configuration['target']['conflictMode'];
         }
 
+        $targetFileName = $configuration['target']['name'];
         $sourceStorage->moveFile(
             $sourceFile,
             $targetFolder,
-            $configuration['target']['name'],
+            $targetFileName,
             $conflictMode
         );
+        $this->logNotice(1509024162, [$sourceFileName, $targetFileName], $configuration);
 
         return true;
     }
