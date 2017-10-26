@@ -5,6 +5,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 use CPSIT\T3importExport\Component\Finisher\MoveFile;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\LoggingInterface;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Folder;
@@ -61,7 +62,7 @@ class MoveFileTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock(
-            MoveFile::class, ['dummy']
+            MoveFile::class, ['logError']
         );
         $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
             ->disableOriginalConstructor()
@@ -99,15 +100,45 @@ class MoveFileTest extends UnitTestCase
             'empty configuration' => [
                 []
             ],
+            'target not set' => [
+                [
+                    'source' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
+            'source not set' => [
+                [
+                    'target' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
             'empty target file name' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => ''
                     ]
                 ]
             ],
+            'empty source file name' => [
+                [
+                    'source' => [
+                        'name' => ''
+                    ],
+                    'target' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
             'target name must not be array' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => ['bar']
                     ]
@@ -115,13 +146,39 @@ class MoveFileTest extends UnitTestCase
             ],
             'target name must not be integer' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => 0
                     ]
                 ]
             ],
+            'source name must not be array' => [
+                [
+                    'source' => [
+                        'name' => ['bar']
+                    ],
+                    'target' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
+            'source name must not be integer' => [
+                [
+                    'source' => [
+                        'name' => 0
+                    ],
+                    'target' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
             'target storage string: can not be interpreted as integer' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => 'foo',
                         'storage' => 'bar'
@@ -130,22 +187,64 @@ class MoveFileTest extends UnitTestCase
             ],
             'target storage array: can not be interpreted as integer' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => 'foo',
                         'storage' => ['bar']
                     ]
                 ]
             ],
+            'source storage string: can not be interpreted as integer' => [
+                [
+                    'source' => [
+                        'name' => 'foo',
+                        'storage' => 'bar'
+                    ],
+                    'target' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
+            'source storage array: can not be interpreted as integer' => [
+                [
+                    'source' => [
+                        'name' => 'foo',
+                        'storage' => ['bar']
+                    ],
+                    'target' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
             'target directory integer: must be string' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => 'foo',
                         'directory' => 8
                     ]
                 ]
             ],
+            'source directory integer: must be string' => [
+                [
+                    'source' => [
+                        'name' => 'foo',
+                        'directory' => 8
+                    ],
+                    'target' => [
+                        'name' => 'foo'
+                    ]
+                ]
+            ],
             'invalid target conflictMode: foo' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => 'foo',
@@ -154,6 +253,9 @@ class MoveFileTest extends UnitTestCase
             ],
             'invalid target conflictMode: empty string' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => '',
@@ -162,6 +264,9 @@ class MoveFileTest extends UnitTestCase
             ],
             'invalid target conflictMode: array' => [
                 [
+                    'source' => [
+                        'name' => 'foo'
+                    ],
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => [],
@@ -632,5 +737,15 @@ class MoveFileTest extends UnitTestCase
             $result
         );
 
+    }
+
+    /**
+     * @test
+     */
+    public function instanceImplementsLoggingInterface() {
+        $this->assertInstanceOf(
+            LoggingInterface::class,
+            $this->subject
+        );
     }
 }

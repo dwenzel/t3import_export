@@ -22,6 +22,8 @@ namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -29,9 +31,10 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 /**
  * Class MoveFileFromStream
  */
-class MoveFile extends AbstractFinisher implements FinisherInterface, ConfigurableInterface
+class MoveFile extends AbstractFinisher
+    implements FinisherInterface, ConfigurableInterface, LoggingInterface
 {
-    use ResourceFactoryTrait, ResourceStorageTrait;
+    use LoggingTrait, ResourceFactoryTrait, ResourceStorageTrait;
 
     /**
      * cancel file operation
@@ -58,6 +61,30 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, Configurab
     ];
 
     /**
+     * Error by id
+     * <unique id> => ['Title', ['Message']
+     */
+    const ERROR_CODES = [
+        1509011717 => ['Empty configuration', 'Configuration must not be empty'],
+        1509011925 => ['Missing target', 'config.target.name. must be a string'],
+        1509022342 => ['Missing source', 'config.source.name. must be a string'],
+    ];
+
+    /**
+     * Returns error codes for current component.
+     * Must be an array in the form
+     * [
+     *  <id> => ['errorTitle', 'errorDescription']
+     * ]
+     * 'errorDescription' may contain placeholder (%s) for arguments.
+     * @return array
+     */
+    public function getErrorCodes()
+    {
+        return self::ERROR_CODES;
+    }
+
+    /**
      * Tells whether the given configuration is valid
      *
      * @param array $configuration
@@ -65,20 +92,36 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, Configurab
      */
     public function isConfigurationValid(array $configuration)
     {
-        // todo: validate source configuration
-
+        if (empty($configuration)) {
+            $this->logError(1509011717);
+            return false;
+        }
         if (
-            empty($configuration)
-            || (isset($configuration['target'])
-                && is_array($configuration['target'])
-                && (empty($configuration['target']['name']) || !is_string($configuration['target']['name'])))
+            !isset($configuration['target']['name'])
+            || empty($configuration['target']['name'])
+            || !is_string($configuration['target']['name'])
         ) {
+            $this->logError(1509011925);
+            return false;
+        }
+        if (
+             !isset($configuration['source']['name'])
+                || empty($configuration['source']['name'])
+             || !is_string($configuration['source']['name'])
+        ) {
+            $this->logError(1509022342);
             return false;
         }
         if (!empty($configuration['target']['storage']) && !MathUtility::canBeInterpretedAsInteger($configuration['target']['storage'])) {
             return false;
         }
+        if (!empty($configuration['source']['storage']) && !MathUtility::canBeInterpretedAsInteger($configuration['source']['storage'])) {
+            return false;
+        }
         if (!empty($configuration['target']['directory']) && !is_string($configuration['target']['directory'])) {
+            return false;
+        }
+        if (!empty($configuration['source']['directory']) && !is_string($configuration['source']['directory'])) {
             return false;
         }
         if (isset($configuration['target']['conflictMode'])) {

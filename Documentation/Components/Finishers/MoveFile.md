@@ -58,3 +58,15 @@ Renames (moves) the file `foo.xml` from directory `foo/bar` of the storage with 
 | config.target.storage     | integer | no       | 1          | ID of the storage in which the file should be written. If not set default storage is used. |
 | config.target.directory   | string  | no       |            | target directory name. If the directory does not exist, it will be created in the selected storage |
 | config.target.conflictMode| string  | no       | changeName | which strategy to use when a file already exists. Allowed: cancel, replace, changeName |
+
+
+### Messages
+
+**Errors**
+
+| ID          | title               | message                 |
+| ------------|---------------------|-------------------------|
+| 1509011717  | Empty configuration | Configuration must not be empty |
+| 1509011925  | Missing target      | config.target.name. must be a string |
+| 1509022342  | Missing source      | config.source.name. must be a string |
+
