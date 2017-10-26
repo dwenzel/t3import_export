@@ -116,7 +116,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, Configurab
         $sourceFileName = $configuration['source']['name'];
 
         if (!empty($configuration['source']['storage'])) {
-            $sourceStorage = $this->resourceFactory->getStorageObject((int)$configuration['target']['storage']);
+            $sourceStorage = $this->resourceFactory->getStorageObject((int)$configuration['source']['storage']);
         }
 
         $sourceFolder = $sourceStorage->getDefaultFolder();
@@ -161,7 +161,6 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, Configurab
             $configuration['target']['name'],
             $conflictMode
         );
-
 
         return true;
     }

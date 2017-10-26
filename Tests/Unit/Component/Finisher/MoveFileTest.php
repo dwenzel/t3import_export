@@ -301,7 +301,7 @@ class MoveFileTest extends UnitTestCase
     /**
      * @test
      */
-    public function processGetsStorageFromFactoryByIdFromConfiguration()
+    public function processGetsTargetStorageFromFactoryByIdFromConfiguration()
     {
         $records = [];
         $storageId = '5';
@@ -312,6 +312,41 @@ class MoveFileTest extends UnitTestCase
             'target' => [
                 'name' => 'bar.xml',
                 'storage' => $storageId
+            ]
+        ];
+        $this->resourceFactory->expects($this->once())
+            ->method('getStorageObject')
+            ->with((int)$storageId)
+            ->will($this->returnValue($this->storage));
+        $this->storage->expects($this->exactly(2))
+            ->method('getDefaultFolder')
+            ->will($this->returnValue($this->folder));
+        $this->storage->expects($this->once())
+            ->method('hasFileInFolder')
+            ->willReturn(true);
+
+        $this->subject->process(
+            $configurationWithStorage,
+            $records,
+            $result
+        );
+
+    }
+
+    /**
+     * @test
+     */
+    public function processGetsSourceStorageFromFactoryByIdFromConfiguration()
+    {
+        $records = [];
+        $storageId = '5';
+        $configurationWithStorage = [
+            'source' => [
+                'name' => 'foo.xml',
+                'storage' => $storageId
+            ],
+            'target' => [
+                'name' => 'bar.xml'
             ]
         ];
         $this->resourceFactory->expects($this->once())
@@ -384,7 +419,6 @@ class MoveFileTest extends UnitTestCase
         );
     }
 
-
     /**
      * @test
      */
@@ -427,6 +461,59 @@ class MoveFileTest extends UnitTestCase
             ->will($this->returnValue(false));
         $this->storage->expects($this->once())
             ->method('createFolder')
+            ->with($directory)
+            ->will($this->returnValue($this->folder));
+
+        $this->subject->process(
+            $configurationWithStorage,
+            $records,
+            $result
+        );
+
+    }
+
+    /**
+     * @test
+     */
+    public function processGetsSourceFolderFromConfiguration()
+    {
+        $records = [];
+        $sourceFileName = 'foo.xml';
+        $directory = 'baz';
+        $configurationWithStorage = [
+            'source' => [
+                'name' => $sourceFileName,
+                'directory' => $directory
+            ],
+            'target' => [
+                'name' => 'bar.xml'
+            ]
+        ];
+        $sourceFile = $this->getMockBuilder(FileInterface::class)
+            ->getMock();
+        $sourceFolderContent = [
+            $sourceFileName => $sourceFile
+        ];
+        $this->resourceFactory->expects($this->once())
+            ->method('getDefaultStorage')
+            ->will($this->returnValue($this->storage));
+        $this->storage->expects($this->exactly(2))
+            ->method('getDefaultFolder')
+            ->will($this->returnValue($this->folder));
+        $this->storage->expects($this->once())
+            ->method('hasFileInFolder')
+            ->willReturn(true);
+
+        $this->folder->expects($this->once())
+            ->method('getFiles')
+            ->willReturn($sourceFolderContent);
+         $this->storage
+            ->expects($this->once())
+            ->method('hasFolder')
+            ->with($directory)
+            ->will($this->returnValue(true));
+        $this->storage->expects($this->once())
+            ->method('getFolder')
             ->with($directory)
             ->will($this->returnValue($this->folder));
 
