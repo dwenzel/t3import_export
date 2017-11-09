@@ -10,7 +10,9 @@ Available Finishers:
 
 * [ClearCache](./Finishers/ClearCache.md)
 * DownloadFileStream
-* WriteFile
+* [MoveFile](./Finishers/MoveFile.md)
+* [WriteFile](./Finishers/WriteFile.md)
+* [ValidateXML](./Finishers/ValidateXML.md)
 
 You may add your own Finishers. They **must** implement the FinisherInterface and **may** inherit from AbstractFinisher.
 

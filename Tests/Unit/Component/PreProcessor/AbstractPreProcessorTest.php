@@ -79,7 +79,7 @@ class AbstractPreProcessorTest extends UnitTestCase
     {
         $configuration = [];
         $this->assertFalse(
-            $this->subject->isDisabled($configuration)
+            $this->subject->isDisabled($configuration, null)
         );
     }
 
@@ -93,7 +93,7 @@ class AbstractPreProcessorTest extends UnitTestCase
             'disable' => '1'
         ];
         $this->assertTrue(
-            $this->subject->isDisabled($configuration)
+            $this->subject->isDisabled($configuration, null)
         );
     }
 

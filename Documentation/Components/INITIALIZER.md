@@ -8,6 +8,7 @@ Currently the following initializers exist:
 * [DeleteFromTable](./Initializers/DeleteFromTable.md)
 * [InsertMultiple](./Initializers/InsertMultiple.md)
 * [TruncateTables](./Initializers/TruncateTables.md)
+* [UpdateTable](./Initializers/UpdateTable.md)
 
 You may add your own initializers. They **must** implement the InitializerInterface and **may** inherit from AbstractInitializer.
 

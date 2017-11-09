@@ -7,7 +7,7 @@ The result is assumed to be a file. Its location must be found in the info of th
 ### Examples
 
 **Minimal Configuration**
-```TypoScript
+```typo3_typoscript
 module.tx_t3importexport.settings.import.tasks.example {
   [...]
   finishers.30 {

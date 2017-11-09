@@ -1,6 +1,8 @@
 <?php
 namespace CPSIT\T3importExport\Component\Finisher;
 
+use CPSIT\T3importExport\Domain\Model\TaskResult;
+
 /**
  * Interface FinisherInterface
  *
@@ -24,12 +26,12 @@ interface FinisherInterface
 
     /**
      * Tells if the component is disabled
-     *
      * @param array $configuration
-     * @param  array $records Array with prepared records
-     * @return bool
+     * @param array $record
+     * @param TaskResult|\Iterator|array $result
+     * @return mixed
      */
-    public function isDisabled($configuration, $records = []);
+    public function isDisabled($configuration, $record = null, TaskResult $result = null);
 
     /**
      * Sets the configuration
