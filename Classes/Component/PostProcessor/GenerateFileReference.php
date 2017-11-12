@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -76,7 +77,7 @@ class GenerateFileReference extends AbstractPostProcessor
                 $existingFileId = $targetFieldValue->getOriginalResource()
                     ->getOriginalFile()->getUid();
 
-                if ( $existingFileId === $fileId) {
+                if ($existingFileId === $fileId) {
                     // field references same file - nothing to do
                     return false;
                 } else {

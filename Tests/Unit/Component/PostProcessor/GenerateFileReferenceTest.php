@@ -29,7 +29,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Class GenerateFileReferenceTest
- * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference
  */
 class GenerateFileReferenceTest extends UnitTestCase
 {
