@@ -18,6 +18,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
@@ -59,7 +60,7 @@ class GenerateFileReferenceTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getMockBuilder(GenerateFileReference::class)
-            ->setMethods(['dummy'])->getMock();
+            ->setMethods(['logError', 'logNotice'])->getMock();
         $this->fileReferenceFactory = $this->getMockBuilder(FileReferenceFactory::class)
             ->setMethods(['create'])->getMock();
         $this->subject->injectFileReferenceFactory($this->fileReferenceFactory);
@@ -342,6 +343,26 @@ class GenerateFileReferenceTest extends UnitTestCase
 
         $this->assertFalse(
             $this->subject->process($configuration, $object, $record)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function instanceImplementsLoggingInterface() {
+        $this->assertInstanceOf(
+            LoggingInterface::class,
+            $this->subject
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function getErrorCodesReturnsClassConstant() {
+        $this->assertSame(
+            GenerateFileReference::ERROR_CODES,
+            $this->subject->getErrorCodes()
         );
     }
 }

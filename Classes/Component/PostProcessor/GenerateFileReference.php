@@ -18,6 +18,8 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use CPSIT\T3importExport\Resource\FileReferenceFactoryTrait;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -29,14 +31,39 @@ use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
  * Class GenerateFileReference
  */
 class GenerateFileReference extends AbstractPostProcessor
-    implements PostProcessorInterface
+    implements PostProcessorInterface, LoggingInterface
 {
-    use FileReferenceFactoryTrait, FileIndexRepositoryTrait;
+    use FileReferenceFactoryTrait, FileIndexRepositoryTrait, LoggingTrait;
+
+    /**
+     * Error by id
+     * <unique id> => ['title', ['message']
+     */
+    const ERROR_CODES  = [
+        1510524677 => ['Missing source field', 'config[\'sourceField\'] must be set'],
+        1510524678 => ['Missing target field', 'config[\'targetField\'] must be set'],
+        1510524679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
+    ];
 
     /**
      * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
      */
     protected $persistenceManager;
+
+
+    /**
+     * Returns error codes for current component.
+     * Must be an array in the form
+     * [
+     *  <id> => ['errorTitle', 'errorDescription']
+     * ]
+     * 'errorDescription' may contain placeholder (%s) for arguments.
+     * @return array
+     */
+    public function getErrorCodes()
+    {
+        return self::ERROR_CODES;
+    }
 
     /**
      * Inject persistenceManager
@@ -110,17 +137,20 @@ class GenerateFileReference extends AbstractPostProcessor
             empty($configuration['sourceField'])
             || !is_string($configuration['sourceField'])
         ) {
+            $this->logError(1510524677);
             return false;
         }
         if (
             empty($configuration['targetField'])
             || !is_string($configuration['targetField'])
         ) {
+            $this->logError(1510524678);
             return false;
         }
         if (!empty($configuration['targetPage'])
             && !MathUtility::canBeInterpretedAsInteger($configuration['targetPage'])
         ) {
+            $this->logError(1510524679, (string)$configuration['targetPage']);
             return false;
         }
 
