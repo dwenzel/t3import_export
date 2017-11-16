@@ -1,3 +1,6 @@
+2017-11-16         [RELEASE] Release of t3import_export 0.12.1 (Benjamin Schütz)
+2017-11-16 25e6e88 [HOTFIX] Fixed error caused by missing ObjectManager in AbstractComponent (Benjamin Schütz)
+
 2017-10-17         [RELEASE] Release of t3import_export 0.12.0 (Dirk Wenzel)
 2017-10-12 414013f [TASK] Moved classes and traits related to messaging and resources into appropriate namespace (Dirk Wenzel)
 2017-10-12 7ebf11c [TASK] documentation for finishers added. (Dirk Wenzel)
