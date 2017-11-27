@@ -30,7 +30,16 @@ class DataSourceDynamicRepository implements DataSourceInterface
     const IN = 'in';
 
     const OPERAND_NOW = 'now';
+    const OPERAND_YESTERDAY = 'yesterday';
+    const OPERAND_TODAY = 'today';
+    const OPERAND_TOMORROW = 'tomorrow';
 
+    /**
+     * temporal operands
+     */
+    const TEMPORAL_OPERANDS = [
+      self::OPERAND_NOW, self::OPERAND_YESTERDAY, self::OPERAND_TODAY, self::OPERAND_TOMORROW
+    ];
 
     /**
      * Tells if a given configuration is valid
@@ -306,8 +315,11 @@ class DataSourceDynamicRepository implements DataSourceInterface
      */
     private function replaceOperandPlaceholder($operand)
     {
-        if (strtolower($operand) === self::OPERAND_NOW) {
-            return time();
+        $lowerCaseOperand = strtolower($operand);
+        if (in_array($lowerCaseOperand, static::TEMPORAL_OPERANDS)) {
+            $timeZone = new \DateTimeZone(date_default_timezone_get());
+            $dateTime = new \DateTime($lowerCaseOperand, $timeZone);
+            $operand = $dateTime->getTimestamp();
         }
 
         return $operand;
