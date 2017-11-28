@@ -748,4 +748,24 @@ class MoveFileTest extends UnitTestCase
             $this->subject
         );
     }
+
+    /**
+     * @test
+     */
+    public function getErrorCodesReturnsClassConstant() {
+        $this->assertSame(
+            MoveFile::ERROR_CODES,
+            $this->subject->getErrorCodes()
+        );
+    }
+    
+    /**
+     * @test
+     */
+    public function getNoticeCodesReturnsClassConstant() {
+        $this->assertSame(
+            MoveFile::NOTICE_CODES,
+            $this->subject->getNoticeCodes()
+        );
+    }
 }
