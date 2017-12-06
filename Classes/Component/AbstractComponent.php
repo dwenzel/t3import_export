@@ -5,8 +5,10 @@ namespace CPSIT\T3importExport\Component;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\ObjectManagerTrait;
+use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /***************************************************************
@@ -54,9 +56,10 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
      *
      * @param array $configuration
      * @param array $record
+     * @param TaskResult $result
      * @return bool
      */
-    public function isDisabled($configuration, $record = [])
+    public function isDisabled($configuration, $record = [], TaskResult $result = null)
     {
         if (!isset($configuration['disable'])) {
             return false;
@@ -67,7 +70,20 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
             return true;
         }
         if (is_array($configuration['disable'])) {
+
             $localConfiguration = $configuration['disable'];
+            if (isset($localConfiguration['if']['result']['hasMessage'])) {
+                $messageIds = GeneralUtility::intExplode(
+                    ',',
+                    $localConfiguration['if']['result']['hasMessage'],
+                    true
+                );
+                foreach ($messageIds as $id) {
+                    if ($result->hasMessageWithId($id)) {
+                        return true;
+                    }
+                }
+            }
 
             return ($this->renderContent($record, $localConfiguration) === '1');
         }

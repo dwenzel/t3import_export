@@ -34,7 +34,7 @@ trait GenerateFileTrait
      *
      * @var array
      */
-    static protected $errors = [
+    protected static $errors = [
         1499007587 => ['Empty configuration', 'Configuration must not be empty'],
         1497427302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
         1497427320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
@@ -108,7 +108,6 @@ trait GenerateFileTrait
                 $singleValue = $this->getFile($configuration, $filePath);
                 $fieldValue[] = $singleValue;
             }
-
         } else {
             $fieldValue = $this->getFile($configuration, $filePaths[0]);
         }

@@ -137,6 +137,5 @@ class UnsetEmptyFieldsTest extends UnitTestCase
             $expectedResult,
             $incomingRecord
         );
-
     }
 }

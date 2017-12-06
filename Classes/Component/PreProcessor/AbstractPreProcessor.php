@@ -44,5 +44,4 @@ abstract class AbstractPreProcessor extends AbstractComponent
     {
         return true;
     }
-
 }

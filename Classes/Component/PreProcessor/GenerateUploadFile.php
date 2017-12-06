@@ -39,7 +39,6 @@ class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInt
 
         if (!@copy($sourceFilePath, $this->getAbsoluteFilePath($targetPath))) {
             $targetPath = '';
-            // @todo log error from error_get_last()
         }
 
         return $targetPath;

@@ -24,7 +24,8 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 /**
  * Class MessageTest
  */
-class MessageTest extends UnitTestCase {
+class MessageTest extends UnitTestCase
+{
 
     /**
      * @var Message|\PHPUnit_Framework_MockObject_MockObject
@@ -50,8 +51,10 @@ class MessageTest extends UnitTestCase {
         $message = 'foo';
         $title = 'bar';
         $severity = Message::ERROR;
+        $id = 12;
+        $additionalInformation = ['baz'];
 
-        $this->subject->__construct($message, $title, $severity);
+        $this->subject->__construct($message, $title, $severity, $id, $additionalInformation);
 
         $this->assertSame(
             $message,
@@ -67,6 +70,16 @@ class MessageTest extends UnitTestCase {
             $severity,
             $this->subject->getSeverity()
         );
+
+        $this->assertSame(
+            $id,
+            $this->subject->getId()
+        );
+
+        $this->assertSame(
+            $additionalInformation,
+            $this->subject->getAdditionalInformation()
+        );
     }
 
     /**
@@ -77,6 +90,7 @@ class MessageTest extends UnitTestCase {
         $message = 'foo';
         $defaultTitle = '';
         $defaultSeverity = Message::OK;
+        $additionalInformation = [];
 
         $this->subject->__construct($message);
 
@@ -90,6 +104,12 @@ class MessageTest extends UnitTestCase {
             $this->subject->getSeverity()
         );
 
-
+        $this->assertSame(
+            $additionalInformation,
+            $this->subject->getAdditionalInformation()
+        );
+        $this->assertNull(
+            $this->subject->getId()
+        );
     }
 }

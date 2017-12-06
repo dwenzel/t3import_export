@@ -3,16 +3,13 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Domain\Model\DataStream;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use CPSIT\T3importExport\Persistence\DataTargetXMLStream;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
-use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
-use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /***************************************************************
  *
@@ -45,13 +42,18 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
-class DataTargetXMLSteamTest extends UnitTestCase
+class DataTargetXMLStreamTest extends UnitTestCase
 {
 
     /**
      * @var DataTargetFileStream|\PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
      */
     protected $subject;
+
+    /**
+     * @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $objectManager;
 
     /**
      * Set up
@@ -61,39 +63,25 @@ class DataTargetXMLSteamTest extends UnitTestCase
         $this->subject = $this->getAccessibleMock(
             DataTargetXMLStream::class, ['dummy'], [], '', false
         );
+
+        $this->objectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()->setMethods(['get'])->getMock();
+
+        $this->subject->injectObjectManager($this->objectManager);
     }
 
     public function createDataStreamWithSampleBuffer($buffer)
     {
         $ds = new DataStream();
-        $ds->setSteamBuffer($buffer);
+        $ds->setStreamBuffer($buffer);
         return $ds;
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
-     */
-    protected function injectObjectManager()
-    {
-        /** @var ObjectManager $mockObjectManager */
-        $mockObjectManager = $this->getMock(ObjectManager::class,
-            [], [], '', false);
-
-        $this->subject->injectObjectManager($mockObjectManager);
-
-        $this->assertSame(
-            $mockObjectManager,
-            $this->subject->_get('objectManager')
-        );
-
-        return $mockObjectManager;
     }
 
     /**
      * @test
      * @outputBuffering enabled
      */
-    public function persistDataSteamInTaskResultIteratorWithDirectOutput()
+    public function persistDataStreamInTaskResultIteratorWithDirectOutput()
     {
         $taskResult = new TaskResult();
         $taskResult->setElements(
@@ -112,7 +100,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
             $this->subject->persist($streamObject, $config);
-            $this->assertNull($streamObject->getSteamBuffer());
+            $this->assertNull($streamObject->getStreamBuffer());
         }
 
         $this->subject->persistAll($taskResult, $config);
@@ -123,7 +111,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
      * @test
      * @outputBuffering enabled
      */
-    public function persistDataSteamInTaskResultIteratorWithDirectOutputAndCustomConfig()
+    public function persistDataStreamInTaskResultIteratorWithDirectOutputAndCustomConfig()
     {
         $taskResult = new TaskResult();
         $taskResult->setElements(
@@ -144,7 +132,7 @@ class DataTargetXMLSteamTest extends UnitTestCase
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
             $this->subject->persist($streamObject, $config);
-            $this->assertNull($streamObject->getSteamBuffer());
+            $this->assertNull($streamObject->getStreamBuffer());
         }
 
         $this->subject->persistAll($taskResult, $config);
@@ -188,24 +176,33 @@ class DataTargetXMLSteamTest extends UnitTestCase
             ->method('getUniqueName')
             ->will($this->returnValue($tmpPath));
 
-        $mockedObjectManager = $this->injectObjectManager();
-        $mockedObjectManager->expects($this->once())
+        /** @var FileInfo $mockFileInfo */
+        $mockFileInfo = new FileInfo($tmpPath);
+
+        $this->objectManager->expects($this->at(0))
             ->method('get')
             ->with(BasicFileUtility::class)
             ->will($this->returnValue($mockedFileUtility));
+        $this->objectManager->expects($this->at(1))
+            ->method('get')
+            ->with(FileInfo::class)
+            ->will($this->returnValue($mockFileInfo));
 
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
             $this->subject->persist($streamObject, $config);
-            $this->assertNull($streamObject->getSteamBuffer());
+            $this->assertNull($streamObject->getStreamBuffer());
         }
 
         $this->subject->persistAll($taskResult);
-        $path = $taskResult->getInfo();
-        $this->assertEquals($tmpPath, $path);
-        $this->assertFileExists($path);
+        $this->assertInstanceOf(
+            FileInfo::class,
+            $taskResult->getInfo()
+        );
 
-        $content = file_get_contents($path);
+        $this->assertFileExists($tmpPath);
+
+        $content = file_get_contents($tmpPath);
         $this->assertEquals($config['header'].'<test><a>b</a><a>b</a><a>b</a><a>b</a></test>', $content);
 
         unlink($tmpPath);

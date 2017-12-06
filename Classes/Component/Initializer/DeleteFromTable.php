@@ -66,7 +66,7 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
         }
 
         if (isset($configuration['identifier'])
-            and !DatabaseConnectionService::isRegistered($configuration['identifier'])
+            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
         ) {
             return false;
         }

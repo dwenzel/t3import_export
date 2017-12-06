@@ -6,7 +6,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
  *  All rights reserved
  *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
+ *  free software; you can redistribute it &&/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -39,7 +39,7 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
         $targetFieldName = $configuration['targetField'];
         foreach ($configuration['fields'] as $key => $value) {
             if (isset($value['wrap'])
-                and !empty($record[$key])
+                && !empty($record[$key])
             ) {
                 $record[$key] = $this->contentObjectRenderer->wrap(
                     $record[$key],
@@ -47,7 +47,7 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
                 );
             }
             if (isset($value['noTrimWrap'])
-                and !empty($record[$key])
+                && !empty($record[$key])
             ) {
                 $record[$key] = $this->contentObjectRenderer->noTrimWrap(
                     $record[$key],
@@ -67,12 +67,12 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
     public function isConfigurationValid(array $configuration)
     {
         if (!isset($configuration['targetField'])
-            or !is_string($configuration['targetField'])
+            || !is_string($configuration['targetField'])
         ) {
             return false;
         }
         if (!isset($configuration['fields'])
-            or !is_array($configuration['fields'])
+            || !is_array($configuration['fields'])
         ) {
             return false;
         }

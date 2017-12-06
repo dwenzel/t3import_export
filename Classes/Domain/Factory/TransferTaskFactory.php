@@ -169,13 +169,13 @@ class TransferTaskFactory extends AbstractFactory
         $task->setIdentifier($identifier);
 
         if (isset($settings['class'])
-            and is_string($settings['class'])
+            && is_string($settings['class'])
         ) {
             $task->setTargetClass($settings['class']);
         }
 
         if (isset($settings['description'])
-            and is_string($settings['description'])
+            && is_string($settings['description'])
         ) {
             $task->setDescription($settings['description']);
         }
@@ -186,27 +186,27 @@ class TransferTaskFactory extends AbstractFactory
         $this->setTarget($task, $settings, $identifier);
         $this->setSource($task, $settings, $identifier);
         if (isset($settings['preProcessors'])
-            and is_array($settings['preProcessors'])
+            && is_array($settings['preProcessors'])
         ) {
             $this->setPreProcessors($task, $settings['preProcessors'], $identifier);
         }
         if (isset($settings['postProcessors'])
-            and is_array($settings['postProcessors'])
+            && is_array($settings['postProcessors'])
         ) {
             $this->setPostProcessors($task, $settings['postProcessors'], $identifier);
         }
         if (isset($settings['converters'])
-            and is_array($settings['converters'])
+            && is_array($settings['converters'])
         ) {
             $this->setConverters($task, $settings['converters'], $identifier);
         }
         if (isset($settings['finishers'])
-            and is_array($settings['finishers'])
+            && is_array($settings['finishers'])
         ) {
             $this->setFinishers($task, $settings['finishers'], $identifier);
         }
         if (isset($settings['initializers'])
-            and is_array($settings['initializers'])
+            && is_array($settings['initializers'])
         ) {
             $this->setInitializers($task, $settings['initializers'], $identifier);
         }
@@ -227,7 +227,7 @@ class TransferTaskFactory extends AbstractFactory
     protected function setTarget(&$task, array $settings, $identifier)
     {
         if (!isset($settings['target'])
-            or !is_array(($settings['target']))
+            || !is_array(($settings['target']))
         ) {
             throw new InvalidConfigurationException(
                 'Invalid configuration for import task ' . $identifier .
@@ -237,7 +237,7 @@ class TransferTaskFactory extends AbstractFactory
         }
         $targetIdentifier = null;
         if (isset($settings['target']['identifier'])
-            and is_string($settings['target']['identifier'])
+            && is_string($settings['target']['identifier'])
         ) {
             $targetIdentifier = $settings['target']['identifier'];
         }
@@ -259,7 +259,7 @@ class TransferTaskFactory extends AbstractFactory
     protected function setSource(&$task, array $settings, $identifier)
     {
         if (!isset($settings['source'])
-            or !is_array(($settings['source']))
+            || !is_array(($settings['source']))
         ) {
             throw new InvalidConfigurationException(
                 'Invalid configuration for import task ' . $identifier .
@@ -269,7 +269,7 @@ class TransferTaskFactory extends AbstractFactory
         }
         $sourceIdentifier = null;
         if (isset($settings['source']['identifier'])
-            and is_string($settings['source']['identifier'])
+            && is_string($settings['source']['identifier'])
         ) {
             $sourceIdentifier = $settings['source']['identifier'];
         }

@@ -1,5 +1,6 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Unit\Messaging;
+
 /**
  * Copyright notice
  * (c) 2017. Dirk Wenzel <wenzel@cps-it.de>
@@ -18,7 +19,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
-
 
 /**
  * Class MessageReportingTraitTest
@@ -99,6 +99,33 @@ class MessageContainerTest extends UnitTestCase
         $this->assertSame(
             $expected,
             $this->subject->getMessages()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function hasMessageInitiallyReturnsFalse() {
+        $nonExistingId = 4447;
+        $this->subject->clear();
+        $this->assertFalse(
+            $this->subject->hasMessageWithId($nonExistingId)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function hasMessageReturnsTrueForMessageInContainer() {
+        $id = 7;
+        $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()
+            ->setMethods(['getId'])
+            ->getMock();
+        $mockMessage->expects($this->once())->method('getId')
+            ->willReturn($id);
+        $this->subject->addMessage($mockMessage);
+        $this->assertTrue(
+            $this->subject->hasMessageWithId($id)
         );
     }
 }

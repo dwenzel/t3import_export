@@ -42,7 +42,7 @@ class MapFields extends AbstractPreProcessor implements PreProcessorInterface
         }
         foreach ($configuration['fields'] as $field => $value) {
             if (!is_string($value)
-                or empty($value)
+                || empty($value)
             ) {
                 return false;
             }

@@ -48,7 +48,7 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
         }
         foreach ($configuration['fields'] as $field => $value) {
             if (!is_array($value)
-                or empty($value)
+                || empty($value)
             ) {
                 return false;
             }

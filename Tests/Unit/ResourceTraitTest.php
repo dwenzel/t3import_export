@@ -7,7 +7,6 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
-
 /***************************************************************
  *
  *  Copyright notice
@@ -46,7 +45,6 @@ class ResourceTraitTest extends UnitTestCase
             ResourceTrait::class, [], '', false, true, true, ['dummy', 'getAbsoluteFilePath']
         );
         vfsStreamWrapper::register();
-
     }
 
     /**

@@ -110,7 +110,7 @@ abstract class BaseController extends ActionController
      */
     protected function doTaskAction($identifier)
     {
-       /** @var TaskDemand $importDemand */
+        /** @var TaskDemand $importDemand */
         $importDemand = $this->objectManager->get(
             TaskDemand::class
         );

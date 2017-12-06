@@ -1,6 +1,8 @@
 <?php
 namespace CPSIT\T3importExport\Component\Converter;
 
+use CPSIT\T3importExport\Domain\Model\TaskResult;
+
 /**
  * Interface ConverterInterface
  *
@@ -16,10 +18,14 @@ interface ConverterInterface
     public function convert(array $record, array $configuration);
 
     /**
+     * Tells if the component is disabled
+     *
      * @param array $configuration
+     * @param array $record
+     * @param TaskResult|\Iterator|array $result
      * @return mixed
      */
-    public function isDisabled($configuration);
+    public function isDisabled($configuration, $record = null, TaskResult $result = null);
 
     /**
      * @param array $configuration

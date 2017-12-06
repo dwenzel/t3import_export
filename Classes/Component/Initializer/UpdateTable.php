@@ -18,7 +18,7 @@ namespace CPSIT\T3importExport\Component\Initializer;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
- 
+
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 
@@ -44,7 +44,7 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
         }
         $table = $configuration['table'];
         $where = $configuration['where'];
-		$setfields = $configuration['setfields'];
+        $setfields = $configuration['setfields'];
 
         return (bool)$this->database->exec_UPDATEquery($table, $where, $setfields);
     }
@@ -69,14 +69,14 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
             return false;
         }
 
-		if (!isset($configuration['setfields'])
-		    || !is_array($configuration['setfields'])
-		) {
-		    return false;
-		}
+        if (!isset($configuration['setfields'])
+            || !is_array($configuration['setfields'])
+        ) {
+            return false;
+        }
 
         if (isset($configuration['identifier'])
-            and !DatabaseConnectionService::isRegistered($configuration['identifier'])
+            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
         ) {
             return false;
         }

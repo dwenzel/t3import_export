@@ -64,7 +64,7 @@ class TransferSetFactory extends AbstractFactory
         $transferSet->setIdentifier($identifier);
 
         if (isset($settings['tasks'])
-            and is_string($settings['tasks'])
+            && is_string($settings['tasks'])
         ) {
             $taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
             $tasks = [];
@@ -80,7 +80,7 @@ class TransferSetFactory extends AbstractFactory
         }
 
         if (isset($settings['description'])
-            and is_string($settings['description'])
+            && is_string($settings['description'])
         ) {
             $transferSet->setDescription($settings['description']);
         }

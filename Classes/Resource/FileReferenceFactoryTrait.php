@@ -37,7 +37,8 @@ trait FileReferenceFactoryTrait
      *
      * @param \CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory $factory
      */
-    public function injectFileReferenceFactory(FileReferenceFactory $factory) {
+    public function injectFileReferenceFactory(FileReferenceFactory $factory)
+    {
         $this->fileReferenceFactory = $factory;
     }
 }

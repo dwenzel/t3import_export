@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
@@ -46,12 +47,12 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
     protected function validatePropertyConfiguration(array $configuration)
     {
         if (isset($configuration['allowProperties'])
-            and !is_string($configuration['allowProperties'])
+            && !is_string($configuration['allowProperties'])
         ) {
             throw new InvalidConfigurationException(
                 'Invalid configuration for ' . __CLASS__ .
                 '. Option value allowProperties must be a comma separated
-				 string of property names.',
+                 string of property names.',
                 1451146869
             );
         }
@@ -69,13 +70,6 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
                 $this->validatePropertyConfigurationRecursive($localConfiguration);
             }
         }
-
-        /**
-         * todo:
-         * children.maxItems: int
-         * typeConverter.class: set, string, class exists
-         * typeConverter.options: ?
-         **/
 
         return true;
     }
@@ -95,7 +89,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
                     1451157586
                 );
             }
-            foreach ($localConfiguration['children']['properties'] as $child=>$childConfiguration) {
+            foreach ($localConfiguration['children']['properties'] as $child => $childConfiguration) {
                 $this->validatePropertyConfiguration($childConfiguration);
             }
         }

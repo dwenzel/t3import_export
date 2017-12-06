@@ -76,7 +76,8 @@ class FileReferenceFactoryTest extends UnitTestCase
     /**
      * @test
      */
-    public function createSetsOriginalResourceAndReturnsFileReference() {
+    public function createSetsOriginalResourceAndReturnsFileReference()
+    {
         $fileId = 7;
         $configuration = [];
 
@@ -104,7 +105,8 @@ class FileReferenceFactoryTest extends UnitTestCase
     /**
      * @test
      */
-    public function createSetsInitialPageIdZero() {
+    public function createSetsInitialPageIdZero()
+    {
         $fileId = 7;
         $configuration = [];
         $expectedPageId = 0;
@@ -129,7 +131,8 @@ class FileReferenceFactoryTest extends UnitTestCase
     /**
      * @test
      */
-    public function createSetsPageIdFromConfiguration() {
+    public function createSetsPageIdFromConfiguration()
+    {
         $fileId = 7;
         $expectedPageId = 0;
 

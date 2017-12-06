@@ -3,6 +3,7 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\ObjectManagerTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -11,7 +12,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 
 class DataSourceDynamicRepository implements DataSourceInterface
 {
-    use ConfigurableTrait;
+    use ConfigurableTrait, ObjectManagerTrait;
 
     const LOGICAL_AND = 'and';
     const LOGICAL_OR = 'or';
@@ -29,13 +30,16 @@ class DataSourceDynamicRepository implements DataSourceInterface
     const IN = 'in';
 
     const OPERAND_NOW = 'now';
+    const OPERAND_YESTERDAY = 'yesterday';
+    const OPERAND_TODAY = 'today';
+    const OPERAND_TOMORROW = 'tomorrow';
 
     /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager
-     * @inject
+     * temporal operands
      */
-    protected $objectManager;
-
+    const TEMPORAL_OPERANDS = [
+      self::OPERAND_NOW, self::OPERAND_YESTERDAY, self::OPERAND_TODAY, self::OPERAND_TOMORROW
+    ];
 
     /**
      * Tells if a given configuration is valid
@@ -74,9 +78,6 @@ class DataSourceDynamicRepository implements DataSourceInterface
      */
     private function getRepositoryFromEntityClass($entityClassName)
     {
-        /*if ($entityClassName{0} !== '\\') {
-            $entityClassName = '\\' . $entityClassName;
-        }*/
 
         if ($this->objectManager->isRegistered($entityClassName)) {
             return $this->findRepositoryByManipulateEntityName($entityClassName);
@@ -119,7 +120,7 @@ class DataSourceDynamicRepository implements DataSourceInterface
         if (!empty($config['constraints'])) {
             $constraints = $config['constraints'];
         }
-        
+
         if (!empty($constraints) && is_array($constraints)) {
             // if no logical conjunction is set as first AND ONLY element
             // set and to default
@@ -314,8 +315,11 @@ class DataSourceDynamicRepository implements DataSourceInterface
      */
     private function replaceOperandPlaceholder($operand)
     {
-        if (strtolower($operand) === self::OPERAND_NOW) {
-            return time();
+        $lowerCaseOperand = strtolower($operand);
+        if (in_array($lowerCaseOperand, static::TEMPORAL_OPERANDS)) {
+            $timeZone = new \DateTimeZone(date_default_timezone_get());
+            $dateTime = new \DateTime($lowerCaseOperand, $timeZone);
+            $operand = $dateTime->getTimestamp();
         }
 
         return $operand;

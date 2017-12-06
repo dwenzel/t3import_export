@@ -109,12 +109,12 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
             return false;
         }
         if (isset($configuration['identifier'])
-            and !is_string($configuration['identifier'])
+            && !is_string($configuration['identifier'])
         ) {
             return false;
         }
         if (isset($configuration['identifier'])
-            and !DatabaseConnectionService::isRegistered($configuration['identifier'])
+            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
         ) {
             return false;
         }

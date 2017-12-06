@@ -25,7 +25,6 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
-
 /**
  * Class GenerateUploadFileTest
  */
