@@ -22,17 +22,17 @@ $EM_CONF[$_EXTKEY] = array (
 	'createDirs' => '',
 	'clearCacheOnLoad' => 1,
 	'version' => '0.13.0',
-	'constraints' => 
+	'constraints' =>
 	array (
-		'depends' => 
+		'depends' =>
 		array (
 			'typo3' => '6.2.0-8.99.99',
-			'php' => '5.4.0-0.0.0',
+			'php' => '5.6.0-0.0.0',
 		),
-		'conflicts' => 
+		'conflicts' =>
 		array (
 		),
-		'suggests' => 
+		'suggests' =>
 		array (
 		),
 	),
