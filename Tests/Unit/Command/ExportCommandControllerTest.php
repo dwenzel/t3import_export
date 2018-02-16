@@ -1,18 +1,5 @@
 <?php
-
 namespace CPSIT\T3importExport\Tests\Unit\Command;
-
-use CPSIT\T3importExport\Command\ImportCommandController;
-use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
-use CPSIT\T3importExport\Domain\Model\TransferSet;
-use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
  *
@@ -38,18 +25,22 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\T3importExport\Command\ExportCommandController;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**
- * Class ImportCommandControllerTest
+ * Class ExportCommandControllerTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Command
- * @coversDefaultClass \CPSIT\T3importExport\Command\ImportCommandController
+ * @coversDefaultClass \CPSIT\T3importExport\Command\ExportCommandController
  */
-class ImportCommandControllerTest extends UnitTestCase
+class ExportCommandControllerTest extends UnitTestCase
 {
 
     /**
-     * @var ImportCommandController
+     * @var ExportCommandController
      */
     protected $subject;
 
@@ -59,7 +50,7 @@ class ImportCommandControllerTest extends UnitTestCase
     public function setUp()
     {
         $this->subject = $this->getAccessibleMock(
-            ImportCommandController::class, ['dummy']
+            ExportCommandController::class, ['dummy']
         );
     }
 
@@ -71,7 +62,7 @@ class ImportCommandControllerTest extends UnitTestCase
         $dataTransferProcessorSettings = ['foo'];
         $extbaseFrameWorkConfig = [
             'settings' => [
-                ImportCommandController::SETTINGS_KEY => $dataTransferProcessorSettings
+                ExportCommandController::SETTINGS_KEY => $dataTransferProcessorSettings
             ]
         ];
 

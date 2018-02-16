@@ -1,9 +1,5 @@
 <?php
-
 namespace CPSIT\T3importExport\Command;
-
-use CPSIT\T3importExport\Controller\ImportController;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -22,19 +18,21 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\T3importExport\Controller\ExportController;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**
- * Class ImportCommandController
- * Provides import commands for cli and scheduler tasks
+ * Class ExportCommandController
+ * Provides export commands for cli and scheduler tasks
  */
-class ImportCommandController extends TransferCommandController
+class ExportCommandController extends TransferCommandController
 {
     /**
      * Key under which configuration are found in
      * Framework configuration.
-     * This should match the key for the ImportController
+     * This should match the key for the ExportController
      */
-    const SETTINGS_KEY = ImportController::SETTINGS_KEY;
+    const SETTINGS_KEY = ExportController::SETTINGS_KEY;
 
     /**
      * initialize object
