@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
 /***************************************************************
@@ -38,7 +39,6 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  */
 class ExportCommandControllerTest extends UnitTestCase
 {
-
     /**
      * @var ExportCommandController
      */

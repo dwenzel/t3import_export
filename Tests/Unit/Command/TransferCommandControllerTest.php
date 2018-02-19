@@ -45,7 +45,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3importExport\Tests\Unit\Command
  * @coversDefaultClass \CPSIT\T3importExport\Command\TransferCommandController
  */
-class TransferCommandControllerTestCommand extends UnitTestCase
+class TransferCommandControllerTest extends UnitTestCase
 {
 
     /**

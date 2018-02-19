@@ -22,6 +22,7 @@ use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 
 /**
@@ -29,6 +30,13 @@ use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
  */
 class TransferCommandController extends CommandController
 {
+    /**
+     * Key under which configuration are found in
+     * Framework configuration.
+     * There is no automatism for retrieving the proper TypoScript configuration of command controllers.
+     */
+    const SETTINGS_KEY = 'transfer';
+
     /**
      * @var array
      */
@@ -150,4 +158,18 @@ class TransferCommandController extends CommandController
         }
     }
 
+    /**
+     * initialize object
+     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
+     */
+    public function initializeObject()
+    {
+        $extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
+        );
+
+        if (isset($extbaseFrameworkConfiguration['settings'][static::SETTINGS_KEY])) {
+            $this->settings = $extbaseFrameworkConfiguration['settings'][static::SETTINGS_KEY];
+        }
+    }
 }

@@ -19,7 +19,6 @@ namespace CPSIT\T3importExport\Command;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3importExport\Controller\ExportController;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**
  * Class ExportCommandController
@@ -33,18 +32,4 @@ class ExportCommandController extends TransferCommandController
      * This should match the key for the ExportController
      */
     const SETTINGS_KEY = ExportController::SETTINGS_KEY;
-
-    /**
-     * initialize object
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
-     */
-    public function initializeObject() {
-        $extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
-        );
-
-        if (isset($extbaseFrameworkConfiguration['settings'][static::SETTINGS_KEY])) {
-            $this->settings = $extbaseFrameworkConfiguration['settings'][static::SETTINGS_KEY];
-        }
-    }
 }
