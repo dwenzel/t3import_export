@@ -1,3 +1,9 @@
+2018-02-20         [RELEASE] Release of t3import_export 0.14.0 (Dirk Wenzel)
+2018-02-20 808f34c [BUGFIX] fixed issue caused by type hinting concrete ConfigurationManager instead of  InterfaceFace (Dirk Wenzel)
+2018-02-19 bc535a5 [TASK] command controllers refactored: method initializeObject pulled up to parent too. Register ExportCommandController in ext_localconf.php (Dirk Wenzel)
+2018-02-16 9c1e436 [TASK] ExportCommandController implemented. ImportCommandController refactored: superclass extracted. (Dirk Wenzel)
+2017-12-06 e87bf53 [TASK] require php:^5.6 (Dirk Wenzel)
+
 2017-12-06         [RELEASE] Release of t3import_export 0.13.0 (Dirk Wenzel)
 2017-11-27 a201fdf [TASK] DataSourceDynamicRepository now recognizes additional placeholder for operands: today, yesterday, tomorrow. (Dirk Wenzel)
 2017-11-12 6597beb [TASK] PostProcessor GenerateFileReference now implements LoggingInterface and logs configuration errors. Unit tests added. (Dirk Wenzel)
