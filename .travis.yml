@@ -55,8 +55,9 @@ script:
   if [[ "$COVERAGE" == "1" ]]; then
     echo;
     echo "Running unit tests";
-    .Build/bin/phpunit --colors -c Tests/Build/UnitTests.xml Tests/Unit/ --coverage-clover .Build/log/coverage/clover.xml
-    sonar-scanner -Dproject.settings=.sonar-project.properties
+    .Build/bin/phpunit --colors -c Tests/Build/UnitTests.xml Tests/Unit/ \
+    --coverage-clover .Build/log/coverage/clover.xml \
+    --log-junit .Build/log/junit.xml
   fi
 
 - >
@@ -70,5 +71,7 @@ script:
 after_success:
 - >
   if [[ "$COVERAGE" == "1" ]]; then
+    rm -rf .Build/vendor/ .Build/Web/ .Build/bin/
+    sonar-scanner -Dproject.settings=.sonar-project.properties
     bash <(curl -s https://codecov.io/bash) -B $TRAVIS_BRANCH
   fi
