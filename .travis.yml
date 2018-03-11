@@ -24,8 +24,8 @@ addons:
   apt:
     packages:
       - parallel
-    sonarcloud:
-      organisation: dwenzel-github
+  sonarcloud:
+    organisation: dwenzel-github
 
 jdk:
   - oraclejdk8
