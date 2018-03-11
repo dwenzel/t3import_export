@@ -26,6 +26,9 @@ addons:
       - parallel
   sonarcloud:
     organisation: dwenzel-github
+    branches:
+      - master
+      - (develop|feature\/|release\/)[-]?.*
 
 jdk:
   - oraclejdk8
