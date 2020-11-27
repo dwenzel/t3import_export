@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Service;
 
 /***************************************************************
@@ -18,7 +19,12 @@ namespace CPSIT\T3importExport\Tests\Service;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\MissingDatabaseException;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
@@ -27,7 +33,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  * @package CPSIT\T3importExport\Tests\Service
  */
-class DatabaseConnectionServiceTest extends UnitTestCase
+class DatabaseConnectionServiceTest extends TestCase
 {
     /**
      * @var DatabaseConnectionService
@@ -35,13 +41,19 @@ class DatabaseConnectionServiceTest extends UnitTestCase
     protected $subject;
 
     /**
+     * @var ConnectionPool|MockObject
+     */
+    protected $connectionPool;
+
+    /**
      * set up the subject
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            DatabaseConnectionService::class, ['dummy']
-        );
+        $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->setMethods(['getConnectionByName'])
+            ->getMock();
+        $this->subject = new DatabaseConnectionService($this->connectionPool);
     }
 
     /**
@@ -72,13 +84,52 @@ class DatabaseConnectionServiceTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\MissingDatabaseException
-     * @expectedExceptionCode 1449363030
-     */
-    public function getDatabaseThrowsExceptionForMissingDatabase()
+    public function testGetDatabaseThrowsExceptionForMissingDatabase()
     {
+        $this->connectionPool->expects(self::atLeastOnce())
+            ->method('getConnectionByName')
+            ->willThrowException(new \Exception());
+
+        $this->expectException(MissingDatabaseException::class);
         $this->subject->getDatabase('nonExistingIdentifier');
+    }
+
+    public function testGetConnectionPoolReturnsInstanceOfConnectionPool(): void
+    {
+        self::assertInstanceOf(
+            ConnectionPool::class,
+            DatabaseConnectionService::getConnectionPool()
+        );
+    }
+
+    public function connectionNamesDataProvider(): array
+    {
+        return [
+            'empty' => [[], 'foo', false],
+            'unknown identifier' => [['default'], 'bar', false],
+            'known identifier' => [['default'], 'default', true],
+        ];
+    }
+
+    /**
+     * @param array $connectionNames
+     * @param string $identifier
+     * @param bool $expected
+     * @dataProvider connectionNamesDataProvider
+     */
+    public function testIsRegisteredChecksConnectionNamesFromConnectionPool(
+        array $connectionNames,
+        string $identifier,
+        bool $expected
+    ): void
+    {
+        $this->connectionPool->expects(self::atLeastOnce())
+            ->method('getConnectionNames')
+            ->willReturn($connectionNames);
+
+        self::assertSame(
+            $expected,
+            $this->subject::isRegistered($identifier)
+        );
     }
 }
