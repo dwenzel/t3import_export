@@ -26,7 +26,9 @@ return [
             'endtime' => 'endtime',
         ],
         'searchFields' => 'title,description',
-        'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('t3import_export') . 'Resources/Public/Icons/tx_t3events_domain_model_event.gif'
+        'typeicon_classes' => [
+            'default' => \CPSIT\T3importExport\Configuration\SettingsInterface::ICON_IDENTIFIER_EXPORT_TARGET
+        ],
     ],
         'interface' => [
         'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title,

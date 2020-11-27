@@ -47,5 +47,7 @@ if (TYPO3_MODE === 'BE') {
         ]
     );
 
-    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_t3importexport_domain_model_exporttarget');
+    \CPSIT\T3importExport\Configuration\ExtensionConfiguration::configureTables();
+    \CPSIT\T3importExport\Configuration\ExtensionConfiguration::registerIcons();
+    \CPSIT\T3importExport\Configuration\ExtensionConfiguration::registerAndConfigureModules();
 }
