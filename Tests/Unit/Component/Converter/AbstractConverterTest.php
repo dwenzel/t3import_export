@@ -2,6 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /***************************************************************
@@ -35,7 +36,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\AbstractConverter
  */
-class AbstractConverterTest extends UnitTestCase
+class AbstractConverterTest extends TestCase
 {
 
     /**
@@ -48,9 +49,7 @@ class AbstractConverterTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMockForAbstractClass(
-            AbstractConverter::class
-        );
+        $this->subject = $this->getMockForAbstractClass(AbstractConverter::class);
     }
 
     /**
@@ -58,7 +57,7 @@ class AbstractConverterTest extends UnitTestCase
      */
     public function isConfigurationValidInitiallyReturnsTrue()
     {
-        $this->assertTrue(
+        self::assertTrue(
             $this->subject->isConfigurationValid([])
         );
     }

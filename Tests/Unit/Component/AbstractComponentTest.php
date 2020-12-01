@@ -4,6 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Tests\UnitTestCase;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
@@ -31,7 +32,7 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class AbstractComponentTest extends UnitTestCase
+class AbstractComponentTest extends TestCase
 {
 
     /**
@@ -78,12 +79,11 @@ class AbstractComponentTest extends UnitTestCase
      */
     public function injectSignalSlotDispatcherSetsDispatcher()
     {
-        $mockDispatcher = $this->getMock(
-            Dispatcher::class
-        );
+        $mockDispatcher = $this->getMockBuilder(Dispatcher::class)
+            ->getMock();
 
         $this->subject->injectSignalSlotDispatcher($mockDispatcher);
-        $this->assertAttributeSame(
+        self::assertAttributeSame(
             $mockDispatcher,
             'signalSlotDispatcher',
             $this->subject
