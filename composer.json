@@ -23,7 +23,7 @@
   },
   "replace": {
     "t3import_export": "self.version",
-    "cpsit/t3import-export": "self.version",
+    "cpsit/t3import_export": "self.version",
     "typo3-ter/t3import_export": "self.version"
   },
   "require-dev": {
