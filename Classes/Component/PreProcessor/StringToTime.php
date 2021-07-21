@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /***************************************************************
@@ -48,10 +49,10 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process($configuration, &$record)
     {
-        $this->fields = ArrayUtility::trimExplode(',', $configuration['fields'], true);
+        $this->fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         $this->convertFields($record);
         if (isset($configuration['multipleRowFields'])) {
-            $multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], true);
+            $multipleRowFields = GeneralUtility::trimExplode(',', $configuration['multipleRowFields'], true);
             foreach ($multipleRowFields as $field) {
                 if (is_array($record[$field])) {
                     foreach ($record[$field] as $key => $row) {
