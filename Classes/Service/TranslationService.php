@@ -34,9 +34,16 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
 
     /**
      * @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper
-     * @inject
      */
     protected $dataMapper;
+
+    /**
+     * @param \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper $dataMapper
+     */
+    public function injectDataMapper(\TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper $dataMapper): void
+    {
+        $this->dataMapper = $dataMapper;
+    }
 
     /**
      * Translates a domain object
