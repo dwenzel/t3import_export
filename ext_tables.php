@@ -4,6 +4,8 @@ if (!defined('TYPO3_MODE')) {
 }
 
 if (TYPO3_MODE === 'BE') {
+    $_EXTKEY = 't3import_export';
+
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
         'T3importExport',
         '',
@@ -17,12 +19,12 @@ if (TYPO3_MODE === 'BE') {
     );
 
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-        'CPSIT.' . $_EXTKEY,
+        $_EXTKEY,
         'system',
         'Import',
         '',
         [
-            'Import' => 'index,importTask,importSet',
+            \CPSIT\T3importExport\Controller\ImportController::class => 'index,importTask,importSet',
         ],
         [
             'access' => 'user,group',
@@ -31,12 +33,12 @@ if (TYPO3_MODE === 'BE') {
         ]
     );
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-        'CPSIT.' . $_EXTKEY,
+        $_EXTKEY,
         'system',
         'Export',
         '',
         [
-            'Export' => 'index,exportTask,exportSet',
+            \CPSIT\T3importExport\Controller\ExportController::class => 'index,exportTask,exportSet',
         ],
         [
             'access' => 'user,group',
