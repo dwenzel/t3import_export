@@ -5,8 +5,8 @@ use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Object\UnknownClassException;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /***************************************************************
@@ -121,7 +121,7 @@ class DataTargetRepository implements DataTargetInterface
      * Gets the repository
      *
      * @return Repository
-     * @throws UnknownClassException
+     * @throws Exception
      */
     protected function getRepository()
     {
@@ -131,7 +131,7 @@ class DataTargetRepository implements DataTargetInterface
                 /** Repository $this->repository */
                 $this->repository = $this->objectManager->get($repositoryClass);
             } else {
-                throw new UnknownClassException();
+                throw new Exception();
             }
         }
 
