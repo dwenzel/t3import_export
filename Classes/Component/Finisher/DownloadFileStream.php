@@ -75,7 +75,7 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface, 
 
             if (!empty($configuration['fileExt'])) {
                 $fileExt = $configuration['fileExt'];
-                if ($fileExt{0} !== '.') {
+                if ($fileExt[0] !== '.') {
                     $fileExt = '.' . $fileExt;
                 }
             }
