@@ -78,12 +78,13 @@ class DataSourceDynamicRepository implements DataSourceInterface
      */
     private function getRepositoryFromEntityClass($entityClassName)
     {
+        $result = $this->findRepositoryByManipulateEntityName($entityClassName);
 
-        if ($this->objectManager->isRegistered($entityClassName)) {
-            return $this->findRepositoryByManipulateEntityName($entityClassName);
+        if (!$result) {
+            throw new MissingClassException('Entity: ' . $entityClassName . 'could not be resolved');
         }
 
-        throw new MissingClassException('Entity: ' . $entityClassName . 'could not be resolved');
+        return $result;
     }
 
     /**
@@ -96,11 +97,13 @@ class DataSourceDynamicRepository implements DataSourceInterface
         $entityClassName .= 'Repository';
         $entityRepositoryName = str_replace('\\Model\\', '\\Repository\\', $entityClassName);
 
-        if ($this->objectManager->isRegistered($entityRepositoryName)) {
-            return $this->objectManager->get($entityRepositoryName);
+        $result = $this->objectManager->get($entityRepositoryName);
+
+        if (!$result) {
+            throw new MissingClassException('Repository: ' . $entityClassName . 'could not be resolved');
         }
 
-        throw new MissingClassException('Repository: ' . $entityClassName . 'could not be resolved');
+        return $result;
     }
 
     /**

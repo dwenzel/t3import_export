@@ -63,7 +63,6 @@ class ResourcePathConfigurationValidator implements ConfigurationValidatorInterf
      *
      * @param $path
      * @return string
-     * @coverageIgnore
      */
     protected function getAbsoluteFilePath($path)
     {

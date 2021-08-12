@@ -1,7 +1,11 @@
 <?php
 namespace CPSIT\T3importExport;
 
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Http\ServerRequestFactory;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -38,7 +42,26 @@ trait RenderContentTrait
          * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
          */
        if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
-           $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, 0);
+           $fakeSiteConfiguration = [
+               'languages' => [
+                   [
+                       'languageId' => 0,
+                       'title' => 'Dummy',
+                       'navigationTitle' => '',
+                       'typo3Language' => '',
+                       'flag' => '',
+                       'locale' => '',
+                       'iso-639-1' => '',
+                       'hreflang' => '',
+                       'direction' => '',
+                   ],
+               ],
+           ];
+
+           /** @var \TYPO3\CMS\Core\Site\Entity\SiteLanguage $currentSiteLanguage */
+           $currentSiteLanguage = GeneralUtility::makeInstance(Site::class, 'form-dummy', 1, $fakeSiteConfiguration)
+               ->getLanguageById(0);
+           $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, $currentSiteLanguage);
        }
     }
 
