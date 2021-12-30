@@ -44,7 +44,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
 {
     use ObjectManagerTrait;
 
-    const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
     /**
      * @var PropertyMapper
      */
@@ -122,7 +121,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
             'configuration' => $configuration,
             'record' => $record
         ];
-        $this->emitSignal(self::BEFORE_CONVERT_SIGNAL, $slotVariables);
         return $this->propertyMapper->convert(
             $record,
             $configuration['targetClass'],

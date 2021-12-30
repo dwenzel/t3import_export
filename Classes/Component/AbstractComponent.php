@@ -39,19 +39,6 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
     use ConfigurableTrait, RenderContentTrait, ObjectManagerTrait;
 
     /**
-     * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
-     */
-    protected $signalSlotDispatcher;
-
-    /**
-     * @param Dispatcher $signalSlotDispatcher
-     */
-    public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
-    {
-        $this->signalSlotDispatcher = $signalSlotDispatcher;
-    }
-
-    /**
      * Tells if the component is disabled
      *
      * @param array $configuration
@@ -89,26 +76,5 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
         }
 
         return false;
-    }
-
-    /**
-     * Emits signals
-     *
-     * @param string $name Signal name
-     * @param array $arguments Signal arguments
-     * @codeCoverageIgnore
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
-     */
-    protected function emitSignal($name, array &$arguments)
-    {
-
-        /**
-         * Wrap arguments into array in order to allow changing the arguments
-         * count. Dispatcher throws InvalidSlotReturnException if slotResult count
-         * differs.
-         */
-        $slotResult = $this->signalSlotDispatcher->dispatch(get_class($this), $name, [$arguments]);
-        $arguments = $slotResult[0];
     }
 }
