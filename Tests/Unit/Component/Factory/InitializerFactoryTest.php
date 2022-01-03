@@ -4,8 +4,11 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\Factory\InitializerFactory;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
 /***************************************************************
  *
@@ -68,9 +71,14 @@ class InitializerFactoryTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Component\Factory\InitializerFactory
+     * @var InitializerFactory
      */
     protected $subject;
+
+    /**
+     * @var ObjectManagerInterface|MockObject
+     */
+    protected $objectManager;
 
     /**
      *
@@ -78,27 +86,23 @@ class InitializerFactoryTest extends TestCase
     public function setUp()
     {
         $this->subject = new InitializerFactory();
+        $this->objectManager = $this->getMockForAbstractClass(ObjectManagerInterface::class);
+        $this->subject->injectObjectManager($this->objectManager);
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1454588350
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet()
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1454588350);
         $configurationWithoutClassName = ['bar'];
 
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1454588360
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1454588360);
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
@@ -107,13 +111,11 @@ class InitializerFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1454588370
-     */
-    public function getThrowsExceptionIfClassDoesNotImplementInitializerInterface()
+    public function testGetThrowsExceptionIfClassDoesNotImplementInitializerInterface()
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1454588370);
+
         $configurationWithExistingClass = [
             'class' => DummyInvalidInitializer::class
         ];
@@ -132,15 +134,13 @@ class InitializerFactoryTest extends TestCase
         $settings = [
             'class' => $validClass,
         ];
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockInitializer = $this->getMock($validClass);
-        $mockObjectManager->expects($this->once())
+        $mockInitializer = $this->getMockBuilder($validClass)
+            ->getMock();
+        $this->objectManager->expects($this->once())
             ->method('get')
-            ->with($validClass)
-            ->will($this->returnValue($mockInitializer));
+            ->with(...[$validClass])
+            ->willReturn($mockInitializer);
+
         $this->assertEquals(
             $mockInitializer,
             $this->subject->get($settings, $identifier)

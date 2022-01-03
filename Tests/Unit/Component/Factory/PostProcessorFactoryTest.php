@@ -1,11 +1,13 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class DummyValidPostProcessor
@@ -22,7 +24,7 @@ class DummyValidPostProcessor extends AbstractPostProcessor implements PostProce
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process($configuration, &$convertedRecord, &$record): bool
     {
         return true;
     }
@@ -62,44 +64,36 @@ class DummyValidPostProcessor extends AbstractPostProcessor implements PostProce
 class DummyInvalidPostProcessor
 {
 }
+
 /**
  * Class PostProcessorFactoryTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class PostProcessorFactoryTest extends TestCase
 {
+    use MockObjectManagerTrait;
 
-    /**
-     * @var \CPSIT\T3importExport\Component\Factory\PostProcessorFactory
-     */
-    protected $subject;
+    protected PostProcessorFactory $subject;
+
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-                PostProcessorFactory::class, ['dummy']
-        );
+        $this->subject = new PostProcessorFactory();
+        $this->mockObjectManager();
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1447864207
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1447864207);
         $configurationWithoutClassName = ['bar'];
 
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1447864223
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1447864223);
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
@@ -108,13 +102,10 @@ class PostProcessorFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1447864243
-     */
-    public function getThrowsExceptionIfClassDoesNotImplementPostProcessorInterface()
+    public function testGetThrowsExceptionIfClassDoesNotImplementPostProcessorInterface(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1447864243);
         $configurationWithExistingClass = [
             'class' => DummyInvalidPostProcessor::class
         ];
@@ -123,28 +114,22 @@ class PostProcessorFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getReturnsPostProcessor()
+    public function testGetReturnsPostProcessor(): void
     {
         $identifier = 'fooIdentifier';
         $validClass = DummyValidPostProcessor::class;
-        $validSingleConfiguration = ['foo' => 'bar'];
         $settings = [
             'class' => $validClass,
         ];
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockPreProcessor = $this->getMock($validClass);
-        $mockObjectManager->expects($this->once())
+        $mockPostProcessor = $this->getMockBuilder($validClass)->getMock();
+        $this->objectManager->expects($this->once())
             ->method('get')
-            ->with($validClass)
-            ->will($this->returnValue($mockPreProcessor));
+            ->with(...[$validClass])
+            ->willReturn($mockPostProcessor);
+
+        /** @noinspection PhpUnhandledExceptionInspection */
         $this->assertEquals(
-            $mockPreProcessor,
+            $mockPostProcessor,
             $this->subject->get($settings, $identifier)
         );
     }

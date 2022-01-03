@@ -1,8 +1,11 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\ClearCache;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;
 
@@ -23,74 +26,46 @@ use TYPO3\CMS\Extbase\Service\CacheService;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
 class ClearCacheTest extends TestCase
 {
+    protected ClearCache $subject;
+
     /**
-     * @var ClearCache
+     * @var CacheService|MockObject
      */
-    protected $subject;
+    protected $cacheService;
 
     /**
      * Set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            ClearCache::class, ['dummy']
-        );
+        $this->subject = new ClearCache();
+        $this->mockCacheService();
     }
 
-    /**
-     * @return mixed
-     */
-    protected function mockCacheService()
+    protected function mockCacheService(): void
     {
-        $mockCacheService = $this->getMock(
-            CacheService::class, ['clearPageCache']
-        );
-        $this->subject->injectCacheService($mockCacheService);
-
-        return $mockCacheService;
+        $this->cacheService = $this->getMockBuilder(CacheService::class)
+            ->setMethods(['clearPageCache'])
+            ->getMock();
+        $this->subject->injectCacheService($this->cacheService);
     }
 
-    /**
-     * @test
-     */
-    public function injectCacheServiceSetsObject()
-    {
-        $mockCacheService = $this->getMock(
-            CacheService::class
-        );
-        $this->subject->injectCacheService($mockCacheService);
-
-        $this->assertAttributeSame(
-            $mockCacheService,
-            'cacheService',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function processDoesNotClearCacheForEmptyResult()
+    public function testProcessDoesNotClearCacheForEmptyResult(): void
     {
         $configuration = [];
         $records = ['foo'];
         $result = [];
 
-        $mockCacheService = $this->mockCacheService();
-        $mockCacheService->expects($this->never())
+        $this->cacheService->expects($this->never())
             ->method('clearPageCache');
 
         $this->subject->process($configuration, $records, $result);
     }
 
-    /**
-     * @test
-     */
-    public function processClearsAllCachesIfGlobalOptionIsset()
+    public function testProcessClearsAllCachesIfGlobalOptionIsset(): void
     {
         $configuration = [
             'all' => '1'
@@ -98,18 +73,14 @@ class ClearCacheTest extends TestCase
         $records = ['foo'];
         $nonEmptyResult = ['bar'];
 
-        $mockCacheService = $this->mockCacheService();
-        $mockCacheService->expects($this->once())
+        $this->cacheService->expects($this->once())
             ->method('clearPageCache')
             ->with(null);
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
-    /**
-     * @test
-     */
-    public function processClearsSelectedPagesCachesIfGlobalOptionIsset()
+    public function testProcessClearsSelectedPagesCachesIfGlobalOptionIsset(): void
     {
         $configuration = [
             'pages' => '1,5,7'
@@ -119,18 +90,14 @@ class ClearCacheTest extends TestCase
         $expectedPagesToClear = GeneralUtility::intExplode(
             ',', $configuration['pages'], true
         );
-        $mockCacheService = $this->mockCacheService();
-        $mockCacheService->expects($this->once())
+        $this->cacheService->expects($this->once())
             ->method('clearPageCache')
             ->with($expectedPagesToClear);
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
-    /**
-     * @test
-     */
-    public function processClearsAllCachesIfResultClassMatchesConfiguration()
+    public function testProcessClearsAllCachesIfResultClassMatchesConfiguration(): void
     {
         $configuration = [
             'classes' => [
@@ -141,21 +108,17 @@ class ClearCacheTest extends TestCase
         ];
         $records = ['foo'];
         $nonEmptyResult = [
-            new \stdClass()
+            new stdClass()
         ];
 
-        $mockCacheService = $this->mockCacheService();
-        $mockCacheService->expects($this->once())
+        $this->cacheService->expects($this->once())
             ->method('clearPageCache')
             ->with(null);
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
-    /**
-     * @test
-     */
-    public function processClearsSelectedPageCachesIfResultClassMatchesConfiguration()
+    public function testProcessClearsSelectedPageCachesIfResultClassMatchesConfiguration(): void
     {
         $configuration = [
             'classes' => [
@@ -170,21 +133,17 @@ class ClearCacheTest extends TestCase
 
         $records = ['foo'];
         $nonEmptyResult = [
-            new \stdClass()
+            new stdClass()
         ];
 
-        $mockCacheService = $this->mockCacheService();
-        $mockCacheService->expects($this->once())
+        $this->cacheService->expects($this->once())
             ->method('clearPageCache')
             ->with($expectedPagesToClear);
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidAlwaysReturnsTrue()
+    public function testIsConfigurationValidAlwaysReturnsTrue(): void
     {
         $configuration = [];
         $this->assertTrue(
@@ -192,10 +151,7 @@ class ClearCacheTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processSkipsIfResultClassDoesNotMatch()
+    public function testProcessSkipsIfResultClassDoesNotMatch(): void
     {
         $configuration = [
             'classes' => [
@@ -207,11 +163,10 @@ class ClearCacheTest extends TestCase
 
         $records = ['foo'];
         $nonEmptyResult = [
-            new \stdClass()
+            new stdClass()
         ];
 
-        $mockCacheService = $this->mockCacheService();
-        $mockCacheService->expects($this->never())
+        $this->cacheService->expects($this->never())
             ->method('clearPageCache');
 
         $this->subject->process($configuration, $records, $nonEmptyResult);

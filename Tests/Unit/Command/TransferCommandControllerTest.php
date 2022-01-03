@@ -9,10 +9,14 @@ use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Tests\Unit\Persistence\MockModelObject;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
 /***************************************************************
  *
@@ -47,6 +51,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class TransferCommandControllerTest extends TestCase
 {
+    use MockObjectManagerTrait;
 
     /**
      * @var TransferCommandController
@@ -54,82 +59,48 @@ class TransferCommandControllerTest extends TestCase
     protected $subject;
 
     /**
+     * @var DataTransferProcessor|MockObject
+     */
+    protected $transferProcessor;
+
+    /**
+     * @var TransferTaskFactory|MockObject
+     */
+    protected $transferTaskFactory;
+
+    /**
+     * @var TransferSetFactory|MockObject
+     */
+    protected $transferSetFactory;
+
+    /**
+     * @var ConfigurationManagerInterface|MockObject
+     */
+    protected $configurationManager;
+
+    /**
      * set up
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            TransferCommandController::class, ['dummy']
-        );
-    }
+        $this->markTestSkipped('Todo: replace ExtbaseCommandController by Symfony Command');
 
-    /**
-     * @test
-     * @covers ::injectDataTransferProcessor
-     */
-    public function injectDataTransferProcessorForObjectSetsDataTransferProcessor()
-    {
-        /** @var DataTransferProcessor $expectedProcessor */
-        $expectedProcessor = $this->getMock(
-            DataTransferProcessor::class);
-        $this->subject->injectDataTransferProcessor($expectedProcessor);
-
-        $this->assertAttributeSame(
-            $expectedProcessor,
-            'dataTransferProcessor',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectTransferTaskFactorySetsFactory()
-    {
-        /** @var TransferTaskFactory $factory */
-        $factory = $this->getMock(
-            TransferTaskFactory::class
-        );
-        $this->subject->injectTransferTaskFactory($factory);
-        $this->assertAttributeSame(
-            $factory,
-            'transferTaskFactory',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectTransferSetFactorySetsFactory()
-    {
-        /** @var TransferSetFactory $factory */
-        $factory = $this->getMock(
-            TransferSetFactory::class
-        );
-        $this->subject->injectTransferSetFactory($factory);
-        $this->assertAttributeSame(
-            $factory,
-            'transferSetFactory',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectConfigurationManagerSetsConfigurationManagerAndSettings()
-    {
-        /** @var ConfigurationManager|\PHPUnit_Framework_MockObject_MockObject $configurationManager */
-        $configurationManager = $this->getMockBuilder(ConfigurationManager::class)
+        $this->transferProcessor = $this->getMockBuilder(DataTransferProcessor::class)
+            ->setMethods(['buildQueue', 'process'])
             ->getMock();
-        $this->subject->injectConfigurationManager($configurationManager);
+        $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
+            ->setMethods(['get'])
+            ->getMock();
+        $this->transferSetFactory = $this->getMockBuilder(TransferSetFactory::class)
+            ->getMock();
+        $this->configurationManager = $this->getMockForAbstractClass(ConfigurationManagerInterface::class);
+        $this->mockObjectManager();
 
-        $this->assertAttributeSame(
-            $configurationManager,
-            'configurationManager',
-            $this->subject
-        );
+        $this->subject = new TransferCommandController();
+        $this->subject->injectDataTransferProcessor($this->transferProcessor);
+        $this->subject->injectTransferTaskFactory($this->transferTaskFactory);
+        $this->subject->injectTransferSetFactory($this->transferSetFactory);
+        $this->subject->injectConfigurationManager($this->configurationManager);
     }
 
     /**
@@ -144,45 +115,32 @@ class TransferCommandControllerTest extends TestCase
                 $identifier => ['bar']
             ]
         ];
-        $this->inject($this->subject, 'settings', $settings);
+        $this->subject = $this->subject->withSettings($settings);
 
         $mockTask = $this->getMockBuilder(TransferTask::class)->getMock();
-        /** @var TransferTaskFactory|\PHPUnit_Framework_MockObject_MockObject $transferTaskFactory */
-        $transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
-            ->setMethods(['get'])->getMock();
-        $transferTaskFactory->expects($this->once())
+
+        $this->transferTaskFactory->expects($this->once())
             ->method('get')
             ->with($settings['tasks'][$identifier])
-            ->will($this->returnValue($mockTask));
-        $this->subject->injectTransferTaskFactory($transferTaskFactory);
+            ->willReturn($mockTask);
 
         /** @var DataTransferProcessor|\PHPUnit_Framework_MockObject_MockObject $dataTransferProcessor */
-        $dataTransferProcessor = $this->getMockBuilder(DataTransferProcessor::class)
+        $this->transferProcessor = $this->getMockBuilder(DataTransferProcessor::class)
             ->setMethods(['buildQueue', 'process'])
             ->disableOriginalConstructor()
             ->getMock();
         $task = 'foo';
         $mockDemand = $this->getMockBuilder(DemandInterface::class)->getMock();
-        $dataTransferProcessor->expects($this->once())
+        $this->transferProcessor->expects($this->once())
             ->method('buildQueue')
-            ->with($mockDemand);
-        $dataTransferProcessor->expects($this->once())
+            ->with(...[$mockDemand]);
+        $this->transferProcessor->expects($this->once())
             ->method('process')
-            ->with($mockDemand);
-        $this->subject->injectDataTransferProcessor($dataTransferProcessor);
-        /** @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject $mockObjectManager */
-        $mockObjectManager = $this->getMockBuilder(ObjectManager::class)
-            ->setMethods(['get'])->getMock();
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockDemand));
+            ->with(...[$mockDemand]);
 
-        // we have to use magic method here since parents injection method calls get-Method of dependency!
-        /** @noinspection PhpUndefinedMethodInspection */
-        $this->subject->_set(
-            'objectManager',
-            $mockObjectManager
-        );
+        $this->objectManager->expects($this->once())
+            ->method('get')
+            ->willReturn($mockDemand);
 
         $this->subject->taskCommand($task);
     }
@@ -199,55 +157,35 @@ class TransferCommandControllerTest extends TestCase
                 $identifier => ['bar']
             ]
         ];
-        $this->inject($this->subject, 'settings', $settings);
-        $mockSet = $this->getMock(
-            TransferSet::class, ['getTasks']
-        );
+        $this->subject = $this->subject->withSettings($settings);
+
+        $mockSet = $this->getMockBuilder(TransferSet::class)
+            ->setMethods(['getTasks'])->getMock();
         $mockSet->expects($this->once())
             ->method('getTasks')
             ->will($this->returnValue([]));
 
-        /** @var TransferSetFactory|\PHPUnit_Framework_MockObject_MockObject $transferSetFactory */
-        $transferSetFactory = $this->getMock(
-            TransferSetFactory::class, ['get']
-        );
-        $transferSetFactory->expects($this->once())
+        $this->transferSetFactory->expects($this->once())
             ->method('get')
             ->with($settings['sets'][$identifier])
-            ->will($this->returnValue($mockSet));
-        $this->subject->injectTransferSetFactory($transferSetFactory);
-        /** @var DataTransferProcessor|\PHPUnit_Framework_MockObject_MockObject $dataTransferProcessor */
-        $dataTransferProcessor = $this->getMock(
-            DataTransferProcessor::class,
-            ['buildQueue', 'process'], [], '', false
-        );
-        $set = 'foo';
+            ->willReturn($mockSet);
+
+       $set = 'foo';
         $result = ['bar'];
         $mockDemand = $this->getMock(
             DemandInterface::class
         );
-        $dataTransferProcessor->expects($this->once())
+        $this->transferProcessor->expects($this->once())
             ->method('buildQueue')
             ->with($mockDemand);
-        $dataTransferProcessor->expects($this->once())
+        $this->transferProcessor->expects($this->once())
             ->method('process')
             ->with($mockDemand)
-            ->will($this->returnValue($result));
-        $this->subject->injectDataTransferProcessor($dataTransferProcessor);
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class,
-            ['get']);
-        $mockObjectManager->expects($this->once())
+            ->willReturn($result);
+        $this->objectManager->expects($this->once())
             ->method('get')
-            ->will($this->returnValue($mockDemand));
-        // we have to use magic method here since parents injection method calls get-Method of dependency!
-        /** @noinspection PhpUndefinedMethodInspection */
-        $this->subject->_set(
-            'objectManager',
-            $mockObjectManager
-        );
-
-
+            ->willReturn($mockDemand);
         $this->subject->setCommand($set);
     }
+
 }

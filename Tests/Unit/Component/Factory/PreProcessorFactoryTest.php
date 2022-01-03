@@ -1,11 +1,13 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
  *
@@ -31,6 +33,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Class DummyInvalidPreProcessor
  * Does not implement PreProcessorInterface
@@ -52,8 +55,9 @@ class DummyValidPreProcessor extends AbstractPreProcessor implements PreProcesso
      * @param array $configuration
      * @param array $record
      * @return bool
+     * @noinspection PhpMissingParamTypeInspection
      */
-    public function process($configuration, &$record)
+    public function process($configuration, &$record): bool
     {
         return true;
     }
@@ -66,42 +70,34 @@ class DummyValidPreProcessor extends AbstractPreProcessor implements PreProcesso
  */
 class PreProcessorFactoryTest extends TestCase
 {
+    use MockObjectManagerTrait;
 
-    /**
-     * @var \CPSIT\T3importExport\Component\Factory\PreProcessorFactory
-     */
-    protected $subject;
+    protected PreProcessorFactory $subject;
 
     /**
      *
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            PreProcessorFactory::class,
-            ['dummy']
-        );
+        $this->subject = new PreProcessorFactory();
+        $this->mockObjectManager();
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1447427020
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1447427020);
+
         $configurationWithoutClassName = ['bar'];
 
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1447427184
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1447427184);
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
@@ -110,13 +106,10 @@ class PreProcessorFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1447428235
-     */
-    public function getThrowsExceptionIfClassDoesNotImplementPreProcessorInterface()
+    public function testGetThrowsExceptionIfClassDoesNotImplementPreProcessorInterface(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1447428235);
         $configurationWithExistingClass = [
             'class' => DummyInvalidPreProcessor::class
         ];
@@ -125,26 +118,18 @@ class PreProcessorFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getReturnsPreProcessor()
+    public function testGetReturnsPreProcessor(): void
     {
         $identifier = 'fooIdentifier';
         $validClass = DummyValidPreProcessor::class;
-        $validSingleConfiguration = ['foo' => 'bar'];
         $settings = [
             'class' => $validClass,
         ];
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockPreProcessor = $this->getMock($validClass);
-        $mockObjectManager->expects($this->once())
+        $mockPreProcessor = $this->getMockBuilder($validClass)->getMock();
+        $this->objectManager->expects($this->once())
             ->method('get')
-            ->with($validClass)
-            ->will($this->returnValue($mockPreProcessor));
+            ->with(...[$validClass])
+            ->willReturn($mockPreProcessor);
         $this->assertEquals(
             $mockPreProcessor,
             $this->subject->get($settings, $identifier)

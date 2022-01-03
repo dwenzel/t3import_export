@@ -45,18 +45,14 @@ class AbstractFinisherTest extends TestCase
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMockForAbstractClass(
-            AbstractFinisher::class
-        );
+        $this->subject = $this->getMockForAbstractClass(AbstractFinisher::class);
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidInitiallyReturnsTrue()
+    public function testIsConfigurationValidInitiallyReturnsTrue(): void
     {
         $this->assertTrue(
             $this->subject->isConfigurationValid([])

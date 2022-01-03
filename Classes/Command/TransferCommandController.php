@@ -40,6 +40,18 @@ class TransferCommandController extends CommandController
      * @var array
      */
     protected $settings;
+
+    /**
+     * @param array $settings
+     * @return TransferCommandController
+     */
+
+    public function withSettings(array $settings): TransferCommandController
+    {
+        $this->settings = $settings;
+        return $this;
+    }
+
     /**
      * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
      */

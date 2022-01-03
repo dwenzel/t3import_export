@@ -32,7 +32,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  * Class MoveFileFromStream
  */
 class MoveFile extends AbstractFinisher
-    implements FinisherInterface, ConfigurableInterface, LoggingInterface
+    implements FinisherInterface, LoggingInterface
 {
     use LoggingTrait, ResourceFactoryTrait, ResourceStorageTrait;
 

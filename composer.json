@@ -19,7 +19,8 @@
   ],
   "require": {
     "php": ">=7.2",
-    "typo3/cms-core": ">=6.2.0,<10.9.99"
+    "typo3/cms-core": ">=10.4",
+    "ext-xmlreader": "*"
   },
   "replace": {
     "t3import_export": "self.version",
@@ -27,6 +28,8 @@
     "typo3-ter/t3import_export": "self.version"
   },
   "require-dev": {
+    "roave/security-advisories": "dev-latest"
+    ,
     "mikey179/vfsStream": "~1.6.0",
     "nimut/testing-framework": "^1.1",
     "phpunit/phpunit": "^4.8 || ^5.6"
