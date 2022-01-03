@@ -1,10 +1,12 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
+use CPSIT\T3importExport\Component\Factory\FinisherFactory;
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Component\Factory\FinisherFactory;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
@@ -31,6 +33,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Class DummyInvalidFinisher
  * Does not implement FinisherInterface
@@ -54,7 +57,7 @@ class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
      * @param array $result
      * @return bool
      */
-    public function process($configuration, &$records, &$result)
+    public function process($configuration, &$records, &$result): bool
     {
         return true;
     }
@@ -65,86 +68,69 @@ class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class FinisherFactoryTest extends UnitTestCase
+class FinisherFactoryTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Component\Factory\FinisherFactory
+     * @var FinisherFactory
      */
-    protected $subject;
+    protected FinisherFactory $subject;
 
-    /**
-     *
-     */
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            FinisherFactory::class,
-            ['dummy']
-        );
+        $this->subject = new FinisherFactory();
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1454187892
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
         $configurationWithoutClassName = ['bar'];
-
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1454187892);
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1454187903
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1454187903);
         $this->subject->get(
             $configurationWithNonExistingClass
         );
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1454187910
-     */
-    public function getThrowsExceptionIfClassDoesNotImplementFinisherInterface()
+    public function testGetThrowsExceptionIfClassDoesNotImplementFinisherInterface(): void
     {
         $configurationWithExistingClass = [
             'class' => DummyInvalidFinisher::class
         ];
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1454187910);
         $this->subject->get(
             $configurationWithExistingClass
         );
     }
 
-    /**
-     * @test
-     */
-    public function getReturnsFinisher()
+    public function testGetReturnsFinisher(): void
     {
         $identifier = 'fooIdentifier';
         $validClass = DummyValidFinisher::class;
         $settings = [
             'class' => $validClass,
         ];
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
+        $mockObjectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['get'])
+            ->getMock();
         $this->subject->injectObjectManager($mockObjectManager);
-        $mockFinisher = $this->getMock($validClass);
+        $mockFinisher = $this->getMockBuilder($validClass)->getMock();
         $mockObjectManager->expects($this->once())
             ->method('get')
-            ->with($validClass)
-            ->will($this->returnValue($mockFinisher));
+            ->with(...[$validClass])
+            ->willReturn($mockFinisher);
         $this->assertEquals(
             $mockFinisher,
             $this->subject->get($settings, $identifier)

@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Domain\Factory;
 
 use CPSIT\T3importExport\Factory\AbstractFactory;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -31,7 +31,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3importExport\Tests\Domain\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Factory\AbstractFactory
  */
-class AbstractFactoryTest extends UnitTestCase
+class AbstractFactoryTest extends TestCase
 {
 
     /**

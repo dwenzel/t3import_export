@@ -17,9 +17,9 @@ use CPSIT\T3importExport\Component\Initializer\DeleteFromTable;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\AccessibleObjectInterface;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
-class DeleteFromTableTest extends UnitTestCase
+class DeleteFromTableTest extends TestCase
 {
 
     /**

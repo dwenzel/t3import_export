@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Domain\Model;
 
 use CPSIT\T3importExport\Domain\Model\TransferSet;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 
 /***************************************************************
@@ -22,7 +22,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TransferSetTest extends UnitTestCase
+class TransferSetTest extends TestCase
 {
 
     /**

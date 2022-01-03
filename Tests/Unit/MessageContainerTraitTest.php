@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -26,7 +26,7 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 /**
  * Class MessageContainerTraitTest
  */
-class MessageContainerTraitTest extends UnitTestCase
+class MessageContainerTraitTest extends TestCase
 {
 
     /**

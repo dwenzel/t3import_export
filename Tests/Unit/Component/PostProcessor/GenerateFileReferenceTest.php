@@ -21,7 +21,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -31,7 +31,7 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 /**
  * Class GenerateFileReferenceTest
  */
-class GenerateFileReferenceTest extends UnitTestCase
+class GenerateFileReferenceTest extends TestCase
 {
     /**
      * @var GenerateFileReference|\PHPUnit_Framework_MockObject_MockObject

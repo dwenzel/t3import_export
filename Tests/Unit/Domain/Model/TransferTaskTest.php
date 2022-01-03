@@ -5,7 +5,7 @@ use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 
 /***************************************************************
@@ -25,7 +25,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TransferTaskTest extends UnitTestCase
+class TransferTaskTest extends TestCase
 {
 
     /**

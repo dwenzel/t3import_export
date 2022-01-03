@@ -19,12 +19,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
  ***************************************************************/
 
 use CPSIT\T3importExport\Messaging\Message;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageTest
  */
-class MessageTest extends UnitTestCase
+class MessageTest extends TestCase
 {
 
     /**

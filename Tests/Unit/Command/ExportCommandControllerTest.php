@@ -27,7 +27,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Command;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3importExport\Command\ExportCommandController;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
@@ -37,7 +37,7 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  * @package CPSIT\T3importExport\Tests\Unit\Command
  * @coversDefaultClass \CPSIT\T3importExport\Command\ExportCommandController
  */
-class ExportCommandControllerTest extends UnitTestCase
+class ExportCommandControllerTest extends TestCase
 {
     /**
      * @var ExportCommandController
@@ -49,9 +49,7 @@ class ExportCommandControllerTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            ExportCommandController::class, ['dummy']
-        );
+        $this->subject = new ExportCommandController();
     }
 
     /**

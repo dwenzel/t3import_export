@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Property;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationBuilder;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
@@ -31,7 +31,7 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  * @package CPSIT\T3importExport\Tests\Property
  * @coversDefaultClass \CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder
  */
-class PropertyMappingConfigurationBuilderTest extends UnitTestCase
+class PropertyMappingConfigurationBuilderTest extends TestCase
 {
 
     /**

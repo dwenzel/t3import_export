@@ -6,7 +6,7 @@ use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
@@ -134,7 +134,7 @@ class DummySourceClass implements DataSourceInterface
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataSourceFactory
  */
-class DataSourceFactoryTest extends UnitTestCase
+class DataSourceFactoryTest extends TestCase
 {
 
     /**

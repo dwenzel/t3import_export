@@ -20,7 +20,7 @@ use CPSIT\T3importExport\Persistence\DataTargetRepository;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 use CPSIT\T3importExport\InvalidConfigurationException;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -49,7 +49,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3importExport\Tests\Domain\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
  */
-class ImportTaskFactoryTest extends UnitTestCase
+class ImportTaskFactoryTest extends TestCase
 {
 
     /**

@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Domain\Model\Dto;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 
 /***************************************************************
@@ -27,7 +27,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  *
  * @package CPSIT\T3importExport\Tests\Domain\Model\Dto
  */
-class TaskDemandTest extends UnitTestCase
+class TaskDemandTest extends TestCase
 {
 
     /**

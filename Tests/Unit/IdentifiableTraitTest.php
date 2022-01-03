@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests;
 
 use CPSIT\T3importExport\IdentifiableTrait;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class IdentifiableTraitTest extends UnitTestCase
+class IdentifiableTraitTest extends TestCase
 {
 
     /**

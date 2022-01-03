@@ -6,7 +6,7 @@ use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -111,7 +111,7 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataTargetFactory
  */
-class DataTargetFactoryTest extends UnitTestCase
+class DataTargetFactoryTest extends TestCase
 {
 
     /**

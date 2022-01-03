@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -35,7 +35,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Finisher
  * @coversDefaultClass \CPSIT\T3importExport\Component\Finisher\AbstractFinisher
  */
-class AbstractFinisherTest extends UnitTestCase
+class AbstractFinisherTest extends TestCase
 {
 
     /**

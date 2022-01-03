@@ -21,12 +21,12 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\ObjectManagerTrait;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ObjectManagerTraitTest
  */
-class ObjectManagerTraitTest extends UnitTestCase
+class ObjectManagerTraitTest extends TestCase
 {
 
     /**

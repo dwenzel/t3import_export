@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
 
 /***************************************************************
@@ -28,7 +28,7 @@ use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
  */
-class MapFieldValuesTest extends UnitTestCase
+class MapFieldValuesTest extends TestCase
 {
 
     /**

@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\ClearCache;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;
 
@@ -24,7 +24,7 @@ use TYPO3\CMS\Extbase\Service\CacheService;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-class ClearCacheTest extends UnitTestCase
+class ClearCacheTest extends TestCase
 {
     /**
      * @var ClearCache

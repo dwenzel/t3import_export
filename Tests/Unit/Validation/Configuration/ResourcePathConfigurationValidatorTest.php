@@ -15,14 +15,14 @@ namespace CPSIT\T3importExport\Tests\Validation\Configuration;
  */
 
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 
 /**
  * Class ResourcePathConfigurationValidatorTest
  */
-class ResourcePathConfigurationValidatorTest extends UnitTestCase
+class ResourcePathConfigurationValidatorTest extends TestCase
 {
     /**
      * @var ResourcePathConfigurationValidator | \PHPUnit_Framework_MockObject_MockObject

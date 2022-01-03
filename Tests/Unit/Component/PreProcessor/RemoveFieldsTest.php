@@ -18,14 +18,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class RemoveFieldsTest
  *
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\RemoveFields
  */
-class RemoveFieldsTest extends UnitTestCase
+class RemoveFieldsTest extends TestCase
 {
     /**
      * @var \CPSIT\T3importExport\Component\PreProcessor\RemoveFields

@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnitTestsInspection */
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
 use CPSIT\T3importExport\Component\Converter\ArrayToXMLStream;
@@ -6,7 +7,8 @@ use CPSIT\T3importExport\Domain\Model\DataStream;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
@@ -42,140 +44,63 @@ use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
  */
-class ArrayToXMLStreamTest extends UnitTestCase
+class ArrayToXMLStreamTest extends TestCase
 {
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface|ArrayToXMLStream
+     * @var MockObject|ArrayToXMLStream
      */
     protected $subject;
+
+    /**
+     * @var ObjectManager|MockObject
+     */
+    protected $objectManager;
 
     /**
      *
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            ArrayToXMLStream::class,
-            ['dummy']
-        );
+        $this->subject = new ArrayToXMLStream();
+        $this->objectManager = $this->injectObjectManager();
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectManager
+     * @return MockObject|ObjectManager
      */
     protected function injectObjectManager()
     {
-        /** @var ObjectManager $mockObjectManager */
-        $mockObjectManager = $this->getMock(ObjectManager::class,
-            [], [], '', false);
+        /** @var ObjectManager|MockObject $mockObjectManager */
+        /** @noinspection ClassMockingCorrectnessInspection */
+        $mockObjectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->subject->injectObjectManager($mockObjectManager);
-
-        $this->assertSame(
-            $mockObjectManager,
-            $this->subject->_get('objectManager')
-        );
 
         return $mockObjectManager;
     }
 
-    protected function injectPropertyMapperObject()
-    {
-        /** @var PropertyMapper $mockPropertyMapper */
-        $mockPropertyMapper = $this->getAccessibleMock(
-            PropertyMapper::class,
-            ['dummy']
-        );
-
-        $this->subject->injectPropertyMapper($mockPropertyMapper);
-
-        $this->assertSame(
-            $mockPropertyMapper,
-            $this->subject->_get('propertyMapper')
-        );
-
-        return $mockPropertyMapper;
-    }
-
-    protected function injectPropertyMappingConfigurationBuilderObject()
-    {
-
-
-        /** @var PropertyMappingConfigurationBuilder $mockPropertyMappingBuilder */
-        $mockPropertyMappingBuilder = $this->getAccessibleMock(
-            PropertyMappingConfigurationBuilder::class,
-            ['dummy']
-        );
-
-        $this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingBuilder);
-
-        $this->assertSame(
-            $mockPropertyMappingBuilder,
-            $this->subject->_get('propertyMappingConfigurationBuilder')
-        );
-
-        return $mockPropertyMappingBuilder;
-    }
-
-    protected function injectTargetClassConfigurationValidatorObject()
-    {
-        /** @var TargetClassConfigurationValidator $MockTargetValidator */
-        $MockTargetValidator = $this->getAccessibleMock(
-            TargetClassConfigurationValidator::class,
-            ['dummy']
-        );
-
-        $this->subject->injectTargetClassConfigurationValidator($MockTargetValidator);
-
-        $this->assertSame(
-            $MockTargetValidator,
-            $this->subject->_get('targetClassConfigurationValidator')
-        );
-
-        return $MockTargetValidator;
-    }
-
-    protected function injectMappingConfigurationValidatorObject()
-    {
-        /** @var MappingConfigurationValidator $configurationValidator */
-        $configurationValidator = $this->getAccessibleMock(
-            MappingConfigurationValidator::class,
-            ['dummy']
-        );
-
-        $this->subject->injectMappingConfigurationValidator($configurationValidator);
-
-        $this->assertSame(
-            $configurationValidator,
-            $this->subject->_get('mappingConfigurationValidator')
-        );
-
-        return $configurationValidator;
-    }
-
-    /**
-     * @test
-     */
-    public function getMappingConfigurationTest()
+    public function testGetMappingConfiguration(): void
     {
         // test for default configurator
-        $mockedObjectManager = $this->injectObjectManager();
-        $mockPropertyMapping = $this->getMock(PropertyMappingConfiguration::class,
-            ['setTypeConverterOptions', 'skipUnknownProperties'], [], '', false);
-        $mockPropertyMapping->expects($this->once())
+        $propertyMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
+            ->setMethods(['setTypeConverterOptions', 'skipUnknownProperties'])
+            ->getMock();
+        $propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
-            ->will($this->returnValue($mockPropertyMapping));
+            ->will($this->returnValue($propertyMappingConfiguration));
 
-        $mockedObjectManager->expects($this->once())
+        $this->objectManager->expects($this->once())
             ->method('get')
-            ->with(PropertyMappingConfiguration::class)
-            ->will($this->returnValue($mockPropertyMapping));
+            ->with(...[PropertyMappingConfiguration::class])
+            ->will($this->returnValue($propertyMappingConfiguration));
 
         $configurator = $this->subject->getMappingConfiguration();
 
         $this->assertSame(
-            $mockPropertyMapping,
+            $propertyMappingConfiguration,
             $configurator
         );
 
@@ -183,15 +108,10 @@ class ArrayToXMLStreamTest extends UnitTestCase
         $configurator = $this->subject->getMappingConfiguration();
 
         $this->assertSame(
-            $mockPropertyMapping,
+            $propertyMappingConfiguration,
             $configurator
         );
 
-        /*
-        $this->injectMappingConfigurationValidatorObject();
-        $this->injectPropertyMapperObject();
-        $this->injectPropertyMappingConfigurationBuilderObject();
-        $this->injectTargetClassConfigurationValidatorObject();*/
     }
 
     /**
@@ -199,16 +119,15 @@ class ArrayToXMLStreamTest extends UnitTestCase
      */
     public function isConfigurationValidValidatesTargetClass()
     {
-        /** @var TargetClassConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedTargetValidator */
-        $mockedTargetValidator = $this->getMock(
-            TargetClassConfigurationValidator::class, ['validate']
-        );
+        /** @var TargetClassConfigurationValidator|MockObject $mockedTargetValidator */
+        $mockedTargetValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
+            ->setMethods(['validate'])
+            ->getMock();
         $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
 
-        /** @var MappingConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedMappingValidator */
-        $mockedMappingValidator = $this->getMock(
-            MappingConfigurationValidator::class
-        );
+        /** @var MappingConfigurationValidator|MockObject $mockedMappingValidator */
+        $mockedMappingValidator = $this->getMockBuilder(MappingConfigurationValidator::class)
+            ->getMock();
         $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 
 
@@ -227,17 +146,17 @@ class ArrayToXMLStreamTest extends UnitTestCase
      */
     public function isConfigurationValidValidatesMappingClass()
     {
-        /** @var TargetClassConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedTargetValidator */
-        $mockedTargetValidator = $this->getMock(
-            TargetClassConfigurationValidator::class, ['validate']
-        );
+        /** @var TargetClassConfigurationValidator|MockObject $mockedTargetValidator */
+        $mockedTargetValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
+            ->setMethods(['validate'])
+            ->getMock();
         $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
 
 
-        /** @var MappingConfigurationValidator|\PHPUnit_Framework_MockObject_MockObject $mockedMappingValidator */
-        $mockedMappingValidator = $this->getMock(
-            MappingConfigurationValidator::class, ['validate']
-        );
+        /** @var MappingConfigurationValidator|MockObject $mockedMappingValidator */
+        $mockedMappingValidator = $this->getMockBuilder(
+            MappingConfigurationValidator::class)->setMethods(['validate'])
+            ->getMock();
         $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 
 
@@ -269,7 +188,7 @@ class ArrayToXMLStreamTest extends UnitTestCase
         $objectManager = $this->injectObjectManager();
         $objectManager->expects($this->once())
             ->method('get')
-            ->with(DataStream::class)
+            ->with(...[DataStream::class])
             ->willReturn($resultObject);
 
         /** @var DataStream $result */
@@ -401,7 +320,7 @@ class ArrayToXMLStreamTest extends UnitTestCase
         $objectManager = $this->injectObjectManager();
         $objectManager->expects($this->once())
             ->method('get')
-            ->with(DataStream::class)
+            ->with(...[DataStream::class])
             ->willReturn($resultObject);
 
         /** @var DataStream $result */
@@ -424,5 +343,59 @@ class ArrayToXMLStreamTest extends UnitTestCase
 					</row>';
         $expected = preg_replace("/\r|\n|\t/", "", $expected);
         $this->assertEquals($expected, $result->getStreamBuffer());
+    }
+
+    /**
+     * @return MockObject|PropertyMapper
+     */
+    protected function injectPropertyMapperObject()
+    {
+        /** @var PropertyMapper|MockObject $mockPropertyMapper */
+        $mockPropertyMapper = $this->getMockBuilder(PropertyMapper::class)
+            ->getMock();
+
+        $this->subject->injectPropertyMapper($mockPropertyMapper);
+
+        return $mockPropertyMapper;
+    }
+
+    /**
+     * @return PropertyMappingConfigurationBuilder|MockObject
+     */
+    protected function injectPropertyMappingConfigurationBuilderObject()
+    {
+
+
+        /** @var PropertyMappingConfigurationBuilder|MockObject $mockPropertyMappingBuilder */
+        $mockPropertyMappingBuilder = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)
+            ->getMock();
+
+        $this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingBuilder);
+
+        return $mockPropertyMappingBuilder;
+    }
+
+    /**
+     * @return TargetClassConfigurationValidator|MockObject
+     */
+    protected function injectTargetClassConfigurationValidatorObject()
+    {
+        /** @var TargetClassConfigurationValidator|MockObject $targetClassConfigurationValidator */
+        $targetClassConfigurationValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
+            ->getMock();
+
+        $this->subject->injectTargetClassConfigurationValidator($targetClassConfigurationValidator);
+
+        return $targetClassConfigurationValidator;
+    }
+
+    protected function injectMappingConfigurationValidatorObject()
+    {
+        /** @var MappingConfigurationValidator $configurationValidator */
+        $configurationValidator = $this->getMockBuilder(MappingConfigurationValidator::class)
+            ->getMock();
+        $this->subject->injectMappingConfigurationValidator($configurationValidator);
+
+        return $configurationValidator;
     }
 }

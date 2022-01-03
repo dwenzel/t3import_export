@@ -19,7 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use TYPO3\CMS\Core\Resource\File;
@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 /**
  * Class GenerateFileResourceTest
  */
-class GenerateFileResourceTest extends UnitTestCase
+class GenerateFileResourceTest extends TestCase
 {
     /**
      * @var GenerateFileResource |\PHPUnit_Framework_MockObject_MockObject

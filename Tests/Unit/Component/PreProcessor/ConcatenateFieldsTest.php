@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
@@ -28,7 +28,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
  */
-class ConcatenateFieldsTest extends UnitTestCase
+class ConcatenateFieldsTest extends TestCase
 {
 
     /**

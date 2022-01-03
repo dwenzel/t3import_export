@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
@@ -67,7 +67,7 @@ class DummyInvalidPostProcessor
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class PostProcessorFactoryTest extends UnitTestCase
+class PostProcessorFactoryTest extends TestCase
 {
 
     /**

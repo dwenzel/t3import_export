@@ -3,7 +3,7 @@
 namespace CPSIT\T3importExport\Tests\Service;
 
 use CPSIT\T3importExport\Service\TranslationService;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
@@ -22,7 +22,7 @@ class DummyDomainObjectB extends AbstractEntity
 {
 }
 
-class TranslationServiceTest extends UnitTestCase
+class TranslationServiceTest extends TestCase
 {
     /**
      * Subject

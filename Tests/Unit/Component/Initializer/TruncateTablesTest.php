@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 use CPSIT\T3importExport\Component\Initializer\TruncateTables;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service\Initializer
  * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\TruncateTables
  */
-class TruncateTablesTest extends UnitTestCase
+class TruncateTablesTest extends TestCase
 {
 
     /**

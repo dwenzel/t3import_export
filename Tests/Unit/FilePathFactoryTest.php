@@ -16,12 +16,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Factory;
  */
 
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class FilePathFactoryTest
  */
-class FilePathFactoryTest extends UnitTestCase
+class FilePathFactoryTest extends TestCase
 {
 
     /**

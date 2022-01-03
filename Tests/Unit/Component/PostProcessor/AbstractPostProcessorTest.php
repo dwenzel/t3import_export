@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -27,7 +27,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
  */
-class AbstractPostProcessorTest extends UnitTestCase
+class AbstractPostProcessorTest extends TestCase
 {
 
     /**

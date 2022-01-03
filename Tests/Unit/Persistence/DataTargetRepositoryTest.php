@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -57,7 +57,7 @@ class MockRepositoryObjectRepository
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetRepository
  */
-class DataTargetRepositoryTest extends UnitTestCase
+class DataTargetRepositoryTest extends TestCase
 {
 
     /**

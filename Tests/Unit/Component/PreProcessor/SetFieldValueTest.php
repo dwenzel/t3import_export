@@ -19,14 +19,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3importExport\Component\PreProcessor\SetFieldValue;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SetFieldValueTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\PreProcessor
  */
-class SetFieldValueTest extends UnitTestCase
+class SetFieldValueTest extends TestCase
 {
     /**
      * @var SetFieldValue

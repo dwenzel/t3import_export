@@ -21,14 +21,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DataTargetDBTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  */
-class DataTargetDBTest extends UnitTestCase
+class DataTargetDBTest extends TestCase
 {
     /**
      * @var DataTargetDB

@@ -7,7 +7,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 /***************************************************************
@@ -31,7 +31,7 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 /**
  * Class WriteFileTest
  */
-class WriteFileTest extends UnitTestCase
+class WriteFileTest extends TestCase
 {
     /**
      * @var WriteFile

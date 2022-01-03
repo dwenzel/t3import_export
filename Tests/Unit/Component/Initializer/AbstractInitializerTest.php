@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -35,7 +35,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Initializer
  * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\AbstractInitializer
  */
-class AbstractInitializerTest extends UnitTestCase
+class AbstractInitializerTest extends TestCase
 {
 
     /**

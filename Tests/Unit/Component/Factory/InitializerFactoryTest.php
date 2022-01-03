@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\Factory\InitializerFactory;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
@@ -64,7 +64,7 @@ class DummyValidInitializer extends AbstractInitializer implements InitializerIn
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class InitializerFactoryTest extends UnitTestCase
+class InitializerFactoryTest extends TestCase
 {
 
     /**
@@ -77,10 +77,7 @@ class InitializerFactoryTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            InitializerFactory::class,
-            ['dummy']
-        );
+        $this->subject = new InitializerFactory();
     }
 
     /**

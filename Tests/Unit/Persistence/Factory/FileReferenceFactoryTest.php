@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -39,7 +39,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory
  */
-class FileReferenceFactoryTest extends UnitTestCase
+class FileReferenceFactoryTest extends TestCase
 {
 
     /**

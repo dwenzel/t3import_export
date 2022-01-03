@@ -19,14 +19,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
  * Class GenerateFileResourceTest
  */
-class GenerateFileTraitTest extends UnitTestCase
+class GenerateFileTraitTest extends TestCase
 {
     /**
      * @var GenerateFileTrait |\PHPUnit_Framework_MockObject_MockObject

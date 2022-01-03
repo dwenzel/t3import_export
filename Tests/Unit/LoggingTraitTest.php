@@ -23,7 +23,7 @@ use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainer;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
@@ -31,7 +31,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  * @package CPSIT\T3importExport\Tests\Unit
  */
-class LoggingTraitTest extends UnitTestCase
+class LoggingTraitTest extends TestCase
 {
     /**
      * @var LoggingTrait|\PHPUnit_Framework_MockObject_MockObject

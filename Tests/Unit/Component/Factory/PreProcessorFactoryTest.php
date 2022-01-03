@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
@@ -64,7 +64,7 @@ class DummyValidPreProcessor extends AbstractPreProcessor implements PreProcesso
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class PreProcessorFactoryTest extends UnitTestCase
+class PreProcessorFactoryTest extends TestCase
 {
 
     /**

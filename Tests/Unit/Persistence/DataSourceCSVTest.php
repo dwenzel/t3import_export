@@ -6,12 +6,12 @@ use CPSIT\T3importExport\Persistence\DataSourceCSV;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DataSourceCSVTest
  */
-class DataSourceCSVTest extends UnitTestCase
+class DataSourceCSVTest extends TestCase
 {
 
     /**

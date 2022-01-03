@@ -22,14 +22,14 @@ use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DatabaseTraitTest
  *
  * @package CPSIT\T3importExport\Tests\Unit
  */
-class DatabaseTraitTest extends UnitTestCase
+class DatabaseTraitTest extends TestCase
 {
     /**
      * @var DatabaseTrait

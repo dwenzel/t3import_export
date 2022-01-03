@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\T3importExport\Domain\Model\ExportTarget;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ExportTargetTest extends UnitTestCase
+class ExportTargetTest extends TestCase
 {
 
     /**

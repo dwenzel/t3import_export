@@ -20,13 +20,13 @@ namespace CPSIT\T3importExport\Tests\Unit;
  ***************************************************************/
 
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 
 /**
  * Class FileIndexRepositoryTraitTest
  */
-class FileIndexRepositoryTraitTest extends UnitTestCase
+class FileIndexRepositoryTraitTest extends TestCase
 {
 
     /**

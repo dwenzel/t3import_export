@@ -2,7 +2,7 @@
 namespace CPSIT\T3importExport\Tests;
 
 use CPSIT\T3importExport\RenderContentTrait;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Form\Controller\FrontendController;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
@@ -33,7 +33,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class RenderContentTraitTest extends UnitTestCase
+class RenderContentTraitTest extends TestCase
 {
 
     /**

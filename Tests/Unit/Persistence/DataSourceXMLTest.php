@@ -4,12 +4,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 use CPSIT\T3importExport\Persistence\DataSourceXML;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DataSourceXMLTest
  */
-class DataSourceXMLTest extends UnitTestCase
+class DataSourceXMLTest extends TestCase
 {
 
     /**

@@ -19,13 +19,13 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use CPSIT\T3importExport\Component\PreProcessor\AddArrays;
 
 /**
  * Class AddArraysTest
  */
-class AddArraysTest extends UnitTestCase
+class AddArraysTest extends TestCase
 {
     /**
      * @var AddArrays

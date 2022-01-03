@@ -7,7 +7,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use CPSIT\T3importExport\Persistence\DataTargetXMLStream;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -42,7 +42,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
-class DataTargetXMLStreamTest extends UnitTestCase
+class DataTargetXMLStreamTest extends TestCase
 {
 
     /**

@@ -20,14 +20,14 @@ namespace CPSIT\T3importExport\Tests\Service;
  ***************************************************************/
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DatabaseConnectionServiceTest
  *
  * @package CPSIT\T3importExport\Tests\Service
  */
-class DatabaseConnectionServiceTest extends UnitTestCase
+class DatabaseConnectionServiceTest extends TestCase
 {
     /**
      * @var DatabaseConnectionService

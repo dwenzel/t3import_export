@@ -22,12 +22,12 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use CPSIT\T3importExport\Resource\FileReferenceFactoryTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class FileReferenceFactoryTraitTest
  */
-class FileReferenceFactoryTraitTest extends UnitTestCase
+class FileReferenceFactoryTraitTest extends TestCase
 {
     /**
      * @var \CPSIT\T3importExport\Resource\FileReferenceFactoryTrait

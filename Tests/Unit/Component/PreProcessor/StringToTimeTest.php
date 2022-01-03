@@ -21,13 +21,13 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 
 use CPSIT\T3importExport\Component\PreProcessor\StringToTime;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class StringToTimeTest
  * @package CPSIT\T3importExport\Tests\Unit\Component\PreProcessor
  */
-class StringToTimeTest extends UnitTestCase
+class StringToTimeTest extends TestCase
 {
     /**
      * @var StringToTime

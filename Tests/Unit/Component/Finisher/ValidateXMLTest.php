@@ -8,7 +8,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 /***************************************************************
@@ -32,7 +32,7 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 /**
  * Class ValidateXMLTest
  */
-class ValidateXMLTest extends UnitTestCase
+class ValidateXMLTest extends TestCase
 {
     /**
      * @var ValidateXML|\PHPUnit_Framework_MockObject_MockObject

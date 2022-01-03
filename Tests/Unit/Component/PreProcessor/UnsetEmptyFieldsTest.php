@@ -15,12 +15,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * The TYPO3 project - inspiring people to share!
  */
 use CPSIT\T3importExport\Component\PreProcessor\UnsetEmptyFields;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class UnsetEmptyFieldsTest
  */
-class UnsetEmptyFieldsTest extends UnitTestCase
+class UnsetEmptyFieldsTest extends TestCase
 {
     /**
      * @var UnsetEmptyFields|\PHPUnit_Framework_MockObject_MockObject

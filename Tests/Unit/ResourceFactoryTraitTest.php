@@ -21,13 +21,13 @@ namespace CPSIT\T3importExport\Tests\Unit;
  ***************************************************************/
 
 use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 /**
  * Class ResourceFactoryTraitTest
  */
-class ResourceFactoryTraitTest extends UnitTestCase
+class ResourceFactoryTraitTest extends TestCase
 {
     /**
      * @var \CPSIT\T3importExport\Resource\ResourceFactoryTrait

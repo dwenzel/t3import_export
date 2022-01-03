@@ -20,13 +20,13 @@ namespace CPSIT\T3importExport\Tests\Unit;
  ***************************************************************/
 
 use CPSIT\T3importExport\Resource\StorageRepositoryTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
  * Class StorageRepositoryTraitTest
  */
-class StorageRepositoryTraitTest extends UnitTestCase
+class StorageRepositoryTraitTest extends TestCase
 {
 
     /**

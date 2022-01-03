@@ -18,7 +18,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MapFieldsTest
@@ -26,7 +26,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFields
  */
-class MapFieldsTest extends UnitTestCase
+class MapFieldsTest extends TestCase
 {
 
     /**

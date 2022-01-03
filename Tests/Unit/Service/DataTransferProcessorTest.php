@@ -20,7 +20,7 @@ use TYPO3\CMS\Core\Tests\AccessibleObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -46,7 +46,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service
  * @coversDefaultClass \CPSIT\T3importExport\Service\DataTransferProcessor
  */
-class DataTransferProcessorTest extends UnitTestCase
+class DataTransferProcessorTest extends TestCase
 {
     const TASK_IDENTIFIER = 'fooBarBaz';
 

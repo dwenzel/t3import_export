@@ -10,7 +10,7 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 /***************************************************************
@@ -34,7 +34,7 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 /**
  * Class MoveFileTest
  */
-class MoveFileTest extends UnitTestCase
+class MoveFileTest extends TestCase
 {
     /**
      * @var MoveFile
@@ -758,7 +758,7 @@ class MoveFileTest extends UnitTestCase
             $this->subject->getErrorCodes()
         );
     }
-    
+
     /**
      * @test
      */
