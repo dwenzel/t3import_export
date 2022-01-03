@@ -43,10 +43,6 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  */
 class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 {
-    use ObjectManagerTrait;
-
-    const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
-
     const DEFAULT_NODE_NAME = 'row';
     const XML_CONFIG_NODE_KEY = 'nodeName';
     const XML_CONFIG_FIELD_KEY = 'fields';
