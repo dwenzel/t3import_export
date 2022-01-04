@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -29,16 +30,12 @@ use PHPUnit\Framework\TestCase;
  */
 class StringToTimeTest extends TestCase
 {
-    /**
-     * @var StringToTime
-     */
-    protected $subject;
+    protected StringToTime $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getMock(
-            StringToTime::class, ['dummy']
-        );
+        $this->subject = new StringToTime();
     }
 
     /**
@@ -46,7 +43,7 @@ class StringToTimeTest extends TestCase
      *
      * @return array
      */
-    public function isConfigurationValidDataProvider()
+    public function isConfigurationValidDataProvider(): array
     {
         return [
             [['foo'], false],
@@ -55,12 +52,11 @@ class StringToTimeTest extends TestCase
     }
 
     /**
-     * @test
      * @dataProvider isConfigurationValidDataProvider
      * @param array $configuration
      * @param bool $expectedValue
      */
-    public function isConfigurationValidReturnsCorrectValues($configuration, $expectedValue)
+    public function testIsConfigurationValidReturnsCorrectValues(array $configuration, bool $expectedValue): void
     {
         $this->assertSame(
             $expectedValue,
@@ -68,10 +64,7 @@ class StringToTimeTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processConvertsFields()
+    public function testProcessConvertsFields(): void
     {
         $configuration = [
             'fields' => 'foo,bar'
@@ -94,7 +87,7 @@ class StringToTimeTest extends TestCase
     /**
      * @test
      */
-    public function processConvertsMultipleRowFields()
+    public function processConvertsMultipleRowFields(): void
     {
         $configuration = [
             'fields' => 'foo',

@@ -2,6 +2,8 @@
 
 namespace CPSIT\T3importExport\Resource;
 
+use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
+
 /**
  * This file is part of the TYPO3 CMS project.
  *
@@ -35,5 +37,11 @@ trait ResourceStorageTrait
     public function initializeStorage($configuration)
     {
         $this->resourceStorage = $this->storageRepository->findByUid($configuration['storageId']);
+    }
+
+    public function withStorage(ResourceStorageInterface $resourceStorage): self
+    {
+        $this->resourceStorage = $resourceStorage;
+        return $this;
     }
 }

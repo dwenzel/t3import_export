@@ -1,8 +1,9 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use PHPUnit\Framework\TestCase;
 use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -31,22 +32,18 @@ use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
 class MapFieldValuesTest extends TestCase
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
-     */
-    protected $subject;
+    protected MapFieldValues $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\MapFieldValues',
-            ['dummy'], [], '', false);
+        $this->subject = new MapFieldValues();
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsInitiallyFalse()
+    public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertFalse(
@@ -55,10 +52,9 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
             'fields' => 'foo'
@@ -69,10 +65,9 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet()
+    public function testIsConfigurationValidReturnsFalseIfTargetFieldIsNotSet(): void
     {
         $config = [
             'fields' => [
@@ -85,10 +80,9 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfTargetFieldIsNotString(): void
     {
         $config = [
             'fields' => [
@@ -103,10 +97,9 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfValuesIsNotSet()
+    public function testIsConfigurationValidReturnsFalseIfValuesIsNotSet(): void
     {
         $config = [
             'fields' => [
@@ -121,10 +114,9 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfValuesIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfValuesIsNotArray(): void
     {
         $config = [
             'fields' => [
@@ -140,10 +132,9 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
             'fields' => [
@@ -165,7 +156,7 @@ class MapFieldValuesTest extends TestCase
      *
      * @return array
      */
-    public function processDataProvider()
+    public function processDataProvider(): array
     {
         $configuration = [
             'fields' => [
@@ -195,13 +186,12 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * @test
      * @dataProvider processDataProvider
      * @param array $configuration
      * @param array $record
      * @param array $result
      */
-    public function processMapsFieldValues($configuration, $record, $result)
+    public function processMapsFieldValues(array $configuration, array $record, array $result): void
     {
         $this->subject->process($configuration, $record);
         $this->assertEquals(

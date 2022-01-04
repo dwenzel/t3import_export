@@ -19,9 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
@@ -58,14 +58,11 @@ class GenerateUploadFileTest extends TestCase
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
             ->setMethods(['getAbsoluteFilePath'])->getMock();
 
-        $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)->disableOriginalConstructor()
+        $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
+            ->disableOriginalConstructor()
             ->setMethods(['getConfiguration'])->getMock();
 
-        $this->inject(
-            $this->subject,
-            'resourceStorage',
-            $this->resourceStorage
-        );
+        $this->subject->withStorage($this->resourceStorage);
 
         $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)->setMethods(['createFromParts'])->getMock();
         $this->subject->injectFilePathFactory($this->filePathFactory);

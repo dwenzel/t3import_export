@@ -1,11 +1,15 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
+namespace CPSIT\T3importExport\Tests\Unit\Traits;
+
+use CPSIT\T3importExport\Tests\Unit\Component\PreProcessor\RenderContentTest;
+use PHPUnit\Framework\MockObject\MockObject;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2017 Dirk Wenzel <wenzel@cps-it.de>
+ *  (c) 2022 Dirk Wenzel <wenzel@cps-it.de>
  *  All rights reserved
  *
  * The GNU General Public License can be found at
@@ -18,33 +22,20 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
-use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\LoggingInterface;
-
-/**
- * Class LoggingPreProcessor
- * Dummy class for testing: PreProcessor implementing LoggingInterface
- */
-class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterface, PreProcessorInterface
+trait MockTypoScriptServiceTrait
 {
-    /**
-     * Gets all messages
-     * @return array
-     */
-    public function getMessages()
-    {
-        return [];
-    }
 
     /**
-     * @param array $configuration
-     * @param array $record
-     * @return bool
+     * @var TypoScriptService|MockObject
      */
-    public function process($configuration, &$record)
+    protected TypoScriptService $typoScriptService;
+
+    protected function mockTypoScriptService(): void
     {
-        return true;
+        $this->typoScriptService = $this->getMockBuilder(TypoScriptService::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['convertPlainArrayToTypoScriptArray'])
+            ->getMock();
+        $this->subject->injectTypoScriptService($this->typoScriptService);
     }
 }

@@ -20,13 +20,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingFinisher
  * Dummy class for testing: Finisher implementing LoggingInterface
  */
-class LoggingFinisher extends AbstractFinisher implements LoggingInterface
+class LoggingFinisher extends AbstractFinisher implements FinisherInterface, LoggingInterface
 {
     /**
      * Gets all messages

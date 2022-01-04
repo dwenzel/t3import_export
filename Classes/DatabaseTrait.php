@@ -2,6 +2,7 @@
 namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use Doctrine\DBAL\Connection;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /***************************************************************
@@ -42,7 +43,7 @@ trait DatabaseTrait
     /**
      * Database
      *
-     * @var DatabaseConnection
+     * @var Connection
      */
     protected $database;
 
@@ -51,9 +52,19 @@ trait DatabaseTrait
      */
     public function __construct()
     {
-        if (!$this->database instanceof DatabaseConnection) {
+        if (!$this->database instanceof Connection) {
             $this->database = $GLOBALS['TYPO3_DB'];
         }
+    }
+
+    public function getDataBase(): Connection
+    {
+        return $this->database;
+    }
+
+    public function getDatabaseConnectionService(): DatabaseConnectionService
+    {
+        return $this->connectionService;
     }
 
     /**

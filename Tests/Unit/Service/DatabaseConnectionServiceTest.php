@@ -39,6 +39,7 @@ class DatabaseConnectionServiceTest extends TestCase
      */
     public function setUp()
     {
+        $this->markTestSkipped('DataBaseConnectionService must be rewritten');
         $this->subject = $this->getAccessibleMock(
             DatabaseConnectionService::class, ['dummy']
         );

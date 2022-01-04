@@ -5,6 +5,7 @@ use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\Factory\InitializerFactory;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -69,6 +70,7 @@ class DummyValidInitializer extends AbstractInitializer implements InitializerIn
  */
 class InitializerFactoryTest extends TestCase
 {
+    use MockObjectManagerTrait;
 
     /**
      * @var InitializerFactory
@@ -76,18 +78,12 @@ class InitializerFactoryTest extends TestCase
     protected $subject;
 
     /**
-     * @var ObjectManagerInterface|MockObject
-     */
-    protected $objectManager;
-
-    /**
      *
      */
     public function setUp()
     {
         $this->subject = new InitializerFactory();
-        $this->objectManager = $this->getMockForAbstractClass(ObjectManagerInterface::class);
-        $this->subject->injectObjectManager($this->objectManager);
+        $this->mockObjectManager();
     }
 
     public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet()

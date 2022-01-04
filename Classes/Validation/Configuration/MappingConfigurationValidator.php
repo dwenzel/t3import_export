@@ -36,6 +36,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
      */
     public function validate(array $config)
     {
+
         return $this->validatePropertyConfiguration($config);
     }
 
@@ -57,6 +58,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
             );
         }
         if (isset($configuration['properties'])) {
+
             if (!is_array($configuration['properties'])
             ) {
                 throw new InvalidConfigurationException(

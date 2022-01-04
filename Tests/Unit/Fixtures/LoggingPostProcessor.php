@@ -20,13 +20,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
+use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingPostProcessor
  * Dummy class for testing: PostProcessor implementing LoggingInterface
  */
-class LoggingPostProcessor extends AbstractPostProcessor implements LoggingInterface
+class LoggingPostProcessor extends AbstractPostProcessor implements PostProcessorInterface, LoggingInterface
 {
     /**
      * Gets all messages

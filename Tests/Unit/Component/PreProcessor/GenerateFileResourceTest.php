@@ -19,9 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -67,11 +67,8 @@ class GenerateFileResourceTest extends TestCase
 
         $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)->disableOriginalConstructor()
             ->setMethods(['hasFile', 'getFile', 'getConfiguration'])->getMock();
-        $this->inject(
-            $this->subject,
-            'resourceStorage',
-            $this->resourceStorage
-        );
+        $this->subject->withStorage($this->resourceStorage);
+
         $this->fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)->disableOriginalConstructor()
             ->setMethods(['add'])->getMock();
         $this->subject->injectFileIndexRepository($this->fileIndexRepository);

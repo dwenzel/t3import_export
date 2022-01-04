@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -18,6 +19,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\Component\PreProcessor\RemoveFields;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,21 +30,15 @@ use PHPUnit\Framework\TestCase;
  */
 class RemoveFieldsTest extends TestCase
 {
-    /**
-     * @var \CPSIT\T3importExport\Component\PreProcessor\RemoveFields
-     */
-    protected $subject;
+    protected RemoveFields $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\RemoveFields',
-            ['dummy'], [], '', false);
+        $this->subject = new RemoveFields();
     }
 
-    /**
-     * @test
-     */
-    public function configurationContainsIllegalStructure()
+    public function testConfigurationContainsIllegalStructure(): void
     {
         $testConfig = [
             'fields' => [
@@ -56,10 +53,7 @@ class RemoveFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsTrueForValidNestedConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidNestedConfiguration(): void
     {
         $testConfig = [
             'fields' => [
@@ -78,10 +72,7 @@ class RemoveFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseForEmptyConfiguration()
+    public function testIsConfigurationValidReturnsFalseForEmptyConfiguration(): void
     {
         $testConfig = [];
 
@@ -90,10 +81,7 @@ class RemoveFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $invalidConfig = [
             'fields' => 'foo'
@@ -104,10 +92,7 @@ class RemoveFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processWithValidConfig()
+    public function testProcessWithValidConfig(): void
     {
         $testConfig = [
             'fields' => [

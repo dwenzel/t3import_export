@@ -1,7 +1,13 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
+use CPSIT\T3importExport\Component\PreProcessor\RenderContent;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockContentObjectRendererTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptFrontendControllerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptServiceTrait;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -29,23 +35,25 @@ use PHPUnit\Framework\TestCase;
  */
 class RenderContentTest extends TestCase
 {
+    use MockContentObjectRendererTrait,
+        MockTypoScriptFrontendControllerTrait,
+        MockTypoScriptServiceTrait;
 
-    /**
-     * @var \CPSIT\T3importExport\Component\PreProcessor\RenderContent
-     */
-    protected $subject;
+    protected RenderContent $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent',
-            ['dummy'], [], '', false);
+        $this->subject = new RenderContent();
+        $this->mockTypoScriptService();
+        $this->mockTypoScriptFrontendController();
+        $this->mockContentObjectRenderer();
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsInitiallyFalse()
+    public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertFalse(
@@ -54,10 +62,9 @@ class RenderContentTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
             'fields' => 'foo'
@@ -68,10 +75,9 @@ class RenderContentTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsNotString(): void
     {
         $config = [
             'fields' => [
@@ -84,10 +90,9 @@ class RenderContentTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsEmpty(): void
     {
         $config = [
             'fields' => [
@@ -100,10 +105,9 @@ class RenderContentTest extends TestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
             'fields' => [
@@ -116,14 +120,8 @@ class RenderContentTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processRendersContent()
+    public function testProcessRendersContent(): void
     {
-        $subject = $this->getAccessibleMock(
-            'CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent',
-            ['renderContent'], [], '', false);
         $record = [];
         $configuration = [
             'fields' => [
@@ -134,21 +132,17 @@ class RenderContentTest extends TestCase
             ]
         ];
 
-        $subject->expects($this->once())
-            ->method('renderContent')
-            ->with([], $configuration['fields']['fooField']);
+        $this->contentObjectRenderer->expects($this->once())
+            ->method('getContentObject');
 
-        $subject->process($configuration, $record);
+        $this->subject->process($configuration, $record);
     }
 
     /**
-     * @test
+     * @throws ContentRenderingException
      */
-    public function processRendersContentForMultipleRowFields()
+    public function testProcessRendersContentForMultipleRowFields(): void
     {
-        $subject = $this->getAccessibleMock(
-            'CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent',
-            ['renderContent'], [], '', false);
         $record = [
             'fooField' => [
                 [
@@ -170,10 +164,12 @@ class RenderContentTest extends TestCase
             ]
         ];
 
-        $subject->expects($this->once())
-            ->method('renderContent');
-        //->with($record['fooField'][0], $configuration['fields']['fooField']['fields']);
+        $typoScriptConf = ['foo'];
 
-        $subject->process($configuration, $record);
+        $this->typoScriptService->expects($this->once())
+            ->method('convertPlainArrayToTypoScriptArray')
+            ->willReturn($typoScriptConf);
+
+        $this->subject->renderContent($configuration, $record);
     }
 }

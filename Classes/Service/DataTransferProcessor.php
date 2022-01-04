@@ -41,10 +41,8 @@ class DataTransferProcessor
     /**
      * Queue
      * Records to import
-     *
-     * @var array
      */
-    protected $queue = [];
+    protected array $queue = [];
 
     /**
      * @var PersistenceManager
@@ -76,12 +74,18 @@ class DataTransferProcessor
         $this->objectManager = $objectManager;
     }
 
+    public function withQueue(array $queue): self
+    {
+        $this->queue = $queue;
+        return $this;
+    }
+
     /**
      * gets the queue
      *
      * @return array
      */
-    public function getQueue()
+    public function getQueue(): array
     {
         return $this->queue;
     }
@@ -264,6 +268,9 @@ class DataTransferProcessor
      * @param array|\Iterator|TaskResult $result
      */
     protected function gatherMessages($component, TaskResult $result) {
+        $logging = $component instanceof LoggingInterface;
+        $resulting = $result instanceof TaskResult;
+
         if ($component instanceof LoggingInterface
             && $result instanceof TaskResult
         ) {

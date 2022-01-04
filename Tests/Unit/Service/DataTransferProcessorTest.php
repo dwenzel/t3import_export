@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Service;
 
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
@@ -6,21 +7,21 @@ use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
+use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingFinisher;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingInitializer;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPostProcessor;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
-use TYPO3\CMS\Core\Tests\AccessibleObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /***************************************************************
  *  Copyright notice
@@ -44,670 +45,392 @@ use PHPUnit\Framework\TestCase;
  * Class ImportCommandControllerTest
  *
  * @package CPSIT\T3importExport\Tests\Service
- * @coversDefaultClass \CPSIT\T3importExport\Service\DataTransferProcessor
+ * @coversDefaultClass DataTransferProcessor
  */
 class DataTransferProcessorTest extends TestCase
 {
-    const TASK_IDENTIFIER = 'fooBarBaz';
+    use MockObjectManagerTrait;
+
+    protected const TASK_IDENTIFIER = 'fooBarBaz';
+    protected const CONVERTER_CONFIGURATION = ['fooConverterConfig'];
+    protected const POST_PROCESSOR_CONFIGURATION = ['fooPostProcessorConfig'];
+    protected const FINISHER_CONFIGURATION = ['fooFinisherConfig'];
+    protected const SINGLE_RECORD = ['foo' => 'bar'];
+    protected const CONVERTED_RECORD = ['fooConverted' => 'convertedBar'];
+    protected const QUEUE_WITH_RECORD = [
+        self::TASK_IDENTIFIER => [
+            self::SINGLE_RECORD
+        ]
+    ];
+
+    protected DataTransferProcessor $subject;
 
     /**
-     * @var \CPSIT\T3importExport\Service\DataTransferProcessor|\PHPUnit_Framework_MockObject_MockObject|AccessibleObjectInterface
-     */
-    protected $subject;
-
-    /**
-     * @var TaskResult|\PHPUnit_Framework_MockObject_MockObject
+     * @var TaskResult|MockObject
      */
     protected $taskResult;
 
     /**
-     * @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $objectManager;
-
-    /**
-     * @var DemandInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $importDemand;
-
-    /**
-     * @var TransferTask|\PHPUnit_Framework_MockObject_MockObject
+     * @var TransferTask|MockObject
      */
     protected $transferTask;
 
     /**
-     * @var array
+     * @var TaskDemand|MockObject
      */
-    protected $queue;
+    protected TaskDemand $taskDemand;
 
     /**
-     * @var DataSourceInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DataSourceInterface|MockObject
      */
     protected $dataSource;
 
     /**
-     * @var DataTargetInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DataTargetInterface|MockObject
      */
     protected $dataTarget;
 
     /**
+     * @var PersistenceManager|MockObject
+     */
+    protected PersistenceManager $persistenceManager;
+
+    /**
      * @var array
      */
-    protected $records = [['foo']];
+    protected array $records = [['foo']];
+
+    /**
+     * @var PreProcessorInterface|LoggingPreProcessor|MockObject
+     */
+    protected $preProcessor;
+
+    /**
+     * @var PostProcessorInterface|LoggingPreProcessor|MockObject
+     */
+    protected PostProcessorInterface $postProcessor;
+
+    /**
+     * @var ConverterInterface|MockObject
+     */
+    protected ConverterInterface $converter;
+
+    /**
+     * @var InitializerInterface|MockObject
+     */
+    protected InitializerInterface $initializer;
+
+    /**
+     * @var FinisherInterface|MockObject
+     */
+    protected FinisherInterface $finisher;
 
     /**
      * set up the subject
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            DataTransferProcessor::class,
-            ['dummy'], [], '', false);
-        $this->mockQueueWithSingleRecord();
+        $this->subject = (new DataTransferProcessor())->withQueue(self::QUEUE_WITH_RECORD);
+        $this->mockPreProcessor();
+        $this->mockPostProcessor();
+        $this->mockConverter();
         $this->mockDataSource();
         $this->mockDataTarget();
-
-        $this->taskResult = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getMessages' , 'addMessages'])->getMock();
-        $this->objectManager = $this->getMockBuilder(ObjectManager::class)
-            ->setMethods(['get'])->getMock();
-        $this->subject->injectObjectManager($this->objectManager);
-        $this->objectManager->method('get')->willReturn($this->taskResult);
-        $this->importDemand = $this->getMockBuilder(DemandInterface::class)
-            ->getMockForAbstractClass();
-        $this->transferTask = $this->getMockBuilder(TransferTask::class)
-            ->setMethods(['getIdentifier', 'getSource', 'getTarget',
-                'getPreProcessors', 'getPostProcessors' , 'getInitializers', 'getFinishers'])->getMock();
-        $this->transferTask->expects($this->any())->method('getIdentifier')
-            ->willReturn(static::TASK_IDENTIFIER);
-
-        $this->transferTask->method('getSource')->willReturn($this->dataSource);
-        $this->transferTask->method('getTarget')->willReturn($this->dataTarget);
-
-        $this->importDemand->method('getTasks')->willReturn([$this->transferTask]);
+        $this->mockObjectManager();
+        $this->mockPersistenceManager();
+        $this->mockInitializer();
+        $this->mockFinisher();
+        $this->mockTransferTask();
+        $this->mockTaskDemand();
+        $this->mockTaskResult();
     }
 
-
-    protected function mockQueueWithSingleRecord()
+    protected function mockPreProcessor(): void
     {
-        $this->queue = [
-            static::TASK_IDENTIFIER => $this->records
-        ];
-        $this->inject(
-            $this->subject,
-            'queue',
-            $this->queue
+        $this->preProcessor = $this->getMockForAbstractClass(
+            PreProcessorInterface::class
         );
     }
 
-    protected function mockDataSource()
+    protected function mockPostProcessor(): void
+    {
+        $this->postProcessor = $this->getMockForAbstractClass(
+            PostProcessorInterface::class
+        );
+    }
+
+    protected function mockConverter(): void
+    {
+        $this->converter = $this->getMockForAbstractClass(ConverterInterface::class);
+        $this->converter->method('getConfiguration')->willReturn(self::CONVERTER_CONFIGURATION);
+        $this->converter->method('convert')->willReturn(self::CONVERTED_RECORD);
+    }
+
+    protected function mockDataSource(): void
     {
         $this->dataSource = $this->getMockBuilder(DataSourceInterface::class)
             ->setMethods(['getRecords', 'getConfiguration'])
             ->getMockForAbstractClass();
         $sourceConfig = ['baz'];
-        $this->dataSource->expects($this->any())
-            ->method('getConfiguration')
-            ->will($this->returnValue($sourceConfig));
+        $this->dataSource->method('getConfiguration')
+            ->willReturn($sourceConfig);
         $this->dataSource->method('getRecords')->willReturn($this->records);
     }
 
-    protected function mockDataTarget()
+    protected function mockDataTarget(): void
     {
         $this->dataTarget = $this->getMockBuilder(DataTargetInterface::class)
             ->setMethods(['getRecords', 'getConfiguration'])
             ->getMockForAbstractClass();
         $targetConfig = ['baz'];
-        $this->dataTarget->expects($this->any())
+        $this->dataTarget
             ->method('getConfiguration')
-            ->will($this->returnValue($targetConfig));
+            ->willReturn($targetConfig);
         $this->dataTarget->method('getRecords')->willReturn($this->records);
     }
 
-    /**
-     * @test
-     * @covers ::injectPersistenceManager
-     */
-    public function injectPersistenceManagerForObjectSetsPersistenceManager()
+    protected function mockPersistenceManager(): void
     {
-        /** @var PersistenceManager $mockPersistenceManager */
-        $mockPersistenceManager = $this->getMock('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\PersistenceManager',
-            [], [], '', false);
+        $this->persistenceManager = $this->getMockBuilder(PersistenceManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['persistAll'])
+            ->getMock();
 
-        $this->subject->injectPersistenceManager($mockPersistenceManager);
-
-        $this->assertSame(
-            $mockPersistenceManager,
-            $this->subject->_get('persistenceManager')
-        );
+        $this->subject->injectPersistenceManager($this->persistenceManager);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
-     */
-    public function createObjectManagerMock()
+    protected function mockInitializer(): void
     {
-        $this->taskResult = new TaskResult();
-
-        $objectManagerMock = $this->getAccessibleMock(
-            ObjectManager::class,
-            ['get']
-        );
-        $objectManagerMock->expects($this->any())
-            ->method('get')
-            ->with(TaskResult::class)
-            ->will($this->returnValue($this->taskResult));
-
-        $this->subject->injectObjectManager($objectManagerMock);
-
-        return $objectManagerMock;
+        $this->initializer = $this->getMockForAbstractClass(InitializerInterface::class);
     }
 
-    /**
-     * @test
-     * @covers ::injectObjectManager
-     */
-    public function injectObjectManagerForObjectSetsObjectManager()
+    protected function mockFinisher(): void
     {
-        $objectManagerMock = $this->createObjectManagerMock();
 
-        $this->assertSame(
-            $objectManagerMock,
-            $this->subject->_get('objectManager')
-        );
+        $this->finisher = $this->getMockForAbstractClass(FinisherInterface::class);
     }
 
-    /**
-     * @test
-     * @covers ::getQueue
-     */
-    public function getQueueForArrayReturnsInitiallyEmptyArray()
+    protected function mockTransferTask(): void
     {
-        $this->subject = $this->getMockBuilder(DataTransferProcessor::class)
-            ->setMethods(['dummy'])->getMock();
-        $this->assertSame(
-            [],
-            $this->subject->getQueue()
-        );
+        $this->transferTask = $this->getMockBuilder(TransferTask::class)
+            ->setMethods(
+                [
+                    'getIdentifier',
+                    'getTasks',
+                    'getSource',
+                    'getTarget',
+                    'getPreProcessors',
+                    'getPostProcessors',
+                    'getInitializers',
+                    'getFinishers',
+                    'getConverters'
+                ])->getMock();
+        $this->transferTask->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $this->transferTask->method('getSource')->willReturn($this->dataSource);
+        $this->transferTask->method('getInitializers')->willReturn([$this->initializer]);
+        $this->transferTask->method('getPreProcessors')->willReturn([$this->preProcessor]);
+        $this->transferTask->method('getPostProcessors')->willReturn([$this->postProcessor]);
+        $this->transferTask->method('getConverters')->willReturn([$this->converter]);
+        $this->transferTask->method('getSource')->willReturn($this->dataSource);
+        $this->transferTask->method('getTarget')->willReturn($this->dataTarget);
+        $this->transferTask->method('getFinishers')->willReturn([$this->finisher]);
     }
 
-    /**
-     * @test
-     */
-    public function buildQueueSetsQueue()
+    protected function mockTaskDemand(): void
     {
-        $this->subject->buildQueue($this->importDemand);
+        $this->taskDemand = $this->getMockBuilder(TaskDemand::class)
+            ->setMethods(['getTasks'])
+            ->getMock();
 
-        $this->assertSame(
-            $this->queue,
-            $this->subject->getQueue()
-        );
+        $this->taskDemand->method('getTasks')
+            ->willReturn([$this->transferTask]);
     }
 
-    /**
-     * @test
-     */
-    public function processInitiallyReturnsEmptyIterator()
+    protected function mockTaskResult(): void
     {
-        $taskDemand = $this->getMock(
-            TaskDemand::class, ['getTasks']
-        );
-        $taskDemand->expects($this->any())
-            ->method('getTasks')
-            ->will($this->returnValue([]));
-
-        $this->createObjectManagerMock();
-
-        $this->assertSame(
-            $this->taskResult->toArray(),
-            $this->subject->process($taskDemand)
-        );
+        $this->taskResult = $this->getMockBuilder(TaskResult::class)
+            ->setMethods(['getMessages', 'addMessages'])->getMock();
+        $this->objectManager->method('get')->willReturn($this->taskResult);
     }
 
-    /**
-     * @test
-     */
-    public function processDoesNotRunEmptyQueue()
+
+    public function testBuildQueueSetsQueue(): void
     {
-        $identifier = 'foo';
-        $taskDemand = $this->getMock(
-            TaskDemand::class, ['getTasks']
-        );
-        $mockTask = $this->getMock(
-            TransferTask::class, ['getIdentifier']
-        );
-
-        $taskDemand->expects($this->any())
-            ->method('getTasks')
-            ->will($this->returnValue($mockTask));
-        $mockTask->expects($this->any())
-            ->method('getIdentifier')
-            ->will($this->returnValue($identifier));
-
-        $this->createObjectManagerMock();
-
-        $this->assertSame(
-            $this->taskResult->toArray(),
-            $this->subject->process($taskDemand)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function processPreProcesses()
-    {
-        $identifier = 'foo';
-        $singleRecord = ['foo' => 'bar'];
-        $queue = [
-            $identifier => [$singleRecord]
+        $expectedQueue = [
+            $this->transferTask->getIdentifier() => $this->dataSource->getRecords(
+                $this->dataSource->getConfiguration()
+            )
         ];
-        $this->subject->_set('queue', $queue);
+        $this->subject->buildQueue($this->taskDemand);
 
-        $taskDemand = $this->getMock(
-            TaskDemand::class, ['getTasks']
+        $this->assertSame(
+            $expectedQueue,
+            $this->subject->getQueue()
         );
-        $mockTask = $this->getMock(
-            TransferTask::class, ['getIdentifier', 'getTarget', 'getPreProcessors']
-        );
-        $mockPreProcessor = $this->getMockForAbstractClass(
-            PreProcessorInterface::class
-        );
-        $this->mockPersistenceManager();
-        $this->createObjectManagerMock();
+    }
 
+    public function testProcessPreProcesses(): void
+    {
         $preProcessorConfig = ['foo'];
 
-        $mockTarget = $this->getMock(
-            DataTargetInterface::class
-        );
-        $taskDemand->expects($this->any())
-            ->method('getTasks')
-            ->will($this->returnValue([$mockTask]));
-        $mockTask->expects($this->any())
-            ->method('getIdentifier')
-            ->will($this->returnValue($identifier));
-        $mockTask->expects($this->any())
-            ->method('getTarget')
-            ->will($this->returnValue($mockTarget));
-        $mockTask->expects($this->once())
-            ->method('getPreProcessors')
-            ->will($this->returnValue([$mockPreProcessor]));
-        $mockPreProcessor->expects($this->any())
+        $this->preProcessor->expects($this->atLeastOnce())
             ->method('getConfiguration')
-            ->will($this->returnValue($preProcessorConfig));
-        $mockPreProcessor->expects($this->any())
+            ->willReturn($preProcessorConfig);
+        $this->preProcessor->expects($this->atLeastOnce())
             ->method('isDisabled')
-            ->with($preProcessorConfig, $singleRecord)
-            ->will($this->returnValue(false));
-        $mockPreProcessor->expects($this->any())
+            ->with($preProcessorConfig, self::SINGLE_RECORD)
+            ->willReturn(false);
+        $this->preProcessor->expects($this->once())
             ->method('process')
-            ->with($preProcessorConfig, $singleRecord);
+            ->with($preProcessorConfig, self::SINGLE_RECORD);
 
-        $this->subject->process($taskDemand);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * @test
-     */
-    public function processConverts()
+    public function testProcessConverts(): void
     {
-        $identifier = 'foo';
-        $taskDemand = $this->getMock(
-            TaskDemand::class, ['getTasks']
-        );
-        $this->mockPersistenceManager();
-        $this->createObjectManagerMock();
-
-        $singleRecord = ['foo' => 'bar'];
-        $queue = [
-            $identifier => [$singleRecord]
-        ];
-        $this->subject->_set('queue', $queue);
-        $mockTask = $this->getMock(
-            TransferTask::class, ['getIdentifier', 'getTarget', 'getConverters']
-        );
-        $mockTarget = $this->getMock(
-            DataTargetInterface::class
-        );
-        $mockConverter = $this->getMockForAbstractClass(
-            ConverterInterface::class
-        );
-        $convertersFromTask = [$mockConverter];
-        $converterConfiguration = ['foo'];
-
-        $taskDemand->expects($this->any())
-            ->method('getTasks')
-            ->will($this->returnValue([$mockTask]));
-        $mockTask->expects($this->any())
-            ->method('getIdentifier')
-            ->will($this->returnValue($identifier));
-        $mockTask->expects($this->any())
-            ->method('getTarget')
-            ->will($this->returnValue($mockTarget));
-        $mockTask->expects($this->any())
-            ->method('getConverters')
-            ->will($this->returnValue($convertersFromTask));
-        $mockConverter->expects($this->any())
-            ->method('getConfiguration')
-            ->will($this->returnValue($converterConfiguration));
-        $mockConverter->expects($this->any())
+        $this->converter->expects($this->atLeastOnce())
+            ->method('getConfiguration');
+        $this->converter->expects($this->atLeastOnce())
             ->method('isDisabled')
-            ->with($converterConfiguration)
-            ->will($this->returnValue(false));
-        $mockConverter->expects($this->once())
+            ->with(...[self::CONVERTER_CONFIGURATION, self::SINGLE_RECORD, $this->taskResult])
+            ->willReturn(false);
+        $this->converter->expects($this->once())
             ->method('convert')
-            ->with($singleRecord, $converterConfiguration)
-            ->will($this->returnValue($singleRecord));
+            ->with(self::SINGLE_RECORD, self::CONVERTER_CONFIGURATION);
 
 
-        $this->subject->process($taskDemand);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * @test
-     */
-    public function processPostProcesses()
+    public function testProcessPostProcesses(): void
     {
-        $this->subject = $this->getAccessibleMock(
-            DataTransferProcessor::class,
-            ['convertSingle'], [], '', false);
-
-        $identifier = 'foo';
-        $singleRecord = ['foo' => 'bar'];
-        $convertedRecord = $singleRecord;
-        $records = [$singleRecord];
-        $queue = [
-            $identifier => $records
-        ];
-        $this->subject->_set('queue', $queue);
-        $this->mockPersistenceManager();
-        $this->createObjectManagerMock();
-
-        $taskDemand = $this->getMock(
-            TaskDemand::class, ['getTasks']
-        );
-        $mockTask = $this->getMock(
-            TransferTask::class, ['getIdentifier', 'getTarget', 'getPostProcessors']
-        );
-        $mockTarget = $this->getMock(
-            DataTargetInterface::class
-        );
-        $mockPostProcessor = $this->getMockForAbstractClass(
-            PostProcessorInterface::class
-        );
-        $postProcessorConfiguration = ['foo'];
-        $postProcessorsFromTask = [$mockPostProcessor];
-
-        $this->subject->expects($this->once())
-            ->method('convertSingle')
-            ->will($this->returnValue($convertedRecord));
-        $taskDemand->expects($this->any())
-            ->method('getTasks')
-            ->will($this->returnValue([$mockTask]));
-        $mockTask->expects($this->any())
-            ->method('getIdentifier')
-            ->will($this->returnValue($identifier));
-        $mockTask->expects($this->any())
-            ->method('getTarget')
-            ->will($this->returnValue($mockTarget));
-        $mockTask->expects($this->any())
-            ->method('getPostProcessors')
-            ->will($this->returnValue($postProcessorsFromTask));
-        $mockPostProcessor->expects($this->any())
+        $this->postProcessor->expects($this->atLeastOnce())
             ->method('getConfiguration')
-            ->will($this->returnValue($postProcessorConfiguration));
-        $mockPostProcessor->expects($this->any())
+            ->willReturn(self::POST_PROCESSOR_CONFIGURATION);
+        $this->postProcessor->expects($this->atLeastOnce())
             ->method('isDisabled')
-            ->with($postProcessorConfiguration)
-            ->will($this->returnValue(false));
-        $mockPostProcessor->expects($this->once())
+            ->with(self::POST_PROCESSOR_CONFIGURATION)
+            ->willReturn(false);
+        $this->postProcessor->expects($this->once())
             ->method('process')
-            ->with($postProcessorConfiguration, $convertedRecord, $singleRecord);
+            ->with(self::POST_PROCESSOR_CONFIGURATION, self::CONVERTED_RECORD, self::SINGLE_RECORD);
 
-        $this->subject->process($taskDemand);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * @test
-     */
-    public function processExecutesFinishers()
+    public function testProcessExecutesFinishers(): void
     {
-        $identifier = 'foo';
-        $queue = [
-            $identifier => [
-                ['bar']
-            ]
-        ];
-        $mockTask = $this->getMock(
-            TransferTask::class,
-            ['getIdentifier', 'getTarget', 'getFinishers']
-        );
-        $mockFinisher = $this->getMockForAbstractClass(
-            FinisherInterface::class
-        );
-        $finisherConfig = ['baz'];
-        $mockDemand = $this->getMock(
-                TaskDemand::class, ['getTasks']);
-        $mockDemand->expects($this->once())
-            ->method('getTasks')
-            ->will($this->returnValue([$mockTask]));
-        $mockTarget = $this->getMock(
-                DataTargetInterface::class);
-        $this->subject = $this->getAccessibleMock(
-            DataTransferProcessor::class,
-                ['convertSingle']
-        );
-        $this->subject->_set('queue', $queue);
-
-
-        $mockTask->expects($this->any())
-            ->method('getIdentifier')
-            ->will($this->returnValue($identifier));
-        $mockTask->expects($this->once())
-            ->method('getTarget')
-            ->will($this->returnValue($mockTarget));
-        $mockTask->expects($this->once())
-            ->method('getFinishers')
-            ->will($this->returnValue([$mockFinisher]));
-        $mockFinisher->expects($this->once())
+        $this->finisher->expects($this->once())
             ->method('isDisabled')
-            ->will($this->returnValue(false));
-        $mockFinisher->expects($this->once())
-            ->method('getConfiguration')
-            ->will($this->returnValue($finisherConfig));
-        $mockFinisher->expects($this->once())
+            ->willReturn(false);
+        $this->finisher->expects($this->once())
+            ->method('getConfiguration');
+        $this->finisher->expects($this->once())
             ->method('process')
             ->will($this->returnArgument(2));
-        $mockPersistenceManager = $this->getMock(
-                PersistenceManager::class, ['persistAll']
-        );
-        $this->subject->injectPersistenceManager(
-                $mockPersistenceManager
-        );
 
-        $this->createObjectManagerMock();
-
-        $this->subject->process($mockDemand);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * @test
-     */
-    public function processExecutesInitializers()
+    public function testProcessExecutesInitializers(): void
     {
-        $identifier = 'foo';
-        $queue = [
-            $identifier => [
-                ['bar']
-            ]
-        ];
-        $mockTask = $this->getMock(
-            TransferTask::class,
-            ['getIdentifier', 'getTarget', 'getInitializers']
-        );
-        $mockInitializer = $this->getMockForAbstractClass(
-            InitializerInterface::class
-        );
-        $initializerConfig = ['baz'];
-        $mockDemand = $this->getMock(
-            TaskDemand::class, ['getTasks']);
-        $mockDemand->expects($this->once())
-            ->method('getTasks')
-            ->will($this->returnValue([$mockTask]));
-        $mockTarget = $this->getMock(
-            DataTargetInterface::class);
-        $this->subject = $this->getAccessibleMock(
-            DataTransferProcessor::class,
-            ['convertSingle']
-        );
-        $this->subject->_set('queue', $queue);
-        $mockTask->expects($this->any())
-            ->method('getIdentifier')
-            ->will($this->returnValue($identifier));
-        $mockTask->expects($this->once())
-            ->method('getTarget')
-            ->will($this->returnValue($mockTarget));
-        $mockTask->expects($this->once())
-            ->method('getInitializers')
-            ->will($this->returnValue([$mockInitializer]));
-        $mockInitializer->expects($this->once())
+        $this->initializer->expects($this->once())
             ->method('isDisabled')
-            ->will($this->returnValue(false));
-        $mockInitializer->expects($this->once())
-            ->method('getConfiguration')
-            ->will($this->returnValue($initializerConfig));
-        $mockInitializer->expects($this->once())
+            ->willReturn(false);
+        $this->initializer->expects($this->once())
+            ->method('getConfiguration');
+        $this->initializer->expects($this->once())
             ->method('process');
-        $mockPersistenceManager = $this->getMock(
-            PersistenceManager::class, ['persistAll']
-        );
-        $this->subject->injectPersistenceManager(
-            $mockPersistenceManager
-        );
 
-        $this->createObjectManagerMock();
-
-        $this->subject->process($mockDemand);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * injects and returns a mock persistence manager
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
-     */
-    public function mockPersistenceManager()
+    public function testProcessGathersMessagesFromLoggingPreProcessors(): void
     {
-        $mockPersistenceManager = $this->getAccessibleMock(
-            PersistenceManager::class,
-            ['persistAll']
+        $messages = ['foo'];
+        $this->preProcessor = $this->getMockBuilder(LoggingPreProcessor::class)
+            ->setMethods(['getMessages'])->getMock();
+
+        // we have to re-initialize task and demand since $this->transferTask returns wrong preProcessor
+        $this->mockTransferTask();
+        $this->mockTaskDemand();
+
+        $this->preProcessor->expects($this->once())
+            ->method('getMessages')
+            ->willReturn($messages);
+
+        self::assertInstanceOf(
+            LoggingInterface::class,
+            $this->preProcessor
         );
-        $this->subject->injectPersistenceManager($mockPersistenceManager);
-
-        return $mockPersistenceManager;
+        self::assertInstanceOf(TaskResult::class,
+            $this->taskResult
+        );
+        $this->taskResult->expects($this->once())
+            ->method('addMessages')
+            ->with($messages);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * @test
-     */
-    public function processGathersMessagesFromLoggingPreProcessors() {
+    public function testProcessGathersMessagesFromLoggingPostProcessors(): void
+    {
         $messages = ['foo'];
-        $preProcessor = $this->getMockBuilder(LoggingPreProcessor::class)
+        $this->postProcessor = $this->getMockBuilder(LoggingPostProcessor::class)
             ->setMethods(['getMessages'])->getMock();
-        $preProcessor->expects($this->once())
+
+        // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
+        $this->mockTransferTask();
+        $this->mockTaskDemand();
+
+        $this->postProcessor->expects($this->once())
             ->method('getMessages')
             ->willReturn($messages);
-        $this->transferTask->method('getPostProcessors')->willReturn([]);
-        $this->transferTask->method('getInitializers')->willReturn([]);
-        $this->transferTask->method('getFinishers')->willReturn([]);
-
-        $this->transferTask->expects($this->atLeastOnce())
-            ->method('getPreProcessors')
-            ->willReturn([$preProcessor]);
-
 
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
-        $this->subject->process($this->importDemand);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * @test
-     */
-    public function processGathersMessagesFromLoggingPostProcessors() {
-
+    public function testProcessGathersMessagesFromLoggingInitializers(): void
+    {
         $messages = ['foo'];
-        $postProcessor = $this->getMockBuilder(LoggingPostProcessor::class)
+        $this->initializer = $this->getMockBuilder(LoggingInitializer::class)
             ->setMethods(['getMessages'])->getMock();
-        $postProcessor->expects($this->once())
+
+        // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
+        $this->mockTransferTask();
+        $this->mockTaskDemand();
+
+        $this->initializer->expects($this->once())
             ->method('getMessages')
             ->willReturn($messages);
-
-        $this->transferTask->method('getPreProcessors')->willReturn([]);
-        $this->transferTask->method('getInitializers')->willReturn([]);
-        $this->transferTask->method('getFinishers')->willReturn([]);
-
-        $this->transferTask->expects($this->atLeastOnce())
-            ->method('getPostProcessors')
-            ->willReturn([$postProcessor]);
 
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
-        $this->subject->process($this->importDemand);
+        $this->subject->process($this->taskDemand);
     }
 
-    /**
-     * @test
-     */
-    public function processGathersMessagesFromLoggingInitializers() {
-
+    public function testProcessGathersMessagesFromLoggingFinishers(): void
+    {
         $messages = ['foo'];
-        $initializer = $this->getMockBuilder(LoggingInitializer::class)
+        $this->finisher = $this->getMockBuilder(LoggingFinisher::class)
             ->setMethods(['getMessages'])->getMock();
-        $initializer->expects($this->once())
+
+        // we have to re-initialize task and demand since $this->transferTask returns wrong finisher
+        $this->mockTransferTask();
+        $this->mockTaskDemand();
+
+        $this->finisher->expects($this->once())
             ->method('getMessages')
             ->willReturn($messages);
-
-        $this->transferTask->method('getPreProcessors')->willReturn([]);
-        $this->transferTask->method('getPostProcessors')->willReturn([]);
-        $this->transferTask->method('getFinishers')->willReturn([]);
-
-        $this->transferTask->expects($this->atLeastOnce())
-            ->method('getInitializers')
-            ->willReturn([$initializer]);
 
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
-        $this->subject->process($this->importDemand);
+        $this->subject->process($this->taskDemand);
     }
-
-    /**
-     * @test
-     */
-    public function processGathersMessagesFromLoggingFinishers() {
-
-        $messages = ['foo'];
-        $finisher = $this->getMockBuilder(LoggingFinisher::class)
-            ->setMethods(['getMessages'])->getMock();
-        $finisher->expects($this->once())
-            ->method('getMessages')
-            ->willReturn($messages);
-
-        $this->transferTask->method('getPreProcessors')->willReturn([]);
-        $this->transferTask->method('getPostProcessors')->willReturn([]);
-        $this->transferTask->method('getInitializers')->willReturn([]);
-
-        $this->transferTask->expects($this->atLeastOnce())
-            ->method('getFinishers')
-            ->willReturn([$finisher]);
-
-        $this->taskResult->expects($this->once())
-            ->method('addMessages')
-            ->with($messages);
-        $this->subject->process($this->importDemand);
-    }
-
 }

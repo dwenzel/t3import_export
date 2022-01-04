@@ -5,7 +5,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2017 Dirk Wenzel <wenzel@cps-it.de>
+ *  (c) 2022 Dirk Wenzel <wenzel@cps-it.de>
  *  All rights reserved
  *
  * The GNU General Public License can be found at
@@ -18,35 +18,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
-use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\LoggingInterface;
-
-/**
- * Class LoggingInitializer
- * Dummy class for testing: Initializer implementing LoggingInterface
- */
-class LoggingInitializer extends AbstractInitializer implements InitializerInterface, LoggingInterface
+class DummyDomainObject extends \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
 {
-    /**
-     * Gets all messages
-     * @return array
-     */
-    public function getMessages()
-    {
-        return [];
-    }
-
-    /**
-     * @param array $configuration
-     * @param array $records Array with prepared records
-     * @return bool
-     */
-    public function process($configuration, &$records)
-    {
-        return true;
-    }
-
 
 }

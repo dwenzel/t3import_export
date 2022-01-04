@@ -1,7 +1,11 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
+use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 /***************************************************************
  *  Copyright notice
@@ -31,22 +35,22 @@ class AbstractPreProcessorTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor
+     * @var AbstractPreProcessor|MockObject
      */
     protected $subject;
 
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMockForAbstractClass(
-            'CPSIT\\T3importExport\\Component\\PreProcessor\\AbstractPreProcessor',
-            [], '', false);
+        $this->subject = $this->getMockBuilder(AbstractPreProcessor::class)
+            ->setMethods(['process', 'renderContent'])
+            ->getMock();
     }
 
     /**
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsAlwaysTrue()
+    public function isConfigurationValidReturnsAlwaysTrue(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertTrue(
@@ -58,16 +62,18 @@ class AbstractPreProcessorTest extends TestCase
      * @test
      * @cover ::injectTypoScriptService
      */
-    public function injectTypoScriptServiceSetsTypoScriptService()
+    public function injectTypoScriptServiceSetsTypoScriptService(): void
     {
-        $mockTypoScriptService = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Service\\TypoScriptService'
-        );
+        $mockTypoScriptService = $this->getMockBuilder(
+            TypoScriptService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->subject->injectTypoScriptService($mockTypoScriptService);
-        $this->assertSame(
+        self::assertAttributeSame(
             $mockTypoScriptService,
-            $this->subject->_get('typoScriptService')
+            'typoScriptService',
+            $this->subject
         );
     }
 
@@ -75,7 +81,7 @@ class AbstractPreProcessorTest extends TestCase
      * @test
      * @covers ::isDisabled
      */
-    public function isDisabledReturnsInitiallyFalse()
+    public function isDisabledReturnsInitiallyFalse(): void
     {
         $configuration = [];
         $this->assertFalse(
@@ -87,7 +93,7 @@ class AbstractPreProcessorTest extends TestCase
      * @test
      * @covers ::isDisabled
      */
-    public function isDisabledReturnsTrueIfDisabledIsSet()
+    public function isDisabledReturnsTrueIfDisabledIsSet(): void
     {
         $configuration = [
             'disable' => '1'
@@ -101,11 +107,8 @@ class AbstractPreProcessorTest extends TestCase
      * @test
      * @covers ::isDisabled
      */
-    public function isDisabledRendersContent()
+    public function isDisabledRendersContent(): void
     {
-        $subject = $this->getAccessibleMock(
-            'CPSIT\\T3importExport\\Component\\PreProcessor\\AbstractPreProcessor',
-            ['renderContent', 'process'], [], '', false);
         $configuration = [
             'disable' => [
                 'value' => '1',
@@ -116,10 +119,10 @@ class AbstractPreProcessorTest extends TestCase
             ]
         ];
 
-        $subject->expects($this->once())
+        $this->subject->expects($this->once())
             ->method('renderContent')
             ->with([], $configuration['disable']);
 
-        $subject->isDisabled($configuration);
+        $this->subject->isDisabled($configuration);
     }
 }
