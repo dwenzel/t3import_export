@@ -2,6 +2,9 @@
 namespace CPSIT\T3importExport\Service;
 
 use CPSIT\T3importExport\MissingDatabaseException;
+use Doctrine\DBAL\DBALException;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -35,58 +38,25 @@ class DatabaseConnectionService implements SingletonInterface
 {
 
     /**
-     * All registered databases
-     *
-     * @var array<DatabaseConnection>
+     * @var ConnectionPool
      */
-    protected static $dataBases = [];
-
-    /**
-     * Registers a database instance
-     * Will silently fail if another database
-     * has been registered for this identifier already
-     *
-     * @param string $identifier
-     * @param string $hostName
-     * @param string $databaseName
-     * @param string $userName
-     * @param string $password
-     * @param int $port
-     */
-    public static function register(
-        $identifier,
-        $hostName = '127.0.0.1',
-        $databaseName,
-        $userName,
-        $password,
-        $port = 3306
-    ) {
-        if (!self::isRegistered($identifier)) {
-            /** @var DatabaseConnection $database */
-            $database = GeneralUtility::makeInstance(DatabaseConnection::class);
-
-            $database->setDatabaseHost($hostName);
-            $database->setDatabaseName($databaseName);
-            $database->setDatabaseUsername($userName);
-            $database->setDatabasePassword($password);
-            $database->setDatabasePort($port);
-            $database->initialize();
-            self::$dataBases[$identifier] = $database;
-        }
-    }
+    protected static ConnectionPool $connectionPool;
 
     /**
      * Gets a registered database instance by
-     * its identifier t
+     * its identifier
      *
      * @param string $identifier Identifier for the requested database
-     * @return DatabaseConnection
-     * @throws MissingDatabaseException Thrown if the requested database does not exist
+     * @return Connection
+     * @throws MissingDatabaseException|DBALException Thrown
+     * if the requested database does not exist @see
+     * @deprecated
+     * Use @see ConnectionPool::getConnectionForTable() instead
      */
     public function getDatabase($identifier)
     {
         if (self::isRegistered($identifier)) {
-            return self::$dataBases[$identifier];
+            return static::getConnectionPool()->getConnectionByName($identifier);
         }
         throw new MissingDatabaseException(
             'No database registered for identifier ' . $identifier,
@@ -103,6 +73,16 @@ class DatabaseConnectionService implements SingletonInterface
      */
     public static function isRegistered($identifier)
     {
-        return isset(self::$dataBases[$identifier]);
+        $connections = static::$connectionPool->getConnectionNames();
+        return isset($connections[$identifier]);
+    }
+
+    protected static function getConnectionPool(): ConnectionPool
+    {
+        if (!static::$connectionPool instanceof ConnectionPool) {
+            static::$connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
+        }
+
+        return static::$connectionPool;
     }
 }

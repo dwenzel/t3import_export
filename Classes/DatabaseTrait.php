@@ -3,7 +3,9 @@ namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use Doctrine\DBAL\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -36,9 +38,11 @@ trait DatabaseTrait
     /**
      * Database connection service
      *
-     * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
+     * @var DatabaseConnectionService
      */
     protected $connectionService;
+
+    protected $connectionPool;
 
     /**
      * Database
@@ -50,13 +54,19 @@ trait DatabaseTrait
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(ConnectionPool $connectionPool = null, DatabaseConnectionService $connectionService = null)
     {
+        $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
         if (!$this->database instanceof Connection) {
             $this->database = $GLOBALS['TYPO3_DB'];
         }
     }
 
+    /**
+     * @return Connection
+     * @deprecated
+     * use @see ConnectionPool->getConnectionForTable() instead
+     */
     public function getDataBase(): Connection
     {
         return $this->database;
@@ -65,15 +75,5 @@ trait DatabaseTrait
     public function getDatabaseConnectionService(): DatabaseConnectionService
     {
         return $this->connectionService;
-    }
-
-    /**
-     * Injects the database connection service
-     *
-     * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
-     */
-    public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService)
-    {
-        $this->connectionService = $dbConnectionService;
     }
 }

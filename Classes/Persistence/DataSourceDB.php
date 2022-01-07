@@ -1,12 +1,18 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\MissingDatabaseException;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -38,18 +44,18 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      *
      * @var string
      */
-    protected $identifier;
+    protected string $identifier;
 
     /**
      * Gets the database connection
      *
-     * @return DatabaseConnection
-     * @throws \CPSIT\T3importExport\MissingDatabaseException
+     * @return Connection
+     * @throws MissingDatabaseException|DBALException
      */
     public function getDatabase()
     {
         if (
-            !$this->database instanceof DatabaseConnection
+            !$this->database instanceof Connection
             || (
                 !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
             )
@@ -68,6 +74,10 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      */
     public function getRecords(array $configuration)
     {
+        if (!$this->isConfigurationValid($configuration)) {
+            throw new InvalidConfigurationException();
+        }
+
         $queryConfiguration = [
             'fields' => '*',
             'where' => '',
@@ -91,14 +101,33 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
                 }
             }
         }
-        $records = $this->getDatabase()->exec_SELECTgetRows(
-            $queryConfiguration['fields'],
-            $queryConfiguration['table'],
-            $queryConfiguration['where'],
-            $queryConfiguration['groupBy'],
-            $queryConfiguration['orderBy'],
-            $queryConfiguration['limit']
-        );
+
+        $query = $this->connectionPool->getConnectionForTable($queryConfiguration['table'])
+            ->createQueryBuilder()
+            ->select($queryConfiguration['fields'])
+            ->from($queryConfiguration['table']);
+
+        if (!empty($queryConfiguration['where'])) {
+            $query->where($queryConfiguration['where']);
+        }
+
+        if (!empty($queryConfiguration['groupBy'])) {
+            $query->groupBy($queryConfiguration['groupBy']);
+        }
+
+        if (!empty($queryConfiguration['orderBy'])) {
+            $query->orderBy($queryConfiguration['orderBy']);;
+        }
+
+        if (!empty($queryConfiguration['limit'])) {
+            $query->setMaxResults((int)$queryConfiguration['limit']);
+        }
+
+        try {
+            $records = $query->execute()->fetchAllAssociative();
+        } catch (Exception $exception) {
+            // todo: log error
+        }
         if ($records !== null) {
             return $records;
         }
