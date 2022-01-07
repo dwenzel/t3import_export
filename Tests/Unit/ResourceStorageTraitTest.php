@@ -43,6 +43,7 @@ class ResourceStorageTraitTest extends TestCase
             ->getMockForTrait();
 
         $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
+            ->disableOriginalConstructor()
             ->setMethods(['findByUid'])->getMock();
 
         $this->subject->injectStorageRepository($this->storageRepository);

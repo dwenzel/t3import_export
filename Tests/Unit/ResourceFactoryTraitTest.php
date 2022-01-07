@@ -51,6 +51,7 @@ class ResourceFactoryTraitTest extends TestCase
     {
         /** @var ResourceFactory|\PHPUnit_Framework_MockObject_MockObject $mockFactory */
         $mockFactory = $this->getMockBuilder(ResourceFactory::class)
+            ->disableOriginalConstructor()
             ->getMock();
         $this->subject->injectResourceFactory($mockFactory);
         $this->assertAttributeSame(

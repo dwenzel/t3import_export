@@ -25,6 +25,7 @@ use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockTransferTaskTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -35,14 +36,11 @@ use PHPUnit\Framework\TestCase;
  */
 class TransferSetFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait;
+    use MockObjectManagerTrait,
+        MockTransferTaskTrait;
 
     protected TransferSetFactory $subject;
 
-    /**
-     * @var TransferTask|MockObject
-     */
-    protected TransferTask $transferTask;
     /**
      * @var TransferTaskFactory|MockObject
      */
@@ -61,8 +59,7 @@ class TransferSetFactoryTest extends TestCase
     {
         $this->subject = new TransferSetFactory();
         $this->mockObjectManager();
-        $this->transferTask = $this->getMockBuilder(TransferTask::class)
-            ->getMock();
+        $this->mockTransferTask();
 
         $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
             ->setMethods(['get'])
@@ -184,4 +181,5 @@ class TransferSetFactoryTest extends TestCase
 
         $this->subject->get($config);
     }
+
 }

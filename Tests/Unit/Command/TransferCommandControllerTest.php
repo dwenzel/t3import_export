@@ -2,7 +2,7 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
-use CPSIT\T3importExport\Command\TransferCommandController;
+use CPSIT\T3importExport\Command\TransferCommand;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
@@ -47,14 +47,14 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
  * Class ImportCommandControllerTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Command
- * @coversDefaultClass \CPSIT\T3importExport\Command\TransferCommandController
+ * @coversDefaultClass \CPSIT\T3importExport\Command\TransferCommand
  */
 class TransferCommandControllerTest extends TestCase
 {
     use MockObjectManagerTrait;
 
     /**
-     * @var TransferCommandController
+     * @var TransferCommand
      */
     protected $subject;
 
@@ -96,7 +96,7 @@ class TransferCommandControllerTest extends TestCase
         $this->configurationManager = $this->getMockForAbstractClass(ConfigurationManagerInterface::class);
         $this->mockObjectManager();
 
-        $this->subject = new TransferCommandController();
+        $this->subject = new TransferCommand();
         $this->subject->injectDataTransferProcessor($this->transferProcessor);
         $this->subject->injectTransferTaskFactory($this->transferTaskFactory);
         $this->subject->injectTransferSetFactory($this->transferSetFactory);

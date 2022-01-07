@@ -28,42 +28,29 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 class TransferTaskTest extends TestCase
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Domain\Model\TransferTask
-     */
-    protected $subject;
+    protected TransferTask $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            TransferTask::class, ['dummy'], [], '', false
-        );
+        $this->subject = new TransferTask();
     }
 
-    /**
-     * @test
-     */
-    public function getIdentifierInitiallyReturnsNull()
+    public function testGetIdentifierInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getIdentifier()
         );
     }
 
-    /**
-     * @test
-     */
-    public function getDescriptionInitiallyReturnsNull()
+    public function testGetDescriptionInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getDescription()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setDescriptionForStringSetsDescription()
+    public function testSetDescriptionForStringSetsDescription(): void
     {
         $identifier = 'foo';
         $this->subject->setDescription($identifier);
@@ -74,20 +61,14 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getTargetClassInitiallyReturnsNull()
+    public function testGetTargetClassInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getTargetClass()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setTargetClassForStringSetsTargetClass()
+    public function testSetTargetClassForStringSetsTargetClass(): void
     {
         $identifier = 'foo';
         $this->subject->setTargetClass($identifier);
@@ -98,35 +79,23 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getTargetInitiallyReturnsNull()
+    public function testGetTargetInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getTarget()
         );
     }
 
-    /**
-     * @test
-     */
-    public function getSourceInitiallyReturnsNull()
+    public function testGetSourceInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getSource()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setTargetForObjectSetsTarget()
+    public function testSetTargetForObjectSetsTarget(): void
     {
-        $target = $this->getMock(
-            DataTargetInterface::class,
-            [], [], '', false
-        );
+        $target = $this->getMockForAbstractClass(DataTargetInterface::class);
         $this->subject->setTarget($target);
         $this->assertSame(
             $target,
@@ -134,15 +103,9 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function setSourceForObjectSetsSource()
+    public function testSetSourceForObjectSetsSource(): void
     {
-        $source = $this->getMock(
-            DataSourceInterface::class,
-            [], [], '', false
-        );
+        $source = $this->getMockForAbstractClass(DataSourceInterface::class);
         $this->subject->setSource($source);
         $this->assertSame(
             $source,
@@ -150,10 +113,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getPreProcessorsInitiallyReturnsEmptyArray()
+    public function testGetPreProcessorsInitiallyReturnsEmptyArray(): void
     {
         $this->assertSame(
             [],
@@ -161,10 +121,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function preProcessorsCanBeSet()
+    public function testPreProcessorsCanBeSet(): void
     {
         $processors = ['foo'];
         $this->subject->setPreProcessors($processors);
@@ -174,10 +131,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getPostProcessorsInitiallyReturnsEmptyArray()
+    public function testGetPostProcessorsInitiallyReturnsEmptyArray(): void
     {
         $this->assertSame(
             [],
@@ -185,10 +139,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function postProcessorsCanBeSet()
+    public function testPostProcessorsCanBeSet(): void
     {
         $processors = ['foo'];
         $this->subject->setPostProcessors($processors);
@@ -198,10 +149,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getConvertersInitiallyReturnsEmptyArray()
+    public function testGetConvertersInitiallyReturnsEmptyArray(): void
     {
         $this->assertSame(
             [],
@@ -209,10 +157,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function convertersCanBeSet()
+    public function testConvertersCanBeSet(): void
     {
         $processors = ['foo'];
         $this->subject->setConverters($processors);
@@ -222,10 +167,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getFinishersInitiallyReturnsEmptyArray()
+    public function testGetFinishersInitiallyReturnsEmptyArray(): void
     {
         $this->assertSame(
             [],
@@ -233,10 +175,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function finishersCanBeSet()
+    public function testFinishersCanBeSet(): void
     {
         $finishers = ['foo'];
         $this->subject->setFinishers($finishers);
@@ -247,10 +186,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getInitializersInitiallyReturnsEmptyArray()
+    public function testGetInitializersInitiallyReturnsEmptyArray(): void
     {
         $this->assertSame(
             [],
@@ -258,10 +194,7 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function initializersCanBeSet()
+    public function testInitializersCanBeSet(): void
     {
         $initializers = ['foo'];
         $this->subject->setInitializers($initializers);
@@ -272,20 +205,14 @@ class TransferTaskTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getLabelReturnsInitiallyNull()
+    public function testGetLabelReturnsInitiallyNull(): void
     {
         $this->assertNull(
             $this->subject->getLabel()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setLabelForStringSetsLabel()
+    public function testSetLabelForStringSetsLabel(): void
     {
         $label = 'foo';
         $this->subject->setLabel($label);

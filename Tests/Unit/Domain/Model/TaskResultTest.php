@@ -1,10 +1,11 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
-use CPSIT\T3importExport\Domain\Model\ExportTarget;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /***************************************************************
  *
@@ -53,9 +54,9 @@ class TaskResultTest extends TestCase
         /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
         $list = new TaskResult();
 
-        $obj1 = new \stdClass();
-        $obj2 = new \stdClass();
-        $obj3 = new \stdClass();
+        $obj1 = new stdClass();
+        $obj2 = new stdClass();
+        $obj3 = new stdClass();
 
         $list->add($obj1);
         $list->add($obj2);
@@ -75,13 +76,13 @@ class TaskResultTest extends TestCase
         $this->assertTrue(in_array($obj2, $list->toArray(), true));
         $this->assertEquals(2, $list->count());
     }
-    /**
-     * @test
-     */
+
     public function testWhenMockThreeIterationWithNoKey()
     {
+        // fixme: This test is way to complicated and should be replaced
+        $this->markAsRisky();
         /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
-        $list = $this->getMock(TaskResult::class);
+        $list = $this->getMockBuilder(TaskResult::class)->getMock();
 
         $expectedValues = array(
             'This is the first item',
@@ -126,7 +127,8 @@ class TaskResultTest extends TestCase
     private function mockIterator(
         \Iterator $iterator,
         array $items
-    ) {
+    )
+    {
         $iterator->expects($this->at(0))
             ->method('rewind');
         $counter = 1;
@@ -172,11 +174,11 @@ class TaskResultTest extends TestCase
      */
     public function keyReturnsPosition()
     {
-        $position = 5;
-        $this->inject($this->subject, 'position', $position);
-
+        $element = new stdClass();
+        $this->subject->add($element);
+        $this->subject->next();
         $this->assertSame(
-            $position,
+            1,
             $this->subject->key()
         );
     }
@@ -197,9 +199,13 @@ class TaskResultTest extends TestCase
      */
     public function countReturnsSize()
     {
-        $size = 10;
-        $this->inject($this->subject, 'size', $size);
+        $elements = [
+            'foo',
+            'bar'
+        ];
+        $size = count($elements);
 
+        $this->subject->setElements($elements);
         $this->assertSame(
             $size,
             $this->subject->count()
@@ -209,7 +215,8 @@ class TaskResultTest extends TestCase
     /**
      * @test
      */
-    public function getMessagesReturnsMessagesFromContainer() {
+    public function getMessagesReturnsMessagesFromContainer()
+    {
         $messages = ['foo'];
         $messageContainer = $this->getMockBuilder(MessageContainer::class)
             ->setMethods(['getMessages'])->getMock();

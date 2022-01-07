@@ -25,32 +25,22 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 class TransferSetTest extends TestCase
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Domain\Model\TransferSet
-     */
-    protected $subject;
+    protected TransferSet $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            TransferSet::class, ['dummy'], [], '', false
-        );
+        $this->subject = new TransferSet();
     }
 
-    /**
-     * @test
-     */
-    public function getIdentifierInitiallyReturnsNull()
+    public function testGetIdentifierInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getIdentifier()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setIdentifierForStringSetsIdentifier()
+    public function testSetIdentifierForStringSetsIdentifier(): void
     {
         $identifier = 'foo';
         $this->subject->setIdentifier($identifier);
@@ -61,20 +51,14 @@ class TransferSetTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getDescriptionInitiallyReturnsNull()
+    public function testGetDescriptionInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getDescription()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setDescriptionForStringSetsDescription()
+    public function testSetDescriptionForStringSetsDescription(): void
     {
         $identifier = 'foo';
         $this->subject->setDescription($identifier);
@@ -85,20 +69,14 @@ class TransferSetTest extends TestCase
         );
     }
 
-    /**
-     * @tests
-     */
-    public function getTasksInitiallyReturnsNull()
+    public function testGetTasksInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getTasks()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setTasksForArraySetsTasks()
+    public function testSetTasksForArraySetsTasks(): void
     {
         $tasks = ['foo'];
         $this->subject->setTasks($tasks);
@@ -109,20 +87,14 @@ class TransferSetTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getLabelReturnsInitiallyNull()
+    public function testGetLabelReturnsInitiallyNull(): void
     {
         $this->assertNull(
             $this->subject->getLabel()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setLabelForStringSetsLabel()
+    public function testSetLabelForStringSetsLabel(): void
     {
         $label = 'foo';
         $this->subject->setLabel($label);

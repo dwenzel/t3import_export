@@ -20,6 +20,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
  ***************************************************************/
 
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 
@@ -31,12 +32,13 @@ class FileIndexRepositoryTraitTest extends TestCase
 
     /**
      * subject
-     * @var \CPSIT\T3importExport\Resource\FileIndexRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var FileIndexRepositoryTrait|MockObject
      */
     protected $subject;
 
     /**
      * set up subject
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
@@ -44,12 +46,11 @@ class FileIndexRepositoryTraitTest extends TestCase
             ->getMockForTrait();
     }
 
-    /**
-     * @test
-     */
-    public function fileIndexRepositoryCanBeInjected()
+    public function testFileIndexRepositoryCanBeInjected(): void
     {
-        $fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)->getMock();
+        $fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->subject->injectFileIndexRepository($fileIndexRepository);
 
         $this->assertAttributeSame(

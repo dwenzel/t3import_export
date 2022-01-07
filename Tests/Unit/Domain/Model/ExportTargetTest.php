@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\T3importExport\Domain\Model\ExportTarget;
@@ -30,47 +31,32 @@ use PHPUnit\Framework\TestCase;
  ***************************************************************/
 class ExportTargetTest extends TestCase
 {
-
-    /**
-     * @var ExportTarget
-     */
-    protected $subject;
+    protected ExportTarget $subject;
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject= $this->getAccessibleMock(
-            ExportTarget::class, ['dummy']
-        );
+        $this->subject = new ExportTarget();
     }
 
-    /**
-     * @test
-     */
-    public function getTitleForStringInitiallyReturnsNull()
+    public function testGetTitleForStringInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getTitle()
         );
     }
 
-
-    /**
-     * @test
-     */
-    public function getDescriptionForStringInitiallyReturnsNull()
+    public function testGetDescriptionForStringInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getDescription()
         );
     }
 
-    /**
-     * @test
-     */
-    public function titleCanBeSet()
+    public function testTitleCanBeSet(): void
     {
         $this->subject->setTitle('foo');
         $this->assertSame(
@@ -79,10 +65,7 @@ class ExportTargetTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function descriptionCanBeSet()
+    public function testDescriptionCanBeSet(): void
     {
         $this->subject->setDescription('foo');
         $this->assertSame(

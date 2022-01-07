@@ -20,6 +20,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
  ***************************************************************/
 
 use CPSIT\T3importExport\ObjectManagerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +32,7 @@ class ObjectManagerTraitTest extends TestCase
 
     /**
      * subject
-     * @var ObjectManagerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var ObjectManagerTrait|MockObject
      */
     protected $subject;
 
@@ -49,7 +50,9 @@ class ObjectManagerTraitTest extends TestCase
      */
     public function objectManagerCanBeInjected()
     {
-        $objectManager = $this->getMockBuilder(ObjectManager::class)->getMock();
+        $objectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->subject->injectObjectManager($objectManager);
 
         $this->assertAttributeSame(

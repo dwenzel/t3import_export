@@ -6,6 +6,8 @@ use CPSIT\T3importExport\Component\Finisher\MoveFile;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceFactoryTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceStorageFolderTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\FileInterface;
@@ -37,27 +39,11 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 class MoveFileTest extends TestCase
 {
     use MockMessageContainerTrait,
-        MockObjectManagerTrait;
+        MockObjectManagerTrait,
+        MockResourceFactoryTrait,
+        MockResourceStorageFolderTrait;
 
-    /**
-     * @var MoveFile
-     */
-    protected $subject;
-
-    /**
-     * @var ResourceFactory|MockObject
-     */
-    protected $resourceFactory;
-
-    /**
-     * @var ResourceStorage|MockObject
-     */
-    protected $storage;
-
-    /**
-     * @var Folder|MockObject
-     */
-    protected $folder;
+    protected MoveFile $subject;
 
     /**
      * Set up
@@ -68,31 +54,9 @@ class MoveFileTest extends TestCase
         $this->subject = new MoveFile();
         $this->mockObjectManager();
         $this->mockMessageContainer();
-
-        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStorageObject', 'getDefaultStorage'])
-            ->getMock();
-        $this->subject->injectResourceFactory($this->resourceFactory);
-        $this->storage = $this->getMockBuilder(ResourceStorage::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'getDefaultFolder',
-                'hasFolder',
-                'hasFileInFolder',
-                'getFolder',
-                'createFolder',
-                'moveFile'
-            ])
-            ->getMock();
-        $this->resourceFactory->expects($this->any())
-            ->method('getDefaultStorage')
-            ->willReturn($this->storage);
-        $this->folder = $this->getMockBuilder(Folder::class)
-            ->disableOriginalConstructor()->getMock();
-        $this->storage->expects($this->any())
-            ->method('getDefaultFolder')
-            ->willReturn($this->folder);
+        $this->mockResourceStorage();
+        $this->mockStorageFolder();
+        $this->mockResourceFactory();
     }
 
     /**

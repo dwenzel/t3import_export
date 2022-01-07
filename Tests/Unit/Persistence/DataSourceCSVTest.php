@@ -5,7 +5,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 use CPSIT\T3importExport\Persistence\DataSourceCSV;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamException;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,22 +17,25 @@ class DataSourceCSVTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Persistence\DataSourceCSV
+     * @var DataSourceCSV|MockObject
      */
     protected $subject;
 
     /**
-     * @var ResourcePathConfigurationValidator | \PHPUnit_Framework_MockObject_MockObject
+     * @var ResourcePathConfigurationValidator|MockObject
      */
     protected $pathValidator;
 
     /**
      * set up subject
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     * @throws vfsStreamException
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(DataSourceCSV::class,
-            ['dummy', 'getAbsoluteFilePath'], [], '', false);
+        $this->subject = $this->getMockBuilder(DataSourceCSV::class)
+            ->setMethods(['getAbsoluteFilePath'])
+            ->getMock();
 
         $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->setMethods(['validate'])->getMock();
@@ -42,7 +47,7 @@ class DataSourceCSVTest extends TestCase
      * Get a valid CSV string with headers
      * @return array
      */
-    public function validCsvWithHeadersDataProvider()
+    public function validCsvWithHeadersDataProvider(): array
     {
         $csvString = <<<CSV
 "foo","bar","baz"
@@ -59,10 +64,7 @@ CSV;
     }
 
 
-    /**
-     * @test
-     */
-    public function getRecordsInitiallyReturnsEmptyArray()
+    public function testGetRecordsInitiallyReturnsEmptyArray(): void
     {
         $configuration = [];
 
@@ -72,10 +74,7 @@ CSV;
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidValidatesPathConfiguration()
+    public function testIsConfigurationValidValidatesPathConfiguration(): void
     {
         $config = ['foo'];
         $this->pathValidator->expects($this->once())
@@ -87,7 +86,7 @@ CSV;
     /**
      * Data provider for invalid configurations
      */
-    public function invalidConfigurationDataProvider()
+    public function invalidConfigurationDataProvider(): array
     {
         return [
             // fields must be string
@@ -116,24 +115,20 @@ CSV;
     }
 
     /**
-     * @test
      * @dataProvider invalidConfigurationDataProvider
      * @param array $configuration
      */
-    public function isConfigurationValidReturnsFalseForInvalidValues(array $configuration)
+    public function testIsConfigurationValidReturnsFalseForInvalidValues(array $configuration): void
     {
         $this->pathValidator->expects($this->once())
-            ->method('validate')->will($this->returnValue(true));
+            ->method('validate')->willReturn(true);
 
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $configuration = [
             'file' => 'foo.csv',
@@ -143,7 +138,7 @@ CSV;
         ];
         $this->pathValidator->expects($this->once())
             ->method('validate')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
@@ -151,12 +146,30 @@ CSV;
     }
 
     /**
-     * @test
      * @dataProvider validCsvWithHeadersDataProvider
      * @param string $csvString
      * @param array $expectedArray
      */
-    public function getRecordsReturnsArrayFromValidCsvWithHeaders($csvString, $expectedArray)
+    public function testGetRecordsReturnsArrayFromValidCsvWithHeaders(string $csvString, array $expectedArray): void
+    {
+        [$relativePath, $configuration] = $this->mockValidCsvFileWithHeaders($csvString);
+
+        $this->subject->expects($this->once())
+            ->method('getAbsoluteFilePath')
+            ->with(...[$relativePath])
+            ->willReturn(vfsStream::url($relativePath));
+
+        $this->assertSame(
+            $expectedArray,
+            $this->subject->getRecords($configuration)
+        );
+    }
+
+    /**
+     * @param string $csvString
+     * @return array
+     */
+    protected function mockValidCsvFileWithHeaders(string $csvString): array
     {
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.csv';
@@ -170,22 +183,10 @@ CSV;
         $mockFile = vfsStream::newFile($fileName);
         $mockFile->setContent($csvString);
         vfsStreamWrapper::getRoot()->addChild($mockFile);
-
-        $this->subject->expects($this->once())
-            ->method('getAbsoluteFilePath')
-            ->with($relativePath)
-            ->will($this->returnValue(vfsStream::url($relativePath)));
-
-        $this->assertSame(
-            $expectedArray,
-            $this->subject->getRecords($configuration)
-        );
+        return array($relativePath, $configuration);
     }
 
-    /**
-     * @test
-     */
-    public function getRecordsReturnsArrayFromValidCsvWithoutHeaders()
+    public function tesGetRecordsReturnsArrayFromValidCsvWithoutHeaders(): void
     {
         $csvString = <<<CSV
 "foo1","bar1","baz1"
@@ -221,8 +222,8 @@ CSV;
 
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
-            ->with($relativePath)
-            ->will($this->returnValue(vfsStream::url($relativePath)));
+            ->with(...[$relativePath])
+            ->willReturn(vfsStream::url($relativePath));
 
         $this->assertSame(
             $expectedArray,
@@ -233,7 +234,7 @@ CSV;
     /**
      * Data provider for custom characters
      */
-    public function customCharactersDataProvider()
+    public function customCharactersDataProvider(): array
     {
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.csv';
@@ -288,15 +289,20 @@ CSV;
     }
 
     /**
-     * @test
      * @dataProvider customCharactersDataProvider
      * @param array $configuration
      * @param string $csvString
      * @param array $expectedArray
      * @param string $fileDirectory
-     * @param string, $fileName
+     * @param string $fileName
      */
-    public function getRecordsReturnsArrayFromValidCsvWithCustomCharacters($configuration, $csvString, $expectedArray, $fileDirectory, $fileName)
+    public function testGetRecordsReturnsArrayFromValidCsvWithCustomCharacters(
+        array $configuration,
+        string $csvString,
+        array $expectedArray,
+        string $fileDirectory,
+        string $fileName
+    ): void
     {
         $relativePath = $fileDirectory . '/' . $fileName;
 
@@ -307,8 +313,8 @@ CSV;
 
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
-            ->with($relativePath)
-            ->will($this->returnValue(vfsStream::url($relativePath)));
+            ->with(...[$relativePath])
+            ->willReturn(vfsStream::url($relativePath));
 
         $this->assertSame(
             $expectedArray,

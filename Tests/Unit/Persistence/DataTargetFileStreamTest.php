@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Domain\Model\DataStream;
@@ -6,10 +7,11 @@ use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockBasicFileUtilityTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
  *
@@ -44,42 +46,25 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class DataTargetFileStreamTest extends TestCase
 {
+    use MockBasicFileUtilityTrait,
+        MockObjectManagerTrait;
 
-    /**
-     * @var DataTargetFileStream|\PHPUnit_Framework_MockObject_MockObject|\TYPO3\CMS\Core\Tests\AccessibleObjectInterface
-     */
-    protected $subject;
+    protected const TARGET_CLASS = 'foo';
 
-    /**
-     * @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $objectManager;
+    protected DataTargetFileStream $subject;
 
     /**
      * Set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            DataTargetFileStream::class, ['dummy'], [], '', false
-        );
-        $this->objectManager = $this->getMockBuilder(ObjectManager::class)
-            ->disableOriginalConstructor()->setMethods(['get'])->getMock();
-
-        $this->subject->injectObjectManager($this->objectManager);
+        $this->subject = new DataTargetFileStream(self::TARGET_CLASS);
+        $this->mockObjectManager();
+        $this->mockBasicFileUtility();
     }
 
-    public function createDataStreamWithSampleBuffer($buffer)
-    {
-        $ds = new DataStream();
-        $ds->setStreamBuffer($buffer);
-        return $ds;
-    }
-
-    /**
-     * @test
-     */
-    public function persistDataSteamInTaskResultIterator()
+    public function testPersistDataSteamInTaskResultIterator(): void
     {
         $taskResult = new TaskResult();
         $taskResult->setElements(
@@ -91,31 +76,23 @@ class DataTargetFileStreamTest extends TestCase
             ]
         );
 
-        $mockedFileUtility = $this->getAccessibleMock(
-            BasicFileUtility::class,
-            ['getUniqueName'],
-            [],
-            '',
-            false
-        );
 
-        $absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY.uniqid());
-        $tmpPath = $absPath . '/' . uniqid();
+        $absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY . uniqid('', true));
+        $tmpPath = $absPath . '/' . uniqid('', true);
         @mkdir($absPath, 0777, true);
-        $mockedFileUtility->expects($this->once())
+        $this->fileUtility->expects($this->once())
             ->method('getUniqueName')
-            ->will($this->returnValue($tmpPath));
-        /** @var FileInfo $mockFileInfo */
+            ->willReturn($tmpPath);
         $mockFileInfo = new FileInfo($tmpPath);
 
         $this->objectManager->expects($this->at(0))
             ->method('get')
-            ->with(BasicFileUtility::class)
-            ->will($this->returnValue($mockedFileUtility));
+            ->with(...[BasicFileUtility::class])
+            ->willReturn($this->fileUtility);
         $this->objectManager->expects($this->at(1))
             ->method('get')
-            ->with(FileInfo::class)
-            ->will($this->returnValue($mockFileInfo));
+            ->with(...[FileInfo::class])
+            ->willReturn($mockFileInfo);
 
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
@@ -132,9 +109,17 @@ class DataTargetFileStreamTest extends TestCase
         $this->assertFileExists($tmpPath);
 
         $content = file_get_contents($tmpPath);
+        /** @noinspection SpellCheckingInspection */
         $this->assertEquals('aaaaaaabbbbbbbcccccccddddddd', $content);
 
         unlink($tmpPath);
         rmdir($absPath);
+    }
+
+    public function createDataStreamWithSampleBuffer($buffer): DataStream
+    {
+        $ds = new DataStream();
+        $ds->setStreamBuffer($buffer);
+        return $ds;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests;
 
 use CPSIT\T3importExport\IdentifiableTrait;
@@ -36,27 +37,22 @@ class IdentifiableTraitTest extends TestCase
      */
     protected $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
         $this->subject = $this->getObjectForTrait(
-            IdentifiableTrait::class, ['dummy']
+            IdentifiableTrait::class
         );
     }
 
-    /**
-     * @test
-     */
-    public function getIdentifierInitiallyReturnsNull()
+    public function testGetIdentifierInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getIdentifier()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setIdentifierSetsIdentifier()
+    public function testSetIdentifierSetsIdentifier(): void
     {
         $identifier = 'foo';
         $this->subject->setIdentifier($identifier);

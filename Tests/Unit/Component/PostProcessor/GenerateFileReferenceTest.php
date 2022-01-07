@@ -21,6 +21,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
@@ -33,6 +34,8 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  */
 class GenerateFileReferenceTest extends TestCase
 {
+    use MockPersistenceManagerTrait;
+
     /**
      * @var GenerateFileReference|\PHPUnit_Framework_MockObject_MockObject
      */
@@ -42,11 +45,6 @@ class GenerateFileReferenceTest extends TestCase
      * @var FileReferenceFactory|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $fileReferenceFactory;
-
-    /**
-     * @var PersistenceManagerInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $persistenceManager;
 
     /**
      * @var FileIndexRepository|\PHPUnit_Framework_MockObject_MockObject
@@ -64,11 +62,7 @@ class GenerateFileReferenceTest extends TestCase
         $this->fileReferenceFactory = $this->getMockBuilder(FileReferenceFactory::class)
             ->setMethods(['create'])->getMock();
         $this->subject->injectFileReferenceFactory($this->fileReferenceFactory);
-        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['remove'])
-            ->getMockForAbstractClass();
-        $this->subject->injectPersistenceManager($this->persistenceManager);
+        $this->mockPersistenceManager();
         $this->fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)
             ->disableOriginalConstructor()->setMethods(['findOneByUid'])
             ->getMock();
@@ -365,4 +359,5 @@ class GenerateFileReferenceTest extends TestCase
             $this->subject->getErrorCodes()
         );
     }
+
 }
