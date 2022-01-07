@@ -1,10 +1,13 @@
 <?php
+
 namespace CPSIT\T3importExport\Property;
 
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
+
+//use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -42,7 +45,7 @@ class PropertyMappingConfigurationBuilder
     }
 
     /**
-     * @param array$configuration
+     * @param array $configuration
      * @return PropertyMappingConfiguration
      */
     public function build(array $configuration)
@@ -54,6 +57,58 @@ class PropertyMappingConfigurationBuilder
         $this->configure($configuration, $propertyMappingConfiguration);
 
         return $propertyMappingConfiguration;
+    }
+
+    /**
+     * @param array $configuration
+     * @param PropertyMappingConfiguration $propertyMappingConfiguration
+     */
+    protected function configure(array $configuration, PropertyMappingConfiguration $propertyMappingConfiguration)
+    {
+        $propertyMappingConfiguration->setTypeConverterOptions(
+            $this->getTypeConverterClass($configuration),
+            $this->getTypeConverterOptions($configuration)
+        );
+
+        $propertyMappingConfiguration->skipUnknownProperties();
+        if ($this->getAllowAllProperties($configuration)) {
+            $propertyMappingConfiguration->allowAllProperties();
+        } else {
+            $allowedProperties = $this->getAllowedProperties($configuration);
+            if ((bool)$allowedProperties) {
+                call_user_func_array(
+                    [$propertyMappingConfiguration, 'allowProperties'],
+                    $allowedProperties
+                );
+            }
+        }
+        if ((bool)$properties = $this->getProperties($configuration)) {
+            $allowedProperties = $this->getAllowedProperties($configuration);
+            foreach ($properties as $propertyName => $localConfiguration) {
+                if (!in_array($propertyName, $allowedProperties)) {
+                    continue;
+                }
+
+                $this->configure(
+                    $localConfiguration,
+                    $propertyMappingConfiguration->forProperty($propertyName)
+                );
+
+                if (!(isset($localConfiguration['children'])
+                    && isset($localConfiguration['children']['maxItems']))
+                ) {
+                    continue;
+                }
+                $maxItems = (int)$localConfiguration['children']['maxItems'];
+                for ($child = 0; $child <= $maxItems; $child++) {
+                    $propertyPath = $propertyName . '.' . $child;
+                    $this->configure(
+                        $localConfiguration['children'],
+                        $propertyMappingConfiguration->forProperty($propertyPath)
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -91,13 +146,30 @@ class PropertyMappingConfigurationBuilder
         if (isset($configuration['typeConverter']['options'])
             && is_array($configuration['typeConverter']['options'])
         ) {
-            $options = ArrayUtility::arrayMergeRecursiveOverrule(
+            ArrayUtility::mergeRecursiveWithOverrule(
                 $options,
                 $configuration['typeConverter']['options']
             );
         }
 
         return $options;
+    }
+
+    /**
+     * Tells if all properties should be allowed to map
+     *
+     * @param $configuration
+     * @return bool
+     */
+    protected function getAllowAllProperties($configuration)
+    {
+        if (isset($configuration['allowAllProperties'])
+            && (bool)$configuration['allowAllProperties']
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -112,10 +184,9 @@ class PropertyMappingConfigurationBuilder
         if (isset($configuration['allowProperties'])
             && is_string($configuration['allowProperties'])
         ) {
-            $allowedProperties = ArrayUtility::trimExplode(
+            $allowedProperties = explode(
                 ',',
-                $configuration['allowProperties'],
-                true
+                trim($configuration['allowProperties'])
             );
 
             return $allowedProperties;
@@ -125,79 +196,10 @@ class PropertyMappingConfigurationBuilder
     }
 
     /**
-     * Tells if all properties should be allowed to map
-     *
-     * @param $configuration
-     * @return bool
-     */
-    protected function getAllowAllProperties($configuration)
-    {
-        if (isset($configuration['allowAllProperties'])
-            && (bool) $configuration['allowAllProperties']
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param array $configuration
-     * @param PropertyMappingConfiguration $propertyMappingConfiguration
-     */
-    protected function configure(array $configuration, PropertyMappingConfiguration $propertyMappingConfiguration)
-    {
-        $propertyMappingConfiguration->setTypeConverterOptions(
-            $this->getTypeConverterClass($configuration),
-            $this->getTypeConverterOptions($configuration)
-        );
-
-        $propertyMappingConfiguration->skipUnknownProperties();
-        if ($this->getAllowAllProperties($configuration)) {
-            $propertyMappingConfiguration->allowAllProperties();
-        } else {
-            $allowedProperties = $this->getAllowedProperties($configuration);
-            if ((bool) $allowedProperties) {
-                call_user_func_array(
-                    [$propertyMappingConfiguration, 'allowProperties'],
-                    $allowedProperties
-                );
-            }
-        }
-        if ((bool) $properties = $this->getProperties($configuration)) {
-            $allowedProperties = $this->getAllowedProperties($configuration);
-            foreach ($properties as $propertyName => $localConfiguration) {
-                if (!in_array($propertyName, $allowedProperties)) {
-                    continue;
-                }
-
-                $this->configure(
-                    $localConfiguration,
-                    $propertyMappingConfiguration->forProperty($propertyName)
-                );
-
-                if (!(isset($localConfiguration['children'])
-                    && isset($localConfiguration['children']['maxItems']))
-                ) {
-                    continue;
-                }
-                $maxItems = (int) $localConfiguration['children']['maxItems'];
-                for ($child = 0; $child <= $maxItems; $child++) {
-                    $propertyPath = $propertyName . '.' . $child;
-                    $this->configure(
-                        $localConfiguration['children'],
-                        $propertyMappingConfiguration->forProperty($propertyPath)
-                    );
-                }
-            }
-        }
-    }
-
-    /**
      * @param $configuration
      * @return array
      */
-    protected function getProperties($configuration)
+    public function getProperties($configuration)
     {
         $properties = [];
         if (isset($configuration['properties'])

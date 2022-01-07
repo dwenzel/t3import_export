@@ -2,7 +2,7 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
-use CPSIT\T3importExport\Command\ImportCommandController;
+use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
@@ -43,13 +43,13 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * Class ImportCommandControllerTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Command
- * @coversDefaultClass \CPSIT\T3importExport\Command\ImportCommandController
+ * @coversDefaultClass \CPSIT\T3importExport\Command\ImportSetCommand
  */
 class ImportCommandControllerTest extends TestCase
 {
 
     /**
-     * @var ImportCommandController
+     * @var ImportSetCommand
      */
     protected $subject;
 
@@ -59,7 +59,7 @@ class ImportCommandControllerTest extends TestCase
     public function setUp()
     {
         $this->markTestSkipped('Todo: replace ExtbaseCommandController by Symfony Command');
-        $this->subject = new ImportCommandController();
+        $this->subject = new ImportSetCommand();
     }
 
     /**
@@ -70,7 +70,7 @@ class ImportCommandControllerTest extends TestCase
         $dataTransferProcessorSettings = ['foo'];
         $extbaseFrameWorkConfig = [
             'settings' => [
-                ImportCommandController::SETTINGS_KEY => $dataTransferProcessorSettings
+                ImportSetCommand::SETTINGS_KEY => $dataTransferProcessorSettings
             ]
         ];
 

@@ -14,7 +14,7 @@ trait IdentifiableTrait
      *
      * @var string
      */
-    protected $identifier;
+    protected string $identifier;
 
     /**
      * Sets the identifier

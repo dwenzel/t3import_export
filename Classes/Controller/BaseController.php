@@ -48,7 +48,7 @@ abstract class BaseController extends ActionController
      *
      * @param DataTransferProcessor $dataTransferProcessor
      */
-    public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor)
+    public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor): void
     {
         $this->dataTransferProcessor = $dataTransferProcessor;
     }
@@ -56,7 +56,7 @@ abstract class BaseController extends ActionController
     /**
      * @param TransferTaskFactory $importTaskFactory
      */
-    public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory)
+    public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory): void
     {
         $this->transferTaskFactory = $importTaskFactory;
     }
@@ -64,7 +64,7 @@ abstract class BaseController extends ActionController
     /**
      * @param TransferSetFactory $importSetFactory
      */
-    public function injectTransferSetFactory(TransferSetFactory $importSetFactory)
+    public function injectTransferSetFactory(TransferSetFactory $importSetFactory): void
     {
         $this->transferSetFactory = $importSetFactory;
     }
@@ -81,7 +81,7 @@ abstract class BaseController extends ActionController
      *
      * @throws InvalidConfigurationException
      */
-    public function indexAction()
+    public function indexAction(): void
     {
         $settingsKey = $this->getSettingsKey();
         $tasks = [];
@@ -108,7 +108,7 @@ abstract class BaseController extends ActionController
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
-    protected function doTaskAction($identifier)
+    protected function taskAction($identifier): void
     {
         /** @var TaskDemand $importDemand */
         $importDemand = $this->objectManager->get(
@@ -135,7 +135,7 @@ abstract class BaseController extends ActionController
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
-    protected function doSetAction($identifier)
+    protected function setAction($identifier): void
     {
         $settingsKey = $this->getSettingsKey();
 
@@ -166,7 +166,7 @@ abstract class BaseController extends ActionController
      * @param $settings
      * @return array
      */
-    protected function buildTasksFromSettings($settings)
+    protected function buildTasksFromSettings($settings): array
     {
         $tasks = [];
 
@@ -187,7 +187,7 @@ abstract class BaseController extends ActionController
      * @param $settings
      * @return array
      */
-    protected function buildSetsFromSettings($settings)
+    protected function buildSetsFromSettings($settings): array
     {
         $sets = [];
 

@@ -26,7 +26,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Command;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\Command\ExportCommandController;
+use CPSIT\T3importExport\Command\ExportCommand;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -35,12 +35,12 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  * Class ExportCommandControllerTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Command
- * @coversDefaultClass \CPSIT\T3importExport\Command\ExportCommandController
+ * @coversDefaultClass \CPSIT\T3importExport\Command\ExportCommand
  */
 class ExportCommandControllerTest extends TestCase
 {
     /**
-     * @var ExportCommandController
+     * @var ExportCommand
      */
     protected $subject;
 
@@ -50,7 +50,7 @@ class ExportCommandControllerTest extends TestCase
     public function setUp()
     {
         $this->markTestSkipped('Todo: replace ExtbaseCommandController by Symfony Command');
-        $this->subject = new ExportCommandController();
+        $this->subject = new ExportCommand();
     }
 
     /**
@@ -61,7 +61,7 @@ class ExportCommandControllerTest extends TestCase
         $dataTransferProcessorSettings = ['foo'];
         $extbaseFrameWorkConfig = [
             'settings' => [
-                ExportCommandController::SETTINGS_KEY => $dataTransferProcessorSettings
+                ExportCommand::SETTINGS_KEY => $dataTransferProcessorSettings
             ]
         ];
 

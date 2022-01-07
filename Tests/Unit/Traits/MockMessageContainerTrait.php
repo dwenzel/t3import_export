@@ -23,7 +23,6 @@ use PHPUnit\Framework\MockObject\MockObject;
  ***************************************************************/
 trait MockMessageContainerTrait
 {
-
     /**
      * @var MessageContainer|MockObject
      */
@@ -37,4 +36,5 @@ trait MockMessageContainerTrait
             ->getMock();
         $this->subject->injectMessageContainer($this->messageContainer);
     }
+
 }

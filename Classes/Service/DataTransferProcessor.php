@@ -93,7 +93,7 @@ class DataTransferProcessor
     /**
      * builds the import queue
      *
-     * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
+     * @param DemandInterface
      */
     public function buildQueue(DemandInterface $demand)
     {
@@ -112,14 +112,14 @@ class DataTransferProcessor
     /**
      * Processes the queue
      *
-     * @param \CPSIT\T3importExport\Domain\Model\Dto\DemandInterface
+     * @param DemandInterface
      * @return array
      */
-    public function process(DemandInterface $importDemand)
+    public function process(DemandInterface $demand)
     {
         /** @var TaskResult $result */
         $result = $this->objectManager->get(TaskResult::class);
-        $tasks = $importDemand->getTasks();
+        $tasks = $demand->getTasks();
         foreach ($tasks as $task) {
             /** @var TransferTask $task */
             if (!isset($this->queue[$task->getIdentifier()])) {

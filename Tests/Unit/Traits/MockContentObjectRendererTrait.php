@@ -30,6 +30,9 @@ trait MockContentObjectRendererTrait
      */
     protected ContentObjectRenderer $contentObjectRenderer;
 
+    /**
+     * @var ContentContentObject|MockObject
+     */
     protected ContentContentObject $contentObject;
 
     protected function mockContentObjectRenderer(): void
