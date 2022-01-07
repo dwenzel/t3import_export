@@ -1,9 +1,14 @@
 <?php
+
 namespace CPSIT\T3importExport;
 
-use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Http\ServerRequestFactory;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Http\Uri;
+use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
@@ -41,28 +46,30 @@ trait RenderContentTrait
          * ContentObjectRenderer fails in method cObjGetSingle since
          * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
          */
-       if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
-           $fakeSiteConfiguration = [
-               'languages' => [
-                   [
-                       'languageId' => 0,
-                       'title' => 'Dummy',
-                       'navigationTitle' => '',
-                       'typo3Language' => '',
-                       'flag' => '',
-                       'locale' => '',
-                       'iso-639-1' => '',
-                       'hreflang' => '',
-                       'direction' => '',
-                   ],
-               ],
-           ];
-
-           /** @var \TYPO3\CMS\Core\Site\Entity\SiteLanguage $currentSiteLanguage */
-           $currentSiteLanguage = GeneralUtility::makeInstance(Site::class, 'form-dummy', 1, $fakeSiteConfiguration)
-               ->getLanguageById(0);
-           $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, $currentSiteLanguage);
-       }
+        if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
+            $site = GeneralUtility::makeInstance(Site::class, 1, 1, []);
+            $siteLanguage = GeneralUtility::makeInstance(
+                SiteLanguage::class,
+                0,
+                'en-EN',
+                new Uri('https://domain.org/page'),
+                []
+            );
+            $pageArguments = GeneralUtility::makeInstance(PageArguments::class, 1, 0, []);
+            $nullFrontend = GeneralUtility::makeInstance(NullFrontend::class, 'pages');
+            $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
+            try {
+                $cacheManager->registerCache($nullFrontend);
+            } catch (\Exception $exception) {
+                unset($exception);
+            }
+            $GLOBALS['TSFE'] = new TypoScriptFrontendController(
+                GeneralUtility::makeInstance(Context::class),
+                $site,
+                $siteLanguage,
+                $pageArguments
+            );
+        }
     }
 
     /**
