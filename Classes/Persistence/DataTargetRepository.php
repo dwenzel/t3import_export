@@ -3,11 +3,13 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\MissingClassException;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
 
 /***************************************************************
  *
@@ -35,6 +37,8 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  ***************************************************************/
 class DataTargetRepository implements DataTargetInterface
 {
+    public const MISSING_CLASS_EXCEPTION_CODE = 1641374612;
+    public const MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
 
     /**
      * Fully qualified class name of the object which should be persisted.
@@ -65,10 +69,12 @@ class DataTargetRepository implements DataTargetInterface
      * Constructor
      *
      * @param string $targetClass
+     * @param RepositoryInterface|null $repository
      */
-    public function __construct($targetClass)
+    public function __construct(string $targetClass, RepositoryInterface $repository = null)
     {
         $this->targetClass = $targetClass;
+        $this->repository = $repository ?? null;
     }
 
     /**
@@ -121,9 +127,9 @@ class DataTargetRepository implements DataTargetInterface
      * Gets the repository
      *
      * @return Repository
-     * @throws Exception
+     * @throws MissingClassException
      */
-    protected function getRepository()
+    public function getRepository(): Repository
     {
         if (!$this->repository instanceof Repository) {
             $repositoryClass = str_replace('Model', 'Repository', $this->targetClass) . 'Repository';
@@ -131,7 +137,15 @@ class DataTargetRepository implements DataTargetInterface
                 /** Repository $this->repository */
                 $this->repository = $this->objectManager->get($repositoryClass);
             } else {
-                throw new Exception();
+                $message = sprintf(
+                    self::MISSING_CLASS_EXCEPTION_MESSAGE,
+                    $repositoryClass,
+                    $this->targetClass
+                );
+                throw new MissingClassException(
+                    $message,
+                    self::MISSING_CLASS_EXCEPTION_CODE
+                );
             }
         }
 
