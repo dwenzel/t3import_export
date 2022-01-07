@@ -24,7 +24,7 @@ use CPSIT\T3importExport\Controller\ExportController;
  * Class ExportCommandController
  * Provides export commands for cli and scheduler tasks
  */
-class ExportCommandController extends TransferCommandController
+class ExportCommand extends TransferCommand
 {
     /**
      * Key under which configuration are found in
