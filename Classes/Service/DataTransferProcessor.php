@@ -28,6 +28,7 @@ use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\LoggingInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
@@ -50,11 +51,6 @@ class DataTransferProcessor
     protected $persistenceManager;
 
     /**
-     * @var ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
      * injects the persistence manager
      *
      * @param PersistenceManager $persistenceManager
@@ -62,16 +58,6 @@ class DataTransferProcessor
     public function injectPersistenceManager(PersistenceManager $persistenceManager)
     {
         $this->persistenceManager = $persistenceManager;
-    }
-
-    /**
-     * injects the object manager
-     *
-     * @param ObjectManagerInterface $objectManager
-     */
-    public function injectObjectManager(ObjectManagerInterface $objectManager)
-    {
-        $this->objectManager = $objectManager;
     }
 
     public function withQueue(array $queue): self
@@ -118,7 +104,7 @@ class DataTransferProcessor
     public function process(DemandInterface $demand)
     {
         /** @var TaskResult $result */
-        $result = $this->objectManager->get(TaskResult::class);
+        $result = GeneralUtility::makeInstance(TaskResult::class);
         $tasks = $demand->getTasks();
         foreach ($tasks as $task) {
             /** @var TransferTask $task */

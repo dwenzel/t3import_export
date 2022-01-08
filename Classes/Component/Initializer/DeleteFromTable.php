@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 /**
@@ -15,7 +16,6 @@ namespace CPSIT\T3importExport\Component\Initializer;
  */
 
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
 
 /**
  * Class DeleteFromTable
@@ -35,14 +35,18 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
      */
     public function process($configuration, &$records)
     {
+        $table = $configuration['table'];
+        $where = $configuration['where'];
         if (isset($configuration['identifier'])) {
             $this->database = $this->connectionService
                 ->getDatabase($configuration['identifier']);
+            // todo
         }
-        $table = $configuration['table'];
-        $where = $configuration['where'];
-
-        return (bool)$this->database->exec_DELETEquery($table, $where);
+        return $this->connectionPool->getConnectionForTable($table)
+            ->createQueryBuilder()
+            ->delete($table)
+            ->where($where)
+            ->execute();
     }
 
     /**
@@ -66,7 +70,8 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
         }
 
         if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
+            && !$this->getDatabaseConnectionService()->isRegistered($configuration['identifier']
+                || !is_string($configuration['identifier']))
         ) {
             return false;
         }

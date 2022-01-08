@@ -41,7 +41,6 @@ trait MockDatabaseConnectionServiceTrait
             ->disableOriginalConstructor()
             ->setMethods(['isRegistered', 'getDatabase'])
             ->getMock();
-        $this->subject->injectDatabaseConnectionService($this->connectionService);
     }
 
     protected function mockConnection(): void

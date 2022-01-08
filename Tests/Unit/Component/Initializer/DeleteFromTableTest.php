@@ -20,6 +20,7 @@ use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseConnectionServiceTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Tests\AccessibleObjectInterface;
 
@@ -30,12 +31,15 @@ class DeleteFromTableTest extends TestCase
 
     protected DeleteFromTable $subject;
 
+    protected ConnectionPool $connectionPool;
+
     public function setUp()
     {
-        $this->subject = new DeleteFromTable();
         $this->mockDatabaseConnectionService();
-
         $this->mockConnection();
+        $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->getMock();
+        $this->subject = new DeleteFromTable($this->connectionPool, $this->connectionService);
     }
 
 

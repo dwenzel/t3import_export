@@ -1,10 +1,10 @@
 <?php
 
-namespace CPSIT\T3importExport\Command\Option;
+namespace CPSIT\T3importExport\Command\Argument;
 
-use DWenzel\T3extensionTools\Command\Option\CommandOptionInterface;
-use DWenzel\T3extensionTools\Traits\Command\Option\CommandOptionTrait;
-use Symfony\Component\Console\Input\InputOption;
+use DWenzel\T3extensionTools\Command\Argument\InputArgumentInterface;
+use DWenzel\T3extensionTools\Traits\Command\Argument\InputArgumentTrait;
+use Symfony\Component\Console\Input\InputArgument;
 
 /***************************************************************
  *  Copyright notice
@@ -22,13 +22,13 @@ use Symfony\Component\Console\Input\InputOption;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class Task implements CommandOptionInterface
+class TaskArgument implements InputArgumentInterface
 {
-    use CommandOptionTrait;
+    use InputArgumentTrait;
 
     public const NAME = 'task';
     public const HELP = 'identifier of task to process';
-    public const MODE = InputOption::VALUE_REQUIRED;
+    public const MODE = InputArgument::REQUIRED;
     public const DESCRIPTION = 'task identifier';
     public const SHORTCUT = 't';
     public const DEFAULT = null;

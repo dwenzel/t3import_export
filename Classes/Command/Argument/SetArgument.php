@@ -1,9 +1,9 @@
 <?php
 
-namespace CPSIT\T3importExport\Command\Option;
+namespace CPSIT\T3importExport\Command\Argument;
 
-use DWenzel\T3extensionTools\Command\Option\CommandOptionInterface;
-use DWenzel\T3extensionTools\Traits\Command\Option\CommandOptionTrait;
+use DWenzel\T3extensionTools\Command\Argument\InputArgumentInterface;
+use DWenzel\T3extensionTools\Traits\Command\Argument\InputArgumentTrait;
 use Symfony\Component\Console\Input\InputOption;
 
 /***************************************************************
@@ -22,9 +22,9 @@ use Symfony\Component\Console\Input\InputOption;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class Set implements CommandOptionInterface
+class SetArgument implements InputArgumentInterface
 {
-    use CommandOptionTrait;
+    use InputArgumentTrait;
 
     public const NAME = 'set';
     public const HELP = 'identifier of set to process';

@@ -40,8 +40,12 @@ class DatabaseConnectionService implements SingletonInterface
     /**
      * @var ConnectionPool
      */
-    protected static ConnectionPool $connectionPool;
+    protected ConnectionPool $connectionPool;
 
+    public function __construct($connectionPool = null)
+    {
+        $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
+    }
     /**
      * Gets a registered database instance by
      * its identifier
@@ -53,10 +57,10 @@ class DatabaseConnectionService implements SingletonInterface
      * @deprecated
      * Use @see ConnectionPool::getConnectionForTable() instead
      */
-    public function getDatabase($identifier)
+    public function getDatabase($identifier): Connection
     {
-        if (self::isRegistered($identifier)) {
-            return static::getConnectionPool()->getConnectionByName($identifier);
+        if ($this->isRegistered($identifier)) {
+            return $this->getConnectionPool()->getConnectionByName($identifier);
         }
         throw new MissingDatabaseException(
             'No database registered for identifier ' . $identifier,
@@ -71,18 +75,14 @@ class DatabaseConnectionService implements SingletonInterface
      * @param string $identifier
      * @return bool
      */
-    public static function isRegistered($identifier)
+    public function isRegistered($identifier): bool
     {
-        $connections = static::$connectionPool->getConnectionNames();
+        $connections = $this->connectionPool->getConnectionNames();
         return isset($connections[$identifier]);
     }
 
-    protected static function getConnectionPool(): ConnectionPool
+    protected function getConnectionPool(): ConnectionPool
     {
-        if (!static::$connectionPool instanceof ConnectionPool) {
-            static::$connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-        }
-
-        return static::$connectionPool;
+        return $this->connectionPool;
     }
 }
