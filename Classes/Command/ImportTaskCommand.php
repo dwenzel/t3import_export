@@ -2,7 +2,8 @@
 
 namespace CPSIT\T3importExport\Command;
 
-use CPSIT\T3importExport\Command\Option\Set;
+use CPSIT\T3importExport\Command\Argument\SetArgument;
+use CPSIT\T3importExport\Command\Argument\TaskArgument;
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
@@ -11,7 +12,9 @@ use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Command\OptionAwareInterface;
+use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
 use DWenzel\T3extensionTools\Traits\Command\OptionAwareTrait;
@@ -19,6 +22,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -41,11 +46,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Provides import set commands for cli and scheduler tasks
  */
-class ImportTaskCommand extends Command implements OptionAwareInterface
+class ImportTaskCommand extends Command implements ArgumentAwareInterface
 {
     use ConfigureTrait,
         InitializeTrait,
-        OptionAwareTrait,
+        ArgumentAwareTrait,
         TransferCommandTrait;
 
     /**
@@ -60,12 +65,14 @@ class ImportTaskCommand extends Command implements OptionAwareInterface
     public const MESSAGE_HELP_COMMAND = '@todo: help command';
     public const MESSAGE_SUCCESS = 'Import task successfully processed';
     public const MESSAGE_STARTING = 'Starting import task';
-
-    protected const OPTIONS = [
-        Set::class
+    public const WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
+    protected const OPTIONS = [];
+    protected const ARGUMENTS = [
+        TaskArgument::class
     ];
 
     static protected $optionsToConfigure = self::OPTIONS;
+    static protected $argumentsToConfigure = self::ARGUMENTS;
     /**
      * @var string
      */
@@ -82,19 +89,33 @@ class ImportTaskCommand extends Command implements OptionAwareInterface
     public function __construct(
         string $name = null,
         TransferTaskFactory $transferTaskFactory = null,
-        DataTransferProcessor $dataTransferProcessor = null
+        DataTransferProcessor $dataTransferProcessor = null,
+        ConfigurationManagerInterface $configurationManager = null
     )
     {
         $this->transferTaskFactory = $transferTaskFactory ?? GeneralUtility::makeInstance(TransferTaskFactory::class);
         $this->dataTransferProcessor = $dataTransferProcessor ?? GeneralUtility::makeInstance(DataTransferProcessor::class);
-
+        $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
         parent::__construct($name);
+        $this->initializeObject();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io->comment(self::MESSAGE_STARTING);
-        $identifier = (string)$input->getOption(Set::name());
+        $identifier = (string)$input->getArgument(TaskArgument::NAME);
+
+        if (empty($identifier)) {
+            $this->io->warning(
+                sprintf(
+                    static::WARNING_MISSING_PARAMETER,
+                    SetArgument::NAME
+                )
+            );
+
+            return Command::INVALID;
+        }
+
         $this->process($identifier);
         $this->io->success(self::MESSAGE_SUCCESS);
         return Command::SUCCESS;

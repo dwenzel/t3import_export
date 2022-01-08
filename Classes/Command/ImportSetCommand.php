@@ -2,17 +2,16 @@
 
 namespace CPSIT\T3importExport\Command;
 
-use CPSIT\T3importExport\Command\Option\Task;
+use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use DWenzel\T3extensionTools\Command\OptionAwareInterface;
+use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
+use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
-use DWenzel\T3extensionTools\Traits\Command\OptionAwareTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -39,11 +38,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Provides import set commands for cli and scheduler tasks
  */
-class ImportSetCommand extends Command implements OptionAwareInterface
+class ImportSetCommand extends Command implements ArgumentAwareInterface
 {
-    use ConfigureTrait,
+    use ArgumentAwareTrait,
+        ConfigureTrait,
         InitializeTrait,
-        OptionAwareTrait,
         TransferCommandTrait;
 
     protected TransferSetFactory $transferSetFactory;
@@ -60,15 +59,18 @@ class ImportSetCommand extends Command implements OptionAwareInterface
     public const MESSAGE_HELP_COMMAND = '@todo: help command';
     public const MESSAGE_SUCCESS = 'Import sets successfully processed';
     public const MESSAGE_STARTING = 'Starting import task';
-
+    public const WARNING_MISSING_PARAMETER = 'Parameter %s must not be omitted';
     public const OPTIONS = [
-        Task::class
+    ];
+    public const ARGUMENTS = [
+        SetArgument::class
     ];
 
     /**
      * @var array|string[]
      */
     static protected array $optionsToConfigure = self::OPTIONS;
+    static protected array $argumentsToConfigure = self::ARGUMENTS;
 
     /**
      * TransferCommandTrait constructor.
@@ -90,7 +92,17 @@ class ImportSetCommand extends Command implements OptionAwareInterface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $identifier = (string)$input->getOption(Task::NAME);
+        $identifier = (string)$input->getArgument(SetArgument::NAME);
+        if (empty($identifier)) {
+            $this->io->warning(
+                sprintf(
+                    static::WARNING_MISSING_PARAMETER,
+                    SetArgument::NAME
+                )
+            );
+
+            return Command::INVALID;
+        }
         $this->io->comment(static::MESSAGE_STARTING);
 
         $this->process($identifier);
