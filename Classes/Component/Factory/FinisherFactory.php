@@ -5,6 +5,7 @@ use CPSIT\T3importExport\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -70,6 +71,6 @@ class FinisherFactory extends AbstractFactory
             );
         }
 
-        return $this->objectManager->get($className);
+        return GeneralUtility::makeInstance($className);
     }
 }

@@ -9,6 +9,7 @@ use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -73,10 +74,7 @@ class DataTargetFactory extends AbstractFactory
             }
         }
         /** @var DataTargetInterface $target */
-        $target = $this->objectManager->get(
-            $dataTargetClass,
-            $objectClass
-        );
+        $target = GeneralUtility::makeInstance($dataTargetClass, $objectClass);
         if ($target instanceof IdentifiableInterface && isset($settings['identifier'])) {
             $target->setIdentifier($settings['identifier']);
         }

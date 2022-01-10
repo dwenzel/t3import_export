@@ -10,6 +10,7 @@ use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\RenderContentTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -78,7 +79,7 @@ class DataSourceFactory extends AbstractFactory
             );
         }
 
-        $dataSource = $this->objectManager->get($dataSourceClass);
+        $dataSource = GeneralUtility::makeInstance($dataSourceClass);
         if (
             in_array(IdentifiableInterface::class, class_implements($dataSourceClass))
             && isset($settings['identifier'])

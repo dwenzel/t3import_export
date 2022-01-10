@@ -17,6 +17,9 @@ use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -80,74 +83,26 @@ class TransferTaskFactory extends AbstractFactory
      */
     protected $initializerFactory;
 
-    /**
-     * injects the data target factory
-     *
-     * @param DataTargetFactory $factory
-     */
-    public function injectDataTargetFactory(DataTargetFactory $factory)
-    {
-        $this->dataTargetFactory = $factory;
-    }
 
-    /**
-     * injects the data source factory
-     *
-     * @param DataSourceFactory $factory
-     */
-    public function injectDataSourceFactory(DataSourceFactory $factory)
+    public function __construct(
+        ?ConfigurationManagerInterface $configurationManager = null,
+        ?DataTargetFactory $dataTargetFactory = null,
+        ?DataSourceFactory $dataSourceFactory = null,
+        ?PreProcessorFactory $preProcessorFactory = null,
+        ?InitializerFactory $initializerFactory = null,
+        ?PostProcessorFactory $postProcessorFactory = null,
+        ?ConverterFactory $converterFactory = null,
+        ?FinisherFactory $finisherFactory = null
+    )
     {
-        $this->dataSourceFactory = $factory;
-    }
-
-    /**
-     * injects the pre processor factory
-     *
-     * @param PreProcessorFactory $factory
-     */
-    public function injectPreProcessorFactory(PreProcessorFactory $factory)
-    {
-        $this->preProcessorFactory = $factory;
-    }
-
-    /**
-     * injects the post processor factory
-     *
-     * @param PostProcessorFactory $factory
-     */
-    public function injectPostProcessorFactory(PostProcessorFactory $factory)
-    {
-        $this->postProcessorFactory = $factory;
-    }
-
-    /**
-     * injects the converter factory
-     *
-     * @param ConverterFactory $factory
-     */
-    public function injectConverterFactory(ConverterFactory $factory)
-    {
-        $this->converterFactory = $factory;
-    }
-
-    /**
-     * injects the finisher factory
-     *
-     * @param FinisherFactory $factory
-     */
-    public function injectFinisherFactory(FinisherFactory $factory)
-    {
-        $this->finisherFactory = $factory;
-    }
-
-    /**
-     * injects the initializer factory
-     *
-     * @param InitializerFactory $factory
-     */
-    public function injectInitializerFactory(InitializerFactory $factory)
-    {
-        $this->initializerFactory = $factory;
+        $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
+        $this->dataTargetFactory = $dataTargetFactory ?? GeneralUtility::makeInstance(DataTargetFactory::class);
+        $this->dataSourceFactory = $dataSourceFactory ?? GeneralUtility::makeInstance(DataSourceFactory::class);
+        $this->preProcessorFactory = $preProcessorFactory ?? GeneralUtility::makeInstance(PreProcessorFactory::class);
+        $this->initializerFactory = $initializerFactory ?? GeneralUtility::makeInstance(InitializerFactory::class);
+        $this->postProcessorFactory = $postProcessorFactory ?? GeneralUtility::makeInstance(PostProcessorFactory::class);
+        $this->converterFactory = $converterFactory ?? GeneralUtility::makeInstance(ConverterFactory::class);
+        $this->finisherFactory = $finisherFactory ?? GeneralUtility::makeInstance(FinisherFactory::class);
     }
 
     /**
@@ -163,9 +118,7 @@ class TransferTaskFactory extends AbstractFactory
     public function get(array $settings, $identifier = null)
     {
         /** @var TransferTask $task */
-        $task = $this->objectManager->get(
-            TransferTask::class
-        );
+        $task = GeneralUtility::makeInstance(TransferTask::class);
         $task->setIdentifier($identifier);
 
         if (isset($settings['class'])
