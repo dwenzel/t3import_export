@@ -66,6 +66,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     public const MESSAGE_SUCCESS = 'Import task successfully processed';
     public const MESSAGE_STARTING = 'Starting import task';
     public const WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
+    public const WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
     protected const OPTIONS = [];
     protected const ARGUMENTS = [
         TaskArgument::class
@@ -105,20 +106,24 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         $this->io->comment(self::MESSAGE_STARTING);
         $identifier = (string)$input->getArgument(TaskArgument::NAME);
 
-        if (empty($identifier)) {
+        $status = $this->assertValidIdentifier($identifier);
+
+        if(empty($this->settings['tasks'][$identifier])) {
             $this->io->warning(
-                sprintf(
-                    static::WARNING_MISSING_PARAMETER,
-                    SetArgument::NAME
-                )
+                sprintf(self::WARNING_MISSING_CONFIGURATION, $identifier)
             );
 
-            return Command::INVALID;
+            $status = Command::INVALID;
         }
 
-        $this->process($identifier);
-        $this->io->success(self::MESSAGE_SUCCESS);
-        return Command::SUCCESS;
+        $status = $this->process($identifier);
+        if ($status === 0) {
+            $this->io->success(self::MESSAGE_SUCCESS);
+            return Command::SUCCESS;
+        }
+
+        $this->io->error('An error occurred');
+        return $status;
     }
 
 
@@ -131,9 +136,12 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException
+     * @return int Returns an exit code
+     * @see Command exit codes
      */
-    public function process(string $identifier, $dryRun = false): void
+    public function process(string $identifier, $dryRun = false): int
     {
+        $status = Command::INVALID;
         /** @var TaskDemand $taskDemand */
         $taskDemand = GeneralUtility::makeInstance(TaskDemand::class);
 
@@ -146,10 +154,32 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
             $taskDemand->setTasks([$task]);
             $this->dataTransferProcessor->buildQueue($taskDemand);
-            if (!$dryRun) {
-                $this->dataTransferProcessor->process($taskDemand);
-            }
+            $result = $this->dataTransferProcessor->process($taskDemand);
+            $status = Command::SUCCESS;
+            // todo check result for error and set exit code accordingly
         }
+
+        return $status;
+    }
+
+    /**
+     * @param string $identifier
+     */
+    protected function assertValidIdentifier(string $identifier): int
+    {
+        $status = Command::SUCCESS;
+        if (empty($identifier)) {
+            $this->io->warning(
+                sprintf(
+                    static::WARNING_MISSING_PARAMETER,
+                    SetArgument::NAME
+                )
+            );
+
+            $status = Command::INVALID;
+        }
+
+        return $status;
     }
 
 }

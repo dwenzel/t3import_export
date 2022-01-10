@@ -52,7 +52,8 @@ trait TransferCommandTrait
     public function initializeObject(): void
     {
         $extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+            't3importexport'
         );
 
         if (isset($extbaseFrameworkConfiguration['settings'][static::SETTINGS_KEY])) {
