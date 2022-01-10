@@ -37,11 +37,6 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
     {
         $table = $configuration['table'];
         $where = $configuration['where'];
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-            // todo
-        }
         return $this->connectionPool->getConnectionForTable($table)
             ->createQueryBuilder()
             ->delete($table)
@@ -65,13 +60,6 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
 
         if (!isset($configuration['where'])
             || !is_string($configuration['where'])
-        ) {
-            return false;
-        }
-
-        if (isset($configuration['identifier'])
-            && !$this->getDatabaseConnectionService()->isRegistered($configuration['identifier']
-                || !is_string($configuration['identifier']))
         ) {
             return false;
         }

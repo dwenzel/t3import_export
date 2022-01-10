@@ -3,8 +3,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Component\Initializer\DeleteFromTableTest;
-use Doctrine\DBAL\Connection;
+use TYPO3\CMS\Core\Database\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /***************************************************************
@@ -33,13 +32,13 @@ trait MockDatabaseConnectionServiceTrait
     /**
      * @var Connection|MockObject
      */
-    protected $connection;
+    protected Connection $connection;
 
     protected function mockDatabaseConnectionService(): void
     {
         $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
             ->disableOriginalConstructor()
-            ->setMethods(['isRegistered', 'getDatabase'])
+            ->setMethods(['isRegistered', 'getDatabase', 'getConnectionForTable'])
             ->getMock();
     }
 
@@ -47,6 +46,14 @@ trait MockDatabaseConnectionServiceTrait
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'createQueryBuilder',
+                    'delete',
+                    'where',
+                    'execute'
+                ]
+            )
             ->getMock();
     }
 }

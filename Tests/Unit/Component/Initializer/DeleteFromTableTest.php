@@ -18,11 +18,11 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 use CPSIT\T3importExport\Component\Initializer\DeleteFromTable;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseConnectionServiceTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
-use Doctrine\DBAL\Connection;
+
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\AccessibleObjectInterface;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class DeleteFromTableTest extends TestCase
 {
@@ -33,11 +33,26 @@ class DeleteFromTableTest extends TestCase
 
     protected ConnectionPool $connectionPool;
 
+    protected QueryBuilder $queryBuilder;
+
     public function setUp()
     {
         $this->mockDatabaseConnectionService();
         $this->mockConnection();
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->setMethods(['getConnectionForTable'])
+            ->getMock();
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+        $this->queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'delete',
+                    'where',
+                    'execute'
+                ]
+            )
             ->getMock();
         $this->subject = new DeleteFromTable($this->connectionPool, $this->connectionService);
     }
@@ -48,16 +63,13 @@ class DeleteFromTableTest extends TestCase
      */
     public function processSetsDatabase(): void
     {
-        $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
         $configuration = [
             'table' => 'foo',
             'fields' => 'bar',
-            'rows' => [],
-            'identifier' => 'fooDatabase'
         ];
         $this->connectionService->expects($this->once())
-            ->method('getDatabase')
-            ->with($configuration['identifier'])
+            ->method('getConnectionForTable')
+            ->with(...[$configuration['table']])
             ->willReturn($this->connection);
 
         $record = [];
@@ -104,17 +116,6 @@ class DeleteFromTableTest extends TestCase
         );
     }
 
-    public function testIsConfigurationValidReturnsFalseIfIdentifierIsNotString(): void
-    {
-        $mockConfiguration = [
-            'table' => 'foo',
-            'where' => 'bar',
-            'identifier' => 2
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
-        );
-    }
 
     /**
      * @test
@@ -127,21 +128,6 @@ class DeleteFromTableTest extends TestCase
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($validConfiguration)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseIfDatabaseIsNotRegistered(): void
-    {
-        $mockConfiguration = [
-            'identifier' => 'missingDatabaseIdentifier',
-            'table' => 'fooTable',
-            'where' => 'bar',
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
         );
     }
 
@@ -167,8 +153,6 @@ class DeleteFromTableTest extends TestCase
      */
     public function processDeletesRecordsFromTable(): void
     {
-        $this->markTestSkipped('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
-
         $tableName = 'fooTable';
         $where = 'foo=bar';
         $config = [
@@ -176,13 +160,19 @@ class DeleteFromTableTest extends TestCase
             'where' => $where,
         ];
         $records = [];
-        $mockDatabase = $this->getMock(
-            DatabaseConnection::class, ['exec_DELETEquery']
-        );
-        $mockDatabase->expects($this->once())
-            ->method('exec_DELETEquery')
-            ->with($tableName);
-        $this->subject->_set('database', $mockDatabase);
+        $this->connection->expects($this->atLeastOnce())
+            ->method('createQueryBuilder')
+            ->willReturn($this->queryBuilder);
+
+        $this->queryBuilder->expects($this->once())
+            ->method('delete')
+            ->willReturn($this->queryBuilder);
+        $this->queryBuilder->expects(($this->once()))
+            ->method('where')
+            ->with(...[$config['where']])
+            ->willReturn($this->queryBuilder);
+        $this->queryBuilder->expects($this->once())
+            ->method('execute');
 
         $this->subject->process($config, $records);
     }
