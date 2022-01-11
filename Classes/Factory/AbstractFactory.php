@@ -29,8 +29,6 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  */
 abstract class AbstractFactory
 {
-    use ObjectManagerTrait;
-
     /**
      * @var array
      */

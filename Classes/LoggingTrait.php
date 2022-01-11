@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Trait LoggingTrait
@@ -26,7 +27,7 @@ use CPSIT\T3importExport\Messaging\MessageContainerTrait;
  */
 trait LoggingTrait
 {
-    use MessageContainerTrait, ObjectManagerTrait;
+    use MessageContainerTrait;
 
     /**
      * Returns error codes for current component.
@@ -98,7 +99,7 @@ trait LoggingTrait
     public function logMessage($title, $description, $severity = Message::OK, $id = null, array $additionalInformation = null)
     {
         /** @var Message $message */
-        $message = $this->objectManager->get(
+        $message = GeneralUtility::makeInstance(
             Message::class,
             $description,
             $title,

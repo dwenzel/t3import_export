@@ -21,6 +21,7 @@ namespace CPSIT\T3importExport\Persistence\Factory;
 
 use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
 /**
@@ -28,7 +29,7 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
  */
 class FileReferenceFactory
 {
-    use ObjectManagerTrait, ResourceFactoryTrait;
+    use ResourceFactoryTrait;
 
     /**
      * Creates a new file reference for a file
@@ -55,7 +56,7 @@ class FileReferenceFactory
         );
 
         /** @var FileReference $fileReference */
-        $fileReference = $this->objectManager->get(FileReference::class);
+        $fileReference = GeneralUtility::makeInstance(FileReference::class);
         $fileReference->setOriginalResource($coreReference);
         $fileReference->setPid($pageId);
 

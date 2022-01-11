@@ -33,6 +33,7 @@ use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
@@ -134,7 +135,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         $buffer = $this->generateXMLStream($record, $rootEnclosure, $fieldsConfig);
 
         // fetch target class (DataStream) if not set return xml buffer instead
-        $result = $this->objectManager->get($configuration['targetClass']);
+        $result = GeneralUtility::makeInstance($configuration['targetClass']);
         if ($result instanceof DataStreamInterface) {
             $result->setStreamBuffer($buffer);
         } else {
@@ -351,7 +352,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     protected function getDefaultMappingConfiguration()
     {
         /** @var PropertyMappingConfiguration $propertyMappingConfiguration */
-        $propertyMappingConfiguration = $this->objectManager->get(
+        $propertyMappingConfiguration = GeneralUtility::makeInstance(
             PropertyMappingConfiguration::class
         );
         $propertyMappingConfiguration->setTypeConverterOptions(

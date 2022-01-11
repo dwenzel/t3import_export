@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Service;
 
 /***************************************************************
@@ -18,18 +19,18 @@ namespace CPSIT\T3importExport\Service;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3importExport\Domain\Model\TransferTask;
+use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\LoggingInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
@@ -114,7 +115,7 @@ class DataTransferProcessor
             $records = $this->queue[$task->getIdentifier()];
             $this->processInitializers($records, $task, $result);
 
-            if ((bool) $records) {
+            if ((bool)$records) {
                 $target = $task->getTarget();
                 $targetConfig = null;
                 if ($target instanceof ConfigurableInterface) {
@@ -136,95 +137,6 @@ class DataTransferProcessor
         }
 
         return $result->toArray();
-    }
-
-    /**
-     * Pre processes a single record if any preprocessor is configured
-     *
-     * @param array $record
-     * @param TransferTask $task
-     * @param TaskResult $result
-     */
-    protected function preProcessSingle(&$record, TransferTask $task, TaskResult $result)
-    {
-        $preProcessors = $task->getPreProcessors();
-        foreach ($preProcessors as $preProcessor) {
-            /** @var AbstractPreProcessor $preProcessor */
-            $singleConfig = $preProcessor->getConfiguration();
-            if (!$preProcessor->isDisabled($singleConfig, $record, $result)) {
-                $preProcessor->process($singleConfig, $record);
-            }
-            $this->gatherMessages($preProcessor, $result);
-        }
-    }
-
-    /**
-     * Post processes a single record if any post processor is configured
-     *
-     * @param mixed $convertedRecord
-     * @param array $record
-     * @param TransferTask $task
-     * @param TaskResult $result
-     */
-    protected function postProcessSingle(&$convertedRecord, &$record, TransferTask $task, TaskResult $result)
-    {
-        $postProcessors = $task->getPostProcessors();
-        foreach ($postProcessors as $postProcessor) {
-            /** @var AbstractPostProcessor $postProcessor */
-            $config = $postProcessor->getConfiguration();
-            if (!$postProcessor->isDisabled($config, $record, $result)) {
-                $postProcessor->process(
-                    $config,
-                    $convertedRecord,
-                    $record
-                );
-            }
-            $this->gatherMessages($postProcessor, $result);
-        }
-    }
-
-    /**
-     * Converts a record into an object
-     *
-     * @param array $record Record which should be converted
-     * @param TransferTask $task Import type
-     * @param TaskResult $result
-     * @return mixed The converted object
-     */
-    protected function convertSingle(array $record, TransferTask $task, TaskResult $result)
-    {
-        $convertedRecord = $record;
-        $converters = $task->getConverters();
-        foreach ($converters as $converter) {
-            /** @var AbstractConverter $converter */
-            $config = $converter->getConfiguration();
-            if (!$converter->isDisabled($config, $record, $result)) {
-                $convertedRecord = $converter->convert($convertedRecord, $config);
-            }
-            $this->gatherMessages($converter, $result);
-        }
-
-        return $convertedRecord;
-    }
-
-    /**
-     * Processes all finishers
-     *
-     * @param array $records Processed records
-     * @param TransferTask $task Import task
-     * @param array|\Iterator|null $result
-     */
-    protected function processFinishers(&$records, TransferTask $task, &$result)
-    {
-        $finishers = $task->getFinishers();
-        foreach ($finishers as $finisher) {
-            /** @var FinisherInterface $finisher */
-            $config = $finisher->getConfiguration();
-            if (!$finisher->isDisabled($config, [], $result)) {
-                $finisher->process($config, $records, $result);
-            }
-            $this->gatherMessages($finisher, $result);
-        }
     }
 
     /**
@@ -253,16 +165,103 @@ class DataTransferProcessor
      * @param object $component
      * @param array|\Iterator|TaskResult $result
      */
-    protected function gatherMessages($component, TaskResult $result) {
-        $logging = $component instanceof LoggingInterface;
-        $resulting = $result instanceof TaskResult;
-
+    protected function gatherMessages($component, TaskResult $result)
+    {
         if ($component instanceof LoggingInterface
             && $result instanceof TaskResult
         ) {
             $result->addMessages(
                 $component->getMessages()
             );
+        }
+    }
+
+    /**
+     * Pre processes a single record if any preprocessor is configured
+     *
+     * @param array $record
+     * @param TransferTask $task
+     * @param TaskResult $result
+     */
+    protected function preProcessSingle(&$record, TransferTask $task, TaskResult $result)
+    {
+        $preProcessors = $task->getPreProcessors();
+        foreach ($preProcessors as $preProcessor) {
+            /** @var AbstractPreProcessor $preProcessor */
+            $singleConfig = $preProcessor->getConfiguration();
+            if (!$preProcessor->isDisabled($singleConfig, $record, $result)) {
+                $preProcessor->process($singleConfig, $record);
+            }
+            $this->gatherMessages($preProcessor, $result);
+        }
+    }
+
+    /**
+     * Converts a record into an object
+     *
+     * @param array $record Record which should be converted
+     * @param TransferTask $task Import type
+     * @param TaskResult $result
+     * @return mixed The converted object
+     */
+    protected function convertSingle(array $record, TransferTask $task, TaskResult $result)
+    {
+        $convertedRecord = $record;
+        $converters = $task->getConverters();
+        foreach ($converters as $converter) {
+            /** @var AbstractConverter $converter */
+            $config = $converter->getConfiguration();
+            if (!$converter->isDisabled($config, $record, $result)) {
+                $convertedRecord = $converter->convert($convertedRecord, $config);
+            }
+            $this->gatherMessages($converter, $result);
+        }
+
+        return $convertedRecord;
+    }
+
+    /**
+     * Post processes a single record if any post processor is configured
+     *
+     * @param mixed $convertedRecord
+     * @param array $record
+     * @param TransferTask $task
+     * @param TaskResult $result
+     */
+    protected function postProcessSingle(&$convertedRecord, &$record, TransferTask $task, TaskResult $result)
+    {
+        $postProcessors = $task->getPostProcessors();
+        foreach ($postProcessors as $postProcessor) {
+            /** @var AbstractPostProcessor $postProcessor */
+            $config = $postProcessor->getConfiguration();
+            if (!$postProcessor->isDisabled($config, $record, $result)) {
+                $postProcessor->process(
+                    $config,
+                    $convertedRecord,
+                    $record
+                );
+            }
+            $this->gatherMessages($postProcessor, $result);
+        }
+    }
+
+    /**
+     * Processes all finishers
+     *
+     * @param array $records Processed records
+     * @param TransferTask $task Import task
+     * @param array|\Iterator|null $result
+     */
+    protected function processFinishers(&$records, TransferTask $task, &$result)
+    {
+        $finishers = $task->getFinishers();
+        foreach ($finishers as $finisher) {
+            /** @var FinisherInterface $finisher */
+            $config = $finisher->getConfiguration();
+            if (!$finisher->isDisabled($config, [], $result)) {
+                $finisher->process($config, $records, $result);
+            }
+            $this->gatherMessages($finisher, $result);
         }
     }
 }

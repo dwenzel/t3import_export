@@ -4,12 +4,10 @@ namespace CPSIT\T3importExport\Component;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /***************************************************************
  *  Copyright notice
@@ -36,7 +34,7 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  */
 abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
 {
-    use ConfigurableTrait, RenderContentTrait, ObjectManagerTrait;
+    use ConfigurableTrait, RenderContentTrait;
 
     /**
      * Tells if the component is disabled

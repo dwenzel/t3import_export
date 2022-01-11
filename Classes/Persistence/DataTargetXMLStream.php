@@ -10,7 +10,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInterface, ConfigurableInterface
 {
-    use ObjectManagerTrait;
     const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
     const DEFAULT_ROOT_NODE = 'rows';
 
@@ -82,7 +81,7 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
         if (!isset($this->writer)) {
             $this->writer = new \XMLWriter();
 
-            if (isset($configuration['output']) && $configuration['output'] == 'file') {
+            if (isset($configuration['output']) && $configuration['output'] === 'file') {
                 $this->tempFile = $this->createAnonymTempFile();
             } else {
                 $this->tempFile = 'php://output';

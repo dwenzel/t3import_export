@@ -3,6 +3,7 @@
 namespace CPSIT\T3importExport\Property;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
@@ -51,8 +52,8 @@ class PropertyMappingConfigurationBuilder
     public function build(array $configuration)
     {
         /** @var PropertyMappingConfiguration $propertyMappingConfiguration */
-        $propertyMappingConfiguration = $this->objectManager->get(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration'
+        $propertyMappingConfiguration = GeneralUtility::makeInstance(
+            PropertyMappingConfiguration::class
         );
         $this->configure($configuration, $propertyMappingConfiguration);
 

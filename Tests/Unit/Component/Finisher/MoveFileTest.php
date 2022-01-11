@@ -39,7 +39,6 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 class MoveFileTest extends TestCase
 {
     use MockMessageContainerTrait,
-        MockObjectManagerTrait,
         MockResourceFactoryTrait,
         MockResourceStorageFolderTrait;
 
@@ -52,7 +51,6 @@ class MoveFileTest extends TestCase
     public function setUp()
     {
         $this->subject = new MoveFile();
-        $this->mockObjectManager();
         $this->mockMessageContainer();
         $this->mockResourceStorage();
         $this->mockStorageFolder();

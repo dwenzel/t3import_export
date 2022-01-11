@@ -137,7 +137,6 @@ class DataTransferProcessorTest extends TestCase
         $this->mockConverter();
         $this->mockDataSource();
         $this->mockDataTarget();
-        $this->mockObjectManager();
         $this->mockPersistenceManager();
         $this->mockInitializer();
         $this->mockFinisher();

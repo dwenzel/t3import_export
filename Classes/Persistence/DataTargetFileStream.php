@@ -59,7 +59,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
         ) {
             $result->rewind();
             if ($result->valid()) {
-                $fileInfo = $this->objectManager->get(FileInfo::class, $this->tempFile);
+                $fileInfo = GeneralUtility::makeInstance(FileInfo::class, $this->tempFile);
 
                 $result->setInfo($fileInfo);
             }
@@ -104,7 +104,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     protected function createTempFile($fileName)
     {
         /** @var BasicFileUtility $basicFileUtility */
-        $basicFileUtility = $this->objectManager->get(BasicFileUtility::class);
+        $basicFileUtility = GeneralUtility::makeInstance(BasicFileUtility::class);
         $absPath = GeneralUtility::getFileAbsFileName(static::TEMP_DIRECTORY);
 
         if (!file_exists($absPath)) {

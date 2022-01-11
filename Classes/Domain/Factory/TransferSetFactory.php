@@ -57,7 +57,7 @@ class TransferSetFactory extends AbstractFactory
     public function get(array $settings, $identifier = null)
     {
         /** @var TransferSet $transferSet */
-        $transferSet = $this->objectManager->get(
+        $transferSet = GeneralUtility::makeInstance(
             TransferSet::class
         );
 

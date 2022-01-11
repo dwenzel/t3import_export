@@ -6,6 +6,7 @@ use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /***************************************************************
@@ -111,7 +112,7 @@ abstract class BaseController extends ActionController
     protected function taskAction($identifier): void
     {
         /** @var TaskDemand $importDemand */
-        $importDemand = $this->objectManager->get(
+        $importDemand = GeneralUtility::makeInstance(
             TaskDemand::class
         );
         $task = $this->transferTaskFactory->get(

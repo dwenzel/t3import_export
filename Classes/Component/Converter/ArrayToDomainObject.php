@@ -43,8 +43,6 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  */
 class ArrayToDomainObject extends AbstractConverter implements ConverterInterface
 {
-    use ObjectManagerTrait;
-
     /**
      * @var PropertyMapper
      */
@@ -139,7 +137,7 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     protected function getDefaultMappingConfiguration()
     {
         /** @var PropertyMappingConfiguration $propertyMappingConfiguration */
-        $propertyMappingConfiguration = $this->objectManager->get(
+        $propertyMappingConfiguration = GeneralUtility::makeInstance(
             PropertyMappingConfiguration::class
         );
         $propertyMappingConfiguration->setTypeConverterOptions(

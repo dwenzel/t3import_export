@@ -4,6 +4,7 @@ namespace CPSIT\T3importExport\Component\Factory;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -69,6 +70,6 @@ class PreProcessorFactory extends AbstractFactory
             );
         }
 
-        return $this->objectManager->get($className);
+        return GeneralUtility::makeInstance($className);
     }
 }

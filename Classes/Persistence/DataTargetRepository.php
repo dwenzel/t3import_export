@@ -4,6 +4,7 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\MissingClassException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\Exception;
@@ -135,7 +136,7 @@ class DataTargetRepository implements DataTargetInterface
             $repositoryClass = str_replace('Model', 'Repository', $this->targetClass) . 'Repository';
             if (class_exists($repositoryClass)) {
                 /** Repository $this->repository */
-                $this->repository = $this->objectManager->get($repositoryClass);
+                $this->repository = GeneralUtility::makeInstance($repositoryClass);
             } else {
                 $message = sprintf(
                     self::MISSING_CLASS_EXCEPTION_MESSAGE,
