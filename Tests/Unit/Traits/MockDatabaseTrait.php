@@ -3,8 +3,10 @@
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use PHPUnit\Framework\MockObject\MockBuilder;
 use TYPO3\CMS\Core\Database\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /***************************************************************
  *  Copyright notice
@@ -22,8 +24,12 @@ use PHPUnit\Framework\MockObject\MockObject;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-trait MockDatabaseConnectionServiceTrait
+trait MockDatabaseTrait
 {
+    /**
+     * @var ConnectionPool|MockObject
+     */
+    protected ConnectionPool $connectionPool;
 
     /**
      * @var DatabaseConnectionService|MockObject
@@ -34,12 +40,37 @@ trait MockDatabaseConnectionServiceTrait
      */
     protected Connection $connection;
 
-    protected function mockDatabaseConnectionService(): void
+    /**
+     * Returns a builder object to create mock objects using a fluent interface.
+     *
+     * @param string|string[] $className
+     */
+    abstract public function getMockBuilder($className): MockBuilder;
+
+
+    protected function mockConnectionService(): void
     {
+        $this->mockConnection();
+        $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->setMethods([
+                'getConnectionForTable',
+
+            ])
+            ->getMock();
+
         $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
             ->disableOriginalConstructor()
-            ->setMethods(['isRegistered', 'getDatabase', 'getConnectionForTable'])
+            ->setMethods(
+                [
+                    'isRegistered',
+                    'getDatabase',
+                    'getConnectionForTable',
+                    'getConnectionPool'
+                ])
             ->getMock();
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
+        $this->connectionService->method('getConnectionPool')->willReturn($this->connectionPool);
+
     }
 
     protected function mockConnection(): void
@@ -51,7 +82,14 @@ trait MockDatabaseConnectionServiceTrait
                     'createQueryBuilder',
                     'delete',
                     'where',
-                    'execute'
+                    'execute',
+                    'count',
+                    'insert',
+                    'truncate',
+                    'update',
+                    'select',
+                    'quoteIdentifier',
+                    'quoteIdentifiers'
                 ]
             )
             ->getMock();

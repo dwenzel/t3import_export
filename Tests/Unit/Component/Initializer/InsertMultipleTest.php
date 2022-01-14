@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\InsertMultiple;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseConnectionServiceTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************
@@ -34,7 +34,7 @@ use PHPUnit\Framework\TestCase;
 class InsertMultipleTest extends TestCase
 {
 
-    use MockDatabaseConnectionServiceTrait;
+    use MockDatabaseTrait;
 
     protected InsertMultiple $subject;
 
@@ -42,7 +42,7 @@ class InsertMultipleTest extends TestCase
     public function setUp()
     {
         $this->subject = new InsertMultiple();
-        $this->mockDatabaseConnectionService();
+        $this->mockConnectionService();
         $this->mockConnection();
     }
 

@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\TruncateTables;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseConnectionServiceTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 
@@ -34,14 +34,14 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  */
 class TruncateTablesTest extends TestCase
 {
-    use MockDatabaseConnectionServiceTrait;
+    use MockDatabaseTrait;
 
     protected TruncateTables $subject;
 
     public function setUp()
     {
         $this->subject = new TruncateTables();
-        $this->mockDatabaseConnectionService();
+        $this->mockConnectionService();
         $this->mockConnection();
     }
 

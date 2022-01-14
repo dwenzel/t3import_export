@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseConnectionServiceTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
@@ -35,7 +35,7 @@ use TYPO3\CMS\Core\Database\Connection;
  */
 class LookUpDBTest extends TestCase
 {
-    use MockDatabaseConnectionServiceTrait;
+    use MockDatabaseTrait;
 
     /**
      * @var LookUpDB|MockObject
@@ -54,13 +54,7 @@ class LookUpDBTest extends TestCase
          * fixme: we mock the subject in order to prevent access to method performQuery
          * which uses now invalid database methods
          */
-
-        $this->subject = $this->getMockBuilder(LookUpDB::class)
-            ->setMethods(['performQuery'])
-            ->getMock();
-        $this->subject->method('performQuery')
-            ->willReturn($this->queryResult);
-        $this->mockDatabaseConnectionService();
+        $this->mockConnectionService();
     }
 
     public function testProcessSetsDatabase(): void
