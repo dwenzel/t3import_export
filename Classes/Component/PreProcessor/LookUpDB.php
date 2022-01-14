@@ -3,6 +3,7 @@
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -92,11 +93,19 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
         $queryConfiguration = $this->getQueryConfiguration($configuration);
-        $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
+            $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
         if ($queryConfiguration == false) {
             return false;
         }
-        $queryResult = $this->performQuery($queryConfiguration);
+
+        if (!empty($queryConfiguration['singleRow'])) {
+            $queryConfiguration['limit'] = 1;
+        }
+        $queryResult = (new SelectQuery())->withConfiguration($queryConfiguration)
+            ->build()
+            ->execute()
+            ->fetchAllAssociative();
+
         $targetFieldName = $configuration['targetField'];
         if ($queryResult) {
             if ($queryConfiguration['singleRow']) {
@@ -123,15 +132,10 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param $configuration
      * @return array
      */
-    protected function getQueryConfiguration($configuration)
+    protected function getQueryConfiguration($configuration): array
     {
-        $queryConfiguration = [
-            'fields' => '*',
-            'where' => '',
-            'groupBy' => '',
-            'orderBy' => '',
-            'limit' => ''
-        ];
+        $queryConfiguration = SelectQuery::DEFAULT_CONFIGURATION;
+
         ArrayUtility::mergeRecursiveWithOverrule(
             $queryConfiguration,
             $configuration['select'],
@@ -150,7 +154,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param $queryConfiguration
      * @return array | FALSE Parsed query configuration
      */
-    protected function parseQueryConstraints(&$record, $queryConfiguration)
+    protected function parseQueryConstraints(&$record, $queryConfiguration): array
     {
         if (!empty($queryConfiguration['where'])) {
             if (is_array($queryConfiguration['where'])) {
@@ -236,31 +240,4 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         }
     }
 
-    /**
-     * @param $queryConfiguration
-     * @return array|NULL
-     */
-    protected function performQuery($queryConfiguration)
-    {
-        if ($queryConfiguration['singleRow']) {
-            $queryResult = $this->database->exec_SELECTgetSingleRow(
-                $queryConfiguration['fields'],
-                $queryConfiguration['table'],
-                $queryConfiguration['where'],
-                $queryConfiguration['groupBy'],
-                $queryConfiguration['orderBy']
-            );
-        } else {
-            $queryResult = $this->database->exec_SELECTgetRows(
-                $queryConfiguration['fields'],
-                $queryConfiguration['table'],
-                $queryConfiguration['where'],
-                $queryConfiguration['groupBy'],
-                $queryConfiguration['orderBy'],
-                $queryConfiguration['limit']
-            );
-        }
-
-        return $queryResult;
-    }
 }

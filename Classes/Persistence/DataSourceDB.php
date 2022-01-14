@@ -8,13 +8,13 @@ use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingDatabaseException;
+use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -71,6 +71,7 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      *
      * @param array $configuration source query configuration
      * @return array Array of records from database or empty array
+     * @throws InvalidConfigurationException
      */
     public function getRecords(array $configuration)
     {
@@ -78,61 +79,19 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
             throw new InvalidConfigurationException();
         }
 
-        $queryConfiguration = [
-            'fields' => '*',
-            'where' => '',
-            'groupBy' => '',
-            'orderBy' => '',
-            'limit' => ''
-        ];
-
-        ArrayUtility::mergeRecursiveWithOverrule(
-            $queryConfiguration,
-            $configuration,
-            true,
-            false
-        );
-
-        foreach ($queryConfiguration as $key => $value) {
-            if (is_array($value)) {
-                $renderedValue = $this->renderContent([], $value);
-                if (!is_null($renderedValue)) {
-                    $queryConfiguration[$key] = $renderedValue;
-                }
-            }
-        }
-
-        $query = $this->connectionPool->getConnectionForTable($queryConfiguration['table'])
-            ->createQueryBuilder()
-            ->select($queryConfiguration['fields'])
-            ->from($queryConfiguration['table']);
-
-        if (!empty($queryConfiguration['where'])) {
-            $query->where($queryConfiguration['where']);
-        }
-
-        if (!empty($queryConfiguration['groupBy'])) {
-            $query->groupBy($queryConfiguration['groupBy']);
-        }
-
-        if (!empty($queryConfiguration['orderBy'])) {
-            $query->orderBy($queryConfiguration['orderBy']);;
-        }
-
-        if (!empty($queryConfiguration['limit'])) {
-            $query->setMaxResults((int)$queryConfiguration['limit']);
-        }
+        $queryConfiguration = $this->renderValues($configuration);
 
         try {
+            $query = (new SelectQuery())
+                ->withConfiguration($queryConfiguration)
+                ->build();
+
             $records = $query->execute()->fetchAllAssociative();
         } catch (Exception $exception) {
             // todo: log error
         }
-        if ($records !== null) {
-            return $records;
-        }
 
-        return [];
+        return $records;
     }
 
     /**
@@ -150,5 +109,23 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
         }
 
         return true;
+    }
+
+    /**
+     * @param array $queryConfiguration
+     * @return array
+     * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
+     */
+    protected function renderValues(array $queryConfiguration): array
+    {
+        foreach ($queryConfiguration as $key => $value) {
+            if (is_array($value)) {
+                $renderedValue = $this->renderContent([], $value);
+                if (!is_null($renderedValue)) {
+                    $queryConfiguration[$key] = $renderedValue;
+                }
+            }
+        }
+        return $queryConfiguration;
     }
 }
