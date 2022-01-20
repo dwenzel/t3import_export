@@ -9,6 +9,8 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
 
@@ -62,37 +64,18 @@ class DataTargetRepository implements DataTargetInterface
 
 
     /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
      * Constructor
      *
      * @param string $targetClass
      * @param RepositoryInterface|null $repository
      */
-    public function __construct(string $targetClass, RepositoryInterface $repository = null)
+    public function __construct(string $targetClass, RepositoryInterface $repository = null, PersistenceManagerInterface $persistenceManager = null)
     {
         $this->targetClass = $targetClass;
         $this->repository = $repository ?? null;
-    }
-
-    /**
-     * injects the object manager
-     *
-     * @param ObjectManager $objectManager
-     */
-    public function injectObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
-     */
-    public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager)
-    {
+        if ($persistenceManager === null) {
+            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))->get(PersistenceManagerInterface::class);
+        }
         $this->persistenceManager = $persistenceManager;
     }
 

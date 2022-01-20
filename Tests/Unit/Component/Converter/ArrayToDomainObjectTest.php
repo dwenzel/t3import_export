@@ -105,7 +105,6 @@ class ArrayToDomainObjectTest extends TestCase
             $this->targetClassConfigurationValidator,
             $this->mappingConfigurationValidator
         );
-        $this->subject->injectObjectManager($this->objectManager);
     }
 
     /**
