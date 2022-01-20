@@ -5,6 +5,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
@@ -93,7 +94,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
         $queryConfiguration = $this->getQueryConfiguration($configuration);
-            $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
+        $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
         if ($queryConfiguration == false) {
             return false;
         }
@@ -109,7 +110,8 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         $targetFieldName = $configuration['targetField'];
         if ($queryResult) {
             if ($queryConfiguration['singleRow']) {
-                $this->mapFields($record, $queryResult, $configuration);
+                // consider only first result
+                $this->mapFields($record, $queryResult[0], $configuration);
             } else {
                 $mappedRecords = [];
                 foreach ($queryResult as $row) {
@@ -156,63 +158,63 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      */
     protected function parseQueryConstraints(&$record, $queryConfiguration): array
     {
-        if (!empty($queryConfiguration['where'])) {
-            if (is_array($queryConfiguration['where'])) {
-                $whereClause = '';
-                foreach ($queryConfiguration['where'] as $operator => $value) {
-                    if ($operator === 'AND' || $operator === 'OR') {
-                        if ($whereClause == '' && $operator === 'AND') {
-                            $operator = '';
-                        }
-                        $whereClause .= $operator . ' ' . $value['condition'];
+        if (empty($queryConfiguration['where'])
+            || !is_array($queryConfiguration['where'])
+        ) {
+            return $queryConfiguration;
+        }
+        $queryBuilder = $this->connectionPool->getConnectionForTable($queryConfiguration['table']);
+        $whereClause = '';
+        foreach ($queryConfiguration['where'] as $operator => $value) {
+            if ($operator === 'AND' || $operator === 'OR') {
+                if ($whereClause == '' && $operator === 'AND') {
+                    $operator = '';
+                }
+                $whereClause .= $operator . ' ' . $value['condition'];
+                $prefix = '';
+                if (isset($value['prefix'])) {
+                    $prefix .= $value['prefix'];
+                }
+
+                if (isset($value['value'])) {
+                    //read field value from record
+                    $whereClause .= $prefix .
+                        $queryBuilder->quote($record[$value['value']]);
+                }
+            }
+            if ($operator === 'IN') {
+                if (isset($value['values'])
+                    && isset($value['field'])
+                ) {
+                    $childConfig = $value['values'];
+
+                    if (is_array($childConfig)
+                        && isset($childConfig['field'])
+                        && isset($childConfig['value'])
+                        && is_array($record[$childConfig['field']])
+                    ) {
                         $prefix = '"';
-                        if (isset($value['prefix'])) {
-                            $prefix .= $value['prefix'];
+                        if (isset($childConfig['prefix'])) {
+                            $prefix .= $childConfig['prefix'];
                         }
 
-                        if (isset($value['value'])) {
-                            //read field value from record
-                            $whereClause .= $prefix .
-                                $this->database->quoteStr(
-                                    $record[$value['value']],
-                                    $queryConfiguration['table']
-                                ) . '"';
+                        $whereClause .= ' ' . $value['field'] . ' IN (';
+                        $childValues = [];
+                        foreach ($record[$childConfig['field']] as $child) {
+                            $childValues[] = $prefix . $child[$childConfig['value']] . '"';
                         }
-                    }
-                    if ($operator === 'IN') {
-                        if (isset($value['values'])
-                            && isset($value['field'])
-                        ) {
-                            $childConfig = $value['values'];
-
-                            if (is_array($childConfig)
-                                && isset($childConfig['field'])
-                                && isset($childConfig['value'])
-                                && is_array($record[$childConfig['field']])
-                            ) {
-                                $prefix = '"';
-                                if (isset($childConfig['prefix'])) {
-                                    $prefix .= $childConfig['prefix'];
-                                }
-
-                                $whereClause .= ' ' . $value['field'] . ' IN (';
-                                $childValues = [];
-                                foreach ($record[$childConfig['field']] as $child) {
-                                    $childValues[] = $prefix . $child[$childConfig['value']] . '"';
-                                }
-                                $whereClause .= implode(',', $childValues) . ')';
-                                if (isset($value['keepOrder'])) {
-                                    $whereClause .= ' ORDER BY FIELD (' . $value['field'] . ',' . implode(',', $childValues) . ')';
-                                }
-                            } else {
-                                return false;
-                            }
+                        $whereClause .= implode(',', $childValues) . ')';
+                        if (isset($value['keepOrder'])) {
+                            $whereClause .= ' ORDER BY FIELD (' . $value['field'] . ',' . implode(',', $childValues) . ')';
                         }
+                    } else {
+                        return false;
                     }
                 }
-                $queryConfiguration['where'] = $whereClause;
             }
         }
+        $queryConfiguration['where'] = $whereClause;
+
 
         return $queryConfiguration;
     }
