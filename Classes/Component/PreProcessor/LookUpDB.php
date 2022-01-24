@@ -3,9 +3,9 @@
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
@@ -94,8 +94,10 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
         $queryConfiguration = $this->getQueryConfiguration($configuration);
-        $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
-        if ($queryConfiguration == false) {
+        try {
+            $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
+        } catch (InvalidConfigurationException $e) {
+            // todo: log error
             return false;
         }
 
@@ -107,25 +109,28 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             ->execute()
             ->fetchAllAssociative();
 
-        $targetFieldName = $configuration['targetField'];
-        if ($queryResult) {
-            if ($queryConfiguration['singleRow']) {
-                // consider only first result
-                $this->mapFields($record, $queryResult[0], $configuration);
-            } else {
-                $mappedRecords = [];
-                foreach ($queryResult as $row) {
-                    $mappedRecord = [];
-                    $this->mapFields($mappedRecord, $row, $configuration);
-                    $mappedRecords[] = $mappedRecord;
-                }
-                $record[$targetFieldName] = $mappedRecords;
-            }
-        } elseif (isset($configuration['targetField'])
-            && is_string($configuration['targetField'])
+        $targetField = $configuration['targetField'];
+
+        if (empty($queryResult)
+            && isset($record[$targetField])
         ) {
-            unset($record[$targetFieldName]);
+            unset($record[$targetField]);
+            return true;
         }
+
+        if ($queryConfiguration['singleRow']) {
+            // consider only first result
+            $this->mapFields($record, $queryResult[0], $configuration);
+        } else {
+            $mappedRecords = [];
+            foreach ($queryResult as $row) {
+                $mappedRecord = [];
+                $this->mapFields($mappedRecord, $row, $configuration);
+                $mappedRecords[] = $mappedRecord;
+            }
+            $record[$targetField] = $mappedRecords;
+        }
+
 
         return true;
     }
@@ -156,7 +161,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param $queryConfiguration
      * @return array | FALSE Parsed query configuration
      */
-    protected function parseQueryConstraints(&$record, $queryConfiguration): array
+    protected function parseQueryConstraints(array $record, array $queryConfiguration): array
     {
         if (empty($queryConfiguration['where'])
             || !is_array($queryConfiguration['where'])
@@ -165,56 +170,54 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         }
         $queryBuilder = $this->connectionPool->getConnectionForTable($queryConfiguration['table']);
         $whereClause = '';
-        foreach ($queryConfiguration['where'] as $operator => $value) {
+        foreach ($queryConfiguration['where'] as $operator => $operatorConfig) {
             if ($operator === 'AND' || $operator === 'OR') {
                 if ($whereClause == '' && $operator === 'AND') {
                     $operator = '';
                 }
-                $whereClause .= $operator . ' ' . $value['condition'];
+                $whereClause .= $operator . ' ' . $operatorConfig['condition'];
                 $prefix = '';
-                if (isset($value['prefix'])) {
-                    $prefix .= $value['prefix'];
+                if (isset($operatorConfig['prefix'])) {
+                    $prefix .= $operatorConfig['prefix'];
                 }
 
-                if (isset($value['value'])) {
+                if (isset($operatorConfig['value'])) {
                     //read field value from record
                     $whereClause .= $prefix .
-                        $queryBuilder->quote($record[$value['value']]);
+                        $queryBuilder->quote($record[$operatorConfig['value']]);
                 }
             }
+
             if ($operator === 'IN') {
-                if (isset($value['values'])
-                    && isset($value['field'])
+                if (isset($operatorConfig['values'])
+                    && isset($operatorConfig['field'])
                 ) {
-                    $childConfig = $value['values'];
+                    $childConfig = $operatorConfig['values'];
 
-                    if (is_array($childConfig)
-                        && isset($childConfig['field'])
-                        && isset($childConfig['value'])
-                        && is_array($record[$childConfig['field']])
+                    if (!is_array($childConfig) || !isset($childConfig['field']) || !isset($childConfig['value']) || !is_array($record[$childConfig['field']])
                     ) {
-                        $prefix = '"';
-                        if (isset($childConfig['prefix'])) {
-                            $prefix .= $childConfig['prefix'];
-                        }
-
-                        $whereClause .= ' ' . $value['field'] . ' IN (';
-                        $childValues = [];
-                        foreach ($record[$childConfig['field']] as $child) {
-                            $childValues[] = $prefix . $child[$childConfig['value']] . '"';
-                        }
-                        $whereClause .= implode(',', $childValues) . ')';
-                        if (isset($value['keepOrder'])) {
-                            $whereClause .= ' ORDER BY FIELD (' . $value['field'] . ',' . implode(',', $childValues) . ')';
-                        }
-                    } else {
-                        return false;
+                        throw (new InvalidConfigurationException('Error while parsing configuration for operator `'));
                     }
+
+                    $prefix = '"';
+                    if (isset($childConfig['prefix'])) {
+                        $prefix .= $childConfig['prefix'];
+                    }
+
+                    $whereClause .= ' ' . $operatorConfig['field'] . ' IN (';
+                    $childValues = [];
+                    foreach ($record[$childConfig['field']] as $child) {
+                        $childValues[] = $prefix . $child[$childConfig['value']] . '"';
+                    }
+                    $whereClause .= implode(',', $childValues) . ')';
+                    if (isset($operatorConfig['keepOrder'])) {
+                        $whereClause .= ' ORDER BY FIELD (' . $operatorConfig['field'] . ',' . implode(',', $childValues) . ')';
+                    }
+
                 }
             }
         }
         $queryConfiguration['where'] = $whereClause;
-
 
         return $queryConfiguration;
     }
