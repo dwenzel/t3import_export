@@ -122,13 +122,14 @@ class DataTransferProcessor
                     $targetConfig = $target->getConfiguration();
                 }
 
-                foreach ($records as $record) {
+                foreach ($records as &$record) {
                     $this->preProcessSingle($record, $task, $result);
                     $convertedRecord = $this->convertSingle($record, $task, $result);
                     $this->postProcessSingle($convertedRecord, $record, $task, $result);
                     $target->persist($convertedRecord, $targetConfig);
                     $result->add($convertedRecord);
                 }
+                unset($record);
 
                 $target->persistAll($result, $targetConfig);
             }
