@@ -24,8 +24,13 @@ use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\Session;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
 
@@ -49,16 +54,6 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
     protected $persistenceManager;
 
     /**
-     * @var PropertyMappingConfigurationBuilder
-     */
-    protected $propertyMappingConfigurationBuilder;
-
-    /**
-     * @var PropertyMappingConfiguration
-     */
-    protected $propertyMappingConfiguration;
-
-    /**
      * @var TargetClassConfigurationValidator
      */
     protected $targetClassConfigurationValidator;
@@ -68,63 +63,20 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      */
     protected $mappingConfigurationValidator;
 
-    /**
-     * injects the property mapping configuration builder
-     *
-     * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
-     */
-    public function injectPropertyMappingConfigurationBuilder(PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder)
-    {
-        $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
-    }
+    protected TranslateObjectConfigurationValidator $configurationValidator;
 
-    /**
-     * @param TranslationService $translationService
-     */
-    public function injectTranslationService(TranslationService $translationService)
+    public function __construct(
+        PersistenceManagerInterface $persistenceManager = null,
+        TranslationService $translationService = null,
+        TranslateObjectConfigurationValidator $translateObjectConfigurationValidator = null
+    )
     {
-        $this->translationService = $translationService;
-    }
-
-    /**
-     * injects the TargetClassConfigurationValidator
-     *
-     * @param TargetClassConfigurationValidator $validator
-     */
-    public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator)
-    {
-        $this->targetClassConfigurationValidator = $validator;
-    }
-
-    /**
-     * injects the MappingConfigurationValidator
-     *
-     * @param MappingConfigurationValidator $validator
-     */
-    public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator)
-    {
-        $this->mappingConfigurationValidator = $validator;
-    }
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Property\TypeConverterInterface
-     */
-    protected $typeConverter;
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
-     */
-    public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager)
-    {
-        $this->persistenceManager = $persistenceManager;
-    }
-
-    /**
-     * @param PersistentObjectConverter $typeConverter
-     */
-    public function injectPersistentObjectConverter(PersistentObjectConverter $typeConverter)
-    {
-        $this->typeConverter = $typeConverter;
+        if (null === $persistenceManager) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            $this->persistenceManager = $objectManager->get(PersistenceManagerInterface::class);
+        }
+        $this->translationService = $translationService ?? GeneralUtility::makeInstance(TranslationService::class);
+        $this->configurationValidator = $translateObjectConfigurationValidator ?? GeneralUtility::makeInstance(TranslateObjectConfigurationValidator::class);
     }
 
     /**
@@ -135,24 +87,10 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      */
     public function isConfigurationValid(array $configuration)
     {
-        if (!isset($configuration['parentField'])
-            || !isset($configuration['language'])) {
-            return false;
-        }
-
-        if (isset($configuration['mapping'])) {
-            $mappingConfiguration = $configuration['mapping'];
-            if (isset($mappingConfiguration['targetClass'])
-                && !$this->targetClassConfigurationValidator->validate($mappingConfiguration)) {
-                return false;
-            }
-            if (isset($mappingConfiguration['config'])
-                && !$this->mappingConfigurationValidator->validate($mappingConfiguration)) {
-                return false;
-            }
-        }
-
-        return true;
+        return (new TranslateObjectConfigurationValidator(
+            $this->targetClassConfigurationValidator,
+            $this->mappingConfigurationValidator
+        ))->isValid($configuration);
     }
 
     /**
@@ -162,26 +100,30 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * @param array $configuration
      * @param DomainObjectInterface $convertedRecord
      * @param array $record
-     * @return bool
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process($configuration, &$convertedRecord, &$record): bool
     {
         $targetType = get_class($convertedRecord);
 
-        //Translate only if parent set and parent found by identity
-        if (isset($record[$configuration['parentField']])) {
-            $identity = $record[$configuration['parentField']];
-
-            $parentObject = $this->getLocalizationParent($identity, $targetType);
-
-            if ($parentObject) {
-                $this->translationService->translate(
-                    $parentObject,
-                    $convertedRecord,
-                    (int)$configuration['language']
-                );
-            }
+        if (!isset($record[$configuration['parentField']])) {
+            return false;
         }
+        $identity = $record[$configuration['parentField']];
+
+        //Translate only if parent set and parent found by identity
+        $parentObject = $this->getLocalizationParent($identity, $targetType);
+
+        if ($parentObject instanceof DomainObjectInterface) {
+            $this->translationService->translate(
+                $parentObject,
+                $convertedRecord,
+                (int)$configuration['language']
+            );
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

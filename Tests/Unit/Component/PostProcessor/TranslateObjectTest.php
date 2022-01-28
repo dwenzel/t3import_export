@@ -8,6 +8,7 @@ use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -57,119 +58,39 @@ class TranslateObjectTest extends TestCase
     protected MappingConfigurationValidator $mappingConfigurationValidator;
 
     /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface $persistenceManager;
+
+    /**
+     * @var TranslationService | MockObject
+     */
+    protected TranslationService $translationService;
+
+    /**
+     * @var TranslateObjectConfigurationValidator |MockObject
+     */
+    protected TranslateObjectConfigurationValidator $configurationValidator;
+
+    /**
      * set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = new TranslateObject();
-        $this->targetClassConfigurationValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['validate'])
-            ->getMock();
-        $this->subject->injectTargetClassConfigurationValidator($this->targetClassConfigurationValidator);
-        $this->mappingConfigurationValidator = $this->getMockBuilder(MappingConfigurationValidator::class)
-            ->setMethods(['validate'])
-            ->getMock();
-        $this->subject->injectMappingConfigurationValidator($this->mappingConfigurationValidator);
-    }
-
-    /**
-     * @test
-     */
-    public function injectTranslationServiceSetsService(): void
-    {
-        $mockService = new TranslationService();
-
-        $this->subject->injectTranslationService($mockService);
-        $this->assertAttributeSame(
-            $mockService,
-            'translationService',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectPersistenceManagerSetsPersistenceManager(): void
-    {
-        $mockPersistenceManager = $this->getMockForAbstractClass(
-            PersistenceManagerInterface::class
-        );
-
-        $this->subject->injectPersistenceManager($mockPersistenceManager);
-        $this->assertAttributeSame(
-            $mockPersistenceManager,
-            'persistenceManager',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectPersistentObjectConverterSetsTypeConverter(): void
-    {
-        $mockPersistentObjectConverter = $this->getMockBuilder(PersistentObjectConverter::class)
+        $this->persistenceManager = $this->getMockForAbstractClass(PersistenceManagerInterface::class);
+        $this->translationService = $this->getMockBuilder(TranslationService::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['translate'])
             ->getMock();
 
-        $this->subject->injectPersistentObjectConverter($mockPersistentObjectConverter);
-        $this->assertAttributeSame(
-            $mockPersistentObjectConverter,
-            'typeConverter',
-            $this->subject
+        $this->subject = new TranslateObject(
+            $this->persistenceManager,
+            $this->translationService,
+            $this->configurationValidator
         );
     }
 
-
-    /**
-     * @test
-     */
-    public function injectTargetClassConfigurationValidatorSetsValidator(): void
-    {
-        $mockValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->getMock();
-        $this->subject->injectTargetClassConfigurationValidator($mockValidator);
-
-        $this->assertAttributeSame(
-            $mockValidator,
-            'targetClassConfigurationValidator',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectMappingConfigurationValidatorSetsValidator(): void
-    {
-        $mockValidator = $this->getMockBuilder(MappingConfigurationValidator::class)
-            ->getMock();
-        $this->subject->injectMappingConfigurationValidator($mockValidator);
-
-        $this->assertAttributeSame(
-            $mockValidator,
-            'mappingConfigurationValidator',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectPropertyMappingConfigurationBuilderSetsBuilder(): void
-    {
-        $mockPropertyMappingConfigurationBuilder = $this->getMockBuilder(
-            PropertyMappingConfigurationBuilder::class
-        )->getMock();
-
-        $this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingConfigurationBuilder);
-        $this->assertAttributeSame(
-            $mockPropertyMappingConfigurationBuilder,
-            'propertyMappingConfigurationBuilder',
-            $this->subject
-        );
-    }
 
     /**
      * @test
@@ -213,7 +134,7 @@ class TranslateObjectTest extends TestCase
         ];
 
         $this->targetClassConfigurationValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config['mapping'])
             ->willReturn(false);
 
@@ -237,11 +158,11 @@ class TranslateObjectTest extends TestCase
         ];
 
         $this->targetClassConfigurationValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config['mapping'])
             ->willReturn(true);
         $this->mappingConfigurationValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config['mapping'])
             ->willReturn(false);
 
