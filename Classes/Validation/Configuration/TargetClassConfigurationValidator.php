@@ -34,9 +34,8 @@ class TargetClassConfigurationValidator implements ConfigurationValidatorInterfa
      * @param array $config
      * @throws \CPSIT\T3importExport\InvalidConfigurationException
      * @throws MissingClassException
-     * @return bool
      */
-    public function validate(array $config)
+    public function isValid(array $config): bool
     {
         if (!isset($config['targetClass'])) {
             throw new InvalidConfigurationException(

@@ -55,7 +55,7 @@ class MappingConfigurationValidatorTest extends TestCase
         $configuration = [
             'allowProperties' => []
         ];
-        $this->subject->validate($configuration);
+        $this->subject->isValid($configuration);
     }
 
     public function testValidateThrowsExceptionIfPropertiesIsNotArray(): void
@@ -65,7 +65,7 @@ class MappingConfigurationValidatorTest extends TestCase
         $configuration = [
             'properties' => 'invalidStringValue'
         ];
-        $this->subject->validate($configuration);
+        $this->subject->isValid($configuration);
     }
 
     public function testValidateValidatedPropertiesRecursive(): void
@@ -86,7 +86,7 @@ class MappingConfigurationValidatorTest extends TestCase
             ->method('validatePropertyConfigurationRecursive')
             ->with($configuration['properties']['propertyA']);
 
-        $this->subject->validate($configuration);
+        $this->subject->isValid($configuration);
     }
 
     public function testValidatePropertyConfigurationThrowsExceptionIfMaxItemsIsNotSet(): void
@@ -102,7 +102,7 @@ class MappingConfigurationValidatorTest extends TestCase
                 ]
             ]
         ];
-        $this->subject->validate($configuration);
+        $this->subject->isValid($configuration);
     }
 
     public function testValidatePropertyConfigurationRecursiveDoesRecur(): void
@@ -124,7 +124,7 @@ class MappingConfigurationValidatorTest extends TestCase
         ];
 
         self::assertTrue(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 

@@ -320,8 +320,8 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     public function isConfigurationValid(array $configuration)
     {
         return (
-            $this->targetClassConfigurationValidator->validate($configuration) &&
-            $this->mappingConfigurationValidator->validate($configuration)
+            $this->targetClassConfigurationValidator->isValid($configuration) &&
+            $this->mappingConfigurationValidator->isValid($configuration)
         );
     }
 

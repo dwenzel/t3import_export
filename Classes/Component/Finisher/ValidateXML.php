@@ -101,7 +101,7 @@ class ValidateXML extends AbstractFinisher
      */
     public function isConfigurationValid(array $configuration)
     {
-        if (!$this->pathValidator->validate($configuration)) {
+        if (!$this->pathValidator->isValid($configuration)) {
             return false;
         }
         if (isset($configuration['target']['schema'])

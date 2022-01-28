@@ -29,7 +29,7 @@ class ResourcePathConfigurationValidator implements ConfigurationValidatorInterf
      * @param array $config
      * @return bool True for a valid configuration
      */
-    public function validate(array $config)
+    public function isValid(array $config): bool
     {
         if (empty($config)) {
             return false;

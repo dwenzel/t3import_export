@@ -32,19 +32,17 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
 {
     /**
      * @param array $config
-     * @return bool
      */
-    public function validate(array $config)
+    public function isValid(array $config): bool
     {
         return $this->validatePropertyConfiguration($config);
     }
 
     /**
      * @param array $configuration
-     * @return bool
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      */
-    protected function validatePropertyConfiguration(array $configuration)
+    protected function validatePropertyConfiguration(array $configuration): bool
     {
         if (isset($configuration['allowProperties'])
             && !is_string($configuration['allowProperties'])

@@ -37,7 +37,7 @@ class DataSourceCSV implements DataSourceInterface
      */
     public function isConfigurationValid(array $configuration)
     {
-        if (!$this->pathValidator->validate($configuration)) {
+        if (!$this->pathValidator->isValid($configuration)) {
             return false;
         }
 

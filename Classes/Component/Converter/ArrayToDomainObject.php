@@ -160,8 +160,8 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     public function isConfigurationValid(array $configuration)
     {
         return (
-            $this->targetClassConfigurationValidator->validate($configuration)
-            && $this->mappingConfigurationValidator->validate($configuration)
+            $this->targetClassConfigurationValidator->isValid($configuration)
+            && $this->mappingConfigurationValidator->isValid($configuration)
         );
     }
 }

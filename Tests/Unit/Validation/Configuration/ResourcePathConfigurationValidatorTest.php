@@ -48,7 +48,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     {
         $configuration = [];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -61,7 +61,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
             'file' => []
         ];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -82,7 +82,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
             ->will($this->returnValue(''));
 
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -108,7 +108,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
             ->will($this->returnValue(vfsStream::url($relativePath)));
 
         $this->assertTrue(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -123,7 +123,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         ];
 
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -136,7 +136,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
             'url' => []
         ];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -149,7 +149,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
             'url' => 'foo'
         ];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -162,7 +162,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
             'url' => 'http://typo3.org'
         ];
         $this->assertTrue(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 }
