@@ -187,7 +187,7 @@ class PropertyMappingConfigurationBuilder
         ) {
             $allowedProperties = explode(
                 ',',
-                trim($configuration['allowProperties'])
+                preg_replace('/\s+/', '', $configuration['allowProperties'])
             );
 
             return $allowedProperties;
