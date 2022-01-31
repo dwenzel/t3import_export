@@ -24,12 +24,16 @@ namespace CPSIT\T3importExport\Service;
 
 use CPSIT\T3importExport\InvalidColumnMapException;
 use Exception;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Provides services to translate domain objects
@@ -43,6 +47,20 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
      * @var DataMapper
      */
     protected DataMapper $dataMapper;
+    protected PersistenceManagerInterface $persistenceManager;
+
+    public function __construct(DataMapper $dataMapper = null, PersistenceManagerInterface $persistenceManager = null)
+    {
+        if($dataMapper === null) {
+            /** @var ObjectManager $objectManager */
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            /** @noinspection CallableParameterUseCaseInTypeContextInspection */
+            $dataMapper = $objectManager->get(DataMapper::class);
+        }
+        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
+        $this->dataMapper = $dataMapper;
+        $this->persistenceManager = $persistenceManager ?? GeneralUtility::makeInstance(PersistenceManager::class);
+    }
 
     /**
      * @param DataMapper $dataMapper
@@ -57,11 +75,12 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
      *
      * @param DomainObjectInterface $origin
      * @param DomainObjectInterface $translation
-     * @param int $language
+     * @param int $language Language id
      * @return void
-     * @throws Exception|InvalidColumnMapException
+     * @throws Exception
+     * @throws InvalidColumnMapException
      */
-    public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, $language)
+    public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, int $language): void
     {
         if (!$this->haveSameClass($origin, $translation)) {
             throw new Exception('Origin and translation must be the same type.', 1432499926);
@@ -105,6 +124,42 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
         $translation->_setProperty('_languageUid', $language);
     }
 
+    /**
+     * @param $identity
+     * @param $targetType
+     * @return object
+     */
+    public function getLocalizationParent($identity, $targetType): ?object
+    {
+        $query = $this->persistenceManager->createQueryForType($targetType);
+        $querySettings = $query->getQuerySettings();
+
+        $querySettings->setIgnoreEnableFields(true);
+        $querySettings->setRespectStoragePage(false);
+        $querySettings->setLanguageUid(0);
+        $query->setQuerySettings($querySettings);
+        $parentObject = $query->matching($query->equals('uid', $identity))->execute()->getFirst();
+
+        return $parentObject;
+    }
+
+    /**
+     * Returns localizations as array of records [sic!].
+     * This method is a wrapper for a static method call of the core BackendUtility
+     *
+     * @param string $table
+     * @param int $uid
+     * @param int $language
+     * @return array
+     */
+    public function getRecordLocalization(string $table, int $uid, int $language): array
+    {
+        if ($result = BackendUtility::getRecordLocalization($table, $uid, $language)) {
+            return $result;
+        }
+
+        return [];
+    }
     /**
      * Tells if two object are instances of the same class
      *
