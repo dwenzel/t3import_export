@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -18,21 +19,16 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\InvalidColumnMapException;
 use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
+use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Service\TranslationService;
-use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\Session;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
 
 /**
  * Class TranslateObject
@@ -43,26 +39,8 @@ use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
 class TranslateObject extends AbstractPostProcessor implements PostProcessorInterface
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Service\TranslationService
-     */
-    protected $translationService;
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
-     */
-    protected $persistenceManager;
-
-    /**
-     * @var TargetClassConfigurationValidator
-     */
-    protected $targetClassConfigurationValidator;
-
-    /**
-     * @var MappingConfigurationValidator
-     */
-    protected $mappingConfigurationValidator;
-
+    protected TranslationService $translationService;
+    protected PersistenceManagerInterface $persistenceManager;
     protected TranslateObjectConfigurationValidator $configurationValidator;
 
     public function __construct(
@@ -83,14 +61,12 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * Tells whether a given configuration is valid
      *
      * @param array $configuration
-     * @return bool
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
-        return (new TranslateObjectConfigurationValidator(
-            $this->targetClassConfigurationValidator,
-            $this->mappingConfigurationValidator
-        ))->isValid($configuration);
+        return $this->configurationValidator->isValid($configuration);
     }
 
     /**
@@ -113,7 +89,7 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
         $identity = $record[$configuration['parentField']];
 
         //Translate only if parent set and parent found by identity
-        $parentObject = $this->getLocalizationParent($identity, $targetType);
+        $parentObject = $this->translationService->getLocalizationParent($identity, $targetType);
 
         if ($parentObject instanceof DomainObjectInterface) {
             $this->translationService->translate(
@@ -126,24 +102,5 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
         }
 
         return false;
-    }
-
-    /**
-     * @param $identity
-     * @param $targetType
-     * @return object
-     */
-    protected function getLocalizationParent($identity, $targetType)
-    {
-        $query = $this->persistenceManager->createQueryForType($targetType);
-        $querySettings = $query->getQuerySettings();
-
-        $querySettings->setIgnoreEnableFields(true);
-        $querySettings->setRespectStoragePage(false);
-        $querySettings->setLanguageUid(0);
-        $query->setQuerySettings($querySettings);
-        $parentObject = $query->matching($query->equals('uid', $identity))->execute()->getFirst();
-
-        return $parentObject;
     }
 }
