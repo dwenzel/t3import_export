@@ -21,7 +21,10 @@ namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use XMLReader;
 
 /**
  * Class ValidateXML
@@ -50,23 +53,19 @@ class ValidateXML extends AbstractFinisher
     ];
 
     /**
-     * @var \XMLReader
+     * ValidateXML constructor.
+     * @param XMLReader $xmlReader
+     * @param MessageContainer|null $messageContainer
      */
-    protected $xmlReader;
+    public function __construct(XMLReader $xmlReader, MessageContainer $messageContainer = null) {
+        $this->xmlReader = $xmlReader ?? GeneralUtility::makeInstance(XMLReader::class);
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
+    }
 
     /**
-     * Returns error codes for current component.
-     * Must be an array in the form
-     * [
-     *  <id> => ['errorTitle', 'errorDescription']
-     * ]
-     * 'errorDescription' may contain placeholder (%s) for arguments.
-     * @return array
+     * @var XMLReader
      */
-    public function getErrorCodes()
-    {
-        return static::ERROR_CODES;
-    }
+    protected $xmlReader;
 
     /**
      * Returns notice codes for current component.
@@ -80,15 +79,6 @@ class ValidateXML extends AbstractFinisher
     public function getNoticeCodes()
     {
         return static::NOTICE_CODES;
-    }
-
-    /**
-     * Inject the XMLReader
-     * @param \XMLReader $reader
-     */
-    public function injectXMLReader(\XMLReader $reader)
-    {
-        $this->xmlReader = $reader;
     }
 
     /**
@@ -131,8 +121,8 @@ class ValidateXML extends AbstractFinisher
         }
         libxml_use_internal_errors(true);
 
-        $this->xmlReader->XML($resource, null, LIBXML_DTDVALID);
-        $this->xmlReader->setParserProperty(\XMLReader::VALIDATE, true);
+        $this->xmlReader::XML($resource, null, LIBXML_DTDVALID);
+        $this->xmlReader->setParserProperty(XMLReader::VALIDATE, true);
 
         if (!empty($configuration['schema']['file'])) {
             $schema = $this->getAbsoluteFilePath($configuration['schema']['file']);
