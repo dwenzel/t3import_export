@@ -44,7 +44,7 @@ class LoggingFinisher extends AbstractFinisher implements FinisherInterface, Log
      * @param array $result Array with result records
      * @return bool
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration, array &$records, &$result): bool
     {
        return true;
     }

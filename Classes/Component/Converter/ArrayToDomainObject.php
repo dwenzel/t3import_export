@@ -91,10 +91,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
         $mappingConfiguration = $configuration;
         unset($mappingConfiguration['targetClass']);
         $mappingConfiguration = $this->getMappingConfiguration($mappingConfiguration);
-        $slotVariables = [
-            'configuration' => $configuration,
-            'record' => $record
-        ];
         return $this->propertyMapper->convert(
             $record,
             $configuration['targetClass'],
@@ -157,7 +153,7 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
      * @throws MissingClassException
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return (
             $this->targetClassConfigurationValidator->isValid($configuration)

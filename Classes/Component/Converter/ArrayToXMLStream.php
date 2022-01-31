@@ -317,7 +317,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
      * @throws MissingClassException
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return (
             $this->targetClassConfigurationValidator->isValid($configuration) &&

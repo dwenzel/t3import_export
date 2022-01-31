@@ -83,7 +83,7 @@ class GenerateFileReference extends AbstractPostProcessor
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
         $fieldName = $configuration['targetField'];
         $fileId = $record[$configuration['sourceField']];
@@ -131,7 +131,7 @@ class GenerateFileReference extends AbstractPostProcessor
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (
             empty($configuration['sourceField'])

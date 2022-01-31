@@ -113,7 +113,7 @@ class MoveFile extends AbstractFinisher
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration)) {
             $this->logError(1509011717);
@@ -174,7 +174,9 @@ class MoveFile extends AbstractFinisher
      * @param array|TaskResult $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration,
+                            array &$records,
+                            &$result): bool
     {
         $defaultStorage = $this->resourceFactory->getDefaultStorage();
         $targetStorage = $defaultStorage;

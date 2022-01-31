@@ -57,7 +57,7 @@ class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
      * @param array $result
      * @return bool
      */
-    public function process($configuration, &$records, &$result): bool
+    public function process(array $configuration, array &$records, &$result): bool
     {
         return true;
     }

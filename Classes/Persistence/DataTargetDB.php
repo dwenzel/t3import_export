@@ -42,7 +42,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['table'])) {
             return false;

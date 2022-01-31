@@ -124,7 +124,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
         return $absFileName;
     }
 
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }

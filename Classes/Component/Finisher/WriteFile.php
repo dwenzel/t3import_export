@@ -64,7 +64,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (
             empty($configuration)
@@ -108,7 +108,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
      * @param array|TaskResult $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration, array &$records, &$result): bool
     {
         if (
         !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)

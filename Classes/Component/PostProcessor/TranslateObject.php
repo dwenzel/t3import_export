@@ -100,8 +100,10 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * @param array $configuration
      * @param DomainObjectInterface $convertedRecord
      * @param array $record
+     * @return bool
+     * @throws InvalidColumnMapException
      */
-    public function process($configuration, &$convertedRecord, &$record): bool
+    public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
         $targetType = get_class($convertedRecord);
 

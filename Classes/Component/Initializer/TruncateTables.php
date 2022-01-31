@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -102,7 +103,7 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['tables'])
             || !is_string($configuration['tables'])) {

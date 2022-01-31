@@ -49,7 +49,7 @@ class DataSourceDynamicRepository implements DataSourceInterface
      * @return bool
      */
 
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!empty($configuration['class'])) {
             return true;

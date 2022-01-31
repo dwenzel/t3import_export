@@ -27,20 +27,8 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DownloadFileStream extends AbstractFinisher implements FinisherInterface, ConfigurableInterface
+class DownloadFileStream extends AbstractFinisher implements FinisherInterface
 {
-
-    /**
-     * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
-     */
-    public function isConfigurationValid(array $configuration)
-    {
-        return parent::isConfigurationValid($configuration);
-    }
-
     /**
      *
      * @param array $configuration
@@ -48,7 +36,7 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface, 
      * @param array $result
      * @return bool
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration, array &$records, &$result): bool
     {
         if (is_a($result, TaskResult::class)) {
             /** @var TaskResult $taskResult */

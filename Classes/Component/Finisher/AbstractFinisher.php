@@ -35,7 +35,7 @@ abstract class AbstractFinisher extends AbstractComponent
      * @param array $result Array with result records
      * @return bool
      */
-    abstract public function process($configuration, &$records, &$result);
+    abstract public function process(array $configuration, array &$records, &$result): bool;
 
     /**
      * Tells whether a given configuration is valid
@@ -45,7 +45,7 @@ abstract class AbstractFinisher extends AbstractComponent
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }

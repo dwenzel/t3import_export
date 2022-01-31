@@ -32,22 +32,22 @@ interface PostProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$convertedRecord, &$record);
+    public function process(array $configuration, &$convertedRecord, array &$record): bool;
 
     /**
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration);
+    public function isConfigurationValid(array $configuration): bool;
 
     /**
      * Tells if the component is disabled
      * @param array $configuration
-     * @param array $record
-     * @param TaskResult|\Iterator|array $result
-     * @return mixed
+     * @param array|null $record
+     * @param TaskResult|null $result
+     * @return bool
      */
-    public function isDisabled($configuration, $record = null, TaskResult $result = null);
+    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool;
 
     /**
      * Sets the configuration

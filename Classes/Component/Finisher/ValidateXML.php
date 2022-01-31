@@ -99,7 +99,7 @@ class ValidateXML extends AbstractFinisher
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!$this->pathValidator->isValid($configuration)) {
             return false;
@@ -118,8 +118,9 @@ class ValidateXML extends AbstractFinisher
      * @param array $records Array with prepared records
      * @param array $result Array with result records
      * @return bool
+     * @noinspection PhpComposerExtensionStubsInspection ext-libxml is required in package!
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration, array &$records, &$result): bool
     {
 
         $resource = $this->loadResource($configuration);

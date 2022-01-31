@@ -55,7 +55,7 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['table'])
             || !is_string($configuration['table'])

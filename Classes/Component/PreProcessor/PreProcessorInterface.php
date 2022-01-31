@@ -37,29 +37,28 @@ interface PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration);
+    public function isConfigurationValid(array $configuration): bool;
 
     /**
      * Tells if the component is disabled
      * @param array $configuration
      * @param array $record
-     * @param TaskResult|\Iterator|array $result
-     * @return mixed
+     * @param TaskResult|null $result
+     * @return bool
      */
-    public function isDisabled($configuration, $record = null, TaskResult $result = null);
+    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool;
 
     /**
      * Sets the configuration
      *
      * @param array $configuration
-     * @return mixed
      */
-    public function setConfiguration(array $configuration);
+    public function setConfiguration(array $configuration): void;
 
     /**
      * Returns the configuration
      *
-     * @return array | null
+     * @return array
      */
-    public function getConfiguration();
+    public function getConfiguration(): array;
 }

@@ -14,7 +14,7 @@ trait ConfigurableTrait
      *
      * @var array
      */
-    protected $configuration;
+    protected array $configuration = [];
 
     /**
      * Tells if a given configuration is valid
@@ -22,12 +22,12 @@ trait ConfigurableTrait
      * @param array $configuration
      * @return bool
      */
-    abstract public function isConfigurationValid(array $configuration);
+    abstract public function isConfigurationValid(array $configuration): bool;
 
     /**
      * @return array
      */
-    public function getConfiguration()
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -39,7 +39,7 @@ trait ConfigurableTrait
      * @param array $configuration
      * @throws InvalidConfigurationException
      */
-    public function setConfiguration(array $configuration)
+    public function setConfiguration(array $configuration): void
     {
         if ($this->isConfigurationValid($configuration)) {
             $this->configuration = $configuration;

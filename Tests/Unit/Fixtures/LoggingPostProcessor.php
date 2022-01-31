@@ -44,7 +44,7 @@ class LoggingPostProcessor extends AbstractPostProcessor implements PostProcesso
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
         return true;
     }

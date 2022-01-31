@@ -8,6 +8,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -41,10 +42,11 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
      *
      * @param array $configuration
      * @param array $record
-     * @param TaskResult $result
+     * @param TaskResult|null $result
      * @return bool
+     * @throws ContentRenderingException
      */
-    public function isDisabled($configuration, $record = [], TaskResult $result = null)
+    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool
     {
         if (!isset($configuration['disable'])) {
             return false;
@@ -64,7 +66,7 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
                     true
                 );
                 foreach ($messageIds as $id) {
-                    if ($result->hasMessageWithId($id)) {
+                    if ($result instanceof TaskResult && $result->hasMessageWithId($id)) {
                         return true;
                     }
                 }

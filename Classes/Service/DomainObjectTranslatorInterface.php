@@ -43,5 +43,5 @@ interface DomainObjectTranslatorInterface
      * @param int $language
      * @return void
      */
-    public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, $language);
+    public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, int $language): void;
 }

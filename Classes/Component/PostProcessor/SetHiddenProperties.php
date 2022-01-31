@@ -37,7 +37,7 @@ class SetHiddenProperties extends AbstractPostProcessor implements PostProcessor
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
             return false;
@@ -67,7 +67,7 @@ class SetHiddenProperties extends AbstractPostProcessor implements PostProcessor
      * @param array $record
      * @return TRUE
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $fieldName => $localConfiguration) {
