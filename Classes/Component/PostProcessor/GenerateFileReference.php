@@ -39,7 +39,7 @@ class GenerateFileReference extends AbstractPostProcessor
      * Error by id
      * <unique id> => ['title', ['message']
      */
-    const ERROR_CODES  = [
+    public const ERROR_CODES  = [
         1510524677 => ['Missing source field', 'config[\'sourceField\'] must be set'],
         1510524678 => ['Missing target field', 'config[\'targetField\'] must be set'],
         1510524679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
@@ -49,21 +49,6 @@ class GenerateFileReference extends AbstractPostProcessor
      * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
      */
     protected $persistenceManager;
-
-
-    /**
-     * Returns error codes for current component.
-     * Must be an array in the form
-     * [
-     *  <id> => ['errorTitle', 'errorDescription']
-     * ]
-     * 'errorDescription' may contain placeholder (%s) for arguments.
-     * @return array
-     */
-    public function getErrorCodes()
-    {
-        return self::ERROR_CODES;
-    }
 
     /**
      * Inject persistenceManager
@@ -107,10 +92,10 @@ class GenerateFileReference extends AbstractPostProcessor
                 if ($existingFileId === $fileId) {
                     // field references same file - nothing to do
                     return false;
-                } else {
-                    // remove existing reference if not equal file
-                    $this->persistenceManager->remove($targetFieldValue);
                 }
+
+                // remove existing reference if not equal file
+                $this->persistenceManager->remove($targetFieldValue);
             }
         }
 
