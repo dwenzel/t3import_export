@@ -5,7 +5,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 use CPSIT\T3importExport\Component\Initializer\TruncateTables;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /***************************************************************
@@ -40,53 +42,41 @@ class TruncateTablesTest extends TestCase
 
     public function setUp()
     {
-        $this->subject = new TruncateTables();
-        $this->mockConnectionService();
+        $this->mockConnectionPool();
         $this->mockConnection();
-    }
-
-    /**
-     */
-    public function processSetsDatabase(): void
-    {
-        $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
-        $configuration = [
-            'identifier' => 'fooDatabase'
-        ];
-        /** @var DatabaseConnectionService $connectionService */
-        $connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-            ['getDatabase'], [], '', false);
-        $connectionService->expects($this->once())
-            ->method('getDatabase')
-            ->with($configuration['identifier']);
-        $record = [];
-        $this->subject->injectDatabaseConnectionService($connectionService);
-
-        $this->subject->process($configuration, $record);
+        $this->subject = new TruncateTables($this->connectionPool);
     }
 
     /**
      * @covers ::isConfigurationValid
+     * @dataProvider invalidConfigurationDataProvider
      */
-    public function testIsConfigurationValidReturnsFalseIfTablesIsNotSet(): void
+    public function testIsConfigurationValidReturnsFalseForInvalidConfiguration($configuration): void
     {
-        $mockConfiguration = [];
         $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
+            $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
-    public function testIsConfigurationValidReturnsFalseIfTablesIsNotString(): void
+    public function invalidConfigurationDataProvider(): array
     {
-        $mockConfiguration = [
-            'tables' => 1
+        return [
+            'empty configuration' => [
+                []
+            ],
+            'tables value is integer' => [
+                [TruncateTables::KEY_TABLES => 3]
+            ],
+            'tables is float' => [
+                [TruncateTables::KEY_TABLES => 1.5]
+            ],
+            'tables is array' => [
+                [TruncateTables::KEY_TABLES => []]
+            ],
+            'tables is empty string' => [
+                [TruncateTables::KEY_TABLES => '']
+            ]
         ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
-        );
     }
 
     /**
@@ -94,83 +84,30 @@ class TruncateTablesTest extends TestCase
      */
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
-        $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
-
-        $validDatabaseIdentifier = 'fooDatabaseIdentifier';
         $validConfiguration = [
-            'identifier' => $validDatabaseIdentifier,
             'tables' => 'tableName',
         ];
-        DatabaseConnectionService::register(
-            $validDatabaseIdentifier,
-            'hostname',
-            'databaseName',
-            'userName',
-            'password'
-        );
 
         $this->assertTrue(
             $this->subject->isConfigurationValid($validConfiguration)
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
-    public function testIsConfigurationValidReturnsFalseForInvalidIdentifier(): void
-    {
-        $mockConfiguration = [
-            'identifier' => [],
-            'tables' => 'fooTable'
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
-        );
-    }
-
-    /**
-     * @covers ::isConfigurationValid
-     */
-    public function testIsConfigurationValidReturnsFalseIfDatabaseIsNotRegistered(): void
-    {
-        $mockConfiguration = [
-            'identifier' => 'missingDatabaseIdentifier',
-            'tables' => 'fooTable'
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
-        );
-    }
-
-    public function testConstructorSetsDefaultDatabase(): void
-    {
-        $GLOBALS['TYPO3_DB'] = $this->connection;
-        $this->subject->__construct();
-
-        self::assertAttributeSame(
-            $GLOBALS['TYPO3_DB'],
-            'database',
-            $this->subject
-        );
-    }
-
     public function testProcessTruncatesTables(): void
     {
-        $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
-
         $tableName = 'fooTable';
         $config = [
             'tables' => $tableName
         ];
         $records = [];
-        $mockDatabase = $this->getMock(
-            DatabaseConnection::class, ['exec_TRUNCATEquery']
-        );
-        $mockDatabase->expects($this->once())
-            ->method('exec_TRUNCATEquery')
-            ->with($tableName);
-        $this->subject->_set('database', $mockDatabase);
+        $this->connectionPool->expects($this->once())
+            ->method('getConnectionForTable')
+            ->with(...[$tableName])
+            ->willReturn($this->connection);
 
+        $this->connection->expects($this->once())
+            ->method('truncate')
+            ->with(...[$tableName]);
         $this->subject->process($config, $records);
     }
 }

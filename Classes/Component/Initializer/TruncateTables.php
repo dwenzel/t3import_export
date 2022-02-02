@@ -2,9 +2,8 @@
 
 namespace CPSIT\T3importExport\Component\Initializer;
 
-use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -40,36 +39,21 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @package CPSIT\T3importExport\Component\Initializer
  */
-class TruncateTables extends AbstractInitializer implements InitializerInterface, ConfigurableInterface
+class TruncateTables extends AbstractInitializer implements InitializerInterface
 {
     use ConfigurableTrait;
+    protected ConnectionPool $connectionPool;
 
-    /**
-     * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
-     */
-    protected $connectionService;
-
-    /**
-     * @var DatabaseConnection
-     */
-    protected $database;
+    public const KEY_TABLES = 'tables';
+    public const DELIMITER = ',';
 
     /**
      * Constructor
+     * @param ConnectionPool|null $connectionPool
      */
-    public function __construct()
+    public function __construct(ConnectionPool $connectionPool = null)
     {
-        if (!$this->database instanceof DatabaseConnection) {
-            $this->database = $GLOBALS['TYPO3_DB'];
-        }
-    }
-
-    /**
-     * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
-     */
-    public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService)
-    {
-        $this->connectionService = $dbConnectionService;
+        $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
     }
 
     /**
@@ -87,10 +71,13 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
             );
             if ((bool)$tables) {
                 foreach ($tables as $table) {
-                    $this->database->exec_TRUNCATEquery($table);
+                    $this->connectionPool->getConnectionForTable($table)
+                        ->truncate($table);
                 }
             }
         }
+
+        return true;
     }
 
     /**
@@ -101,21 +88,7 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
      */
     public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['tables'])
-            || !is_string($configuration['tables'])) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !is_string($configuration['identifier'])
-        ) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
-        ) {
-            return false;
-        }
-
-        return true;
+        return (!empty($configuration['tables'])
+            && is_string($configuration['tables']));
     }
 }

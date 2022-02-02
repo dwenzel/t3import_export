@@ -51,12 +51,7 @@ trait MockDatabaseTrait
     protected function mockConnectionService(): void
     {
         $this->mockConnection();
-        $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
-            ->setMethods([
-                'getConnectionForTable',
-
-            ])
-            ->getMock();
+        $this->mockConnectionPool();
 
         $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
             ->disableOriginalConstructor()
@@ -92,6 +87,16 @@ trait MockDatabaseTrait
                     'quoteIdentifiers'
                 ]
             )
+            ->getMock();
+    }
+
+    protected function mockConnectionPool(): void
+    {
+        $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->setMethods([
+                'getConnectionForTable',
+
+            ])
             ->getMock();
     }
 }
