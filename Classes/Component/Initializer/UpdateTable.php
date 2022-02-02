@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 /***************************************************************
@@ -20,7 +21,8 @@ namespace CPSIT\T3importExport\Component\Initializer;
  ***************************************************************/
 
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use Exception;
+use TYPO3\CMS\Core\Database\Connection;
 
 /**
  * Class UpdateTable
@@ -35,18 +37,36 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
      * @param array $configuration
      * @param array $records Array with prepared records
      * @return bool
+     * @throws Exception
      */
     public function process(array $configuration, array &$records): bool
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
-        $table = $configuration['table'];
-        $where = $configuration['where'];
-        $setfields = $configuration['setfields'];
+        $table = $configuration[static::KEY_TABLE];
+        $where = !empty($configuration[static::KEY_WHERE]) ? $configuration[static::KEY_WHERE] : ['1=1'];
+        $data = $configuration[static::KEY_SET_FIELDS];
+        $types = !empty($configuration[static::KEY_TYPES]) ? $configuration[static::KEY_TYPES] : [];
+        $quoteTypes = [];
 
-        return (bool)$this->database->exec_UPDATEquery($table, $where, $setfields);
+        foreach ($data as $key => $value) {
+            // default is string
+            $type = Connection::PARAM_STR;
+
+            if ($types[$key] === 'int') {
+                $type = Connection::PARAM_INT;
+            }
+            if ($types[$key] === 'bool') {
+                $type = Connection::PARAM_BOOL;
+            }
+            if ($types[$key] === 'null') {
+                $type = Connection::PARAM_NULL;
+            }
+            $quoteTypes[] = $type;
+        }
+
+        $this->connectionPool->getConnectionForTable($table)
+            ->update($table, $data, $where, $quoteTypes);
+
+        return true;
     }
 
     /**
@@ -57,26 +77,20 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
      */
     public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['table'])
-            || !is_string($configuration['table'])
+        if (empty($configuration[static::KEY_TABLE])
+            || !is_string($configuration[static::KEY_TABLE])
         ) {
             return false;
         }
 
-        if (!isset($configuration['where'])
-            || !is_string($configuration['where'])
+        if (!empty($configuration[static::KEY_WHERE])
+            && !is_array($configuration[static::KEY_WHERE])
         ) {
             return false;
         }
 
-        if (!isset($configuration['setfields'])
-            || !is_array($configuration['setfields'])
-        ) {
-            return false;
-        }
-
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
+        if (!isset($configuration[static::KEY_SET_FIELDS])
+            || !is_array($configuration[static::KEY_SET_FIELDS])
         ) {
             return false;
         }

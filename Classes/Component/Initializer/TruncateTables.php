@@ -3,6 +3,7 @@
 namespace CPSIT\T3importExport\Component\Initializer;
 
 use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\T3importExport\DatabaseTrait;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -41,20 +42,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class TruncateTables extends AbstractInitializer implements InitializerInterface
 {
-    use ConfigurableTrait;
-    protected ConnectionPool $connectionPool;
+    use ConfigurableTrait,
+        DatabaseTrait;
 
     public const KEY_TABLES = 'tables';
     public const DELIMITER = ',';
-
-    /**
-     * Constructor
-     * @param ConnectionPool|null $connectionPool
-     */
-    public function __construct(ConnectionPool $connectionPool = null)
-    {
-        $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
-    }
 
     /**
      * @param array $configuration
@@ -63,10 +55,10 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
      */
     public function process(array $configuration, array &$records): bool
     {
-        if (isset($configuration['tables'])) {
+        if (isset($configuration[static::KEY_TABLES])) {
             $tables = GeneralUtility::trimExplode(
                 ',',
-                $configuration['tables'],
+                $configuration[static::KEY_TABLES],
                 true
             );
             if ((bool)$tables) {
@@ -88,7 +80,7 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
      */
     public function isConfigurationValid(array $configuration): bool
     {
-        return (!empty($configuration['tables'])
-            && is_string($configuration['tables']));
+        return (!empty($configuration[static::KEY_TABLES])
+            && is_string($configuration[static::KEY_TABLES]));
     }
 }

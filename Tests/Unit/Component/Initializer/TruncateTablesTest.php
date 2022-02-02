@@ -42,8 +42,8 @@ class TruncateTablesTest extends TestCase
 
     public function setUp()
     {
-        $this->mockConnectionPool();
-        $this->mockConnection();
+        $this->mockConnectionPool()
+            ->mockConnection();
         $this->subject = new TruncateTables($this->connectionPool);
     }
 

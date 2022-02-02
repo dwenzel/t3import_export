@@ -53,6 +53,7 @@ trait DatabaseTrait
      * Database
      *
      * @var Connection
+     * @deprecated
      */
     protected $database;
 

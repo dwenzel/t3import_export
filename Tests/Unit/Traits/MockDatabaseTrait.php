@@ -48,7 +48,7 @@ trait MockDatabaseTrait
     abstract public function getMockBuilder($className): MockBuilder;
 
 
-    protected function mockConnectionService(): void
+    protected function mockConnectionService(): self
     {
         $this->mockConnection();
         $this->mockConnectionPool();
@@ -66,9 +66,10 @@ trait MockDatabaseTrait
         $this->connectionService->method('getDatabase')->willReturn($this->connection);
         $this->connectionService->method('getConnectionPool')->willReturn($this->connectionPool);
 
+        return $this;
     }
 
-    protected function mockConnection(): void
+    protected function mockConnection(): self
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -88,9 +89,11 @@ trait MockDatabaseTrait
                 ]
             )
             ->getMock();
+
+        return $this;
     }
 
-    protected function mockConnectionPool(): void
+    protected function mockConnectionPool(): self
     {
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
             ->setMethods([
@@ -98,5 +101,7 @@ trait MockDatabaseTrait
 
             ])
             ->getMock();
+
+        return $this;
     }
 }
