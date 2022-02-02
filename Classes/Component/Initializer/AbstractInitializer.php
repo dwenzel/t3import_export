@@ -34,7 +34,7 @@ abstract class AbstractInitializer extends AbstractComponent
      * @param array $records Array with prepared records
      * @return bool
      */
-    abstract public function process($configuration, &$records);
+    abstract public function process(array  $configuration, array &$records): bool;
 
     /**
      * Tells whether a given configuration is valid

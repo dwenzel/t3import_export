@@ -77,12 +77,8 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
      * @param array $records Array with prepared records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
         if (isset($configuration['tables'])) {
             $tables = GeneralUtility::trimExplode(
                 ',',

@@ -43,7 +43,7 @@ class LoggingInitializer extends AbstractInitializer implements InitializerInter
      * @param array $records Array with prepared records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
         return true;
     }

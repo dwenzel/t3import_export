@@ -60,7 +60,7 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
      * @param array $records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
         if (isset($configuration['identifier'])) {
             $this->database = $this->connectionService

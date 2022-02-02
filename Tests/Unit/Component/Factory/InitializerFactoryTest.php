@@ -57,7 +57,7 @@ class DummyValidInitializer extends AbstractInitializer implements InitializerIn
      * @param array $records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
         return true;
     }
