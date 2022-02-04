@@ -42,9 +42,9 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      * Unique identifier of the database connection to use.
      * This connection must be registered with the connection service.
      *
-     * @var string
+     * @var string|null
      */
-    protected string $identifier;
+    protected ?string $identifier = null;
 
     /**
      * Gets the database connection

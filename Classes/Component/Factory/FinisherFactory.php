@@ -1,9 +1,9 @@
 <?php
 namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -31,7 +31,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class FinisherFactory extends AbstractFactory
+class FinisherFactory extends AbstractFactory implements FactoryInterface
 {
     /**
      * Builds a Finisher object
@@ -39,9 +39,9 @@ class FinisherFactory extends AbstractFactory
      * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return \CPSIT\T3importExport\Component\Finisher\FinisherInterface
+     * @return FinisherInterface
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], $identifier = null): FinisherInterface
     {
         $additionalInformation = '.';
         if (!is_null($identifier)) {
