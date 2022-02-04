@@ -2,6 +2,8 @@
 
 namespace CPSIT\T3importExport\Messaging;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Copyright notice
  * (c) 2017. Dirk Wenzel <wenzel@cps-it.de>
@@ -28,13 +30,9 @@ trait MessageContainerTrait
      */
     protected $messageContainer;
 
-    /**
-     * injects the message container
-     * @param MessageContainer $messageContainer
-     */
-    public function injectMessageContainer(MessageContainer $messageContainer)
+    public function __construct(MessageContainer $messageContainer = null)
     {
-        $this->messageContainer = $messageContainer;
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
     }
 
     /**

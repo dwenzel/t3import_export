@@ -231,13 +231,6 @@ class InsertMultipleTest extends TestCase
             'rows' => $rows
         ];
         $records = [];
-        $mockDatabase = $this->getMock(
-            DatabaseConnection::class, ['exec_INSERTmultipleRows']
-        );
-        $mockDatabase->expects($this->once())
-            ->method('exec_INSERTmultipleRows')
-            ->with($tableName);
-        $this->subject->_set('database', $mockDatabase);
 
         $this->subject->process($config, $records);
     }

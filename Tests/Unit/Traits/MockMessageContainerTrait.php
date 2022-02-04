@@ -34,7 +34,8 @@ trait MockMessageContainerTrait
             ->disableOriginalConstructor()
             ->setMethods(['addMessage', 'logMessage'])
             ->getMock();
-        $this->subject->injectMessageContainer($this->messageContainer);
+        if (method_exists($this, 'injectMessageContainer')) {
+            $this->subject->injectMessageContainer($this->messageContainer);
+        }
     }
-
 }

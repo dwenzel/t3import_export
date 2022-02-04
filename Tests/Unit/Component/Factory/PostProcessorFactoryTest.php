@@ -70,15 +70,12 @@ class DummyInvalidPostProcessor
  */
 class PostProcessorFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait;
-
     protected PostProcessorFactory $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
         $this->subject = new PostProcessorFactory();
-        $this->mockObjectManager();
     }
 
     public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
@@ -121,15 +118,9 @@ class PostProcessorFactoryTest extends TestCase
         $settings = [
             'class' => $validClass,
         ];
-        $mockPostProcessor = $this->getMockBuilder($validClass)->getMock();
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$validClass])
-            ->willReturn($mockPostProcessor);
-
         /** @noinspection PhpUnhandledExceptionInspection */
-        $this->assertEquals(
-            $mockPostProcessor,
+        $this->assertInstanceOf(
+            $validClass,
             $this->subject->get($settings, $identifier)
         );
     }

@@ -133,6 +133,6 @@ class AbstractComponentTest extends TestCase
             ->getMock();
         $result->expects($this->once())->method('hasMessageWithId')
             ->willReturn(true);
-        $this->subject->isDisabled($configuration, null, $result);
+        $this->subject->isDisabled($configuration, [], $result);
     }
 }

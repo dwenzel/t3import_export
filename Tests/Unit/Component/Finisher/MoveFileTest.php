@@ -50,8 +50,8 @@ class MoveFileTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new MoveFile();
         $this->mockMessageContainer();
+        $this->subject = new MoveFile($this->messageContainer);
         $this->mockResourceStorage();
         $this->mockStorageFolder();
         $this->mockResourceFactory();

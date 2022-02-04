@@ -37,11 +37,13 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
     {
         $table = $configuration['table'];
         $where = $configuration['where'];
-        return $this->connectionPool->getConnectionForTable($table)
+        $this->connectionPool->getConnectionForTable($table)
             ->createQueryBuilder()
             ->delete($table)
             ->where($where)
             ->execute();
+
+        return true;
     }
 
     /**

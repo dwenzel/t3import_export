@@ -6,7 +6,6 @@ use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************
@@ -70,8 +69,6 @@ class DummyValidPreProcessor extends AbstractPreProcessor implements PreProcesso
  */
 class PreProcessorFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait;
-
     protected PreProcessorFactory $subject;
 
     /**
@@ -81,7 +78,6 @@ class PreProcessorFactoryTest extends TestCase
     public function setUp()
     {
         $this->subject = new PreProcessorFactory();
-        $this->mockObjectManager();
     }
 
     public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
@@ -118,6 +114,9 @@ class PreProcessorFactoryTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvalidConfigurationException
+     */
     public function testGetReturnsPreProcessor(): void
     {
         $identifier = 'fooIdentifier';
@@ -125,13 +124,8 @@ class PreProcessorFactoryTest extends TestCase
         $settings = [
             'class' => $validClass,
         ];
-        $mockPreProcessor = $this->getMockBuilder($validClass)->getMock();
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$validClass])
-            ->willReturn($mockPreProcessor);
-        $this->assertEquals(
-            $mockPreProcessor,
+        $this->assertInstanceOf(
+            $validClass,
             $this->subject->get($settings, $identifier)
         );
     }

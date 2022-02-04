@@ -62,10 +62,6 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
      */
     public function process(array $configuration, array &$records): bool
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
         $table = $configuration['table'];
         $fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         $values = [];

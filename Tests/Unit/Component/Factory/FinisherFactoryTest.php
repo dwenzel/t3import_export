@@ -121,18 +121,8 @@ class FinisherFactoryTest extends TestCase
         $settings = [
             'class' => $validClass,
         ];
-        $mockObjectManager = $this->getMockBuilder(ObjectManager::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['get'])
-            ->getMock();
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockFinisher = $this->getMockBuilder($validClass)->getMock();
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$validClass])
-            ->willReturn($mockFinisher);
-        $this->assertEquals(
-            $mockFinisher,
+        $this->assertInstanceOf(
+            $validClass,
             $this->subject->get($settings, $identifier)
         );
     }

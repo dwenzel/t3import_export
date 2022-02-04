@@ -17,31 +17,20 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\DeleteFromTable;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
-
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class DeleteFromTableTest extends TestCase
 {
-    use MockDatabaseTrait,
-        MockObjectManagerTrait;
+    use MockDatabaseTrait;
 
     protected DeleteFromTable $subject;
-
-    protected ConnectionPool $connectionPool;
-
     protected QueryBuilder $queryBuilder;
 
     public function setUp()
     {
         $this->mockConnectionService();
-        $this->mockConnection();
-        $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
-            ->setMethods(['getConnectionForTable'])
-            ->getMock();
         $this->connectionPool->method('getConnectionForTable')
             ->willReturn($this->connection);
         $this->queryBuilder = $this->getMockBuilder(QueryBuilder::class)
@@ -67,7 +56,7 @@ class DeleteFromTableTest extends TestCase
             'table' => 'foo',
             'fields' => 'bar',
         ];
-        $this->connectionService->expects($this->once())
+        $this->connectionPool->expects($this->once())
             ->method('getConnectionForTable')
             ->with(...[$configuration['table']])
             ->willReturn($this->connection);

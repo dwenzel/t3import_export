@@ -94,10 +94,10 @@ class ArrayToDomainObjectTest extends TestCase
             ->setMethods(['build'])
             ->getMock();
         $this->targetClassConfigurationValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['validate'])
+            ->setMethods(['isValid'])
             ->getMock();
         $this->mappingConfigurationValidator = $this->getMockBuilder(MappingConfigurationValidator::class)
-            ->setMethods(['validate'])
+            ->setMethods(['isValid'])
             ->getMock();
         $this->subject = new ArrayToDomainObject(
             $this->propertyMapper,
@@ -113,83 +113,16 @@ class ArrayToDomainObjectTest extends TestCase
      */
     public function getMappingConfigurationInitiallyReturnsDefaultPropertyMappingConfiguration()
     {
-        $mockMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
-            ->setMethods(
-                [
-                    'setTypeConverterOptions',
-                    'forProperty',
-                    'forProperties',
-                    'skipUnknownProperties',
-                    'allowProperties'
-                ]
-            )->getMock();
-        $mockMappingConfiguration->expects($this->any())
-            ->method('setTypeConverterOptions')
-            ->will($this->returnValue($mockMappingConfiguration));
-        $mockMappingConfiguration->expects($this->any())
-            ->method('skipUnknownProperties')
-            ->will($this->returnValue($mockMappingConfiguration));
-        $mockMappingConfiguration->expects($this->any())
-            ->method('forProperty')
-            ->will($this->returnValue($mockMappingConfiguration));
-        $mockMappingConfiguration->expects($this->any())
-            ->method('allowProperties')
-            ->will($this->returnValue($mockMappingConfiguration));
+        $this->propertyMappingConfigurationBuilder->expects($this->never())
+            ->method('build');
 
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(PropertyMappingConfiguration::class)
-            ->willReturn($mockMappingConfiguration);
-        $this->assertSame(
-            $mockMappingConfiguration,
+        $this->assertInstanceOf(
+            PropertyMappingConfiguration::class,
             $this->subject->getMappingConfiguration([])
         );
-    }
-
-
-    /**
-     * @test
-     */
-    public function getMappingConfigurationSetsTypeConverterOptions()
-    {
-        $mockMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
-            ->setMethods(
-                [
-                    'setTypeConverterOptions',
-                    'forProperty',
-                    'forProperties',
-                    'skipUnknownProperties',
-                    'allowProperties'
-                ]
-            )
-            ->getMock();
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(PropertyMappingConfiguration::class)
-            ->willReturn($mockMappingConfiguration);
-        $mockMappingConfiguration->expects($this->any())
-            ->method('skipUnknownProperties')
-            ->will($this->returnValue($mockMappingConfiguration));
-        $mockMappingConfiguration->expects($this->any())
-            ->method('forProperty')
-            ->will($this->returnValue($mockMappingConfiguration));
-        $mockMappingConfiguration->expects($this->any())
-            ->method('allowProperties')
-            ->will($this->returnValue($mockMappingConfiguration));
-
-        $mockMappingConfiguration->expects($this->any())
-            ->method('setTypeConverterOptions')
-            ->with(
-                PersistentObjectConverter::class,
-                [
-                    PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
-                    PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
-                ]
-            )
-            ->will($this->returnValue($mockMappingConfiguration));
-
         $this->subject->getMappingConfiguration([]);
     }
+
 
     /**
      * @test
@@ -266,12 +199,12 @@ class ArrayToDomainObjectTest extends TestCase
     {
         $config = ['foo'];
         $this->targetClassConfigurationValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config)
             ->willReturn(true);
 
         $this->mappingConfigurationValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config)
             ->willReturn(true);
 

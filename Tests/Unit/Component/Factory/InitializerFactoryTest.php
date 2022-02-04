@@ -83,10 +83,9 @@ class InitializerFactoryTest extends TestCase
     public function setUp()
     {
         $this->subject = new InitializerFactory();
-        $this->mockObjectManager();
     }
 
-    public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1454588350);
@@ -95,7 +94,7 @@ class InitializerFactoryTest extends TestCase
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
-    public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1454588360);
@@ -107,7 +106,7 @@ class InitializerFactoryTest extends TestCase
         );
     }
 
-    public function testGetThrowsExceptionIfClassDoesNotImplementInitializerInterface()
+    public function testGetThrowsExceptionIfClassDoesNotImplementInitializerInterface(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1454588370);
@@ -123,22 +122,16 @@ class InitializerFactoryTest extends TestCase
     /**
      * @test
      */
-    public function getReturnsInitializer()
+    public function getReturnsInitializer(): void
     {
         $identifier = 'fooIdentifier';
         $validClass = DummyValidInitializer::class;
         $settings = [
             'class' => $validClass,
         ];
-        $mockInitializer = $this->getMockBuilder($validClass)
-            ->getMock();
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$validClass])
-            ->willReturn($mockInitializer);
 
-        $this->assertEquals(
-            $mockInitializer,
+        $this->assertInstanceOf(
+            $validClass,
             $this->subject->get($settings, $identifier)
         );
     }

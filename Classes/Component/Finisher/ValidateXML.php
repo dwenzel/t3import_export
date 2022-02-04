@@ -23,6 +23,7 @@ use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use XMLReader;
 
@@ -54,11 +55,17 @@ class ValidateXML extends AbstractFinisher
 
     /**
      * ValidateXML constructor.
-     * @param XMLReader $xmlReader
+     * @param XMLReader|null $xmlReader
+     * @param ResourcePathConfigurationValidator|null $validator
      * @param MessageContainer|null $messageContainer
      */
-    public function __construct(XMLReader $xmlReader, MessageContainer $messageContainer = null) {
+    public function __construct(
+        XMLReader $xmlReader = null,
+        ResourcePathConfigurationValidator $validator = null,
+        MessageContainer $messageContainer = null
+    ) {
         $this->xmlReader = $xmlReader ?? GeneralUtility::makeInstance(XMLReader::class);
+        $this->pathValidator = $validator ?? GeneralUtility::makeInstance(ResourcePathConfigurationValidator::class);
         $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
     }
 

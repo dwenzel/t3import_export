@@ -124,18 +124,9 @@ class ConverterFactoryTest extends TestCase
         $settings = [
             'class' => $validClass,
         ];
-        $mockObjectManager = $this->getMockBuilder(ObjectManager::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['get'])
-            ->getMock();
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockConverter = $this->getMockBuilder($validClass)->getMock();
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$validClass])
-            ->willReturn($mockConverter);
-        $this->assertEquals(
-            $mockConverter,
+        $converter = new $validClass;
+        $this->assertInstanceOf(
+            get_class($converter),
             $this->subject->get($settings, $identifier)
         );
     }

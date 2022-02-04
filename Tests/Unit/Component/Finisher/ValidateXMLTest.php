@@ -5,7 +5,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 use CPSIT\T3importExport\Component\Finisher\ValidateXML;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -34,8 +33,7 @@ use XMLReader;
  */
 class ValidateXMLTest extends TestCase
 {
-    use MockMessageContainerTrait,
-        MockObjectManagerTrait;
+    use MockMessageContainerTrait;
 
     /**
      * @var ValidateXML|MockObject
@@ -58,18 +56,12 @@ class ValidateXMLTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new ValidateXML();
-        $this->mockObjectManager();
         $this->mockMessageContainer();
         $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->setMethods(['validate'])->getMock();
-        $this->subject->injectResourcePathConfigurationValidator(
-            $this->pathValidator
-        );
+            ->setMethods(['isValid'])->getMock();
         $this->xmlReader = $this->getMockBuilder(XMLReader::class)
             ->setMethods(
                 [
-                    'XML',
                     'setParserProperty',
                     'isValid',
                     'setSchema',
@@ -77,7 +69,7 @@ class ValidateXMLTest extends TestCase
                     'close'
                 ])
             ->getMock();
-        $this->subject->injectXMLReader($this->xmlReader);
+        $this->subject = new ValidateXML($this->xmlReader, $this->pathValidator, $this->messageContainer);
     }
 
     public function testGetNoticeCodesReturnsMemberConstant(): void
@@ -129,18 +121,8 @@ class ValidateXMLTest extends TestCase
             ->getMock();
         $expectedTitle = 'Invalid type for target schema';
         $expectedDescription = "config['target']['schema'] must be a string, array given.\nMessage ID 1508774170 in component CPSIT\T3importExport\Component\Finisher\ValidateXML";
-        $this->pathValidator->expects($this->once())->method('validate')
+        $this->pathValidator->expects($this->once())->method('isValid')
             ->willReturn(true);
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[
-                Message::class,
-                $expectedDescription,
-                $expectedTitle,
-                Message::ERROR,
-                1508774170
-            ])
-            ->willReturn($message);
         $this->messageContainer->expects($this->once())
             ->method('addMessage');
 
@@ -152,7 +134,7 @@ class ValidateXMLTest extends TestCase
     public function testIsConfigurationReturnsFalseForInvalidPathConfiguration(): void
     {
         $configuration = ['foo'];
-        $this->pathValidator->expects($this->once())->method('validate')
+        $this->pathValidator->expects($this->once())->method('isValid')
             ->with($configuration)
             ->willReturn(false);
 
@@ -183,7 +165,7 @@ class ValidateXMLTest extends TestCase
      */
     public function testIsConfigurationValidReturnsTrueForValidConfiguration($configuration): void
     {
-        $this->pathValidator->expects($this->once())->method('validate')
+        $this->pathValidator->expects($this->once())->method('isValid')
             ->willReturn(true);
 
         $this->assertTrue(
@@ -210,14 +192,11 @@ class ValidateXMLTest extends TestCase
         $validXML = 'foo';
         $this->subject = $this->getMockBuilder(ValidateXML::class)
             ->setMethods(['loadResource', 'logNotice'])
+            ->setConstructorArgs([$this->xmlReader, $this->pathValidator, $this->messageContainer])
             ->getMock();
-        $this->subject->injectXMLReader($this->xmlReader);
         $this->subject->expects($this->once())
             ->method('loadResource')
             ->willReturn($validXML);
-        $this->xmlReader->expects($this->once())
-            ->method('XML')
-            ->with(...[$validXML]);
         $this->xmlReader->expects($this->once())
             ->method('setParserProperty')
             ->with(...[XMLReader::VALIDATE, true]);
@@ -242,8 +221,8 @@ class ValidateXMLTest extends TestCase
         $this->subject = $this->getMockBuilder(
             ValidateXML::class)
             ->setMethods(['loadResource', 'getAbsoluteFilePath', 'logNotice'])
+            ->setConstructorArgs([$this->xmlReader, $this->pathValidator, $this->messageContainer])
             ->getMock();
-        $this->subject->injectXMLReader($this->xmlReader);
         $this->subject->expects($this->once())
             ->method('loadResource')
             ->willReturn($validXML);
@@ -268,8 +247,8 @@ class ValidateXMLTest extends TestCase
         $validXML = 'bar';
         $this->subject = $this->getMockBuilder(ValidateXML::class)
             ->setMethods(['loadResource', 'logNotice'])
+            ->setConstructorArgs([$this->xmlReader, $this->pathValidator, $this->messageContainer])
             ->getMock();
-        $this->subject->injectXMLReader($this->xmlReader);
         $this->subject->expects($this->once())
             ->method('loadResource')
             ->willReturn($validXML);
