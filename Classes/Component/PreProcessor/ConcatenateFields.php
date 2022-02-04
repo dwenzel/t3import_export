@@ -1,5 +1,10 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
+
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Form\Mvc\Configuration\TypoScriptService;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice
@@ -28,6 +33,15 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
+
+    public function __construct(
+        ContentObjectRenderer $contentObjectRenderer = null,
+        TypoScriptService $typoScriptService = null
+    )
+    {
+        $this->contentObjectRenderer = $contentObjectRenderer ?? $this->getContentObjectRenderer();
+        $this->typoScriptService = $typoScriptService ?? GeneralUtility::makeInstance(TypoScriptService::class);
+    }
 
     /**
      * @param array $configuration

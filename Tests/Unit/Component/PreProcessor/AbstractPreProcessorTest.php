@@ -5,7 +5,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 /***************************************************************
  *  Copyright notice
@@ -60,32 +59,13 @@ class AbstractPreProcessorTest extends TestCase
 
     /**
      * @test
-     * @cover ::injectTypoScriptService
-     */
-    public function injectTypoScriptServiceSetsTypoScriptService(): void
-    {
-        $mockTypoScriptService = $this->getMockBuilder(
-            TypoScriptService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->subject->injectTypoScriptService($mockTypoScriptService);
-        self::assertAttributeSame(
-            $mockTypoScriptService,
-            'typoScriptService',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
      * @covers ::isDisabled
      */
     public function isDisabledReturnsInitiallyFalse(): void
     {
         $configuration = [];
         $this->assertFalse(
-            $this->subject->isDisabled($configuration, null)
+            $this->subject->isDisabled($configuration, [])
         );
     }
 
@@ -99,7 +79,7 @@ class AbstractPreProcessorTest extends TestCase
             'disable' => '1'
         ];
         $this->assertTrue(
-            $this->subject->isDisabled($configuration, null)
+            $this->subject->isDisabled($configuration, [])
         );
     }
 

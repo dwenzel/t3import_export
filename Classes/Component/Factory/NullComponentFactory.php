@@ -1,9 +1,9 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests\Unit\Traits;
+namespace CPSIT\T3importExport\Component\Factory;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use CPSIT\T3importExport\Component\NullComponent;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -21,23 +21,13 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-trait MockTypoScriptServiceTrait
+class NullComponentFactory implements FactoryInterface
 {
-
     /**
-     * @var TypoScriptService|MockObject
+     * @inheritDoc
      */
-    protected TypoScriptService $typoScriptService;
-
-    protected function mockTypoScriptService(): void
+    public function get(array $settings = [], $identifier = null): NullComponent
     {
-        $this->typoScriptService = $this->getMockBuilder(TypoScriptService::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['convertPlainArrayToTypoScriptArray'])
-            ->getMock();
-
-        if (method_exists($this, 'injectTypoScriptService')) {
-            $this->subject->injectTypoScriptService($this->typoScriptService);
-        }
+        return new NullComponent();
     }
 }

@@ -2,13 +2,14 @@
 namespace CPSIT\T3importExport\Component\Converter;
 
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\Component\ComponentInterface;
 
 /**
  * Interface ConverterInterface
  *
  * @package CPSIT\T3importExport\Component\Converter
  */
-interface ConverterInterface
+interface ConverterInterface extends ComponentInterface
 {
     /**
      * @param array $record

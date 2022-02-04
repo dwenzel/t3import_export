@@ -57,15 +57,10 @@ class TransferSetFactoryTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new TransferSetFactory();
-        $this->mockObjectManager();
-        $this->mockTransferTask();
-
         $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
+            ->disableOriginalConstructor()
             ->setMethods(['get'])
             ->getMock();
-        $this->transferTaskFactory->method('get')->willReturn($this->transferTask);
-        $this->subject->injectTransferTaskFactory($this->transferTaskFactory);
         $this->transferSet = $this->getMockBuilder(TransferSet::class)
             ->setMethods(
                 [
@@ -75,31 +70,11 @@ class TransferSetFactoryTest extends TestCase
                     'setTasks'
                 ])
             ->getMock();
-        $this->objectManager->method('get')->willReturn($this->transferSet);
-    }
 
-    public function testInjectImportTaskFactorySetsObject(): void
-    {
-        self::assertAttributeSame(
-            $this->transferTaskFactory,
-            'transferTaskFactory',
-            $this->subject
-        );
-    }
+        $this->mockTransferTask();
 
-    public function testGetReturnsObjectFromObjectManager(): void
-    {
-        $settings = [];
-
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[TransferSet::class])
-            ->willReturn($this->transferSet);
-
-        $this->assertSame(
-            $this->transferSet,
-            $this->subject->get($settings)
-        );
+        $this->transferTaskFactory->method('get')->willReturn($this->transferTask);
+        $this->subject = new TransferSetFactory($this->transferTaskFactory, $this->transferSet);
     }
 
     public function testGetSetsIdentifier(): void

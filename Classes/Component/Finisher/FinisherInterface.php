@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\Finisher;
 
+use CPSIT\T3importExport\Component\ComponentInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 /**
@@ -8,7 +9,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
  *
  * @package CPSIT\T3importExport\Component\Finisher
  */
-interface FinisherInterface
+interface FinisherInterface extends ComponentInterface
 {
     /**
      * @param array $configuration

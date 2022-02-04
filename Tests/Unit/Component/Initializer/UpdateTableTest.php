@@ -36,7 +36,6 @@ class UpdateTableTest extends TestCase
     }
 
     /**
-     * @covers ::isConfigurationValid
      * @dataProvider validConfigurationDataProvider
      */
     public function testIsConfigurationValidReturnsTrueForValidConfiguration($configuration): void
@@ -47,7 +46,6 @@ class UpdateTableTest extends TestCase
     }
 
     /**
-     * @covers ::isConfigurationValid
      * @dataProvider invalidConfigurationDataProvider
      */
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration($configuration): void

@@ -3,14 +3,14 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\TranslateObject;
-use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
+use CPSIT\T3importExport\InvalidColumnMapException;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
@@ -68,7 +68,7 @@ class TranslateObjectTest extends TestCase
     protected TranslationService $translationService;
 
     /**
-     * @var TranslateObjectConfigurationValidator |MockObject
+     * @var TranslateObjectConfigurationValidator|MockObject
      */
     protected TranslateObjectConfigurationValidator $configurationValidator;
 
@@ -81,7 +81,10 @@ class TranslateObjectTest extends TestCase
         $this->persistenceManager = $this->getMockForAbstractClass(PersistenceManagerInterface::class);
         $this->translationService = $this->getMockBuilder(TranslationService::class)
             ->disableOriginalConstructor()
-            ->setMethods(['translate'])
+            ->setMethods(['getLocalizationParent', 'translate'])
+            ->getMock();
+        $this->configurationValidator = $this->getMockBuilder(TranslateObjectConfigurationValidator::class)
+            ->setMethods(['isValid'])
             ->getMock();
 
         $this->subject = new TranslateObject(
@@ -125,6 +128,8 @@ class TranslateObjectTest extends TestCase
 
     /**
      * @test
+     * @throws ReflectionException
+     * @throws InvalidColumnMapException
      */
     public function processConvertsParentIfParentFieldIsSet(): void
     {
@@ -133,61 +138,26 @@ class TranslateObjectTest extends TestCase
             'language' => '1',
             'parentField' => 'foo'
         ];
-        $mockRecord = [
+        $record = [
             'foo' => $identity
         ];
 
         $targetClass = DomainObjectInterface::class;
-        /** @var DomainObjectInterface|MockObject $mockObject */
-        $mockObject = $this->getMockForAbstractClass($targetClass);
-        $mockParent = $this->getMockForAbstractClass($targetClass);
+        /** @var DomainObjectInterface|MockObject $convertedRecord */
+        $convertedRecord = $this->getMockForAbstractClass($targetClass);
+        $parentObject = $this->getMockForAbstractClass($targetClass);
 
-        $mockQuerySettings = $this->getMockForAbstractClass(QuerySettingsInterface::class);
-        $mockComparison = $this->getMockForAbstractClass(ComparisonInterface::class);
-        $mockQueryResult = $this->getMockForAbstractClass(QueryResultInterface::class);
-        $mockQuery = $this->getMockForAbstractClass(QueryInterface::class);
+        $expectedTargetClass = get_class($convertedRecord);
 
-        $mockQuery->expects($this->any())
-            ->method('getQuerySettings')
-            ->willReturn($mockQuerySettings);
-        $mockQuery->expects($this->once())
-            ->method('equals')
-            ->with(...['uid', $identity])
-            ->willReturn($mockComparison);
-        $mockQuery->expects($this->once())
-            ->method('matching')
-            ->with(...[$mockComparison])
-            ->willReturn($mockQuery);
-        $mockQuery->expects($this->once())
-            ->method('execute')
-            ->willReturn($mockQueryResult);
-        $mockQuery->expects($this->once())
-            ->method('setQuerySettings')
-            ->with(...[$mockQuerySettings]);
-        $mockQueryResult->expects($this->once())
-            ->method('getFirst')
-            ->willReturn($mockParent);
-        $mockQuerySettings->expects($this->once())
-            ->method('setIgnoreEnableFields')
-            ->with(...[true]);
-        $mockQuerySettings->expects($this->once())
-            ->method('setRespectStoragePage')
-            ->with(...[false]);
-        $mockQuerySettings->expects($this->once())
-            ->method('setLanguageUid')
-            ->with(...[0]);
-        $this->translationService->expects($this->once())
-            ->method('translate')
-            ->with(...[$mockParent, $mockObject, 1]);
-        $this->persistenceManager->expects($this->once())
-            ->method('createQueryForType')
-            ->with(...[get_class($mockObject)])
-            ->willReturn($mockQuery);
+            $this->translationService->expects($this->once())
+            ->method('getLocalizationParent')
+            ->with(...[$identity, $expectedTargetClass])
+            ->willReturn($parentObject);
 
         $this->subject->process(
             $config,
-            $mockObject,
-            $mockRecord
+            $convertedRecord,
+            $record
         );
     }
 }

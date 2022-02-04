@@ -119,7 +119,7 @@ class ArrayToXMLStreamTest extends TestCase
     {
         /** @var TargetClassConfigurationValidator|MockObject $mockedTargetValidator */
         $mockedTargetValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['validate'])
+            ->setMethods(['isValid'])
             ->getMock();
         $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
 
@@ -134,7 +134,7 @@ class ArrayToXMLStreamTest extends TestCase
         ];
 
         $mockedTargetValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config);
         $this->subject->isConfigurationValid($config);
     }
@@ -146,14 +146,14 @@ class ArrayToXMLStreamTest extends TestCase
     {
         /** @var TargetClassConfigurationValidator|MockObject $mockedTargetValidator */
         $mockedTargetValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['validate'])
+            ->setMethods(['isValid'])
             ->getMock();
         $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
 
 
         /** @var MappingConfigurationValidator|MockObject $mockedMappingValidator */
         $mockedMappingValidator = $this->getMockBuilder(
-            MappingConfigurationValidator::class)->setMethods(['validate'])
+            MappingConfigurationValidator::class)->setMethods(['isValid'])
             ->getMock();
         $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 
@@ -163,11 +163,11 @@ class ArrayToXMLStreamTest extends TestCase
         ];
 
         $mockedTargetValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config)
             ->willReturn(true);
         $mockedMappingValidator->expects($this->once())
-            ->method('validate')
+            ->method('isValid')
             ->with($config);
         $this->subject->isConfigurationValid($config);
     }

@@ -1,8 +1,10 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
@@ -28,9 +30,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataTargetFactory extends AbstractFactory
+class DataTargetFactory extends AbstractFactory implements FactoryInterface
 {
-    const DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
+    public const DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
 
     /**
      * Builds a factory object
@@ -38,11 +40,11 @@ class DataTargetFactory extends AbstractFactory
      * @param array $settings
      * @param string $identifier
      * @return DataTargetInterface
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
-     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
      * @throws MissingInterfaceException
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], $identifier = null): DataTargetInterface
     {
         $dataTargetClass = self::DEFAULT_DATA_TARGET_CLASS;
         if (isset($settings['class'])) {

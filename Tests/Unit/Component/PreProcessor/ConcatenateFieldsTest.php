@@ -3,6 +3,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockContentObjectRendererTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptFrontendControllerTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +36,8 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class ConcatenateFieldsTest extends TestCase
 {
-    use MockTypoScriptFrontendControllerTrait;
+    use MockTypoScriptFrontendControllerTrait,
+        MockContentObjectRendererTrait;
 
     protected ConcatenateFields $subject;
 
@@ -43,7 +45,8 @@ class ConcatenateFieldsTest extends TestCase
     public function setUp()
     {
         $this->mockTypoScriptFrontendController();
-        $this->subject = new ConcatenateFields();
+        $this->mockContentObjectRenderer();
+        $this->subject = new ConcatenateFields($this->contentObjectRenderer);
     }
 
     /**
@@ -94,11 +97,10 @@ class ConcatenateFieldsTest extends TestCase
                 ],
             ]
         ];
-        $mockContentObjectRenderer = $this->mockContentObjectRenderer();
-        $mockContentObjectRenderer->expects($this->once())
+        $this->contentObjectRenderer->expects($this->once())
             ->method('wrap')
-            ->with($originalFieldValue, $wrapConfiguration)
-            ->will($this->returnValue($wrappedFieldValue));
+            ->with(...[$originalFieldValue, $wrapConfiguration])
+            ->willReturn($wrappedFieldValue);
 
         $expectedResult = [
             'fooField' => $wrappedFieldValue,
@@ -106,19 +108,6 @@ class ConcatenateFieldsTest extends TestCase
         ];
         $this->subject->process($configuration, $mockRecord);
         $this->assertSame($expectedResult, $mockRecord);
-    }
-
-    /**
-     * @return ContentObjectRenderer|MockObject
-     */
-    public function mockContentObjectRenderer(): MockObject
-    {
-        $mockContentObjectRenderer = $this->getMockBuilder(ContentObjectRenderer::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['wrap', 'noTrimWrap'])
-            ->getMock();
-        $this->subject->injectContentObjectRenderer($mockContentObjectRenderer);
-        return $mockContentObjectRenderer;
     }
 
     /**
@@ -142,11 +131,10 @@ class ConcatenateFieldsTest extends TestCase
                 ],
             ]
         ];
-        $mockContentObjectRenderer = $this->mockContentObjectRenderer();
-        $mockContentObjectRenderer->expects($this->once())
+        $this->contentObjectRenderer->expects($this->once())
             ->method('noTrimWrap')
-            ->with($originalFieldValue, $wrapConfiguration)
-            ->will($this->returnValue($wrappedFieldValue));
+            ->with(...[$originalFieldValue, $wrapConfiguration])
+            ->willReturn($wrappedFieldValue);
 
         $expectedResult = [
             'fooField' => $wrappedFieldValue,

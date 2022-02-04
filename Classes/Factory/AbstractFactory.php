@@ -26,30 +26,14 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  * Class AbstractFactory
  *
  * @package CPSIT\T3importExport\Domain\Factory
+ * @deprecated
  */
 abstract class AbstractFactory
 {
     /**
      * @var array
      */
-    protected $settings;
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
-     */
-    protected $configurationManager;
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
-     * @return void
-     */
-    public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
-    {
-        $this->configurationManager = $configurationManager;
-        $this->settings = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS
-        );
-    }
+    protected array $settings;
 
     public function withSettings(array $settings): self
     {

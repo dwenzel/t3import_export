@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Domain\Factory;
 
 /***************************************************************
@@ -18,9 +19,12 @@ namespace CPSIT\T3importExport\Domain\Factory;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class TransferSetFactory
@@ -31,10 +35,22 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class TransferSetFactory extends AbstractFactory
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
-     */
-    protected $transferTaskFactory;
+    protected TransferTaskFactory $transferTaskFactory;
+    protected TransferSet $transferSet;
+
+    public function __construct(TransferTaskFactory $transferTaskFactory = null, TransferSet $transferSet = null)
+    {
+        if (null === $transferTaskFactory) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            /** @var TransferTaskFactory $transferTaskFactory */
+            $transferTaskFactory = $objectManager->get(TransferTaskFactory::class);
+        }
+
+        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
+        $this->transferTaskFactory = $transferTaskFactory;
+
+        $this->transferSet = $transferSet ?? GeneralUtility::makeInstance(TransferSet::class);
+    }
 
     /**
      * Injects the transfer task factory
@@ -52,16 +68,11 @@ class TransferSetFactory extends AbstractFactory
      * @param array $settings
      * @param string $identifier
      * @return TransferSet
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      */
     public function get(array $settings, $identifier = null)
     {
-        /** @var TransferSet $transferSet */
-        $transferSet = GeneralUtility::makeInstance(
-            TransferSet::class
-        );
-
-        $transferSet->setIdentifier($identifier);
+        $this->transferSet->setIdentifier($identifier);
 
         if (isset($settings['tasks'])
             && is_string($settings['tasks'])
@@ -76,19 +87,19 @@ class TransferSetFactory extends AbstractFactory
                     $tasks[$taskIdentifier] = $task;
                 }
             }
-            $transferSet->setTasks($tasks);
+            $this->transferSet->setTasks($tasks);
         }
 
         if (isset($settings['description'])
             && is_string($settings['description'])
         ) {
-            $transferSet->setDescription($settings['description']);
+            $this->transferSet->setDescription($settings['description']);
         }
 
         if (isset($settings['label'])) {
-            $transferSet->setLabel($settings['label']);
+            $this->transferSet->setLabel($settings['label']);
         }
 
-        return $transferSet;
+        return $this->transferSet;
     }
 }

@@ -4,6 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -33,22 +34,15 @@ use stdClass;
  ***************************************************************/
 class TaskResultTest extends TestCase
 {
-    /**
-     * Subject
-     *
-     * @var TaskResult|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $subject;
+    use MockMessageContainerTrait;
+    protected TaskResult $subject;
 
     public function setUp()
     {
-        $this->subject = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['dummy'])->getMock();
+        $this->mockMessageContainer();
+        $this->subject = new TaskResult($this->messageContainer);
     }
 
-    /**
-     * @test
-     */
     public function testAddAndRemoveObjectsToIterator()
     {
         /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
@@ -218,10 +212,7 @@ class TaskResultTest extends TestCase
     public function getMessagesReturnsMessagesFromContainer()
     {
         $messages = ['foo'];
-        $messageContainer = $this->getMockBuilder(MessageContainer::class)
-            ->setMethods(['getMessages'])->getMock();
-        $this->subject->injectMessageContainer($messageContainer);
-        $messageContainer->expects($this->once())
+        $this->messageContainer->expects($this->once())
             ->method('getMessages')
             ->willReturn($messages);
 

@@ -187,22 +187,6 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
-    public function testIsConfigurationValidReturnsFalseIfDatabaseIsNotRegistered(): void
-    {
-        $mockConfiguration = [
-            'identifier' => 'missingDatabaseIdentifier',
-            'table' => 'fooTable',
-            'fields' => 'bar',
-            'rows' => []
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
-        );
-    }
-
     public function testConstructorSetsDefaultDatabase(): void
     {
         $GLOBALS['TYPO3_DB'] = $this->connection;

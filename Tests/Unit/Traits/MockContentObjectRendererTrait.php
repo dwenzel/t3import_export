@@ -43,10 +43,12 @@ trait MockContentObjectRendererTrait
             ->getMock();
         $this->contentObjectRenderer = $this->getMockBuilder(ContentObjectRenderer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getContentObject', 'start'])
+            ->setMethods(['getContentObject', 'wrap', 'noTrimWrap','start'])
             ->getMock();
         $this->contentObjectRenderer->method('getContentObject')
             ->willReturn($this->contentObject);
-        $this->subject->injectContentObjectRenderer($this->contentObjectRenderer);
+        if (method_exists($this, 'injectContentObjectRenderer')) {
+            $this->subject->injectContentObjectRenderer($this->contentObjectRenderer);
+        }
     }
 }

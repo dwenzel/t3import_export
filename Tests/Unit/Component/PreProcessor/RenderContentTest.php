@@ -44,10 +44,10 @@ class RenderContentTest extends TestCase
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = new RenderContent();
         $this->mockTypoScriptService();
         $this->mockTypoScriptFrontendController();
         $this->mockContentObjectRenderer();
+        $this->subject = new RenderContent($this->contentObjectRenderer, $this->typoScriptService);
     }
 
     /**
@@ -122,20 +122,41 @@ class RenderContentTest extends TestCase
 
     public function testProcessRendersContent(): void
     {
+        $fieldName = 'fooField';
+        $renderObjectType = 'TEXT';
         $record = [];
         $configuration = [
             'fields' => [
-                'fooField' => [
-                    '_typoScriptNodeValue' => 'TEXT',
+                $fieldName => [
+                    '_typoScriptNodeValue' => $renderObjectType,
                     'value' => '1'
-                ],
+                ]
             ]
         ];
+        $convertedConfiguration = ['boo'];
+        $expectedConfiguration = $configuration['fields'][$fieldName];
+        $expectedContent =  'bar';
+
+        $this->typoScriptService->expects($this->once())
+            ->method('convertPlainArrayToTypoScriptArray')
+            ->with(...[$expectedConfiguration])
+            ->willReturn($convertedConfiguration);
 
         $this->contentObjectRenderer->expects($this->once())
-            ->method('getContentObject');
+            ->method('getContentObject')
+            ->with(...[$renderObjectType])
+            ->willReturn($this->contentObject);
+
+        $this->contentObject->expects($this->once())
+            ->method('render')
+            ->with(...[$convertedConfiguration])
+            ->willReturn($expectedContent);
 
         $this->subject->process($configuration, $record);
+        $this->assertSame(
+            $expectedContent,
+            $record[$fieldName]
+        );
     }
 
     /**

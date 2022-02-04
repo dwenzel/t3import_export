@@ -1,9 +1,8 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests\Unit\Traits;
+namespace CPSIT\T3importExport\Factory;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3Fluid\Fluid\Component\ComponentInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -21,23 +20,13 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-trait MockTypoScriptServiceTrait
+interface FactoryInterface
 {
-
     /**
-     * @var TypoScriptService|MockObject
+     * Returns a factory object
+     * @param array $settings
+     * @param null $identifier
+     * @return mixed
      */
-    protected TypoScriptService $typoScriptService;
-
-    protected function mockTypoScriptService(): void
-    {
-        $this->typoScriptService = $this->getMockBuilder(TypoScriptService::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['convertPlainArrayToTypoScriptArray'])
-            ->getMock();
-
-        if (method_exists($this, 'injectTypoScriptService')) {
-            $this->subject->injectTypoScriptService($this->typoScriptService);
-        }
-    }
+    public function get(array $settings = [], $identifier = null);
 }

@@ -55,11 +55,6 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         ) {
             return false;
         }
-        if (isset($configuration['identifier'])
-            && !is_string($configuration['identifier'])
-        ) {
-            return false;
-        }
         if (!isset($configuration['targetField']) || !is_string($configuration['targetField'])) {
             return false;
         }
@@ -74,6 +69,14 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process($configuration, &$record)
     {
+        /**
+         * todo method cannot be tested because of its complexity and
+         * the dependency from  SelectQuery
+         * We probably should extract
+         * - a parser for the TypoScript config which produces the configuration for
+         *   the query and / or
+         * - a builder class or factory for the query
+         */
         if (isset($configuration['childRecords'])
             && is_array($record[$configuration['childRecords']])
         ) {

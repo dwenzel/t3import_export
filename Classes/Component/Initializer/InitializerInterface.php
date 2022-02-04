@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\Initializer;
 
+use CPSIT\T3importExport\Component\ComponentInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 /**
@@ -8,7 +9,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
  *
  * @package CPSIT\T3importExport\Component\Initializer
  */
-interface InitializerInterface
+interface InitializerInterface extends ComponentInterface
 {
     /**
      * @param array $configuration

@@ -32,7 +32,7 @@ trait MockMessageContainerTrait
     {
         $this->messageContainer = $this->getMockBuilder(MessageContainer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['addMessage', 'logMessage'])
+            ->setMethods(['addMessage', 'logMessage', 'getMessages', 'hasMessageWithId'])
             ->getMock();
         if (method_exists($this, 'injectMessageContainer')) {
             $this->subject->injectMessageContainer($this->messageContainer);

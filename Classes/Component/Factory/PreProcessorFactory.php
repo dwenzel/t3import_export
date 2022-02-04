@@ -1,8 +1,10 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -30,17 +32,17 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class PreProcessorFactory extends AbstractFactory
+class PreProcessorFactory extends AbstractFactory implements FactoryInterface
 {
     /**
      * Builds a PreProcessor object
      *
      * @param array $settings
      * @param string $identifier
+     * @return PreProcessorInterface
      * @throws InvalidConfigurationException
-     * @return \CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], $identifier = null): PreProcessorInterface
     {
         $additionalInformation = '.';
         if (!is_null($identifier)) {
