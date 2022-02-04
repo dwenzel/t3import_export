@@ -60,11 +60,6 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         ) {
             return false;
         }
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
-        ) {
-            return false;
-        }
         if (!isset($configuration['targetField']) || !is_string($configuration['targetField'])) {
             return false;
         }
@@ -79,10 +74,6 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process($configuration, &$record)
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
         if (isset($configuration['childRecords'])
             && is_array($record[$configuration['childRecords']])
         ) {
@@ -172,7 +163,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         $whereClause = '';
         foreach ($queryConfiguration['where'] as $operator => $operatorConfig) {
             if ($operator === 'AND' || $operator === 'OR') {
-                if ($whereClause == '' && $operator === 'AND') {
+                if ($whereClause === '' && $operator === 'AND') {
                     $operator = '';
                 }
                 $whereClause .= $operator . ' ' . $operatorConfig['condition'];
@@ -189,31 +180,34 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             }
 
             if ($operator === 'IN') {
-                if (isset($operatorConfig['values'])
-                    && isset($operatorConfig['field'])
-                ) {
+                if (isset($operatorConfig['values'], $operatorConfig['field'])) {
                     $childConfig = $operatorConfig['values'];
+                    $sourceField = $operatorConfig['field'];
 
-                    if (!is_array($childConfig) || !isset($childConfig['field']) || !isset($childConfig['value']) || !is_array($record[$childConfig['field']])
+                    if (!is_array($childConfig) || !isset($childConfig['field']) || !is_array($record[$childConfig['field']])
                     ) {
                         throw (new InvalidConfigurationException('Error while parsing configuration for operator `'));
                     }
+                    $childField = $childConfig['field'];
 
-                    $prefix = '"';
-                    if (isset($childConfig['prefix'])) {
-                        $prefix .= $childConfig['prefix'];
-                    }
-
-                    $whereClause .= ' ' . $operatorConfig['field'] . ' IN (';
+                    $children = $record[$childField];
+                    $prefix = $order = '';
                     $childValues = [];
-                    foreach ($record[$childConfig['field']] as $child) {
-                        $childValues[] = $prefix . $child[$childConfig['value']] . '"';
-                    }
-                    $whereClause .= implode(',', $childValues) . ')';
-                    if (isset($operatorConfig['keepOrder'])) {
-                        $whereClause .= ' ORDER BY FIELD (' . $operatorConfig['field'] . ',' . implode(',', $childValues) . ')';
+
+                    if (isset($childConfig['prefix'])) {
+                        $prefix = $childConfig['prefix'];
                     }
 
+                    foreach ($children as $childValue) {
+                        $childValues[] = sprintf('"%s%s"', $prefix, $childValue);
+                    }
+                    $childValueList = implode(',', $childValues);
+
+                    if (isset($operatorConfig['keepOrder'])) {
+                        $order = sprintf('ORDER BY FIELD (%s,%s)', $sourceField, $childValueList);
+                    }
+
+                    $whereClause .= sprintf(' %s IN (%s) %s', $sourceField, $childValueList, $order);
                 }
             }
         }
