@@ -52,12 +52,12 @@
       "mkdir -p .Build/Web/typo3conf/ext/",
       "mkdir -p .Build/log/coverage/",
       "[ -L .Build/Web/typo3conf/ext/t3import_export ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/t3import_export"
+    ],
+    "test:unit": [
+      ".Build/bin/phpunit -c Tests/Build/UnitTest.xml Tests/Unit"
     ]
   },
   "extra": {
-    "branch-alias": {
-      "dev-master": "0.8.x-dev"
-    },
     "typo3/cms": {
       "extension-key": "t3import_export",
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
