@@ -12,6 +12,9 @@ use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -34,6 +37,18 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
 {
     public const DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
 
+    protected PersistenceManagerInterface $persistenceManager;
+
+    public function __construct(PersistenceManagerInterface $persistenceManager = null) {
+
+        if ($persistenceManager === null) {
+            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
+                ->get(PersistenceManagerInterface::class);
+        }
+        if (null !== $persistenceManager) {
+            $this->persistenceManager = $persistenceManager;
+        }
+    }
     /**
      * Builds a factory object
      *
@@ -76,7 +91,12 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
             }
         }
         /** @var DataTargetInterface $target */
-        $target = GeneralUtility::makeInstance($dataTargetClass, $objectClass);
+        $target = GeneralUtility::makeInstance(
+            $dataTargetClass,
+            $objectClass,
+            null,
+            $this->persistenceManager
+        );
         if ($target instanceof IdentifiableInterface && isset($settings['identifier'])) {
             $target->setIdentifier($settings['identifier']);
         }

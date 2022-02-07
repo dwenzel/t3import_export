@@ -8,10 +8,8 @@ use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockBasicFileUtilityTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -60,7 +58,12 @@ class DataTargetFileStreamTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new DataTargetFileStream(self::TARGET_CLASS);
+        $this->mockPersistenceManager();
+        $this->subject = new DataTargetFileStream(
+            self::TARGET_CLASS,
+            null,
+            $this->persistenceManager
+        );
         $this->mockBasicFileUtility();
     }
 

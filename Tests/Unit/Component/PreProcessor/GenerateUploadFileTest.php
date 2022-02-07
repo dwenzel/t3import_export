@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
 use CPSIT\T3importExport\Factory\FilePathFactory;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockFileStructureTrait;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use PHPUnit\Framework\TestCase;
@@ -30,23 +31,25 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateUploadFileTest extends TestCase
 {
+    use MockFileStructureTrait;
+
     /**
-     * @var GenerateUploadFile |\PHPUnit_Framework_MockObject_MockObject
+     * @var GenerateUploadFile |MockObject
      */
     protected $subject;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
+     * @var \TYPO3\CMS\Core\Resource\ResourceStorage|MockObject
      */
     protected $resourceStorage;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\StorageRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var \TYPO3\CMS\Core\Resource\StorageRepository|MockObject
      */
     protected $storageRepository;
 
     /**
-     * @var FilePathFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @var FilePathFactory|MockObject
      */
     protected $filePathFactory;
 
@@ -128,24 +131,7 @@ class GenerateUploadFileTest extends TestCase
      */
     public function getFileCopiesFileToTarget()
     {
-        $rootDirectory = 'root';
-
-        $sourceFileContent = 'source file content';
-
-        $sourceDirectory = 'sourceDir';
-        $sourceFileName = 'foo.csv';
-        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
-        $targetDirectory = 'targetDir';
-        $configuration = [
-            'targetDirectoryPath' => $targetDirectory
-        ];
-
-        $fileStructure = [
-            $sourceDirectory => [
-                $sourceFileName => $sourceFileContent
-            ],
-            $targetDirectory => []
-        ];
+        list($rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure) = $this->mockFileStructure();
 
         vfsStream::setup($rootDirectory, null, $fileStructure);
 

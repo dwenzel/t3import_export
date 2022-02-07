@@ -2,8 +2,8 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use PHPUnit\Framework\MockObject\MockBuilder;
+use XMLWriter;
 
 /***************************************************************
  *  Copyright notice
@@ -21,32 +21,28 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-trait MockResourceFactoryTrait
+trait MockXmlWriterTrait
 {
-    use MockResourceStorageFolderTrait;
+    protected XMLWriter $xmlWriter;
 
-    /**
-     * @var ResourceFactory|MockObject
-     */
-    protected $resourceFactory;
-
-    protected function mockResourceFactory(): self
+    public function mockXmlWriter(): self
     {
-        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
+        $this->xmlWriter = $this->getMockBuilder(XMLWriter::class)
             ->disableOriginalConstructor()
-            ->setMethods(
-                [
-                    'getStorageObject',
-                    'getDefaultStorage',
-                    'createFileReferenceObject'
-                ])
+            ->setMethods([
+
+                ]
+            )
             ->getMock();
-        if (method_exists($this, 'injectResourceFactory')) {
-            $this->subject->injectResourceFactory($this->resourceFactory);
-        }
-        $this->resourceFactory->method('getDefaultStorage')
-            ->willReturn($this->resourceStorage);
 
         return $this;
     }
+
+    /**
+     * Returns a builder object to create mock objects using a fluent interface.
+     *
+     * @param string|string[] $className
+     */
+    abstract public function getMockBuilder($className): MockBuilder;
+
 }

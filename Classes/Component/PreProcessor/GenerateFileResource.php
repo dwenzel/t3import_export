@@ -17,10 +17,17 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use CPSIT\T3importExport\Resource\FileReferenceFactoryTrait;
-use TYPO3\CMS\Core\Utility\PathUtility;
+use CPSIT\T3importExport\Factory\FilePathFactory;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
+use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Class GenerateFileResource
@@ -42,12 +49,33 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
 {
     use FileIndexRepositoryTrait, GenerateFileTrait, ResourceTrait;
 
+    public function __construct(
+        FileIndexRepository $fileIndexRepository = null,
+        ResourceStorageInterface $resourceStorage = null,
+        FilePathFactory $filePathFactory = null,
+        MessageContainer $messageContainer = null
+    )
+    {
+        $this->fileIndexRepository = $fileIndexRepository ?? GeneralUtility::makeInstance(
+                FileIndexRepository::class
+            );
+        $this->resourceStorage = $resourceStorage ?? GeneralUtility::makeInstance(
+                ResourceStorage::class
+            );
+        $this->filePathFactory = $filePathFactory ?? GeneralUtility::makeInstance(
+            FilePathFactory::class
+            );
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(
+                MessageContainer::class
+            );
+    }
+
     /**
      * Get File object
      *
      * @param array $configuration
      * @param string $sourceFilePath
-     * @return \TYPO3\CMS\Core\Resource\FileInterface|null
+     * @return FileInterface|null
      */
     public function getFile($configuration, $sourceFilePath)
     {
@@ -64,7 +92,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
             return null;
         }
 
-        /** @var \TYPO3\CMS\Core\Resource\FileInterface|\TYPO3\CMS\Core\Resource\File $fileObject */
+        /** @var FileInterface|File $fileObject */
         $fileObject = $this->resourceStorage->getFile($filePath);
         $this->fileIndexRepository->add($fileObject);
 

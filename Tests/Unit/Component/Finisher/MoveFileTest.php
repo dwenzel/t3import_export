@@ -50,11 +50,12 @@ class MoveFileTest extends TestCase
      */
     public function setUp()
     {
-        $this->mockMessageContainer();
-        $this->subject = new MoveFile($this->messageContainer);
-        $this->mockResourceStorage();
-        $this->mockStorageFolder();
-        $this->mockResourceFactory();
+        $this
+            ->mockResourceStorage()
+            ->mockResourceFactory()
+            ->mockStorageFolder()
+            ->mockMessageContainer();
+        $this->subject = new MoveFile($this->resourceFactory, $this->messageContainer);
     }
 
     /**
@@ -351,8 +352,8 @@ class MoveFileTest extends TestCase
         ];
         $this->resourceFactory->expects($this->once())
             ->method('getDefaultStorage')
-            ->willReturn($this->storage);
-        $this->storage->expects($this->once())
+            ->willReturn($this->resourceStorage);
+        $this->resourceStorage->expects($this->once())
             ->method('getDefaultFolder')
             ->willReturn($this->folder);
 
@@ -395,11 +396,11 @@ class MoveFileTest extends TestCase
         $this->resourceFactory->expects($this->once())
             ->method('getStorageObject')
             ->with(...[(int)$storageId])
-            ->willReturn($this->storage);
-        $this->storage->expects($this->exactly(2))
+            ->willReturn($this->resourceStorage);
+        $this->resourceStorage->expects($this->exactly(2))
             ->method('getDefaultFolder')
             ->willReturn($this->folder);
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('hasFileInFolder')
             ->willReturn(true);
     }
@@ -443,7 +444,7 @@ class MoveFileTest extends TestCase
         ];
         $sourceFile = $this->mockSourceFile($sourceFileName);
 
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('moveFile')
             ->with(...[
                     $sourceFile,
@@ -473,11 +474,11 @@ class MoveFileTest extends TestCase
         ];
         $this->resourceFactory->expects($this->once())
             ->method('getDefaultStorage')
-            ->willReturn($this->storage);
-        $this->storage->expects($this->exactly(2))
+            ->willReturn($this->resourceStorage);
+        $this->resourceStorage->expects($this->exactly(2))
             ->method('getDefaultFolder')
             ->willReturn($this->folder);
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('hasFileInFolder')
             ->willReturn(true);
         $this->folder->expects($this->once())
@@ -501,12 +502,12 @@ class MoveFileTest extends TestCase
             ]
         ];
         $this->mockSourceFile($sourceFileName);
-        $this->storage
+        $this->resourceStorage
             ->expects($this->once())
             ->method('hasFolder')
             ->with(...[$directory])
             ->willReturn(false);
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('createFolder')
             ->with(...[$directory])
             ->willReturn($this->folder);
@@ -548,12 +549,12 @@ class MoveFileTest extends TestCase
      */
     protected function expectExistingFolderAccess(string $directory): void
     {
-        $this->storage
+        $this->resourceStorage
             ->expects($this->once())
             ->method('hasFolder')
             ->with(...[$directory])
             ->willReturn(true);
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('getFolder')
             ->with(...[$directory])
             ->willReturn($this->folder);
@@ -601,7 +602,7 @@ class MoveFileTest extends TestCase
 
         $sourceFile = $this->mockSourceFile($sourceFileName);
 
-        $this->storage
+        $this->resourceStorage
             ->expects($this->once())
             ->method('moveFile')
             ->with(...[

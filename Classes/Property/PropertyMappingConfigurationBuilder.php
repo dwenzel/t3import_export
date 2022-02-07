@@ -29,27 +29,13 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  ***************************************************************/
 class PropertyMappingConfigurationBuilder
 {
-
     /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
-     * injects the object manager
+     * Build a PropertyMappingConfiguration object from configuration array
      *
-     * @param ObjectManager $objectManager
-     */
-    public function injectObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
-
-    /**
      * @param array $configuration
      * @return PropertyMappingConfiguration
      */
-    public function build(array $configuration)
+    public function build(array $configuration): PropertyMappingConfiguration
     {
         /** @var PropertyMappingConfiguration $propertyMappingConfiguration */
         $propertyMappingConfiguration = GeneralUtility::makeInstance(

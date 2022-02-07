@@ -1,15 +1,11 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\MissingClassException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
@@ -57,10 +53,7 @@ class DataTargetRepository implements DataTargetInterface
     protected $repository;
 
 
-    /**
-     * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
-     */
-    protected $persistenceManager;
+    protected PersistenceManagerInterface $persistenceManager;
 
 
     /**
@@ -68,15 +61,19 @@ class DataTargetRepository implements DataTargetInterface
      *
      * @param string $targetClass
      * @param RepositoryInterface|null $repository
+     * @param PersistenceManagerInterface|null $persistenceManager
      */
     public function __construct(string $targetClass, RepositoryInterface $repository = null, PersistenceManagerInterface $persistenceManager = null)
     {
         $this->targetClass = $targetClass;
-        $this->repository = $repository ?? null;
+        $this->repository = $repository;
         if ($persistenceManager === null) {
-            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))->get(PersistenceManagerInterface::class);
+            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
+                ->get(PersistenceManagerInterface::class);
         }
-        $this->persistenceManager = $persistenceManager;
+        if (null !== $persistenceManager) {
+            $this->persistenceManager = $persistenceManager;
+        }
     }
 
     /**
@@ -97,17 +94,6 @@ class DataTargetRepository implements DataTargetInterface
     }
 
     /**
-     * @param array|null $result
-     * @param array|null $configuration
-     * @return mixed
-     */
-    public function persistAll($result = null, array $configuration = null)
-    {
-        $this->persistenceManager->persistAll();
-    }
-
-
-    /**
      * Gets the repository
      *
      * @return Repository
@@ -118,6 +104,7 @@ class DataTargetRepository implements DataTargetInterface
         if (!$this->repository instanceof Repository) {
             $repositoryClass = str_replace('Model', 'Repository', $this->targetClass) . 'Repository';
             if (class_exists($repositoryClass)) {
+                // fixme - This can not be tested easily
                 /** Repository $this->repository */
                 $this->repository = GeneralUtility::makeInstance($repositoryClass);
             } else {
@@ -134,6 +121,16 @@ class DataTargetRepository implements DataTargetInterface
         }
 
         return $this->repository;
+    }
+
+    /**
+     * @param array|null $result
+     * @param array|null $configuration
+     * @return mixed
+     */
+    public function persistAll($result = null, array $configuration = null)
+    {
+        $this->persistenceManager->persistAll();
     }
 
     /**

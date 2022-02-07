@@ -10,7 +10,7 @@ use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -122,7 +122,7 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
  */
 class DataTargetFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait;
+    use MockPersistenceManagerTrait;
 
     protected DataTargetFactory $subject;
 
@@ -137,16 +137,8 @@ class DataTargetFactoryTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new DataTargetFactory();
-        $this->mockObjectManager();
-        $this->mockDataTarget();
-    }
-
-    protected function mockDataTarget(): void
-    {
-        $this->dataTarget = $this->getMockBuilder(DummyIdentifiableTargetInterfaceClass::class)
-            ->setMethods(['setIdentifier'])
-            ->getMock();
+        $this->mockPersistenceManager();
+        $this->subject = new DataTargetFactory($this->persistenceManager);
     }
 
     /**
@@ -208,16 +200,17 @@ class DataTargetFactoryTest extends TestCase
     {
         $identifier = 'foo';
         $objectClass = DummyTargetObjectClass::class;
-        $dataTargetClass = DataTargetFactory::DEFAULT_DATA_TARGET_CLASS;
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$dataTargetClass, $objectClass]);
         $settings = [
             'object' => [
                 'class' => $objectClass
             ]
         ];
-        $this->subject->get($settings, $identifier);
+
+        $dataTarget = $this->subject->get($settings, $identifier);
+        self::assertInstanceOf(
+            DataTargetFactory::DEFAULT_DATA_TARGET_CLASS,
+            $dataTarget
+        );
     }
 
     /**
@@ -228,20 +221,23 @@ class DataTargetFactoryTest extends TestCase
     public function testGetSetsIdentifierForIdentifiableTarget(): void
     {
         $identifier = 'foo';
-        $dataSourceClass = DummyIdentifiableTargetInterfaceClass::class;
+        $dataTargetClass = DummyIdentifiableTargetInterfaceClass::class;
         $settings = [
-            'class' => $dataSourceClass,
+            'class' => $dataTargetClass,
             'identifier' => 'barSourceIdentifier',
             'config' => []
         ];
-        $this->dataTarget->expects($this->once())
-            ->method('setIdentifier')
-            ->with($settings['identifier']);
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$dataSourceClass])
-            ->willReturn($this->dataTarget);
 
-        $this->subject->get($settings, $identifier);
+        $dataTarget = $this->subject->get($settings, $identifier);
+        if ($dataTarget instanceof DummyIdentifiableTargetInterfaceClass) {
+            self::assertSame(
+                $settings['identifier'],
+                $dataTarget->getIdentifier()
+            );
+        }
+
+        if (! $dataTarget instanceof DummyIdentifiableTargetInterfaceClass) {
+            $this->fail('Factory did not create an instance of the expected class');
+        }
     }
 }

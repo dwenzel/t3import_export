@@ -2,7 +2,6 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
-use CPSIT\T3importExport\Tests\Unit\Persistence\DataTargetXMLStreamTest;
 use PHPUnit\Framework\MockObject\MockObject;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 
@@ -30,11 +29,13 @@ trait MockBasicFileUtilityTrait
      */
     protected BasicFileUtility $fileUtility;
 
-    protected function mockBasicFileUtility(): void
+    protected function mockBasicFileUtility(): self
     {
         $this->fileUtility = $this->getMockBuilder(BasicFileUtility::class)
             ->disableOriginalConstructor()
             ->setMethods(['getUniqueName'])
             ->getMock();
+
+        return $this;
     }
 }

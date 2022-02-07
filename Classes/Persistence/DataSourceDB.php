@@ -102,13 +102,8 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      */
     public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['table'])
-            || !is_string($configuration['table'])
-        ) {
-            return false;
-        }
-
-        return true;
+        return !(!isset($configuration['table'])
+            || !is_string($configuration['table']));
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace CPSIT\T3importExport\Tests\Service;
 
 use CPSIT\T3importExport\Service\TranslationService;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -27,6 +28,8 @@ class DummyDomainObjectB extends AbstractEntity
 
 class TranslationServiceTest extends TestCase
 {
+    use MockPersistenceManagerTrait;
+
     protected TranslationService $subject;
 
     /**
@@ -46,18 +49,32 @@ class TranslationServiceTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new TranslationService();
+        $this->mockDataMap()
+            ->mockDataMapper()
+            ->mockPersistenceManager();
+        $this->subject = new TranslationService($this->dataMapper, $this->persistenceManager);
+    }
+
+    protected function mockDataMap(): self
+    {
         $this->dataMap = $this->getMockBuilder(DataMap::class)
             ->disableOriginalConstructor()
             ->setMethods(['getTranslationOriginColumnName', 'getColumnMap', 'getClassName', 'getTableName'])
             ->getMock();
+
+        return $this;
+    }
+
+    protected function mockDataMapper(): self
+    {
         $this->dataMapper = $this->getMockBuilder(DataMapper::class)
             ->disableOriginalConstructor()
             ->setMethods(['getDataMap'])
             ->getMock();
         $this->dataMapper->method('getDataMap')
             ->willReturn($this->dataMap);
-        $this->subject->injectDataMapper($this->dataMapper);
+
+        return $this;
     }
 
     public function testTranslateThrowsExceptionIfClassesDoNotMatch(): void

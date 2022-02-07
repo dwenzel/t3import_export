@@ -5,6 +5,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 use CPSIT\T3importExport\Component\Finisher\WriteFile;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceFactoryTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceStorageFolderTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Folder;
@@ -34,22 +37,14 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
  */
 class WriteFileTest extends TestCase
 {
+    use MockMessageContainerTrait,
+        MockResourceFactoryTrait,
+        MockResourceStorageFolderTrait;
+
     protected WriteFile $subject;
 
-    /**
-     * @var ResourceFactory|MockObject
-     */
-    protected $resourceFactory;
-
-    /**
-     * @var ResourceStorage|MockObject
-     */
-    protected $storage;
-
-    /**
-     * @var Folder|MockObject
-     */
-    protected $folder;
+    protected TaskResult $result;
+    protected FileInfo $fileInfo;
 
     /**
      * Set up
@@ -57,29 +52,19 @@ class WriteFileTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new WriteFile();
-        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
+        $this->fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getStorageObject', 'getDefaultStorage'])
+            ->setMethods([])
             ->getMock();
-        $this->subject->injectResourceFactory($this->resourceFactory);
-        $this->storage = $this->getMockBuilder(ResourceStorage::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'getDefaultFolder',
-                'hasFolder',
-                'getFolder',
-                'createFolder',
-                'addFile'
-            ])
+        $this->result = $this->getMockBuilder(TaskResult::class)
+            ->setMethods(['getInfo'])
             ->getMock();
-        $this->resourceFactory
-            ->method('getDefaultStorage')
-            ->willReturn($this->storage);
-        $this->folder = $this->getMockBuilder(Folder::class)
-            ->disableOriginalConstructor()->getMock();
-        $this->storage->method('getDefaultFolder')
-            ->willReturn($this->folder);
+        $this->mockResourceStorage()
+            ->mockResourceFactory()
+            ->mockStorageFolder();
+        $this->subject = new WriteFile(
+            $this->resourceFactory
+        );
     }
 
     /**
@@ -255,15 +240,13 @@ class WriteFileTest extends TestCase
 
     public function testProcessReturnsFalseIfResultDoesNotContainFileInfo(): void
     {
-        $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])->getMock();
-        $result->expects($this->once())->method('getInfo')
+        $this->result->expects($this->once())->method('getInfo')
             ->willReturn(null);
 
         $records = [];
 
         $this->assertFalse(
-            $this->subject->process([], $records, $result)
+            $this->subject->process([], $records, $this->result)
         );
     }
 
@@ -298,11 +281,9 @@ class WriteFileTest extends TestCase
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
         $this->resourceFactory->expects($this->once())
-            ->method('getDefaultStorage')
-            ->willReturn($this->storage);
-        $this->storage->expects($this->once())
-            ->method('getDefaultFolder')
-            ->willReturn($this->folder);
+            ->method('getDefaultStorage');
+        $this->resourceStorage->expects($this->once())
+            ->method('getDefaultFolder');
         return $result;
     }
 
@@ -326,8 +307,8 @@ class WriteFileTest extends TestCase
         $this->resourceFactory->expects($this->once())
             ->method('getStorageObject')
             ->with(...[(int)$storageId])
-            ->willReturn($this->storage);
-        $this->storage->expects($this->once())
+            ->willReturn($this->resourceStorage);
+        $this->resourceStorage->expects($this->once())
             ->method('getDefaultFolder')
             ->willReturn($this->folder);
 
@@ -361,7 +342,7 @@ class WriteFileTest extends TestCase
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
 
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('addFile')
             ->with(...
                 [
@@ -412,12 +393,12 @@ class WriteFileTest extends TestCase
             ->setMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
-        $this->storage
+        $this->resourceStorage
             ->expects($this->once())
             ->method('hasFolder')
             ->with(...[$directory])
             ->willReturn(false);
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('createFolder')
             ->with(...[$directory])
             ->willReturn($this->folder);
@@ -457,12 +438,12 @@ class WriteFileTest extends TestCase
             ->setMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
-        $this->storage
+        $this->resourceStorage
             ->expects($this->once())
             ->method('hasFolder')
             ->with(...[$directory])
             ->willReturn(true);
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('getFolder')
             ->with(...[$directory])
             ->willReturn($this->folder);
@@ -486,7 +467,7 @@ class WriteFileTest extends TestCase
             ->setMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
-        $this->storage
+        $this->resourceStorage
             ->expects($this->once())
             ->method('addFile')
             ->with(...[

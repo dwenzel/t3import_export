@@ -141,8 +141,6 @@ class DummySourceClass implements DataSourceInterface
  */
 class DataSourceFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait;
-
     protected DataSourceFactory $subject;
 
     /**
@@ -157,7 +155,6 @@ class DataSourceFactoryTest extends TestCase
     public function setUp()
     {
         $this->subject = new DataSourceFactory();
-        $this->mockObjectManager();
         $this->dataSource = $this->getMockBuilder(DummySourceClass::class)
             ->setMethods(['setIdentifier'])
             ->getMock();
@@ -227,15 +224,20 @@ class DataSourceFactoryTest extends TestCase
             'identifier' => 'barSourceIdentifier',
             'config' => []
         ];
-        $this->dataSource->expects($this->once())
-            ->method('setIdentifier')
-            ->with($settings['identifier']);
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$dataSourceClass])
-            ->willReturn($this->dataSource);
 
-        $this->subject->get($settings, $identifier);
+        $dataSource = $this->subject->get($settings, $identifier);
+        /** @noinspection UnnecessaryAssertionInspection */
+        self::assertInstanceOf(
+            $dataSourceClass,
+            $dataSource
+        );
+
+        if ($dataSource instanceof DummyIdentifiableSourceInterfaceClass) {
+            self::assertSame(
+                $settings['identifier'],
+                $dataSource->getIdentifier()
+            );
+        }
     }
 
     /**
@@ -245,19 +247,18 @@ class DataSourceFactoryTest extends TestCase
      */
     public function testGetReturnsDefaultDataSource(): void
     {
-        $identifier = 'foo';
-        $dataSourceClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
+        $tableName = 'foo';
+        $expectedClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
         $settings = [
-            'identifier' => $identifier,
-            'config' => []
+            'config' => [
+                'table' => $tableName,
+            ]
         ];
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$dataSourceClass])
-            ->willReturn($this->dataSource);
-        $this->assertSame(
-            $this->dataSource,
-            $this->subject->get($settings, $identifier)
+
+        /** @noinspection UnnecessaryAssertionInspection */
+        $this->assertInstanceOf(
+            $expectedClass,
+            $this->subject->get($settings)
         );
     }
 
@@ -274,12 +275,9 @@ class DataSourceFactoryTest extends TestCase
             'class' => $sourceClass,
             'config' => []
         ];
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$sourceClass])
-            ->willReturn($this->dataSource);
-        $this->assertSame(
-            $this->dataSource,
+        /** @noinspection UnnecessaryAssertionInspection */
+        $this->assertInstanceOf(
+            $sourceClass,
             $this->subject->get($settings, $identifier)
         );
     }
@@ -295,13 +293,13 @@ class DataSourceFactoryTest extends TestCase
         $dataSourceClass = DummySourceClass::class;
         $settings = [
             'class' => $dataSourceClass,
-            'config' => []
+            'config' => ['boo']
         ];
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[$dataSourceClass])
-            ->willReturn($this->dataSource);
 
-        $this->subject->get($settings, $identifier);
+        $dataSource = $this->subject->get($settings, $identifier);
+        self::assertSame(
+            $settings['config'],
+            $dataSource->getConfiguration()
+        );
     }
 }

@@ -29,12 +29,16 @@ trait MockPersistenceManagerTrait
      */
     protected $persistenceManager;
 
-    protected function mockPersistenceManager(): void
+    protected function mockPersistenceManager(): self
     {
         $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
             ->disableOriginalConstructor()
             ->setMethods(['remove', 'add', 'isNewObject'])
             ->getMockForAbstractClass();
-        $this->subject->injectPersistenceManager($this->persistenceManager);
+        if(method_exists($this, 'injectPersistenceManager')) {
+            $this->subject->injectPersistenceManager($this->persistenceManager);
+        }
+
+        return $this;
     }
 }

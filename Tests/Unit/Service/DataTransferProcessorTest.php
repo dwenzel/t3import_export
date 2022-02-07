@@ -21,6 +21,7 @@ use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /***************************************************************
@@ -145,6 +146,11 @@ class DataTransferProcessorTest extends TestCase
         $this->mockTaskResult();
     }
 
+    public function tearDown()
+    {
+        GeneralUtility::purgeInstances();
+    }
+
     protected function mockPreProcessor(): void
     {
         $this->preProcessor = $this->getMockForAbstractClass(
@@ -157,6 +163,8 @@ class DataTransferProcessorTest extends TestCase
         $this->postProcessor = $this->getMockForAbstractClass(
             PostProcessorInterface::class
         );
+        $this->postProcessor->method('getConfiguration')
+            ->willReturn(self::POST_PROCESSOR_CONFIGURATION);
     }
 
     protected function mockConverter(): void
@@ -250,7 +258,7 @@ class DataTransferProcessorTest extends TestCase
     {
         $this->taskResult = $this->getMockBuilder(TaskResult::class)
             ->setMethods(['getMessages', 'addMessages'])->getMock();
-        $this->objectManager->method('get')->willReturn($this->taskResult);
+        GeneralUtility::addInstance(TaskResult::class, $this->taskResult);
     }
 
 
@@ -328,7 +336,7 @@ class DataTransferProcessorTest extends TestCase
             ->method('getConfiguration');
         $this->finisher->expects($this->once())
             ->method('process')
-            ->will($this->returnArgument(2));
+            ->willReturn(true);
 
         $this->subject->process($this->taskDemand);
     }

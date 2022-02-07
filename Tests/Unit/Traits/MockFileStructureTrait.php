@@ -2,9 +2,6 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use TYPO3\CMS\Core\Resource\Folder;
-
 /***************************************************************
  *  Copyright notice
  *
@@ -21,23 +18,32 @@ use TYPO3\CMS\Core\Resource\Folder;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-trait MockResourceStorageFolderTrait
+trait MockFileStructureTrait
 {
-    use MockResourceStorageTrait;
 
     /**
-     * @var Folder|MockObject
+     * @return array
      */
-    protected $folder;
-
-    protected function mockStorageFolder(): self
+    protected function mockFileStructure(): array
     {
-        $this->folder = $this->getMockBuilder(Folder::class)
-            ->disableOriginalConstructor()->getMock();
-        $this->resourceStorage->method('getDefaultFolder')
-            ->willReturn($this->folder);
+        $rootDirectory = 'root';
 
-        return $this;
+        $sourceFileContent = 'source file content';
+
+        $sourceDirectory = 'sourceDir';
+        $sourceFileName = 'foo.csv';
+        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $targetDirectory = 'targetDir';
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectory
+        ];
+
+        $fileStructure = [
+            $sourceDirectory => [
+                $sourceFileName => $sourceFileContent
+            ],
+            $targetDirectory => []
+        ];
+        return array($rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure);
     }
-
 }

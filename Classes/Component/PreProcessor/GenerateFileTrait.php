@@ -46,11 +46,12 @@ trait GenerateFileTrait
     /**
      * @var FilePathFactory
      */
-    protected $filePathFactory;
+    protected FilePathFactory $filePathFactory;
 
     /**
      * injects the file path factory
      * @param FilePathFactory $factory
+     * @deprecated
      */
     public function injectFilePathFactory(FilePathFactory $factory){
         $this->filePathFactory = $factory;

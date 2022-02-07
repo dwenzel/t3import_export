@@ -51,7 +51,7 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
 
     public function __construct(DataMapper $dataMapper = null, PersistenceManagerInterface $persistenceManager = null)
     {
-        if($dataMapper === null) {
+        if ($dataMapper === null) {
             /** @var ObjectManager $objectManager */
             $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
             /** @noinspection CallableParameterUseCaseInTypeContextInspection */
@@ -60,14 +60,6 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->dataMapper = $dataMapper;
         $this->persistenceManager = $persistenceManager ?? GeneralUtility::makeInstance(PersistenceManager::class);
-    }
-
-    /**
-     * @param DataMapper $dataMapper
-     */
-    public function injectDataMapper(DataMapper $dataMapper): void
-    {
-        $this->dataMapper = $dataMapper;
     }
 
     /**
@@ -125,6 +117,18 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
     }
 
     /**
+     * Tells if two object are instances of the same class
+     *
+     * @param DomainObjectInterface $origin
+     * @param DomainObjectInterface $translation
+     * @return bool
+     */
+    public function haveSameClass(DomainObjectInterface $origin, DomainObjectInterface $translation): bool
+    {
+        return get_class($origin) === get_class($translation);
+    }
+
+    /**
      * @param $identity
      * @param $targetType
      * @return object
@@ -159,16 +163,5 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
         }
 
         return [];
-    }
-    /**
-     * Tells if two object are instances of the same class
-     *
-     * @param DomainObjectInterface $origin
-     * @param DomainObjectInterface $translation
-     * @return bool
-     */
-    public function haveSameClass(DomainObjectInterface $origin, DomainObjectInterface $translation): bool
-    {
-        return get_class($origin) === get_class($translation);
     }
 }

@@ -3,14 +3,13 @@
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceFactoryTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference as ExtbaseFileReference;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
  *
@@ -45,23 +44,9 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class FileReferenceFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait,
-        MockResourceFactoryTrait;
+    use MockResourceFactoryTrait;
 
-    /**
-     * @var FileReferenceFactory
-     */
-    protected $subject;
-
-    /**
-     * @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $objectManager;
-
-    /**
-     * @var ResourceFactory|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $resourceFactory;
+    protected FileReferenceFactory $subject;
 
     /**
      * @var CoreFileReference|MockObject
@@ -72,14 +57,18 @@ class FileReferenceFactoryTest extends TestCase
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = new FileReferenceFactory();
-        $this->mockObjectManager();
-        $this->mockResourceStorage();
-        $this->mockStorageFolder();
-        $this->mockResourceFactory();
+        $this->mockResourceStorage()
+            ->mockStorageFolder()
+            ->mockResourceFactory();
+
+        $this->subject = new FileReferenceFactory(
+            $this->resourceFactory
+        );
+
         $this->coreFileReference = $this->getMockBuilder(CoreFileReference::class)
             ->disableOriginalConstructor()->getMock();
         $this->extbaseFileReference = $this->getMockBuilder(ExtbaseFileReference::class)
@@ -95,19 +84,15 @@ class FileReferenceFactoryTest extends TestCase
         $fileId = 7;
         $configuration = [];
 
+        /** @noinspection ClassConstantUsageCorrectnessInspection */
+        GeneralUtility::addInstance(FileReference::class, $this->extbaseFileReference);
         $this->resourceFactory->expects($this->once())->method('createFileReferenceObject')
             ->willReturn($this->coreFileReference);
 
-        $this->objectManager->expects($this->once())->method('get')
-            ->with(...[ExtbaseFileReference::class])
-            ->willReturn($this->extbaseFileReference);
-        $this->extbaseFileReference->expects($this->once())->method('setOriginalResource')
+        $this->extbaseFileReference->expects($this->once())
+            ->method('setOriginalResource')
             ->with(...[$this->coreFileReference]);
-
-        $this->assertSame(
-            $this->extbaseFileReference,
-            $this->subject->create($fileId, $configuration)
-        );
+        $this->subject->create($fileId, $configuration);
     }
 
     public function testCreateSetsInitialPageIdZero(): void
@@ -116,12 +101,11 @@ class FileReferenceFactoryTest extends TestCase
         $configuration = [];
         $expectedPageId = 0;
 
+        /** @noinspection ClassConstantUsageCorrectnessInspection */
+        GeneralUtility::addInstance(FileReference::class, $this->extbaseFileReference);
+
         $this->resourceFactory->expects($this->once())->method('createFileReferenceObject')
             ->willReturn($this->coreFileReference);
-
-        $this->objectManager->expects($this->once())->method('get')
-            ->with(...[ExtbaseFileReference::class])
-            ->willReturn($this->extbaseFileReference);
         $this->extbaseFileReference->expects($this->once())->method('setPid')
             ->with(...[$expectedPageId]);
 
@@ -137,14 +121,11 @@ class FileReferenceFactoryTest extends TestCase
             'targetPage' => $expectedPageId
         ];
 
-        $this->coreFileReference = $this->getMockBuilder(CoreFileReference::class)
-            ->disableOriginalConstructor()->getMock();
+        /** @noinspection ClassConstantUsageCorrectnessInspection */
+        GeneralUtility::addInstance(FileReference::class, $this->extbaseFileReference);
+
         $this->resourceFactory->expects($this->once())->method('createFileReferenceObject')
             ->willReturn($this->coreFileReference);
-
-        $this->objectManager->expects($this->once())->method('get')
-            ->with(...[ExtbaseFileReference::class])
-            ->willReturn($this->extbaseFileReference);
         $this->extbaseFileReference->expects($this->once())->method('setPid')
             ->with(...[$expectedPageId]);
 

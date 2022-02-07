@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 /***************************************************************
@@ -18,76 +19,65 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
-use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockFileIndexRepositoryTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockFileReferenceFactoryTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Class GenerateFileReferenceTest
  */
 class GenerateFileReferenceTest extends TestCase
 {
-    use MockPersistenceManagerTrait;
+    use MockPersistenceManagerTrait,
+        MockMessageContainerTrait,
+        MockFileReferenceFactoryTrait,
+        MockFileIndexRepositoryTrait;
 
     /**
-     * @var GenerateFileReference|\PHPUnit_Framework_MockObject_MockObject
+     * @var GenerateFileReference|MockObject
      */
     protected $subject;
-
-    /**
-     * @var FileReferenceFactory|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $fileReferenceFactory;
-
-    /**
-     * @var FileIndexRepository|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $fileIndexRepository;
 
 
     /**
      * setup subject
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
+        $this->mockPersistenceManager()
+            ->mockFileReferenceFactory()
+            ->mockFileIndexRepository()
+            ->mockMessageContainer();
+
         $this->subject = $this->getMockBuilder(GenerateFileReference::class)
+            ->setConstructorArgs(
+                [
+                    $this->persistenceManager,
+                    $this->fileReferenceFactory,
+                    $this->fileIndexRepository,
+                    $this->messageContainer
+                ]
+            )
             ->setMethods(['logError', 'logNotice'])->getMock();
-        $this->fileReferenceFactory = $this->getMockBuilder(FileReferenceFactory::class)
-            ->setMethods(['create'])->getMock();
-        $this->subject->injectFileReferenceFactory($this->fileReferenceFactory);
-        $this->mockPersistenceManager();
-        $this->fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)
-            ->disableOriginalConstructor()->setMethods(['findOneByUid'])
-            ->getMock();
-        $this->subject->injectFileIndexRepository($this->fileIndexRepository);
 
-    }
-
-    /**
-     * @test
-     */
-    public function persistenceManagerCanBeInjected() {
-        /** @var PersistenceManager|\PHPUnit_Framework_MockObject_MockObject $persistenceManager */
-        $persistenceManager = $this->getMockBuilder(PersistenceManager::class)->disableOriginalConstructor()
-            ->getMock();
-        $this->subject->injectPersistenceManager($persistenceManager);
-        $this->assertAttributeSame(
-            $persistenceManager, 'persistenceManager', $this->subject
-        );
     }
 
     /**
      * provides invalid configurations
      * @return array
      */
-    public function invalidConfigurationDataProvider()
+    public function invalidConfigurationDataProvider(): array
     {
         return [
             'sourceField missing' => [[]],
@@ -124,20 +114,18 @@ class GenerateFileReferenceTest extends TestCase
     }
 
     /**
-     * @test
      * @param array $configuration
      * @dataProvider invalidConfigurationDataProvider
      */
-    public function isConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration) {
+    public function testIsConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
+    {
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsTrueForValidConfiguration() {
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
+    {
         $configuration = [
             'sourceField' => 'foo',
             'targetField' => 'bar'
@@ -148,10 +136,8 @@ class GenerateFileReferenceTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processReturnsFalseIfTargetFieldIsNotSettable() {
+    public function testProcessReturnsFalseIfTargetFieldIsNotSettable(): void
+    {
         $sourceFieldName = 'foo';
         $targetFieldName = 'bar';
         $properties = [];
@@ -167,10 +153,7 @@ class GenerateFileReferenceTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processReturnsFalseIfContentOfSourceFieldCanNotBeInterpretedAsInteger()
+    public function testProcessReturnsFalseIfContentOfSourceFieldCanNotBeInterpretedAsInteger(): void
     {
         $sourceFieldName = 'foo';
         $sourceFieldValue = 'can not interpreted as integer';
@@ -192,10 +175,7 @@ class GenerateFileReferenceTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processReturnsFalseIfContentOfTargetFieldIsAReferenceToAFileWithSameIdAsSourceField()
+    public function testProcessReturnsFalseIfContentOfTargetFieldIsAReferenceToAFileWithSameIdAsSourceField(): void
     {
         $fileId = 3;
         $sourceFieldName = 'foo';
@@ -205,16 +185,16 @@ class GenerateFileReferenceTest extends TestCase
             ->setMethods(['getUid'])
             ->getMock();
         $mockOriginalFile->expects($this->once())->method('getUid')
-            ->will($this->returnValue($fileId));
-        $mockOriginalResource = $this->getMockBuilder(\TYPO3\CMS\Core\Resource\FileReference::class)
+            ->willReturn($fileId);
+        $mockOriginalResource = $this->getMockBuilder(CoreFileReference::class)
             ->disableOriginalConstructor()
             ->setMethods(['getOriginalFile'])->getMock();
         $mockOriginalResource->expects($this->once())->method('getOriginalFile')
-            ->will($this->returnValue($mockOriginalFile));
+            ->willReturn($mockOriginalFile);
         $targetFieldValue = $this->getMockBuilder(FileReference::class)
             ->setMethods(['getOriginalResource'])->getMock();
         $targetFieldValue->expects($this->once())->method('getOriginalResource')
-            ->will($this->returnValue($mockOriginalResource));
+            ->willReturn($mockOriginalResource);
 
         $properties = [
             $targetFieldName => $targetFieldValue
@@ -233,10 +213,7 @@ class GenerateFileReferenceTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processRemovesExistingReferenceIfFileIdIsNotTheSameAsTargetField()
+    public function testProcessRemovesExistingReferenceIfFileIdIsNotTheSameAsTargetField(): void
     {
         $fileId = 3;
         $existingFileId = 5;
@@ -247,16 +224,16 @@ class GenerateFileReferenceTest extends TestCase
             ->setMethods(['getUid'])
             ->getMock();
         $mockOriginalFile->expects($this->once())->method('getUid')
-            ->will($this->returnValue($existingFileId));
-        $mockOriginalResource = $this->getMockBuilder(\TYPO3\CMS\Core\Resource\FileReference::class)
+            ->willReturn($existingFileId);
+        $mockOriginalResource = $this->getMockBuilder(CoreFileReference::class)
             ->disableOriginalConstructor()
             ->setMethods(['getOriginalFile'])->getMock();
         $mockOriginalResource->expects($this->once())->method('getOriginalFile')
-            ->will($this->returnValue($mockOriginalFile));
+            ->willReturn($mockOriginalFile);
         $targetFieldValue = $this->getMockBuilder(FileReference::class)
             ->setMethods(['getOriginalResource'])->getMock();
         $targetFieldValue->expects($this->once())->method('getOriginalResource')
-            ->will($this->returnValue($mockOriginalResource));
+            ->willReturn($mockOriginalResource);
 
         $properties = [
             $targetFieldName => $targetFieldValue
@@ -273,10 +250,7 @@ class GenerateFileReferenceTest extends TestCase
         $this->subject->process($configuration, $object, $record);
     }
 
-    /**
-     * @test
-     */
-    public function processCreatesFileReferenceAndAddsItToTargetField()
+    public function testProcessCreatesFileReferenceAndAddsItToTargetField(): void
     {
         $fileId = 3;
         $sourceFieldName = 'foo';
@@ -298,7 +272,7 @@ class GenerateFileReferenceTest extends TestCase
         $this->fileReferenceFactory->expects($this->once())
             ->method('create')
             ->with($fileId, $configuration)
-            ->will($this->returnValue($mockFileReference));
+            ->willReturn($mockFileReference);
 
         $this->subject->process($configuration, $object, $record);
 
@@ -309,10 +283,8 @@ class GenerateFileReferenceTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processReturnsFalseIfFileDoesNotExist() {
+    public function testProcessReturnsFalseIfFileDoesNotExist(): void
+    {
         $fileId = 3;
         $sourceFieldName = 'foo';
         $targetFieldName = 'bar';
@@ -330,7 +302,7 @@ class GenerateFileReferenceTest extends TestCase
         ];
         $this->fileIndexRepository->expects($this->once())
             ->method('findOneByUid')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
 
         $this->fileReferenceFactory->expects($this->never())
             ->method('create');
@@ -340,20 +312,16 @@ class GenerateFileReferenceTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function instanceImplementsLoggingInterface() {
+    public function testInstanceImplementsLoggingInterface(): void
+    {
         $this->assertInstanceOf(
             LoggingInterface::class,
             $this->subject
         );
     }
 
-    /**
-     * @test
-     */
-    public function getErrorCodesReturnsClassConstant() {
+    public function testGetErrorCodesReturnsClassConstant(): void
+    {
         $this->assertSame(
             GenerateFileReference::ERROR_CODES,
             $this->subject->getErrorCodes()

@@ -7,21 +7,20 @@ use CPSIT\T3importExport\ObjectManagerTrait;
 use FluidTYPO3\Flux\Form\Field\DateTime;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use XMLWriter;
 
-class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInterface, ConfigurableInterface
+class DataTargetXMLStream extends DataTargetFileStream
 {
     const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
     const DEFAULT_ROOT_NODE = 'rows';
 
     const TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
 
-    /**
-     * @var \XMLWriter
-     */
-    protected $writer;
+    protected XMLWriter $writer;
 
     /**
-     * @param array|\TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface $object
+     * @param array|DomainObjectInterface $object
      * @param array|null $configuration
      * @return void
      * @throws FileOperationErrorException
@@ -79,7 +78,7 @@ class DataTargetXMLStream extends DataTargetFileStream implements DataTargetInte
     protected function initFileIfNotExist($configuration)
     {
         if (!isset($this->writer)) {
-            $this->writer = new \XMLWriter();
+            $this->writer = new XMLWriter();
 
             if (isset($configuration['output']) && $configuration['output'] === 'file') {
                 $this->tempFile = $this->createAnonymTempFile();

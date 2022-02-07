@@ -28,7 +28,7 @@ trait MockMessageContainerTrait
      */
     protected $messageContainer;
 
-    protected function mockMessageContainer(): void
+    protected function mockMessageContainer(): self
     {
         $this->messageContainer = $this->getMockBuilder(MessageContainer::class)
             ->disableOriginalConstructor()
@@ -37,5 +37,7 @@ trait MockMessageContainerTrait
         if (method_exists($this, 'injectMessageContainer')) {
             $this->subject->injectMessageContainer($this->messageContainer);
         }
+
+        return $this;
     }
 }

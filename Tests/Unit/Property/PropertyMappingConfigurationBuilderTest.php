@@ -5,6 +5,7 @@ namespace CPSIT\T3importExport\Tests\Property;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 
@@ -34,17 +35,13 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  */
 class PropertyMappingConfigurationBuilderTest extends TestCase
 {
-    use MockObjectManagerTrait;
-
     protected PropertyMappingConfigurationBuilder $subject;
-
     protected PropertyMappingConfiguration $propertyMappingConfiguration;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
         $this->subject = new PropertyMappingConfigurationBuilder();
-        $this->mockObjectManager();
         $this->propertyMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
             ->setMethods(
                 [
@@ -52,38 +49,15 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
                     'allowProperties',
                     'setTypeConverterOptions',
                     'skipUnknownProperties',
-
                 ]
             )
             ->getMock();
+        GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
     }
 
-    /**
-     * @covers ::injectObjectManager
-     */
-    public function testInjectObjectManagerForObjectSetsObjectManager(): void
+    public function tearDown()
     {
-        $this->assertAttributeSame(
-            $this->objectManager,
-            'objectManager',
-            $this->subject
-        );
-    }
-
-    /**
-     * @covers ::build
-     */
-    public function testBuildReturnsPropertyMappingConfiguration(): void
-    {
-        $configuration = [];
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->with(...[PropertyMappingConfiguration::class])
-            ->willReturn($this->propertyMappingConfiguration);
-        $this->assertSame(
-            $this->propertyMappingConfiguration,
-            $this->subject->build($configuration)
-        );
+        GeneralUtility::purgeInstances();
     }
 
     /**
@@ -97,10 +71,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
             PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
             PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
         ];
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
-
         $this->propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
             ->with(...[$defaultTypeConverterClass, $defaultTypeConverterOptions]);
@@ -123,9 +93,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
             PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
             PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
         ];
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
 
         $this->propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
@@ -149,9 +116,7 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
             ]
         ];
         $defaultTypeConverterClass = PersistentObjectConverter::class;
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
+        GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
 
         $this->propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
@@ -166,9 +131,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
     public function buildSetsSkipUnknownProperties(): void
     {
         $configuration = [];
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
 
         $this->propertyMappingConfiguration->expects($this->once())
             ->method('skipUnknownProperties');
@@ -184,10 +146,7 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
         $configuration = [
             'allowProperties' => 'foo,bar'
         ];
-
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
+        GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
 
         $this->propertyMappingConfiguration->expects($this->once())
             ->method('allowProperties')
@@ -202,10 +161,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
     public function buildInitiallyDoesNotSetsAllowProperties(): void
     {
         $configuration = [];
-
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
 
         $this->propertyMappingConfiguration->expects($this->never())
             ->method('allowProperties');
@@ -258,7 +213,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
         $this->subject = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)
             ->setMethods(['configure'])
             ->getMock();
-        $this->mockObjectManager();
         $configuration = [
             'allowProperties' => 'foo',
             'properties' => [
@@ -267,10 +221,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
                 ]
             ]
         ];
-
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
         $this->subject->expects($this->once())
             ->method('configure')
             ->with(...[$configuration, $this->propertyMappingConfiguration]);
@@ -284,11 +234,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
     public function buildInitiallyDoesNotAllowAllProperties(): void
     {
         $configuration = [];
-
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
-
         $this->propertyMappingConfiguration->expects($this->never())
             ->method('allowAllProperties');
 
@@ -303,10 +248,6 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
         $configuration = [
             'allowAllProperties' => 1
         ];
-
-        $this->objectManager->expects($this->once())
-            ->method('get')
-            ->willReturn($this->propertyMappingConfiguration);
 
         $this->propertyMappingConfiguration->expects($this->once())
             ->method('allowAllProperties');

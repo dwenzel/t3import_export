@@ -7,8 +7,11 @@ use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
+use CPSIT\T3importExport\Persistence\DataTargetXMLStream;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockBasicFileUtilityTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockXmlWriterTrait;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
@@ -48,14 +51,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class DataTargetXMLStreamTest extends TestCase
 {
     use MockBasicFileUtilityTrait,
+        MockXmlWriterTrait,
+        MockPersistenceManagerTrait,
         MockObjectManagerTrait;
 
     protected const TARGET_CLASS = 'baz';
 
-    /**
-     * @var DataTargetFileStream
-     */
-    protected $subject;
+    protected DataTargetXMLStream $subject;
 
     /**
      * Set up
@@ -63,9 +65,14 @@ class DataTargetXMLStreamTest extends TestCase
      */
     public function setUp()
     {
-        $this->subject = new DataTargetFileStream(self::TARGET_CLASS);
-        $this->mockObjectManager();
-        $this->mockBasicFileUtility();
+        $this->mockBasicFileUtility()
+            ->mockPersistenceManager()
+            ->mockXmlWriter();
+        $this->subject = new DataTargetXMLStream(
+            self::TARGET_CLASS,
+            null,
+            $this->persistenceManager
+        );
     }
 
     /**

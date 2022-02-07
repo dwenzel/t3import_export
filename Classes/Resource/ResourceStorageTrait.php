@@ -39,6 +39,11 @@ trait ResourceStorageTrait
         $this->resourceStorage = $this->storageRepository->findByUid($configuration['storageId']);
     }
 
+    /**
+     * @param ResourceStorageInterface $resourceStorage
+     * @return $this
+     * @deprecated Inject dependency via constructor instead
+     */
     public function withStorage(ResourceStorageInterface $resourceStorage): self
     {
         $this->resourceStorage = $resourceStorage;

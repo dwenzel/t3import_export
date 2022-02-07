@@ -2,8 +2,8 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
+use CPSIT\T3importExport\Factory\FilePathFactory;
 use PHPUnit\Framework\MockObject\MockObject;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 /***************************************************************
  *  Copyright notice
@@ -21,31 +21,19 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-trait MockResourceFactoryTrait
+trait MockFilePathFactoryTrait
 {
-    use MockResourceStorageFolderTrait;
 
     /**
-     * @var ResourceFactory|MockObject
+     * @var FilePathFactory|MockObject
      */
-    protected $resourceFactory;
+    protected $filePathFactory;
 
-    protected function mockResourceFactory(): self
+    protected function mockFilePathFactory(): self
     {
-        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
-            ->disableOriginalConstructor()
-            ->setMethods(
-                [
-                    'getStorageObject',
-                    'getDefaultStorage',
-                    'createFileReferenceObject'
-                ])
+        $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)
+            ->setMethods(['createFromParts'])
             ->getMock();
-        if (method_exists($this, 'injectResourceFactory')) {
-            $this->subject->injectResourceFactory($this->resourceFactory);
-        }
-        $this->resourceFactory->method('getDefaultStorage')
-            ->willReturn($this->resourceStorage);
 
         return $this;
     }
