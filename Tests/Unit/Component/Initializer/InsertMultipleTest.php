@@ -157,22 +157,6 @@ class InsertMultipleTest extends TestCase
     /**
      * @covers ::isConfigurationValid
      */
-    public function testIsConfigurationValidReturnsFalseIfIdentifierIsNotString(): void
-    {
-        $mockConfiguration = [
-            'table' => 'foo',
-            'fields' => 'bar',
-            'rows' => [],
-            'identifier' => 2
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($mockConfiguration)
-        );
-    }
-
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $validConfiguration = [
@@ -184,18 +168,6 @@ class InsertMultipleTest extends TestCase
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($validConfiguration)
-        );
-    }
-
-    public function testConstructorSetsDefaultDatabase(): void
-    {
-        $GLOBALS['TYPO3_DB'] = $this->connection;
-        $this->subject->__construct();
-
-        $this->assertAttributeSame(
-            $GLOBALS['TYPO3_DB'],
-            'database',
-            $this->subject
         );
     }
 

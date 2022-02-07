@@ -14,6 +14,7 @@ namespace CPSIT\T3importExport\Component\Initializer;
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use Exception;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -42,14 +43,6 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
         if (!(isset($configuration['rows']) && is_array($configuration['rows']))) {
             return false;
         }
-        if (isset($configuration['identifier']) && !is_string($configuration['identifier'])) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
-        ) {
-            return false;
-        }
 
 
         return true;
@@ -68,7 +61,13 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
         foreach ($configuration['rows'] as $row) {
             $values[] = GeneralUtility::trimExplode(',', $row, true);
         }
+        try {
+            $this->connectionPool->getConnectionForTable($table)
+                ->bulkInsert($table, $values, $fields);
+        } catch (Exception $exception) {
+            return false;
+        }
 
-        return (bool) $this->database->exec_INSERTmultipleRows($table, $fields, $values);
+        return true;
     }
 }
