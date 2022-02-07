@@ -48,9 +48,10 @@ jobs:
 
       # Run tests
       - name: Run tests
-        run: composer test:unit -- \
-        --coverage-clover .Build/log/coverage/clover.xml \
-        --log-junit .Build/log/junit.xml
+        run: |
+          composer test:unit -- \
+          --coverage-clover .Build/log/coverage/clover.xml \
+          --log-junit .Build/log/junit.xml
 
       # Report coverage
       - name: Run SonarCloud scan
