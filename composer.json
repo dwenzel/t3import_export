@@ -54,7 +54,7 @@
       "[ -L .Build/Web/typo3conf/ext/t3import_export ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/t3import_export"
     ],
     "test:unit": [
-      ".Build/bin/phpunit -c Tests/Build/UnitTest.xml Tests/Unit"
+      ".Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit"
     ]
   },
   "extra": {
