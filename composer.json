@@ -20,8 +20,7 @@
   "require": {
     "php": ">=7.4",
     "dwenzel/t3extension-tools": "^1.7",
-    "typo3/cms-core": "^10.4",
-
+    "typo3/cms-core": "^9.5 || ^10.4",
     "ext-xmlreader": "*"
   },
   "replace": {
