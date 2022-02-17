@@ -79,7 +79,7 @@ class DataTargetRepository implements DataTargetInterface
     /**
      * Persist both new and updated objects.
      *
-     * @param DomainObjectInterface $object Record to persist. Either an array or an instance of \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
+     * @param DomainObjectInterface|array $object Record to persist. Either an array or an instance of \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
      * @param array $configuration Configuration array.
      * @return mixed
      */

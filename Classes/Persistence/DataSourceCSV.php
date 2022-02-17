@@ -17,7 +17,10 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
+use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -29,6 +32,18 @@ class DataSourceCSV implements DataSourceInterface
 
     protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
 
+    protected ConfigurationValidatorInterface $configurationValidator;
+
+    /**
+     * DataSourceCSV constructor.
+     * @param ConfigurationValidatorInterface|null $configurationValidator
+     */
+    public function __construct(ConfigurationValidatorInterface $configurationValidator = null)
+    {
+        $this->configurationValidator = $configurationValidator ?? GeneralUtility::makeInstance(ResourcePathConfigurationValidator::class);
+    }
+
+
     /**
      * Tells if a given configuration is valid
      *
@@ -37,7 +52,7 @@ class DataSourceCSV implements DataSourceInterface
      */
     public function isConfigurationValid(array $configuration): bool
     {
-        if (!$this->pathValidator->isValid($configuration)) {
+        if (!$this->configurationValidator->isValid($configuration)) {
             return false;
         }
 

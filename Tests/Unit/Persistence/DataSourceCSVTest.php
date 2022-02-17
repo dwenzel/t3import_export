@@ -24,7 +24,7 @@ class DataSourceCSVTest extends TestCase
     /**
      * @var ResourcePathConfigurationValidator|MockObject
      */
-    protected $pathValidator;
+    protected $configurationValidator;
 
     /**
      * set up subject
@@ -33,13 +33,13 @@ class DataSourceCSVTest extends TestCase
      */
     public function setUp()
     {
+        $this->configurationValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
+            ->setMethods(['isValid'])->getMock();
         $this->subject = $this->getMockBuilder(DataSourceCSV::class)
+            ->setConstructorArgs([$this->configurationValidator])
             ->setMethods(['getAbsoluteFilePath'])
             ->getMock();
 
-        $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->setMethods(['isValid'])->getMock();
-        $this->subject->injectResourcePathConfigurationValidator($this->pathValidator);
         vfsStreamWrapper::register();
     }
 
@@ -77,7 +77,7 @@ CSV;
     public function testIsConfigurationValidValidatesPathConfiguration(): void
     {
         $config = ['foo'];
-        $this->pathValidator->expects($this->once())
+        $this->configurationValidator->expects($this->once())
             ->method('isValid')
             ->with($config);
         $this->subject->isConfigurationValid($config);
@@ -120,7 +120,7 @@ CSV;
      */
     public function testIsConfigurationValidReturnsFalseForInvalidValues(array $configuration): void
     {
-        $this->pathValidator->expects($this->once())
+        $this->configurationValidator->expects($this->once())
             ->method('isValid')->willReturn(true);
 
         $this->assertFalse(
@@ -136,7 +136,7 @@ CSV;
             'enclosure' => '"',
             'escape' => "\\"
         ];
-        $this->pathValidator->expects($this->once())
+        $this->configurationValidator->expects($this->once())
             ->method('isValid')
             ->willReturn(true);
 

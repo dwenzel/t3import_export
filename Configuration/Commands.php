@@ -1,11 +1,7 @@
 <?php
 declare(strict_types=1);
 
-return [
-    \CPSIT\T3importExport\Command\ImportSetCommand::DEFAULT_NAME => [
-        'class' => \CPSIT\T3importExport\Command\ImportSetCommand::class,
-    ],
-    \CPSIT\T3importExport\Command\ImportTaskCommand::DEFAULT_NAME => [
-        'class' => \CPSIT\T3importExport\Command\ImportTaskCommand::class,
-    ],
-];
+/** @var \CPSIT\T3importExport\Configuration\Extension $configuration */
+$configuration = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\CPSIT\T3importExport\Configuration\Extension::class);
+
+return $configuration->getCommandsToRegister();

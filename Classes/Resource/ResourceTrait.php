@@ -15,25 +15,10 @@ namespace CPSIT\T3importExport\Resource;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait ResourceTrait
 {
-    /**
-     * @var \CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator
-     */
-    protected $pathValidator;
-
-    /**
-     * Inject the resource path validator
-     *
-     * @param \CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator $validator
-     */
-    public function injectResourcePathConfigurationValidator(ResourcePathConfigurationValidator $validator)
-    {
-        $this->pathValidator = $validator;
-    }
 
     /**
      * Wrapper method for testing purposes

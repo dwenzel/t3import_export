@@ -50,21 +50,6 @@ class ResourceTraitTest extends TestCase
     /**
      * @test
      */
-    public function pathValidatorCanBeInjected()
-    {
-        $pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->getMock();
-        $this->subject->injectResourcePathConfigurationValidator($pathValidator);
-        $this->assertAttributeSame(
-            $pathValidator,
-            'pathValidator',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
     public function loadResourceGetsFileResource()
     {
         $fileContent = 'foo';

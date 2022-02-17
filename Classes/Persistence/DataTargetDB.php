@@ -123,7 +123,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
 
     /**
      * Dummy method
-     * Currently does'nt do anything
+     * Currently doesn't do anything
      *
      * @param null $result
      * @param array|null $configuration

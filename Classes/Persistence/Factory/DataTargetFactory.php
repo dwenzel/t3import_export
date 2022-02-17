@@ -79,7 +79,7 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
                 1451045997
             );
         }
-        $objectClass = [];
+        $objectClass = null;
         if (isset($settings['object']['class'])) {
             $objectClass = $settings['object']['class'];
             if (!class_exists($objectClass)) {

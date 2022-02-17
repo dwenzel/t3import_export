@@ -43,9 +43,7 @@ class ImportSetCommand extends Command implements ArgumentAwareInterface
     use ArgumentAwareTrait,
         ConfigureTrait,
         InitializeTrait,
-        TransferCommandTrait;
-
-    protected TransferSetFactory $transferSetFactory;
+        SetCommandTrait;
 
     /**
      * Key under which configuration are found in
@@ -72,70 +70,5 @@ class ImportSetCommand extends Command implements ArgumentAwareInterface
     static protected array $optionsToConfigure = self::OPTIONS;
     static protected array $argumentsToConfigure = self::ARGUMENTS;
 
-    /**
-     * TransferCommandTrait constructor.
-     * @param string|null $name
-     * @param TransferSetFactory|null $transferSetFactory
-     * @param DataTransferProcessor|null $dataTransferProcessor
-     */
-    public function __construct(
-        string $name = null,
-        TransferSetFactory $transferSetFactory = null,
-        DataTransferProcessor $dataTransferProcessor = null
-    )
-    {
-        $this->transferSetFactory = $transferSetFactory ?? GeneralUtility::makeInstance(TransferSetFactory::class);
-        $this->dataTransferProcessor = $dataTransferProcessor ?? GeneralUtility::makeInstance(DataTransferProcessor::class);
-
-        parent::__construct($name);
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $identifier = (string)$input->getArgument(SetArgument::NAME);
-        if (empty($identifier)) {
-            $this->io->warning(
-                sprintf(
-                    static::WARNING_MISSING_PARAMETER,
-                    SetArgument::NAME
-                )
-            );
-
-            return Command::INVALID;
-        }
-        $this->io->comment(static::MESSAGE_STARTING);
-
-        $this->process($identifier);
-        $this->io->success(static::MESSAGE_SUCCESS);
-
-        return Command::SUCCESS;
-    }
-
-
-    /**
-     * Import set command
-     * Performs predefined import sets
-     *
-     * @param string $identifier Identifier of set which should be performed
-     * @param bool $dryRun If set nothing will be saved
-     * @return void
-     * @throws InvalidConfigurationException
-     */
-    public function process($identifier, $dryRun = false): void
-    {
-        /** @var TaskDemand $demand */
-        $demand = GeneralUtility::makeInstance(TaskDemand::class);
-
-        if (isset($this->settings['sets'][$identifier])) {
-            $set = $this->transferSetFactory->get(
-                $this->settings['sets'][$identifier], $identifier
-            );
-            $demand->setTasks($set->getTasks());
-            $this->dataTransferProcessor->buildQueue($demand);
-            if (!$dryRun) {
-                $this->dataTransferProcessor->process($demand);
-            }
-        }
-    }
 
 }
