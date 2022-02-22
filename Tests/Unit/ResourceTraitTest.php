@@ -35,10 +35,11 @@ class ResourceTraitTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Resource\ResourceTrait
+     * @var ResourceTrait
      */
     protected $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
         $this->subject = $this->getMockForTrait(
@@ -50,7 +51,7 @@ class ResourceTraitTest extends TestCase
     /**
      * @test
      */
-    public function loadResourceGetsFileResource()
+    public function loadResourceGetsFileResource(): void
     {
         $fileContent = 'foo';
 
@@ -69,8 +70,8 @@ class ResourceTraitTest extends TestCase
 
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
-            ->with($relativePath)
-            ->will($this->returnValue(vfsStream::url($relativePath)));
+            ->with(...[$relativePath])
+            ->willReturn(vfsStream::url($relativePath));
 
         $this->assertSame(
             $fileContent,

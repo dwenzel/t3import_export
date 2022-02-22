@@ -23,8 +23,8 @@ use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Controller\ExportController;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
-use Fr\JohMap\Command\ConfigureTrait;
-use Fr\JohMap\Command\InitializeTrait;
+use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
+use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
 use Symfony\Component\Console\Command\Command;
 /**
  * Class ExportCommandController
