@@ -97,7 +97,7 @@ class QueueItemRepositoryTest extends TestCase
             QueueItem::FIELD_CREATED => time()
         ];
         $validRecord = array_merge(
-            QueueRepository::TEMPLATE_QUEUE_ENTRY,
+            QueueItemRepository::TEMPLATE_QUEUE_ITEM,
             $required
         );
 
