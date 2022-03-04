@@ -35,6 +35,8 @@ class ValidateXML extends AbstractFinisher
 {
     use ResourceTrait, LoggingTrait;
 
+    protected ResourcePathConfigurationValidator $pathValidator;
+
     /**
      * Notice by id
      * <unique id> => ['Title', ['Message']
@@ -115,7 +117,6 @@ class ValidateXML extends AbstractFinisher
      * @param array $records Array with prepared records
      * @param array $result Array with result records
      * @return bool
-     * @noinspection PhpComposerExtensionStubsInspection ext-libxml is required in package!
      */
     public function process(array $configuration, array &$records, &$result): bool
     {

@@ -2,10 +2,14 @@
 
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
+use CPSIT\T3importExport\Exception\MissingResourceException;
 use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
+use CPSIT\T3importExport\Component\Finisher;
 /***************************************************************
  *  Copyright notice
  *
@@ -27,33 +31,61 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Class ValidateXML
  *
  * Validates the XML of given fields
+ * @todo this class is very similar to
+ * @see Finisher\ValidateXML it might be better to merge them.
  */
 class ValidateXML extends AbstractPreProcessor implements PreProcessorInterface
 {
-    use LoggingTrait;
+    use ResourceTrait,
+        LoggingTrait;
 
     public const KEY_FIELDS = 'fields';
+    public const KEY_SCHEMA = 'schema';
+
+    /**
+     * [
+     *  <id> => ['errorTitle', 'errorDescription']
+     * ]
+     */
+    public const ERROR_CODES = [
+        1646304431 => ['Validation Error', 'XML ist invalid']
+    ];
     public const SEPARATOR = ',';
     public const DEFAULT_XML_VERSION = '1.0';
     public const DEFAULT_XML_ENCODING = 'utf-8';
+    public const MISSING_RESOURCE_MESSAGE = 'Resource for %s i empty or can not be loaded from file or url.';
+    public const MISSING_RESOURCE_CODE = 1646301113;
     public const TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
+    Error Code (lib xml): %s
     Level: %s 
     Message: %s 
     Line: %s 
     Column: %s';
     protected DOMDocument $document;
+    protected ResourcePathConfigurationValidator $pathConfigurationValidator;
+    protected string $schema = '';
 
-    public function __construct(DOMDocument $document = null)
+    public function __construct(
+        DOMDocument $document = null,
+        ResourcePathConfigurationValidator $pathConfigurationValidator = null,
+        MessageContainer $messageContainer = null
+    )
     {
         $this->document = $document ?? new DOMDocument(
                 self::DEFAULT_XML_VERSION,
                 self::DEFAULT_XML_ENCODING
             );
+
+        $this->pathConfigurationValidator = $pathConfigurationValidator ?? GeneralUtility::makeInstance(
+            ResourcePathConfigurationValidator::class
+            );
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(
+            MessageContainer::class
+            );
     }
 
     public function isConfigurationValid(array $configuration): bool
     {
-        /** @noinspection IfReturnReturnSimplificationInspection */
         if (
             empty($configuration[self::KEY_FIELDS])
             || !is_string($configuration[self::KEY_FIELDS])
@@ -61,7 +93,10 @@ class ValidateXML extends AbstractPreProcessor implements PreProcessorInterface
             return false;
         }
 
-        // todo allow file and url as alternative sources, make errorhandling configurable (log, skipRecord, throw Exception)
+        if (!empty($configuration[self::KEY_SCHEMA])) {
+            $pathConfiguration = $configuration[self::KEY_SCHEMA];
+            return $this->pathConfigurationValidator->isValid($pathConfiguration);
+        }
 
         return true;
     }
@@ -77,13 +112,37 @@ class ValidateXML extends AbstractPreProcessor implements PreProcessorInterface
             true
         );
 
+        if(!empty($configuration[self::KEY_SCHEMA]))
+        {
+            $schema = $this->loadResource($configuration[self::KEY_SCHEMA]);
+
+            if(empty($schema)) {
+                $message = sprintf(
+                    self::MISSING_RESOURCE_MESSAGE,
+                    self::KEY_SCHEMA
+                );
+                throw new MissingResourceException(
+                    $message,
+                    self::MISSING_RESOURCE_CODE
+                );
+            }
+
+            $this->schema = $schema;
+        }
+
         foreach ($fields as $field)
         {
             if(!isset($record[$field])) {
                 // todo log error or throw exception
             }
-
-            if (!$this->isValidXML($record[$field], $field))
+            $xml = '';
+            if($record[$field] instanceof DOMDocument) {
+                $xml = $record[$field]->saveXML();
+            }
+            if(is_string($record[$field])) {
+                $xml = $record[$field];
+            }
+            if (!$this->isValidXML($xml, $field))
             {
                 return false;
             }
@@ -102,19 +161,24 @@ class ValidateXML extends AbstractPreProcessor implements PreProcessorInterface
 
         $this->document->loadXML($xml);
 
+        if(!empty($this->schema)) {
+            $this->document->schemaValidateSource($this->schema);
+        }
         $errors = libxml_get_errors();
         foreach ($errors as $error) {
             $message = sprintf(
                 self::TEMPLATE_ERROR_MESSAGE,
                 $fieldName,
+                $error->code,
                 $error->level,
                 $error->message,
                 $error->line,
                 $error->column
             );
             $this->logError(
-                $error->code,
-                $message
+                1646304431,
+                null,
+                [$message]
             );
         }
         libxml_clear_errors();
