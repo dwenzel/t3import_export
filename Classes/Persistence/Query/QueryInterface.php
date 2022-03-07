@@ -30,6 +30,12 @@ interface QueryInterface
     public const LIMIT = 'limit';
 
     /**
+     * Constants representing the direction when ordering result sets.
+     */
+    const ORDER_ASCENDING = 'ASC';
+    const ORDER_DESCENDING = 'DESC';
+
+    /**
      * Type of query (select, count, delete, update...)
      */
     public const TYPE = 'type';

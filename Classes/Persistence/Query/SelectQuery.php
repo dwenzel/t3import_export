@@ -6,6 +6,7 @@ use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -78,7 +79,7 @@ class SelectQuery implements QueryInterface
             $config[QueryInterface::TABLE]
         )->createQueryBuilder();
 
-        $this->builder->select($this->config[QueryInterface::FIELDS])
+        $this->builder->select(...GeneralUtility::trimExplode(',', $this->config[QueryInterface::FIELDS], true))
             ->from($this->config[QueryInterface::TABLE]);
 
         if (!empty($config[QueryInterface::WHERE])) {
@@ -90,7 +91,7 @@ class SelectQuery implements QueryInterface
         }
 
         if (!empty($config[QueryInterface::ORDER_BY])) {
-            $this->builder->orderBy($this->config[QueryInterface::ORDER_BY]);;
+            $this->buildOrderBy($this->builder, $config[QueryInterface::ORDER_BY]);
         }
 
         if (!empty($config[QueryInterface::LIMIT])) {
@@ -103,5 +104,26 @@ class SelectQuery implements QueryInterface
     public function build(): QueryBuilder
     {
         return $this->builder;
+    }
+
+    public function buildOrderBy(QueryBuilder $queryBuilder, string $orderBy): void
+    {
+        $sorting = GeneralUtility::trimExplode(',', $orderBy, true);
+
+        if (!empty($sorting)) {
+            foreach ($sorting as $orderItem) {
+                [$orderField, $ascDesc] = GeneralUtility::trimExplode(' ', $orderItem, true);
+                // count == 1 means that no direction is given
+                if ($ascDesc) {
+                    $ascDesc = ((strtolower($ascDesc) === 'desc') ?
+                        QueryInterface::ORDER_DESCENDING :
+                        QueryInterface::ORDER_ASCENDING);
+                } else {
+                    $ascDesc = QueryInterface::ORDER_ASCENDING;
+                }
+
+                $queryBuilder->addOrderBy($orderField, $ascDesc);
+            }
+        }
     }
 }

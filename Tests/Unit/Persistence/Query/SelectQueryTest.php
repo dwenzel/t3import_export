@@ -45,6 +45,7 @@ class SelectQueryTest extends TestCase
             'where',
             'groupBy',
             'orderBy',
+            'addOrderBy',
             'setMaxResults',
             'limit',
         ];
@@ -81,7 +82,7 @@ class SelectQueryTest extends TestCase
         return [
             'where' => [['table' => 'foo', 'where' => 'bar'], 'where', 'bar'],
             'limit' => [['table' => 'foo', 'limit' => '2'], 'setMaxResults', 2],
-            'orderBy' => [['table' => 'foo', 'orderBy' => 'moo'], 'orderBy', 'moo'],
+            'orderBy' => [['table' => 'foo', 'orderBy' => 'moo'], 'addOrderBy', 'moo'],
             'groupBy' => [['table' => 'foo', 'groupBy' => 'foo'], 'groupBy', 'foo']
         ];
     }
