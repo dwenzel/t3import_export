@@ -78,7 +78,7 @@ class DatabaseConnectionService implements SingletonInterface
     public function isRegistered($identifier): bool
     {
         $connections = $this->connectionPool->getConnectionNames();
-        return isset($connections[$identifier]);
+        return in_array($identifier, $connections);
     }
 
     protected function getConnectionPool(): ConnectionPool
