@@ -72,6 +72,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
                 1451061361
             );
         }
+        // fixme: We should test for implementation of ConfigurableInterface here and use an empty default config
         if (!isset($settings['config'])) {
             throw new InvalidConfigurationException(
                 'Missing configuration option config for class ' .
