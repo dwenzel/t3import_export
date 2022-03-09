@@ -5,9 +5,8 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
@@ -32,9 +31,15 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  *
  * @package CPSIT\T3importExport\Persistence
  */
-class DataTargetDB implements DataTargetInterface, ConfigurableInterface, IdentifiableInterface
+class DataTargetDB implements DataTargetInterface, ConfigurableInterface
 {
-    use ConfigurableTrait, DatabaseTrait, IdentifiableTrait;
+    use ConfigurableTrait, DatabaseTrait;
+
+    public const MISSING_CONNECTION_MESSAGE = 'Missing database connection for table "%s"';
+    public const MISSING_CONNECTION_CODE = 1646037375;
+    public const DEFAULT_IDENTITY_FIELD = '__identity';
+    public const FIELD_TABLE = 'table';
+    public const FIELD_UNSET_KEYS = 'unsetKeys';
 
     /**
      * Tells if the configuration is valid
@@ -44,36 +49,16 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
      */
     public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['table'])) {
+        if (!isset($configuration[self::FIELD_TABLE])) {
             return false;
         }
 
-        if (isset($configuration['unsetKeys'])
-        && !is_string($configuration['unsetKeys'])) {
+        if (isset($configuration[self::FIELD_UNSET_KEYS])
+            && !is_string($configuration[self::FIELD_UNSET_KEYS])) {
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * Gets the database connection
-     *
-     * @return DatabaseConnection
-     * @throws \CPSIT\T3importExport\MissingDatabaseException
-     */
-    public function getDatabase()
-    {
-        if (
-            !$this->database instanceof DatabaseConnection
-            || (
-                !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
-            )
-        ) {
-            $this->database = $this->connectionService->getDatabase($this->identifier);
-        }
-
-        return $this->database;
     }
 
     /**
@@ -85,15 +70,26 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
      * Any of those keys will be unset before persisting.
      *
      * @param array|DomainObjectInterface $object
-     * @param array $configuration
+     * @param array|null $configuration
      * @return bool
+     * @throws InvalidConfigurationException
      */
     public function persist($object, array $configuration = null)
     {
-        $tableName = $configuration['table'];
+        $tableName = $configuration[self::FIELD_TABLE];
 
-        if (isset($configuration['unsetKeys'])) {
-            $unsetKeys = GeneralUtility::trimExplode(',', $configuration['unsetKeys'], true);
+        $this->connection = $this->connectionPool->getConnectionForTable($tableName);
+        if (!$this->connection instanceof Connection) {
+
+            $message = sprintf(self::MISSING_CONNECTION_MESSAGE, $tableName);
+            throw new InvalidConfigurationException(
+                $message,
+                self::MISSING_CONNECTION_CODE
+            );
+        }
+
+        if (isset($configuration[self::FIELD_UNSET_KEYS])) {
+            $unsetKeys = GeneralUtility::trimExplode(',', $configuration[self::FIELD_UNSET_KEYS], true);
             if ((bool)$unsetKeys) {
                 foreach ($unsetKeys as $key) {
                     unset($object[$key]);
@@ -101,19 +97,20 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
             }
         }
 
-        if (isset($object['__identity'])) {
-            $uid = $object['__identity'];
-            unset($object['__identity']);
-            $this->getDatabase()->exec_UPDATEquery(
+        if (isset($object[self::DEFAULT_IDENTITY_FIELD])) {
+            $data = $object;
+            $uid = $object[self::DEFAULT_IDENTITY_FIELD];
+            unset($data[self::DEFAULT_IDENTITY_FIELD]);
+            $this->connection->update(
                 $tableName,
-                'uid = ' . $uid,
-                $object
+                $data,
+                ['uid' => $uid]
             );
 
             return true;
         }
 
-        $this->getDatabase()->exec_INSERTquery(
+        $this->connection->insert(
             $tableName,
             $object
         );

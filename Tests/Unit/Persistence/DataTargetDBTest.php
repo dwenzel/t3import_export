@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 /***************************************************************
@@ -18,9 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use CPSIT\T3importExport\Persistence\DataTargetDB;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -30,6 +31,8 @@ use PHPUnit\Framework\TestCase;
  */
 class DataTargetDBTest extends TestCase
 {
+    use MockDatabaseTrait;
+
     /**
      * @var DataTargetDB
      */
@@ -40,48 +43,30 @@ class DataTargetDBTest extends TestCase
      */
     public function setUp()
     {
-        $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
+        $this->mockConnectionService();
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
 
-        $this->subject = $this->getAccessibleMock(
-            DataTargetDB::class, ['dummy'], [], '', false
-        );
+        $this->subject = new DataTargetDB($this->connectionPool, $this->connectionService);
+    }
+
+    public function invalidConfigurationDataProvider(): array
+    {
+        return [
+            'missing field table' => [
+                []
+            ]
+        ];
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @param array $invalidConfig
+     * @dataProvider invalidConfigurationDataProvider
      */
-    protected function mockDatabase()
+    public function testIsConfigurationValidReturnsFalseForInvalidConfig(array $invalidConfig): void
     {
-        $mockDatabase = $this->getMock(
-            DatabaseConnection::class,
-            ['exec_INSERTquery', 'exec_UPDATEquery'],
-            [],
-            '', false
-        );
-
-        $this->inject(
-            $this->subject,
-            'database',
-            $mockDatabase
-        );
-
-        return $mockDatabase;
-    }
-
-    /**
-     * @test
-     */
-    public function constructorSetsDatabase()
-    {
-        $GLOBALS['TYPO3_DB'] = $this->getMock(
-            DatabaseConnection::class, [], [], '', false
-        );
-
-        $this->subject->__construct();
-        $this->assertAttributeSame(
-            $GLOBALS['TYPO3_DB'],
-            'database',
-            $this->subject
+        self::assertFalse(
+            $this->subject->isConfigurationValid($invalidConfig)
         );
     }
 
@@ -102,8 +87,8 @@ class DataTargetDBTest extends TestCase
     public function isConfigurationValidReturnsFalseIfUnsetKeysIsNotString()
     {
         $configuration = [
-            'table' => 'foo',
-            'unsetKeys' => []
+            DataTargetDB::FIELD_TABLE => 'foo',
+            DataTargetDB::FIELD_UNSET_KEYS => []
         ];
 
         $this->assertFalse(
@@ -118,8 +103,8 @@ class DataTargetDBTest extends TestCase
     public function isConfigurationValidReturnsTrueForValidConfiguration()
     {
         $configuration = [
-            'table' => 'foo',
-            'unsetKeys' => 'bar,baz'
+            DataTargetDB::FIELD_TABLE => 'foo',
+            DataTargetDB::FIELD_UNSET_KEYS => 'bar,baz'
         ];
 
         $this->assertTrue(
@@ -132,22 +117,26 @@ class DataTargetDBTest extends TestCase
      */
     public function persistUnSetsConfiguredKeys()
     {
-        $mockDatabase = $this->mockDatabase();
 
         $tableName = 'baz';
         $keyToUnset = 'foo';
         $configuration = [
-            'table' => $tableName,
-            'unsetKeys' => $keyToUnset
+            DataTargetDB::FIELD_TABLE => $tableName,
+            DataTargetDB::FIELD_UNSET_KEYS => $keyToUnset
         ];
 
         $record = [
             $keyToUnset => 'bar'
         ];
         $expectedRecord = [];
-        $mockDatabase->expects($this->once())
-            ->method('exec_INSERTquery')
-            ->with($tableName, $expectedRecord);
+        $this->connection->expects($this->once())
+            ->method('insert')
+            ->with(
+                ...[
+                    $tableName,
+                    $expectedRecord
+                ]
+            );
 
         $this->subject->persist(
             $record,
@@ -160,55 +149,33 @@ class DataTargetDBTest extends TestCase
      */
     public function persistUpdatesRecordsWithIdentityKey()
     {
-        $mockDatabase = $this->mockDatabase();
-
         $tableName = 'baz';
         $configuration = [
-            'table' => $tableName,
+            DataTargetDB::FIELD_TABLE => $tableName,
         ];
 
         $identity = 'foo';
         $record = [
-            '__identity' => $identity,
+            DataTargetDB::DEFAULT_IDENTITY_FIELD => $identity,
             'barField' => 'boom'
         ];
 
-        $expectedWhereClause = 'uid = ' . $identity;
+        $expectedIdentifiers = ['uid' => $identity];
         $expectedRecord = [
             'barField' => 'boom'
         ];
-        $mockDatabase->expects($this->once())
-            ->method('exec_UPDATEquery')
-            ->with($tableName, $expectedWhereClause, $expectedRecord);
+        $this->connection->expects($this->once())
+            ->method('update')
+            ->with(
+                ...[
+                $tableName,
+                $expectedRecord,
+                $expectedIdentifiers
+            ]);
 
         $this->subject->persist(
             $record,
             $configuration
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function getDatabaseReturnsDatabaseFromConnectionService()
-    {
-        $identifier = 'foo';
-        $this->subject->setIdentifier($identifier);
-        /** @var DatabaseConnectionService | \PHPUnit_Framework_MockObject_MockObject $mockConnectionService */
-        $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class, ['getDatabase'], [], '', false
-        );
-        $mockDataBase = $this->getMock(
-            DatabaseConnection::class);
-        $this->subject->injectDatabaseConnectionService($mockConnectionService);
-        $mockConnectionService->expects($this->once())
-            ->method('getDatabase')
-            ->with($identifier)
-            ->will($this->returnValue($mockDataBase));
-
-        $this->assertSame(
-            $mockDataBase,
-            $this->subject->getDatabase()
         );
     }
 }

@@ -18,7 +18,6 @@ If a record has a field with the special key `__identity` its value will be set 
 ## optional
 | property               | type   | default | description       | 
 | -----------------------|:------:|---------|-------------------|
-| **config.identifier**  | string | none    | Identifier of a database connection registered with the [DatabaseConnectionService](../Service/DatabaseConnectionService.md) |
 | **config.unsetKeys**   | string | none    | A comma separated list of field names. If set any of this fields  |
 
 ## Examples
@@ -37,20 +36,7 @@ module.tx_t3importexport.settings.import.tasks.exampleTask {
 ```
 
 ### Extended
-1. Save into a the table _foo_ of a database registered with identifier _bar_
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  target {
-    identifier = bar
-    class = CPSIT\T3importExport\Persistence\DataTargetDB
-    config {
-      table = foo
-    }
-  }
-}
-```
-
-2. unset keys _foo_ and _bar_ of each record before persisting
+1. unset keys _foo_ and _bar_ of each record before persisting
 ```
 module.tx_t3importexport.settings.import.tasks.exampleTask {
   target {
@@ -62,4 +48,3 @@ module.tx_t3importexport.settings.import.tasks.exampleTask {
   }
 }
 ```
-
