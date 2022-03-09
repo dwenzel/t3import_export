@@ -20,6 +20,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\TestCase;
@@ -32,6 +33,24 @@ use PHPUnit\Framework\TestCase;
 class DataTargetDBTest extends TestCase
 {
     use MockDatabaseTrait;
+
+    public const VALID_CONFIG_EMPTY_FIELD = [
+        DataTargetDB::FIELD_TABLE => 'foo',
+        DataTargetDB::FIELD_SKIP => [
+            DataTargetDB::FIELD_IF_EMPTY => [
+                DataTargetDB::FIELD_FIELD => 'bar'
+            ]
+        ]
+    ];
+
+    public const VALID_CONFIG_NOT_EMPTY_FIELD = [
+        DataTargetDB::FIELD_TABLE => 'foo',
+        DataTargetDB::FIELD_SKIP => [
+            DataTargetDB::FIELD_IF_NOT_EMPTY => [
+                DataTargetDB::FIELD_FIELD => 'bar'
+            ]
+        ]
+    ];
 
     /**
      * @var DataTargetDB
@@ -55,7 +74,98 @@ class DataTargetDBTest extends TestCase
         return [
             'missing field table' => [
                 []
-            ]
+            ],
+            'field `unsetKeys` is not string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_UNSET_KEYS => []
+                ]
+            ],
+            'skip must not be string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => 'bar'
+                ]
+            ],
+            'skip must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => []
+                ]
+            ],
+            'ifEmpty must not be string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => 'baz'
+                    ]
+                ]
+            ],
+            'ifEmpty must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => []
+                    ]
+                ]
+            ],
+            'ifNotEmpty must not be string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => 'baz'
+                    ]
+                ]
+            ],
+            'ifNotEmpty must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => []
+                    ]
+                ]
+            ],
+            'ifEmpty.field must not be array' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => []
+                        ]
+                    ]
+                ]
+            ],
+            'ifEmpty.field must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => ''
+                        ]
+                    ]
+                ]
+            ],
+            'ifNotEmpty.field must not be array' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => []
+                        ]
+                    ]
+                ]
+            ],
+            'ifNotEmpty.field must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => ''
+                        ]
+                    ]
+                ]
+            ],
+
         ];
     }
 
@@ -70,43 +180,35 @@ class DataTargetDBTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseForMissingTable()
+    public function validConfigurationDataProvider(): array
     {
-        $configuration = [];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
+        return [
+            'minimal config' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo'
+                ]
+            ],
+            'table + unsetKeys ' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_UNSET_KEYS => 'bar,baz'
+                ]
+            ],
+            'skip if field `bar` is empty' => [
+                self::VALID_CONFIG_EMPTY_FIELD
+            ],
+            'skip if field `bar` is not empty' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD
+            ],
+        ];
     }
 
     /**
-     * @test
+     * @param array $configuration
+     * @dataProvider validConfigurationDataProvider
      */
-    public function isConfigurationValidReturnsFalseIfUnsetKeysIsNotString()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
-        $configuration = [
-            DataTargetDB::FIELD_TABLE => 'foo',
-            DataTargetDB::FIELD_UNSET_KEYS => []
-        ];
-
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
-    {
-        $configuration = [
-            DataTargetDB::FIELD_TABLE => 'foo',
-            DataTargetDB::FIELD_UNSET_KEYS => 'bar,baz'
-        ];
-
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
         );
@@ -177,5 +279,48 @@ class DataTargetDBTest extends TestCase
             $record,
             $configuration
         );
+    }
+
+    public function skipIfDataProvider(): array
+    {
+        return [
+            // $configuration, $record
+            'skip b/c field `bar` is empty string' => [
+                self::VALID_CONFIG_EMPTY_FIELD,
+                ['bar' => '']
+            ],
+            'skip b/c field `bar` is empty array' => [
+                self::VALID_CONFIG_EMPTY_FIELD,
+                ['bar' => []]
+            ],
+            'skip b/c field `bar` is not empty string' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD,
+                ['bar' => 'lala']
+            ],
+            'skip b/c field `bar` is not empty array' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD,
+                ['bar' => ['baz']]
+            ],
+            'skip b/c field `bar` is not empty but float' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD,
+                ['bar' => 3.12]
+            ],
+        ];
+    }
+
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @throws InvalidConfigurationException
+     * @dataProvider skipIfDataProvider
+     */
+    public function testPersistSkipsIfRecordMatchesCondition(array $configuration, array $record): void
+    {
+        self::assertFalse(
+            $this->subject->persist($record, $configuration)
+        );
+
+        $this->connectionPool->expects(self::never())
+            ->method('getConnectionForTable');
     }
 }

@@ -7,6 +7,7 @@ use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
@@ -39,6 +40,10 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
     public const MISSING_CONNECTION_CODE = 1646037375;
     public const DEFAULT_IDENTITY_FIELD = '__identity';
     public const FIELD_TABLE = 'table';
+    public const FIELD_FIELD = 'field';
+    public const FIELD_SKIP = 'skip';
+    public const FIELD_IF_EMPTY = 'ifEmpty';
+    public const FIELD_IF_NOT_EMPTY = 'ifNotEmpty';
     public const FIELD_UNSET_KEYS = 'unsetKeys';
 
     /**
@@ -58,6 +63,37 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
             return false;
         }
 
+        if (isset($configuration[self::FIELD_SKIP])
+            && (!is_array($configuration[self::FIELD_SKIP])
+                || empty($configuration[self::FIELD_SKIP]))
+        ) {
+            return false;
+        }
+
+        if (
+            isset($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
+            && (!is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
+                || !is_string($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY][self::FIELD_FIELD])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY][self::FIELD_FIELD])
+            )
+        ) {
+            return false;
+        }
+
+        if (
+            isset($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
+            && (!is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
+                || !is_string($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY][self::FIELD_FIELD])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY][self::FIELD_FIELD])
+
+            )
+        ) {
+            return false;
+        }
+
+
         return true;
     }
 
@@ -76,6 +112,9 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
      */
     public function persist($object, array $configuration = null)
     {
+        if($this->shouldSkip($object, $configuration)) {
+            return false;
+        }
         $tableName = $configuration[self::FIELD_TABLE];
 
         $this->connection = $this->connectionPool->getConnectionForTable($tableName);
@@ -128,5 +167,27 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
      */
     public function persistAll($result = null, array $configuration = null)
     {
+    }
+
+    /**
+     * Tells if the record should be skipped, i.e. not be persisted
+     * @param array $record
+     * @param array $configuration
+     * @return bool
+     */
+    protected function shouldSkip(array $record, array $configuration): bool
+    {
+        $ifNotEmptyPath = implode('/', [self::FIELD_SKIP, self::FIELD_IF_NOT_EMPTY, self::FIELD_FIELD]);
+        $ifEmptyPath = implode('/', [self::FIELD_SKIP, self::FIELD_IF_EMPTY, self::FIELD_FIELD]);
+        if(ArrayUtility::isValidPath($configuration, $ifNotEmptyPath)) {
+            $fieldName = ArrayUtility::getValueByPath($configuration, $ifNotEmptyPath);
+            return !empty($record[$fieldName]);
+        }
+
+        if(ArrayUtility::isValidPath($configuration, $ifEmptyPath)) {
+            $fieldName = ArrayUtility::getValueByPath($configuration, $ifEmptyPath);
+            return empty($record[$fieldName]);
+        }
+        return false;
     }
 }
