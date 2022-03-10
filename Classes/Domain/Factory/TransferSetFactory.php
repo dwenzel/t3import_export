@@ -24,6 +24,8 @@ use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
@@ -38,28 +40,30 @@ class TransferSetFactory extends AbstractFactory
     protected TransferTaskFactory $transferTaskFactory;
     protected TransferSet $transferSet;
 
-    public function __construct(TransferTaskFactory $transferTaskFactory = null, TransferSet $transferSet = null)
+    public function __construct(
+        TransferTaskFactory $transferTaskFactory = null,
+        ConfigurationManagerInterface $configurationManager = null,
+        TransferSet $transferSet = null)
     {
+
         if (null === $transferTaskFactory) {
             $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
             /** @var TransferTaskFactory $transferTaskFactory */
             $transferTaskFactory = $objectManager->get(TransferTaskFactory::class);
         }
 
+        if (null == $configurationManager) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            /** @var ConfigurationManager $configurationManager */
+            $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
+        }
+        $this->settings = $configurationManager->getConfiguration(
+            ConfigurationManager::CONFIGURATION_TYPE_SETTINGS
+        );
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->transferTaskFactory = $transferTaskFactory;
-
         $this->transferSet = $transferSet ?? GeneralUtility::makeInstance(TransferSet::class);
-    }
-
-    /**
-     * Injects the transfer task factory
-     *
-     * @param TransferTaskFactory $transferTaskFactory
-     */
-    public function injectTransferTaskFactory(TransferTaskFactory $transferTaskFactory)
-    {
-        $this->transferTaskFactory = $transferTaskFactory;
     }
 
     /**
@@ -72,6 +76,9 @@ class TransferSetFactory extends AbstractFactory
      */
     public function get(array $settings, $identifier = null)
     {
+        // clone object in order to prevent from returning the same object on subsequent calls
+        // transferSet must be injected for testing purposes
+        $this->transferSet = clone $this->transferSet;
         $this->transferSet->setIdentifier($identifier);
 
         if (isset($settings['tasks'])

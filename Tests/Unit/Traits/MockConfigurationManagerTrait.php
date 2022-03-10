@@ -2,7 +2,6 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
-use CPSIT\T3importExport\Tests\Domain\Factory\AbstractFactoryTest;
 use PHPUnit\Framework\MockObject\MockObject;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -37,6 +36,8 @@ trait MockConfigurationManagerTrait
             ->disableOriginalConstructor()
             ->setMethods(['getConfiguration'])
             ->getMock();
-        $this->subject->injectConfigurationManager($this->configurationManager);
+        if(method_exists($this, 'injectConfigurationManager')) {
+            $this->subject->injectConfigurationManager($this->configurationManager);
+        }
     }
 }
