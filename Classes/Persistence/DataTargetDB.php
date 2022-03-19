@@ -149,7 +149,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
                     $data,
                     ['uid' => $uid]
                 );
-            } catch (PersistenceException $exception) {
+            } catch (\Exception $exception) {
                 $message = 'Update Exception:' . PHP_EOL;
                 $message .= 'Data:' . PHP_EOL;
                 $message .= json_encode($object);
@@ -170,7 +170,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
                 $tableName,
                 $object
             );
-        } catch (PersistenceException $exception) {
+        } catch (\Exception $exception) {
             $message = 'Insert Exception:' . PHP_EOL;
             $message .= 'Data:' . PHP_EOL;
             $message .= json_encode($object);
