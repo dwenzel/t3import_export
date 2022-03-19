@@ -5,6 +5,7 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\T3importExport\Exception\PersistenceException;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -112,7 +113,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
      */
     public function persist($object, array $configuration = null)
     {
-        if($this->shouldSkip($object, $configuration)) {
+        if ($this->shouldSkip($object, $configuration)) {
             return false;
         }
         $tableName = $configuration[self::FIELD_TABLE];
@@ -136,23 +137,50 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
             }
         }
 
+
         if (isset($object[self::DEFAULT_IDENTITY_FIELD])) {
             $data = $object;
             $uid = $object[self::DEFAULT_IDENTITY_FIELD];
             unset($data[self::DEFAULT_IDENTITY_FIELD]);
-            $this->connection->update(
-                $tableName,
-                $data,
-                ['uid' => $uid]
-            );
+            try {
+
+                $this->connection->update(
+                    $tableName,
+                    $data,
+                    ['uid' => $uid]
+                );
+            } catch (PersistenceException $exception) {
+                $message = 'Update Exception:' . PHP_EOL;
+                $message .= 'Data:' . PHP_EOL;
+                $message .= json_encode($object);
+
+                throw new PersistenceException(
+                    $message,
+                    1647701464,
+                    $exception
+                );
+            }
 
             return true;
         }
 
-        $this->connection->insert(
-            $tableName,
-            $object
-        );
+
+        try {
+            $this->connection->insert(
+                $tableName,
+                $object
+            );
+        } catch (PersistenceException $exception) {
+            $message = 'Insert Exception:' . PHP_EOL;
+            $message .= 'Data:' . PHP_EOL;
+            $message .= json_encode($object);
+
+            throw new PersistenceException(
+                $message,
+                1647701464,
+                $exception
+            );
+        }
 
         return true;
     }
@@ -179,12 +207,12 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
     {
         $ifNotEmptyPath = implode('/', [self::FIELD_SKIP, self::FIELD_IF_NOT_EMPTY, self::FIELD_FIELD]);
         $ifEmptyPath = implode('/', [self::FIELD_SKIP, self::FIELD_IF_EMPTY, self::FIELD_FIELD]);
-        if(ArrayUtility::isValidPath($configuration, $ifNotEmptyPath)) {
+        if (ArrayUtility::isValidPath($configuration, $ifNotEmptyPath)) {
             $fieldName = ArrayUtility::getValueByPath($configuration, $ifNotEmptyPath);
             return !empty($record[$fieldName]);
         }
 
-        if(ArrayUtility::isValidPath($configuration, $ifEmptyPath)) {
+        if (ArrayUtility::isValidPath($configuration, $ifEmptyPath)) {
             $fieldName = ArrayUtility::getValueByPath($configuration, $ifEmptyPath);
             return empty($record[$fieldName]);
         }
