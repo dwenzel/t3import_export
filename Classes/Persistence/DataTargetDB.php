@@ -153,7 +153,9 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
                 $message = 'Update Exception:' . PHP_EOL;
                 $message .= 'Data:' . PHP_EOL;
                 $message .= json_encode($object);
-
+                /**
+                 * Fixme: write to log instead of catch and re-throw
+                 */
                 throw new PersistenceException(
                     $message,
                     1647701464,
