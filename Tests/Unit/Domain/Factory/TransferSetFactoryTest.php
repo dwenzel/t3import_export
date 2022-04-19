@@ -53,6 +53,7 @@ class TransferSetFactoryTest extends TestCase
      */
     protected TransferSet $transferSet;
 
+    protected array $settings = [];
     /**
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
@@ -76,6 +77,8 @@ class TransferSetFactoryTest extends TestCase
 
         $this->mockTransferTask();
 
+        $this->configurationManager->method('getConfiguration')
+            ->willReturn($this->settings);
         $this->transferTaskFactory->method('get')->willReturn($this->transferTask);
         $this->subject = new TransferSetFactory(
             $this->transferTaskFactory,
