@@ -5,8 +5,6 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
-use CPSIT\T3importExport\Persistence\Query\QueryInterface;
-use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 

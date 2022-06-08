@@ -4,8 +4,8 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Persistence\Query\QueryFacade;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
@@ -37,6 +37,27 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 {
     use DatabaseTrait;
 
+    /* name mixing:
+        'select' stands for every sql query
+        could be 'sql' or 'query' for INSERT and others, but would change configuration api
+
+        ...still use *
+
+        80 {
+            class = CPSIT\T3importExport\Component\PreProcessor\LookUpDB
+            config {
+                targetField = foo
+         *----> select {   <-----*
+                    type = updateSelect
+                    table = tx_foo
+                    ...
+                }
+            }
+         }
+
+    */
+    protected const CONFIGURATION_KEY_QUERY = 'select';
+
     /**
      * Tells if a given configuration is valid
      *
@@ -65,9 +86,11 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * @param array $configuration
      * @param array $record
+     *
      * @return bool
+     * @throws InvalidConfigurationException
      */
-    public function process($configuration, &$record)
+    public function process($configuration, &$record): bool
     {
         /**
          * todo method cannot be tested because of its complexity and
@@ -98,10 +121,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         if (!empty($queryConfiguration['singleRow'])) {
             $queryConfiguration['limit'] = 1;
         }
-        $queryResult = (new SelectQuery())->withConfiguration($queryConfiguration)
-            ->build()
-            ->execute()
-            ->fetchAllAssociative();
+        $queryResult = (new QueryFacade())->getQueryResultByConfig($queryConfiguration);
 
         $targetField = $configuration['targetField'];
 
@@ -139,7 +159,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 
         ArrayUtility::mergeRecursiveWithOverrule(
             $queryConfiguration,
-            $configuration['select'],
+            $configuration[self::CONFIGURATION_KEY_QUERY],
             true,
             false
         );

@@ -1,5 +1,5 @@
 <?php
-namespace CPSIT\T3importExport\Tests\Unit\Persistence\Query\SelectQuery;
+namespace CPSIT\T3importExport\Tests\Unit\Persistence\Query;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\QueryInterface;
@@ -37,7 +37,7 @@ class SelectQueryTest extends TestCase
      */
     protected QueryBuilder $builder;
 
-    public function setUp()
+    public function setUp(): void
     {
         $fluidBuilderMethods = [
             'select',
@@ -120,6 +120,6 @@ class SelectQueryTest extends TestCase
             ->method($expectedMethod)
             ->with(...[$expectedValue]);
 
-        $this->subject->withConfiguration($config);
+        $this->subject->withConfiguration($config)->setQuery();
     }
 }

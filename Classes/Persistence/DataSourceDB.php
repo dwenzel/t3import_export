@@ -72,9 +72,11 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      * @param array $configuration source query configuration
      * @return array Array of records from database or empty array
      * @throws InvalidConfigurationException
+     * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): array
     {
+        $records = [];
         if (!$this->isConfigurationValid($configuration)) {
             throw new InvalidConfigurationException();
         }
@@ -84,6 +86,7 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
         try {
             $query = (new SelectQuery())
                 ->withConfiguration($queryConfiguration)
+                ->setQuery()
                 ->build();
 
             $records = $query->execute()->fetchAllAssociative();

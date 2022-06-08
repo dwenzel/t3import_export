@@ -36,10 +36,20 @@ interface QueryInterface
     const ORDER_DESCENDING = 'DESC';
 
     /**
+     * Left join properties
+     */
+    public const FROM_ALIAS = 'fromAlias';
+    public const LEFT_JOIN = 'leftJoin';
+    public const ALIAS = 'alias';
+    public const JOIN_CONDITION = 'condition';
+
+    /**
      * Type of query (select, count, delete, update...)
      */
     public const TYPE = 'type';
-
+    public const TYPE_SELECT = 'select';
+    public const DEFAULT_TYPE = self::TYPE_SELECT;
+    public const TYPE_SELECT_JOIN = 'selectJoin';
     /**
      * Build a query demand from configuration array
      *
