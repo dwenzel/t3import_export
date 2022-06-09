@@ -54,6 +54,7 @@ class QueryFacade implements QueryFacadeInterface
                     }
                 }
             }
+     * @see SelectQuery, SelectJoinQuery ...
      */
     protected function getConcreteQueryInstance(string $type): QueryInterface
     {

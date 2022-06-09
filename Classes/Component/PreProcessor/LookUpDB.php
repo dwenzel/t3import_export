@@ -5,6 +5,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\QueryFacade;
+use CPSIT\T3importExport\Persistence\Query\SelectJoinQuery;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -30,6 +31,8 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  * Class LookUpDB
  * Base class for database look up.
  * Children must implement PreProcessorInterface
+ *
+ * Configuration @see SelectQuery, SelectJoinQuery
  *
  * @package CPSIT\T3importExport\PreProcessor
  */
