@@ -131,7 +131,14 @@ class QueueItemRepository
             $identifiers = $this->determineIdentifiers($item);
         }
 
-        if (!empty($identifiers[QueueItem::FIELD_CHECKSUM] && !empty($identifiers[QueueItem::FIELD_IDENTIFIER]))) {
+        if (
+            //whether uid exists (which is extremely identified)
+            !empty($item[QueueItem::FIELD_UID])
+            ||
+            //or you have a checksum and an identifier (task name)
+            (!empty($identifiers[QueueItem::FIELD_CHECKSUM])
+                && !empty($identifiers[QueueItem::FIELD_IDENTIFIER]))
+        ) {
 
             return !(bool)$this->connectionPool->getConnectionForTable(QueueItem::TABLE)
                 ->count(
