@@ -75,7 +75,8 @@ class StringToTimeTest extends TestCase
         ];
         $expectedRecord = [
             'foo' => strtotime($record['foo']),
-            'baz' => 'boo'
+            'baz' => 'boo',
+            'bar' => null
         ];
         $this->subject->process($configuration, $record);
         $this->assertSame(
@@ -101,7 +102,8 @@ class StringToTimeTest extends TestCase
         $expectedRecord = [
             'bar' => [
                 ['foo' => strtotime($record['bar'][0]['foo'])]
-            ]
+            ],
+            'foo' => null,
         ];
         $this->subject->process($configuration, $record);
         $this->assertSame(
