@@ -66,15 +66,23 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
         return true;
     }
 
-    /**
-     * @param $row
-     */
-    protected function convertFields(&$row)
+    protected function convertFields(&$record): void
     {
         foreach ($this->fields as $fieldName) {
-            if (isset($row[$fieldName]) && is_string($row[$fieldName])) {
-                $row[$fieldName] = strtotime($row[$fieldName]);
-            }
+            $record[$fieldName] = $this->stringToTime($record[$fieldName]);
         }
+    }
+
+    /**
+     * convert a string ito a datetime - if not possible or not string, return null
+     * hint: many times this field comes as an array
+     */
+    protected function stringToTime(/*mixed*/ $recordField): ?int
+    {
+        if (isset($recordField) && is_string($recordField)) {
+            return strtotime($recordField) ? : null;
+        }
+
+        return null;
     }
 }
