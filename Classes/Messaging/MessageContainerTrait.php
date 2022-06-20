@@ -38,10 +38,23 @@ trait MessageContainerTrait
     /**
      * Returns all messages.
      * Messages are kept.
+     * @return array<Message>
+     */
+    public function getMessages()
+    {
+        return $this->messageContainer->getMessages();
+    }
+
+    /**
+     * Returns and purges all messages from the message container
      * @return array
      */
-    public function getMessages() {
-        return $this->messageContainer->getMessages();
+    public function getAndPurgeMessages(): array
+    {
+        $messages = $this->messageContainer->getMessages();
+        $this->messageContainer->clear();
+
+        return $messages;
     }
 
     /**
@@ -51,7 +64,8 @@ trait MessageContainerTrait
      * @param $id
      * @return boolean
      */
-    public function hasMessageWithId($id) {
+    public function hasMessageWithId($id)
+    {
         return $this->messageContainer->hasMessageWithId($id);
     }
 }

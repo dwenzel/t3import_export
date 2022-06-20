@@ -38,6 +38,11 @@ class LoggingPostProcessor extends AbstractPostProcessor implements PostProcesso
         return [];
     }
 
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
     /**
      * @param array $configuration
      * @param mixed $convertedRecord

@@ -38,6 +38,11 @@ class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterfa
         return [];
     }
 
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
     /**
      * @param array $configuration
      * @param array $record

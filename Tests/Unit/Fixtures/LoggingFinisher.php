@@ -38,6 +38,11 @@ class LoggingFinisher extends AbstractFinisher implements FinisherInterface, Log
         return [];
     }
 
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
@@ -46,8 +51,7 @@ class LoggingFinisher extends AbstractFinisher implements FinisherInterface, Log
      */
     public function process(array $configuration, array &$records, &$result): bool
     {
-       return true;
+        return true;
     }
-
 
 }

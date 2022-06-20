@@ -38,6 +38,11 @@ class LoggingInitializer extends AbstractInitializer implements InitializerInter
         return [];
     }
 
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
