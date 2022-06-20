@@ -200,7 +200,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @throws \TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException
      * @return object
      */
-    protected function fetchObjectFromPersistence($identity, string $targetType): object
+    protected function fetchObjectFromPersistence($identity, $targetType): object
     {
         $object = null;
         if (ctype_digit((string) $identity)) {
