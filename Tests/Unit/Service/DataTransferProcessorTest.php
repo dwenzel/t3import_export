@@ -358,14 +358,14 @@ class DataTransferProcessorTest extends TestCase
     {
         $messages = ['foo'];
         $this->preProcessor = $this->getMockBuilder(LoggingPreProcessor::class)
-            ->setMethods(['getMessages'])->getMock();
+            ->setMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong preProcessor
         $this->mockTransferTask();
         $this->mockTaskDemand();
 
         $this->preProcessor->expects($this->once())
-            ->method('getMessages')
+            ->method('getAndPurgeMessages')
             ->willReturn($messages);
 
         self::assertInstanceOf(
@@ -385,14 +385,14 @@ class DataTransferProcessorTest extends TestCase
     {
         $messages = ['foo'];
         $this->postProcessor = $this->getMockBuilder(LoggingPostProcessor::class)
-            ->setMethods(['getMessages'])->getMock();
+            ->setMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
         $this->mockTransferTask();
         $this->mockTaskDemand();
 
         $this->postProcessor->expects($this->once())
-            ->method('getMessages')
+            ->method('getAndPurgeMessages')
             ->willReturn($messages);
 
         $this->taskResult->expects($this->once())
@@ -405,14 +405,14 @@ class DataTransferProcessorTest extends TestCase
     {
         $messages = ['foo'];
         $this->initializer = $this->getMockBuilder(LoggingInitializer::class)
-            ->setMethods(['getMessages'])->getMock();
+            ->setMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
         $this->mockTransferTask();
         $this->mockTaskDemand();
 
         $this->initializer->expects($this->once())
-            ->method('getMessages')
+            ->method('getAndPurgeMessages')
             ->willReturn($messages);
 
         $this->taskResult->expects($this->once())
@@ -425,14 +425,14 @@ class DataTransferProcessorTest extends TestCase
     {
         $messages = ['foo'];
         $this->finisher = $this->getMockBuilder(LoggingFinisher::class)
-            ->setMethods(['getMessages'])->getMock();
+            ->setMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong finisher
         $this->mockTransferTask();
         $this->mockTaskDemand();
 
         $this->finisher->expects($this->once())
-            ->method('getMessages')
+            ->method('getAndPurgeMessages')
             ->willReturn($messages);
 
         $this->taskResult->expects($this->once())
