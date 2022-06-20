@@ -172,7 +172,7 @@ class DataTransferProcessor
             && $result instanceof TaskResult
         ) {
             $result->addMessages(
-                $component->getMessages()
+                $component->getAndPurgeMessages()
             );
         }
     }
