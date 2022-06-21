@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Persistence;
 
+use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
@@ -29,7 +30,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  * Class DataTargetQueue
  * Creates and persists queue items
  */
-class DataSourceQueue implements DataSourceInterface
+class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 

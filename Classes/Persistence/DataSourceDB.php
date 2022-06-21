@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Persistence;
 
+use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
@@ -33,7 +34,7 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataSourceDB implements DataSourceInterface, IdentifiableInterface, RenderContentInterface
+class DataSourceDB implements DataSourceInterface, ConfigurableInterface, IdentifiableInterface, RenderContentInterface
 {
     use IdentifiableTrait, ConfigurableTrait, RenderContentTrait,
         DatabaseTrait;

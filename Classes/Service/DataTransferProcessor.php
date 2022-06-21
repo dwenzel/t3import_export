@@ -88,8 +88,12 @@ class DataTransferProcessor
         foreach ($tasks as $task) {
             /** @var TransferTask $task */
             $dataSource = $task->getSource();
+            $configuration = [];
+            if ($dataSource instanceof ConfigurableInterface) {
+                $configuration = $dataSource->getConfiguration();
+            }
             $recordsToImport = $dataSource->getRecords(
-                $dataSource->getConfiguration()
+                $configuration
             );
 
             $this->queue[$task->getIdentifier()] = $recordsToImport;

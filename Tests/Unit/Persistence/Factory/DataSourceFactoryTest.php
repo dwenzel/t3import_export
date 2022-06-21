@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
+use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
@@ -10,7 +11,6 @@ use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -106,7 +106,7 @@ class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, Iden
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
-class DummySourceClass implements DataSourceInterface
+class DummySourceClass implements DataSourceInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 
