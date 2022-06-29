@@ -4,9 +4,10 @@ namespace CPSIT\T3importExport\Configuration;
 
 use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Command\ImportTaskCommand;
-use DWenzel\T3extensionTools\Configuration\ExtensionConfiguration;
-use CPSIT\T3importExport\Configuration\Module\ImportModuleRegistration;
 use CPSIT\T3importExport\Configuration\Module\ExportModuleRegistration;
+use CPSIT\T3importExport\Configuration\Module\ImportModuleRegistration;
+use DWenzel\T3extensionTools\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -56,8 +57,18 @@ class Extension extends ExtensionConfiguration
 
     public function getCommandsToRegister(): array
     {
+        /** @var Environment $environment */
+        $environment = GeneralUtility::makeInstance(Environment::class);
         $version = GeneralUtility::makeInstance(Typo3Version::class);
-        if ($version->getMajorVersion() >= 10) {
+
+        // Note: we disable console commands in cli context for TYPO3 version before 10.x
+        // due to missing TypoScript configuration
+        if ($version->getMajorVersion() < 10 && $environment::isCli()) {
+            return [];
+        }
+
+        // enable console commands for backend modules since there is TypoScript available
+        if ($version->getMajorVersion() >= 9) {
             return self::COMMANDS_TO_REGISTER;
         }
 

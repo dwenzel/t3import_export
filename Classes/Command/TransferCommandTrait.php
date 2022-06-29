@@ -20,8 +20,6 @@ namespace CPSIT\T3importExport\Command;
 
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use DWenzel\T3extensionTools\Configuration\ConfigurationManagerTrait;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**

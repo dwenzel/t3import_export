@@ -59,7 +59,8 @@ class TransferSetFactory extends AbstractFactory
             $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
         }
         $this->settings = $configurationManager->getConfiguration(
-            ConfigurationManager::CONFIGURATION_TYPE_SETTINGS
+            ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
+            't3importexport'
         );
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->transferTaskFactory = $transferTaskFactory;
