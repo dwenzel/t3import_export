@@ -78,6 +78,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     protected static $defaultName = self::DEFAULT_NAME;
     protected TransferTaskFactory $transferTaskFactory;
 
+    protected CommandStatusAdaption $commandStatus;
     /**
      * TransferCommandTrait constructor.
      * @param string|null $name
@@ -97,6 +98,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
         parent::__construct($name);
         $this->initializeObject();
+        $this->commandStatus = GeneralUtility::makeInstance(CommandStatusAdaption::class);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -111,13 +113,15 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
                 sprintf(self::WARNING_MISSING_CONFIGURATION, $identifier)
             );
 
-            $status = Command::INVALID;
+            $status = $this->commandStatus->getCommandStatusInvalid();
         }
 
+        //@fixme immediately overridden
         $status = $this->process($identifier);
+
         if ($status === 0) {
             $this->io->success(self::MESSAGE_SUCCESS);
-            return Command::SUCCESS;
+            return $this->commandStatus->getCommandStatusSuccess();
         }
 
         $this->io->error('An error occurred');
@@ -139,7 +143,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      */
     public function process(string $identifier, $dryRun = false): int
     {
-        $status = Command::INVALID;
+        $status = $this->commandStatus->getCommandStatusInvalid();
         /** @var TaskDemand $taskDemand */
         $taskDemand = GeneralUtility::makeInstance(TaskDemand::class);
 
@@ -153,7 +157,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
             $taskDemand->setTasks([$task]);
             $this->dataTransferProcessor->buildQueue($taskDemand);
             $result = $this->dataTransferProcessor->process($taskDemand);
-            $status = Command::SUCCESS;
+            $status = $this->commandStatus->getCommandStatusSuccess();
             // todo check result for error and set exit code accordingly
         }
 
@@ -165,7 +169,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      */
     protected function assertValidIdentifier(string $identifier): int
     {
-        $status = Command::SUCCESS;
+        $status = $this->commandStatus->getCommandStatusSuccess();
         if (empty($identifier)) {
             $this->io->warning(
                 sprintf(
@@ -174,7 +178,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
                 )
             );
 
-            $status = Command::INVALID;
+            $status = $this->commandStatus->getCommandStatusInvalid();
         }
 
         return $status;
