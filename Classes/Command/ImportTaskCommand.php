@@ -1,28 +1,5 @@
 <?php
 
-namespace CPSIT\T3importExport\Command;
-
-use CPSIT\T3importExport\Command\Argument\SetArgument;
-use CPSIT\T3importExport\Command\Argument\TaskArgument;
-use CPSIT\T3importExport\Controller\ImportController;
-use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\MissingInterfaceException;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
-use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
-use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
-use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
-use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -40,6 +17,30 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+namespace CPSIT\T3importExport\Command;
+
+use CPSIT\T3importExport\Command\Argument\SetArgument;
+use CPSIT\T3importExport\Command\Argument\TaskArgument;
+use CPSIT\T3importExport\Controller\ImportController;
+use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
+use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\MissingInterfaceException;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
+use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
+use DWenzel\T3extensionTools\Command\Status;
+use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
+use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
+use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**
  * Provides import set commands for cli and scheduler tasks
@@ -78,7 +79,6 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     protected static $defaultName = self::DEFAULT_NAME;
     protected TransferTaskFactory $transferTaskFactory;
 
-    protected CommandStatusAdaption $commandStatus;
     /**
      * TransferCommandTrait constructor.
      * @param string|null $name
@@ -98,12 +98,12 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
         parent::__construct($name);
         $this->initializeObject();
-        $this->commandStatus = GeneralUtility::makeInstance(CommandStatusAdaption::class);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io->comment(self::MESSAGE_STARTING);
+        $errorMessage = 'An error occurred';
         $identifier = (string)$input->getArgument(TaskArgument::NAME);
 
         $status = $this->assertValidIdentifier($identifier);
@@ -113,18 +113,21 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
                 sprintf(self::WARNING_MISSING_CONFIGURATION, $identifier)
             );
 
-            $status = $this->commandStatus->getCommandStatusInvalid();
+            return Status::invalid();
         }
 
-        //@fixme immediately overridden
-        $status = $this->process($identifier);
+        try {
+            $status = $this->process($identifier);
+        } catch (InvalidConfigurationException | MissingInterfaceException | MissingClassException $exception) {
+            $errorMessage .= $exception->getMessage() . ' code: ' . $exception->getCode();
+        }
 
         if ($status === 0) {
             $this->io->success(self::MESSAGE_SUCCESS);
-            return $this->commandStatus->getCommandStatusSuccess();
+            return Status::success();
         }
 
-        $this->io->error('An error occurred');
+        $this->io->error($errorMessage);
         return $status;
     }
 
@@ -143,7 +146,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      */
     public function process(string $identifier, $dryRun = false): int
     {
-        $status = $this->commandStatus->getCommandStatusInvalid();
+        $status = Status::invalid();
         /** @var TaskDemand $taskDemand */
         $taskDemand = GeneralUtility::makeInstance(TaskDemand::class);
 
@@ -157,7 +160,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
             $taskDemand->setTasks([$task]);
             $this->dataTransferProcessor->buildQueue($taskDemand);
             $result = $this->dataTransferProcessor->process($taskDemand);
-            $status = $this->commandStatus->getCommandStatusSuccess();
+            $status = Status::success();
             // todo check result for error and set exit code accordingly
         }
 
@@ -169,7 +172,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      */
     protected function assertValidIdentifier(string $identifier): int
     {
-        $status = $this->commandStatus->getCommandStatusSuccess();
+        $status = Status::success();
         if (empty($identifier)) {
             $this->io->warning(
                 sprintf(
@@ -178,7 +181,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
                 )
             );
 
-            $status = $this->commandStatus->getCommandStatusInvalid();
+            $status = Status::invalid();
         }
 
         return $status;
