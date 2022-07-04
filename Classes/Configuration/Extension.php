@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Configuration;
 
+use CPSIT\T3importExport\Command\ImportCommandController;
 use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Command\ImportTaskCommand;
 use CPSIT\T3importExport\Configuration\Module\ExportModuleRegistration;
@@ -47,6 +48,12 @@ class Extension extends ExtensionConfiguration
         ],
     ];
 
+    public const LEGACY_COMMANDS_TO_REGISTER = [
+        ImportSetCommand::DEFAULT_NAME => [
+            'class' => ImportCommandController::class
+        ]
+    ];
+
     public const SVG_ICON_IDENTIFIER_JOBS = 'jobs';
     /**
      * SVG icons to register
@@ -73,5 +80,21 @@ class Extension extends ExtensionConfiguration
         }
 
         return [];
+    }
+
+    /**
+     * Register legacy command controllers for cli environment in TYPO3 9
+     */
+    public static function registerLegacyCommands(): void
+    {
+        $version = GeneralUtility::makeInstance(Typo3Version::class);
+        /** @var Environment $environment */
+        $environment = GeneralUtility::makeInstance(Environment::class);
+
+        if ($version->getMajorVersion() === 9) {
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportImport'] = \CPSIT\T3importExport\Legacy\Command\ImportCommandController::class;
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportExport'] = \CPSIT\T3importExport\Legacy\Command\ExportCommandController::class;
+        }
+
     }
 }
