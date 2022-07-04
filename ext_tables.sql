@@ -51,7 +51,6 @@ CREATE TABLE tx_t3importexport_domain_model_queueitem
     started_date  int(11)             DEFAULT 0   NOT NULL,
     finished_date int(11)             DEFAULT 0   NOT NULL,
     identifier varchar(255) DEFAULT '' NOT NULL comment 'identifier of an export or import task or set as registered in configuraion',
-    queue         int(11)             DEFAULT 0   NOT NULL COMMENT 'uid of queue to which this entry belongs',
     checksum      varchar(255)        DEFAULT ''  NOT NULL,
     data          blob,
     status        tinyint(1) unsigned DEFAULT 0   NOT NULL COMMENT 'new: 0, processing: 1, finished: 2, error: 3',

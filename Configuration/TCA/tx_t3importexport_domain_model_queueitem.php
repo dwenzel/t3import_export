@@ -75,15 +75,6 @@ return [
                 'readOnly' => true,
             ],
         ],
-        'queue' => [
-            'label' => $ll. 'label.queue',
-            'config' => [
-                'items' => [],
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'foreign_table' => 'tx_t3importexport_domain_model_queue',
-            ]
-        ],
         'data' => [
             'label' => $ll . 'label.data',
             'config' => [
