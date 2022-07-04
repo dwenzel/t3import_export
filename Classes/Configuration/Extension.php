@@ -48,12 +48,6 @@ class Extension extends ExtensionConfiguration
         ],
     ];
 
-    public const LEGACY_COMMANDS_TO_REGISTER = [
-        ImportSetCommand::DEFAULT_NAME => [
-            'class' => ImportCommandController::class
-        ]
-    ];
-
     public const SVG_ICON_IDENTIFIER_JOBS = 'jobs';
     /**
      * SVG icons to register
