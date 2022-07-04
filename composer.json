@@ -45,7 +45,11 @@
   },
   "config": {
     "vendor-dir": ".Build/vendor",
-    "bin-dir": ".Build/bin"
+    "bin-dir": ".Build/bin",
+    "allow-plugins": {
+      "typo3/class-alias-loader": true,
+      "composer/installers": true
+    }
   },
   "scripts": {
     "post-autoload-dump": [
