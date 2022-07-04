@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -18,29 +19,26 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use CPSIT\T3importExport\Component\PreProcessor\SetFieldValue;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SetFieldValueTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\PreProcessor
  */
-class SetFieldValueTest extends UnitTestCase
+class SetFieldValueTest extends TestCase
 {
-    /**
-     * @var SetFieldValue
-     */
-    protected $subject;
+    protected SetFieldValue $subject;
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            SetFieldValue::class, ['dummy']
-        );
+        $this->subject = new SetFieldValue();
     }
 
     /**
@@ -48,7 +46,7 @@ class SetFieldValueTest extends UnitTestCase
      *
      * @return array
      */
-    public function validateConfigurationDataProvider()
+    public function validateConfigurationDataProvider(): array
     {
         return [
             // empty targetField
@@ -79,12 +77,11 @@ class SetFieldValueTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @dataProvider validateConfigurationDataProvider
      * @param array $configuration
      * @param bool $result
      */
-    public function configurationIsValidatedCorrectly($configuration, $result)
+    public function testConfigurationIsValidatedCorrectly($configuration, $result): void
     {
         $this->assertEquals(
             $result,
@@ -92,10 +89,7 @@ class SetFieldValueTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processSetsValue()
+    public function testProcessSetsValue(): void
     {
         $targetFieldName = 'foo';
         $newValue = 'baz';

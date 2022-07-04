@@ -1,13 +1,12 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Factory\ConverterFactory;
-use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
-use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
@@ -34,6 +33,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Class DummyInvalidConverter
  * Does not implement ConverterInterface
@@ -56,7 +56,7 @@ class DummyValidConverter extends AbstractConverter implements ConverterInterfac
      * @param array $record
      * @return bool
      */
-    public function convert(array $record, array $configuration)
+    public function convert(array $record, array $configuration): bool
     {
         return true;
     }
@@ -67,44 +67,36 @@ class DummyValidConverter extends AbstractConverter implements ConverterInterfac
  *
  * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
-class ConverterFactoryTest extends UnitTestCase
+class ConverterFactoryTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Component\Factory\ConverterFactory
+     * @var ConverterFactory
      */
-    protected $subject;
+    protected ConverterFactory $subject;
 
     /**
      *
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            ConverterFactory::class,
-            ['dummy']
-        );
+        $this->subject = new ConverterFactory();
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451566686
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassIsNotSet()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
         $configurationWithoutClassName = ['bar'];
 
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1451566686);
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451566699
-     */
-    public function getThrowsInvalidConfigurationExceptionIfClassDoesNotExist()
+    public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1451566699);
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
@@ -113,42 +105,28 @@ class ConverterFactoryTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451566706
-     */
-    public function getThrowsExceptionIfClassDoesNotImplementConverterInterface()
+    public function testGetThrowsExceptionIfClassDoesNotImplementConverterInterface(): void
     {
         $configurationWithExistingClass = [
             'class' => DummyInvalidConverter::class
         ];
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1451566706);
         $this->subject->get(
             $configurationWithExistingClass
         );
     }
 
-    /**
-     * @test
-     */
-    public function getReturnsConverter()
+    public function testGetReturnsConverter(): void
     {
         $identifier = 'fooIdentifier';
         $validClass = DummyValidConverter::class;
         $settings = [
             'class' => $validClass,
         ];
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockConverter = $this->getMock($validClass);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with($validClass)
-            ->will($this->returnValue($mockConverter));
-        $this->assertEquals(
-            $mockConverter,
+        $converter = new $validClass;
+        $this->assertInstanceOf(
+            get_class($converter),
             $this->subject->get($settings, $identifier)
         );
     }

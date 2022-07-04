@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /***************************************************************
@@ -32,7 +33,7 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
             return false;
@@ -48,10 +49,10 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process($configuration, &$record)
     {
-        $this->fields = ArrayUtility::trimExplode(',', $configuration['fields'], true);
+        $this->fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         $this->convertFields($record);
         if (isset($configuration['multipleRowFields'])) {
-            $multipleRowFields = ArrayUtility::trimExplode(',', $configuration['multipleRowFields'], true);
+            $multipleRowFields = GeneralUtility::trimExplode(',', $configuration['multipleRowFields'], true);
             foreach ($multipleRowFields as $field) {
                 if (is_array($record[$field])) {
                     foreach ($record[$field] as $key => $row) {
@@ -65,15 +66,23 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
         return true;
     }
 
-    /**
-     * @param $row
-     */
-    protected function convertFields(&$row)
+    protected function convertFields(&$record): void
     {
         foreach ($this->fields as $fieldName) {
-            if (isset($row[$fieldName]) && is_string($row[$fieldName])) {
-                $row[$fieldName] = strtotime($row[$fieldName]);
-            }
+            $record[$fieldName] = $this->stringToTime($record[$fieldName]);
         }
+    }
+
+    /**
+     * convert a string ito a datetime - if not possible or not string, return null
+     * hint: many times this field comes as an array
+     */
+    protected function stringToTime(/*mixed*/ $recordField): ?int
+    {
+        if (isset($recordField) && is_string($recordField)) {
+            return strtotime($recordField) ? : null;
+        }
+
+        return null;
     }
 }

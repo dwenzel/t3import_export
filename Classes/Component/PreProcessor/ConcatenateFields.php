@@ -1,5 +1,10 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
+
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice
@@ -28,6 +33,15 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
+
+    public function __construct(
+        ContentObjectRenderer $contentObjectRenderer = null,
+        TypoScriptService $typoScriptService = null
+    )
+    {
+        $this->contentObjectRenderer = $contentObjectRenderer ?? $this->getContentObjectRenderer();
+        $this->typoScriptService = $typoScriptService ?? GeneralUtility::makeInstance(TypoScriptService::class);
+    }
 
     /**
      * @param array $configuration
@@ -64,7 +78,7 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['targetField'])
             || !is_string($configuration['targetField'])

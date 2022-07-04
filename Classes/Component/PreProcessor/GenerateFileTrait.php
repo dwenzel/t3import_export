@@ -46,11 +46,12 @@ trait GenerateFileTrait
     /**
      * @var FilePathFactory
      */
-    protected $filePathFactory;
+    protected FilePathFactory $filePathFactory;
 
     /**
      * injects the file path factory
      * @param FilePathFactory $factory
+     * @deprecated
      */
     public function injectFilePathFactory(FilePathFactory $factory){
         $this->filePathFactory = $factory;
@@ -123,7 +124,7 @@ trait GenerateFileTrait
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration)) {
             $this->logError(1499007587);

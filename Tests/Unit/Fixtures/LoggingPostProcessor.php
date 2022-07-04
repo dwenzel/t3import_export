@@ -20,13 +20,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
+use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingPostProcessor
  * Dummy class for testing: PostProcessor implementing LoggingInterface
  */
-class LoggingPostProcessor extends AbstractPostProcessor implements LoggingInterface
+class LoggingPostProcessor extends AbstractPostProcessor implements PostProcessorInterface, LoggingInterface
 {
     /**
      * Gets all messages
@@ -37,13 +38,18 @@ class LoggingPostProcessor extends AbstractPostProcessor implements LoggingInter
         return [];
     }
 
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
     /**
      * @param array $configuration
      * @param mixed $convertedRecord
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
         return true;
     }

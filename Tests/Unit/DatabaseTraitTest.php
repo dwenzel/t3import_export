@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit;
 
 /***************************************************************
@@ -18,18 +19,21 @@ namespace CPSIT\T3importExport\Tests\Unit;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\Persistence\DataTargetDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
 
 /**
  * Class DatabaseTraitTest
  *
  * @package CPSIT\T3importExport\Tests\Unit
  */
-class DatabaseTraitTest extends UnitTestCase
+class DatabaseTraitTest extends TestCase
 {
     /**
      * @var DatabaseTrait
@@ -37,68 +41,51 @@ class DatabaseTraitTest extends UnitTestCase
     protected $subject;
 
     /**
+     * @var Connection|MockObject
+     */
+    protected Connection $connection;
+
+    protected DatabaseConnectionService $connectionService;
+
+    /**
+     * @var ConnectionPool|MockObject
+     */
+    protected ConnectionPool $connectionPool;
+
+    protected $backupGlobals = true;
+
+    /**
      * set up subject
      */
     public function setUp()
     {
-        $this->subject = $this->getMockForTrait(
-            DatabaseTrait::class, [], '', false
-        );
+        $this->subject = $this->getObjectForTrait(DatabaseTrait::class);
+        $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->connection = $this->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
+            ->getMock();
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function mockDatabase()
+    public function testConstructorGetsDatabaseConnectionFromGlobals(): void
     {
-        $mockDatabase = $this->getMock(
-            DatabaseConnection::class,
-            ['exec_INSERTquery', 'exec_UPDATEquery'],
-            [],
-            '', false
-        );
-
-        $this->inject(
-            $this->subject,
-            'database',
-            $mockDatabase
-        );
-
-        return $mockDatabase;
-    }
-
-    /**
-     * @test
-     */
-    public function constructorSetsDatabase()
-    {
-        $GLOBALS['TYPO3_DB'] = $this->getMock(
-            DatabaseConnection::class, [], [], '', false
-        );
+        $GLOBALS['TYPO3_DB'] = $this->connection;
 
         $this->subject->__construct();
-        $this->assertAttributeSame(
-            $GLOBALS['TYPO3_DB'],
-            'database',
-            $this->subject
+        $this->assertSame(
+            $this->connection,
+            $this->subject->getDataBase()
         );
     }
-
-    /**
-     * @test
-     */
-    public function databaseConnectionServiceCanBeInjected()
+    public function testConstructorSetsConnectionService(): void
     {
-        /** @var DatabaseConnectionService $expectedConnectionService */
-        $expectedConnectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-            ['dummy'], [], '', false);
-
-        $this->subject->injectDatabaseConnectionService($expectedConnectionService);
-
-        $this->assertAttributeSame(
-            $expectedConnectionService,
-            'connectionService',
-            $this->subject
+        $this->subject->__construct(null, $this->connectionService);
+        $this->assertSame(
+            $this->connectionService,
+            $this->subject->getDatabaseConnectionService()
         );
     }
 }

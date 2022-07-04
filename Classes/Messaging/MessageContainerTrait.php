@@ -2,6 +2,8 @@
 
 namespace CPSIT\T3importExport\Messaging;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Copyright notice
  * (c) 2017. Dirk Wenzel <wenzel@cps-it.de>
@@ -28,22 +30,31 @@ trait MessageContainerTrait
      */
     protected $messageContainer;
 
-    /**
-     * injects the message container
-     * @param MessageContainer $messageContainer
-     */
-    public function injectMessageContainer(MessageContainer $messageContainer)
+    public function __construct(MessageContainer $messageContainer = null)
     {
-        $this->messageContainer = $messageContainer;
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
     }
 
     /**
      * Returns all messages.
      * Messages are kept.
+     * @return array<Message>
+     */
+    public function getMessages()
+    {
+        return $this->messageContainer->getMessages();
+    }
+
+    /**
+     * Returns and purges all messages from the message container
      * @return array
      */
-    public function getMessages() {
-        return $this->messageContainer->getMessages();
+    public function getAndPurgeMessages(): array
+    {
+        $messages = $this->messageContainer->getMessages();
+        $this->messageContainer->clear();
+
+        return $messages;
     }
 
     /**
@@ -53,7 +64,8 @@ trait MessageContainerTrait
      * @param $id
      * @return boolean
      */
-    public function hasMessageWithId($id) {
+    public function hasMessageWithId($id)
+    {
         return $this->messageContainer->hasMessageWithId($id);
     }
 }

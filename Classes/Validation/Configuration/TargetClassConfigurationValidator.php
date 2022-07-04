@@ -34,27 +34,26 @@ class TargetClassConfigurationValidator implements ConfigurationValidatorInterfa
      * @param array $config
      * @throws \CPSIT\T3importExport\InvalidConfigurationException
      * @throws MissingClassException
-     * @return bool
      */
-    public function validate(array $config)
+    public function isValid(array $config): bool
     {
         if (!isset($config['targetClass'])) {
             throw new InvalidConfigurationException(
-                'Invalid configuration for ' . __CLASS__ .
+                'Invalid configuration for ' . get_class($this) .
                 '. Missing targetClass option',
                 1451146126
             );
         }
         if (!is_string($config['targetClass'])) {
             throw new InvalidConfigurationException(
-                'Invalid configuration for ' . __CLASS__ .
+                'Invalid configuration for ' . get_class($this) .
                 '. Option value for targetClass must be a string.',
                 1451146384
             );
         }
         if (!class_exists($config['targetClass'])) {
             throw new MissingClassException(
-                'Invalid configuration for ' . __CLASS__ .
+                'Invalid configuration for ' . get_class($this) .
                 '. Target class does not exist.',
                 1451146564
             );

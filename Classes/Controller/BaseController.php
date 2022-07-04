@@ -6,6 +6,7 @@ use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /***************************************************************
@@ -48,7 +49,7 @@ abstract class BaseController extends ActionController
      *
      * @param DataTransferProcessor $dataTransferProcessor
      */
-    public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor)
+    public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor): void
     {
         $this->dataTransferProcessor = $dataTransferProcessor;
     }
@@ -56,7 +57,7 @@ abstract class BaseController extends ActionController
     /**
      * @param TransferTaskFactory $importTaskFactory
      */
-    public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory)
+    public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory): void
     {
         $this->transferTaskFactory = $importTaskFactory;
     }
@@ -64,7 +65,7 @@ abstract class BaseController extends ActionController
     /**
      * @param TransferSetFactory $importSetFactory
      */
-    public function injectTransferSetFactory(TransferSetFactory $importSetFactory)
+    public function injectTransferSetFactory(TransferSetFactory $importSetFactory): void
     {
         $this->transferSetFactory = $importSetFactory;
     }
@@ -81,7 +82,7 @@ abstract class BaseController extends ActionController
      *
      * @throws InvalidConfigurationException
      */
-    public function indexAction()
+    public function indexAction(): void
     {
         $settingsKey = $this->getSettingsKey();
         $tasks = [];
@@ -108,10 +109,10 @@ abstract class BaseController extends ActionController
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
-    protected function doTaskAction($identifier)
+    protected function taskAction($identifier): void
     {
         /** @var TaskDemand $importDemand */
-        $importDemand = $this->objectManager->get(
+        $importDemand = GeneralUtility::makeInstance(
             TaskDemand::class
         );
         $task = $this->transferTaskFactory->get(
@@ -135,7 +136,7 @@ abstract class BaseController extends ActionController
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
-    protected function doSetAction($identifier)
+    protected function setAction($identifier): void
     {
         $settingsKey = $this->getSettingsKey();
 
@@ -166,7 +167,7 @@ abstract class BaseController extends ActionController
      * @param $settings
      * @return array
      */
-    protected function buildTasksFromSettings($settings)
+    protected function buildTasksFromSettings($settings): array
     {
         $tasks = [];
 
@@ -187,7 +188,7 @@ abstract class BaseController extends ActionController
      * @param $settings
      * @return array
      */
-    protected function buildSetsFromSettings($settings)
+    protected function buildSetsFromSettings($settings): array
     {
         $sets = [];
 

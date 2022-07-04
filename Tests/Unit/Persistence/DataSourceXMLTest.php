@@ -1,36 +1,44 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Persistence\DataSourceXML;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamException;
 use org\bovigo\vfs\vfsStreamWrapper;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DataSourceXMLTest
  */
-class DataSourceXMLTest extends UnitTestCase
+class DataSourceXMLTest extends TestCase
 {
-
     /**
-     * @var \CPSIT\T3importExport\Persistence\DataSourceXML
+     * @var DataSourceXML|MockObject
      */
-    protected $subject;
+    protected DataSourceXML $subject;
 
     /**
-     *
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     * @throws vfsStreamException
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(DataSourceXML::class,
-            ['dummy', 'getAbsoluteFilePath'], [], '', false);
+        $this->subject = new DataSourceXML();
         vfsStreamWrapper::register();
     }
 
+    protected function mockSubject(): void
+    {
+        $this->subject = $this->getMockBuilder(DataSourceXML::class)
+            ->setMethods(['getAbsoluteFilePath'])
+            ->getMock();
+    }
+
     /**
-     * @test
      */
-    public function getRecordsInitiallyReturnsEmptyArray()
+    public function testetRecordsInitiallyReturnsEmptyArray(): void
     {
         $configuration = [];
         $this->assertSame(
@@ -40,9 +48,8 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsFalseForMissingFile()
+    public function testIsConfigurationValidReturnsFalseForMissingFile(): void
     {
         $configuration = [];
         $this->assertFalse(
@@ -51,9 +58,8 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsFalseIfFileIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfFileIsNotString(): void
     {
         $configuration = [
             'file' => []
@@ -64,20 +70,19 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsFalseForInvalidFilePath()
+    public function testIsConfigurationValidReturnsFalseForInvalidFilePath(): void
     {
+        $this->mockSubject();
         $invalidPath = 'fooPath';
         $configuration = [
             'file' => $invalidPath
         ];
 
-
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
-            ->with($invalidPath)
-            ->will($this->returnValue(''));
+            ->with(...[$invalidPath])
+            ->willReturn('');
 
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
@@ -85,10 +90,10 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
+        $this->mockSubject();
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.xml';
         $relativePath = $fileDirectory . '/' . $fileName;
@@ -98,12 +103,12 @@ class DataSourceXMLTest extends UnitTestCase
         ];
 
         $root = vfsStream::setup($fileDirectory);
-        $mockFile = vfsStream::newFile($fileName)->at($root);
+        vfsStream::newFile($fileName)->at($root);
 
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
-            ->with($relativePath)
-            ->will($this->returnValue(vfsStream::url($relativePath)));
+            ->with(...[$relativePath])
+            ->willReturn(vfsStream::url($relativePath));
 
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
@@ -111,9 +116,8 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsFalseIfFileAndUrlAreSet()
+    public function testIsConfigurationValidReturnsFalseIfFileAndUrlAreSet(): void
     {
         $configuration = [
             'file' => 'foo',
@@ -126,9 +130,8 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsFalseIfUrlIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfUrlIsNotString(): void
     {
         $configuration = [
             'url' => []
@@ -139,9 +142,8 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsFalseIfUrlIsInvalid()
+    public function testIsConfigurationValidReturnsFalseIfUrlIsInvalid(): void
     {
         $configuration = [
             'url' => 'foo'
@@ -152,9 +154,8 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsTrueIfUrlIsValid()
+    public function testIsConfigurationValidReturnsTrueIfUrlIsValid(): void
     {
         $configuration = [
             'url' => 'http://typo3.org'
@@ -165,9 +166,8 @@ class DataSourceXMLTest extends UnitTestCase
     }
 
     /**
-     * @test
      */
-    public function isConfigurationValidReturnsFalseIfExpressionIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfExpressionIsNotString(): void
     {
         $configuration = [
             'url' => 'http://typo3.org',

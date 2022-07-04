@@ -1,14 +1,18 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -66,7 +70,7 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
      * @param array $configuration
      * @return array
      */
-    public function getRecords(array $configuration)
+    public function testGetRecords(array $configuration): array
     {
         return [];
     }
@@ -74,11 +78,10 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
     /**
      * Fake method matches abstract method in DataTargetInterface
      *
-     * @param array|DomainObjectInterface $object
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }
@@ -86,19 +89,25 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
     /**
      * Fake method matches abstract method in ConfigurableInterface
      *
-     * @param array $configuration
+     * @param $object
+     * @param array|null $configuration
      * @return bool
+     * @noinspection PhpMissingReturnTypeInspection
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     * @noinspection PhpInconsistentReturnPointsInspection
      */
     public function persist($object, array $configuration = null)
     {
     }
+
     /**
      * Dummy method
-     * Currently does'nt do anything
+     * Doesn't do anything
      *
      * @param null $result
      * @param array|null $configuration
      * @return void
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function persistAll($result = null, array $configuration = null)
     {
@@ -111,31 +120,36 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataTargetFactory
  */
-class DataTargetFactoryTest extends UnitTestCase
+class DataTargetFactoryTest extends TestCase
 {
+    use MockPersistenceManagerTrait;
+
+    protected DataTargetFactory $subject;
 
     /**
-     * @var DataTargetFactory
+     * @var DataTargetInterface|MockObject
      */
-    protected $subject;
+    protected DataTargetInterface $dataTarget;
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getMock(
-            DataTargetFactory::class, ['dummy']
-        );
+        $this->mockPersistenceManager();
+        $this->subject = new DataTargetFactory($this->persistenceManager);
     }
 
     /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\MissingClassException
-     * @expectedExceptionCode 1451043513
+     * @throws MissingClassException
+     * @throws InvalidConfigurationException
+     * @throws MissingInterfaceException
      */
-    public function getThrowsExceptionForMissingTargetClass()
+    public function testGetThrowsExceptionForMissingTargetClass(): void
     {
+        $this->expectExceptionCode(1451043513);
+        $this->expectException(MissingClassException::class);
         $identifier = 'foo';
         $settings = [
             'class' => 'NonExistingTargetClass'
@@ -144,12 +158,14 @@ class DataTargetFactoryTest extends UnitTestCase
     }
 
     /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\MissingInterfaceException
-     * @expectedExceptionCode 1451045997
+     * @throws MissingClassException
+     * @throws InvalidConfigurationException
+     * @throws MissingInterfaceException
      */
-    public function getThrowsExceptionForMissingInterface()
+    public function testGetThrowsExceptionForMissingInterface(): void
     {
+        $this->expectExceptionCode(1451045997);
+        $this->expectException(MissingInterfaceException::class);
         $identifier = 'foo';
         $settings = [
             'class' => DummyMissingTargetInterfaceClass::class
@@ -158,12 +174,14 @@ class DataTargetFactoryTest extends UnitTestCase
     }
 
     /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\MissingClassException
-     * @expectedExceptionCode 1451043367
+     * @throws MissingClassException
+     * @throws InvalidConfigurationException
+     * @throws MissingInterfaceException
      */
-    public function getThrowsExceptionForMissingObjectClass()
+    public function testGetThrowsExceptionForMissingObjectClass(): void
     {
+        $this->expectException(MissingClassException::class);
+        $this->expectExceptionCode(1451043367);
         $identifier = 'foo';
         $settings = [
             'object' => [
@@ -174,61 +192,52 @@ class DataTargetFactoryTest extends UnitTestCase
     }
 
     /**
-     * @test
+     * @throws MissingClassException
+     * @throws InvalidConfigurationException
+     * @throws MissingInterfaceException
      */
-    public function getReturnsDefaultDataTarget()
+    public function testGetReturnsDefaultDataTarget(): void
     {
         $identifier = 'foo';
         $objectClass = DummyTargetObjectClass::class;
-        $dataTargetClass = DataTargetFactory::DEFAULT_DATA_TARGET_CLASS;
-        $expectedDataTarget = $this->getMock(
-            $dataTargetClass,
-            [], [$objectClass]
-        );
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with($dataTargetClass, $objectClass);
-        $this->subject->injectObjectManager($mockObjectManager);
         $settings = [
             'object' => [
                 'class' => $objectClass
             ]
         ];
-        $this->subject->get($settings, $identifier);
+
+        $dataTarget = $this->subject->get($settings, $identifier);
+        self::assertInstanceOf(
+            DataTargetFactory::DEFAULT_DATA_TARGET_CLASS,
+            $dataTarget
+        );
     }
 
     /**
-     * @test
+     * @throws MissingClassException
+     * @throws InvalidConfigurationException
+     * @throws MissingInterfaceException
      */
-    public function getSetsIdentifierForIdentifiableTarget()
+    public function testGetSetsIdentifierForIdentifiableTarget(): void
     {
         $identifier = 'foo';
-        $dataSourceClass = DummyIdentifiableTargetInterfaceClass::class;
+        $dataTargetClass = DummyIdentifiableTargetInterfaceClass::class;
         $settings = [
-            'class' => $dataSourceClass,
+            'class' => $dataTargetClass,
             'identifier' => 'barSourceIdentifier',
             'config' => []
         ];
-        $mockDataSource = $this->getMock(
-            $dataSourceClass,
-            ['setIdentifier']
-        );
-        $mockDataSource->expects($this->once())
-            ->method('setIdentifier')
-            ->with($settings['identifier']);
-        /** @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject $mockObjectManager */
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with($dataSourceClass)
-            ->will($this->returnValue($mockDataSource));
-        $this->subject->injectObjectManager($mockObjectManager);
 
-        $this->subject->get($settings, $identifier);
+        $dataTarget = $this->subject->get($settings, $identifier);
+        if ($dataTarget instanceof DummyIdentifiableTargetInterfaceClass) {
+            self::assertSame(
+                $settings['identifier'],
+                $dataTarget->getIdentifier()
+            );
+        }
+
+        if (! $dataTarget instanceof DummyIdentifiableTargetInterfaceClass) {
+            $this->fail('Factory did not create an instance of the expected class');
+        }
     }
 }

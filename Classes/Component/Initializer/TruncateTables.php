@@ -1,9 +1,10 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
-use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\DatabaseTrait;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -39,61 +40,36 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @package CPSIT\T3importExport\Component\Initializer
  */
-class TruncateTables extends AbstractInitializer implements InitializerInterface, ConfigurableInterface
+class TruncateTables extends AbstractInitializer implements InitializerInterface
 {
-    use ConfigurableTrait;
+    use ConfigurableTrait,
+        DatabaseTrait;
 
-    /**
-     * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
-     */
-    protected $connectionService;
-
-    /**
-     * @var DatabaseConnection
-     */
-    protected $database;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        if (!$this->database instanceof DatabaseConnection) {
-            $this->database = $GLOBALS['TYPO3_DB'];
-        }
-    }
-
-    /**
-     * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
-     */
-    public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService)
-    {
-        $this->connectionService = $dbConnectionService;
-    }
+    public const KEY_TABLES = 'tables';
+    public const DELIMITER = ',';
 
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
-        if (isset($configuration['tables'])) {
+        if (isset($configuration[static::KEY_TABLES])) {
             $tables = GeneralUtility::trimExplode(
                 ',',
-                $configuration['tables'],
+                $configuration[static::KEY_TABLES],
                 true
             );
             if ((bool)$tables) {
                 foreach ($tables as $table) {
-                    $this->database->exec_TRUNCATEquery($table);
+                    $this->connectionPool->getConnectionForTable($table)
+                        ->truncate($table);
                 }
             }
         }
+
+        return true;
     }
 
     /**
@@ -102,23 +78,9 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['tables'])
-            || !is_string($configuration['tables'])) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !is_string($configuration['identifier'])
-        ) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
-        ) {
-            return false;
-        }
-
-        return true;
+        return (!empty($configuration[static::KEY_TABLES])
+            && is_string($configuration[static::KEY_TABLES]));
     }
 }

@@ -20,13 +20,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
+use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingInitializer
  * Dummy class for testing: Initializer implementing LoggingInterface
  */
-class LoggingInitializer extends AbstractInitializer implements LoggingInterface
+class LoggingInitializer extends AbstractInitializer implements InitializerInterface, LoggingInterface
 {
     /**
      * Gets all messages
@@ -37,12 +38,17 @@ class LoggingInitializer extends AbstractInitializer implements LoggingInterface
         return [];
     }
 
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
         return true;
     }

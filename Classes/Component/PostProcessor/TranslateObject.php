@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -18,16 +19,16 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\InvalidColumnMapException;
 use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
+use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Service\TranslationService;
-use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Persistence\Generic\Session;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Class TranslateObject
@@ -38,121 +39,34 @@ use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
 class TranslateObject extends AbstractPostProcessor implements PostProcessorInterface
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Service\TranslationService
-     */
-    protected $translationService;
+    protected TranslationService $translationService;
+    protected PersistenceManagerInterface $persistenceManager;
+    protected TranslateObjectConfigurationValidator $configurationValidator;
 
-    /**
-     * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
-     */
-    protected $persistenceManager;
-
-    /**
-     * @var PropertyMappingConfigurationBuilder
-     */
-    protected $propertyMappingConfigurationBuilder;
-
-    /**
-     * @var PropertyMappingConfiguration
-     */
-    protected $propertyMappingConfiguration;
-
-    /**
-     * @var TargetClassConfigurationValidator
-     */
-    protected $targetClassConfigurationValidator;
-
-    /**
-     * @var MappingConfigurationValidator
-     */
-    protected $mappingConfigurationValidator;
-
-    /**
-     * injects the property mapping configuration builder
-     *
-     * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
-     */
-    public function injectPropertyMappingConfigurationBuilder(PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder)
+    public function __construct(
+        PersistenceManagerInterface $persistenceManager = null,
+        TranslationService $translationService = null,
+        TranslateObjectConfigurationValidator $translateObjectConfigurationValidator = null
+    )
     {
-        $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
-    }
-
-    /**
-     * @param TranslationService $translationService
-     */
-    public function injectTranslationService(TranslationService $translationService)
-    {
-        $this->translationService = $translationService;
-    }
-
-    /**
-     * injects the TargetClassConfigurationValidator
-     *
-     * @param TargetClassConfigurationValidator $validator
-     */
-    public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator)
-    {
-        $this->targetClassConfigurationValidator = $validator;
-    }
-
-    /**
-     * injects the MappingConfigurationValidator
-     *
-     * @param MappingConfigurationValidator $validator
-     */
-    public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator)
-    {
-        $this->mappingConfigurationValidator = $validator;
-    }
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Property\TypeConverterInterface
-     */
-    protected $typeConverter;
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
-     */
-    public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager)
-    {
-        $this->persistenceManager = $persistenceManager;
-    }
-
-    /**
-     * @param PersistentObjectConverter $typeConverter
-     */
-    public function injectPersistentObjectConverter(PersistentObjectConverter $typeConverter)
-    {
-        $this->typeConverter = $typeConverter;
+        if (null === $persistenceManager) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            $this->persistenceManager = $objectManager->get(PersistenceManagerInterface::class);
+        }
+        $this->translationService = $translationService ?? GeneralUtility::makeInstance(TranslationService::class);
+        $this->configurationValidator = $translateObjectConfigurationValidator ?? GeneralUtility::makeInstance(TranslateObjectConfigurationValidator::class);
     }
 
     /**
      * Tells whether a given configuration is valid
      *
      * @param array $configuration
-     * @return bool
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['parentField'])
-            || !isset($configuration['language'])) {
-            return false;
-        }
-
-        if (isset($configuration['mapping'])) {
-            $mappingConfiguration = $configuration['mapping'];
-            if (isset($mappingConfiguration['targetClass'])
-                && !$this->targetClassConfigurationValidator->validate($mappingConfiguration)) {
-                return false;
-            }
-            if (isset($mappingConfiguration['config'])
-                && !$this->mappingConfigurationValidator->validate($mappingConfiguration)) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->configurationValidator->isValid($configuration);
     }
 
     /**
@@ -163,43 +77,30 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * @param DomainObjectInterface $convertedRecord
      * @param array $record
      * @return bool
+     * @throws InvalidColumnMapException
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
         $targetType = get_class($convertedRecord);
 
-        //Translate only if parent set and parent found by identity
-        if (isset($record[$configuration['parentField']])) {
-            $identity = $record[$configuration['parentField']];
-
-            $parentObject = $this->getLocalizationParent($identity, $targetType);
-
-            if ($parentObject) {
-                $this->translationService->translate(
-                    $parentObject,
-                    $convertedRecord,
-                    (int)$configuration['language']
-                );
-            }
+        if (!isset($record[$configuration['parentField']])) {
+            return false;
         }
-    }
+        $identity = $record[$configuration['parentField']];
 
-    /**
-     * @param $identity
-     * @param $targetType
-     * @return object
-     */
-    protected function getLocalizationParent($identity, $targetType)
-    {
-        $query = $this->persistenceManager->createQueryForType($targetType);
-        $querySettings = $query->getQuerySettings();
+        //Translate only if parent set and parent found by identity
+        $parentObject = $this->translationService->getLocalizationParent($identity, $targetType);
 
-        $querySettings->setIgnoreEnableFields(true);
-        $querySettings->setRespectStoragePage(false);
-        $querySettings->setLanguageUid(0);
-        $query->setQuerySettings($querySettings);
-        $parentObject = $query->matching($query->equals('uid', $identity))->execute()->getFirst();
+        if ($parentObject instanceof DomainObjectInterface) {
+            $this->translationService->translate(
+                $parentObject,
+                $convertedRecord,
+                (int)$configuration['language']
+            );
 
-        return $parentObject;
+            return true;
+        }
+
+        return false;
     }
 }

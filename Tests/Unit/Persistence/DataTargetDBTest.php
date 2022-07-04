@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 /***************************************************************
@@ -18,18 +19,39 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class DataTargetDBTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
  */
-class DataTargetDBTest extends UnitTestCase
+class DataTargetDBTest extends TestCase
 {
+    use MockDatabaseTrait;
+
+    public const VALID_CONFIG_EMPTY_FIELD = [
+        DataTargetDB::FIELD_TABLE => 'foo',
+        DataTargetDB::FIELD_SKIP => [
+            DataTargetDB::FIELD_IF_EMPTY => [
+                DataTargetDB::FIELD_FIELD => 'bar'
+            ]
+        ]
+    ];
+
+    public const VALID_CONFIG_NOT_EMPTY_FIELD = [
+        DataTargetDB::FIELD_TABLE => 'foo',
+        DataTargetDB::FIELD_SKIP => [
+            DataTargetDB::FIELD_IF_NOT_EMPTY => [
+                DataTargetDB::FIELD_FIELD => 'bar'
+            ]
+        ]
+    ];
+
     /**
      * @var DataTargetDB
      */
@@ -40,86 +62,153 @@ class DataTargetDBTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            DataTargetDB::class, ['dummy'], [], '', false
-        );
+        $this->mockConnectionService();
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+
+        $this->subject = new DataTargetDB($this->connectionPool, $this->connectionService);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function mockDatabase()
+    public function invalidConfigurationDataProvider(): array
     {
-        $mockDatabase = $this->getMock(
-            DatabaseConnection::class,
-            ['exec_INSERTquery', 'exec_UPDATEquery'],
-            [],
-            '', false
-        );
+        return [
+            'missing field table' => [
+                []
+            ],
+            'field `unsetKeys` is not string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_UNSET_KEYS => []
+                ]
+            ],
+            'skip must not be string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => 'bar'
+                ]
+            ],
+            'skip must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => []
+                ]
+            ],
+            'ifEmpty must not be string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => 'baz'
+                    ]
+                ]
+            ],
+            'ifEmpty must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => []
+                    ]
+                ]
+            ],
+            'ifNotEmpty must not be string' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => 'baz'
+                    ]
+                ]
+            ],
+            'ifNotEmpty must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => []
+                    ]
+                ]
+            ],
+            'ifEmpty.field must not be array' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => []
+                        ]
+                    ]
+                ]
+            ],
+            'ifEmpty.field must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => ''
+                        ]
+                    ]
+                ]
+            ],
+            'ifNotEmpty.field must not be array' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => []
+                        ]
+                    ]
+                ]
+            ],
+            'ifNotEmpty.field must not be empty' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_SKIP => [
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => [
+                            DataTargetDB::FIELD_FIELD => ''
+                        ]
+                    ]
+                ]
+            ],
 
-        $this->inject(
-            $this->subject,
-            'database',
-            $mockDatabase
-        );
-
-        return $mockDatabase;
-    }
-
-    /**
-     * @test
-     */
-    public function constructorSetsDatabase()
-    {
-        $GLOBALS['TYPO3_DB'] = $this->getMock(
-            DatabaseConnection::class, [], [], '', false
-        );
-
-        $this->subject->__construct();
-        $this->assertAttributeSame(
-            $GLOBALS['TYPO3_DB'],
-            'database',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseForMissingTable()
-    {
-        $configuration = [];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseIfUnsetKeysIsNotString()
-    {
-        $configuration = [
-            'table' => 'foo',
-            'unsetKeys' => []
         ];
+    }
 
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
+    /**
+     * @param array $invalidConfig
+     * @dataProvider invalidConfigurationDataProvider
+     */
+    public function testIsConfigurationValidReturnsFalseForInvalidConfig(array $invalidConfig): void
+    {
+        self::assertFalse(
+            $this->subject->isConfigurationValid($invalidConfig)
         );
     }
 
+    public function validConfigurationDataProvider(): array
+    {
+        return [
+            'minimal config' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo'
+                ]
+            ],
+            'table + unsetKeys ' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    DataTargetDB::FIELD_UNSET_KEYS => 'bar,baz'
+                ]
+            ],
+            'skip if field `bar` is empty' => [
+                self::VALID_CONFIG_EMPTY_FIELD
+            ],
+            'skip if field `bar` is not empty' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD
+            ],
+        ];
+    }
 
     /**
-     * @test
+     * @param array $configuration
+     * @dataProvider validConfigurationDataProvider
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
-        $configuration = [
-            'table' => 'foo',
-            'unsetKeys' => 'bar,baz'
-        ];
-
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
         );
@@ -130,22 +219,26 @@ class DataTargetDBTest extends UnitTestCase
      */
     public function persistUnSetsConfiguredKeys()
     {
-        $mockDatabase = $this->mockDatabase();
 
         $tableName = 'baz';
         $keyToUnset = 'foo';
         $configuration = [
-            'table' => $tableName,
-            'unsetKeys' => $keyToUnset
+            DataTargetDB::FIELD_TABLE => $tableName,
+            DataTargetDB::FIELD_UNSET_KEYS => $keyToUnset
         ];
 
         $record = [
             $keyToUnset => 'bar'
         ];
         $expectedRecord = [];
-        $mockDatabase->expects($this->once())
-            ->method('exec_INSERTquery')
-            ->with($tableName, $expectedRecord);
+        $this->connection->expects($this->once())
+            ->method('insert')
+            ->with(
+                ...[
+                    $tableName,
+                    $expectedRecord
+                ]
+            );
 
         $this->subject->persist(
             $record,
@@ -158,26 +251,29 @@ class DataTargetDBTest extends UnitTestCase
      */
     public function persistUpdatesRecordsWithIdentityKey()
     {
-        $mockDatabase = $this->mockDatabase();
-
         $tableName = 'baz';
         $configuration = [
-            'table' => $tableName,
+            DataTargetDB::FIELD_TABLE => $tableName,
         ];
 
         $identity = 'foo';
         $record = [
-            '__identity' => $identity,
+            DataTargetDB::DEFAULT_IDENTITY_FIELD => $identity,
             'barField' => 'boom'
         ];
 
-        $expectedWhereClause = 'uid = ' . $identity;
+        $expectedIdentifiers = ['uid' => $identity];
         $expectedRecord = [
             'barField' => 'boom'
         ];
-        $mockDatabase->expects($this->once())
-            ->method('exec_UPDATEquery')
-            ->with($tableName, $expectedWhereClause, $expectedRecord);
+        $this->connection->expects($this->once())
+            ->method('update')
+            ->with(
+                ...[
+                $tableName,
+                $expectedRecord,
+                $expectedIdentifiers
+            ]);
 
         $this->subject->persist(
             $record,
@@ -185,28 +281,46 @@ class DataTargetDBTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getDatabaseReturnsDatabaseFromConnectionService()
+    public function skipIfDataProvider(): array
     {
-        $identifier = 'foo';
-        $this->subject->setIdentifier($identifier);
-        /** @var DatabaseConnectionService | \PHPUnit_Framework_MockObject_MockObject $mockConnectionService */
-        $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class, ['getDatabase'], [], '', false
-        );
-        $mockDataBase = $this->getMock(
-            DatabaseConnection::class);
-        $this->subject->injectDatabaseConnectionService($mockConnectionService);
-        $mockConnectionService->expects($this->once())
-            ->method('getDatabase')
-            ->with($identifier)
-            ->will($this->returnValue($mockDataBase));
+        return [
+            // $configuration, $record
+            'skip b/c field `bar` is empty string' => [
+                self::VALID_CONFIG_EMPTY_FIELD,
+                ['bar' => '']
+            ],
+            'skip b/c field `bar` is empty array' => [
+                self::VALID_CONFIG_EMPTY_FIELD,
+                ['bar' => []]
+            ],
+            'skip b/c field `bar` is not empty string' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD,
+                ['bar' => 'lala']
+            ],
+            'skip b/c field `bar` is not empty array' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD,
+                ['bar' => ['baz']]
+            ],
+            'skip b/c field `bar` is not empty but float' => [
+                self::VALID_CONFIG_NOT_EMPTY_FIELD,
+                ['bar' => 3.12]
+            ],
+        ];
+    }
 
-        $this->assertSame(
-            $mockDataBase,
-            $this->subject->getDatabase()
+    /**
+     * @param array $configuration
+     * @param array $record
+     * @throws InvalidConfigurationException
+     * @dataProvider skipIfDataProvider
+     */
+    public function testPersistSkipsIfRecordMatchesCondition(array $configuration, array $record): void
+    {
+        self::assertFalse(
+            $this->subject->persist($record, $configuration)
         );
+
+        $this->connectionPool->expects(self::never())
+            ->method('getConnectionForTable');
     }
 }

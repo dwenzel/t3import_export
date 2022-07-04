@@ -28,17 +28,11 @@ class UnsetEmptyFields extends AbstractPreProcessor implements PreProcessorInter
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
-        if (
-            empty($configuration)
+        return !(empty($configuration)
             || !isset($configuration['fields'])
-            || empty($configuration['fields'])
-        ) {
-            return false;
-        }
-
-        return true;
+            || empty($configuration['fields']));
     }
 
     /**

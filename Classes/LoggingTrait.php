@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Trait LoggingTrait
@@ -26,7 +27,7 @@ use CPSIT\T3importExport\Messaging\MessageContainerTrait;
  */
 trait LoggingTrait
 {
-    use MessageContainerTrait, ObjectManagerTrait;
+    use MessageContainerTrait;
 
     /**
      * Returns error codes for current component.
@@ -37,7 +38,10 @@ trait LoggingTrait
      * 'errorDescription' may contain placeholder (%s) for arguments.
      * @return array
      */
-    abstract public function getErrorCodes();
+    public function getErrorCodes(): array
+    {
+        return static::ERROR_CODES;
+    }
 
     /**
      * Returns notice codes for current component.
@@ -49,7 +53,7 @@ trait LoggingTrait
      * 'description' may contain placeholder (%s) for arguments.
      * @return array
      */
-    public function getNoticeCodes()
+    public function getNoticeCodes(): array
     {
         return [];
     }
@@ -61,7 +65,7 @@ trait LoggingTrait
      * @param array $arguments Optional arguments. Will be used as arguments for formatted message.
      * @param array|null $additionalInformation Optional array with additional information
      */
-    public function logError($id, $arguments = null, array $additionalInformation = null)
+    public function logError($id, $arguments = null, array $additionalInformation = null): void
     {
         $codes = $this->getErrorCodes();
         $description = $this->renderDescription($id, $codes, $arguments, LoggingInterface::ERROR_UNKNOWN_MESSAGE);
@@ -77,7 +81,7 @@ trait LoggingTrait
      * @param array $arguments Optional arguments. Will be used as arguments for formatted message.
      * @param array|null $additionalInformation Optional array with additional information
      */
-    public function logNotice($id, $arguments = null, array $additionalInformation = null)
+    public function logNotice($id, $arguments = null, array $additionalInformation = null): void
     {
         $codes = $this->getNoticeCodes();
         $title = $this->renderTitle($id, $codes, LoggingInterface::NOTICE_UNKNOWN_TITLE);
@@ -95,10 +99,10 @@ trait LoggingTrait
      * @param null int $id
      * @param array|null $additionalInformation
      */
-    public function logMessage($title, $description, $severity = Message::OK, $id = null, array $additionalInformation = null)
+    public function logMessage($title, $description, $severity = Message::OK, $id = null, array $additionalInformation = null): void
     {
         /** @var Message $message */
-        $message = $this->objectManager->get(
+        $message = GeneralUtility::makeInstance(
             Message::class,
             $description,
             $title,
@@ -118,14 +122,14 @@ trait LoggingTrait
      * @param string $default Default description
      * @return string
      */
-    protected function renderDescription($id, $codes, $arguments, $default = LoggingInterface::DEFAULT_UNKNOWN_MESSAGE)
+    protected function renderDescription($id, $codes, ?array $arguments, $default = LoggingInterface::DEFAULT_UNKNOWN_MESSAGE): string
     {
         $description = $default;
         if (isset($codes[$id])) {
             $description = $codes[$id][1];
             if (null !== $arguments) {
                 array_unshift($arguments, $description);
-                $description = call_user_func_array('sprintf', $arguments);
+                $description = sprintf(...$arguments);
 
             }
         }

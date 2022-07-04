@@ -12,9 +12,9 @@ trait IdentifiableTrait
     /**
      * Unique identifier
      *
-     * @var string
+     * @var ?string
      */
-    protected $identifier;
+    protected ?string $identifier = null;
 
     /**
      * Sets the identifier

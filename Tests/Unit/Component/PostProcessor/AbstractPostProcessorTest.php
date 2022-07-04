@@ -1,8 +1,10 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -27,26 +29,23 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
  */
-class AbstractPostProcessorTest extends UnitTestCase
+class AbstractPostProcessorTest extends TestCase
 {
-
     /**
-     * @var \CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor
+     * @var AbstractPostProcessor|MockObject
      */
-    protected $subject;
+    protected AbstractPostProcessor $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMockForAbstractClass(
-            AbstractPostProcessor::class,
-            ['process'], '', false);
+        $this->subject = $this->getMockForAbstractClass(AbstractPostProcessor::class);
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsAlwaysTrue()
+    public function testIsConfigurationValidReturnsAlwaysTrue(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertTrue(

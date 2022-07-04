@@ -1,13 +1,14 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
-use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
+use CPSIT\T3importExport\MissingClassException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Object\UnknownClassException;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
 
 /***************************************************************
  *
@@ -35,6 +36,8 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  ***************************************************************/
 class DataTargetRepository implements DataTargetInterface
 {
+    public const MISSING_CLASS_EXCEPTION_CODE = 1641374612;
+    public const MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
 
     /**
      * Fully qualified class name of the object which should be persisted.
@@ -50,49 +53,33 @@ class DataTargetRepository implements DataTargetInterface
     protected $repository;
 
 
-    /**
-     * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
-     */
-    protected $persistenceManager;
+    protected PersistenceManagerInterface $persistenceManager;
 
-
-    /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
 
     /**
      * Constructor
      *
      * @param string $targetClass
+     * @param RepositoryInterface|null $repository
+     * @param PersistenceManagerInterface|null $persistenceManager
      */
-    public function __construct($targetClass)
+    public function __construct(string $targetClass, RepositoryInterface $repository = null, PersistenceManagerInterface $persistenceManager = null)
     {
         $this->targetClass = $targetClass;
-    }
-
-    /**
-     * injects the object manager
-     *
-     * @param ObjectManager $objectManager
-     */
-    public function injectObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
-     */
-    public function injectPersistenceManager(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager)
-    {
-        $this->persistenceManager = $persistenceManager;
+        $this->repository = $repository;
+        if ($persistenceManager === null) {
+            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
+                ->get(PersistenceManagerInterface::class);
+        }
+        if (null !== $persistenceManager) {
+            $this->persistenceManager = $persistenceManager;
+        }
     }
 
     /**
      * Persist both new and updated objects.
      *
-     * @param DomainObjectInterface $object Record to persist. Either an array or an instance of \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
+     * @param DomainObjectInterface|array $object Record to persist. Either an array or an instance of \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
      * @param array $configuration Configuration array.
      * @return mixed
      */
@@ -107,6 +94,36 @@ class DataTargetRepository implements DataTargetInterface
     }
 
     /**
+     * Gets the repository
+     *
+     * @return Repository
+     * @throws MissingClassException
+     */
+    public function getRepository(): Repository
+    {
+        if (!$this->repository instanceof Repository) {
+            $repositoryClass = str_replace('Model', 'Repository', $this->targetClass) . 'Repository';
+            if (class_exists($repositoryClass)) {
+                // fixme - This can not be tested easily
+                /** Repository $this->repository */
+                $this->repository = GeneralUtility::makeInstance($repositoryClass);
+            } else {
+                $message = sprintf(
+                    self::MISSING_CLASS_EXCEPTION_MESSAGE,
+                    $repositoryClass,
+                    $this->targetClass
+                );
+                throw new MissingClassException(
+                    $message,
+                    self::MISSING_CLASS_EXCEPTION_CODE
+                );
+            }
+        }
+
+        return $this->repository;
+    }
+
+    /**
      * @param array|null $result
      * @param array|null $configuration
      * @return mixed
@@ -114,28 +131,6 @@ class DataTargetRepository implements DataTargetInterface
     public function persistAll($result = null, array $configuration = null)
     {
         $this->persistenceManager->persistAll();
-    }
-
-
-    /**
-     * Gets the repository
-     *
-     * @return Repository
-     * @throws UnknownClassException
-     */
-    protected function getRepository()
-    {
-        if (!$this->repository instanceof Repository) {
-            $repositoryClass = str_replace('Model', 'Repository', $this->targetClass) . 'Repository';
-            if (class_exists($repositoryClass)) {
-                /** Repository $this->repository */
-                $this->repository = $this->objectManager->get($repositoryClass);
-            } else {
-                throw new UnknownClassException();
-            }
-        }
-
-        return $this->repository;
     }
 
     /**

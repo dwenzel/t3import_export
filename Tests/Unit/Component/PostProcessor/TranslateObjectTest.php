@@ -1,21 +1,22 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\TranslateObject;
-use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
-use CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter;
+use CPSIT\T3importExport\InvalidColumnMapException;
+use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
-use CPSIT\T3importExport\Service\TranslationService;
+use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use ReflectionException;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
-use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
 
 /***************************************************************
  *
@@ -41,70 +42,55 @@ use TYPO3\CMS\Extbase\Property\TypeConverterInterface;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TranslateObjectTest extends UnitTestCase
+class TranslateObjectTest extends TestCase
 {
 
+    protected TranslateObject $subject;
+
     /**
-     * @var \CPSIT\T3importExport\Component\PostProcessor\TranslateObject
+     * @var TargetClassConfigurationValidator|MockObject
      */
-    protected $subject;
+    protected TargetClassConfigurationValidator $targetClassConfigurationValidator;
+
+    /**
+     * @var MappingConfigurationValidator|MockObject
+     */
+    protected MappingConfigurationValidator $mappingConfigurationValidator;
+
+    /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface $persistenceManager;
+
+    /**
+     * @var TranslationService | MockObject
+     */
+    protected TranslationService $translationService;
+
+    /**
+     * @var TranslateObjectConfigurationValidator|MockObject
+     */
+    protected TranslateObjectConfigurationValidator $configurationValidator;
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            TranslateObject::class, ['dummy', 'emitSignal']
-        );
-    }
+        $this->persistenceManager = $this->getMockForAbstractClass(PersistenceManagerInterface::class);
+        $this->translationService = $this->getMockBuilder(TranslationService::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getLocalizationParent', 'translate'])
+            ->getMock();
+        $this->configurationValidator = $this->getMockBuilder(TranslateObjectConfigurationValidator::class)
+            ->setMethods(['isValid'])
+            ->getMock();
 
-    /**
-     * @test
-     */
-    public function injectTranslationServiceSetsService()
-    {
-        $mockService = new TranslationService();
-
-        $this->subject->injectTranslationService($mockService);
-        $this->assertAttributeSame(
-            $mockService,
-            'translationService',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectPersistenceManagerSetsPersistenceManager()
-    {
-        $mockPersistenceManager = $this->getMockForAbstractClass(
-            PersistenceManagerInterface::class
-        );
-
-        $this->subject->injectPersistenceManager($mockPersistenceManager);
-        $this->assertAttributeSame(
-            $mockPersistenceManager,
-            'persistenceManager',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectPersistentObjectConverterSetsTypeConverter()
-    {
-        $mockPersistentObjectConverter = $this->getMockForAbstractClass(
-            PersistentObjectConverter::class
-        );
-
-        $this->subject->injectPersistentObjectConverter($mockPersistentObjectConverter);
-        $this->assertAttributeSame(
-            $mockPersistentObjectConverter,
-            'typeConverter',
-            $this->subject
+        $this->subject = new TranslateObject(
+            $this->persistenceManager,
+            $this->translationService,
+            $this->configurationValidator
         );
     }
 
@@ -112,63 +98,13 @@ class TranslateObjectTest extends UnitTestCase
     /**
      * @test
      */
-    public function injectTargetClassConfigurationValidatorSetsValidator()
+    public function isConfigurationValidReturnsFalseFromValidator(): void
     {
-        $mockValidator = $this->getAccessibleMock(
-            TargetClassConfigurationValidator::class
-        );
-        $this->subject->injectTargetClassConfigurationValidator($mockValidator);
-
-        $this->assertAttributeSame(
-            $mockValidator,
-            'targetClassConfigurationValidator',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectMappingConfigurationValidatorSetsValidator()
-    {
-        $mockValidator = $this->getAccessibleMock(
-            MappingConfigurationValidator::class
-        );
-        $this->subject->injectMappingConfigurationValidator($mockValidator);
-
-        $this->assertAttributeSame(
-            $mockValidator,
-            'mappingConfigurationValidator',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function injectPropertyMappingConfigurationBuilderSetsBuilder()
-    {
-        $mockPropertyMappingConfigurationBuilder = $this->getMockForAbstractClass(
-            PropertyMappingConfigurationBuilder::class
-        );
-
-        $this->subject->injectPropertyMappingConfigurationBuilder($mockPropertyMappingConfigurationBuilder);
-        $this->assertAttributeSame(
-            $mockPropertyMappingConfigurationBuilder,
-            'propertyMappingConfigurationBuilder',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseForMissingParentField()
-    {
-        $config = [
-            'language' => 'foo'
-        ];
-
+        $config = ['bar' => 'foo'];
+        $this->configurationValidator->expects(self::once())
+            ->method('isValid')
+            ->with($config)
+            ->willReturn(false);
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
         );
@@ -177,170 +113,51 @@ class TranslateObjectTest extends UnitTestCase
     /**
      * @test
      */
-    public function isConfigurationValidReturnsFalseForMissingLanguageField()
+    public function isConfigurationValidReturnsTrueFromValidator(): void
     {
-        $config = [
-            'parentField' => 'foo'
-        ];
-
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($config)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidValidatesTargetClass()
-    {
-        $mockTargetClassValidator = $this->getAccessibleMock(
-            TargetClassConfigurationValidator::class,
-            ['validate']
-        );
-        $config = [
-            'parentField' => 'foo',
-            'language' => 'foo',
-            'mapping' => [
-                'targetClass' => 'bar'
-            ]
-        ];
-        $this->subject->injectTargetClassConfigurationValidator($mockTargetClassValidator);
-
-        $mockTargetClassValidator->expects($this->once())
-            ->method('validate')
-            ->with($config['mapping'])
-            ->will($this->returnValue(false));
-
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($config)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidValidatesMappingConfiguration()
-    {
-        $mockTargetClassValidator = $this->getAccessibleMock(
-            TargetClassConfigurationValidator::class,
-            ['validate']
-        );
-        $mockMappingConfigurationValidator = $this->getAccessibleMock(
-            MappingConfigurationValidator::class,
-            ['validate']
-        );
-        $config = [
-            'parentField' => 'foo',
-            'language' => 'foo',
-            'mapping' => [
-                'targetClass' => 'bar',
-                'config' => ['fooBar']
-            ]
-        ];
-        $this->subject->injectTargetClassConfigurationValidator($mockTargetClassValidator);
-        $this->subject->injectMappingConfigurationValidator($mockMappingConfigurationValidator);
-
-        $mockTargetClassValidator->expects($this->once())
-            ->method('validate')
-            ->with($config['mapping'])
-            ->will($this->returnValue(true));
-        $mockMappingConfigurationValidator->expects($this->once())
-            ->method('validate')
-            ->with($config['mapping'])
-            ->will($this->returnValue(false));
-
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($config)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
-    {
-        $config = [
-            'parentField' => 'foo',
-            'language' => 'foo',
-        ];
-
+        $config = ['bar' => 'foo'];
+        $this->configurationValidator->expects(self::once())
+            ->method('isValid')
+            ->with($config)
+            ->willReturn(true);
         $this->assertTrue(
             $this->subject->isConfigurationValid($config)
         );
     }
 
+
     /**
      * @test
+     * @throws ReflectionException
+     * @throws InvalidColumnMapException
      */
-    public function processConvertsParentIfParentFieldIsSet()
+    public function processConvertsParentIfParentFieldIsSet(): void
     {
         $identity = 1;
         $config = [
             'language' => '1',
             'parentField' => 'foo'
         ];
-        $mockRecord = [
+        $record = [
             'foo' => $identity
         ];
 
         $targetClass = DomainObjectInterface::class;
-        $mockObject = $this->getMock($targetClass);
-        $mockParent = $this->getMock($targetClass);
+        /** @var DomainObjectInterface|MockObject $convertedRecord */
+        $convertedRecord = $this->getMockForAbstractClass($targetClass);
+        $parentObject = $this->getMockForAbstractClass($targetClass);
 
-        $mockTranslationService = $this->getMock(
-                TranslationService::class, ['translate']);
-        $this->subject->injectTranslationService($mockTranslationService);
-        $mockPersistenceManager = $this->getMockForAbstractClass(
-            PersistenceManagerInterface::class
-        );
-        $this->subject->injectPersistenceManager($mockPersistenceManager);
+        $expectedTargetClass = get_class($convertedRecord);
 
-        $mockQuerySettings = $this->getMockForAbstractClass(QuerySettingsInterface::class);
-        $mockComparison = $this->getMockForAbstractClass(ComparisonInterface::class);
-        $mockQueryResult = $this->getMockForAbstractClass(QueryResultInterface::class);
-        $mockQuery = $this->getMockForAbstractClass(QueryInterface::class);
-
-        $mockQuery->expects($this->any())
-            ->method('getQuerySettings')
-            ->will($this->returnValue($mockQuerySettings));
-        $mockQuery->expects($this->once())
-            ->method('equals')
-            ->with('uid', $identity)
-            ->will($this->returnValue($mockComparison));
-        $mockQuery->expects($this->once())
-            ->method('matching')
-            ->with($mockComparison)
-            ->will($this->returnValue($mockQuery));
-        $mockQuery->expects($this->once())
-            ->method('execute')
-            ->will($this->returnValue($mockQueryResult));
-        $mockQuery->expects($this->once())
-            ->method('setQuerySettings')
-            ->with($mockQuerySettings);
-        $mockQueryResult->expects($this->once())
-            ->method('getFirst')
-            ->will($this->returnValue($mockParent));
-        $mockQuerySettings->expects($this->once())
-            ->method('setIgnoreEnableFields')
-            ->with(true);
-        $mockQuerySettings->expects($this->once())
-            ->method('setRespectStoragePage')
-            ->with(false);
-        $mockQuerySettings->expects($this->once())
-            ->method('setLanguageUid')
-            ->with(0);
-        $mockTranslationService->expects($this->once())
-                ->method('translate')
-                ->with($mockParent, $mockObject, 1);
-        $mockPersistenceManager->expects($this->once())
-            ->method('createQueryForType')
-            ->with(get_class($mockObject))
-            ->will($this->returnValue($mockQuery));
+            $this->translationService->expects($this->once())
+            ->method('getLocalizationParent')
+            ->with(...[$identity, $expectedTargetClass])
+            ->willReturn($parentObject);
 
         $this->subject->process(
             $config,
-            $mockObject,
-            $mockRecord
+            $convertedRecord,
+            $record
         );
     }
 }

@@ -26,7 +26,9 @@
 
 namespace CPSIT\T3importExport\Domain\Model;
 
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class TaskResult implements \Iterator
 {
@@ -55,13 +57,15 @@ class TaskResult implements \Iterator
 
     /**
      * TaskResult constructor.
+     * @param MessageContainer|null $messageContainer
      */
-    public function __construct()
+    public function __construct(MessageContainer $messageContainer = null)
     {
         $this->list = [];
         $this->position = 0;
         $this->size = 0;
         $this->info = null;
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
     }
 
     /**

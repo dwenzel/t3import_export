@@ -4,8 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -31,11 +30,11 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class AbstractComponentTest extends UnitTestCase
+class AbstractComponentTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Component\AbstractComponent
+     * @var AbstractComponent
      */
     protected $subject;
 
@@ -44,9 +43,9 @@ class AbstractComponentTest extends UnitTestCase
      */
     public function setUp()
     {
-        $this->subject = $this->getMockForAbstractClass(
-            AbstractComponent::class, [], '', true, true, true, ['renderContent']
-        );
+        $this->subject = $this->getMockBuilder(AbstractComponent::class)
+            ->setMethods(['renderContent'])
+            ->getMockForAbstractClass();
     }
 
     /**
@@ -70,24 +69,6 @@ class AbstractComponentTest extends UnitTestCase
                 ['disable' => 'foo'], false
             ]
         ];
-    }
-
-    /**
-     * @test
-     * @cover ::injectSignalSlotDispatcher
-     */
-    public function injectSignalSlotDispatcherSetsDispatcher()
-    {
-        $mockDispatcher = $this->getMock(
-            Dispatcher::class
-        );
-
-        $this->subject->injectSignalSlotDispatcher($mockDispatcher);
-        $this->assertAttributeSame(
-            $mockDispatcher,
-            'signalSlotDispatcher',
-            $this->subject
-        );
     }
 
     /**
@@ -152,6 +133,6 @@ class AbstractComponentTest extends UnitTestCase
             ->getMock();
         $result->expects($this->once())->method('hasMessageWithId')
             ->willReturn(true);
-        $this->subject->isDisabled($configuration, null, $result);
+        $this->subject->isDisabled($configuration, [], $result);
     }
 }

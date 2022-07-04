@@ -1,15 +1,18 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\Persistence\DataSourceDB;
-use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Persistence\DataSourceDB;
+use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\RenderContentTrait;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -35,7 +38,7 @@ use CPSIT\T3importExport\RenderContentTrait;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataSourceFactory extends AbstractFactory
+class DataSourceFactory extends AbstractFactory implements FactoryInterface
 {
     use RenderContentTrait;
 
@@ -47,11 +50,11 @@ class DataSourceFactory extends AbstractFactory
      * @param array $settings Configuration for the data source
      * @param string $identifier Identifier
      * @return DataSourceInterface
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
-     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
      * @throws MissingInterfaceException
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], $identifier = null): DataSourceInterface
     {
         $dataSourceClass = self::DEFAULT_DATA_SOURCE_CLASS;
         if (isset($settings['class'])) {
@@ -70,7 +73,10 @@ class DataSourceFactory extends AbstractFactory
                 1451061361
             );
         }
-        if (!isset($settings['config'])) {
+        // fixme: We should test for implementation of ConfigurableInterface here and use an empty default config
+        if (
+            in_array(ConfigurableInterface::class, class_implements($dataSourceClass))
+            && !isset($settings['config'])) {
             throw new InvalidConfigurationException(
                 'Missing configuration option config for class ' .
                 $dataSourceClass,
@@ -78,18 +84,24 @@ class DataSourceFactory extends AbstractFactory
             );
         }
 
-        $dataSource = $this->objectManager->get($dataSourceClass);
+        /** @var DataSourceInterface $dataSource */
+        $dataSource = GeneralUtility::makeInstance($dataSourceClass);
         if (
-            in_array(IdentifiableInterface::class, class_implements($dataSourceClass))
+            in_array(IdentifiableInterface::class, class_implements($dataSourceClass), true)
             && isset($settings['identifier'])
         ) {
             /** @var IdentifiableInterface $dataSource */
             $dataSource->setIdentifier($settings['identifier']);
         }
 
-        $dataSource->setConfiguration(
-            $settings['config']
-        );
+        if (
+            in_array(ConfigurableInterface::class, class_implements($dataSourceClass))
+        )
+        {
+            $dataSource->setConfiguration(
+                $settings['config']
+            );
+        }
 
         return $dataSource;
     }

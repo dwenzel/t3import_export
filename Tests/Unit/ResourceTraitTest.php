@@ -5,7 +5,7 @@ use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -31,14 +31,15 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ResourceTraitTest extends UnitTestCase
+class ResourceTraitTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Resource\ResourceTrait
+     * @var ResourceTrait
      */
     protected $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
         $this->subject = $this->getMockForTrait(
@@ -50,22 +51,7 @@ class ResourceTraitTest extends UnitTestCase
     /**
      * @test
      */
-    public function pathValidatorCanBeInjected()
-    {
-        $pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->getMock();
-        $this->subject->injectResourcePathConfigurationValidator($pathValidator);
-        $this->assertAttributeSame(
-            $pathValidator,
-            'pathValidator',
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function loadResourceGetsFileResource()
+    public function loadResourceGetsFileResource(): void
     {
         $fileContent = 'foo';
 
@@ -84,8 +70,8 @@ class ResourceTraitTest extends UnitTestCase
 
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
-            ->with($relativePath)
-            ->will($this->returnValue(vfsStream::url($relativePath)));
+            ->with(...[$relativePath])
+            ->willReturn(vfsStream::url($relativePath));
 
         $this->assertSame(
             $fileContent,

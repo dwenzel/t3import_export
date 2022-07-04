@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 /**
@@ -15,7 +16,6 @@ namespace CPSIT\T3importExport\Component\Initializer;
  */
 
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
 
 /**
  * Class DeleteFromTable
@@ -33,16 +33,17 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
      * @param array $records Array with prepared records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
         $table = $configuration['table'];
         $where = $configuration['where'];
+        $this->connectionPool->getConnectionForTable($table)
+            ->createQueryBuilder()
+            ->delete($table)
+            ->where($where)
+            ->execute();
 
-        return (bool)$this->database->exec_DELETEquery($table, $where);
+        return true;
     }
 
     /**
@@ -51,7 +52,7 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['table'])
             || !is_string($configuration['table'])
@@ -61,12 +62,6 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
 
         if (!isset($configuration['where'])
             || !is_string($configuration['where'])
-        ) {
-            return false;
-        }
-
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
         ) {
             return false;
         }

@@ -1,14 +1,21 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence;
 
+use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\MissingDatabaseException;
+use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -27,7 +34,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataSourceDB implements DataSourceInterface, IdentifiableInterface, RenderContentInterface
+class DataSourceDB implements DataSourceInterface, ConfigurableInterface, IdentifiableInterface, RenderContentInterface
 {
     use IdentifiableTrait, ConfigurableTrait, RenderContentTrait,
         DatabaseTrait;
@@ -36,20 +43,20 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      * Unique identifier of the database connection to use.
      * This connection must be registered with the connection service.
      *
-     * @var string
+     * @var string|null
      */
-    protected $identifier;
+    protected ?string $identifier = null;
 
     /**
      * Gets the database connection
      *
-     * @return DatabaseConnection
-     * @throws \CPSIT\T3importExport\MissingDatabaseException
+     * @return Connection
+     * @throws MissingDatabaseException|DBALException
      */
     public function getDatabase()
     {
         if (
-            !$this->database instanceof DatabaseConnection
+            !$this->database instanceof Connection
             || (
                 !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
             )
@@ -65,45 +72,30 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      *
      * @param array $configuration source query configuration
      * @return array Array of records from database or empty array
+     * @throws InvalidConfigurationException
+     * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): array
     {
-        $queryConfiguration = [
-            'fields' => '*',
-            'where' => '',
-            'groupBy' => '',
-            'orderBy' => '',
-            'limit' => ''
-        ];
-
-        ArrayUtility::mergeRecursiveWithOverrule(
-            $queryConfiguration,
-            $configuration,
-            true,
-            false
-        );
-
-        foreach ($queryConfiguration as $key => $value) {
-            if (is_array($value)) {
-                $renderedValue = $this->renderContent([], $value);
-                if (!is_null($renderedValue)) {
-                    $queryConfiguration[$key] = $renderedValue;
-                }
-            }
-        }
-        $records = $this->getDatabase()->exec_SELECTgetRows(
-            $queryConfiguration['fields'],
-            $queryConfiguration['table'],
-            $queryConfiguration['where'],
-            $queryConfiguration['groupBy'],
-            $queryConfiguration['orderBy'],
-            $queryConfiguration['limit']
-        );
-        if ($records !== null) {
-            return $records;
+        $records = [];
+        if (!$this->isConfigurationValid($configuration)) {
+            throw new InvalidConfigurationException();
         }
 
-        return [];
+        $queryConfiguration = $this->renderValues($configuration);
+
+        try {
+            $query = (new SelectQuery())
+                ->withConfiguration($queryConfiguration)
+                ->setQuery()
+                ->build();
+
+            $records = $query->execute()->fetchAllAssociative();
+        } catch (Exception $exception) {
+            // todo: log error
+        }
+
+        return $records;
     }
 
     /**
@@ -112,14 +104,27 @@ class DataSourceDB implements DataSourceInterface, IdentifiableInterface, Render
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['table'])
-            || !is_string($configuration['table'])
-        ) {
-            return false;
-        }
+        return !(!isset($configuration['table'])
+            || !is_string($configuration['table']));
+    }
 
-        return true;
+    /**
+     * @param array $queryConfiguration
+     * @return array
+     * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
+     */
+    protected function renderValues(array $queryConfiguration): array
+    {
+        foreach ($queryConfiguration as $key => $value) {
+            if (is_array($value)) {
+                $renderedValue = $this->renderContent([], $value);
+                if (!is_null($renderedValue)) {
+                    $queryConfiguration[$key] = $renderedValue;
+                }
+            }
+        }
+        return $queryConfiguration;
     }
 }

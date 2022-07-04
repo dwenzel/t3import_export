@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Persistence;
 
+use CPSIT\T3importExport\Component\ComponentInterface;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
 /**
@@ -10,7 +11,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  *
  * @package CPSIT\T3importExport\Persistence
  */
-interface DataTargetInterface
+interface DataTargetInterface extends ComponentInterface
 {
     /**
      * Persist both new and updated records.

@@ -1,8 +1,14 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockContentObjectRendererTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptFrontendControllerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /***************************************************************
  *  Copyright notice
@@ -28,37 +34,26 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
  */
-class ConcatenateFieldsTest extends UnitTestCase
+class ConcatenateFieldsTest extends TestCase
 {
+    use MockTypoScriptFrontendControllerTrait,
+        MockContentObjectRendererTrait;
 
-    /**
-     * @var \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
-     */
-    protected $subject;
+    protected ConcatenateFields $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\ConcatenateFields',
-            ['dummy'], [], '', false);
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    public function mockContentObjectRenderer()
-    {
-        $mockContentObjectRenderer = $this->getMock(
-            ContentObjectRenderer::class, ['wrap', 'noTrimWrap']
-        );
-        $this->subject->injectContentObjectRenderer($mockContentObjectRenderer);
-        return $mockContentObjectRenderer;
+        $this->mockTypoScriptFrontendController();
+        $this->mockContentObjectRenderer();
+        $this->subject = new ConcatenateFields($this->contentObjectRenderer);
     }
 
     /**
      * @test
      * @covers ::process
      */
-    public function processConcatenatesFieldValues()
+    public function processConcatenatesFieldValues(): void
     {
         $mockRecord = [
             'fooField' => 'foo',
@@ -85,7 +80,7 @@ class ConcatenateFieldsTest extends UnitTestCase
      * @test
      * @covers ::process
      */
-    public function processWrapsFieldValues()
+    public function processWrapsFieldValues(): void
     {
         $originalFieldValue = 'foo';
         $wrapConfiguration = 'baz-|-boom';
@@ -102,11 +97,10 @@ class ConcatenateFieldsTest extends UnitTestCase
                 ],
             ]
         ];
-        $mockContentObjectRenderer = $this->mockContentObjectRenderer();
-        $mockContentObjectRenderer->expects($this->once())
+        $this->contentObjectRenderer->expects($this->once())
             ->method('wrap')
-            ->with($originalFieldValue, $wrapConfiguration)
-            ->will($this->returnValue($wrappedFieldValue));
+            ->with(...[$originalFieldValue, $wrapConfiguration])
+            ->willReturn($wrappedFieldValue);
 
         $expectedResult = [
             'fooField' => $wrappedFieldValue,
@@ -120,7 +114,7 @@ class ConcatenateFieldsTest extends UnitTestCase
      * @test
      * @covers ::process
      */
-    public function processNoTrimWrapsFieldValues()
+    public function processNoTrimWrapsFieldValues(): void
     {
         $originalFieldValue = 'foo';
         $wrapConfiguration = 'baz- | -boom';
@@ -137,11 +131,10 @@ class ConcatenateFieldsTest extends UnitTestCase
                 ],
             ]
         ];
-        $mockContentObjectRenderer = $this->mockContentObjectRenderer();
-        $mockContentObjectRenderer->expects($this->once())
+        $this->contentObjectRenderer->expects($this->once())
             ->method('noTrimWrap')
-            ->with($originalFieldValue, $wrapConfiguration)
-            ->will($this->returnValue($wrappedFieldValue));
+            ->with(...[$originalFieldValue, $wrapConfiguration])
+            ->willReturn($wrappedFieldValue);
 
         $expectedResult = [
             'fooField' => $wrappedFieldValue,
@@ -155,7 +148,7 @@ class ConcatenateFieldsTest extends UnitTestCase
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet()
+    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertFalse(
@@ -167,7 +160,7 @@ class ConcatenateFieldsTest extends UnitTestCase
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString()
+    public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString(): void
     {
         $mockConfiguration = [
             'targetField' => 1,
@@ -182,7 +175,7 @@ class ConcatenateFieldsTest extends UnitTestCase
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotSet()
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotSet(): void
     {
         $mockConfiguration = [
             'targetField' => 'foo'
@@ -196,7 +189,7 @@ class ConcatenateFieldsTest extends UnitTestCase
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $mockConfiguration = [
             'targetField' => 'foo',
@@ -211,7 +204,7 @@ class ConcatenateFieldsTest extends UnitTestCase
      * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function isConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $validConfiguration = [
             'targetField' => 'foo',

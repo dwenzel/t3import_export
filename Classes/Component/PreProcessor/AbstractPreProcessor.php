@@ -40,7 +40,7 @@ abstract class AbstractPreProcessor extends AbstractComponent
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }

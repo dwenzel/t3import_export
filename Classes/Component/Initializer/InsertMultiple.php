@@ -14,6 +14,7 @@ namespace CPSIT\T3importExport\Component\Initializer;
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use Exception;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -31,7 +32,7 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!(isset($configuration['table']) && is_string($configuration['table']))) {
             return false;
@@ -40,14 +41,6 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
             return false;
         }
         if (!(isset($configuration['rows']) && is_array($configuration['rows']))) {
-            return false;
-        }
-        if (isset($configuration['identifier']) && !is_string($configuration['identifier'])) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
-        ) {
             return false;
         }
 
@@ -60,19 +53,21 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
      * @param array $records
      * @return bool
      */
-    public function process($configuration, &$records)
+    public function process(array $configuration, array &$records): bool
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
         $table = $configuration['table'];
         $fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         $values = [];
         foreach ($configuration['rows'] as $row) {
             $values[] = GeneralUtility::trimExplode(',', $row, true);
         }
+        try {
+            $this->connectionPool->getConnectionForTable($table)
+                ->bulkInsert($table, $values, $fields);
+        } catch (Exception $exception) {
+            return false;
+        }
 
-        return (bool) $this->database->exec_INSERTmultipleRows($table, $fields, $values);
+        return true;
     }
 }

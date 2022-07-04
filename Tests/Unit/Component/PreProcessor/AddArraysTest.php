@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -19,27 +20,23 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
 use CPSIT\T3importExport\Component\PreProcessor\AddArrays;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class AddArraysTest
  */
-class AddArraysTest extends UnitTestCase
+class AddArraysTest extends TestCase
 {
-    /**
-     * @var AddArrays
-     */
-    protected $subject;
+    protected AddArrays $subject;
 
     /**
      * Set up subject
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            AddArrays::class, ['dummy']
-        );
+        $this->subject = new AddArrays();
     }
 
     /**
@@ -47,7 +44,7 @@ class AddArraysTest extends UnitTestCase
      *
      * @return array
      */
-    public function isConfigurationValidDataProvider()
+    public function isConfigurationValidDataProvider(): array
     {
         return [
             [
@@ -81,20 +78,21 @@ class AddArraysTest extends UnitTestCase
             [
                 // valid configuration
                 [
-                'targetField' => 'foo',
-                'fields' => 'bar,baz',
+                    'targetField' => 'foo',
+                    'fields' => 'bar,baz',
                 ],
                 true
             ]
         ];
     }
+
     /**
      * @test
      * @dataProvider isConfigurationValidDataProvider
      * @param array $configuration
      * @param bool $result
      */
-    public function configurationIsValidatedCorrectly($configuration, $result)
+    public function configurationIsValidatedCorrectly($configuration, $result): void
     {
         $this->assertEquals(
             $result,
@@ -106,7 +104,7 @@ class AddArraysTest extends UnitTestCase
      * provides data for processing
      * @return array
      */
-    public function processDataProvider()
+    public function processDataProvider(): array
     {
         return [
             [
@@ -181,7 +179,7 @@ class AddArraysTest extends UnitTestCase
      * @param array $record
      * $param array $result
      */
-    public function processAddsArrays($record, $result)
+    public function processAddsArrays($record, $result): void
     {
         $configuration = [
             'targetField' => 'foo',

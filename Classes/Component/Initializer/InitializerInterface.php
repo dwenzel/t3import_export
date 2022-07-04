@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Component\Initializer;
 
+use CPSIT\T3importExport\Component\ComponentInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 /**
@@ -8,20 +9,20 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
  *
  * @package CPSIT\T3importExport\Component\Initializer
  */
-interface InitializerInterface
+interface InitializerInterface extends ComponentInterface
 {
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
      * @return bool
      */
-    public function process($configuration, &$records);
+    public function process(array $configuration, array &$records): bool;
 
     /**
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration);
+    public function isConfigurationValid(array $configuration): bool;
 
     /**
      * Tells if the component is disabled
@@ -30,7 +31,7 @@ interface InitializerInterface
      * @param TaskResult|\Iterator|array $result
      * @return mixed
      */
-    public function isDisabled($configuration, $record = null, TaskResult $result = null);
+    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool;
 
     /**
      * Sets the configuration
@@ -43,7 +44,7 @@ interface InitializerInterface
     /**
      * Returns the configuration
      *
-     * @return array | null
+     * @return array
      */
-    public function getConfiguration();
+    public function getConfiguration(): array;
 }

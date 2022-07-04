@@ -1,6 +1,11 @@
 <?php
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
+
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -20,6 +25,14 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  ***************************************************************/
 class RenderContent extends AbstractPreProcessor implements PreProcessorInterface
 {
+    public function __construct(
+        ContentObjectRenderer $contentObjectRenderer = null,
+        TypoScriptService $typoScriptService = null)
+    {
+        $this->contentObjectRenderer = $contentObjectRenderer ?? $this->getContentObjectRenderer();
+        $this->typoScriptService = $typoScriptService ?? GeneralUtility::makeInstance(TypoScriptService::class);
+    }
+
     /**
      * @param array $configuration
      * @param array $record
@@ -38,7 +51,7 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
             return false;
@@ -61,8 +74,9 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
      * @param $configuration
      * @param $record
      * @return array
+     * @throws ContentRenderingException
      */
-    protected function renderFields($configuration, &$record)
+    protected function renderFields($configuration, &$record): ?array
     {
         foreach ($configuration['fields'] as $fieldName => $localConfiguration) {
             if (isset($localConfiguration['multipleRows'])) {
@@ -73,6 +87,8 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
                 foreach ($childRecords as $key => &$childRecord) {
                     $this->renderFields($localConfiguration, $childRecord);
                 }
+                unset($childRecord);
+
                 $record[$fieldName] = $childRecords;
             } elseif (isset($localConfiguration['singleRow'])) {
                 $record[$fieldName] = $this->renderFields($localConfiguration, $record[$fieldName]);
@@ -80,5 +96,6 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
                 $record[$fieldName] = $this->renderContent($record, $localConfiguration);
             }
         }
+        return $record;
     }
 }

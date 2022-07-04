@@ -1,11 +1,13 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Property;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -31,89 +33,47 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  * @package CPSIT\T3importExport\Tests\Property
  * @coversDefaultClass \CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder
  */
-class PropertyMappingConfigurationBuilderTest extends UnitTestCase
+class PropertyMappingConfigurationBuilderTest extends TestCase
 {
+    protected PropertyMappingConfigurationBuilder $subject;
+    protected PropertyMappingConfiguration $propertyMappingConfiguration;
 
-    /**
-     * @var \CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder
-     */
-    protected $subject;
-
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            'CPSIT\\T3importExport\\Property\\PropertyMappingConfigurationBuilder',
-            ['dummy'], [], '', false);
+        $this->subject = new PropertyMappingConfigurationBuilder();
+        $this->propertyMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
+            ->setMethods(
+                [
+                    'allowAllProperties',
+                    'allowProperties',
+                    'setTypeConverterOptions',
+                    'skipUnknownProperties',
+                ]
+            )
+            ->getMock();
+        GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
+    }
+
+    public function tearDown()
+    {
+        GeneralUtility::purgeInstances();
     }
 
     /**
      * @test
-     * @covers ::injectObjectManager
      */
-    public function injectObjectManagerForObjectSetsObjectManager()
+    public function buildSetsDefaultTypeConverterClassAndOptions(): void
     {
-        /** @var ObjectManager $mockObjectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            [], [], '', false);
-
-        $this->subject->injectObjectManager($mockObjectManager);
-
-        $this->assertSame(
-            $mockObjectManager,
-            $this->subject->_get('objectManager')
-        );
-    }
-
-    /**
-     * @test
-     * @covers ::build
-     */
-    public function buildReturnsPropertyMappingConfiguration()
-    {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration'
-        );
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
         $configuration = [];
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with('TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration')
-            ->will($this->returnValue($mockMappingConfiguration));
-        $this->assertSame(
-            $mockMappingConfiguration,
-            $this->subject->build($configuration)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function buildSetsDefaultTypeConverterClassAndOptions()
-    {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['setTypeConverterOptions'], [], '', false
-        );
-        $configuration = [];
-        $defaultTypeConverterClass = 'TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\PersistentObjectConverter';
+        $defaultTypeConverterClass = PersistentObjectConverter::class;
         $defaultTypeConverterOptions = [
             PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
             PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
         ];
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
-
-        $mockMappingConfiguration->expects($this->once())
+        $this->propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
-            ->with($defaultTypeConverterClass, $defaultTypeConverterOptions);
+            ->with(...[$defaultTypeConverterClass, $defaultTypeConverterOptions]);
 
         $this->subject->build($configuration);
     }
@@ -121,12 +81,8 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
     /**
      * @test
      */
-    public function buildSetsTypeConverterClassFromConfiguration()
+    public function buildSetsTypeConverterClassFromConfiguration(): void
     {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['setTypeConverterOptions'], [], '', false
-        );
         $typeConverterClass = 'foo';
         $configuration = [
             'typeConverter' => [
@@ -137,17 +93,10 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
             PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
             PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
         ];
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
 
-        $mockMappingConfiguration->expects($this->once())
+        $this->propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
-            ->with($typeConverterClass, $defaultTypeConverterOptions);
+            ->with(...[$typeConverterClass, $defaultTypeConverterOptions]);
 
         $this->subject->build($configuration);
     }
@@ -155,12 +104,8 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
     /**
      * @test
      */
-    public function buildSetsTypeConverterOptionsFromConfiguration()
+    public function buildSetsTypeConverterOptionsFromConfiguration(): void
     {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['setTypeConverterOptions'], [], '', false
-        );
         $typeConverterOptions = [
             PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => false,
             PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
@@ -170,18 +115,12 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
                 'options' => $typeConverterOptions
             ]
         ];
-        $defaultTypeConverterClass = 'TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\PersistentObjectConverter';
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
+        $defaultTypeConverterClass = PersistentObjectConverter::class;
+        GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
 
-        $mockMappingConfiguration->expects($this->once())
+        $this->propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
-            ->with($defaultTypeConverterClass, $typeConverterOptions);
+            ->with(...[$defaultTypeConverterClass, $typeConverterOptions]);
 
         $this->subject->build($configuration);
     }
@@ -189,22 +128,11 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
     /**
      * @test
      */
-    public function buildSetsSkipUnknownProperties()
+    public function buildSetsSkipUnknownProperties(): void
     {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['skipUnknownProperties'], [], '', false
-        );
         $configuration = [];
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
 
-        $mockMappingConfiguration->expects($this->once())
+        $this->propertyMappingConfiguration->expects($this->once())
             ->method('skipUnknownProperties');
 
         $this->subject->build($configuration);
@@ -213,27 +141,16 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
     /**
      * @test
      */
-    public function buildSetsAllowPropertiesFromConfiguration()
+    public function buildSetsAllowPropertiesFromConfiguration(): void
     {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['allowProperties'], [], '', false
-        );
         $configuration = [
             'allowProperties' => 'foo,bar'
         ];
+        GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
 
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
-
-        $mockMappingConfiguration->expects($this->once())
+        $this->propertyMappingConfiguration->expects($this->once())
             ->method('allowProperties')
-            ->with('foo', 'bar');
+            ->with(...['foo', 'bar']);
 
         $this->subject->build($configuration);
     }
@@ -241,23 +158,11 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
     /**
      * @test
      */
-    public function buildInitiallyDoesNotSetsAllowProperties()
+    public function buildInitiallyDoesNotSetsAllowProperties(): void
     {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['allowProperties'], [], '', false
-        );
         $configuration = [];
 
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
-
-        $mockMappingConfiguration->expects($this->never())
+        $this->propertyMappingConfiguration->expects($this->never())
             ->method('allowProperties');
 
         $this->subject->build($configuration);
@@ -267,13 +172,13 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
      * @test
      * @covers ::getProperties
      */
-    public function getPropertiesInitiallyReturnsEmptyArray()
+    public function getPropertiesInitiallyReturnsEmptyArray(): void
     {
         $configuration = [];
         $expectedResult = [];
-        $this->assertEquals(
+        self::assertSame(
             $expectedResult,
-            $this->subject->_call('getProperties', $configuration)
+            $this->subject->getProperties($configuration)
         );
     }
 
@@ -282,7 +187,7 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
      * @test
      * @covers ::getProperties
      */
-    public function getPropertiesInitiallyReturnsPropertiesFromConfiguration()
+    public function getPropertiesInitiallyReturnsPropertiesFromConfiguration(): void
     {
         $configuration = [
             'properties' => [
@@ -295,7 +200,7 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
 
         $this->assertEquals(
             $expectedResult,
-            $this->subject->_call('getProperties', $configuration)
+            $this->subject->getProperties($configuration)
         );
     }
 
@@ -303,15 +208,11 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
      * @test
      * @covers ::build
      */
-    public function buildConfiguresAllowedProperties()
+    public function buildConfiguresAllowedProperties(): void
     {
-        $subject = $this->getAccessibleMock(
-            'CPSIT\\T3importExport\\Property\\PropertyMappingConfigurationBuilder',
-            ['configure'], [], '', false);
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['allowProperties'], [], '', false
-        );
+        $this->subject = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)
+            ->setMethods(['configure'])
+            ->getMock();
         $configuration = [
             'allowProperties' => 'foo',
             'properties' => [
@@ -320,41 +221,20 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
                 ]
             ]
         ];
-
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
-        $subject->expects($this->once())
+        $this->subject->expects($this->once())
             ->method('configure')
-            ->with($configuration, $mockMappingConfiguration);
+            ->with(...[$configuration, $this->propertyMappingConfiguration]);
 
-        $subject->build($configuration);
+        $this->subject->build($configuration);
     }
 
     /**
      * @test
      */
-    public function buildInitiallyDoesNotAllowAllProperties()
+    public function buildInitiallyDoesNotAllowAllProperties(): void
     {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['allowAllProperties'], [], '', false
-        );
         $configuration = [];
-
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
-
-        $mockMappingConfiguration->expects($this->never())
+        $this->propertyMappingConfiguration->expects($this->never())
             ->method('allowAllProperties');
 
         $this->subject->build($configuration);
@@ -363,25 +243,13 @@ class PropertyMappingConfigurationBuilderTest extends UnitTestCase
     /**
      * @test
      */
-    public function buildInitiallySetsAllowAllProperties()
+    public function buildInitiallySetsAllowAllProperties(): void
     {
-        $mockMappingConfiguration = $this->getMock(
-            'TYPO3\\CMS\\Extbase\\Property\\PropertyMappingConfiguration',
-            ['allowAllProperties'], [], '', false
-        );
         $configuration = [
             'allowAllProperties' => 1
         ];
 
-        /** @var \PHPUnit_Framework_MockObject_MockObject $objectManager */
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
-        $this->subject->injectObjectManager($mockObjectManager);
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($mockMappingConfiguration));
-
-        $mockMappingConfiguration->expects($this->once())
+        $this->propertyMappingConfiguration->expects($this->once())
             ->method('allowAllProperties');
 
         $this->subject->build($configuration);

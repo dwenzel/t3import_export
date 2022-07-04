@@ -20,13 +20,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
+use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingFinisher
  * Dummy class for testing: Finisher implementing LoggingInterface
  */
-class LoggingFinisher extends AbstractFinisher implements LoggingInterface
+class LoggingFinisher extends AbstractFinisher implements FinisherInterface, LoggingInterface
 {
     /**
      * Gets all messages
@@ -37,16 +38,20 @@ class LoggingFinisher extends AbstractFinisher implements LoggingInterface
         return [];
     }
 
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
      * @param array $result Array with result records
      * @return bool
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration, array &$records, &$result): bool
     {
-       return true;
+        return true;
     }
-
 
 }

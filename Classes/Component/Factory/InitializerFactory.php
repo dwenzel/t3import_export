@@ -3,7 +3,9 @@ namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -35,7 +37,7 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  * @package CPSIT\T3importExport\Component\Factory
  */
-class InitializerFactory extends AbstractFactory
+class InitializerFactory extends AbstractFactory implements FactoryInterface
 {
     /**
      * Builds a Initializer object
@@ -45,7 +47,7 @@ class InitializerFactory extends AbstractFactory
      * @throws InvalidConfigurationException
      * @return \CPSIT\T3importExport\Component\Initializer\InitializerInterface
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], $identifier = null): InitializerInterface
     {
         $additionalInformation = '.';
         if (!is_null($identifier)) {
@@ -75,6 +77,6 @@ class InitializerFactory extends AbstractFactory
             );
         }
 
-        return $this->objectManager->get($className);
+        return GeneralUtility::makeInstance($className);
     }
 }

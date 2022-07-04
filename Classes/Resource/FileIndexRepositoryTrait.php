@@ -21,21 +21,7 @@ use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
  * Trait FileIndexRepositoryTrait
  * Provides a FileIndexRepository
  */
-
 trait FileIndexRepositoryTrait
 {
-    /**
-     * @var \TYPO3\CMS\Core\Resource\Index\FileIndexRepository
-     */
-    protected $fileIndexRepository;
-
-    /**
-     * Injects the file index repository
-     *
-     * @param FileIndexRepository $fileIndexRepository
-     */
-    public function injectFileIndexRepository(FileIndexRepository $fileIndexRepository)
-    {
-        $this->fileIndexRepository = $fileIndexRepository;
-    }
+    protected FileIndexRepository $fileIndexRepository;
 }

@@ -3,7 +3,10 @@ namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3Fluid\Fluid\Component\ComponentInterface;
 
 /***************************************************************
  *
@@ -29,7 +32,7 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ConverterFactory extends AbstractFactory
+class ConverterFactory extends AbstractFactory implements FactoryInterface
 {
     /**
      * Builds a Converter object
@@ -37,9 +40,9 @@ class ConverterFactory extends AbstractFactory
      * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return \CPSIT\T3importExport\Component\Converter\ConverterInterface
+     * @return ConverterInterface
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], $identifier = null): ConverterInterface
     {
         $additionalInformation = '.';
         if (!is_null($identifier)) {
@@ -69,6 +72,6 @@ class ConverterFactory extends AbstractFactory
             );
         }
 
-        return $this->objectManager->get($className);
+        return GeneralUtility::makeInstance($className);
     }
 }

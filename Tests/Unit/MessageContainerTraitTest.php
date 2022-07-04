@@ -4,7 +4,8 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -26,8 +27,9 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 /**
  * Class MessageContainerTraitTest
  */
-class MessageContainerTraitTest extends UnitTestCase
+class MessageContainerTraitTest extends TestCase
 {
+    use MockMessageContainerTrait;
 
     /**
      * subject
@@ -36,36 +38,14 @@ class MessageContainerTraitTest extends UnitTestCase
     protected $subject;
 
     /**
-     * @var MessageContainer|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $messageContainer;
-
-    /**
      * set up subject
      */
     public function setUp()
     {
+        $this->mockMessageContainer();
         $this->subject = $this->getMockBuilder(MessageContainerTrait::class)
+            ->setConstructorArgs([$this->messageContainer])
             ->getMockForTrait();
-        $this->messageContainer = $this->getMockBuilder(MessageContainer::class)
-            ->setMethods(['getMessages', 'hasMessageWithId'])
-            ->getMock();
-        $this->subject->injectMessageContainer($this->messageContainer);
-    }
-
-    /**
-     * @test
-     */
-    public function messageContainerCanBeInjected()
-    {
-        $messageContainer = $this->getMockBuilder(MessageContainer::class)->getMock();
-        $this->subject->injectMessageContainer($messageContainer);
-
-        $this->assertAttributeSame(
-            $messageContainer,
-            'messageContainer',
-            $this->subject
-        );
     }
 
     /**

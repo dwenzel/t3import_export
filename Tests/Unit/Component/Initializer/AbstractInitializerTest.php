@@ -1,8 +1,10 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
+use ReflectionException;
 
 /***************************************************************
  *
@@ -35,28 +37,25 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Unit\Component\Initializer
  * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\AbstractInitializer
  */
-class AbstractInitializerTest extends UnitTestCase
+class AbstractInitializerTest extends TestCase
 {
 
     /**
      * @var AbstractInitializer
      */
-    protected $subject;
+    protected AbstractInitializer $subject;
 
     /**
      * set up
+     * @throws ReflectionException
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMockForAbstractClass(
-            AbstractInitializer::class
-        );
+        $this->subject = $this->getMockForAbstractClass(AbstractInitializer::class);
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidInitiallyReturnsTrue()
+    public function testIsConfigurationValidInitiallyReturnsTrue(): void
     {
         $this->assertTrue(
             $this->subject->isConfigurationValid([])

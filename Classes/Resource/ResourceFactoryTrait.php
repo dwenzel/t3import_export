@@ -18,26 +18,19 @@ namespace CPSIT\T3importExport\Resource;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 /**
  * Trait ResourceFactoryTrait
  * Provides a factory for resources
+ * @deprecated Trait is now obsolete member variable instead and inject dependencies via constructor
  */
 trait ResourceFactoryTrait
 {
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceFactory
+     * @var ResourceFactory
      */
     protected $resourceFactory;
 
-    /**
-     * Inject Resource factory
-     *
-     * @param ResourceFactory $resourceFactory
-     */
-    public function injectResourceFactory(ResourceFactory $resourceFactory)
-    {
-        $this->resourceFactory = $resourceFactory;
-    }
 }

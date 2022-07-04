@@ -32,8 +32,13 @@ trait StorageRepositoryTrait
      *
      * @param StorageRepository $storageRepository
      */
-    public function injectStorageRepository(StorageRepository $storageRepository)
+    public function injectStorageRepository(StorageRepository $storageRepository): void
     {
         $this->storageRepository = $storageRepository;
+    }
+
+    public function getStorageRepository(): StorageRepository
+    {
+        return $this->storageRepository;
     }
 }

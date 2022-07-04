@@ -1,8 +1,11 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests;
 
 use CPSIT\T3importExport\ConfigurableTrait;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use PHPUnit\Framework\TestCase;
+use ReflectionException;
 
 /***************************************************************
  *
@@ -28,7 +31,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class ConfigurableTraitTest extends UnitTestCase
+class ConfigurableTraitTest extends TestCase
 {
 
     /**
@@ -36,33 +39,38 @@ class ConfigurableTraitTest extends UnitTestCase
      */
     protected $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getMockForTrait(
-            ConfigurableTrait::class
-        );
+        try {
+            $this->subject = $this->getMockForTrait(
+                ConfigurableTrait::class
+            );
+        } catch (ReflectionException $e) {
+            $this->markTestIncomplete('setup failed');
+        }
     }
 
-    /**
-     * @test
-     */
-    public function getConfigurationInitiallyReturnsNull()
+    public function testGetConfigurationInitiallyReturnsEmptyArray(): void
     {
-        $this->assertNull(
+        $expected = [];
+        $this->assertSame(
+            $expected,
             $this->subject->getConfiguration()
         );
     }
 
     /**
-     * @test
+     * @throws InvalidConfigurationException
      */
-    public function setConfigurationSetsValidConfiguration()
+    public function testSetConfigurationSetsValidConfiguration(): void
     {
         $configuration = ['foo'];
 
         $this->subject->expects($this->once())
             ->method('isConfigurationValid')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
+
         $this->subject->setConfiguration($configuration);
 
         $this->assertSame(
@@ -71,18 +79,16 @@ class ConfigurableTraitTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451659793
-     */
-    public function setConfigurationThrowsExceptionForInvalidConfiguration()
+    public function testSetConfigurationThrowsExceptionForInvalidConfiguration(): void
     {
+        $this->expectExceptionCode(1451659793);
+        $this->expectException(InvalidConfigurationException::class);
         $configuration = ['foo'];
 
         $this->subject->expects($this->once())
             ->method('isConfigurationValid')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
+
         $this->subject->setConfiguration($configuration);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Service;
 
 /***************************************************************
@@ -21,59 +22,97 @@ namespace CPSIT\T3importExport\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
+use CPSIT\T3importExport\InvalidColumnMapException;
+use Exception;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
+use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Provides services to translate domain objects
  */
 class TranslationService implements DomainObjectTranslatorInterface, SingletonInterface
 {
+    public const MISSING_COLUMN_MAP_EXCEPTION_CODE = 1641229990;
+    public const MISSING_COLUMN_MAP_MESSAGE = 'Missing column map for property %s';
 
     /**
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper
-     * @inject
+     * @var DataMapper
      */
-    protected $dataMapper;
+    protected DataMapper $dataMapper;
+    protected PersistenceManagerInterface $persistenceManager;
+
+    public function __construct(DataMapper $dataMapper = null, PersistenceManagerInterface $persistenceManager = null)
+    {
+        if ($dataMapper === null) {
+            /** @var ObjectManager $objectManager */
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            /** @noinspection CallableParameterUseCaseInTypeContextInspection */
+            $dataMapper = $objectManager->get(DataMapper::class);
+        }
+        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
+        $this->dataMapper = $dataMapper;
+        $this->persistenceManager = $persistenceManager ?? GeneralUtility::makeInstance(PersistenceManager::class);
+    }
 
     /**
      * Translates a domain object
      *
      * @param DomainObjectInterface $origin
      * @param DomainObjectInterface $translation
-     * @param int $language
-     * @throws \Exception
+     * @param int $language Language id
      * @return void
+     * @throws Exception
+     * @throws InvalidColumnMapException
      */
-    public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, $language)
+    public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, int $language): void
     {
         if (!$this->haveSameClass($origin, $translation)) {
-            throw new \Exception('Origin and translation must be the same type.', 1432499926);
+            throw new Exception('Origin and translation must be the same type.', 1432499926);
         }
 
         if ($origin === $translation) {
-            throw new \Exception('Origin can\'t be translation of its own.', 1432502696);
+            throw new Exception('Origin can\'t be translation of its own.', 1432502696);
         }
 
         $dataMap = $this->dataMapper->getDataMap(get_class($origin));
 
         if (!$dataMap->getTranslationOriginColumnName()) {
-            throw new \Exception('The type is not translatable.', 1432500079);
+            throw new Exception('The type is not translatable.', 1432500079);
         }
 
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($dataMap->getTranslationOriginColumnName());
 
         if ($translation->_setProperty($propertyName, $origin) === false) {
             $columnMap = $dataMap->getColumnMap($propertyName);
+            if ($columnMap === null) {
+                $message = sprintf(self::MISSING_COLUMN_MAP_MESSAGE, $propertyName);
+                throw new InvalidColumnMapException(
+                    $message,
+                    self::MISSING_COLUMN_MAP_EXCEPTION_CODE
+                );
+            }
             $columnMap->setTypeOfRelation(ColumnMap::RELATION_HAS_ONE);
-            $columnMap->setType($dataMap->getClassName());
+            /**
+             * fixme we set a default TableColumnType here. This may not be necessary
+             * enumeration @see TableColumnType was probably introduced later than
+             * the reference implementation we rely on
+             */
+            $type = new TableColumnType();
+            $columnMap->setType($type);
             $columnMap->setChildTableName($dataMap->getTableName());
 
             $translation->{$propertyName} = $origin;
         }
 
+        //fixme This magic method is marked internal. We should not use it.
         $translation->_setProperty('_languageUid', $language);
     }
 
@@ -84,8 +123,45 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
      * @param DomainObjectInterface $translation
      * @return bool
      */
-    protected function haveSameClass(DomainObjectInterface $origin, DomainObjectInterface $translation)
+    public function haveSameClass(DomainObjectInterface $origin, DomainObjectInterface $translation): bool
     {
         return get_class($origin) === get_class($translation);
+    }
+
+    /**
+     * @param $identity
+     * @param $targetType
+     * @return object
+     */
+    public function getLocalizationParent($identity, $targetType): ?object
+    {
+        $query = $this->persistenceManager->createQueryForType($targetType);
+        $querySettings = $query->getQuerySettings();
+
+        $querySettings->setIgnoreEnableFields(true);
+        $querySettings->setRespectStoragePage(false);
+        $querySettings->setLanguageUid(0);
+        $query->setQuerySettings($querySettings);
+        $parentObject = $query->matching($query->equals('uid', $identity))->execute()->getFirst();
+
+        return $parentObject;
+    }
+
+    /**
+     * Returns localizations as array of records [sic!].
+     * This method is a wrapper for a static method call of the core BackendUtility
+     *
+     * @param string $table
+     * @param int $uid
+     * @param int $language
+     * @return array
+     */
+    public function getRecordLocalization(string $table, int $uid, int $language): array
+    {
+        if ($result = BackendUtility::getRecordLocalization($table, $uid, $language)) {
+            return $result;
+        }
+
+        return [];
     }
 }

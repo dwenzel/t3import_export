@@ -3,7 +3,10 @@
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Persistence\Query\QueryFacade;
+use CPSIT\T3importExport\Persistence\Query\SelectJoinQuery;
+use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
@@ -29,11 +32,34 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  * Base class for database look up.
  * Children must implement PreProcessorInterface
  *
+ * Configuration @see SelectQuery, SelectJoinQuery
+ *
  * @package CPSIT\T3importExport\PreProcessor
  */
 class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 {
     use DatabaseTrait;
+
+    /* name mixing:
+        'select' stands for every sql query
+        could be 'sql' or 'query' for INSERT and others, but would change configuration api
+
+        ...still use *
+
+        80 {
+            class = CPSIT\T3importExport\Component\PreProcessor\LookUpDB
+            config {
+                targetField = foo
+         *----> select {   <-----*
+                    type = updateSelect
+                    table = tx_foo
+                    ...
+                }
+            }
+         }
+
+    */
+    protected const CONFIGURATION_KEY_QUERY = 'select';
 
     /**
      * Tells if a given configuration is valid
@@ -41,7 +67,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['select'])
             || !is_array($configuration['select'])
@@ -50,16 +76,6 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         }
         if (!isset($configuration['select']['table'])
             || !is_string(($configuration['select']['table']))
-        ) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !is_string($configuration['identifier'])
-        ) {
-            return false;
-        }
-        if (isset($configuration['identifier'])
-            && !DatabaseConnectionService::isRegistered($configuration['identifier'])
         ) {
             return false;
         }
@@ -73,14 +89,20 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * @param array $configuration
      * @param array $record
+     *
      * @return bool
+     * @throws InvalidConfigurationException
      */
-    public function process($configuration, &$record)
+    public function process($configuration, &$record): bool
     {
-        if (isset($configuration['identifier'])) {
-            $this->database = $this->connectionService
-                ->getDatabase($configuration['identifier']);
-        }
+        /**
+         * todo method cannot be tested because of its complexity and
+         * the dependency from  SelectQuery
+         * We probably should extract
+         * - a parser for the TypoScript config which produces the configuration for
+         *   the query and / or
+         * - a builder class or factory for the query
+         */
         if (isset($configuration['childRecords'])
             && is_array($record[$configuration['childRecords']])
         ) {
@@ -92,29 +114,40 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
         $queryConfiguration = $this->getQueryConfiguration($configuration);
-        $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
-        if ($queryConfiguration == false) {
+        try {
+            $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
+        } catch (InvalidConfigurationException $e) {
+            // todo: log error
             return false;
         }
-        $queryResult = $this->performQuery($queryConfiguration);
-        $targetFieldName = $configuration['targetField'];
-        if ($queryResult) {
-            if ($queryConfiguration['singleRow']) {
-                $this->mapFields($record, $queryResult, $configuration);
-            } else {
-                $mappedRecords = [];
-                foreach ($queryResult as $row) {
-                    $mappedRecord = [];
-                    $this->mapFields($mappedRecord, $row, $configuration);
-                    $mappedRecords[] = $mappedRecord;
-                }
-                $record[$targetFieldName] = $mappedRecords;
-            }
-        } elseif (isset($configuration['targetField'])
-            && is_string($configuration['targetField'])
-        ) {
-            unset($record[$targetFieldName]);
+
+        if (!empty($queryConfiguration['singleRow'])) {
+            $queryConfiguration['limit'] = 1;
         }
+        $queryResult = (new QueryFacade())->getQueryResultByConfig($queryConfiguration);
+
+        $targetField = $configuration['targetField'];
+
+        if (empty($queryResult)
+            && isset($record[$targetField])
+        ) {
+            unset($record[$targetField]);
+            return true;
+        }
+
+        if ($queryConfiguration['singleRow']) {
+            // consider only first result
+            $this->mapFields($record, $queryResult[0], $configuration);
+        } else {
+            $mappedRecords = [];
+            foreach ($queryResult as $row) {
+                $mappedRecord = [];
+                $this->mapFields($mappedRecord, $row, $configuration);
+                $mappedRecords[] = $mappedRecord;
+            }
+            $record[$targetField] = $mappedRecords;
+        }
+
 
         return true;
     }
@@ -123,18 +156,13 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param $configuration
      * @return array
      */
-    protected function getQueryConfiguration($configuration)
+    protected function getQueryConfiguration($configuration): array
     {
-        $queryConfiguration = [
-            'fields' => '*',
-            'where' => '',
-            'groupBy' => '',
-            'orderBy' => '',
-            'limit' => ''
-        ];
+        $queryConfiguration = SelectQuery::DEFAULT_CONFIGURATION;
+
         ArrayUtility::mergeRecursiveWithOverrule(
             $queryConfiguration,
-            $configuration['select'],
+            $configuration[self::CONFIGURATION_KEY_QUERY],
             true,
             false
         );
@@ -150,65 +178,66 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param $queryConfiguration
      * @return array | FALSE Parsed query configuration
      */
-    protected function parseQueryConstraints(&$record, $queryConfiguration)
+    protected function parseQueryConstraints(array $record, array $queryConfiguration): array
     {
-        if (!empty($queryConfiguration['where'])) {
-            if (is_array($queryConfiguration['where'])) {
-                $whereClause = '';
-                foreach ($queryConfiguration['where'] as $operator => $value) {
-                    if ($operator === 'AND' || $operator === 'OR') {
-                        if ($whereClause == '' && $operator === 'AND') {
-                            $operator = '';
-                        }
-                        $whereClause .= $operator . ' ' . $value['condition'];
-                        $prefix = '"';
-                        if (isset($value['prefix'])) {
-                            $prefix .= $value['prefix'];
-                        }
-
-                        if (isset($value['value'])) {
-                            //read field value from record
-                            $whereClause .= $prefix .
-                                $this->database->quoteStr(
-                                    $record[$value['value']],
-                                    $queryConfiguration['table']
-                                ) . '"';
-                        }
-                    }
-                    if ($operator === 'IN') {
-                        if (isset($value['values'])
-                            && isset($value['field'])
-                        ) {
-                            $childConfig = $value['values'];
-
-                            if (is_array($childConfig)
-                                && isset($childConfig['field'])
-                                && isset($childConfig['value'])
-                                && is_array($record[$childConfig['field']])
-                            ) {
-                                $prefix = '"';
-                                if (isset($childConfig['prefix'])) {
-                                    $prefix .= $childConfig['prefix'];
-                                }
-
-                                $whereClause .= ' ' . $value['field'] . ' IN (';
-                                $childValues = [];
-                                foreach ($record[$childConfig['field']] as $child) {
-                                    $childValues[] = $prefix . $child[$childConfig['value']] . '"';
-                                }
-                                $whereClause .= implode(',', $childValues) . ')';
-                                if (isset($value['keepOrder'])) {
-                                    $whereClause .= ' ORDER BY FIELD (' . $value['field'] . ',' . implode(',', $childValues) . ')';
-                                }
-                            } else {
-                                return false;
-                            }
-                        }
-                    }
+        if (empty($queryConfiguration['where'])
+            || !is_array($queryConfiguration['where'])
+        ) {
+            return $queryConfiguration;
+        }
+        $queryBuilder = $this->connectionPool->getConnectionForTable($queryConfiguration['table']);
+        $whereClause = '';
+        foreach ($queryConfiguration['where'] as $operator => $operatorConfig) {
+            if ($operator === 'AND' || $operator === 'OR') {
+                if ($whereClause === '' && $operator === 'AND') {
+                    $operator = '';
                 }
-                $queryConfiguration['where'] = $whereClause;
+                $whereClause .= $operator . ' ' . $operatorConfig['condition'];
+                $prefix = '';
+                if (isset($operatorConfig['prefix'])) {
+                    $prefix .= $operatorConfig['prefix'];
+                }
+
+                if (isset($operatorConfig['value'])) {
+                    //read field value from record
+                    $whereClause .= $prefix .
+                        $queryBuilder->quote($record[$operatorConfig['value']]);
+                }
+            }
+
+            if ($operator === 'IN') {
+                if (isset($operatorConfig['values'], $operatorConfig['field'])) {
+                    $childConfig = $operatorConfig['values'];
+                    $sourceField = $operatorConfig['field'];
+
+                    if (!is_array($childConfig) || !isset($childConfig['field']) || !is_array($record[$childConfig['field']])
+                    ) {
+                        throw (new InvalidConfigurationException('Error while parsing configuration for operator `'));
+                    }
+                    $childField = $childConfig['field'];
+
+                    $children = $record[$childField];
+                    $prefix = $order = '';
+                    $childValues = [];
+
+                    if (isset($childConfig['prefix'])) {
+                        $prefix = $childConfig['prefix'];
+                    }
+
+                    foreach ($children as $childValue) {
+                        $childValues[] = sprintf('"%s%s"', $prefix, $childValue);
+                    }
+                    $childValueList = implode(',', $childValues);
+
+                    if (isset($operatorConfig['keepOrder'])) {
+                        $order = sprintf('ORDER BY FIELD (%s,%s)', $sourceField, $childValueList);
+                    }
+
+                    $whereClause .= sprintf(' %s IN (%s) %s', $sourceField, $childValueList, $order);
+                }
             }
         }
+        $queryConfiguration['where'] = $whereClause;
 
         return $queryConfiguration;
     }
@@ -236,31 +265,4 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         }
     }
 
-    /**
-     * @param $queryConfiguration
-     * @return array|NULL
-     */
-    protected function performQuery($queryConfiguration)
-    {
-        if ($queryConfiguration['singleRow']) {
-            $queryResult = $this->database->exec_SELECTgetSingleRow(
-                $queryConfiguration['fields'],
-                $queryConfiguration['table'],
-                $queryConfiguration['where'],
-                $queryConfiguration['groupBy'],
-                $queryConfiguration['orderBy']
-            );
-        } else {
-            $queryResult = $this->database->exec_SELECTgetRows(
-                $queryConfiguration['fields'],
-                $queryConfiguration['table'],
-                $queryConfiguration['where'],
-                $queryConfiguration['groupBy'],
-                $queryConfiguration['orderBy'],
-                $queryConfiguration['limit']
-            );
-        }
-
-        return $queryResult;
-    }
 }

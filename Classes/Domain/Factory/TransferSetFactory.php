@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Domain\Factory;
 
 /***************************************************************
@@ -18,9 +19,14 @@ namespace CPSIT\T3importExport\Domain\Factory;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class TransferSetFactory
@@ -31,19 +37,34 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class TransferSetFactory extends AbstractFactory
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
-     */
-    protected $transferTaskFactory;
+    protected TransferTaskFactory $transferTaskFactory;
+    protected TransferSet $transferSet;
 
-    /**
-     * Injects the transfer task factory
-     *
-     * @param TransferTaskFactory $transferTaskFactory
-     */
-    public function injectTransferTaskFactory(TransferTaskFactory $transferTaskFactory)
+    public function __construct(
+        TransferTaskFactory $transferTaskFactory = null,
+        ConfigurationManagerInterface $configurationManager = null,
+        TransferSet $transferSet = null)
     {
+
+        if (null === $transferTaskFactory) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
+            /** @var TransferTaskFactory $transferTaskFactory */
+            $transferTaskFactory = $objectManager->get(TransferTaskFactory::class);
+        }
+
+        if (null == $configurationManager) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            /** @var ConfigurationManager $configurationManager */
+            $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
+        }
+        $this->settings = $configurationManager->getConfiguration(
+            ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
+            't3importexport'
+        );
+        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->transferTaskFactory = $transferTaskFactory;
+        $this->transferSet = $transferSet ?? GeneralUtility::makeInstance(TransferSet::class);
     }
 
     /**
@@ -52,16 +73,14 @@ class TransferSetFactory extends AbstractFactory
      * @param array $settings
      * @param string $identifier
      * @return TransferSet
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      */
     public function get(array $settings, $identifier = null)
     {
-        /** @var TransferSet $transferSet */
-        $transferSet = $this->objectManager->get(
-            TransferSet::class
-        );
-
-        $transferSet->setIdentifier($identifier);
+        // clone object in order to prevent from returning the same object on subsequent calls
+        // transferSet must be injected for testing purposes
+        $this->transferSet = clone $this->transferSet;
+        $this->transferSet->setIdentifier($identifier);
 
         if (isset($settings['tasks'])
             && is_string($settings['tasks'])
@@ -76,19 +95,19 @@ class TransferSetFactory extends AbstractFactory
                     $tasks[$taskIdentifier] = $task;
                 }
             }
-            $transferSet->setTasks($tasks);
+            $this->transferSet->setTasks($tasks);
         }
 
         if (isset($settings['description'])
             && is_string($settings['description'])
         ) {
-            $transferSet->setDescription($settings['description']);
+            $this->transferSet->setDescription($settings['description']);
         }
 
         if (isset($settings['label'])) {
-            $transferSet->setLabel($settings['label']);
+            $this->transferSet->setLabel($settings['label']);
         }
 
-        return $transferSet;
+        return $this->transferSet;
     }
 }
