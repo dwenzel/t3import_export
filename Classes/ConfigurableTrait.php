@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport;
 
 /**
@@ -14,20 +15,12 @@ trait ConfigurableTrait
      *
      * @var array
      */
-    protected $configuration;
-
-    /**
-     * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
-     */
-    abstract public function isConfigurationValid(array $configuration);
+    protected array $configuration = [];
 
     /**
      * @return array
      */
-    public function getConfiguration()
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -39,16 +32,24 @@ trait ConfigurableTrait
      * @param array $configuration
      * @throws InvalidConfigurationException
      */
-    public function setConfiguration(array $configuration)
+    public function setConfiguration(array $configuration): void
     {
-        if ($this->isConfigurationValid($configuration)) {
-            $this->configuration = $configuration;
-        } else {
+        if (!$this->isConfigurationValid($configuration)) {
             throw new InvalidConfigurationException(
-                'Configuration for ' . __CLASS__
+                'Configuration for ' . get_class($this)
                 . ' is not valid.',
                 1451659793
             );
         }
+
+        $this->configuration = $configuration;
     }
+
+    /**
+     * Tells if a given configuration is valid
+     *
+     * @param array $configuration
+     * @return bool
+     */
+    abstract public function isConfigurationValid(array $configuration): bool;
 }

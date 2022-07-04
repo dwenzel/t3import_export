@@ -2,7 +2,12 @@
 namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerAwareInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -35,34 +40,49 @@ trait DatabaseTrait
     /**
      * Database connection service
      *
-     * @var \CPSIT\T3importExport\Service\DatabaseConnectionService
+     * @var DatabaseConnectionService
      */
-    protected $connectionService;
+    protected DatabaseConnectionService $connectionService;
+
+    /**
+     * @var ConnectionPool|mixed|object|LoggerAwareInterface|SingletonInterface
+     */
+    protected ConnectionPool $connectionPool;
 
     /**
      * Database
      *
-     * @var DatabaseConnection
+     * @var Connection
+     * @deprecated
      */
     protected $database;
 
     /**
      * Constructor
+     * @param ConnectionPool|null $connectionPool
+     * @param DatabaseConnectionService|null $connectionService
      */
-    public function __construct()
+    public function __construct(ConnectionPool $connectionPool = null, DatabaseConnectionService $connectionService = null)
     {
-        if (!$this->database instanceof DatabaseConnection) {
+        $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
+        $this->connectionService = $connectionService ?? GeneralUtility::makeInstance(DatabaseConnectionService::class);
+        if (!$this->database instanceof Connection) {
             $this->database = $GLOBALS['TYPO3_DB'];
         }
     }
 
     /**
-     * Injects the database connection service
-     *
-     * @param \CPSIT\T3importExport\Service\DatabaseConnectionService $dbConnectionService
+     * @return Connection
+     * @deprecated
+     * use @see ConnectionPool->getConnectionForTable() instead
      */
-    public function injectDatabaseConnectionService(DatabaseConnectionService $dbConnectionService)
+    public function getDataBase(): Connection
     {
-        $this->connectionService = $dbConnectionService;
+        return $this->database;
+    }
+
+    public function getDatabaseConnectionService(): DatabaseConnectionService
+    {
+        return $this->connectionService;
     }
 }

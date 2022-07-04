@@ -18,13 +18,19 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
-use CPSIT\T3importExport\Resource\FileReferenceFactoryTrait;
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
+use TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
 /**
@@ -33,46 +39,45 @@ use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 class GenerateFileReference extends AbstractPostProcessor
     implements PostProcessorInterface, LoggingInterface
 {
-    use FileReferenceFactoryTrait, FileIndexRepositoryTrait, LoggingTrait;
+    use FileIndexRepositoryTrait, LoggingTrait;
 
     /**
      * Error by id
      * <unique id> => ['title', ['message']
      */
-    const ERROR_CODES  = [
+    public const ERROR_CODES = [
         1510524677 => ['Missing source field', 'config[\'sourceField\'] must be set'],
         1510524678 => ['Missing target field', 'config[\'targetField\'] must be set'],
         1510524679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
     ];
 
-    /**
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
-     */
-    protected $persistenceManager;
+    protected PersistenceManagerInterface $persistenceManager;
 
+    protected FileReferenceFactory $fileReferenceFactory;
 
-    /**
-     * Returns error codes for current component.
-     * Must be an array in the form
-     * [
-     *  <id> => ['errorTitle', 'errorDescription']
-     * ]
-     * 'errorDescription' may contain placeholder (%s) for arguments.
-     * @return array
-     */
-    public function getErrorCodes()
+    public function __construct(
+        PersistenceManagerInterface $persistenceManager = null,
+        FileReferenceFactory $fileReferenceFactory = null,
+        FileIndexRepository $fileIndexRepository = null,
+        MessageContainer $messageContainer = null)
     {
-        return self::ERROR_CODES;
-    }
-
-    /**
-     * Inject persistenceManager
-     *
-     * @param \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface $persistenceManager
-     */
-    public function injectPersistenceManager(PersistenceManagerInterface $persistenceManager)
-    {
-        $this->persistenceManager = $persistenceManager;
+        if ($persistenceManager === null) {
+            /** @var PersistenceManagerInterface $persistenceManager */
+            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
+                ->get(PersistenceManagerInterface::class);
+        }
+        if ($persistenceManager !== null) {
+            $this->persistenceManager = $persistenceManager;
+        }
+        $this->fileReferenceFactory = $fileReferenceFactory ?? GeneralUtility::makeInstance(
+                FileReferenceFactory::class
+            );
+        $this->fileIndexRepository = $fileIndexRepository ?? GeneralUtility::makeInstance(
+                FileIndexRepository::class
+            );
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(
+                MessageContainer::class
+            );
     }
 
     /**
@@ -82,8 +87,9 @@ class GenerateFileReference extends AbstractPostProcessor
      * @param mixed $convertedRecord
      * @param array $record
      * @return bool
+     * @throws PropertyNotAccessibleException
      */
-    public function process($configuration, &$convertedRecord, &$record)
+    public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
         $fieldName = $configuration['targetField'];
         $fileId = $record[$configuration['sourceField']];
@@ -107,10 +113,10 @@ class GenerateFileReference extends AbstractPostProcessor
                 if ($existingFileId === $fileId) {
                     // field references same file - nothing to do
                     return false;
-                } else {
-                    // remove existing reference if not equal file
-                    $this->persistenceManager->remove($targetFieldValue);
                 }
+
+                // remove existing reference if not equal file
+                $this->persistenceManager->remove($targetFieldValue);
             }
         }
 
@@ -131,7 +137,7 @@ class GenerateFileReference extends AbstractPostProcessor
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (
             empty($configuration['sourceField'])

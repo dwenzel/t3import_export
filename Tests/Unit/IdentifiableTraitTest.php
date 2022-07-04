@@ -1,8 +1,9 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests;
 
 use CPSIT\T3importExport\IdentifiableTrait;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -28,7 +29,7 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class IdentifiableTraitTest extends UnitTestCase
+class IdentifiableTraitTest extends TestCase
 {
 
     /**
@@ -36,27 +37,22 @@ class IdentifiableTraitTest extends UnitTestCase
      */
     protected $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
         $this->subject = $this->getObjectForTrait(
-            IdentifiableTrait::class, ['dummy']
+            IdentifiableTrait::class
         );
     }
 
-    /**
-     * @test
-     */
-    public function getIdentifierInitiallyReturnsNull()
+    public function testGetIdentifierInitiallyReturnsNull(): void
     {
         $this->assertNull(
             $this->subject->getIdentifier()
         );
     }
 
-    /**
-     * @test
-     */
-    public function setIdentifierSetsIdentifier()
+    public function testSetIdentifierSetsIdentifier(): void
     {
         $identifier = 'foo';
         $this->subject->setIdentifier($identifier);

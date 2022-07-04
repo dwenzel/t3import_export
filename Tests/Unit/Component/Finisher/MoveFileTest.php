@@ -3,14 +3,16 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\MoveFile;
-use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\LoggingInterface;
-use TYPO3\CMS\Core\Resource\File;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceFactoryTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceStorageFolderTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 /***************************************************************
@@ -34,67 +36,33 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 /**
  * Class MoveFileTest
  */
-class MoveFileTest extends UnitTestCase
+class MoveFileTest extends TestCase
 {
-    /**
-     * @var MoveFile
-     */
-    protected $subject;
+    use MockMessageContainerTrait,
+        MockResourceFactoryTrait,
+        MockResourceStorageFolderTrait;
 
-    /**
-     * @var ResourceFactory|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $resourceFactory;
-
-    /**
-     * @var ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $storage;
-
-    /**
-     * @var Folder|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected $folder;
+    protected MoveFile $subject;
 
     /**
      * Set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            MoveFile::class, ['logError', 'logNotice']
-        );
-        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getStorageObject', 'getDefaultStorage'])
-            ->getMock();
-        $this->subject->injectResourceFactory($this->resourceFactory);
-        $this->storage = $this->getMockBuilder(ResourceStorage::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'getDefaultFolder',
-                'hasFolder',
-                'hasFileInFolder',
-                'getFolder',
-                'createFolder',
-                'moveFile'
-            ])
-            ->getMock();
-        $this->resourceFactory->expects($this->any())
-            ->method('getDefaultStorage')
-            ->will($this->returnValue($this->storage));
-        $this->folder = $this->getMockBuilder(Folder::class)
-            ->disableOriginalConstructor()->getMock();
-        $this->storage->expects($this->any())
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
+        $this
+            ->mockResourceStorage()
+            ->mockResourceFactory()
+            ->mockStorageFolder()
+            ->mockMessageContainer();
+        $this->subject = new MoveFile($this->resourceFactory, $this->messageContainer);
     }
 
     /**
      * Invalid configuration data provider
      * @return array
      */
-    public function invalidConfigurationDataProvider()
+    public function invalidConfigurationDataProvider(): array
     {
         return [
             'empty configuration' => [
@@ -277,11 +245,9 @@ class MoveFileTest extends UnitTestCase
     }
 
     /**
-     * @test
-     * @param array $configuration
      * @dataProvider invalidConfigurationDataProvider
      */
-    public function isConfigurationForEmptyConfigurationReturnsReturnsFalse($configuration)
+    public function testIsConfigurationForEmptyConfigurationReturnsReturnsFalse(array $configuration): void
     {
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
@@ -292,7 +258,7 @@ class MoveFileTest extends UnitTestCase
      * Valid configuration data provider
      * @return array
      */
-    public function validConfigurationDataProvider()
+    public function validConfigurationDataProvider(): array
     {
         return [
             'minimal: only file names' => [
@@ -364,20 +330,16 @@ class MoveFileTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @dataProvider validConfigurationDataProvider
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration($configuration)
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration($configuration): void
     {
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     * @test
-     */
-    public function processGetsDefaultStorageFromFactoryIfNotConfigured()
+    public function testProcessGetsDefaultStorageFromFactoryIfNotConfigured(): void
     {
         $records = [];
         $configurationWithoutStorage = [
@@ -390,10 +352,10 @@ class MoveFileTest extends UnitTestCase
         ];
         $this->resourceFactory->expects($this->once())
             ->method('getDefaultStorage')
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->once())
-        ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
+            ->willReturn($this->resourceStorage);
+        $this->resourceStorage->expects($this->once())
+            ->method('getDefaultFolder')
+            ->willReturn($this->folder);
 
         $this->subject->process(
             $configurationWithoutStorage,
@@ -403,10 +365,7 @@ class MoveFileTest extends UnitTestCase
 
     }
 
-    /**
-     * @test
-     */
-    public function processGetsTargetStorageFromFactoryByIdFromConfiguration()
+    public function testProcessGetsTargetStorageFromFactoryByIdFromConfiguration(): void
     {
         $records = [];
         $storageId = '5';
@@ -419,16 +378,7 @@ class MoveFileTest extends UnitTestCase
                 'storage' => $storageId
             ]
         ];
-        $this->resourceFactory->expects($this->once())
-            ->method('getStorageObject')
-            ->with((int)$storageId)
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->exactly(2))
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
-        $this->storage->expects($this->once())
-            ->method('hasFileInFolder')
-            ->willReturn(true);
+        $this->expectExistingFile($storageId);
 
         $this->subject->process(
             $configurationWithStorage,
@@ -439,9 +389,23 @@ class MoveFileTest extends UnitTestCase
     }
 
     /**
-     * @test
+     * @param string $storageId
      */
-    public function processGetsSourceStorageFromFactoryByIdFromConfiguration()
+    protected function expectExistingFile(string $storageId): void
+    {
+        $this->resourceFactory->expects($this->once())
+            ->method('getStorageObject')
+            ->with(...[(int)$storageId])
+            ->willReturn($this->resourceStorage);
+        $this->resourceStorage->expects($this->exactly(2))
+            ->method('getDefaultFolder')
+            ->willReturn($this->folder);
+        $this->resourceStorage->expects($this->once())
+            ->method('hasFileInFolder')
+            ->willReturn(true);
+    }
+
+    public function testProcessGetsSourceStorageFromFactoryByIdFromConfiguration(): void
     {
         $records = [];
         $storageId = '5';
@@ -454,16 +418,7 @@ class MoveFileTest extends UnitTestCase
                 'name' => 'bar.xml'
             ]
         ];
-        $this->resourceFactory->expects($this->once())
-            ->method('getStorageObject')
-            ->with((int)$storageId)
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->exactly(2))
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
-        $this->storage->expects($this->once())
-            ->method('hasFileInFolder')
-            ->willReturn(true);
+        $this->expectExistingFile($storageId);
 
         $this->subject->process(
             $configurationWithStorage,
@@ -473,10 +428,7 @@ class MoveFileTest extends UnitTestCase
 
     }
 
-    /**
-     * @test
-     */
-    public function processMovesFileToFolderInStorage()
+    public function testProcessMovesFileToFolderInStorage(): void
     {
         $records = [];
         $sourceFileName = 'foo.xml';
@@ -490,31 +442,16 @@ class MoveFileTest extends UnitTestCase
                 'name' => $fileName
             ]
         ];
-        $sourceFile = $this->getMockBuilder(FileInterface::class)
-            ->getMock();
-        $sourceFolderContent = [
-            $sourceFileName => $sourceFile
-        ];
-        $this->resourceFactory->expects($this->once())
-            ->method('getDefaultStorage')
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->exactly(2))
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
-        $this->storage->expects($this->once())
-            ->method('hasFileInFolder')
-            ->willReturn(true);
-        $this->folder->expects($this->once())
-            ->method('getFiles')
-            ->willReturn($sourceFolderContent);
+        $sourceFile = $this->mockSourceFile($sourceFileName);
 
-        $this->storage->expects($this->once())
+        $this->resourceStorage->expects($this->once())
             ->method('moveFile')
-            ->with(
-                $sourceFile,
-                $this->folder,
-                $configuration['target']['name'],
-                MoveFile::CONFLICT_MODE_RENAME_NEW_FILE
+            ->with(...[
+                    $sourceFile,
+                    $this->folder,
+                    $configuration['target']['name'],
+                    MoveFile::CONFLICT_MODE_RENAME_NEW_FILE
+                ]
             );
 
         $this->subject->process(
@@ -525,9 +462,32 @@ class MoveFileTest extends UnitTestCase
     }
 
     /**
-     * @test
+     * @param string $sourceFileName
+     * @return MockObject|FileInterface
      */
-    public function processCreatesMissingFolderFromConfiguration()
+    protected function mockSourceFile(string $sourceFileName)
+    {
+        $sourceFile = $this->getMockBuilder(FileInterface::class)
+            ->getMock();
+        $sourceFolderContent = [
+            $sourceFileName => $sourceFile
+        ];
+        $this->resourceFactory->expects($this->once())
+            ->method('getDefaultStorage')
+            ->willReturn($this->resourceStorage);
+        $this->resourceStorage->expects($this->exactly(2))
+            ->method('getDefaultFolder')
+            ->willReturn($this->folder);
+        $this->resourceStorage->expects($this->once())
+            ->method('hasFileInFolder')
+            ->willReturn(true);
+        $this->folder->expects($this->once())
+            ->method('getFiles')
+            ->willReturn($sourceFolderContent);
+        return $sourceFile;
+    }
+
+    public function testProcessCreatesMissingFolderFromConfiguration(): void
     {
         $records = [];
         $sourceFileName = 'foo.xml';
@@ -541,46 +501,25 @@ class MoveFileTest extends UnitTestCase
                 'directory' => $directory
             ]
         ];
-        $sourceFile = $this->getMockBuilder(FileInterface::class)
-            ->getMock();
-        $sourceFolderContent = [
-            $sourceFileName => $sourceFile
-        ];
-        $this->resourceFactory->expects($this->once())
-            ->method('getDefaultStorage')
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->exactly(2))
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
-        $this->storage->expects($this->once())
-            ->method('hasFileInFolder')
-            ->willReturn(true);
-
-        $this->folder->expects($this->once())
-            ->method('getFiles')
-            ->willReturn($sourceFolderContent);
-         $this->storage
+        $this->mockSourceFile($sourceFileName);
+        $this->resourceStorage
             ->expects($this->once())
             ->method('hasFolder')
-            ->with($directory)
-            ->will($this->returnValue(false));
-        $this->storage->expects($this->once())
+            ->with(...[$directory])
+            ->willReturn(false);
+        $this->resourceStorage->expects($this->once())
             ->method('createFolder')
-            ->with($directory)
-            ->will($this->returnValue($this->folder));
+            ->with(...[$directory])
+            ->willReturn($this->folder);
 
         $this->subject->process(
             $configurationWithStorage,
             $records,
             $result
         );
-
     }
 
-    /**
-     * @test
-     */
-    public function processGetsSourceFolderFromConfiguration()
+    public function testProcessGetsSourceFolderFromConfiguration(): void
     {
         $records = [];
         $sourceFileName = 'foo.xml';
@@ -594,33 +533,8 @@ class MoveFileTest extends UnitTestCase
                 'name' => 'bar.xml'
             ]
         ];
-        $sourceFile = $this->getMockBuilder(FileInterface::class)
-            ->getMock();
-        $sourceFolderContent = [
-            $sourceFileName => $sourceFile
-        ];
-        $this->resourceFactory->expects($this->once())
-            ->method('getDefaultStorage')
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->exactly(2))
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
-        $this->storage->expects($this->once())
-            ->method('hasFileInFolder')
-            ->willReturn(true);
-
-        $this->folder->expects($this->once())
-            ->method('getFiles')
-            ->willReturn($sourceFolderContent);
-         $this->storage
-            ->expects($this->once())
-            ->method('hasFolder')
-            ->with($directory)
-            ->will($this->returnValue(true));
-        $this->storage->expects($this->once())
-            ->method('getFolder')
-            ->with($directory)
-            ->will($this->returnValue($this->folder));
+        $this->mockSourceFile($sourceFileName);
+        $this->expectExistingFolderAccess($directory);
 
         $this->subject->process(
             $configurationWithStorage,
@@ -631,9 +545,22 @@ class MoveFileTest extends UnitTestCase
     }
 
     /**
-     * @test
+     * @param string $directory
      */
-    public function processGetsExistingFolderFromStorage()
+    protected function expectExistingFolderAccess(string $directory): void
+    {
+        $this->resourceStorage
+            ->expects($this->once())
+            ->method('hasFolder')
+            ->with(...[$directory])
+            ->willReturn(true);
+        $this->resourceStorage->expects($this->once())
+            ->method('getFolder')
+            ->with(...[$directory])
+            ->willReturn($this->folder);
+    }
+
+    public function testProcessGetsExistingFolderFromStorage(): void
     {
         $records = [];
         $sourceFileName = 'foo.xml';
@@ -647,34 +574,8 @@ class MoveFileTest extends UnitTestCase
                 'directory' => $directory
             ]
         ];
-        $sourceFile = $this->getMockBuilder(FileInterface::class)
-            ->getMock();
-        $sourceFolderContent = [
-            $sourceFileName => $sourceFile
-        ];
-        $this->resourceFactory->expects($this->once())
-            ->method('getDefaultStorage')
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->exactly(2))
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
-        $this->storage->expects($this->once())
-            ->method('hasFileInFolder')
-            ->willReturn(true);
-
-        $this->folder->expects($this->once())
-            ->method('getFiles')
-            ->willReturn($sourceFolderContent);
-
-        $this->storage
-            ->expects($this->once())
-            ->method('hasFolder')
-            ->with($directory)
-            ->will($this->returnValue(true));
-        $this->storage->expects($this->once())
-            ->method('getFolder')
-            ->with($directory)
-            ->will($this->returnValue($this->folder));
+        $this->mockSourceFile($sourceFileName);
+        $this->expectExistingFolderAccess($directory);
 
         $this->subject->process(
             $configurationWithStorage,
@@ -684,10 +585,7 @@ class MoveFileTest extends UnitTestCase
 
     }
 
-    /**
-     * @test
-     */
-    public function processRespectsConflictModeFromConfiguration()
+    public function testProcessRespectsConflictModeFromConfiguration(): void
     {
         $records = [];
         $conflictMode = MoveFile::CONFLICT_MODE_OVERRIDE_EXISTING_FILE;
@@ -702,33 +600,17 @@ class MoveFileTest extends UnitTestCase
             ]
         ];
 
-        $sourceFile = $this->getMockBuilder(FileInterface::class)
-            ->getMock();
-        $sourceFolderContent = [
-            $sourceFileName => $sourceFile
-        ];
-        $this->resourceFactory->expects($this->once())
-            ->method('getDefaultStorage')
-            ->will($this->returnValue($this->storage));
-        $this->storage->expects($this->exactly(2))
-            ->method('getDefaultFolder')
-            ->will($this->returnValue($this->folder));
-        $this->storage->expects($this->once())
-            ->method('hasFileInFolder')
-            ->willReturn(true);
+        $sourceFile = $this->mockSourceFile($sourceFileName);
 
-        $this->folder->expects($this->once())
-            ->method('getFiles')
-            ->willReturn($sourceFolderContent);
-
-        $this->storage
+        $this->resourceStorage
             ->expects($this->once())
             ->method('moveFile')
-            ->with(
-                $sourceFile,
-                $this->folder,
-                $configuration['target']['name'],
-                $conflictMode
+            ->with(...[
+                    $sourceFile,
+                    $this->folder,
+                    $configuration['target']['name'],
+                    $conflictMode
+                ]
             );
 
         $this->subject->process(
@@ -739,33 +621,28 @@ class MoveFileTest extends UnitTestCase
 
     }
 
-    /**
-     * @test
-     */
-    public function instanceImplementsLoggingInterface() {
+    public function testInstanceImplementsLoggingInterface(): void
+    {
         $this->assertInstanceOf(
             LoggingInterface::class,
             $this->subject
         );
     }
 
-    /**
-     * @test
-     */
-    public function getErrorCodesReturnsClassConstant() {
+    public function testGetErrorCodesReturnsClassConstant(): void
+    {
         $this->assertSame(
             MoveFile::ERROR_CODES,
             $this->subject->getErrorCodes()
         );
     }
-    
-    /**
-     * @test
-     */
-    public function getNoticeCodesReturnsClassConstant() {
+
+    public function testGetNoticeCodesReturnsClassConstant(): void
+    {
         $this->assertSame(
             MoveFile::NOTICE_CODES,
             $this->subject->getNoticeCodes()
         );
     }
+
 }

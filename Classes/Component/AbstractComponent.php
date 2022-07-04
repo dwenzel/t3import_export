@@ -4,12 +4,11 @@ namespace CPSIT\T3importExport\Component;
 
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -36,30 +35,18 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  */
 abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
 {
-    use ConfigurableTrait, RenderContentTrait, ObjectManagerTrait;
-
-    /**
-     * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
-     */
-    protected $signalSlotDispatcher;
-
-    /**
-     * @param Dispatcher $signalSlotDispatcher
-     */
-    public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
-    {
-        $this->signalSlotDispatcher = $signalSlotDispatcher;
-    }
+    use ConfigurableTrait, RenderContentTrait;
 
     /**
      * Tells if the component is disabled
      *
      * @param array $configuration
      * @param array $record
-     * @param TaskResult $result
+     * @param TaskResult|null $result
      * @return bool
+     * @throws ContentRenderingException
      */
-    public function isDisabled($configuration, $record = [], TaskResult $result = null)
+    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool
     {
         if (!isset($configuration['disable'])) {
             return false;
@@ -79,7 +66,7 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
                     true
                 );
                 foreach ($messageIds as $id) {
-                    if ($result->hasMessageWithId($id)) {
+                    if ($result instanceof TaskResult && $result->hasMessageWithId($id)) {
                         return true;
                     }
                 }
@@ -89,26 +76,5 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
         }
 
         return false;
-    }
-
-    /**
-     * Emits signals
-     *
-     * @param string $name Signal name
-     * @param array $arguments Signal arguments
-     * @codeCoverageIgnore
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
-     */
-    protected function emitSignal($name, array &$arguments)
-    {
-
-        /**
-         * Wrap arguments into array in order to allow changing the arguments
-         * count. Dispatcher throws InvalidSlotReturnException if slotResult count
-         * differs.
-         */
-        $slotResult = $this->signalSlotDispatcher->dispatch(get_class($this), $name, [$arguments]);
-        $arguments = $slotResult[0];
     }
 }

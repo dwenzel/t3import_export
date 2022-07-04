@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -21,24 +22,20 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 
 use CPSIT\T3importExport\Component\PreProcessor\StringToTime;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class StringToTimeTest
  * @package CPSIT\T3importExport\Tests\Unit\Component\PreProcessor
  */
-class StringToTimeTest extends UnitTestCase
+class StringToTimeTest extends TestCase
 {
-    /**
-     * @var StringToTime
-     */
-    protected $subject;
+    protected StringToTime $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getMock(
-            StringToTime::class, ['dummy']
-        );
+        $this->subject = new StringToTime();
     }
 
     /**
@@ -46,7 +43,7 @@ class StringToTimeTest extends UnitTestCase
      *
      * @return array
      */
-    public function isConfigurationValidDataProvider()
+    public function isConfigurationValidDataProvider(): array
     {
         return [
             [['foo'], false],
@@ -55,12 +52,11 @@ class StringToTimeTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @dataProvider isConfigurationValidDataProvider
      * @param array $configuration
      * @param bool $expectedValue
      */
-    public function isConfigurationValidReturnsCorrectValues($configuration, $expectedValue)
+    public function testIsConfigurationValidReturnsCorrectValues(array $configuration, bool $expectedValue): void
     {
         $this->assertSame(
             $expectedValue,
@@ -68,10 +64,7 @@ class StringToTimeTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processConvertsFields()
+    public function testProcessConvertsFields(): void
     {
         $configuration = [
             'fields' => 'foo,bar'
@@ -82,7 +75,8 @@ class StringToTimeTest extends UnitTestCase
         ];
         $expectedRecord = [
             'foo' => strtotime($record['foo']),
-            'baz' => 'boo'
+            'baz' => 'boo',
+            'bar' => null
         ];
         $this->subject->process($configuration, $record);
         $this->assertSame(
@@ -94,7 +88,7 @@ class StringToTimeTest extends UnitTestCase
     /**
      * @test
      */
-    public function processConvertsMultipleRowFields()
+    public function processConvertsMultipleRowFields(): void
     {
         $configuration = [
             'fields' => 'foo',
@@ -108,7 +102,8 @@ class StringToTimeTest extends UnitTestCase
         $expectedRecord = [
             'bar' => [
                 ['foo' => strtotime($record['bar'][0]['foo'])]
-            ]
+            ],
+            'foo' => null,
         ];
         $this->subject->process($configuration, $record);
         $this->assertSame(

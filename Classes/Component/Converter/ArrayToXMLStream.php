@@ -33,6 +33,7 @@ use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
@@ -43,10 +44,6 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  */
 class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 {
-    use ObjectManagerTrait;
-
-    const BEFORE_CONVERT_SIGNAL = 'beforeConvertSignal';
-
     const DEFAULT_NODE_NAME = 'row';
     const XML_CONFIG_NODE_KEY = 'nodeName';
     const XML_CONFIG_FIELD_KEY = 'fields';
@@ -138,7 +135,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         $buffer = $this->generateXMLStream($record, $rootEnclosure, $fieldsConfig);
 
         // fetch target class (DataStream) if not set return xml buffer instead
-        $result = $this->objectManager->get($configuration['targetClass']);
+        $result = GeneralUtility::makeInstance($configuration['targetClass']);
         if ($result instanceof DataStreamInterface) {
             $result->setStreamBuffer($buffer);
         } else {
@@ -320,11 +317,11 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
      * @throws MissingClassException
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return (
-            $this->targetClassConfigurationValidator->validate($configuration) &&
-            $this->mappingConfigurationValidator->validate($configuration)
+            $this->targetClassConfigurationValidator->isValid($configuration) &&
+            $this->mappingConfigurationValidator->isValid($configuration)
         );
     }
 
@@ -355,7 +352,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     protected function getDefaultMappingConfiguration()
     {
         /** @var PropertyMappingConfiguration $propertyMappingConfiguration */
-        $propertyMappingConfiguration = $this->objectManager->get(
+        $propertyMappingConfiguration = GeneralUtility::makeInstance(
             PropertyMappingConfiguration::class
         );
         $propertyMappingConfiguration->setTypeConverterOptions(

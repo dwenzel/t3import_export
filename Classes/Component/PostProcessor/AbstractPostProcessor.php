@@ -1,10 +1,8 @@
 <?php
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
-use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice
@@ -33,7 +31,7 @@ abstract class AbstractPostProcessor extends AbstractComponent
      * @param array $record
      * @return bool
      */
-    abstract public function process($configuration, &$convertedRecord, &$record);
+    abstract public function process(array $configuration, &$convertedRecord, array &$record): bool;
 
     /**
      * Tells whether a given configuration is valid
@@ -41,7 +39,7 @@ abstract class AbstractPostProcessor extends AbstractComponent
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }

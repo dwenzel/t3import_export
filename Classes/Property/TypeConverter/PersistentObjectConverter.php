@@ -112,7 +112,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @return object the target type
      * @throws \TYPO3\CMS\Extbase\Property\Exception\InvalidTargetException
      */
-    public function convertFrom($source, $targetType, array $convertedChildProperties = array(), \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = null)
+    public function convertFrom($source, $targetType, array $convertedChildProperties = [], \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = null): ?object
     {
         $this->setConfiguration($configuration);
 
@@ -200,7 +200,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @throws \TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException
      * @return object
      */
-    protected function fetchObjectFromPersistence($identity, $targetType)
+    protected function fetchObjectFromPersistence($identity, $targetType): object
     {
         $object = null;
         if (ctype_digit((string) $identity)) {

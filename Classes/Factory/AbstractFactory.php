@@ -18,53 +18,27 @@ namespace CPSIT\T3importExport\Factory;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\T3importExport\ObjectManagerTrait;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
 /**
  * Class AbstractFactory
  *
  * @package CPSIT\T3importExport\Domain\Factory
+ * @deprecated
  */
 abstract class AbstractFactory
 {
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
-     */
-    protected $objectManager;
-
     /**
      * @var array
      */
-    protected $settings;
+    protected array $settings;
 
-    /**
-     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
-     */
-    protected $configurationManager;
-
-    /**
-     * Injects the object manager
-     *
-     * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
-     * @return void
-     */
-    public function injectObjectManager(ObjectManagerInterface $objectManager)
+    public function withSettings(array $settings): self
     {
-        $this->objectManager = $objectManager;
-    }
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
-     * @return void
-     */
-    public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
-    {
-        $this->configurationManager = $configurationManager;
-        $this->settings = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS
-        );
+        $this->settings = $settings;
+        return $this;
     }
 
     /**

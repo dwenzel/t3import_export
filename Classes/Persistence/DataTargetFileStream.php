@@ -11,7 +11,7 @@ use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
-class DataTargetFileStream extends DataTargetRepository implements DataTargetInterface, ConfigurableInterface
+class DataTargetFileStream extends DataTargetRepository implements ConfigurableInterface
 {
     use ConfigurableTrait;
     const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
@@ -59,7 +59,7 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
         ) {
             $result->rewind();
             if ($result->valid()) {
-                $fileInfo = $this->objectManager->get(FileInfo::class, $this->tempFile);
+                $fileInfo = GeneralUtility::makeInstance(FileInfo::class, $this->tempFile);
 
                 $result->setInfo($fileInfo);
             }
@@ -91,7 +91,7 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
      */
     protected function createAnonymTempFile()
     {
-        return $this->createTempFile(md5(uniqid(time())));
+        return $this->createTempFile(md5(uniqid(time(), true)));
     }
 
     /**
@@ -104,7 +104,7 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
     protected function createTempFile($fileName)
     {
         /** @var BasicFileUtility $basicFileUtility */
-        $basicFileUtility = $this->objectManager->get('TYPO3\CMS\Core\Utility\File\BasicFileUtility');
+        $basicFileUtility = GeneralUtility::makeInstance(BasicFileUtility::class);
         $absPath = GeneralUtility::getFileAbsFileName(static::TEMP_DIRECTORY);
 
         if (!file_exists($absPath)) {
@@ -124,7 +124,7 @@ class DataTargetFileStream extends DataTargetRepository implements DataTargetInt
         return $absFileName;
     }
 
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }

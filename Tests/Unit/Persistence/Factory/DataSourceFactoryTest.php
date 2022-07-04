@@ -1,13 +1,18 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
+use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -58,7 +63,7 @@ class DummyMissingConfigurableInterfaceClass
      * @param array $configuration
      * @return array
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): array
     {
         return [];
     }
@@ -79,7 +84,7 @@ class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, Iden
      * @param array $configuration
      * @return array
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): array
     {
         return [];
     }
@@ -90,7 +95,7 @@ class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, Iden
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }
@@ -101,7 +106,7 @@ class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, Iden
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
-class DummySourceClass implements DataSourceInterface
+class DummySourceClass implements DataSourceInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 
@@ -111,7 +116,7 @@ class DummySourceClass implements DataSourceInterface
      * @param array $configuration
      * @return array
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): array
     {
         return [];
     }
@@ -122,7 +127,7 @@ class DummySourceClass implements DataSourceInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         return true;
     }
@@ -134,31 +139,36 @@ class DummySourceClass implements DataSourceInterface
  * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataSourceFactory
  */
-class DataSourceFactoryTest extends UnitTestCase
+class DataSourceFactoryTest extends TestCase
 {
+    protected DataSourceFactory $subject;
 
     /**
-     * @var DataSourceFactory
+     * @var DataSourceInterface|MockObject
      */
-    protected $subject;
+    protected DataSourceInterface $dataSource;
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getMock(
-            DataSourceFactory::class, ['dummy']
-        );
+        $this->subject = new DataSourceFactory();
+        $this->dataSource = $this->getMockBuilder(DummySourceClass::class)
+            ->setMethods(['setIdentifier'])
+            ->getMock();
     }
 
     /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\MissingClassException
-     * @expectedExceptionCode 1451060913
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function getThrowsExceptionForMissingSourceClass()
+    public function testGetThrowsExceptionForMissingSourceClass(): void
     {
+        $this->expectExceptionCode(1451060913);
+        $this->expectException(MissingClassException::class);
         $identifier = 'foo';
         $settings = [
             'class' => 'NonExistingSourceClass'
@@ -167,12 +177,14 @@ class DataSourceFactoryTest extends UnitTestCase
     }
 
     /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\MissingInterfaceException
-     * @expectedExceptionCode 1451061361
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function getThrowsExceptionForMissingDataSourceInterface()
+    public function testGetThrowsExceptionForMissingDataSourceInterface(): void
     {
+        $this->expectExceptionCode(1451061361);
+        $this->expectException(MissingInterfaceException::class);
         $identifier = 'foo';
         $settings = [
             'class' => DummyMissingSourceInterfaceClass::class
@@ -181,12 +193,14 @@ class DataSourceFactoryTest extends UnitTestCase
     }
 
     /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451086595
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function getThrowsExceptionForMissingConfig()
+    public function testGetThrowsExceptionForMissingConfig(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1451086595);
         $identifier = 'foo';
         $dataSourceClass = DummySourceClass::class;
         $settings = [
@@ -197,9 +211,11 @@ class DataSourceFactoryTest extends UnitTestCase
     }
 
     /**
-     * @test
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function getSetsIdentifierForIdentifiableSource()
+    public function testGetSetsIdentifierForIdentifiableSource(): void
     {
         $identifier = 'foo';
         $dataSourceClass = DummyIdentifiableSourceInterfaceClass::class;
@@ -208,108 +224,82 @@ class DataSourceFactoryTest extends UnitTestCase
             'identifier' => 'barSourceIdentifier',
             'config' => []
         ];
-        $mockDataSource = $this->getMock(
+
+        $dataSource = $this->subject->get($settings, $identifier);
+        /** @noinspection UnnecessaryAssertionInspection */
+        self::assertInstanceOf(
             $dataSourceClass,
-            ['setIdentifier']
+            $dataSource
         );
-        $mockDataSource->expects($this->once())
-            ->method('setIdentifier')
-            ->with($settings['identifier']);
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        /** @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject $mockObjectManager */
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with($dataSourceClass)
-            ->will($this->returnValue($mockDataSource));
-        $this->subject->injectObjectManager($mockObjectManager);
 
-        $this->subject->get($settings, $identifier);
+        if ($dataSource instanceof DummyIdentifiableSourceInterfaceClass) {
+            self::assertSame(
+                $settings['identifier'],
+                $dataSource->getIdentifier()
+            );
+        }
     }
 
     /**
-     * @test
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function getReturnsDefaultDataSource()
+    public function testGetReturnsDefaultDataSource(): void
     {
-        $identifier = 'foo';
-        $dataSourceClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
-        $expectedDataSource = $this->getMock(
-            $dataSourceClass, [], [], '', false
-        );
+        $tableName = 'foo';
+        $expectedClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
         $settings = [
-            'identifier' => $identifier,
+            'config' => [
+                'table' => $tableName,
+            ]
+        ];
+
+        /** @noinspection UnnecessaryAssertionInspection */
+        $this->assertInstanceOf(
+            $expectedClass,
+            $this->subject->get($settings)
+        );
+    }
+
+    /**
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
+     */
+    public function testGetReturnsDataSource(): void
+    {
+        $sourceClass = get_class($this->dataSource);
+        $identifier = 'foo';
+        $settings = [
+            'class' => $sourceClass,
             'config' => []
         ];
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with($dataSourceClass)
-            ->will($this->returnValue($expectedDataSource));
-        $this->subject->injectObjectManager($mockObjectManager);
-        $this->assertSame(
-            $expectedDataSource,
+        /** @noinspection UnnecessaryAssertionInspection */
+        $this->assertInstanceOf(
+            $sourceClass,
             $this->subject->get($settings, $identifier)
         );
     }
 
     /**
-     * @test
+     * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function getReturnsDataSource()
+    public function testGetSetsConfiguration(): void
     {
         $identifier = 'foo';
         $dataSourceClass = DummySourceClass::class;
-        $expectedDataSource = $this->getMock(
-            $dataSourceClass
-        );
         $settings = [
             'class' => $dataSourceClass,
-            'config' => []
+            'config' => ['boo']
         ];
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with($dataSourceClass)
-            ->will($this->returnValue($expectedDataSource));
-        $this->subject->injectObjectManager($mockObjectManager);
-        $this->assertSame(
-            $expectedDataSource,
-            $this->subject->get($settings, $identifier)
-        );
-    }
 
-    /**
-     * @test
-     */
-    public function getSetsConfiguration()
-    {
-        $identifier = 'foo';
-        $dataSourceClass = DummySourceClass::class;
-        $mockDataSource = $this->getMock(
-            $dataSourceClass
+        $dataSource = $this->subject->get($settings, $identifier);
+        self::assertSame(
+            $settings['config'],
+            $dataSource->getConfiguration()
         );
-        $settings = [
-            'class' => $dataSourceClass,
-            'config' => []
-        ];
-        $mockDataSource->expects($this->once())
-            ->method('setConfiguration')
-            ->with($settings['config']);
-        $mockObjectManager = $this->getMock(
-            ObjectManager::class, ['get']
-        );
-        $mockObjectManager->expects($this->once())
-            ->method('get')
-            ->with($dataSourceClass)
-            ->will($this->returnValue($mockDataSource));
-        $this->subject->injectObjectManager($mockObjectManager);
-
-        $this->subject->get($settings, $identifier);
     }
 }

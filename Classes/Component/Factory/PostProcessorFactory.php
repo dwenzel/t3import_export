@@ -3,7 +3,9 @@ namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -29,7 +31,7 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class PostProcessorFactory extends AbstractFactory
+class PostProcessorFactory extends AbstractFactory implements FactoryInterface
 {
     /**
      * Builds a PostProcessor object
@@ -37,9 +39,9 @@ class PostProcessorFactory extends AbstractFactory
      * @param array $settings
      * @param string $identifier
      * @throws \CPSIT\T3importExport\InvalidConfigurationException
-     * @return \CPSIT\T3importExport\Component\Factory\PostProcessorFactory
+     * @return PostProcessorInterface
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], $identifier = null): PostProcessorInterface
     {
         $additionalInformation = '.';
         if (!is_null($identifier)) {
@@ -69,6 +71,6 @@ class PostProcessorFactory extends AbstractFactory
             );
         }
 
-        return $this->objectManager->get($className);
+        return GeneralUtility::makeInstance($className);
     }
 }

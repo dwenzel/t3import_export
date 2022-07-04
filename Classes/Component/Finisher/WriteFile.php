@@ -20,35 +20,35 @@ namespace CPSIT\T3importExport\Component\Finisher;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
-use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
+use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Class WriteFileFromStream
  */
-class WriteFile extends AbstractFinisher implements FinisherInterface, ConfigurableInterface
+class WriteFile extends AbstractFinisher implements FinisherInterface
 {
-    use ResourceFactoryTrait, ResourceStorageTrait;
+    use ResourceStorageTrait;
 
     /**
      * cancel file operation
      */
     const CONFLICT_MODE_CANCEL = 'cancel';
-
     /**
      * change name of new file according to TYPO3 conventions
      */
     const CONFLICT_MODE_CHANGENAME = 'changeName';
-
     /**
      * replace existing file
      */
     const CONFLICT_MODE_REPLACE = 'replace';
-
     /**
      * Valid values for conflict modes (for file operations)
      */
@@ -57,6 +57,17 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
         self::CONFLICT_MODE_CHANGENAME,
         self::CONFLICT_MODE_REPLACE
     ];
+    protected ResourceFactory $resourceFactory;
+
+    /**
+     * WriteFile constructor.
+     * @param ResourceFactory|null $resourceFactory
+     */
+    public function __construct(ResourceFactory $resourceFactory = null)
+    {
+        $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
+    }
+
 
     /**
      * Tells whether the given configuration is valid
@@ -64,7 +75,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (
             empty($configuration)
@@ -107,8 +118,10 @@ class WriteFile extends AbstractFinisher implements FinisherInterface, Configura
      * @param array $records
      * @param array|TaskResult $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
+     * @throws InsufficientFolderAccessPermissionsException
+     * @throws ExistingTargetFolderException|ExistingTargetFileNameException
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration, array &$records, &$result): bool
     {
         if (
         !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)

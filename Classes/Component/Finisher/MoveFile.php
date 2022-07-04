@@ -24,17 +24,20 @@ use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Class MoveFileFromStream
  */
 class MoveFile extends AbstractFinisher
-    implements FinisherInterface, ConfigurableInterface, LoggingInterface
+    implements FinisherInterface, LoggingInterface
 {
-    use LoggingTrait, ResourceFactoryTrait, ResourceStorageTrait;
+    use LoggingTrait, ResourceStorageTrait;
 
     /**
      * cancel file operation
@@ -79,6 +82,18 @@ class MoveFile extends AbstractFinisher
         1509024162 => ['File moved', 'File %1s has been moved succesfully to %2s.'],
     ];
 
+
+    protected ResourceFactory $resourceFactory;
+
+    public function __construct(
+        ResourceFactory $resourceFactory = null,
+        MessageContainer $messageContainer = null
+    )
+    {
+        $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
+    }
+
     /**
      * Returns error codes for current component.
      * Must be an array in the form
@@ -113,7 +128,7 @@ class MoveFile extends AbstractFinisher
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration)) {
             $this->logError(1509011717);
@@ -174,7 +189,9 @@ class MoveFile extends AbstractFinisher
      * @param array|TaskResult $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration,
+                            array &$records,
+                            &$result): bool
     {
         $defaultStorage = $this->resourceFactory->getDefaultStorage();
         $targetStorage = $defaultStorage;
@@ -194,7 +211,8 @@ class MoveFile extends AbstractFinisher
             }
         }
 
-        if (!$sourceStorage->hasFileInFolder($sourceFileName, $sourceFolder)) {
+        if ( (null === $sourceFolder )
+            || !$sourceStorage->hasFileInFolder($sourceFileName, $sourceFolder)) {
             $this->logError(1509023738, [$sourceFileName], $configuration);
             return false;
         }

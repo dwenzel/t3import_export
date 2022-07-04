@@ -32,7 +32,7 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
             return false;
@@ -85,7 +85,7 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
     {
         $fields = $configuration['fields'];
         $this->removeFieldInArray($record, $fields);
-        
+
         return true;
     }
 

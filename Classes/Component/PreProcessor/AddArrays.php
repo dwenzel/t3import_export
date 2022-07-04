@@ -24,7 +24,7 @@ class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration['targetField'])
             || !is_string($configuration['targetField'])

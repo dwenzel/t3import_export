@@ -15,14 +15,14 @@ namespace CPSIT\T3importExport\Tests\Validation\Configuration;
  */
 
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 
 /**
  * Class ResourcePathConfigurationValidatorTest
  */
-class ResourcePathConfigurationValidatorTest extends UnitTestCase
+class ResourcePathConfigurationValidatorTest extends TestCase
 {
     /**
      * @var ResourcePathConfigurationValidator | \PHPUnit_Framework_MockObject_MockObject
@@ -48,7 +48,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
     {
         $configuration = [];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -61,7 +61,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
             'file' => []
         ];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -82,7 +82,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
             ->will($this->returnValue(''));
 
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -108,7 +108,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
             ->will($this->returnValue(vfsStream::url($relativePath)));
 
         $this->assertTrue(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -123,7 +123,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
         ];
 
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -136,7 +136,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
             'url' => []
         ];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -149,7 +149,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
             'url' => 'foo'
         ];
         $this->assertFalse(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 
@@ -162,7 +162,7 @@ class ResourcePathConfigurationValidatorTest extends UnitTestCase
             'url' => 'http://typo3.org'
         ];
         $this->assertTrue(
-            $this->subject->validate($configuration)
+            $this->subject->isValid($configuration)
         );
     }
 }

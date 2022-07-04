@@ -20,19 +20,25 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingPreProcessor
  * Dummy class for testing: PreProcessor implementing LoggingInterface
  */
-class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterface
+class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterface, PreProcessorInterface
 {
     /**
      * Gets all messages
      * @return array
      */
     public function getMessages()
+    {
+        return [];
+    }
+
+    public function getAndPurgeMessages(): array
     {
         return [];
     }

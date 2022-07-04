@@ -24,21 +24,9 @@ use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 /**
  * Trait FileReferenceFactoryTrait
  * provides a file reference factory
+ * @deprecated This trait is now obsolet. Use a member variable instead
  */
 trait FileReferenceFactoryTrait
 {
-    /**
-     * @var FileReferenceFactory
-     */
-    protected $fileReferenceFactory;
-
-    /**
-     * Inject a file reference factory
-     *
-     * @param \CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory $factory
-     */
-    public function injectFileReferenceFactory(FileReferenceFactory $factory)
-    {
-        $this->fileReferenceFactory = $factory;
-    }
+    protected FileReferenceFactory $fileReferenceFactory;
 }

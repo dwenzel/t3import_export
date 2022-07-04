@@ -1,8 +1,9 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Domain\Model\Dto;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -27,25 +28,18 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  *
  * @package CPSIT\T3importExport\Tests\Domain\Model\Dto
  */
-class TaskDemandTest extends UnitTestCase
+class TaskDemandTest extends TestCase
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Domain\Model\Dto\TaskDemand
-     */
-    protected $subject;
+    protected TaskDemand $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            TaskDemand::class, ['dummy'], [], '', false
-        );
+        $this->subject = new TaskDemand();
     }
 
-    /**
-     * @test
-     */
-    public function getTasksInitiallyReturnsEmptyArray()
+    public function testGetTasksInitiallyReturnsEmptyArray(): void
     {
         $this->assertSame(
             [],
@@ -53,10 +47,7 @@ class TaskDemandTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getTaskForArraySetsTask()
+    public function testGetTaskForArraySetsTask(): void
     {
         $expectedArray = ['foo'];
         $this->subject->setTasks($expectedArray);

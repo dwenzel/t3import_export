@@ -5,9 +5,10 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+use CPSIT\T3importExport\Exception\PersistenceException;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
@@ -32,9 +33,19 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  *
  * @package CPSIT\T3importExport\Persistence
  */
-class DataTargetDB implements DataTargetInterface, ConfigurableInterface, IdentifiableInterface
+class DataTargetDB implements DataTargetInterface, ConfigurableInterface
 {
-    use ConfigurableTrait, DatabaseTrait, IdentifiableTrait;
+    use ConfigurableTrait, DatabaseTrait;
+
+    public const MISSING_CONNECTION_MESSAGE = 'Missing database connection for table "%s"';
+    public const MISSING_CONNECTION_CODE = 1646037375;
+    public const DEFAULT_IDENTITY_FIELD = '__identity';
+    public const FIELD_TABLE = 'table';
+    public const FIELD_FIELD = 'field';
+    public const FIELD_SKIP = 'skip';
+    public const FIELD_IF_EMPTY = 'ifEmpty';
+    public const FIELD_IF_NOT_EMPTY = 'ifNotEmpty';
+    public const FIELD_UNSET_KEYS = 'unsetKeys';
 
     /**
      * Tells if the configuration is valid
@@ -42,38 +53,49 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration['table'])) {
+        if (!isset($configuration[self::FIELD_TABLE])) {
             return false;
         }
 
-        if (isset($configuration['unsetKeys'])
-        && !is_string($configuration['unsetKeys'])) {
+        if (isset($configuration[self::FIELD_UNSET_KEYS])
+            && !is_string($configuration[self::FIELD_UNSET_KEYS])) {
             return false;
         }
 
-        return true;
-    }
+        if (isset($configuration[self::FIELD_SKIP])
+            && (!is_array($configuration[self::FIELD_SKIP])
+                || empty($configuration[self::FIELD_SKIP]))
+        ) {
+            return false;
+        }
 
-    /**
-     * Gets the database connection
-     *
-     * @return DatabaseConnection
-     * @throws \CPSIT\T3importExport\MissingDatabaseException
-     */
-    public function getDatabase()
-    {
         if (
-            !$this->database instanceof DatabaseConnection
-            || (
-                !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
+            isset($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
+            && (!is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
+                || !is_string($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY][self::FIELD_FIELD])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY][self::FIELD_FIELD])
             )
         ) {
-            $this->database = $this->connectionService->getDatabase($this->identifier);
+            return false;
         }
 
-        return $this->database;
+        if (
+            isset($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
+            && (!is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
+                || !is_string($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY][self::FIELD_FIELD])
+                || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY][self::FIELD_FIELD])
+
+            )
+        ) {
+            return false;
+        }
+
+
+        return true;
     }
 
     /**
@@ -85,15 +107,29 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
      * Any of those keys will be unset before persisting.
      *
      * @param array|DomainObjectInterface $object
-     * @param array $configuration
+     * @param array|null $configuration
      * @return bool
+     * @throws InvalidConfigurationException
      */
     public function persist($object, array $configuration = null)
     {
-        $tableName = $configuration['table'];
+        if ($this->shouldSkip($object, $configuration)) {
+            return false;
+        }
+        $tableName = $configuration[self::FIELD_TABLE];
 
-        if (isset($configuration['unsetKeys'])) {
-            $unsetKeys = GeneralUtility::trimExplode(',', $configuration['unsetKeys'], true);
+        $this->connection = $this->connectionPool->getConnectionForTable($tableName);
+        if (!$this->connection instanceof Connection) {
+
+            $message = sprintf(self::MISSING_CONNECTION_MESSAGE, $tableName);
+            throw new InvalidConfigurationException(
+                $message,
+                self::MISSING_CONNECTION_CODE
+            );
+        }
+
+        if (isset($configuration[self::FIELD_UNSET_KEYS])) {
+            $unsetKeys = GeneralUtility::trimExplode(',', $configuration[self::FIELD_UNSET_KEYS], true);
             if ((bool)$unsetKeys) {
                 foreach ($unsetKeys as $key) {
                     unset($object[$key]);
@@ -101,29 +137,59 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
             }
         }
 
-        if (isset($object['__identity'])) {
-            $uid = $object['__identity'];
-            unset($object['__identity']);
-            $this->getDatabase()->exec_UPDATEquery(
-                $tableName,
-                'uid = ' . $uid,
-                $object
-            );
+
+        if (isset($object[self::DEFAULT_IDENTITY_FIELD])) {
+            $data = $object;
+            $uid = $object[self::DEFAULT_IDENTITY_FIELD];
+            unset($data[self::DEFAULT_IDENTITY_FIELD]);
+            try {
+
+                $this->connection->update(
+                    $tableName,
+                    $data,
+                    ['uid' => $uid]
+                );
+            } catch (\Exception $exception) {
+                $message = 'Update Exception:' . PHP_EOL;
+                $message .= 'Data:' . PHP_EOL;
+                $message .= json_encode($object);
+                /**
+                 * Fixme: write to log instead of catch and re-throw
+                 */
+                throw new PersistenceException(
+                    $message,
+                    1647701464,
+                    $exception
+                );
+            }
 
             return true;
         }
 
-        $this->getDatabase()->exec_INSERTquery(
-            $tableName,
-            $object
-        );
+
+        try {
+            $this->connection->insert(
+                $tableName,
+                $object
+            );
+        } catch (\Exception $exception) {
+            $message = 'Insert Exception:' . PHP_EOL;
+            $message .= 'Data:' . PHP_EOL;
+            $message .= json_encode($object);
+
+            throw new PersistenceException(
+                $message,
+                1647701464,
+                $exception
+            );
+        }
 
         return true;
     }
 
     /**
      * Dummy method
-     * Currently does'nt do anything
+     * Currently doesn't do anything
      *
      * @param null $result
      * @param array|null $configuration
@@ -131,5 +197,27 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface, Identi
      */
     public function persistAll($result = null, array $configuration = null)
     {
+    }
+
+    /**
+     * Tells if the record should be skipped, i.e. not be persisted
+     * @param array $record
+     * @param array $configuration
+     * @return bool
+     */
+    protected function shouldSkip(array $record, array $configuration): bool
+    {
+        $ifNotEmptyPath = implode('/', [self::FIELD_SKIP, self::FIELD_IF_NOT_EMPTY, self::FIELD_FIELD]);
+        $ifEmptyPath = implode('/', [self::FIELD_SKIP, self::FIELD_IF_EMPTY, self::FIELD_FIELD]);
+        if (ArrayUtility::isValidPath($configuration, $ifNotEmptyPath)) {
+            $fieldName = ArrayUtility::getValueByPath($configuration, $ifNotEmptyPath);
+            return !empty($record[$fieldName]);
+        }
+
+        if (ArrayUtility::isValidPath($configuration, $ifEmptyPath)) {
+            $fieldName = ArrayUtility::getValueByPath($configuration, $ifEmptyPath);
+            return empty($record[$fieldName]);
+        }
+        return false;
     }
 }

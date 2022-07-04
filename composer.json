@@ -9,7 +9,7 @@
     "export"
   ],
   "license": [
-    "GPL-2.0+"
+    "GPL-2.0-or-later"
   ],
   "authors": [
     {
@@ -18,19 +18,20 @@
     }
   ],
   "require": {
-    "php": ">=5.6",
-    "typo3/cms-core": ">=6.2.0,<8.9.99"
+    "php": ">=7.4",
+    "dwenzel/t3extension-tools": "^1.7",
+    "typo3/cms-core": "^9.5 || ^10.4",
+    "ext-xmlreader": "*"
   },
   "replace": {
-    "t3import_export": "self.version",
-    "cpsit/t3import-export": "self.version",
-    "typo3-ter/t3import-export": "self.version",
+    "cpsit/t3import_export": "self.version",
     "typo3-ter/t3import_export": "self.version"
   },
   "require-dev": {
-    "mikey179/vfsStream": "~1.6.0",
-    "nimut/testing-framework": "^1.1",
-    "phpunit/phpunit": "^4.8 || ^5.6"
+    "roave/security-advisories": "dev-latest"   ,
+    "mikey179/vfsstream": "~1.6.0",
+    "nimut/testing-framework": "^5.2",
+    "phpunit/phpunit": "^6.0 || ^7.5.6 || ^8"
   },
   "autoload": {
     "psr-4": {
@@ -51,13 +52,14 @@
       "mkdir -p .Build/Web/typo3conf/ext/",
       "mkdir -p .Build/log/coverage/",
       "[ -L .Build/Web/typo3conf/ext/t3import_export ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/t3import_export"
+    ],
+    "test:unit": [
+      ".Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit"
     ]
   },
   "extra": {
-    "branch-alias": {
-      "dev-master": "0.8.x-dev"
-    },
     "typo3/cms": {
+      "extension-key": "t3import_export",
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
       "web-dir": ".Build/Web"
     }

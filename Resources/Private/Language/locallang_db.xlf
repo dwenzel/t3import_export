@@ -1,26 +1,80 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-	<file source-language="en" datatype="plaintext" original="messages" date="2016-10-11T07:18:13Z">
-		<header>
-			<type>database</type>
-			<description>Language labels for database tables/fields belonging to extension 't3events'</description>
-			<generator>LFEditor</generator>
-			<authorName>Dirk Wenzel</authorName>
-			<authorEmail>t3events@gmx.de</authorEmail>
-		</header>
-		<body>
-		<trans-unit id="tx_t3importexport_domain_model_exporttarget">
-			<source>Export Target</source>
-		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_exporttarget.title">
-			<source>Title</source>
-		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_queue">
-			<source>Queue</source>
-		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_queueitem">
-			<source>Queue Item</source>
-		</trans-unit>
-		</body>
-	</file>
+    <file source-language="en" datatype="plaintext" original="messages" date="2016-10-11T07:18:13Z">
+        <header>
+            <type>database</type>
+            <description>Language labels for database tables/fields belonging to extension 't3events'</description>
+            <generator>LFEditor</generator>
+            <authorName>Dirk Wenzel</authorName>
+            <authorEmail>t3events@gmx.de</authorEmail>
+        </header>
+        <body>
+            <trans-unit id="tx_t3importexport_domain_model_exporttarget">
+                <source>Export Target</source>
+            </trans-unit>
+            <trans-unit id="tx_t3importexport_domain_model_exporttarget.title">
+                <source>Title</source>
+            </trans-unit>
+            <trans-unit id="tx_t3importexport_domain_model_queue">
+                <source>Queue</source>
+            </trans-unit>
+            <trans-unit id="tx_t3importexport_domain_model_queueitem">
+                <source>Queue Item</source>
+            </trans-unit>
+            <trans-unit id="label.created_date">
+                <source>created</source>
+            </trans-unit>
+            <trans-unit id="label.started_date">
+                <source>started</source>
+            </trans-unit>
+            <trans-unit id="label.finished_date">
+                <source>finished</source>
+            </trans-unit>
+            <trans-unit id="label.status">
+                <source>Status</source>
+            </trans-unit>
+            <trans-unit id="label.identifier">
+                <source>Identifier</source>
+            </trans-unit>
+            <trans-unit id="label.batch_size">
+                <source>Batch Size</source>
+            </trans-unit>
+            <trans-unit id="label.description">
+                <source>Description</source>
+            </trans-unit>
+            <trans-unit id="label.data">
+                <source>Data</source>
+            </trans-unit>
+            <trans-unit id="label.queue">
+                <source>Queue</source>
+            </trans-unit>
+            <trans-unit id="label.checksum">
+                <source>Checksum</source>
+            </trans-unit>
+            <trans-unit id="label.status.queue.0">
+                <source>new</source>
+            </trans-unit>
+            <trans-unit id="label.status.queue.1">
+                <source>running</source>
+            </trans-unit>
+            <trans-unit id="label.status.queue.2">
+                <source>finished</source>
+            </trans-unit>
+            <trans-unit id="label.status.queue.3">
+                <source>failed</source>
+            </trans-unit>
+            <trans-unit id="label.status.item.0">
+                <source>new</source>
+            </trans-unit>
+            <trans-unit id="label.status.item.1">
+                <source>processing</source>
+            </trans-unit>
+            <trans-unit id="label.status.item.2">
+                <source>finished</source>
+            </trans-unit>
+            <trans-unit id="label.status.item.3">
+                <source>failed</source>
+            </trans-unit>
+        </body>
+    </file>
 </xliff>

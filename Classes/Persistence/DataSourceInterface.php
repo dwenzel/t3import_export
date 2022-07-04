@@ -1,7 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\T3importExport\Component\ComponentInterface;
 
 /**
  * Interface DataSourceInterface
@@ -10,7 +10,7 @@ use CPSIT\T3importExport\ConfigurableInterface;
  *
  * @package CPSIT\T3importExport\Persistence
  */
-interface DataSourceInterface extends ConfigurableInterface
+interface DataSourceInterface extends ComponentInterface
 {
     /**
      * Fetches records from a data source.

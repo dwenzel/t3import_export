@@ -1,7 +1,11 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties;
+use CPSIT\T3importExport\Tests\Unit\Fixtures\DummyDomainObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
@@ -29,25 +33,26 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  * @package CPSIT\T3importExport\Tests\Service\PostProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
  */
-class SetHiddenPropertiesTest extends UnitTestCase
+class SetHiddenPropertiesTest extends TestCase
 {
 
+    protected SetHiddenProperties $subject;
+
     /**
-     * @var \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
+     * @var AbstractDomainObject|MockObject
      */
-    protected $subject;
+    protected $domainObject;
 
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PostProcessor\\SetHiddenProperties',
-            ['dummy'], [], '', false);
+        $this->subject = new SetHiddenProperties();
+        $this->domainObject = new DummyDomainObject();
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsInitiallyFalse()
+    public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertFalse(
@@ -56,10 +61,9 @@ class SetHiddenPropertiesTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
             'fields' => 'foo'
@@ -70,10 +74,9 @@ class SetHiddenPropertiesTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsNotString(): void
     {
         $config = [
             'fields' => [
@@ -86,10 +89,9 @@ class SetHiddenPropertiesTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsEmpty(): void
     {
         $config = [
             'fields' => [
@@ -102,10 +104,9 @@ class SetHiddenPropertiesTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
             'fields' => [
@@ -120,10 +121,9 @@ class SetHiddenPropertiesTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfChildrenIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfChildrenIsNotArray(): void
     {
         $config = [
             'fields' => [
@@ -136,11 +136,9 @@ class SetHiddenPropertiesTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processSetsExistingHiddenField()
+    public function testProcessSetsExistingHiddenField(): void
     {
+        $domainObject = new DummyDomainObject();
         $fieldName = 'languageUid';
         $config = [
             'fields' => [
@@ -150,21 +148,21 @@ class SetHiddenPropertiesTest extends UnitTestCase
         $record = [
             $fieldName => 1
         ];
-        $convertedRecord = $this->getAccessibleMockForAbstractClass(
-            AbstractDomainObject::class
-        );
-        $this->subject->process($config, $convertedRecord, $record);
+        $this->subject->process($config, $domainObject, $record);
 
         $this->assertSame(
-            $convertedRecord->_getProperty('_' . $fieldName), $record[$fieldName]
+            $domainObject->_getProperty('_' . $fieldName), $record[$fieldName]
         );
     }
 
-    /**
-     * @test
-     */
-    public function processSetsPropertiesRecursive()
+    public function testProcessSetsPropertiesRecursive(): void
     {
+        $domainObject = $this->getMockBuilder(DummyDomainObject::class)
+            ->setMethods(['_hasProperty', '_getProperty'])
+            ->getMock();
+        $childObject = $this->getMockBuilder(DummyDomainObject::class)
+            ->setMethods(['_hasProperty', '_getProperty'])
+            ->getMock();
         $fieldName = 'languageUid';
         $config = [
             'fields' => [
@@ -177,108 +175,20 @@ class SetHiddenPropertiesTest extends UnitTestCase
         $record = [
             $fieldName => 1
         ];
-        $convertedRecord = $this->getAccessibleMock(
-            AbstractDomainObject::class,
-            ['_hasProperty', '_getProperty']
-        );
-        $convertedRecord->expects($this->any())
+        $domainObject->expects($this->atLeastOnce())
             ->method('_hasProperty')
-            ->will($this->returnValue(true));
-        $convertedRecord->expects($this->once())
-            ->method('_getProperty');
-
-        $this->subject->process($config, $convertedRecord, $record);
-    }
-
-    /**
-     * @test
-     */
-    public function processSetsPropertiesRecursiveWithSubAbstractDomainObject()
-    {
-        $fieldName = 'languageUid';
-        $config = [
-            'fields' => [
-                'languageUid' => 1
-            ],
-            'children' => [
-                'fooField' => 1
-            ]
-        ];
-        $record = [
-            $fieldName => 1
-        ];
-        $convertedRecord = $this->getAccessibleMock(
-            AbstractDomainObject::class,
-            ['_hasProperty', '_getProperty']
-        );
-        $convertedRecordChild = $this->getAccessibleMock(
-            AbstractDomainObject::class,
-            ['_hasProperty', '_setProperty']
-        );
-
-        $convertedRecord->expects($this->any())
-            ->method('_hasProperty')
-            ->will($this->returnValue(true));
-        $convertedRecord->expects($this->once())
+            ->willReturn(true);
+        $domainObject->expects($this->once())
             ->method('_getProperty')
-            ->willReturn($convertedRecordChild);
+            ->with(...['fooField'])
+            ->willReturn($childObject);
 
-        $convertedRecordChild->expects($this->once())
-            ->method('_setProperty')
-            ->with(
-                $this->equalTo('_'.$fieldName),
-                $this->equalTo($record[$fieldName])
-            )
-            ->will($this->returnValue(true));
-
-        $this->subject->process($config, $convertedRecord, $record);
-    }
-
-    /**
-     * @test
-     */
-    public function processSetsPropertiesRecursiveWithChildAbstractDomainObject()
-    {
-        $fieldName = 'languageUid';
-        $config = [
-            'fields' => [
-                'languageUid' => 1
-            ],
-            'children' => [
-                'languageUid' => 1
-            ]
-        ];
-        $record = [
-            $fieldName => 1
-        ];
-        $convertedRecord = $this->getAccessibleMock(
-            AbstractDomainObject::class,
-            ['_hasProperty', '_getProperty']
-        );
-
-        $convertedRecordChild = $this->getAccessibleMock(
-            AbstractDomainObject::class,
-            ['_hasProperty', '_setProperty']
-        );
-
-        $objStorage = new ObjectStorage();
-        $objStorage->attach($convertedRecordChild);
-
-        $convertedRecord->expects($this->any())
+        $childObject->expects($this->atLeastOnce())
             ->method('_hasProperty')
-            ->will($this->returnValue(true));
-        $convertedRecord->expects($this->once())
-            ->method('_getProperty')
-            ->willReturn($objStorage);
+            ->willReturn(true);
 
-        $convertedRecordChild->expects($this->once())
-            ->method('_setProperty')
-            ->with(
-                $this->equalTo('_'.$fieldName),
-                $this->equalTo($record[$fieldName])
-            )
-            ->will($this->returnValue(true));
-
-        $this->subject->process($config, $convertedRecord, $record);
+        $this->subject->process($config, $domainObject, $record);
     }
+
+
 }

@@ -1,7 +1,13 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use CPSIT\T3importExport\Component\PreProcessor\RenderContent;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockContentObjectRendererTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptFrontendControllerTrait;
+use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptServiceTrait;
+use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -27,25 +33,27 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\RenderContent
  */
-class RenderContentTest extends UnitTestCase
+class RenderContentTest extends TestCase
 {
+    use MockContentObjectRendererTrait,
+        MockTypoScriptFrontendControllerTrait,
+        MockTypoScriptServiceTrait;
 
-    /**
-     * @var \CPSIT\T3importExport\Component\PreProcessor\RenderContent
-     */
-    protected $subject;
+    protected RenderContent $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent',
-            ['dummy'], [], '', false);
+        $this->mockTypoScriptService();
+        $this->mockTypoScriptFrontendController();
+        $this->mockContentObjectRenderer();
+        $this->subject = new RenderContent($this->contentObjectRenderer, $this->typoScriptService);
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsInitiallyFalse()
+    public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertFalse(
@@ -54,10 +62,9 @@ class RenderContentTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
             'fields' => 'foo'
@@ -68,10 +75,9 @@ class RenderContentTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsNotString(): void
     {
         $config = [
             'fields' => [
@@ -84,10 +90,9 @@ class RenderContentTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsEmpty(): void
     {
         $config = [
             'fields' => [
@@ -100,10 +105,9 @@ class RenderContentTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
             'fields' => [
@@ -116,39 +120,50 @@ class RenderContentTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processRendersContent()
+    public function testProcessRendersContent(): void
     {
-        $subject = $this->getAccessibleMock(
-            'CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent',
-            ['renderContent'], [], '', false);
+        $fieldName = 'fooField';
+        $renderObjectType = 'TEXT';
         $record = [];
         $configuration = [
             'fields' => [
-                'fooField' => [
-                    '_typoScriptNodeValue' => 'TEXT',
+                $fieldName => [
+                    '_typoScriptNodeValue' => $renderObjectType,
                     'value' => '1'
-                ],
+                ]
             ]
         ];
+        $convertedConfiguration = ['boo'];
+        $expectedConfiguration = $configuration['fields'][$fieldName];
+        $expectedContent =  'bar';
 
-        $subject->expects($this->once())
-            ->method('renderContent')
-            ->with([], $configuration['fields']['fooField']);
+        $this->typoScriptService->expects($this->once())
+            ->method('convertPlainArrayToTypoScriptArray')
+            ->with(...[$expectedConfiguration])
+            ->willReturn($convertedConfiguration);
 
-        $subject->process($configuration, $record);
+        $this->contentObjectRenderer->expects($this->once())
+            ->method('getContentObject')
+            ->with(...[$renderObjectType])
+            ->willReturn($this->contentObject);
+
+        $this->contentObject->expects($this->once())
+            ->method('render')
+            ->with(...[$convertedConfiguration])
+            ->willReturn($expectedContent);
+
+        $this->subject->process($configuration, $record);
+        $this->assertSame(
+            $expectedContent,
+            $record[$fieldName]
+        );
     }
 
     /**
-     * @test
+     * @throws ContentRenderingException
      */
-    public function processRendersContentForMultipleRowFields()
+    public function testProcessRendersContentForMultipleRowFields(): void
     {
-        $subject = $this->getAccessibleMock(
-            'CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent',
-            ['renderContent'], [], '', false);
         $record = [
             'fooField' => [
                 [
@@ -170,10 +185,12 @@ class RenderContentTest extends UnitTestCase
             ]
         ];
 
-        $subject->expects($this->once())
-            ->method('renderContent');
-        //->with($record['fooField'][0], $configuration['fields']['fooField']['fields']);
+        $typoScriptConf = ['foo'];
 
-        $subject->process($configuration, $record);
+        $this->typoScriptService->expects($this->once())
+            ->method('convertPlainArrayToTypoScriptArray')
+            ->willReturn($typoScriptConf);
+
+        $this->subject->renderContent($configuration, $record);
     }
 }

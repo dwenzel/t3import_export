@@ -1,4 +1,5 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -18,7 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+
+use CPSIT\T3importExport\Component\PreProcessor\MapFields;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MapFieldsTest
@@ -26,25 +29,21 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFields
  */
-class MapFieldsTest extends UnitTestCase
+class MapFieldsTest extends TestCase
 {
 
-    /**
-     * @var \CPSIT\T3importExport\Component\PreProcessor\MapFields
-     */
-    protected $subject;
+    protected MapFields $subject;
 
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock('CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields',
-            ['dummy'], [], '', false);
+        $this->subject = new MapFields();
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsInitiallyFalse()
+    public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
         $this->assertFalse(
@@ -53,10 +52,9 @@ class MapFieldsTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldsIsNotArray()
+    public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
             'fields' => 'foo'
@@ -67,10 +65,9 @@ class MapFieldsTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsNotString()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsNotString(): void
     {
         $config = [
             'fields' => [
@@ -83,10 +80,9 @@ class MapFieldsTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsFalseIfFieldValueIsEmpty()
+    public function testIsConfigurationValidReturnsFalseIfFieldValueIsEmpty(): void
     {
         $config = [
             'fields' => [
@@ -99,10 +95,9 @@ class MapFieldsTest extends UnitTestCase
     }
 
     /**
-     * @test
      * @covers ::isConfigurationValid
      */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
             'fields' => [
@@ -115,10 +110,7 @@ class MapFieldsTest extends UnitTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processMapsFields()
+    public function processMapsFields(): void
     {
         $config = [
             'fields' => [

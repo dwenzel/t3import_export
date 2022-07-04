@@ -1,7 +1,18 @@
 <?php
+
 namespace CPSIT\T3importExport;
 
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Http\Uri;
+use TYPO3\CMS\Core\Routing\PageArguments;
+use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -24,34 +35,29 @@ trait RenderContentTrait
     protected $typoScriptService;
 
     /**
-     * injects the contentObjectRenderer
-     *
-     * @param ContentObjectRenderer $contentObjectRenderer
+     * Get a ContentObjectRenderer
      */
-    public function injectContentObjectRenderer(ContentObjectRenderer $contentObjectRenderer)
+    public function getContentObjectRenderer(): ContentObjectRenderer
     {
-        $this->contentObjectRenderer = $contentObjectRenderer;
-        /**
-         * initialize TypoScriptFrontendController (with page and type 0)
-         * This is necessary for PreProcessor\RenderContent if configuration contains COA objects
-         * ContentObjectRenderer fails in method cObjGetSingle since
-         * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
-         */
-       if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
-           $GLOBALS['TSFE'] = new TypoScriptFrontendController($GLOBALS['TYPO3_CONF_VARS'], 0, 0);
-       }
+        if(!$this->contentObjectRenderer instanceof ContentObjectRenderer)
+        {
+            $this->assertTypoScriptFrontendController();
+            $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        }
+
+        return $this->contentObjectRenderer;
     }
 
-    /**
-     * injects the typoScriptService
-     *
-     * @param TypoScriptService $typoScriptService
-     */
-    public function injectTypoScriptService(TypoScriptService $typoScriptService)
-    {
-        $this->typoScriptService = $typoScriptService;
-    }
 
+    public function getTypoScriptService(): TypoScriptService
+    {
+        if (!$this->typoScriptService instanceof TypoScriptService)
+        {
+            $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
+        }
+
+        return $this->typoScriptService;
+    }
     /**
      * Renders content using TypoScript objects
      * @param array $record Optional data array
@@ -61,10 +67,10 @@ trait RenderContentTrait
      */
     public function renderContent(array $record, array $configuration)
     {
-        $typoScriptConf = $this->typoScriptService
+        $typoScriptConf = $this->getTypoScriptService()
             ->convertPlainArrayToTypoScriptArray($configuration);
         /** @var AbstractContentObject $contentObject */
-        $contentObject = $this->contentObjectRenderer
+        $contentObject = $this->getContentObjectRenderer()
             ->getContentObject($configuration['_typoScriptNodeValue']);
 
         if ($contentObject !== null) {
@@ -85,5 +91,47 @@ trait RenderContentTrait
     public function getTypoScriptFrontendController()
     {
         return $GLOBALS['TSFE'];
+    }
+
+    protected function assertTypoScriptFrontendController(): void
+    {
+        /**
+         * initialize TypoScriptFrontendController (with page and type 0)
+         * This is necessary for PreProcessor\RenderContent if configuration contains COA objects
+         * ContentObjectRenderer fails in method cObjGetSingle since
+         * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
+         */
+        if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
+            $fakeUri = new Uri('https://domain.org/page');
+            $site = GeneralUtility::makeInstance(Site::class, 1, 1, []);
+            $siteLanguage = GeneralUtility::makeInstance(
+                SiteLanguage::class,
+                0,
+                'en-EN',
+                $fakeUri,
+                []
+            );
+            $pageArguments = GeneralUtility::makeInstance(PageArguments::class, 1, 0, []);
+            $nullFrontend = GeneralUtility::makeInstance(NullFrontend::class, 'pages');
+            $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
+            try {
+                $cacheManager->registerCache($nullFrontend);
+            } catch (\Exception $exception) {
+                unset($exception);
+            }
+
+            $fakeRequest = new ServerRequest($fakeUri);
+            $originalRequest = $GLOBALS['TYPO3_REQUEST'];
+            $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
+            $GLOBALS['TSFE'] = new TypoScriptFrontendController(
+                GeneralUtility::makeInstance(Context::class),
+                $site,
+                $siteLanguage,
+                $pageArguments
+            );
+
+            $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
+
+        }
     }
 }

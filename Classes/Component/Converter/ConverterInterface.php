@@ -2,13 +2,14 @@
 namespace CPSIT\T3importExport\Component\Converter;
 
 use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\T3importExport\Component\ComponentInterface;
 
 /**
  * Interface ConverterInterface
  *
  * @package CPSIT\T3importExport\Component\Converter
  */
-interface ConverterInterface
+interface ConverterInterface extends ComponentInterface
 {
     /**
      * @param array $record
@@ -22,16 +23,16 @@ interface ConverterInterface
      *
      * @param array $configuration
      * @param array $record
-     * @param TaskResult|\Iterator|array $result
-     * @return mixed
+     * @param TaskResult|null $result
+     * @return bool
      */
-    public function isDisabled($configuration, $record = null, TaskResult $result = null);
+    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool;
 
     /**
      * @param array $configuration
      * @return mixed
      */
-    public function isConfigurationValid(array $configuration);
+    public function isConfigurationValid(array $configuration): bool;
 
     /**
      * Sets the configuration
@@ -44,7 +45,7 @@ interface ConverterInterface
     /**
      * Returns the configuration
      *
-     * @return array | null
+     * @return array
      */
-    public function getConfiguration();
+    public function getConfiguration(): array;
 }

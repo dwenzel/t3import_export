@@ -33,7 +33,7 @@ class ExportController extends BaseController implements TransferControllerInter
      */
     public function exportTaskAction($identifier)
     {
-        $this->doTaskAction($identifier);
+        $this->taskAction($identifier);
     }
 
     /**
@@ -45,7 +45,7 @@ class ExportController extends BaseController implements TransferControllerInter
      */
     public function exportSetAction($identifier)
     {
-        $this->doSetAction($identifier);
+        $this->setAction($identifier);
     }
 
     /**

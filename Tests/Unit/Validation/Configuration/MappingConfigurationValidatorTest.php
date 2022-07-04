@@ -1,9 +1,11 @@
 <?php
+
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
-use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
-use TYPO3\CMS\Core\Tests\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *
@@ -29,60 +31,49 @@ use TYPO3\CMS\Core\Tests\UnitTestCase;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class MappingConfigurationValidatorTest extends UnitTestCase
+class MappingConfigurationValidatorTest extends TestCase
 {
 
     /**
-     * @var MappingConfigurationValidator
+     * @var MappingConfigurationValidator | MockObject
      */
-    protected $subject;
+    protected MappingConfigurationValidator $subject;
 
     /**
      * set up
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
-        $this->subject = $this->getAccessibleMock(
-            MappingConfigurationValidator::class,
-            ['dummy']
-        );
+        $this->subject = new MappingConfigurationValidator();
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451146869
-     */
-    public function validateThrowsExceptionIfAllowPropertiesIsNotString()
+    public function testValidateThrowsExceptionIfAllowPropertiesIsNotString(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1451146869);
         $configuration = [
             'allowProperties' => []
         ];
-        $this->subject->validate($configuration);
+        $this->subject->isValid($configuration);
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451147517
-     */
-    public function validateThrowsExceptionIfPropertiesIsNotArray()
+    public function testValidateThrowsExceptionIfPropertiesIsNotArray(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1451147517);
         $configuration = [
             'properties' => 'invalidStringValue'
         ];
-        $this->subject->validate($configuration);
+        $this->subject->isValid($configuration);
     }
 
-    /**
-     * @test
-     */
-    public function validateValidatedPropertiesRecursive()
+    public function testValidateValidatedPropertiesRecursive(): void
     {
-        $this->subject = $this->getAccessibleMock(
-            MappingConfigurationValidator::class,
-            ['validatePropertyConfigurationRecursive']
-        );
+        $this->subject = $this->getMockBuilder(MappingConfigurationValidator::class)
+            ->setMethods(['validatePropertyConfigurationRecursive'])
+            ->getMock();
+
         $configuration = [
             'properties' => [
                 'propertyA' => [
@@ -95,53 +86,46 @@ class MappingConfigurationValidatorTest extends UnitTestCase
             ->method('validatePropertyConfigurationRecursive')
             ->with($configuration['properties']['propertyA']);
 
-        $this->subject->validate($configuration);
+        $this->subject->isValid($configuration);
     }
 
-    /**
-     * @test
-     * @expectedException \CPSIT\T3importExport\InvalidConfigurationException
-     * @expectedExceptionCode 1451157586
-     */
-    public function validatePropertyConfigurationRecursiveThrowsExceptionIfMaxItemsIsNotSet()
+    public function testValidatePropertyConfigurationThrowsExceptionIfMaxItemsIsNotSet(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1451157586);
         $configuration = [
-            'children' => [
-                'propertyA' => ['allowAllProperties' => 1]
-            ]
-        ];
-        $this->subject->_call(
-            'validatePropertyConfigurationRecursive',
-            $configuration);
-    }
-
-    /**
-     * @test
-     */
-    public function validatePropertyConfigurationRecursiveDoesRecur()
-    {
-        $this->subject = $this->getAccessibleMock(
-            MappingConfigurationValidator::class,
-            ['validatePropertyConfiguration']
-        );
-        $configuration = [
-            'children' => [
-                'maxItems' => 1,
-                'properties' => [
-                    'propertyA' => [
-                        'allowAllProperties' => 1
+            'properties' => [
+                'foo' => [
+                    'children' => [
+                        'propertyA' => ['allowAllProperties' => 1]
                     ]
                 ]
             ]
         ];
-        $this->subject->expects($this->exactly(2))
-            ->method('validatePropertyConfiguration')
-            ->withConsecutive(
-                [$configuration],
-                [$configuration['children']['properties']['propertyA']]
-            );
-        $this->subject->_call(
-            'validatePropertyConfigurationRecursive',
-            $configuration);
+        $this->subject->isValid($configuration);
     }
+
+    public function testValidatePropertyConfigurationRecursiveDoesRecur(): void
+    {
+        $configuration = [
+            'properties' => [
+                'propertyA' => [
+                    'children' => [
+                        'maxItems' => 1,
+                        'properties' => [
+                            'propertyB' => [
+                                'allowAllProperties' => 1
+                            ]
+                        ]
+                    ]
+                ]
+
+            ]
+        ];
+
+        self::assertTrue(
+            $this->subject->isValid($configuration)
+        );
+    }
+
 }

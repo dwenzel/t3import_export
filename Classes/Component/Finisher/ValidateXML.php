@@ -21,7 +21,11 @@ namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use XMLReader;
 
 /**
  * Class ValidateXML
@@ -30,6 +34,8 @@ class ValidateXML extends AbstractFinisher
     implements FinisherInterface, LoggingInterface
 {
     use ResourceTrait, LoggingTrait;
+
+    protected ResourcePathConfigurationValidator $pathValidator;
 
     /**
      * Notice by id
@@ -50,23 +56,25 @@ class ValidateXML extends AbstractFinisher
     ];
 
     /**
-     * @var \XMLReader
+     * ValidateXML constructor.
+     * @param XMLReader|null $xmlReader
+     * @param ResourcePathConfigurationValidator|null $validator
+     * @param MessageContainer|null $messageContainer
      */
-    protected $xmlReader;
+    public function __construct(
+        XMLReader $xmlReader = null,
+        ResourcePathConfigurationValidator $validator = null,
+        MessageContainer $messageContainer = null
+    ) {
+        $this->xmlReader = $xmlReader ?? GeneralUtility::makeInstance(XMLReader::class);
+        $this->pathValidator = $validator ?? GeneralUtility::makeInstance(ResourcePathConfigurationValidator::class);
+        $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
+    }
 
     /**
-     * Returns error codes for current component.
-     * Must be an array in the form
-     * [
-     *  <id> => ['errorTitle', 'errorDescription']
-     * ]
-     * 'errorDescription' may contain placeholder (%s) for arguments.
-     * @return array
+     * @var XMLReader
      */
-    public function getErrorCodes()
-    {
-        return static::ERROR_CODES;
-    }
+    protected $xmlReader;
 
     /**
      * Returns notice codes for current component.
@@ -83,15 +91,6 @@ class ValidateXML extends AbstractFinisher
     }
 
     /**
-     * Inject the XMLReader
-     * @param \XMLReader $reader
-     */
-    public function injectXMLReader(\XMLReader $reader)
-    {
-        $this->xmlReader = $reader;
-    }
-
-    /**
      * Tells whether a given configuration is valid
      * Override this method in order to perform validation of
      * configuration
@@ -99,9 +98,9 @@ class ValidateXML extends AbstractFinisher
      * @param array $configuration
      * @return bool
      */
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
-        if (!$this->pathValidator->validate($configuration)) {
+        if (!$this->pathValidator->isValid($configuration)) {
             return false;
         }
         if (isset($configuration['target']['schema'])
@@ -119,7 +118,7 @@ class ValidateXML extends AbstractFinisher
      * @param array $result Array with result records
      * @return bool
      */
-    public function process($configuration, &$records, &$result)
+    public function process(array $configuration, array &$records, &$result): bool
     {
 
         $resource = $this->loadResource($configuration);
@@ -130,8 +129,8 @@ class ValidateXML extends AbstractFinisher
         }
         libxml_use_internal_errors(true);
 
-        $this->xmlReader->XML($resource, null, LIBXML_DTDVALID);
-        $this->xmlReader->setParserProperty(\XMLReader::VALIDATE, true);
+        $this->xmlReader::XML($resource, null, LIBXML_DTDVALID);
+        $this->xmlReader->setParserProperty(XMLReader::VALIDATE, true);
 
         if (!empty($configuration['schema']['file'])) {
             $schema = $this->getAbsoluteFilePath($configuration['schema']['file']);

@@ -20,23 +20,25 @@ namespace CPSIT\T3importExport\Tests\Unit;
  ***************************************************************/
 
 use CPSIT\T3importExport\Resource\StorageRepositoryTrait;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
  * Class StorageRepositoryTraitTest
  */
-class StorageRepositoryTraitTest extends UnitTestCase
+class StorageRepositoryTraitTest extends TestCase
 {
 
     /**
      * subject
-     * @var \CPSIT\T3importExport\Resource\StorageRepositoryTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var StorageRepositoryTrait|MockObject
      */
     protected $subject;
 
     /**
      * set up subject
+     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     public function setUp()
     {
@@ -44,18 +46,16 @@ class StorageRepositoryTraitTest extends UnitTestCase
             ->getMockForTrait();
     }
 
-    /**
-     * @test
-     */
-    public function storageRepositoryCanBeInjected()
+    public function testStorageRepositoryCanBeInjected(): void
     {
-        $storageRepository = $this->getMockBuilder(StorageRepository::class)->getMock();
+        $storageRepository = $this->getMockBuilder(StorageRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->subject->injectStorageRepository($storageRepository);
 
-        $this->assertAttributeSame(
+        self::assertSame(
             $storageRepository,
-            'storageRepository',
-            $this->subject
+            $this->subject->getStorageRepository()
         );
     }
 }

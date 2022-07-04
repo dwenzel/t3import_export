@@ -1,18 +1,20 @@
 <?php
+
 namespace CPSIT\T3importExport\Persistence;
 
+use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\ObjectManagerTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
-use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 
-class DataSourceDynamicRepository implements DataSourceInterface
+class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableInterface
 {
-    use ConfigurableTrait, ObjectManagerTrait;
+    use ConfigurableTrait;
 
     const LOGICAL_AND = 'and';
     const LOGICAL_OR = 'or';
@@ -38,7 +40,7 @@ class DataSourceDynamicRepository implements DataSourceInterface
      * temporal operands
      */
     const TEMPORAL_OPERANDS = [
-      self::OPERAND_NOW, self::OPERAND_YESTERDAY, self::OPERAND_TODAY, self::OPERAND_TOMORROW
+        self::OPERAND_NOW, self::OPERAND_YESTERDAY, self::OPERAND_TODAY, self::OPERAND_TOMORROW
     ];
 
     /**
@@ -48,7 +50,7 @@ class DataSourceDynamicRepository implements DataSourceInterface
      * @return bool
      */
 
-    public function isConfigurationValid(array $configuration)
+    public function isConfigurationValid(array $configuration): bool
     {
         if (!empty($configuration['class'])) {
             return true;
@@ -78,12 +80,13 @@ class DataSourceDynamicRepository implements DataSourceInterface
      */
     private function getRepositoryFromEntityClass($entityClassName)
     {
+        $result = $this->findRepositoryByManipulateEntityName($entityClassName);
 
-        if ($this->objectManager->isRegistered($entityClassName)) {
-            return $this->findRepositoryByManipulateEntityName($entityClassName);
+        if (!$result) {
+            throw new MissingClassException('Entity: ' . $entityClassName . 'could not be resolved');
         }
 
-        throw new MissingClassException('Entity: ' . $entityClassName . 'could not be resolved');
+        return $result;
     }
 
     /**
@@ -96,11 +99,20 @@ class DataSourceDynamicRepository implements DataSourceInterface
         $entityClassName .= 'Repository';
         $entityRepositoryName = str_replace('\\Model\\', '\\Repository\\', $entityClassName);
 
-        if ($this->objectManager->isRegistered($entityRepositoryName)) {
-            return $this->objectManager->get($entityRepositoryName);
+
+        /**
+         * Note: We use ObjectManager here in order to simplify DI for Repositories
+         * fixme: find a solution with
+         */
+        $objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
+
+        $result = GeneralUtility::makeInstance($entityRepositoryName, $objectManager);
+
+        if (!$result) {
+            throw new MissingClassException('Repository: ' . $entityClassName . 'could not be resolved');
         }
 
-        throw new MissingClassException('Repository: ' . $entityClassName . 'could not be resolved');
+        return $result;
     }
 
     /**
