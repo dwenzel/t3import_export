@@ -1,3 +1,8 @@
+2022-07-04         [RELEASE] Release of t3import_export 1.0.1 (Dirk Wenzel)
+2022-07-04 57a0000 [BUGFIX] legacy Extbase CommandControllers restored for TYPO3 9 (Dirk Wenzel)
+2022-07-04 8aa0b3e [CI] allow composer-plugin typo3/cms-composer-installers (Dirk Wenzel)
+2022-07-04 3e00a96 [CI]  allow some composer plugins, test matrix updated (Dirk Wenzel)
+
 2022-07-04         [RELEASE] Release of t3import_export 1.0.0 (Dirk Wenzel)
 2022-07-01 bfcfa02 using Status static class for task status (Arend Maubach)
 2022-06-29 6fd14b6 fixing command status issue in lower version of typo3 (Arend Maubach)
