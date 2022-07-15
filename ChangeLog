@@ -1,3 +1,8 @@
+2022-07-15         [RELEASE] Release of t3import_export 1.0.3 (Vladimir Falcon)
+2022-07-11 3c5d31f Fixed package dependency (Vladimir Falcon Piva)
+2022-07-05 9cefbb1 [CI] TYPO3 version disabled 9 in matrix, test TYPO3 10 with PHP 8 (Dirk Wenzel)
+2022-07-05 037a5d6 [CI] set composer version in matrix (Dirk Wenzel)
+
 2022-07-04         [RELEASE] Release of t3import_export 1.0.2 (Dirk Wenzel)
 2022-07-04 1340a1a [BUGFIX] reference to table non-existing table removed (Dirk Wenzel)
 2022-07-04 0380e13 code cleanup (Dirk Wenzel)
