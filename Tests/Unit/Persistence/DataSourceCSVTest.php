@@ -31,7 +31,7 @@ class DataSourceCSVTest extends TestCase
      * @noinspection ReturnTypeCanBeDeclaredInspection
      * @throws vfsStreamException
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->configurationValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->setMethods(['isValid'])->getMock();

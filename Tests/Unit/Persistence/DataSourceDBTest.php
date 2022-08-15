@@ -48,7 +48,7 @@ class DataSourceDBTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 

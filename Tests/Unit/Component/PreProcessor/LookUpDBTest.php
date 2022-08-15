@@ -48,7 +48,7 @@ class LookUpDBTest extends TestCase
     protected array $queryResult = [];
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         /**
          * fixme: we mock the subject in order to prevent access to method performQuery

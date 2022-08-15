@@ -57,7 +57,7 @@ class DatabaseTraitTest extends TestCase
     /**
      * set up subject
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = $this->getObjectForTrait(DatabaseTrait::class);
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)

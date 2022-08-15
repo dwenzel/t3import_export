@@ -33,7 +33,7 @@ class MessageContainerTest extends TestCase
     /**
      * set up subject
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = $this->getMockBuilder(MessageContainer::class)
             ->setMethods(['dummy'])->getMock();

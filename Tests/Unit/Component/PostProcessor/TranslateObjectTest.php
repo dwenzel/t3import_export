@@ -76,7 +76,7 @@ class TranslateObjectTest extends TestCase
      * set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->persistenceManager = $this->getMockForAbstractClass(PersistenceManagerInterface::class);
         $this->translationService = $this->getMockBuilder(TranslationService::class)

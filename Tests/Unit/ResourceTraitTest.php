@@ -40,7 +40,7 @@ class ResourceTraitTest extends TestCase
     protected $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = $this->getMockForTrait(
             ResourceTrait::class, [], '', false, true, true, ['dummy', 'getAbsoluteFilePath']

@@ -91,7 +91,7 @@ class TransferTaskFactoryTest extends TestCase
     protected FactoryInterface $factory;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         $this->factoryFactory = $this->getMockBuilder(FactoryFactory::class)
             ->disableOriginalConstructor()

@@ -33,7 +33,7 @@ class QueueItemRepositoryTest extends TestCase
 
     protected QueueItemRepository $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockConnectionService();
 

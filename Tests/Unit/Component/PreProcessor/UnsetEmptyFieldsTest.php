@@ -30,7 +30,7 @@ class UnsetEmptyFieldsTest extends TestCase
     /**
      * set up the subject
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = $this->getMockBuilder(\CPSIT\T3importExport\Component\PreProcessor\UnsetEmptyFields::class)
             ->setMethods(['dummy'])->getMock();

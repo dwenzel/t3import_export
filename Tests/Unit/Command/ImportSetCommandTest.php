@@ -70,7 +70,7 @@ class ImportSetCommandTest extends TestCase
      */
     protected $transferSet;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->markTestIncomplete();
         parent::setUp();

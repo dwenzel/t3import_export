@@ -51,7 +51,7 @@ class GenerateFileResourceTest extends TestCase
      * @throws vfsStreamException
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockFileIndexRepository()
             ->mockResourceStorage()

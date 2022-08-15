@@ -46,7 +46,7 @@ class AbstractConverterTest extends TestCase
     /**
      * set up
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = $this->getMockForAbstractClass(
             AbstractConverter::class

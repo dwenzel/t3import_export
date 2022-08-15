@@ -33,7 +33,7 @@ class RemoveFieldsTest extends TestCase
     protected RemoveFields $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new RemoveFields();
     }

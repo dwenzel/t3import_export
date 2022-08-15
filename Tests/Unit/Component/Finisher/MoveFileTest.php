@@ -48,7 +48,7 @@ class MoveFileTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this
             ->mockResourceStorage()

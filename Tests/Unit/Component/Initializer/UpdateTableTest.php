@@ -28,7 +28,7 @@ class UpdateTableTest extends TestCase
 
     protected UpdateTable $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockConnectionPool()
             ->mockConnection();

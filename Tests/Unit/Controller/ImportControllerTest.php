@@ -43,7 +43,7 @@ class ImportControllerTest extends TestCase
      */
     protected $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->markTestSkipped('Todo: replace ExtbaseCommandController by Symfony Command');
         $this->subject = $this->getAccessibleMock(ImportController::class,

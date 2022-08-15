@@ -40,7 +40,7 @@ class ConfigurableTraitTest extends TestCase
     protected $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         try {
             $this->subject = $this->getMockForTrait(

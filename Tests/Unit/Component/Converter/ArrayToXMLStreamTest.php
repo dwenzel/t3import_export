@@ -60,7 +60,7 @@ class ArrayToXMLStreamTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->markTestIncomplete('DI of class must be adapted');
         $this->mockObjectManager();

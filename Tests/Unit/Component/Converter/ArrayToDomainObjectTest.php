@@ -81,7 +81,7 @@ class ArrayToDomainObjectTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()

@@ -28,7 +28,7 @@ class DeleteFromTableTest extends TestCase
     protected DeleteFromTable $subject;
     protected QueryBuilder $queryBuilder;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockConnectionService();
         $this->connectionPool->method('getConnectionForTable')

@@ -58,7 +58,7 @@ class TransferSetFactoryTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockConfigurationManager();
         $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)

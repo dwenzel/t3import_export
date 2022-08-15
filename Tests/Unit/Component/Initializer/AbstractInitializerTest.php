@@ -50,7 +50,7 @@ class AbstractInitializerTest extends TestCase
      * @throws ReflectionException
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = $this->getMockForAbstractClass(AbstractInitializer::class);
     }
