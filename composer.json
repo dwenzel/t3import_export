@@ -23,10 +23,6 @@
     "typo3/cms-core": "^9.5 || ^10.4",
     "ext-xmlreader": "*"
   },
-  "replace": {
-    "cpsit/t3import-export": "self.version",
-    "typo3-ter/t3import_export": "self.version"
-  },
   "require-dev": {
     "roave/security-advisories": "dev-latest"   ,
     "mikey179/vfsstream": "~1.6.0",
