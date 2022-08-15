@@ -55,7 +55,7 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
         GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         GeneralUtility::purgeInstances();
     }
