@@ -6,3 +6,17 @@ services:
 
   CPSIT\T3importExport\:
     resource: '../Classes/*'
+
+  CPSIT\T3importExport\Command\ImportSetCommand:
+    tags:
+      - name: 'console.command'
+        command: 't3import-export:import-set'
+        description: 'Run typo3 import set command'
+        schedulable: true
+
+  CPSIT\T3importExport\Command\ImportTaskCommand:
+    tags:
+      - name: 'console.command'
+        command: 't3import-export:import-task'
+        description: 'Run import task'
+        schedulable: true
