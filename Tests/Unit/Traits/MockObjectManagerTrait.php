@@ -56,7 +56,7 @@ trait MockObjectManagerTrait
     {
         $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(['get', 'getEmptyObject'])
+            ->onlyMethods(['get', 'getEmptyObject'])
             ->getMock();
         $this->subject->injectObjectManager($this->objectManager);
     }

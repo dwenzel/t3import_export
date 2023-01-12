@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Configuration\Module;
 
+use CPSIT\T3importExport\Controller\ExportController;
 use DWenzel\T3extensionTools\Configuration\ModuleRegistrationInterface;
 use DWenzel\T3extensionTools\Configuration\ModuleRegistrationTrait;
 use CPSIT\T3importExport\Configuration\Extension;
@@ -13,7 +14,7 @@ class ExportModuleRegistration implements ModuleRegistrationInterface
     static protected string $mainModuleName = 'system';
     static protected string $vendorExtensionName = Extension::VENDOR_NAME . '.' . Extension::NAME;
     static protected array $controllerActions = [
-        'Export' => 'index,exportTask,exportSet'
+        ExportController::class => 'index,exportTask,exportSet'
     ];
 
     static protected string $position = 'bottom';

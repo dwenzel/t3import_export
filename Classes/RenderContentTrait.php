@@ -5,6 +5,7 @@ namespace CPSIT\T3importExport;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
@@ -13,6 +14,7 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -120,14 +122,25 @@ trait RenderContentTrait
                 unset($exception);
             }
 
+            $context = GeneralUtility::makeInstance(Context::class);
+            /** @var FrontendUserAuthentication $feUser */
+            $feUser = GeneralUtility::makeInstance(FrontendUserAuthentication::class);
+            $userGroups = [0, -1];
+            $feUser->user = ['uid' => 0, 'username' => '', 'usergroup' => implode(',', $userGroups) ];
+            $feUser->fetchGroupData();
+            $feUser->initializeUserSessionManager();
+            $feUser->fetchUserSession();
+            $context->setAspect('frontend.user', GeneralUtility::makeInstance(UserAspect::class, $feUser, $userGroups));
+
             $fakeRequest = new ServerRequest($fakeUri);
             $originalRequest = $GLOBALS['TYPO3_REQUEST'];
             $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
-            $GLOBALS['TSFE'] = new TypoScriptFrontendController(
-                GeneralUtility::makeInstance(Context::class),
+            $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class,
+                $context,
                 $site,
                 $siteLanguage,
-                $pageArguments
+                $pageArguments,
+                $feUser
             );
 
             $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
