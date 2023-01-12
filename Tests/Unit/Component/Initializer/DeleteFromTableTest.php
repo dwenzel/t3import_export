@@ -35,7 +35,7 @@ class DeleteFromTableTest extends TestCase
             ->willReturn($this->connection);
         $this->queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'delete',
                     'where',
@@ -128,11 +128,11 @@ class DeleteFromTableTest extends TestCase
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $GLOBALS['TYPO3_DB'] = $connection;
+
         $this->subject->__construct();
 
         $this->assertSame(
-            $GLOBALS['TYPO3_DB'],
+            $connection,
             $this->subject->getDataBase()
         );
     }
