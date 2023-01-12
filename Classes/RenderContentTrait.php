@@ -88,11 +88,11 @@ trait RenderContentTrait
      * Gets the TypoScriptFrontendController
      * only for testing
      *
-     * @return TypoScriptFrontendController
+     * @return TypoScriptFrontendController|null
      */
     public function getTypoScriptFrontendController()
     {
-        return $GLOBALS['TSFE'];
+        return $GLOBALS['TSFE'] ?? null;
     }
 
     protected function assertTypoScriptFrontendController(): void
