@@ -19,7 +19,7 @@
   ],
   "require": {
     "php": ">=7.4",
-    "dwenzel/t3extension-tools": "^1.8",
+    "dwenzel/t3extension-tools": "^1.8 || ^2.0",
     "typo3/cms-core": "^9.5 || ^10.4 || ^11.5",
     "ext-xmlreader": "*"
   },
