@@ -117,28 +117,35 @@ class DataTransferProcessor
                 continue;
             }
             $records = $this->queue[$task->getIdentifier()];
+
+            $recordsArray = [];
+            foreach ($records as $record) {
+                if (is_object($record) && method_exists($record, '_getCleanProperties')) {
+                    $recordsArray[] = $record->_getCleanProperties();
+                }
+            }
+
             $this->processInitializers($records, $task, $result);
 
-            if ((bool)$records) {
+            if ($recordsArray) {
                 $target = $task->getTarget();
                 $targetConfig = null;
                 if ($target instanceof ConfigurableInterface) {
                     $targetConfig = $target->getConfiguration();
                 }
 
-                foreach ($records as &$record) {
+                foreach ($recordsArray as &$record) {
                     $this->preProcessSingle($record, $task, $result);
                     $convertedRecord = $this->convertSingle($record, $task, $result);
                     $this->postProcessSingle($convertedRecord, $record, $task, $result);
                     $target->persist($convertedRecord, $targetConfig);
                     $result->add($convertedRecord);
                 }
-                unset($record);
 
                 $target->persistAll($result, $targetConfig);
             }
 
-            $this->processFinishers($records, $task, $result);
+            $this->processFinishers($recordsArray, $task, $result);
         }
 
         return $result->toArray();

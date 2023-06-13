@@ -7,6 +7,7 @@ use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\MissingClassException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -99,14 +100,17 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         $entityClassName .= 'Repository';
         $entityRepositoryName = str_replace('\\Model\\', '\\Repository\\', $entityClassName);
 
-
         /**
          * Note: We use ObjectManager here in order to simplify DI for Repositories
          * fixme: find a solution with
          */
-        $objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
         $result = GeneralUtility::makeInstance($entityRepositoryName, $objectManager);
+        if (method_exists($result, 'injectPersistenceManager')) {
+            $persistenceManager = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface::class);
+            $result->injectPersistenceManager($persistenceManager);
+        }
 
         if (!$result) {
             throw new MissingClassException('Repository: ' . $entityClassName . 'could not be resolved');
@@ -126,7 +130,6 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         $query = $repository->createQuery();
         $this->configStoragePids($query, $config);
         $this->configLanguageIds($query, $config);
-
 
         $constraints = [];
         if (!empty($config['constraints'])) {
