@@ -102,7 +102,7 @@ class TranslationServiceTest extends TestCase
         $translation = new DummyDomainObjectA();
         $this->dataMapper->expects($this->once())
             ->method('getDataMap')
-            ->with(...[get_class($origin)]);
+            ->with(...[$origin::class]);
         $this->dataMap->expects($this->once())
             ->method('getTranslationOriginColumnName')
             ->willReturn(null);

@@ -269,7 +269,7 @@ class DataSourceFactoryTest extends TestCase
      */
     public function testGetReturnsDataSource(): void
     {
-        $sourceClass = get_class($this->dataSource);
+        $sourceClass = $this->dataSource::class;
         $identifier = 'foo';
         $settings = [
             'class' => $sourceClass,

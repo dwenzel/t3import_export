@@ -7,7 +7,6 @@ use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptFrontendControllerTrait
 use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptServiceTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Form\Controller\FrontendController;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;

@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3_MODE') or die();
+defined('TYPO3') or die();
 
 # register extbase command controllers for import and export
 \CPSIT\T3importExport\Configuration\Extension::registerLegacyCommands();

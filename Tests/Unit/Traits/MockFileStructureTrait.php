@@ -44,6 +44,6 @@ trait MockFileStructureTrait
             ],
             $targetDirectory => []
         ];
-        return array($rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure);
+        return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
     }
 }

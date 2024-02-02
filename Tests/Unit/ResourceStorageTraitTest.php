@@ -25,12 +25,12 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 class ResourceStorageTraitTest extends TestCase
 {
     /**
-     * @var \CPSIT\T3importExport\Resource\ResourceStorageTrait |\PHPUnit_Framework_MockObject_MockObject
+     * @var ResourceStorageTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\StorageRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var StorageRepository|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $storageRepository;
 

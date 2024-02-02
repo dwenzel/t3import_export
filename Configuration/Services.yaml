@@ -1,8 +1,10 @@
 services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
-    public: false
-
-  CPSIT\T3importExport\:
-    resource: '../Classes/*'
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+    CPSIT\T3importExport\:
+        resource: '../Classes/*'
+    CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter:
+        tags:
+            name: extbase.type_converter

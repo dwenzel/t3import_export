@@ -40,12 +40,12 @@ trait MockDatabaseTrait
      */
     protected Connection $connection;
 
-    /**
-     * Returns a builder object to create mock objects using a fluent interface.
-     *
-     * @param string|string[] $className
-     */
-    abstract public function getMockBuilder($className): MockBuilder;
+//    /**
+//     * Returns a builder object to create mock objects using a fluent interface.
+//     *
+//     * @param string|string[] $className
+//     */
+//    abstract public function getMockBuilder($className): MockBuilder;
 
 
     protected function mockConnectionService(): self
