@@ -9,7 +9,7 @@
  * writing. "version" and "dependencies" must not be touched!
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = array(
+$EM_CONF[$_EXTKEY] = [
     'title' => 'Import & Export',
     'description' => 'General import and export tool for the TYPO3 CMS',
     'category' => 'module',
@@ -17,21 +17,14 @@ $EM_CONF[$_EXTKEY] = array(
     'author_email' => 'dirk.wenzel@cps-it.de',
     'author_company' => '',
     'state' => 'stable',
-    'uploadfolder' => '0',
-    'createDirs' => '',
-    'clearCacheOnLoad' => 1,
     'version' => '1.0.5',
-    'constraints' =>
-        array(
-            'depends' =>
-                array(
-                    'typo3' => '12.4.0-12.4.99',
-                    'php' => '8.2.0-0.0.0',
-                ),
-            'conflicts' =>
-                array(),
-            'suggests' =>
-                array(),
-        )
-);
+    'constraints' => [
+        'depends' => [
+            'typo3' => '12.4.0-12.4.99',
+            'php' => '8.2.0-0.0.0'
+        ],
+        'conflicts' => [],
+        'suggests' => []
+    ]
+];
 
