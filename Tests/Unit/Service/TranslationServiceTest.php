@@ -80,7 +80,7 @@ class TranslationServiceTest extends TestCase
     public function testTranslateThrowsExceptionIfClassesDoNotMatch(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionCode(1432499926);
+        $this->expectExceptionCode(1_432_499_926);
         $objectA = new DummyDomainObjectA();
         $objectB = new DummyDomainObjectB();
         $this->subject->translate($objectA, $objectB, 1);
@@ -89,7 +89,7 @@ class TranslationServiceTest extends TestCase
     public function testTranslateThrowsExceptionIfOrginAndTranslationAreIdentical(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionCode(1432502696);
+        $this->expectExceptionCode(1_432_502_696);
         $objectA = new DummyDomainObjectA();
         $this->subject->translate($objectA, $objectA, 1);
     }
@@ -97,7 +97,7 @@ class TranslationServiceTest extends TestCase
     public function testTranslateThrowsExceptionIfOriginalIsNotTranslatable(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionCode(1432500079);
+        $this->expectExceptionCode(1_432_500_079);
         $origin = new DummyDomainObjectA();
         $translation = new DummyDomainObjectA();
         $this->dataMapper->expects($this->once())

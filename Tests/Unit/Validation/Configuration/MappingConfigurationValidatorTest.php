@@ -51,7 +51,7 @@ class MappingConfigurationValidatorTest extends TestCase
     public function testValidateThrowsExceptionIfAllowPropertiesIsNotString(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1451146869);
+        $this->expectExceptionCode(1_451_146_869);
         $configuration = [
             'allowProperties' => []
         ];
@@ -61,7 +61,7 @@ class MappingConfigurationValidatorTest extends TestCase
     public function testValidateThrowsExceptionIfPropertiesIsNotArray(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1451147517);
+        $this->expectExceptionCode(1_451_147_517);
         $configuration = [
             'properties' => 'invalidStringValue'
         ];
@@ -92,7 +92,7 @@ class MappingConfigurationValidatorTest extends TestCase
     public function testValidatePropertyConfigurationThrowsExceptionIfMaxItemsIsNotSet(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1451157586);
+        $this->expectExceptionCode(1_451_157_586);
         $configuration = [
             'properties' => [
                 'foo' => [

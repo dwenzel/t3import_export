@@ -48,7 +48,7 @@ class TargetClassConfigurationValidatorTest extends TestCase
     public function testValidateThrowsExceptionIfTargetClassIsNotSet(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1451146126);
+        $this->expectExceptionCode(1_451_146_126);
         $configuration = ['foo'];
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->subject->isValid($configuration);
@@ -57,7 +57,7 @@ class TargetClassConfigurationValidatorTest extends TestCase
     public function testValidateThrowsExceptionIfTargetClassIsNotString(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1451146384);
+        $this->expectExceptionCode(1_451_146_384);
         $configuration = [
             'targetClass' => 1
         ];
@@ -68,7 +68,7 @@ class TargetClassConfigurationValidatorTest extends TestCase
     public function testValidateThrowsExceptionIfTargetClassDoesNotExist(): void
     {
         $this->expectException(MissingClassException::class);
-        $this->expectExceptionCode(1451146564);
+        $this->expectExceptionCode(1_451_146_564);
         $configuration = [
             'targetClass' => 'NonExistingClassName'
         ];

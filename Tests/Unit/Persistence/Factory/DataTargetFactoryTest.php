@@ -148,7 +148,7 @@ class DataTargetFactoryTest extends TestCase
      */
     public function testGetThrowsExceptionForMissingTargetClass(): void
     {
-        $this->expectExceptionCode(1451043513);
+        $this->expectExceptionCode(1_451_043_513);
         $this->expectException(MissingClassException::class);
         $identifier = 'foo';
         $settings = [
@@ -164,7 +164,7 @@ class DataTargetFactoryTest extends TestCase
      */
     public function testGetThrowsExceptionForMissingInterface(): void
     {
-        $this->expectExceptionCode(1451045997);
+        $this->expectExceptionCode(1_451_045_997);
         $this->expectException(MissingInterfaceException::class);
         $identifier = 'foo';
         $settings = [
@@ -181,7 +181,7 @@ class DataTargetFactoryTest extends TestCase
     public function testGetThrowsExceptionForMissingObjectClass(): void
     {
         $this->expectException(MissingClassException::class);
-        $this->expectExceptionCode(1451043367);
+        $this->expectExceptionCode(1_451_043_367);
         $identifier = 'foo';
         $settings = [
             'object' => [
