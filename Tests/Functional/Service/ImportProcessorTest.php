@@ -50,9 +50,8 @@ class ImportProcessorTest extends FunctionalTestCase
      */
     protected $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
 
-    public function setUp()
+    protected function setUp(): void
     {
-        parent::setUp();
         $this->importProcessor = $this->objectManager->get(DataTransferProcessor::class);
         $this->transferTaskFactory = GeneralUtility::makeInstance(TransferTaskFactory::class);
         $this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');

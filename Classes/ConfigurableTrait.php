@@ -36,7 +36,7 @@ trait ConfigurableTrait
     {
         if (!$this->isConfigurationValid($configuration)) {
             throw new InvalidConfigurationException(
-                'Configuration for ' . get_class($this)
+                'Configuration for ' . $this::class
                 . ' is not valid.',
                 1451659793
             );
