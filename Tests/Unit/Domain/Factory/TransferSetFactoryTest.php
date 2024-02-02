@@ -24,7 +24,6 @@ use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockConfigurationManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockTransferTaskTrait;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -38,7 +37,6 @@ use PHPUnit\Framework\TestCase;
 class TransferSetFactoryTest extends TestCase
 {
     use MockObjectManagerTrait,
-        MockConfigurationManagerTrait,
         MockTransferTaskTrait;
 
     protected TransferSetFactory $subject;
