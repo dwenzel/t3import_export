@@ -7,4 +7,7 @@ services:
         resource: '../Classes/*'
     CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter:
         tags:
-            name: extbase.type_converter
+            - name: extbase.type_converter
+              priority: 2
+              target: object
+              sources: array,string,int
