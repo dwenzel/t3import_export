@@ -48,7 +48,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
             && !is_string($configuration['allowProperties'])
         ) {
             throw new InvalidConfigurationException(
-                'Invalid configuration for ' . get_class($this) .
+                'Invalid configuration for ' . static::class .
                 '. Option value allowProperties must be a comma separated
                  string of property names.',
                 1_451_146_869
@@ -59,7 +59,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
             if (!is_array($configuration['properties'])
             ) {
                 throw new InvalidConfigurationException(
-                    'Invalid configuration for ' . get_class($this) .
+                    'Invalid configuration for ' . static::class .
                     '. Option value properties must be an array.',
                     1_451_147_517
                 );
@@ -83,7 +83,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
         if (isset($localConfiguration['children'])) {
             if (!isset($localConfiguration['children']['maxItems'])) {
                 throw new InvalidConfigurationException(
-                    'Invalid configuration for ' . get_class($this) .
+                    'Invalid configuration for ' . static::class .
                     '. children.maxItems must be set.',
                     1_451_157_586
                 );
