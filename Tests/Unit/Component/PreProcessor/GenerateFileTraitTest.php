@@ -99,7 +99,7 @@ class GenerateFileTraitTest extends TestCase
             [
                 [],
                 false,
-                1499007587,
+                1_499_007_587,
                 null
             ],
             // missing target directory path
@@ -108,7 +108,7 @@ class GenerateFileTraitTest extends TestCase
                     'foo' => 'bar'
                 ],
                 false,
-                1497427320,
+                1_497_427_320,
                 null
             ],
             // missing field name
@@ -117,7 +117,7 @@ class GenerateFileTraitTest extends TestCase
                     'targetDirectoryPath' => 'bar'
                 ],
                 false,
-                1497427335,
+                1_497_427_335,
                 null
             ],
             // missing storage id
@@ -127,7 +127,7 @@ class GenerateFileTraitTest extends TestCase
                     'fieldName' => 'baz'
                 ],
                 false,
-                1497427302,
+                1_497_427_302,
                 null
             ],
             // missing resourceStorage
@@ -138,7 +138,7 @@ class GenerateFileTraitTest extends TestCase
                     'fieldName' => 'baz'
                 ],
                 false,
-                1497427346,
+                1_497_427_346,
                 ['foo']
             ],
         ];
@@ -179,7 +179,7 @@ class GenerateFileTraitTest extends TestCase
             'fieldName' => 'bar'
         ];
         $storageConfiguration = ['basePath' => 'baz'];
-        $expectedErrorId = 1497427363;
+        $expectedErrorId = 1_497_427_363;
         $expectedErrorArguments = [$storageConfiguration['basePath'] . ltrim($configuration['targetDirectoryPath'], '/\\')];
 
         $this->storageRepository->expects($this->once())
@@ -244,12 +244,12 @@ class GenerateFileTraitTest extends TestCase
     public function getErrorCodesReturnsCorrectResult()
     {
         $expectedCodes = $errors = [
-            1499007587 => ['Empty configuration', 'Configuration must not be empty'],
-            1497427302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
-            1497427320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
-            1497427335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
-            1497427346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
-            1497427363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
+            1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
+            1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
+            1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
+            1_497_427_335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
+            1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
+            1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
         ];
 
         $this->assertSame(

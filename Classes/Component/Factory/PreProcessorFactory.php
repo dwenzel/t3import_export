@@ -51,7 +51,7 @@ class PreProcessorFactory extends AbstractFactory implements FactoryInterface
         if (!isset($settings['class'])) {
             throw new InvalidConfigurationException(
                 'Missing class in pre processor configuration' . $additionalInformation,
-                1447427020
+                1_447_427_020
             );
         }
         $className = $settings['class'];
@@ -60,7 +60,7 @@ class PreProcessorFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
                 . ' does not exist.',
-                1447427184
+                1_447_427_184
             );
         }
 
@@ -68,7 +68,7 @@ class PreProcessorFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement PreProcessorInterface.',
-                1447428235
+                1_447_428_235
             );
         }
 

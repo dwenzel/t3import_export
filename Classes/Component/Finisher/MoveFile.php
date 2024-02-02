@@ -67,19 +67,19 @@ class MoveFile extends AbstractFinisher
      * Error by id
      * <unique id> => ['title', ['message']
      */
-    const ERROR_CODES = [
-        1509011717 => ['Empty configuration', 'Configuration must not be empty'],
-        1509011925 => ['Missing target', 'config.target.name. must be a string'],
-        1509022342 => ['Missing source', 'config.source.name. must be a string'],
-        1509023738 => ['Missing source file', 'File %1s could not be found.'],
+    final public const ERROR_CODES = [
+        1_509_011_717 => ['Empty configuration', 'Configuration must not be empty'],
+        1_509_011_925 => ['Missing target', 'config.target.name. must be a string'],
+        1_509_022_342 => ['Missing source', 'config.source.name. must be a string'],
+        1_509_023_738 => ['Missing source file', 'File %1s could not be found.'],
     ];
 
     /**
      * Notice by id
      * <unique id> => ['title', ['message']
      */
-    const NOTICE_CODES = [
-        1509024162 => ['File moved', 'File %1s has been moved succesfully to %2s.'],
+    final public const NOTICE_CODES = [
+        1_509_024_162 => ['File moved', 'File %1s has been moved succesfully to %2s.'],
     ];
 
 
@@ -131,7 +131,7 @@ class MoveFile extends AbstractFinisher
     public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration)) {
-            $this->logError(1509011717);
+            $this->logError(1_509_011_717);
             return false;
         }
         if (
@@ -139,7 +139,7 @@ class MoveFile extends AbstractFinisher
             || empty($configuration['target']['name'])
             || !is_string($configuration['target']['name'])
         ) {
-            $this->logError(1509011925);
+            $this->logError(1_509_011_925);
             return false;
         }
         if (
@@ -147,7 +147,7 @@ class MoveFile extends AbstractFinisher
                 || empty($configuration['source']['name'])
              || !is_string($configuration['source']['name'])
         ) {
-            $this->logError(1509022342);
+            $this->logError(1_509_022_342);
             return false;
         }
         if (!empty($configuration['target']['storage']) && !MathUtility::canBeInterpretedAsInteger($configuration['target']['storage'])) {
@@ -213,7 +213,7 @@ class MoveFile extends AbstractFinisher
 
         if ( (null === $sourceFolder )
             || !$sourceStorage->hasFileInFolder($sourceFileName, $sourceFolder)) {
-            $this->logError(1509023738, [$sourceFileName], $configuration);
+            $this->logError(1_509_023_738, [$sourceFileName], $configuration);
             return false;
         }
 
@@ -246,7 +246,7 @@ class MoveFile extends AbstractFinisher
             $targetFileName,
             $conflictMode
         );
-        $this->logNotice(1509024162, [$sourceFileName, $targetFileName], $configuration);
+        $this->logNotice(1_509_024_162, [$sourceFileName, $targetFileName], $configuration);
 
         return true;
     }

@@ -50,7 +50,7 @@ class PostProcessorFactory extends AbstractFactory implements FactoryInterface
         if (!isset($settings['class'])) {
             throw new InvalidConfigurationException(
                 'Missing class in post processor configuration ' . $additionalInformation,
-                1447864207
+                1_447_864_207
             );
         }
         $className = $settings['class'];
@@ -59,7 +59,7 @@ class PostProcessorFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Post-processor class ' . $className . ' in configuration for' . $additionalInformation
                 . ' does not exist.',
-                1447864223
+                1_447_864_223
             );
         }
 
@@ -67,7 +67,7 @@ class PostProcessorFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Post-processor class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement PostProcessorInterface.',
-                1447864243
+                1_447_864_243
             );
         }
 

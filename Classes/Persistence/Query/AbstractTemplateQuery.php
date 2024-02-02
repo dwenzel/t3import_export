@@ -54,7 +54,7 @@ abstract class AbstractTemplateQuery implements QueryInterface
     use DatabaseTrait;
 
     public const MESSAGE_MISSING_FIELD = 'Field `%s` must not be empty';
-    public const CODE_MISSING_FIELD = 1642072670;
+    public const CODE_MISSING_FIELD = 1_642_072_670;
 
 
 

@@ -147,7 +147,7 @@ class QueueItemRepositoryTest extends TestCase
     public function testUpdateThrowsExceptionForNewRecord(array $validRecord, array $expectedIdentifiers): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionCode(1644911540);
+        $this->expectExceptionCode(1_644_911_540);
         $this->connection->expects($this->once())
             ->method('count')
             ->with(...['uid', QueueItem::TABLE, $expectedIdentifiers])
@@ -194,7 +194,7 @@ class QueueItemRepositoryTest extends TestCase
     public function testRemoveThrowsExceptionForNonExistingRecord(array $validRecord, array $expectedIdentifiers): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionCode(1644911540);
+        $this->expectExceptionCode(1_644_911_540);
         $this->connection->expects($this->once())
             ->method('count')
             ->with(...['uid', QueueItem::TABLE, $expectedIdentifiers])

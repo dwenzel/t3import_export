@@ -50,7 +50,7 @@ class FinisherFactory extends AbstractFactory implements FactoryInterface
         if (!isset($settings['class'])) {
             throw new InvalidConfigurationException(
                 'Missing class in finisher configuration' . $additionalInformation,
-                1454187892
+                1_454_187_892
             );
         }
         $className = $settings['class'];
@@ -59,7 +59,7 @@ class FinisherFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Finisher class ' . $className . ' in configuration for' . $additionalInformation
                 . ' does not exist.',
-                1454187903
+                1_454_187_903
             );
         }
 
@@ -67,7 +67,7 @@ class FinisherFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Finisher class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement FinisherInterface.',
-                1454187910
+                1_454_187_910
             );
         }
 

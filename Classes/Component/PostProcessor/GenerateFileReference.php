@@ -45,10 +45,10 @@ class GenerateFileReference extends AbstractPostProcessor
      * Error by id
      * <unique id> => ['title', ['message']
      */
-    public const ERROR_CODES = [
-        1510524677 => ['Missing source field', 'config[\'sourceField\'] must be set'],
-        1510524678 => ['Missing target field', 'config[\'targetField\'] must be set'],
-        1510524679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
+    final public const ERROR_CODES = [
+        1_510_524_677 => ['Missing source field', 'config[\'sourceField\'] must be set'],
+        1_510_524_678 => ['Missing target field', 'config[\'targetField\'] must be set'],
+        1_510_524_679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
     ];
 
     protected PersistenceManagerInterface $persistenceManager;
@@ -143,20 +143,20 @@ class GenerateFileReference extends AbstractPostProcessor
             empty($configuration['sourceField'])
             || !is_string($configuration['sourceField'])
         ) {
-            $this->logError(1510524677);
+            $this->logError(1_510_524_677);
             return false;
         }
         if (
             empty($configuration['targetField'])
             || !is_string($configuration['targetField'])
         ) {
-            $this->logError(1510524678);
+            $this->logError(1_510_524_678);
             return false;
         }
         if (!empty($configuration['targetPage'])
             && !MathUtility::canBeInterpretedAsInteger($configuration['targetPage'])
         ) {
-            $this->logError(1510524679, (string)$configuration['targetPage']);
+            $this->logError(1_510_524_679, (string)$configuration['targetPage']);
             return false;
         }
 

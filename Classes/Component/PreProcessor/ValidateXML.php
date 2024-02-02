@@ -188,7 +188,7 @@ class ValidateXML extends AbstractPreProcessor implements
                 $error->column
             );
             $this->logError(
-                1646304431,
+                1_646_304_431,
                 null,
                 [$message]
             );

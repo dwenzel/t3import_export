@@ -38,7 +38,7 @@ trait ConfigurableTrait
             throw new InvalidConfigurationException(
                 'Configuration for ' . $this::class
                 . ' is not valid.',
-                1451659793
+                1_451_659_793
             );
         }
 

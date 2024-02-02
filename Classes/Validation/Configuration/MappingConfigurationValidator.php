@@ -51,7 +51,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
                 'Invalid configuration for ' . get_class($this) .
                 '. Option value allowProperties must be a comma separated
                  string of property names.',
-                1451146869
+                1_451_146_869
             );
         }
         if (isset($configuration['properties'])) {
@@ -61,7 +61,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
                 throw new InvalidConfigurationException(
                     'Invalid configuration for ' . get_class($this) .
                     '. Option value properties must be an array.',
-                    1451147517
+                    1_451_147_517
                 );
             }
 
@@ -85,7 +85,7 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
                 throw new InvalidConfigurationException(
                     'Invalid configuration for ' . get_class($this) .
                     '. children.maxItems must be set.',
-                    1451157586
+                    1_451_157_586
                 );
             }
             foreach ($localConfiguration['children']['properties'] as $child => $childConfiguration) {

@@ -81,7 +81,7 @@ class PostProcessorFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1447864207);
+        $this->expectExceptionCode(1_447_864_207);
         $configurationWithoutClassName = ['bar'];
 
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
@@ -90,7 +90,7 @@ class PostProcessorFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1447864223);
+        $this->expectExceptionCode(1_447_864_223);
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
@@ -102,7 +102,7 @@ class PostProcessorFactoryTest extends TestCase
     public function testGetThrowsExceptionIfClassDoesNotImplementPostProcessorInterface(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1447864243);
+        $this->expectExceptionCode(1_447_864_243);
         $configurationWithExistingClass = [
             'class' => DummyInvalidPostProcessor::class
         ];

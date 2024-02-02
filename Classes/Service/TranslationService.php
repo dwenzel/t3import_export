@@ -75,17 +75,17 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
     public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, int $language): void
     {
         if (!$this->haveSameClass($origin, $translation)) {
-            throw new Exception('Origin and translation must be the same type.', 1432499926);
+            throw new Exception('Origin and translation must be the same type.', 1_432_499_926);
         }
 
         if ($origin === $translation) {
-            throw new Exception('Origin can\'t be translation of its own.', 1432502696);
+            throw new Exception('Origin can\'t be translation of its own.', 1_432_502_696);
         }
 
         $dataMap = $this->dataMapper->getDataMap($origin::class);
 
         if (!$dataMap->getTranslationOriginColumnName()) {
-            throw new Exception('The type is not translatable.', 1432500079);
+            throw new Exception('The type is not translatable.', 1_432_500_079);
         }
 
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($dataMap->getTranslationOriginColumnName());

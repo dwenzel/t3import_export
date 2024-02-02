@@ -83,7 +83,7 @@ class PreProcessorFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1447427020);
+        $this->expectExceptionCode(1_447_427_020);
 
         $configurationWithoutClassName = ['bar'];
 
@@ -93,7 +93,7 @@ class PreProcessorFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1447427184);
+        $this->expectExceptionCode(1_447_427_184);
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
@@ -105,7 +105,7 @@ class PreProcessorFactoryTest extends TestCase
     public function testGetThrowsExceptionIfClassDoesNotImplementPreProcessorInterface(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1447428235);
+        $this->expectExceptionCode(1_447_428_235);
         $configurationWithExistingClass = [
             'class' => DummyInvalidPreProcessor::class
         ];

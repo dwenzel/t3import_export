@@ -64,7 +64,7 @@ class DatabaseConnectionService implements SingletonInterface
         }
         throw new MissingDatabaseException(
             'No database registered for identifier ' . $identifier,
-            1449363030
+            1_449_363_030
         );
     }
 

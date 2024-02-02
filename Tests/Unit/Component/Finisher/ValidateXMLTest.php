@@ -102,7 +102,7 @@ class ValidateXMLTest extends TestCase
                         'schema' => []
                     ]
                 ],
-                1508774170,
+                1_508_774_170,
                 ['array']
             ]
         ];
@@ -259,7 +259,7 @@ class ValidateXMLTest extends TestCase
         $this->subject->expects($this->once())
             ->method('logNotice')
             ->with(...[
-                    1508776068,
+                    1_508_776_068,
                     ['was', 0, 'error'],
                     []
                 ]

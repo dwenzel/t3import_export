@@ -63,14 +63,14 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
         if (!class_exists($dataSourceClass)) {
             throw new MissingClassException(
                 'Missing source.class ' . $dataSourceClass . '.',
-                1451060913
+                1_451_060_913
             );
         }
         if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass))) {
             throw new MissingInterfaceException(
                 'Missing interface in configuration for source. Class ' . $dataSourceClass .
                 ' must implement interface ' . DataSourceInterface::class . '.',
-                1451061361
+                1_451_061_361
             );
         }
         // fixme: We should test for implementation of ConfigurableInterface here and use an empty default config
@@ -80,7 +80,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Missing configuration option config for class ' .
                 $dataSourceClass,
-                1451086595
+                1_451_086_595
             );
         }
 

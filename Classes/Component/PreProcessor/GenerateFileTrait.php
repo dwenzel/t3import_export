@@ -35,12 +35,12 @@ trait GenerateFileTrait
      * @var array
      */
     protected static $errors = [
-        1499007587 => ['Empty configuration', 'Configuration must not be empty'],
-        1497427302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
-        1497427320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
-        1497427335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
-        1497427346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
-        1497427363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
+        1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
+        1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
+        1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
+        1_497_427_335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
+        1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
+        1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
     ];
 
     /**
@@ -127,34 +127,34 @@ trait GenerateFileTrait
     public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration)) {
-            $this->logError(1499007587);
+            $this->logError(1_499_007_587);
             return false;
         }
         if (!isset($configuration['targetDirectoryPath'])) {
-            $this->logError(1497427320);
+            $this->logError(1_497_427_320);
             return false;
         }
 
         if (!isset($configuration['fieldName'])) {
-            $this->logError(1497427335);
+            $this->logError(1_497_427_335);
             return false;
         }
 
         if (!isset($configuration['storageId'])) {
-            $this->logError(1497427302);
+            $this->logError(1_497_427_302);
             return false;
         }
 
         $this->initializeStorage($configuration);
 
         if (!$this->resourceStorage instanceof ResourceStorage) {
-            $this->logError(1497427346, [$configuration['storageId']]);
+            $this->logError(1_497_427_346, [$configuration['storageId']]);
             return false;
         }
 
         if (!$this->resourceStorage->hasFolder($configuration['targetDirectoryPath'])) {
             $storageConfiguration = $this->resourceStorage->getConfiguration();
-            $this->logError(1497427363, [$storageConfiguration['basePath'] . ltrim($configuration['targetDirectoryPath'], '/\\')]);
+            $this->logError(1_497_427_363, [$storageConfiguration['basePath'] . ltrim((string) $configuration['targetDirectoryPath'], '/\\')]);
 
             return false;
         }

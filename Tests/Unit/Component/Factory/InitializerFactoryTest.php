@@ -88,7 +88,7 @@ class InitializerFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1454588350);
+        $this->expectExceptionCode(1_454_588_350);
         $configurationWithoutClassName = ['bar'];
 
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
@@ -97,7 +97,7 @@ class InitializerFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1454588360);
+        $this->expectExceptionCode(1_454_588_360);
         $configurationWithNonExistingClass = [
             'class' => 'NonExistingClass'
         ];
@@ -109,7 +109,7 @@ class InitializerFactoryTest extends TestCase
     public function testGetThrowsExceptionIfClassDoesNotImplementInitializerInterface(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1454588370);
+        $this->expectExceptionCode(1_454_588_370);
 
         $configurationWithExistingClass = [
             'class' => DummyInvalidInitializer::class

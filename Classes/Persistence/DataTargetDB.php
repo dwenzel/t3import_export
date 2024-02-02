@@ -158,7 +158,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
                  */
                 throw new PersistenceException(
                     $message,
-                    1647701464,
+                    1_647_701_464,
                     $exception
                 );
             }
@@ -179,7 +179,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
 
             throw new PersistenceException(
                 $message,
-                1647701464,
+                1_647_701_464,
                 $exception
             );
         }

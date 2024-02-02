@@ -56,7 +56,7 @@ class InitializerFactory extends AbstractFactory implements FactoryInterface
         if (!isset($settings['class'])) {
             throw new InvalidConfigurationException(
                 'Missing class in initializer configuration' . $additionalInformation,
-                1454588350
+                1_454_588_350
             );
         }
         $className = $settings['class'];
@@ -65,7 +65,7 @@ class InitializerFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Initializer class ' . $className . ' in configuration for' . $additionalInformation
                 . ' does not exist.',
-                1454588360
+                1_454_588_360
             );
         }
 
@@ -73,7 +73,7 @@ class InitializerFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Initializer class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement InitializerInterface.',
-                1454588370
+                1_454_588_370
             );
         }
 

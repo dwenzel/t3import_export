@@ -41,21 +41,21 @@ class TargetClassConfigurationValidator implements ConfigurationValidatorInterfa
             throw new InvalidConfigurationException(
                 'Invalid configuration for ' . get_class($this) .
                 '. Missing targetClass option',
-                1451146126
+                1_451_146_126
             );
         }
         if (!is_string($config['targetClass'])) {
             throw new InvalidConfigurationException(
                 'Invalid configuration for ' . get_class($this) .
                 '. Option value for targetClass must be a string.',
-                1451146384
+                1_451_146_384
             );
         }
         if (!class_exists($config['targetClass'])) {
             throw new MissingClassException(
                 'Invalid configuration for ' . get_class($this) .
                 '. Target class does not exist.',
-                1451146564
+                1_451_146_564
             );
         }
 

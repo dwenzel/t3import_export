@@ -86,7 +86,7 @@ class FinisherFactoryTest extends TestCase
     {
         $configurationWithoutClassName = ['bar'];
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1454187892);
+        $this->expectExceptionCode(1_454_187_892);
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
@@ -96,7 +96,7 @@ class FinisherFactoryTest extends TestCase
             'class' => 'NonExistingClass'
         ];
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1454187903);
+        $this->expectExceptionCode(1_454_187_903);
         $this->subject->get(
             $configurationWithNonExistingClass
         );
@@ -108,7 +108,7 @@ class FinisherFactoryTest extends TestCase
             'class' => DummyInvalidFinisher::class
         ];
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionCode(1454187910);
+        $this->expectExceptionCode(1_454_187_910);
         $this->subject->get(
             $configurationWithExistingClass
         );

@@ -41,18 +41,18 @@ class ValidateXML extends AbstractFinisher
      * Notice by id
      * <unique id> => ['Title', ['Message']
      */
-    const NOTICE_CODES = [
-        1508776068 => ['Validation failed', 'XML is invalid. There %1s %d %2s.'],
-        1508914030 => ['Validation succeed', 'XML is valid.'],
+    final public const NOTICE_CODES = [
+        1_508_776_068 => ['Validation failed', 'XML is invalid. There %1s %d %2s.'],
+        1_508_914_030 => ['Validation succeed', 'XML is valid.'],
     ];
 
     /**
      * Error by id
      * <unique id> => ['Title', ['Message']
      */
-    const ERROR_CODES = [
-        1508774170 => ['Invalid type for target schema', 'config[\'target\'][\'schema\'] must be a string, %s given.'],
-        1508914547 => ['Empty resource', 'Could not load resource or resource empty'],
+    final public const ERROR_CODES = [
+        1_508_774_170 => ['Invalid type for target schema', 'config[\'target\'][\'schema\'] must be a string, %s given.'],
+        1_508_914_547 => ['Empty resource', 'Could not load resource or resource empty'],
     ];
 
     /**
@@ -105,7 +105,7 @@ class ValidateXML extends AbstractFinisher
         }
         if (isset($configuration['target']['schema'])
             && !is_string($configuration['target']['schema'])) {
-            $this->logError(1508774170, [gettype($configuration['target']['schema'])]);
+            $this->logError(1_508_774_170, [gettype($configuration['target']['schema'])]);
             return false;
         }
 
@@ -123,7 +123,7 @@ class ValidateXML extends AbstractFinisher
 
         $resource = $this->loadResource($configuration);
         if (empty($resource)) {
-            $this->logError(1508914547, null, [$configuration]);
+            $this->logError(1_508_914_547, null, [$configuration]);
 
             return false;
         }
@@ -145,10 +145,10 @@ class ValidateXML extends AbstractFinisher
             $errorCount = count($validationErrors);
             $string1 = ($errorCount > 1)? 'were' : 'was';
             $string2 = ($errorCount > 1)? 'errors' : 'error';
-            $this->logNotice(1508776068, [$string1, $errorCount, $string2], $validationErrors);
+            $this->logNotice(1_508_776_068, [$string1, $errorCount, $string2], $validationErrors);
         } else {
             // notification about validation success
-            $this->logNotice(1508914030);
+            $this->logNotice(1_508_914_030);
         }
         //disable user error handling - will also clear any existing libxml errors
         libxml_use_internal_errors(false);

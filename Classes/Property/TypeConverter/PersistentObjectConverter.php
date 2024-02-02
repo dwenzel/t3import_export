@@ -215,7 +215,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
                 }
             }
         } else {
-            throw new InvalidSourceException('The identity property "' . $identity . '" is no UID.', 1297931020);
+            throw new InvalidSourceException('The identity property "' . $identity . '" is no UID.', 1_297_931_020);
         }
         if ($object === null) {
             $query = $this->buildQuery($targetType);
@@ -227,7 +227,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
                         $targetType,
                         print_r($identity, true)
                     ),
-                    1297933823
+                    1_297_933_823
                 );
             }
         }

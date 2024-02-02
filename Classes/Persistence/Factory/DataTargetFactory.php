@@ -69,14 +69,14 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
             throw new MissingClassException(
                 'Missing target.class ' . $dataTargetClass .
                 ' in configuration for import task ' . $identifier,
-                1451043513
+                1_451_043_513
             );
         }
         if (!in_array(DataTargetInterface::class, class_implements($dataTargetClass))) {
             throw new MissingInterfaceException(
                 'Missing interface in configuration for task ' . $identifier . ' Class ' . $dataTargetClass .
                 ' does not implement required interface ' . DataTargetInterface::class . '.',
-                1451045997
+                1_451_045_997
             );
         }
         $objectClass = null;
@@ -86,7 +86,7 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
                 throw new MissingClassException(
                     'Missing class ' . $objectClass .
                     ' in configuration for task ' . $identifier,
-                    1451043367
+                    1_451_043_367
                 );
             }
         }

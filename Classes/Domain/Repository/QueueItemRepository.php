@@ -111,7 +111,7 @@ class QueueItemRepository
             $message = 'Cannot update or remove record. It is new.';
             throw new InvalidArgumentException(
                 $message,
-                1644911540
+                1_644_911_540
             );
         }
 
@@ -194,7 +194,7 @@ class QueueItemRepository
             $message = 'Cannot identify record.';
             throw new InvalidArgumentException(
                 $message,
-                1644911538
+                1_644_911_538
             );
         }
 
@@ -226,7 +226,7 @@ class QueueItemRepository
             $message = 'Record is invalid.';
             throw new InvalidArgumentException(
                 $message,
-                1644911541
+                1_644_911_541
             );
         }
 
@@ -251,7 +251,7 @@ class QueueItemRepository
             $message = 'Cannot add record. It is not new.';
             throw new InvalidArgumentException(
                 $message,
-                1644911539
+                1_644_911_539
             );
         }
 

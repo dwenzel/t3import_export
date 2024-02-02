@@ -51,7 +51,7 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
         if (!isset($settings['class'])) {
             throw new InvalidConfigurationException(
                 'Missing class in converter configuration' . $additionalInformation,
-                1451566686
+                1_451_566_686
             );
         }
         $className = $settings['class'];
@@ -60,7 +60,7 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Converter class ' . $className . ' in configuration for' . $additionalInformation
                 . ' does not exist.',
-                1451566699
+                1_451_566_699
             );
         }
 
@@ -68,7 +68,7 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
             throw new InvalidConfigurationException(
                 'Converter class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement ConverterInterface.',
-                1451566706
+                1_451_566_706
             );
         }
 

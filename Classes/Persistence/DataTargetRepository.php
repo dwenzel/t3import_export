@@ -36,7 +36,7 @@ use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
  ***************************************************************/
 class DataTargetRepository implements DataTargetInterface
 {
-    public const MISSING_CLASS_EXCEPTION_CODE = 1641374612;
+    public const MISSING_CLASS_EXCEPTION_CODE = 1_641_374_612;
     public const MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
 
     /**
