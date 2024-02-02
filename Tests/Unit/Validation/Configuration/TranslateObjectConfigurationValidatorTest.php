@@ -38,7 +38,7 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
     protected TargetClassConfigurationValidator $targetClassConfigurationValidator;
     protected MappingConfigurationValidator $mappingConfigurationValidator;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->targetClassConfigurationValidator = $this->getMockBuilder(
             TargetClassConfigurationValidator::class

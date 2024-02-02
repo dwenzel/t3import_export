@@ -17,17 +17,6 @@ return [
         'adminOnly' => true,
         'rootLevel' => 1
     ],
-    'interface' => [
-        'showRecordFieldList' => '
-            created_date,
-            started_date,
-            finished_date,
-            queue,
-            checksum,
-            data,
-            status
-        ',
-    ],
     'types' => [
         '1' => [
             'showitem' => '
@@ -46,10 +35,8 @@ return [
             'exclude' => true,
             'label' => $ll . 'label.created_date',
             'config' => [
-                'type' => 'input',
-                'renderType' => 'inputDateTime',
+                'type' => 'datetime',
                 'size' => 10,
-                'eval' => 'datetime',
                 'readOnly' => true,
             ],
         ],
@@ -57,10 +44,8 @@ return [
             'exclude' => true,
             'label' => $ll . 'label.started_date',
             'config' => [
-                'type' => 'input',
-                'renderType' => 'inputDateTime',
+                'type' => 'datetime',
                 'size' => 10,
-                'eval' => 'datetime',
                 'readOnly' => true,
             ],
         ],
@@ -68,10 +53,8 @@ return [
             'exclude' => true,
             'label' => $ll . 'label.finished_date',
             'config' => [
-                'type' => 'input',
-                'renderType' => 'inputDateTime',
+                'type' => 'datetime',
                 'size' => 10,
-                'eval' => 'datetime',
                 'readOnly' => true,
             ],
         ],
@@ -100,20 +83,20 @@ return [
                 'renderType' => 'selectSingle',
                 'items' => [
                     [
-                        $ll . 'label.status.item.'. QueueItem::STATUS_NEW,
-                        QueueItem::STATUS_NEW,
+                        'label' => $ll . 'label.status.item.'. QueueItem::STATUS_NEW,
+                        'value' => QueueItem::STATUS_NEW,
                     ],
                     [
-                        $ll . 'label.status.item.' . QueueItem::STATUS_PROCESSING,
-                        QueueItem::STATUS_PROCESSING,
+                        'label' => $ll . 'label.status.item.' . QueueItem::STATUS_PROCESSING,
+                        'value' => QueueItem::STATUS_PROCESSING,
                     ],
                     [
-                        $ll . 'label.status.item.'. QueueItem::STATUS_FINISHED,
-                        QueueItem::STATUS_FINISHED,
+                        'label' => $ll . 'label.status.item.'. QueueItem::STATUS_FINISHED,
+                        'value' => QueueItem::STATUS_FINISHED,
                     ],
                     [
-                        $ll . 'label.status.item.' . QueueItem::STATUS_FAILED,
-                        QueueItem::STATUS_FAILED,
+                        'label' => $ll . 'label.status.item.' . QueueItem::STATUS_FAILED,
+                        'value' => QueueItem::STATUS_FAILED,
                     ],
                 ],
                 'readOnly' => true,

@@ -54,7 +54,7 @@ class ValidateXMLTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockMessageContainer();
         $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)

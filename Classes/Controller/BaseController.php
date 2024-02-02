@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Controller;
 
+use Psr\Http\Message\ResponseInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
@@ -35,12 +36,12 @@ abstract class BaseController extends ActionController
     protected $dataTransferProcessor;
 
     /**
-     * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
+     * @var TransferTaskFactory
      */
     protected $transferTaskFactory;
 
     /**
-     * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
+     * @var TransferSetFactory
      */
     protected $transferSetFactory;
 
@@ -82,7 +83,7 @@ abstract class BaseController extends ActionController
      *
      * @throws InvalidConfigurationException
      */
-    public function indexAction(): void
+    public function indexAction(): ResponseInterface
     {
         $settingsKey = $this->getSettingsKey();
         $tasks = [];
@@ -101,6 +102,7 @@ abstract class BaseController extends ActionController
                 'settings' => $this->settings[$settingsKey]
             ]
         );
+        return $this->htmlResponse();
     }
 
     /**

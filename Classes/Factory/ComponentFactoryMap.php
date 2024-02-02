@@ -44,9 +44,9 @@ use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
  */
 class ComponentFactoryMap implements FactoryMapInterface
 {
-    public const INVALID_CLASS_MESSAGE = 'Cannot resolve factory for product class "%s". Product must implement "%s"!';
-    public const INVALID_CLASS_CODE = 1643977630;
-    public const FACTORY_MAP = [
+    final public const INVALID_CLASS_MESSAGE = 'Cannot resolve factory for product class "%s". Product must implement "%s"!';
+    final public const INVALID_CLASS_CODE = 1_643_977_630;
+    final public const FACTORY_MAP = [
         ConverterInterface::class => ConverterFactory::class,
         DataSourceInterface::class => DataSourceFactory::class,
         DataTargetInterface::class => DataTargetFactory::class,

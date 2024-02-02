@@ -77,7 +77,7 @@ class FinisherFactoryTest extends TestCase
     protected FinisherFactory $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new FinisherFactory();
     }

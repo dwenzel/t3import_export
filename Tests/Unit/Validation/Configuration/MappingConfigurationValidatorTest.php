@@ -43,7 +43,7 @@ class MappingConfigurationValidatorTest extends TestCase
      * set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new MappingConfigurationValidator();
     }

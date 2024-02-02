@@ -35,7 +35,7 @@ class MapFieldsTest extends TestCase
     protected MapFields $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new MapFields();
     }

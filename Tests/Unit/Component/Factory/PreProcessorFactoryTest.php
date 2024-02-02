@@ -75,7 +75,7 @@ class PreProcessorFactoryTest extends TestCase
      *
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new PreProcessorFactory();
     }

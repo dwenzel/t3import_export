@@ -37,7 +37,7 @@ class TaskResultTest extends TestCase
     use MockMessageContainerTrait;
     protected TaskResult $subject;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockMessageContainer();
         $this->subject = new TaskResult($this->messageContainer);
@@ -78,16 +78,12 @@ class TaskResultTest extends TestCase
         /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
         $list = $this->getMockBuilder(TaskResult::class)->getMock();
 
-        $expectedValues = array(
-            'This is the first item',
-            'This is the second item',
-            'And the final item'
-        );
+        $expectedValues = ['This is the first item', 'This is the second item', 'And the final item'];
 
         $this->mockIterator($list, $expectedValues);
 
         $counter = 0;
-        $values = array();
+        $values = [];
         foreach ($list as $value) {
             $values[] = $value;
             $counter++;

@@ -53,7 +53,7 @@ class GenerateFileReferenceTest extends TestCase
      * setup subject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockPersistenceManager()
             ->mockFileReferenceFactory()

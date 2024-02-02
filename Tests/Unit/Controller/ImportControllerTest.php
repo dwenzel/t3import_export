@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Tests\Controller;
 
+use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
@@ -39,11 +40,11 @@ class ImportControllerTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Controller\ImportController
+     * @var ImportController
      */
     protected $subject;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->markTestSkipped('Todo: replace ExtbaseCommandController by Symfony Command');
         $this->subject = $this->getAccessibleMock(ImportController::class,
@@ -133,7 +134,7 @@ class ImportControllerTest extends TestCase
             ['get']);
         $this->subject->injectObjectManager($mockObjectManager);
         $mockDemand = $this->getMock(
-            'CPSIT\\T3importExport\\Domain\\Model\\Dto\\DemandInterface'
+            DemandInterface::class
         );
         $mockView = $this->getMock(
             TemplateView::class, ['assignMultiple'], [], '', false
@@ -265,7 +266,7 @@ class ImportControllerTest extends TestCase
             ['get']);
         $this->subject->injectObjectManager($mockObjectManager);
         $mockDemand = $this->getMock(
-            'CPSIT\\T3importExport\\Domain\\Model\\Dto\\DemandInterface'
+            DemandInterface::class
         );
         $mockView = $this->getMock(
             TemplateView::class, ['assignMultiple'], [], '', false

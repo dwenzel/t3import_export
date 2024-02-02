@@ -60,7 +60,7 @@ class ArrayToXMLStreamTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->markTestIncomplete('DI of class must be adapted');
         $this->mockObjectManager();
@@ -72,6 +72,7 @@ class ArrayToXMLStreamTest extends TestCase
      */
     protected function mockObjectManager()
     {
+        $mockObjectManager = null;
         /** @var ObjectManager|MockObject $mockObjectManager */
         $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()
@@ -130,7 +131,7 @@ class ArrayToXMLStreamTest extends TestCase
 
 
         $config = [
-            'targetClass' => "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
+            'targetClass' => DataStream::class
         ];
 
         $mockedTargetValidator->expects($this->once())
@@ -159,7 +160,7 @@ class ArrayToXMLStreamTest extends TestCase
 
 
         $config = [
-            'targetClass' => "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
+            'targetClass' => DataStream::class
         ];
 
         $mockedTargetValidator->expects($this->once())

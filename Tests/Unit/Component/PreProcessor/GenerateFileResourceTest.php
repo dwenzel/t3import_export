@@ -51,7 +51,7 @@ class GenerateFileResourceTest extends TestCase
      * @throws vfsStreamException
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockFileIndexRepository()
             ->mockResourceStorage()
@@ -106,7 +106,7 @@ class GenerateFileResourceTest extends TestCase
     {
         $mockFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
 
-        list($rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure) = $this->mockFileStructure();
+        [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
 
         $this->assertFileGeneratedAccordingToConfiguration($rootDirectory, $fileStructure, $configuration['targetDirectoryPath'], $sourceFileName);
 

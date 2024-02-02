@@ -37,7 +37,7 @@ class ExportTargetTest extends TestCase
      * set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new ExportTarget();
     }

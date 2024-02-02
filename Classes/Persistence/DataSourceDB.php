@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Persistence;
 
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
@@ -73,7 +74,7 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
      * @param array $configuration source query configuration
      * @return array Array of records from database or empty array
      * @throws InvalidConfigurationException
-     * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
+     * @throws ContentRenderingException
      */
     public function getRecords(array $configuration): array
     {
@@ -91,7 +92,7 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
                 ->build();
 
             $records = $query->execute()->fetchAllAssociative();
-        } catch (Exception $exception) {
+        } catch (Exception) {
             // todo: log error
         }
 
@@ -113,7 +114,7 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
     /**
      * @param array $queryConfiguration
      * @return array
-     * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
+     * @throws ContentRenderingException
      */
     protected function renderValues(array $queryConfiguration): array
     {

@@ -233,7 +233,7 @@ class DataTransferProcessor
      * @param TransferTask $task
      * @param TaskResult $result
      */
-    protected function postProcessSingle(&$convertedRecord, &$record, TransferTask $task, TaskResult $result)
+    protected function postProcessSingle(mixed &$convertedRecord, &$record, TransferTask $task, TaskResult $result)
     {
         $postProcessors = $task->getPostProcessors();
         foreach ($postProcessors as $postProcessor) {

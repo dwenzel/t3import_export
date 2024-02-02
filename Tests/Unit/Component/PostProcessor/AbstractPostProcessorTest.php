@@ -37,7 +37,7 @@ class AbstractPostProcessorTest extends TestCase
     protected AbstractPostProcessor $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockForAbstractClass(AbstractPostProcessor::class);
     }

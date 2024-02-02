@@ -87,8 +87,8 @@ class DataSourceXML implements DataSourceInterface, ConfigurableInterface
                 if (is_array($queryResult) && count($queryResult) > 0) {
                     foreach ($queryResult as $key => $value) {
                         // convert to real PHP array; idea from soloman at http://www.php.net/manual/en/book.simplexml.php
-                        $json = json_encode($value);
-                        $records[$key] = json_decode($json, true);
+                        $json = json_encode($value, JSON_THROW_ON_ERROR);
+                        $records[$key] = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
                     }
                 }
             }

@@ -42,7 +42,7 @@ class ConcatenateFieldsTest extends TestCase
     protected ConcatenateFields $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockTypoScriptFrontendController();
         $this->mockContentObjectRenderer();

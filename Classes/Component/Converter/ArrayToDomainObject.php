@@ -26,7 +26,7 @@ namespace CPSIT\T3importExport\Component\Converter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
@@ -149,7 +149,7 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
 
     /**
      * @param array $configuration
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @return bool
      */

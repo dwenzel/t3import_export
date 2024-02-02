@@ -45,7 +45,7 @@ class InitializerFactory extends AbstractFactory implements FactoryInterface
      * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return \CPSIT\T3importExport\Component\Initializer\InitializerInterface
+     * @return InitializerInterface
      */
     public function get(array $settings = [], $identifier = null): InitializerInterface
     {

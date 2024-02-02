@@ -38,7 +38,7 @@ class AbstractPreProcessorTest extends TestCase
      */
     protected $subject;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(AbstractPreProcessor::class)
             ->setMethods(['process', 'renderContent'])

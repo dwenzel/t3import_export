@@ -14,7 +14,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Core\Resource\File;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\LoggingTrait;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -63,7 +63,7 @@ trait GenerateFileTrait
      *
      * @param array $configuration
      * @param string $sourceFilePath
-     * @return \TYPO3\CMS\Core\Resource\File|string|null
+     * @return File|string|null
      */
     abstract public function getFile($configuration, $sourceFilePath);
 
@@ -99,7 +99,7 @@ trait GenerateFileTrait
 
         // Prefix all files with source path
         if (isset($configuration['sourcePath'])) {
-            $filePaths = preg_filter('/^/', $configuration['sourcePath'], $filePaths);
+            $filePaths = preg_filter('/^/', (string) $configuration['sourcePath'], $filePaths);
         }
 
         if ($configuration['multipleRows']) {

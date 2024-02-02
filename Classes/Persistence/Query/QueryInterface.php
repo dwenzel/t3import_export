@@ -32,8 +32,8 @@ interface QueryInterface
     /**
      * Constants representing the direction when ordering result sets.
      */
-    const ORDER_ASCENDING = 'ASC';
-    const ORDER_DESCENDING = 'DESC';
+    public const ORDER_ASCENDING = 'ASC';
+    public const ORDER_DESCENDING = 'DESC';
 
     /**
      * Left join properties

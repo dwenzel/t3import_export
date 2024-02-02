@@ -48,7 +48,7 @@ class LookUpDBTest extends TestCase
     protected array $queryResult = [];
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         /**
          * fixme: we mock the subject in order to prevent access to method performQuery
@@ -61,7 +61,7 @@ class LookUpDBTest extends TestCase
         );
     }
 
-    public function testProcess():void
+    public function testProcess(): never
     {
         /**
          * @see LookUpDB::process() for details

@@ -9,7 +9,7 @@ class ImportModuleRegistration implements ModuleRegistrationInterface
 {
     use ModuleRegistrationTrait;
 
-    public const ROUTE = 'site_ApiToken';
+    final public const ROUTE = 'site_ApiToken';
 
     static protected string $subModuleName = 'Import';
     static protected string $mainModuleName = 'system';

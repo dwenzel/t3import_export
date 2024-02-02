@@ -53,7 +53,7 @@ class LoggingTraitTest extends TestCase
      * set up subject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockMessageContainer();
         $this->subject = $this->getMockBuilder(LoggingTrait::class)

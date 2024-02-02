@@ -64,7 +64,7 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
         try {
             $this->connectionPool->getConnectionForTable($table)
                 ->bulkInsert($table, $values, $fields);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
 

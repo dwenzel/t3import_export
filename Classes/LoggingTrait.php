@@ -134,7 +134,7 @@ trait LoggingTrait
             }
         }
 
-        $description .= PHP_EOL . 'Message ID ' . $id . ' in component ' . get_class($this);
+        $description .= PHP_EOL . 'Message ID ' . $id . ' in component ' . $this::class;
 
         return $description;
     }

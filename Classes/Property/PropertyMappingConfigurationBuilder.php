@@ -113,7 +113,7 @@ class PropertyMappingConfigurationBuilder
             return $configuration['typeConverter']['class'];
         }
 
-        return 'TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\PersistentObjectConverter';
+        return PersistentObjectConverter::class;
     }
 
     /**

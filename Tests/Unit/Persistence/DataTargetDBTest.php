@@ -60,7 +60,7 @@ class DataTargetDBTest extends TestCase
     /**
      * set up subject
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockConnectionService();
         $this->connectionPool->method('getConnectionForTable')

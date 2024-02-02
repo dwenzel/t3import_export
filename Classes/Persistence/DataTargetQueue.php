@@ -36,8 +36,8 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 
-    public const KEY_IDENTIFIER = 'identifier';
-    public const KEY_ALLOW_UPDATE = 'allowUpdate';
+    final public const KEY_IDENTIFIER = 'identifier';
+    final public const KEY_ALLOW_UPDATE = 'allowUpdate';
     protected string $targetClass = QueueItem::class;
     protected QueueItemRepository $repository;
 
@@ -81,6 +81,7 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
     public function persist($object, array $configuration = null)
     {
 
+        $result = null;
         if (!is_array($object)) {
             // todo log warning
             return false;
@@ -96,7 +97,7 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
             } elseif ((bool)$configuration[self::KEY_ALLOW_UPDATE]) {
                 $result = $this->repository->update($object);
             }
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             // todo log error
             $result = false;
         }

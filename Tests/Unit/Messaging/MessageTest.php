@@ -35,7 +35,7 @@ class MessageTest extends TestCase
     /**
      * set up subject
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()

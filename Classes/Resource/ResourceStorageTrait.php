@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Resource;
 
+use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
 
 /**
@@ -25,7 +26,7 @@ trait ResourceStorageTrait
 {
     use StorageRepositoryTrait;
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceStorage
+     * @var ResourceStorage
      */
     protected $resourceStorage;
 

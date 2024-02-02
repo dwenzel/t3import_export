@@ -42,22 +42,22 @@ class MoveFile extends AbstractFinisher
     /**
      * cancel file operation
      */
-    const CONFLICT_MODE_CANCEL = 'cancel';
+    final public const CONFLICT_MODE_CANCEL = 'cancel';
 
     /**
      * change name of new file according to TYPO3 conventions
      */
-    const CONFLICT_MODE_RENAME_NEW_FILE = 'renameNewFile';
+    final public const CONFLICT_MODE_RENAME_NEW_FILE = 'renameNewFile';
 
     /**
      * replace existing file
      */
-    const CONFLICT_MODE_OVERRIDE_EXISTING_FILE = 'overrideExistingFile';
+    final public const CONFLICT_MODE_OVERRIDE_EXISTING_FILE = 'overrideExistingFile';
 
     /**
      * Valid values for conflict modes (for operations on new file)
      */
-    const CONFLICT_MODES = [
+    final public const CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_RENAME_NEW_FILE,
         self::CONFLICT_MODE_OVERRIDE_EXISTING_FILE

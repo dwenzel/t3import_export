@@ -32,7 +32,7 @@ class FilePathFactoryTest extends TestCase
     /**
      * set up subject
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(FilePathFactory::class)->setMethods(['dummy'])->getMock();
     }

@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Controller;
 
+use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
 
 /***************************************************************
@@ -22,7 +23,7 @@ use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
  ***************************************************************/
 class ExportController extends BaseController implements TransferControllerInterface
 {
-    const SETTINGS_KEY = 'export';
+    final public const SETTINGS_KEY = 'export';
 
     /**
      * Export task action
@@ -31,9 +32,10 @@ class ExportController extends BaseController implements TransferControllerInter
      *
      * @throws InvalidConfigurationException
      */
-    public function exportTaskAction($identifier)
+    public function exportTaskAction($identifier): ResponseInterface
     {
         $this->taskAction($identifier);
+        return $this->htmlResponse();
     }
 
     /**
@@ -43,9 +45,10 @@ class ExportController extends BaseController implements TransferControllerInter
      *
      * @throws InvalidConfigurationException
      */
-    public function exportSetAction($identifier)
+    public function exportSetAction($identifier): ResponseInterface
     {
         $this->setAction($identifier);
+        return $this->htmlResponse();
     }
 
     /**

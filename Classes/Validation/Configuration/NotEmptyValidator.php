@@ -24,8 +24,8 @@ class NotEmptyValidator implements ConfigurationValidatorInterface
 {
     use ArrayAccessTrait;
 
-    public const DEFAULT_DELIMITER = '/';
-    public const DEFAULT_PATH = '';
+    final public const DEFAULT_DELIMITER = '/';
+    final public const DEFAULT_PATH = '';
 
     /**
      * @inheritDoc

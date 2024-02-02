@@ -37,7 +37,7 @@ class SelectQueryTest extends TestCase
      */
     protected QueryBuilder $builder;
 
-    public function setUp(): void
+    protected function setUp(): void: void
     {
         $fluidBuilderMethods = [
             'select',

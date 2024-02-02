@@ -41,7 +41,7 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
             ->createQueryBuilder()
             ->delete($table)
             ->where($where)
-            ->execute();
+            ->executeStatement();
 
         return true;
     }

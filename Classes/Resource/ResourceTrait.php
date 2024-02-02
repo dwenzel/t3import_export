@@ -54,7 +54,7 @@ trait ResourceTrait
         if (is_file($absoluteFilePath) === true) {
             $resource = file_get_contents($absoluteFilePath);
         } elseif (GeneralUtility::isValidUrl($resourcePath) === true) {
-            $resource = GeneralUtility::getURL($resourcePath, 0, false);
+            $resource = GeneralUtility::getURL($resourcePath);
         }
 
         return $resource;

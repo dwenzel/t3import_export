@@ -116,7 +116,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         $queryConfiguration = $this->getQueryConfiguration($configuration);
         try {
             $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
-        } catch (InvalidConfigurationException $e) {
+        } catch (InvalidConfigurationException) {
             // todo: log error
             return false;
         }

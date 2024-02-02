@@ -39,12 +39,12 @@ class GenerateUploadFileTest extends TestCase
     protected $subject;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceStorage|MockObject
+     * @var ResourceStorage|MockObject
      */
     protected $resourceStorage;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\StorageRepository|MockObject
+     * @var StorageRepository|MockObject
      */
     protected $storageRepository;
 
@@ -56,7 +56,7 @@ class GenerateUploadFileTest extends TestCase
     /**
      * set up subject
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
             ->setMethods(['getAbsoluteFilePath'])->getMock();
@@ -131,7 +131,7 @@ class GenerateUploadFileTest extends TestCase
      */
     public function getFileCopiesFileToTarget()
     {
-        list($rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure) = $this->mockFileStructure();
+        [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
 
         vfsStream::setup($rootDirectory, null, $fileStructure);
 

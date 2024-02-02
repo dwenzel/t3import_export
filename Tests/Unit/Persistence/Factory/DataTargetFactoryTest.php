@@ -135,7 +135,7 @@ class DataTargetFactoryTest extends TestCase
      * set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockPersistenceManager();
         $this->subject = new DataTargetFactory($this->persistenceManager);

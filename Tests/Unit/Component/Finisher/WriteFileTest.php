@@ -50,7 +50,7 @@ class WriteFileTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()

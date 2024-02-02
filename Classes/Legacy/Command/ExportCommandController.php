@@ -32,5 +32,5 @@ class ExportCommandController extends TransferCommandController
      * Framework configuration.
      * This should match the key for the ExportController
      */
-    const SETTINGS_KEY = ExportController::SETTINGS_KEY;
+    final public const SETTINGS_KEY = ExportController::SETTINGS_KEY;
 }

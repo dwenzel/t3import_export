@@ -48,7 +48,7 @@ class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process($configuration, &$record)
     {
-        $fields = explode(',', $configuration['fields']);
+        $fields = explode(',', (string) $configuration['fields']);
         $targetField = $configuration['targetField'];
 
         foreach ($fields as $field) {

@@ -39,7 +39,7 @@ class ClearCacheTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new ClearCache();
         $this->mockCacheService();

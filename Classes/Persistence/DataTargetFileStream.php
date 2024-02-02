@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Persistence;
 
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
@@ -14,7 +15,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 class DataTargetFileStream extends DataTargetRepository implements ConfigurableInterface
 {
     use ConfigurableTrait;
-    const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
+    final public const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
     /**
      * subConfig for Data-Traget
@@ -31,7 +32,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     protected $tempFile;
 
     /**
-     * @param array|\TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface $object
+     * @param array|DomainObjectInterface $object
      * @param array|null $configuration
      * @return void
      * @throws FileOperationErrorException

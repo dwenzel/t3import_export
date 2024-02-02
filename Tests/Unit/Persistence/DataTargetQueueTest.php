@@ -39,7 +39,7 @@ class DataTargetQueueTest extends TestCase
     protected const VALID_CONFIGURATION = [
         DataTargetQueue::KEY_IDENTIFIER => 'import.foo'
     ];
-    public function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getMockBuilder(QueueItemRepository::class)
             ->disableOriginalConstructor()

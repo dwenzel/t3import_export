@@ -80,7 +80,7 @@ class InitializerFactoryTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new InitializerFactory();
     }

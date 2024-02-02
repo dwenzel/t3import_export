@@ -79,7 +79,7 @@ class ConverterFactoryTest extends TestCase
      *
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new ConverterFactory();
     }
@@ -126,7 +126,7 @@ class ConverterFactoryTest extends TestCase
         ];
         $converter = new $validClass;
         $this->assertInstanceOf(
-            get_class($converter),
+            $converter::class,
             $this->subject->get($settings, $identifier)
         );
     }

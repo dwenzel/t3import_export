@@ -43,26 +43,26 @@ class ValidateXML extends AbstractPreProcessor implements
     use ResourceTrait,
         LoggingTrait;
 
-    public const KEY_FIELDS = 'fields';
-    public const KEY_IDENTIFIER = 'identifier';
-    public const KEY_SCHEMA = 'schema';
-    public const KEY_VALIDATION_FAILED = 'xmlValidationFailed';
-    public const DEFAULT_IDENTIFIER_FIELD = 'uid';
+    final public const KEY_FIELDS = 'fields';
+    final public const KEY_IDENTIFIER = 'identifier';
+    final public const KEY_SCHEMA = 'schema';
+    final public const KEY_VALIDATION_FAILED = 'xmlValidationFailed';
+    final public const DEFAULT_IDENTIFIER_FIELD = 'uid';
 
     /**
      * [
      *  <id> => ['errorTitle', 'errorDescription']
      * ]
      */
-    public const ERROR_CODES = [
-        1646304431 => ['Validation Error', 'XML ist invalid']
+    final public const ERROR_CODES = [
+        1_646_304_431 => ['Validation Error', 'XML ist invalid']
     ];
-    public const SEPARATOR = ',';
-    public const DEFAULT_XML_VERSION = '1.0';
-    public const DEFAULT_XML_ENCODING = 'utf-8';
-    public const MISSING_RESOURCE_MESSAGE = 'Resource for %s i empty or can not be loaded from file or url.';
-    public const MISSING_RESOURCE_CODE = 1646301113;
-    public const TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
+    final public const SEPARATOR = ',';
+    final public const DEFAULT_XML_VERSION = '1.0';
+    final public const DEFAULT_XML_ENCODING = 'utf-8';
+    final public const MISSING_RESOURCE_MESSAGE = 'Resource for %s i empty or can not be loaded from file or url.';
+    final public const MISSING_RESOURCE_CODE = 1_646_301_113;
+    final public const TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
     Record ID %s
     Error Code (lib xml): %s
     Level: %s 

@@ -97,7 +97,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
             isset($configuration['classes'])
             && is_array($configuration['classes'])
         ) {
-            $resultClass = get_class($result[0]);
+            $resultClass = $result[0]::class;
 
             foreach ($configuration['classes'] as $key=>$localConfig) {
                 if ($key !== $resultClass) {

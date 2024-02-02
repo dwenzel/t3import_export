@@ -1,6 +1,8 @@
 <?php
 namespace CPSIT\T3importExport\Property\TypeConverter;
 
+use TYPO3\CMS\Extbase\Property\Exception\InvalidTargetException;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Exception;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException;
@@ -29,37 +31,37 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
     /**
      * @var string
      */
-    const IGNORE_ENABLE_FIELDS = 'IGNORE_ENABLE_FIELDS';
+    final public const IGNORE_ENABLE_FIELDS = 'IGNORE_ENABLE_FIELDS';
 
     /**
      * @var string
      */
-    const RESPECT_STORAGE_PAGE = 'RESPECT_STORAGE_PAGE';
+    final public const RESPECT_STORAGE_PAGE = 'RESPECT_STORAGE_PAGE';
 
     /**
      * @var string
      */
-    const RESPECT_SYS_LANGUAGE = 'RESPECT_SYS_LANGUAGE';
+    final public const RESPECT_SYS_LANGUAGE = 'RESPECT_SYS_LANGUAGE';
 
     /**
      * @var string
      */
-    const ENABLE_FIELDS_TO_BE_IGNORED = 'ENABLE_FIELDS_TO_BE_IGNORED';
+    final public const ENABLE_FIELDS_TO_BE_IGNORED = 'ENABLE_FIELDS_TO_BE_IGNORED';
 
     /**
      * @var string
      */
-    const INCLUDE_DELETED = 'INCLUDE_DELETED';
+    final public const INCLUDE_DELETED = 'INCLUDE_DELETED';
 
     /**
      * @var string
      */
-    const SYS_LANGUAGE_UID = 'SYS_LANGUAGE_UID';
+    final public const SYS_LANGUAGE_UID = 'SYS_LANGUAGE_UID';
 
     /**
      * @var string
      */
-    const STORAGE_PAGE_IDS = 'STORAGE_PAGE_IDS';
+    final public const STORAGE_PAGE_IDS = 'STORAGE_PAGE_IDS';
 
     /**
      * @var int
@@ -107,12 +109,12 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @param mixed $source
      * @param string $targetType
      * @param array $convertedChildProperties
-     * @param \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration
+     * @param PropertyMappingConfigurationInterface $configuration
      * @throws \InvalidArgumentException
      * @return object the target type
-     * @throws \TYPO3\CMS\Extbase\Property\Exception\InvalidTargetException
+     * @throws InvalidTargetException
      */
-    public function convertFrom($source, $targetType, array $convertedChildProperties = [], \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration = null): ?object
+    public function convertFrom($source, $targetType, array $convertedChildProperties = [], PropertyMappingConfigurationInterface $configuration = null): ?object
     {
         $this->setConfiguration($configuration);
 
@@ -129,7 +131,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
         if ($configuration === null) {
             return;
         }
-        $class = get_class($this);
+        $class = static::class;
         $ignoreEnableFields = $configuration->getConfigurationValue($class, self::IGNORE_ENABLE_FIELDS);
         if (isset($ignoreEnableFields)) {
             $this->ignoreEnableFields = (bool)$ignoreEnableFields;
@@ -172,7 +174,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 
     /**
      * @param $targetType
-     * @return \TYPO3\CMS\Extbase\Persistence\QueryInterface
+     * @return QueryInterface
      */
     protected function buildQuery($targetType)
     {
@@ -196,8 +198,8 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      *
      * @param mixed $identity
      * @param string $targetType
-     * @throws \TYPO3\CMS\Extbase\Property\Exception\TargetNotFoundException
-     * @throws \TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException
+     * @throws TargetNotFoundException
+     * @throws InvalidSourceException
      * @return object
      */
     protected function fetchObjectFromPersistence($identity, $targetType): object

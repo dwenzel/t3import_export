@@ -33,14 +33,14 @@ class MessageContainerTraitTest extends TestCase
 
     /**
      * subject
-     * @var \CPSIT\T3importExport\Messaging\MessageContainerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var MessageContainerTrait|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $subject;
 
     /**
      * set up subject
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockMessageContainer();
         $this->subject = $this->getMockBuilder(MessageContainerTrait::class)

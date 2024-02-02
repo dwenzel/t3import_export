@@ -166,7 +166,7 @@ abstract class AbstractTemplateQuery implements QueryInterface
                 [$orderField, $ascDesc] = GeneralUtility::trimExplode(' ', $orderItem, true);
                 // count == 1 means that no direction is given
                 if ($ascDesc) {
-                    $ascDesc = ((strtolower($ascDesc) === 'desc') ?
+                    $ascDesc = ((strtolower((string) $ascDesc) === 'desc') ?
                         QueryInterface::ORDER_DESCENDING :
                         QueryInterface::ORDER_ASCENDING);
                 } else {

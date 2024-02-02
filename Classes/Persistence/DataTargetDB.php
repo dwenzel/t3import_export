@@ -37,15 +37,15 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
 {
     use ConfigurableTrait, DatabaseTrait;
 
-    public const MISSING_CONNECTION_MESSAGE = 'Missing database connection for table "%s"';
-    public const MISSING_CONNECTION_CODE = 1646037375;
-    public const DEFAULT_IDENTITY_FIELD = '__identity';
-    public const FIELD_TABLE = 'table';
-    public const FIELD_FIELD = 'field';
-    public const FIELD_SKIP = 'skip';
-    public const FIELD_IF_EMPTY = 'ifEmpty';
-    public const FIELD_IF_NOT_EMPTY = 'ifNotEmpty';
-    public const FIELD_UNSET_KEYS = 'unsetKeys';
+    final public const MISSING_CONNECTION_MESSAGE = 'Missing database connection for table "%s"';
+    final public const MISSING_CONNECTION_CODE = 1_646_037_375;
+    final public const DEFAULT_IDENTITY_FIELD = '__identity';
+    final public const FIELD_TABLE = 'table';
+    final public const FIELD_FIELD = 'field';
+    final public const FIELD_SKIP = 'skip';
+    final public const FIELD_IF_EMPTY = 'ifEmpty';
+    final public const FIELD_IF_NOT_EMPTY = 'ifNotEmpty';
+    final public const FIELD_UNSET_KEYS = 'unsetKeys';
 
     /**
      * Tells if the configuration is valid
@@ -152,7 +152,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
             } catch (\Exception $exception) {
                 $message = 'Update Exception:' . PHP_EOL;
                 $message .= 'Data:' . PHP_EOL;
-                $message .= json_encode($object);
+                $message .= json_encode($object, JSON_THROW_ON_ERROR);
                 /**
                  * Fixme: write to log instead of catch and re-throw
                  */
@@ -175,7 +175,7 @@ class DataTargetDB implements DataTargetInterface, ConfigurableInterface
         } catch (\Exception $exception) {
             $message = 'Insert Exception:' . PHP_EOL;
             $message .= 'Data:' . PHP_EOL;
-            $message .= json_encode($object);
+            $message .= json_encode($object, JSON_THROW_ON_ERROR);
 
             throw new PersistenceException(
                 $message,

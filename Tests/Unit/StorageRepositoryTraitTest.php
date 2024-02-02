@@ -40,7 +40,7 @@ class StorageRepositoryTraitTest extends TestCase
      * set up subject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(StorageRepositoryTrait::class)
             ->getMockForTrait();

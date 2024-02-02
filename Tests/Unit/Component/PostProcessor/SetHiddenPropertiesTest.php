@@ -43,7 +43,7 @@ class SetHiddenPropertiesTest extends TestCase
      */
     protected $domainObject;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new SetHiddenProperties();
         $this->domainObject = new DummyDomainObject();

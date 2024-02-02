@@ -30,7 +30,7 @@ class QueueItemRepository
 {
     use DatabaseTrait;
 
-    public const TEMPLATE_QUEUE_ITEM = [
+    final public const TEMPLATE_QUEUE_ITEM = [
         QueueItem::FIELD_STATUS => QueueItem::STATUS_NEW,
         QueueItem::FIELD_IDENTIFIER => '',
         QueueItem::FIELD_CHECKSUM => '',
@@ -38,8 +38,8 @@ class QueueItemRepository
         QueueItem::FIELD_CREATED => '',
     ];
 
-    public const INVALID_TYPE_MESSAGE = 'Expected instance of %s got %s.';
-    public const INVALID_TYPE_CODE = 1644582032;
+    final public const INVALID_TYPE_MESSAGE = 'Expected instance of %s got %s.';
+    final public const INVALID_TYPE_CODE = 1_644_582_032;
 
 
     /**
@@ -127,6 +127,7 @@ class QueueItemRepository
      */
     public function isNew(array $item): bool
     {
+        $identifiers = [];
         if ($this->canIdentify($item)) {
             $identifiers = $this->determineIdentifiers($item);
         }

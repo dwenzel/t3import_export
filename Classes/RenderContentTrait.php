@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport;
 
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Context\Context;
@@ -63,7 +64,7 @@ trait RenderContentTrait
      * @param array $record Optional data array
      * @param array $configuration Plain or TypoScript array
      * @return mixed|null Returns rendered content for each valid TypoScript object or null.
-     * @throws \TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException
+     * @throws ContentRenderingException
      */
     public function renderContent(array $record, array $configuration)
     {

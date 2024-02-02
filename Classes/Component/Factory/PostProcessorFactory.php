@@ -38,7 +38,7 @@ class PostProcessorFactory extends AbstractFactory implements FactoryInterface
      *
      * @param array $settings
      * @param string $identifier
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      * @return PostProcessorInterface
      */
     public function get(array $settings = [], $identifier = null): PostProcessorInterface

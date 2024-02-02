@@ -40,7 +40,7 @@ class TruncateTablesTest extends TestCase
 
     protected TruncateTables $subject;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockConnectionPool()
             ->mockConnection();

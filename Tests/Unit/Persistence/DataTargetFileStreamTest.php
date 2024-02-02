@@ -56,7 +56,7 @@ class DataTargetFileStreamTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockPersistenceManager();
         $this->subject = new DataTargetFileStream(

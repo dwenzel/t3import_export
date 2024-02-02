@@ -45,8 +45,8 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
     use ConfigurableTrait,
         DatabaseTrait;
 
-    public const KEY_TABLES = 'tables';
-    public const DELIMITER = ',';
+    final public const KEY_TABLES = 'tables';
+    final public const DELIMITER = ',';
 
     /**
      * @param array $configuration

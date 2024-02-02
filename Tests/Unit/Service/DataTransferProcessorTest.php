@@ -130,7 +130,7 @@ class DataTransferProcessorTest extends TestCase
      * set up the subject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = (new DataTransferProcessor())->withQueue(self::QUEUE_WITH_RECORD);
         $this->mockPreProcessor();

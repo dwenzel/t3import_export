@@ -39,7 +39,7 @@ class InsertMultipleTest extends TestCase
     protected InsertMultiple $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new InsertMultiple();
         $this->mockConnectionService();
@@ -48,7 +48,7 @@ class InsertMultipleTest extends TestCase
 
     /**
      */
-    public function testProcessSetsDatabase(): void
+    public function testProcessSetsDatabase(): never
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 
@@ -171,7 +171,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    public function testProcessInsertsMultipleRecordsIntoTable(): void
+    public function testProcessInsertsMultipleRecordsIntoTable(): never
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 

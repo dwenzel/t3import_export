@@ -12,10 +12,10 @@ use XMLWriter;
 
 class DataTargetXMLStream extends DataTargetFileStream
 {
-    const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
-    const DEFAULT_ROOT_NODE = 'rows';
+    final public const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
+    final public const DEFAULT_ROOT_NODE = 'rows';
 
-    const TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
+    final public const TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
 
     protected XMLWriter $writer;
 
@@ -141,7 +141,7 @@ class DataTargetXMLStream extends DataTargetFileStream
     protected function getAboveContentTemplate($configuration)
     {
         $entireTemplate = $this->loadTemplate($configuration);
-        $subString = substr($entireTemplate, 0, strpos($entireTemplate, static::TEMPLATE_CONTENT_PLACEHOLDER));
+        $subString = substr($entireTemplate, 0, strpos($entireTemplate, (string) static::TEMPLATE_CONTENT_PLACEHOLDER));
         return $this->computePlaceholder($subString, $configuration);
     }
 
@@ -152,7 +152,7 @@ class DataTargetXMLStream extends DataTargetFileStream
     protected function getBelowContentTemplate($configuration)
     {
         $entireTemplate = $this->loadTemplate($configuration);
-        $belowOffset = strpos($entireTemplate, static::TEMPLATE_CONTENT_PLACEHOLDER) + strlen(static::TEMPLATE_CONTENT_PLACEHOLDER);
+        $belowOffset = strpos($entireTemplate, (string) static::TEMPLATE_CONTENT_PLACEHOLDER) + strlen((string) static::TEMPLATE_CONTENT_PLACEHOLDER);
         $subString = substr($entireTemplate, $belowOffset);
         return $this->computePlaceholder($subString, $configuration);
     }

@@ -42,7 +42,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
 {
     use RenderContentTrait;
 
-    const DEFAULT_DATA_SOURCE_CLASS = DataSourceDB::class;
+    final public const DEFAULT_DATA_SOURCE_CLASS = DataSourceDB::class;
 
     /**
      * Builds a DataSource object

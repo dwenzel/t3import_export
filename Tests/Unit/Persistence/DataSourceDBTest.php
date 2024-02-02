@@ -41,14 +41,14 @@ class DataSourceDBTest extends TestCase
 {
 
     /**
-     * @var \CPSIT\T3importExport\Persistence\DataSourceDB
+     * @var DataSourceDB
      */
     protected $subject;
 
     /**
      *
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 

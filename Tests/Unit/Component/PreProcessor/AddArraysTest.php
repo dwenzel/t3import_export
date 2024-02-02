@@ -34,7 +34,7 @@ class AddArraysTest extends TestCase
      * Set up subject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new AddArrays();
     }

@@ -42,7 +42,7 @@ class RenderContentTest extends TestCase
     protected RenderContent $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockTypoScriptService();
         $this->mockTypoScriptFrontendController();

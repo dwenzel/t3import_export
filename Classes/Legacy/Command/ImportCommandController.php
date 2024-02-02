@@ -33,5 +33,5 @@ class ImportCommandController extends TransferCommandController
      * Framework configuration.
      * This should match the key for the ImportController
      */
-    const SETTINGS_KEY = ImportController::SETTINGS_KEY;
+    final public const SETTINGS_KEY = ImportController::SETTINGS_KEY;
 }

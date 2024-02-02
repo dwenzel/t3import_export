@@ -31,7 +31,7 @@ abstract class AbstractPostProcessor extends AbstractComponent
      * @param array $record
      * @return bool
      */
-    abstract public function process(array $configuration, &$convertedRecord, array &$record): bool;
+    abstract public function process(array $configuration, mixed &$convertedRecord, array &$record): bool;
 
     /**
      * Tells whether a given configuration is valid

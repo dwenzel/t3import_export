@@ -40,19 +40,19 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
     /**
      * cancel file operation
      */
-    const CONFLICT_MODE_CANCEL = 'cancel';
+    final public const CONFLICT_MODE_CANCEL = 'cancel';
     /**
      * change name of new file according to TYPO3 conventions
      */
-    const CONFLICT_MODE_CHANGENAME = 'changeName';
+    final public const CONFLICT_MODE_CHANGENAME = 'changeName';
     /**
      * replace existing file
      */
-    const CONFLICT_MODE_REPLACE = 'replace';
+    final public const CONFLICT_MODE_REPLACE = 'replace';
     /**
      * Valid values for conflict modes (for file operations)
      */
-    const CONFLICT_MODES = [
+    final public const CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_CHANGENAME,
         self::CONFLICT_MODE_REPLACE

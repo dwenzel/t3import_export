@@ -63,7 +63,7 @@ class DataTargetXMLStreamTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockBasicFileUtility()
             ->mockPersistenceManager()

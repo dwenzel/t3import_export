@@ -40,8 +40,8 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  */
 class TranslationService implements DomainObjectTranslatorInterface, SingletonInterface
 {
-    public const MISSING_COLUMN_MAP_EXCEPTION_CODE = 1641229990;
-    public const MISSING_COLUMN_MAP_MESSAGE = 'Missing column map for property %s';
+    final public const MISSING_COLUMN_MAP_EXCEPTION_CODE = 1_641_229_990;
+    final public const MISSING_COLUMN_MAP_MESSAGE = 'Missing column map for property %s';
 
     /**
      * @var DataMapper
@@ -82,7 +82,7 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
             throw new Exception('Origin can\'t be translation of its own.', 1432502696);
         }
 
-        $dataMap = $this->dataMapper->getDataMap(get_class($origin));
+        $dataMap = $this->dataMapper->getDataMap($origin::class);
 
         if (!$dataMap->getTranslationOriginColumnName()) {
             throw new Exception('The type is not translatable.', 1432500079);
@@ -125,7 +125,7 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
      */
     public function haveSameClass(DomainObjectInterface $origin, DomainObjectInterface $translation): bool
     {
-        return get_class($origin) === get_class($translation);
+        return $origin::class === $translation::class;
     }
 
     /**

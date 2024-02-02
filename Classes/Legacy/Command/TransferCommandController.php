@@ -17,6 +17,10 @@ namespace CPSIT\T3importExport\Legacy\Command;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\T3importExport\MissingInterfaceException;
+use CPSIT\T3importExport\MissingClassException;
+use CPSIT\T3importExport\InvalidConfigurationException;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
@@ -35,22 +39,22 @@ class TransferCommandController extends CommandController
      * Framework configuration.
      * There is no automatism for retrieving the proper TypoScript configuration of command controllers.
      */
-    const SETTINGS_KEY = 'transfer';
+    public const SETTINGS_KEY = 'transfer';
 
     /**
      * @var array
      */
     protected $settings;
     /**
-     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
+     * @var ConfigurationManagerInterface
      */
     protected $configurationManager;
     /**
-     * @var \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
+     * @var TransferTaskFactory
      */
     protected $transferTaskFactory;
     /**
-     * @var \CPSIT\T3importExport\Domain\Factory\TransferSetFactory
+     * @var TransferSetFactory
      */
     protected $transferSetFactory;
     /**
@@ -104,9 +108,9 @@ class TransferCommandController extends CommandController
      *
      * @param string $identifier Identifier of task which should be performed
      * @param bool $dryRun If set nothing will be saved
-     * @throws \CPSIT\T3importExport\MissingInterfaceException
-     * @throws \CPSIT\T3importExport\MissingClassException
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws MissingInterfaceException
+     * @throws MissingClassException
+     * @throws InvalidConfigurationException
      */
     public function taskCommand($identifier, $dryRun = false)
     {
@@ -137,7 +141,7 @@ class TransferCommandController extends CommandController
      * @param string $identifier Identifier of set which should be performed
      * @param bool $dryRun If set nothing will be saved
      * @return void
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      */
     public function setCommand($identifier, $dryRun = false)
     {
@@ -160,7 +164,7 @@ class TransferCommandController extends CommandController
 
     /**
      * initialize object
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
+     * @throws InvalidConfigurationTypeException
      */
     public function initializeObject()
     {

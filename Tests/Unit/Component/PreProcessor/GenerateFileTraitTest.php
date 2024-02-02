@@ -34,19 +34,19 @@ class GenerateFileTraitTest extends TestCase
     protected $subject;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
+     * @var ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $storage;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\StorageRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var StorageRepository|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $storageRepository;
 
     /**
      * set up subject
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(GenerateFileTrait::class)
             ->setMethods(['logError'])->getMockForTrait();

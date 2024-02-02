@@ -32,7 +32,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     /**
      * set up the subject
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->setMethods(['dummy', 'getAbsoluteFilePath'])

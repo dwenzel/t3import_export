@@ -31,7 +31,7 @@ class DataSourceCSVTest extends TestCase
      * @noinspection ReturnTypeCanBeDeclaredInspection
      * @throws vfsStreamException
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->configurationValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->setMethods(['isValid'])->getMock();
@@ -183,7 +183,7 @@ CSV;
         $mockFile = vfsStream::newFile($fileName);
         $mockFile->setContent($csvString);
         vfsStreamWrapper::getRoot()->addChild($mockFile);
-        return array($relativePath, $configuration);
+        return [$relativePath, $configuration];
     }
 
     public function tesGetRecordsReturnsArrayFromValidCsvWithoutHeaders(): void

@@ -47,7 +47,7 @@ class TranslationServiceTest extends TestCase
      * @return void
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mockDataMap()
             ->mockDataMapper()

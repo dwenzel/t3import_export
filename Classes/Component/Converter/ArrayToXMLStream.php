@@ -26,7 +26,7 @@ namespace CPSIT\T3importExport\Component\Converter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\ObjectManagerTrait;
@@ -44,15 +44,15 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  */
 class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 {
-    const DEFAULT_NODE_NAME = 'row';
-    const XML_CONFIG_NODE_KEY = 'nodeName';
-    const XML_CONFIG_FIELD_KEY = 'fields';
+    final public const DEFAULT_NODE_NAME = 'row';
+    final public const XML_CONFIG_NODE_KEY = 'nodeName';
+    final public const XML_CONFIG_FIELD_KEY = 'fields';
 
-    const XML_CONFIG_FIELD_ATTR = '@attribute';
-    const XML_CONFIG_FIELD_MAP = '@mapTo';
-    const XML_CONFIG_FIELD_VALUE = '@value';
-    const XML_CONFIG_FIELD_CDATA = '@cdata';
-    const XML_CONFIG_FIELD_SEPARATE_ROW = '@separateRow';
+    final public const XML_CONFIG_FIELD_ATTR = '@attribute';
+    final public const XML_CONFIG_FIELD_MAP = '@mapTo';
+    final public const XML_CONFIG_FIELD_VALUE = '@value';
+    final public const XML_CONFIG_FIELD_CDATA = '@cdata';
+    final public const XML_CONFIG_FIELD_SEPARATE_ROW = '@separateRow';
 
     /**
      * @var PropertyMapper
@@ -308,12 +308,12 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
             return empty($value);
         }
 
-        return !(isset($value) && strlen($value) > 0);
+        return !(isset($value) && strlen((string) $value) > 0);
     }
 
     /**
      * @param array $configuration
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @return bool
      */

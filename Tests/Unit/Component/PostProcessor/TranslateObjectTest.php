@@ -76,7 +76,7 @@ class TranslateObjectTest extends TestCase
      * set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->persistenceManager = $this->getMockForAbstractClass(PersistenceManagerInterface::class);
         $this->translationService = $this->getMockBuilder(TranslationService::class)
@@ -147,7 +147,7 @@ class TranslateObjectTest extends TestCase
         $convertedRecord = $this->getMockForAbstractClass($targetClass);
         $parentObject = $this->getMockForAbstractClass($targetClass);
 
-        $expectedTargetClass = get_class($convertedRecord);
+        $expectedTargetClass = $convertedRecord::class;
 
             $this->translationService->expects($this->once())
             ->method('getLocalizationParent')

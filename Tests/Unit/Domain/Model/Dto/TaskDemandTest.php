@@ -34,7 +34,7 @@ class TaskDemandTest extends TestCase
     protected TaskDemand $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new TaskDemand();
     }

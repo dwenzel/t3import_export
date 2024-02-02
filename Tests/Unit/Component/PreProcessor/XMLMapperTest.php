@@ -34,7 +34,7 @@ class XMLMapperTest extends TestCase
     protected XMLMapper $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->subject = new XMLMapper();
     }

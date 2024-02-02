@@ -2,6 +2,8 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -18,7 +20,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DummyDomainObject extends \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
+class DummyDomainObject extends AbstractDomainObject
 {
 
 }

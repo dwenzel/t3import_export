@@ -23,7 +23,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 trait StorageRepositoryTrait
 {
     /**
-     * @var \TYPO3\CMS\Core\Resource\StorageRepository
+     * @var StorageRepository
      */
     protected $storageRepository;
 

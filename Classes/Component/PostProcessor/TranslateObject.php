@@ -81,7 +81,7 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
-        $targetType = get_class($convertedRecord);
+        $targetType = $convertedRecord::class;
 
         if (!isset($record[$configuration['parentField']])) {
             return false;
