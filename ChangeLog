@@ -1,3 +1,6 @@
+2024-09-06         [RELEASE] Release of t3import_export 2.0.1 (Dirk Wenzel)
+2024-09-06 debc378 [BUGFIX] dependency from dwenzel/t3extension-tools corrected (Dirk Wenzel)
+
 2024-09-06         [RELEASE] Release of t3import_export 2.0.0 (Dirk Wenzel)
 2024-08-10 f933199 Fixed l10n_source only if needed (Vladimir Falcón Piva)
 2024-08-09 a9a8077 * Fixed page and content localization * Fixed CE sorting * Migration dena contact CE element (Vladimir Falcón Piva)
