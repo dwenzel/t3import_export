@@ -2,14 +2,13 @@
 namespace CPSIT\T3importExport\Configuration\Module;
 
 use CPSIT\T3importExport\Controller\ExportController;
-use DWenzel\T3extensionTools\Configuration\ModuleRegistrationInterface;
-use DWenzel\T3extensionTools\Configuration\ModuleRegistrationTrait;
 use CPSIT\T3importExport\Configuration\Extension;
 
-class ExportModuleRegistration implements ModuleRegistrationInterface
+/**
+ *@todo Module Registration has changed. This class is kept for reference only
+ */
+class ExportModuleRegistration
 {
-    use ModuleRegistrationTrait;
-
     static protected string $subModuleName = 'Export';
     static protected string $mainModuleName = 'system';
     static protected string $vendorExtensionName = Extension::VENDOR_NAME . '.' . Extension::NAME;
