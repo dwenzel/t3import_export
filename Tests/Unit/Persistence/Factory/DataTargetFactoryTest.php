@@ -96,7 +96,7 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
      * @noinspection ReturnTypeCanBeDeclaredInspection
      * @noinspection PhpInconsistentReturnPointsInspection
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
     }
 
@@ -109,7 +109,7 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
      * @return void
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
     }
 }

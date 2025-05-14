@@ -15,7 +15,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 class DataTargetFileStream extends DataTargetRepository implements ConfigurableInterface
 {
     use ConfigurableTrait;
-    final public const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
+    final public const string TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
     /**
      * subConfig for Data-Traget
@@ -37,7 +37,8 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
      * @return void
      * @throws FileOperationErrorException
      */
-    public function persist($object, array $configuration = null)
+    #[\Override]
+    public function persist($object, ?array $configuration = null)
     {
         if ($object instanceof DataStreamInterface) {
             $this->writeBuffer($object->getStreamBuffer());
@@ -52,7 +53,8 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
      * @param array|\Iterator|null $configuration
      * @return void
      */
-    public function persistAll($result = null, array $configuration = null)
+    #[\Override]
+    public function persistAll($result = null, ?array $configuration = null)
     {
         if (
             !is_null($result)

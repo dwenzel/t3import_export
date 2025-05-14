@@ -16,30 +16,30 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
 {
     use ConfigurableTrait;
 
-    final public const LOGICAL_AND = 'and';
-    final public const LOGICAL_OR = 'or';
-    final public const LOGICAL_NOT = 'not';
+    final public const string LOGICAL_AND = 'and';
+    final public const string LOGICAL_OR = 'or';
+    final public const string LOGICAL_NOT = 'not';
 
-    final public const GREATER_THAN = 'greaterthan';
-    final public const LESS_THAN = 'lessthan';
+    final public const string GREATER_THAN = 'greaterthan';
+    final public const string LESS_THAN = 'lessthan';
 
-    final public const GREATER_THAN_OR_EQUALS = 'greaterthanorequals';
-    final public const LESS_THAN_OR_EQUALS = 'lessthanorequals';
+    final public const string GREATER_THAN_OR_EQUALS = 'greaterthanorequals';
+    final public const string LESS_THAN_OR_EQUALS = 'lessthanorequals';
 
-    final public const LIKE = 'like';
-    final public const EQUALS = 'equals';
-    final public const CONTAINS = 'contains';
-    final public const IN = 'in';
+    final public const string LIKE = 'like';
+    final public const string EQUALS = 'equals';
+    final public const string CONTAINS = 'contains';
+    final public const string IN = 'in';
 
-    final public const OPERAND_NOW = 'now';
-    final public const OPERAND_YESTERDAY = 'yesterday';
-    final public const OPERAND_TODAY = 'today';
-    final public const OPERAND_TOMORROW = 'tomorrow';
+    final public const string OPERAND_NOW = 'now';
+    final public const string OPERAND_YESTERDAY = 'yesterday';
+    final public const string OPERAND_TODAY = 'today';
+    final public const string OPERAND_TOMORROW = 'tomorrow';
 
     /**
      * temporal operands
      */
-    final public const TEMPORAL_OPERANDS = [
+    final public const array TEMPORAL_OPERANDS = [
         self::OPERAND_NOW, self::OPERAND_YESTERDAY, self::OPERAND_TODAY, self::OPERAND_TOMORROW
     ];
 

@@ -36,8 +36,8 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 
-    final public const KEY_IDENTIFIER = 'identifier';
-    final public const KEY_ALLOW_UPDATE = 'allowUpdate';
+    final public const string KEY_IDENTIFIER = 'identifier';
+    final public const string KEY_ALLOW_UPDATE = 'allowUpdate';
     protected string $targetClass = QueueItem::class;
 
     public function __construct(protected QueueItemRepository $repository)
@@ -76,7 +76,7 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
      * @param array|null $configuration
      * @return bool|mixed
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
 
         $result = null;
@@ -112,7 +112,7 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
      * @param array|null $configuration
      * @return mixed|void
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
     }
 }

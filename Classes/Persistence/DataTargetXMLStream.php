@@ -12,10 +12,10 @@ use XMLWriter;
 
 class DataTargetXMLStream extends DataTargetFileStream
 {
-    final public const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
-    final public const DEFAULT_ROOT_NODE = 'rows';
+    final public const string DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
+    final public const string DEFAULT_ROOT_NODE = 'rows';
 
-    final public const TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
+    final public const string TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
 
     protected XMLWriter $writer;
 
@@ -25,7 +25,8 @@ class DataTargetXMLStream extends DataTargetFileStream
      * @return void
      * @throws FileOperationErrorException
      */
-    public function persist($object, array $configuration = null)
+    #[\Override]
+    public function persist($object, ?array $configuration = null)
     {
         // init XML
         $this->initFileIfNotExist($configuration);
@@ -38,7 +39,8 @@ class DataTargetXMLStream extends DataTargetFileStream
      * @param array|\Iterator|null $configuration
      * @return void
      */
-    public function persistAll($result = null, array $configuration = null)
+    #[\Override]
+    public function persistAll($result = null, ?array $configuration = null)
     {
         if (isset($this->writer)) {
             // close file
@@ -62,6 +64,7 @@ class DataTargetXMLStream extends DataTargetFileStream
      * @param $buffer
      * @throws FileOperationErrorException
      */
+    #[\Override]
     protected function writeBuffer($buffer)
     {
         if (isset($this->writer)) {

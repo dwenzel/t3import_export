@@ -63,16 +63,16 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      * Framework configuration.
      * This should match the key for the ImportController
      */
-    final public const SETTINGS_KEY = ImportController::SETTINGS_KEY;
+    final public const string SETTINGS_KEY = ImportController::SETTINGS_KEY;
 
-    final public const DEFAULT_NAME = 't3import-export:import-task';
-    final public const COMMAND_ALIASES = ['import:task'];
-    final public const MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined import task.';
-    final public const MESSAGE_HELP_COMMAND = '@todo: help command';
-    final public const MESSAGE_SUCCESS = 'Import task successfully processed';
-    final public const MESSAGE_STARTING = 'Starting import task';
-    final public const WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
-    final public const WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
+    final public const string DEFAULT_NAME = 't3import-export:import-task';
+    final public const array COMMAND_ALIASES = ['import:task'];
+    final public const string MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined import task.';
+    final public const string MESSAGE_HELP_COMMAND = '@todo: help command';
+    final public const string MESSAGE_SUCCESS = 'Import task successfully processed';
+    final public const string MESSAGE_STARTING = 'Starting import task';
+    final public const string WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
+    final public const string WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
     protected const OPTIONS = [];
     protected const ARGUMENTS = [
         TaskArgument::class
@@ -94,10 +94,10 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      * @param DataTransferProcessor|null $dataTransferProcessor
      */
     public function __construct(
-        string $name = null,
-        TransferTaskFactory $transferTaskFactory = null,
-        DataTransferProcessor $dataTransferProcessor = null,
-        ConfigurationManagerInterface $configurationManager = null
+        ?string $name = null,
+        ?TransferTaskFactory $transferTaskFactory = null,
+        ?DataTransferProcessor $dataTransferProcessor = null,
+        ?ConfigurationManagerInterface $configurationManager = null
     )
     {
         $this->transferTaskFactory = $transferTaskFactory ?? GeneralUtility::makeInstance(TransferTaskFactory::class);

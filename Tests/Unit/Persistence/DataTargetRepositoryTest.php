@@ -43,11 +43,13 @@ use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
 class MockRepositoryObjectRepository extends Repository
 {
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    #[\Override]
     public function add($object)
     {
     }
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    #[\Override]
     public function remove($object)
     {
     }
@@ -56,10 +58,12 @@ class MockRepositoryObjectRepository extends Repository
      * @param object $modifiedObject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
+    #[\Override]
     public function update($modifiedObject)
     {
     }
 
+    #[\Override]
     public function findAll()
     {
     }
@@ -68,11 +72,13 @@ class MockRepositoryObjectRepository extends Repository
      * @return int|void
      * @noinspection PhpMissingReturnTypeInspection
      */
+    #[\Override]
     public function countAll()
     {
     }
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    #[\Override]
     public function removeAll()
     {
     }
@@ -82,6 +88,7 @@ class MockRepositoryObjectRepository extends Repository
      * @return object|void|null
      * @noinspection PhpMissingReturnTypeInspection
      */
+    #[\Override]
     public function findByUid($uid)
     {
     }
@@ -90,16 +97,19 @@ class MockRepositoryObjectRepository extends Repository
      * @param mixed $identifier
      * @return object|void|null
      */
+    #[\Override]
     public function findByIdentifier($identifier)
     {
     }
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    #[\Override]
     public function setDefaultOrderings(array $defaultOrderings)
     {
     }
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    #[\Override]
     public function setDefaultQuerySettings(QuerySettingsInterface $defaultQuerySettings)
     {
     }
@@ -108,6 +118,7 @@ class MockRepositoryObjectRepository extends Repository
      * @return QueryInterface|void
      * @noinspection PhpMissingReturnTypeInspection
      */
+    #[\Override]
     public function createQuery()
     {
     }

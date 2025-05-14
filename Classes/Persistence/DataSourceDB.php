@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Persistence;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use CPSIT\T3importExport\Persistence\Query\QueryFacade;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
@@ -94,7 +95,7 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
                 $query = $query->withDatabaseIdentifier($this->identifier);
             }
 
-            /** @var \Doctrine\DBAL\Query\QueryBuilder $queryBuilder */
+            /** @var QueryBuilder $queryBuilder */
             $queryBuilder = $query->withConfiguration($queryConfiguration)
                 ->setQuery()
                 ->build();

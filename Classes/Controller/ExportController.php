@@ -23,7 +23,7 @@ use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
  ***************************************************************/
 class ExportController extends BaseController implements TransferControllerInterface
 {
-    final public const SETTINGS_KEY = 'export';
+    final public const string SETTINGS_KEY = 'export';
     public const TEMPLATE_PATH = 'Export/Index';
 
     /**

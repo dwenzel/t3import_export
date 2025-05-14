@@ -24,7 +24,7 @@ class FactoryFactory
 {
     protected FactoryMapInterface $factoryMap;
 
-    public function __construct(FactoryMapInterface $factoryMap = null)
+    public function __construct(?FactoryMapInterface $factoryMap = null)
     {
         $this->factoryMap = $factoryMap ?? GeneralUtility::makeInstance(ComponentFactoryMap::class);
     }

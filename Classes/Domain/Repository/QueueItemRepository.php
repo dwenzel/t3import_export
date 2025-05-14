@@ -2,6 +2,7 @@
 
 namespace CPSIT\T3importExport\Domain\Repository;
 
+use TYPO3\CMS\Core\Database\Connection;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Exception\InvalidArgumentException;
@@ -30,7 +31,7 @@ class QueueItemRepository
 {
     use DatabaseTrait;
 
-    final public const TEMPLATE_QUEUE_ITEM = [
+    final public const array TEMPLATE_QUEUE_ITEM = [
         QueueItem::FIELD_STATUS => QueueItem::STATUS_NEW,
         QueueItem::FIELD_IDENTIFIER => '',
         QueueItem::FIELD_CHECKSUM => '',
@@ -38,15 +39,15 @@ class QueueItemRepository
         QueueItem::FIELD_CREATED => '',
     ];
 
-    final public const INVALID_TYPE_MESSAGE = 'Expected instance of %s got %s.';
-    final public const INVALID_TYPE_CODE = 1_644_582_032;
+    final public const string INVALID_TYPE_MESSAGE = 'Expected instance of %s got %s.';
+    final public const int INVALID_TYPE_CODE = 1_644_582_032;
 
 
     /**
      * Constructor
      * @param ConnectionPool|null $connectionPool
      */
-    public function __construct(ConnectionPool $connectionPool = null)
+    public function __construct(?ConnectionPool $connectionPool = null)
     {
         $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
     }
@@ -312,7 +313,7 @@ class QueueItemRepository
                 ),
                 $queryBuilder->expr()->eq(
                     QueueItem::FIELD_STATUS,
-                    $queryBuilder->createNamedParameter(QueueItem::STATUS_NEW, PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(QueueItem::STATUS_NEW, Connection::PARAM_INT)
                 )
             )
             ->setMaxResults($limit);

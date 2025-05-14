@@ -49,6 +49,7 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {

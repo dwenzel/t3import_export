@@ -64,10 +64,10 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
      */
     protected $mappingConfigurationValidator;
 
-    public function __construct(         PropertyMapper $propertyMapper = null,
-    PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null,
-    TargetClassConfigurationValidator $targetClassConfigurationValidator = null,
-    MappingConfigurationValidator $mappingConfigurationValidator = null
+    public function __construct(         ?PropertyMapper $propertyMapper = null,
+    ?PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null,
+    ?TargetClassConfigurationValidator $targetClassConfigurationValidator = null,
+    ?MappingConfigurationValidator $mappingConfigurationValidator = null
     )
     {
         $this->propertyMapper = $propertyMapper ?? GeneralUtility::makeInstance(PropertyMapper::class);
@@ -153,6 +153,7 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
      * @throws MissingClassException
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         return (

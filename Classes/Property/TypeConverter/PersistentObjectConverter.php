@@ -31,37 +31,37 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
     /**
      * @var string
      */
-    final public const IGNORE_ENABLE_FIELDS = 'IGNORE_ENABLE_FIELDS';
+    final public const string IGNORE_ENABLE_FIELDS = 'IGNORE_ENABLE_FIELDS';
 
     /**
      * @var string
      */
-    final public const RESPECT_STORAGE_PAGE = 'RESPECT_STORAGE_PAGE';
+    final public const string RESPECT_STORAGE_PAGE = 'RESPECT_STORAGE_PAGE';
 
     /**
      * @var string
      */
-    final public const RESPECT_SYS_LANGUAGE = 'RESPECT_SYS_LANGUAGE';
+    final public const string RESPECT_SYS_LANGUAGE = 'RESPECT_SYS_LANGUAGE';
 
     /**
      * @var string
      */
-    final public const ENABLE_FIELDS_TO_BE_IGNORED = 'ENABLE_FIELDS_TO_BE_IGNORED';
+    final public const string ENABLE_FIELDS_TO_BE_IGNORED = 'ENABLE_FIELDS_TO_BE_IGNORED';
 
     /**
      * @var string
      */
-    final public const INCLUDE_DELETED = 'INCLUDE_DELETED';
+    final public const string INCLUDE_DELETED = 'INCLUDE_DELETED';
 
     /**
      * @var string
      */
-    final public const SYS_LANGUAGE_UID = 'SYS_LANGUAGE_UID';
+    final public const string SYS_LANGUAGE_UID = 'SYS_LANGUAGE_UID';
 
     /**
      * @var string
      */
-    final public const STORAGE_PAGE_IDS = 'STORAGE_PAGE_IDS';
+    final public const string STORAGE_PAGE_IDS = 'STORAGE_PAGE_IDS';
 
     /**
      * @var int
@@ -114,7 +114,8 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @return object the target type
      * @throws InvalidTargetException
      */
-    public function convertFrom($source, $targetType, array $convertedChildProperties = [], PropertyMappingConfigurationInterface $configuration = null): ?object
+    #[\Override]
+    public function convertFrom($source, $targetType, array $convertedChildProperties = [], ?PropertyMappingConfigurationInterface $configuration = null): ?object
     {
         $this->setConfiguration($configuration);
 
@@ -126,7 +127,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      *
      * @param PropertyMappingConfigurationInterface $configuration
      */
-    protected function setConfiguration(PropertyMappingConfigurationInterface $configuration = null)
+    protected function setConfiguration(?PropertyMappingConfigurationInterface $configuration = null)
     {
         if ($configuration === null) {
             return;
@@ -202,6 +203,7 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @throws InvalidSourceException
      * @return object
      */
+    #[\Override]
     protected function fetchObjectFromPersistence($identity, $targetType): object
     {
         $object = null;

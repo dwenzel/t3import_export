@@ -40,19 +40,19 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
     /**
      * cancel file operation
      */
-    final public const CONFLICT_MODE_CANCEL = 'cancel';
+    final public const string CONFLICT_MODE_CANCEL = 'cancel';
     /**
      * change name of new file according to TYPO3 conventions
      */
-    final public const CONFLICT_MODE_CHANGENAME = 'changeName';
+    final public const string CONFLICT_MODE_CHANGENAME = 'changeName';
     /**
      * replace existing file
      */
-    final public const CONFLICT_MODE_REPLACE = 'replace';
+    final public const string CONFLICT_MODE_REPLACE = 'replace';
     /**
      * Valid values for conflict modes (for file operations)
      */
-    final public const CONFLICT_MODES = [
+    final public const array CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_CHANGENAME,
         self::CONFLICT_MODE_REPLACE
@@ -63,7 +63,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      * WriteFile constructor.
      * @param ResourceFactory|null $resourceFactory
      */
-    public function __construct(ResourceFactory $resourceFactory = null)
+    public function __construct(?ResourceFactory $resourceFactory = null)
     {
         $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
     }
@@ -75,6 +75,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (

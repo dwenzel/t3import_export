@@ -54,6 +54,7 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         return $this->configurationValidator->isValid($configuration);

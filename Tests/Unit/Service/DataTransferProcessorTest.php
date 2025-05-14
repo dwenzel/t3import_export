@@ -132,7 +132,7 @@ class DataTransferProcessorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = (new DataTransferProcessor())->withQueue(self::QUEUE_WITH_RECORD);
+        $this->subject = new DataTransferProcessor()->withQueue(self::QUEUE_WITH_RECORD);
         $this->mockPreProcessor();
         $this->mockPostProcessor();
         $this->mockConverter();

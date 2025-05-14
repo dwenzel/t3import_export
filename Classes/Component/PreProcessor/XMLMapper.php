@@ -32,6 +32,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {

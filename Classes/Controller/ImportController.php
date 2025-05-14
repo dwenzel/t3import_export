@@ -26,7 +26,7 @@ use TYPO3\CMS\Backend\Attribute\AsController;
 #[AsController]
 class ImportController extends BaseController implements TransferControllerInterface
 {
-    final public const SETTINGS_KEY = 'import';
+    final public const string SETTINGS_KEY = 'import';
     public const TEMPLATE_PATH = 'Import/Index';
     /**
      * Import task action

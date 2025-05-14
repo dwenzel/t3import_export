@@ -35,8 +35,8 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
 {
 
     public function __construct(
-        ContentObjectRenderer $contentObjectRenderer = null,
-        TypoScriptService $typoScriptService = null
+        ?ContentObjectRenderer $contentObjectRenderer = null,
+        ?TypoScriptService $typoScriptService = null
     )
     {
         $this->contentObjectRenderer = $contentObjectRenderer ?? $this->getContentObjectRenderer();
@@ -78,6 +78,7 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['targetField'])

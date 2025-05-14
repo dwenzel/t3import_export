@@ -35,7 +35,7 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  ***************************************************************/
 class DataTargetFactory extends AbstractFactory implements FactoryInterface
 {
-    final public const DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
+    final public const string DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
 
     public function __construct(protected PersistenceManagerInterface $persistenceManager) {
 

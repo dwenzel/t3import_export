@@ -48,7 +48,7 @@ interface PostProcessorInterface extends ComponentInterface
      * @param TaskResult|null $result
      * @return bool
      */
-    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool;
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool;
 
     /**
      * Sets the configuration

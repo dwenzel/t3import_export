@@ -51,7 +51,7 @@ class GenerateFileReference extends AbstractPostProcessor
      * Error by id
      * <unique id> => ['title', ['message']
      */
-    final public const ERROR_CODES = [
+    final public const array ERROR_CODES = [
         1_510_524_677 => ['Missing source field', 'config[\'sourceField\'] must be set'],
         1_510_524_678 => ['Missing target field', 'config[\'targetField\'] must be set'],
         1_510_524_679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
@@ -147,6 +147,7 @@ class GenerateFileReference extends AbstractPostProcessor
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (

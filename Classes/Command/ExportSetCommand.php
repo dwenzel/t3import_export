@@ -48,18 +48,18 @@ class ExportSetCommand extends Command implements ArgumentAwareInterface
      * Framework configuration.
      * This should match the key for the ExportController
      */
-    final public const SETTINGS_KEY = ExportController::SETTINGS_KEY;
+    final public const string SETTINGS_KEY = ExportController::SETTINGS_KEY;
 
-    final public const DEFAULT_NAME = 't3import-export:export-set';
-    final public const COMMAND_ALIASES = ['export:set'];
-    final public const MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined export set.';
-    final public const MESSAGE_HELP_COMMAND = '@todo: help command';
-    final public const MESSAGE_SUCCESS = 'Export set successfully processed';
-    final public const MESSAGE_STARTING = 'Starting export set';
-    final public const WARNING_MISSING_PARAMETER = 'Parameter %s must not be omitted';
-    final public const OPTIONS = [
+    final public const string DEFAULT_NAME = 't3import-export:export-set';
+    final public const array COMMAND_ALIASES = ['export:set'];
+    final public const string MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined export set.';
+    final public const string MESSAGE_HELP_COMMAND = '@todo: help command';
+    final public const string MESSAGE_SUCCESS = 'Export set successfully processed';
+    final public const string MESSAGE_STARTING = 'Starting export set';
+    final public const string WARNING_MISSING_PARAMETER = 'Parameter %s must not be omitted';
+    final public const array OPTIONS = [
     ];
-    final public const ARGUMENTS = [
+    final public const array ARGUMENTS = [
         SetArgument::class
     ];
 

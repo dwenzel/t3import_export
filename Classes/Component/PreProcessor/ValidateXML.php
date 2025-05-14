@@ -43,26 +43,26 @@ class ValidateXML extends AbstractPreProcessor implements
     use ResourceTrait,
         LoggingTrait;
 
-    final public const KEY_FIELDS = 'fields';
-    final public const KEY_IDENTIFIER = 'identifier';
-    final public const KEY_SCHEMA = 'schema';
-    final public const KEY_VALIDATION_FAILED = 'xmlValidationFailed';
-    final public const DEFAULT_IDENTIFIER_FIELD = 'uid';
+    final public const string KEY_FIELDS = 'fields';
+    final public const string KEY_IDENTIFIER = 'identifier';
+    final public const string KEY_SCHEMA = 'schema';
+    final public const string KEY_VALIDATION_FAILED = 'xmlValidationFailed';
+    final public const string DEFAULT_IDENTIFIER_FIELD = 'uid';
 
     /**
      * [
      *  <id> => ['errorTitle', 'errorDescription']
      * ]
      */
-    final public const ERROR_CODES = [
+    final public const array ERROR_CODES = [
         1_646_304_431 => ['Validation Error', 'XML ist invalid']
     ];
-    final public const SEPARATOR = ',';
-    final public const DEFAULT_XML_VERSION = '1.0';
-    final public const DEFAULT_XML_ENCODING = 'utf-8';
-    final public const MISSING_RESOURCE_MESSAGE = 'Resource for %s i empty or can not be loaded from file or url.';
-    final public const MISSING_RESOURCE_CODE = 1_646_301_113;
-    final public const TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
+    final public const string SEPARATOR = ',';
+    final public const string DEFAULT_XML_VERSION = '1.0';
+    final public const string DEFAULT_XML_ENCODING = 'utf-8';
+    final public const string MISSING_RESOURCE_MESSAGE = 'Resource for %s i empty or can not be loaded from file or url.';
+    final public const int MISSING_RESOURCE_CODE = 1_646_301_113;
+    final public const string TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
     Record ID %s
     Error Code (lib xml): %s
     Level: %s 
@@ -74,9 +74,9 @@ class ValidateXML extends AbstractPreProcessor implements
     protected string $schema = '';
 
     public function __construct(
-        DOMDocument $document = null,
-        ResourcePathConfigurationValidator $pathConfigurationValidator = null,
-        MessageContainer $messageContainer = null
+        ?DOMDocument $document = null,
+        ?ResourcePathConfigurationValidator $pathConfigurationValidator = null,
+        ?MessageContainer $messageContainer = null
     )
     {
         $this->document = $document ?? new DOMDocument(
@@ -92,6 +92,7 @@ class ValidateXML extends AbstractPreProcessor implements
             );
     }
 
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (

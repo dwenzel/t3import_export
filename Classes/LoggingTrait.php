@@ -16,7 +16,7 @@ namespace CPSIT\T3importExport;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  */
-
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -65,13 +65,13 @@ trait LoggingTrait
      * @param array $arguments Optional arguments. Will be used as arguments for formatted message.
      * @param array|null $additionalInformation Optional array with additional information
      */
-    public function logError($id, $arguments = null, array $additionalInformation = null): void
+    public function logError($id, $arguments = null, ?array $additionalInformation = null): void
     {
         $codes = $this->getErrorCodes();
         $description = $this->renderDescription($id, $codes, $arguments, LoggingInterface::ERROR_UNKNOWN_MESSAGE);
         $title = $this->renderTitle($id, $codes, LoggingInterface::ERROR_UNKNOWN_TITLE);
 
-        $this->logMessage($title, $description, Message::ERROR, $id, $additionalInformation);
+        $this->logMessage($title, $description, ContextualFeedbackSeverity::ERROR, $id, $additionalInformation);
     }
 
     /**
@@ -81,13 +81,13 @@ trait LoggingTrait
      * @param array $arguments Optional arguments. Will be used as arguments for formatted message.
      * @param array|null $additionalInformation Optional array with additional information
      */
-    public function logNotice($id, $arguments = null, array $additionalInformation = null): void
+    public function logNotice($id, $arguments = null, ?array $additionalInformation = null): void
     {
         $codes = $this->getNoticeCodes();
         $title = $this->renderTitle($id, $codes, LoggingInterface::NOTICE_UNKNOWN_TITLE);
         $description = $this->renderDescription($id, $codes, $arguments, LoggingInterface::NOTICE_UNKNOWN_MESSAGE);
 
-        $this->logMessage($title, $description, Message::NOTICE, $id, $additionalInformation);;
+        $this->logMessage($title, $description, ContextualFeedbackSeverity::NOTICE, $id, $additionalInformation);;
     }
 
     /**
@@ -99,7 +99,7 @@ trait LoggingTrait
      * @param null int $id
      * @param array|null $additionalInformation
      */
-    public function logMessage($title, $description, $severity = Message::OK, $id = null, array $additionalInformation = null): void
+    public function logMessage($title, $description, $severity = ContextualFeedbackSeverity::OK, $id = null, ?array $additionalInformation = null): void
     {
         /** @var Message $message */
         $message = GeneralUtility::makeInstance(

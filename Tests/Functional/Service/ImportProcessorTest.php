@@ -50,6 +50,7 @@ class ImportProcessorTest extends FunctionalTestCase
      */
     protected $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->importProcessor = $this->objectManager->get(DataTransferProcessor::class);

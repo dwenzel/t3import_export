@@ -26,11 +26,11 @@ class SetArgument implements InputArgumentInterface
 {
     use InputArgumentTrait;
 
-    final public const NAME = 'set';
-    final public const HELP = 'identifier of set to process';
-    final public const MODE = InputOption::VALUE_REQUIRED;
-    final public const DESCRIPTION = 'set identifier';
-    final public const SHORTCUT = 's';
-    final public const DEFAULT = null;
+    final public const string NAME = 'set';
+    final public const string HELP = 'identifier of set to process';
+    final public const int MODE = InputOption::VALUE_REQUIRED;
+    final public const string DESCRIPTION = 'set identifier';
+    final public const string SHORTCUT = 's';
+    final public const null DEFAULT = null;
 
 }
