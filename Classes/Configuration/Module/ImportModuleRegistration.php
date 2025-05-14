@@ -2,13 +2,13 @@
 namespace CPSIT\T3importExport\Configuration\Module;
 
 use CPSIT\T3importExport\Controller\ImportController;
-use DWenzel\T3extensionTools\Configuration\ModuleRegistrationInterface;
-use DWenzel\T3extensionTools\Configuration\ModuleRegistrationTrait;
 use CPSIT\T3importExport\Configuration\Extension;
 
-class ImportModuleRegistration implements ModuleRegistrationInterface
+/**
+ *@todo Module Registration has changed. This class is kept for reference only
+ */
+class ImportModuleRegistration
 {
-    use ModuleRegistrationTrait;
 
     final public const ROUTE = 'site_ApiToken';
 
