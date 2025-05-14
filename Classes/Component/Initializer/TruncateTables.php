@@ -45,8 +45,8 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
     use ConfigurableTrait,
         DatabaseTrait;
 
-    final public const KEY_TABLES = 'tables';
-    final public const DELIMITER = ',';
+    final public const string KEY_TABLES = 'tables';
+    final public const string DELIMITER = ',';
 
     /**
      * @param array $configuration
@@ -78,6 +78,7 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         return (!empty($configuration[static::KEY_TABLES])

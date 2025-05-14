@@ -32,7 +32,7 @@ class TargetClassConfigurationValidator implements ConfigurationValidatorInterfa
 {
     /**
      * @param array $config
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      * @throws MissingClassException
      */
     public function isValid(array $config): bool

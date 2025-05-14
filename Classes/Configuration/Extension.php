@@ -31,16 +31,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  ***************************************************************/
 class Extension extends ExtensionConfiguration
 {
-    final public const KEY = 't3import_export';
-    final public const NAME = 'T3importExport';
-    final public const VENDOR_NAME = 'CPSIT';
+    final public const string KEY = 't3import_export';
+    final public const string NAME = 'T3importExport';
+    final public const string VENDOR_NAME = 'CPSIT';
 
-    final public const MODULES_TO_REGISTER = [
+    final public const array MODULES_TO_REGISTER = [
         ImportModuleRegistration::class,
         ExportModuleRegistration::class
     ];
 
-    final public const COMMANDS_TO_REGISTER = [
+    final public const array COMMANDS_TO_REGISTER = [
         ImportSetCommand::DEFAULT_NAME => [
             'class' => ImportSetCommand::class,
         ],
@@ -49,7 +49,7 @@ class Extension extends ExtensionConfiguration
         ],
     ];
 
-    final public const SVG_ICON_IDENTIFIER_JOBS = 'jobs';
+    final public const string SVG_ICON_IDENTIFIER_JOBS = 'jobs';
     /**
      * SVG icons to register
      */

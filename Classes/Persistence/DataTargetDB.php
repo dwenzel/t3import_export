@@ -39,15 +39,15 @@ class DataTargetDB extends AbstractComponent
 {
     use ConfigurableTrait, DatabaseTrait;
 
-    final public const MISSING_CONNECTION_MESSAGE = 'Missing database connection for table "%s"';
-    final public const MISSING_CONNECTION_CODE = 1_646_037_375;
-    final public const DEFAULT_IDENTITY_FIELD = '__identity';
-    final public const FIELD_TABLE = 'table';
-    final public const FIELD_FIELD = 'field';
-    final public const FIELD_SKIP = 'skip';
-    final public const FIELD_IF_EMPTY = 'ifEmpty';
-    final public const FIELD_IF_NOT_EMPTY = 'ifNotEmpty';
-    final public const FIELD_UNSET_KEYS = 'unsetKeys';
+    final public const string MISSING_CONNECTION_MESSAGE = 'Missing database connection for table "%s"';
+    final public const int MISSING_CONNECTION_CODE = 1_646_037_375;
+    final public const string DEFAULT_IDENTITY_FIELD = '__identity';
+    final public const string FIELD_TABLE = 'table';
+    final public const string FIELD_FIELD = 'field';
+    final public const string FIELD_SKIP = 'skip';
+    final public const string FIELD_IF_EMPTY = 'ifEmpty';
+    final public const string FIELD_IF_NOT_EMPTY = 'ifNotEmpty';
+    final public const string FIELD_UNSET_KEYS = 'unsetKeys';
 
     /**
      * Tells if the configuration is valid
@@ -113,7 +113,7 @@ class DataTargetDB extends AbstractComponent
      * @return bool
      * @throws InvalidConfigurationException
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
         if ($this->shouldSkip($object, $configuration)) {
             return false;
@@ -208,7 +208,7 @@ class DataTargetDB extends AbstractComponent
      * @param array|null $configuration
      * @return void
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
     }
 

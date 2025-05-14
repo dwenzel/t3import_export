@@ -27,7 +27,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class QueryFacade implements QueryFacadeInterface
 {
-    private const MAP_TYPE_CLASS = [
+    private const array MAP_TYPE_CLASS = [
         QueryInterface::TYPE_SELECT => SelectQuery::class,
         QueryInterface::TYPE_SELECT_JOIN => SelectJoinQuery::class
     ];

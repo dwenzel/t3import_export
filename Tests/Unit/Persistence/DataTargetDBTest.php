@@ -34,7 +34,7 @@ class DataTargetDBTest extends TestCase
 {
     use MockDatabaseTrait;
 
-    final public const VALID_CONFIG_EMPTY_FIELD = [
+    final public const array VALID_CONFIG_EMPTY_FIELD = [
         DataTargetDB::FIELD_TABLE => 'foo',
         DataTargetDB::FIELD_SKIP => [
             DataTargetDB::FIELD_IF_EMPTY => [
@@ -43,7 +43,7 @@ class DataTargetDBTest extends TestCase
         ]
     ];
 
-    final public const VALID_CONFIG_NOT_EMPTY_FIELD = [
+    final public const array VALID_CONFIG_NOT_EMPTY_FIELD = [
         DataTargetDB::FIELD_TABLE => 'foo',
         DataTargetDB::FIELD_SKIP => [
             DataTargetDB::FIELD_IF_NOT_EMPTY => [

@@ -57,18 +57,18 @@ class ImportSetCommand extends Command implements ArgumentAwareInterface
      * Framework configuration.
      * This should match the key for the ImportController
      */
-    final public const SETTINGS_KEY = ImportController::SETTINGS_KEY;
+    final public const string SETTINGS_KEY = ImportController::SETTINGS_KEY;
 
-    final public const DEFAULT_NAME = 't3import-export:import-set';
-    final public const COMMAND_ALIASES = ['import:set'];
-    final public const MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined import sets.';
-    final public const MESSAGE_HELP_COMMAND = '@todo: help command';
-    final public const MESSAGE_SUCCESS = 'Import sets successfully processed';
-    final public const MESSAGE_STARTING = 'Starting import task';
-    final public const WARNING_MISSING_PARAMETER = 'Parameter %s must not be omitted';
-    final public const OPTIONS = [
+    final public const string DEFAULT_NAME = 't3import-export:import-set';
+    final public const array COMMAND_ALIASES = ['import:set'];
+    final public const string MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined import sets.';
+    final public const string MESSAGE_HELP_COMMAND = '@todo: help command';
+    final public const string MESSAGE_SUCCESS = 'Import sets successfully processed';
+    final public const string MESSAGE_STARTING = 'Starting import task';
+    final public const string WARNING_MISSING_PARAMETER = 'Parameter %s must not be omitted';
+    final public const array OPTIONS = [
     ];
-    final public const ARGUMENTS = [
+    final public const array ARGUMENTS = [
         SetArgument::class
     ];
 

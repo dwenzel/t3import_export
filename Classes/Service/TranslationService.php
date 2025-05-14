@@ -40,8 +40,8 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  */
 class TranslationService implements DomainObjectTranslatorInterface, SingletonInterface
 {
-    final public const MISSING_COLUMN_MAP_EXCEPTION_CODE = 1_641_229_990;
-    final public const MISSING_COLUMN_MAP_MESSAGE = 'Missing column map for property %s';
+    final public const int MISSING_COLUMN_MAP_EXCEPTION_CODE = 1_641_229_990;
+    final public const string MISSING_COLUMN_MAP_MESSAGE = 'Missing column map for property %s';
 
     public function __construct(protected DataMapper $dataMapper,
                                 protected PersistenceManagerInterface $persistenceManager

@@ -59,7 +59,7 @@ class TaskResult implements \Iterator
      * TaskResult constructor.
      * @param MessageContainer|null $messageContainer
      */
-    public function __construct(MessageContainer $messageContainer = null)
+    public function __construct(?MessageContainer $messageContainer = null)
     {
         $this->list = [];
         $this->position = 0;

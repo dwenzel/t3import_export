@@ -34,9 +34,9 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 
-    final public const KEY_IDENTIFIER = 'identifier';
-    final public const KEY_BATCH_SIZE = 'batchSize';
-    final public const DEFAULT_BATCH_SIZE = 10;
+    final public const string KEY_IDENTIFIER = 'identifier';
+    final public const string KEY_BATCH_SIZE = 'batchSize';
+    final public const int DEFAULT_BATCH_SIZE = 10;
     protected string $targetClass = QueueItem::class;
 
 

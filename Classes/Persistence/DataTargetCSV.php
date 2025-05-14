@@ -34,7 +34,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
 {
     use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
 
-    final public const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
+    final public const string TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
     protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
 
@@ -74,7 +74,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
      * @param array|null $configuration
      * @return array|array[]|mixed
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
         if (empty($result)) {
             return false;
@@ -95,7 +95,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
             $escape = $configuration['escape'];
         }
 
-        /** @var  \CPSIT\T3importExport\Domain\Model\TaskResult $result */
+        /** @var TaskResult $result */
         if ($result instanceof TaskResult) {
             $records = $result->toArray();
         }
@@ -130,7 +130,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         return $records;
     }
 
-    public function persist($result = null, array $configuration = null)
+    public function persist($result = null, ?array $configuration = null)
     {
         // do nothing
     }

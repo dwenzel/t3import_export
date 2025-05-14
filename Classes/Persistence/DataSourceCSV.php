@@ -103,7 +103,7 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
                 $escape = $configuration['escape'];
             }
 
-            $rows = array_filter(str_getcsv($resource, "\n"));
+            $rows = array_filter(str_getcsv($resource, "\n", escape: '\\'));
 
             $records = array_map(fn($d) => str_getcsv($d, $delimiter, $enclosure, $escape), $rows);
 

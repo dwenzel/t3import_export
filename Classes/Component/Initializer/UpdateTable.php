@@ -81,6 +81,7 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration[static::KEY_TABLE])

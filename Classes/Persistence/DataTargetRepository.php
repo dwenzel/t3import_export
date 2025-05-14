@@ -63,7 +63,7 @@ class DataTargetRepository implements DataTargetInterface
      * @param RepositoryInterface|null $repository
      * @param PersistenceManagerInterface|null $persistenceManager
      */
-    public function __construct(string $targetClass, RepositoryInterface $repository = null, PersistenceManagerInterface $persistenceManager = null)
+    public function __construct(string $targetClass, ?RepositoryInterface $repository = null, ?PersistenceManagerInterface $persistenceManager = null)
     {
         $this->targetClass = $targetClass;
         $this->repository = $repository;
@@ -83,7 +83,7 @@ class DataTargetRepository implements DataTargetInterface
      * @param array $configuration Configuration array.
      * @return mixed
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
         $repository = $this->getRepository();
         if (!$this->persistenceManager->isNewObject($object)) {
@@ -128,7 +128,7 @@ class DataTargetRepository implements DataTargetInterface
      * @param array|null $configuration
      * @return mixed
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
         $this->persistenceManager->persistAll();
     }

@@ -46,7 +46,7 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
      * @return bool
      * @throws ContentRenderingException
      */
-    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
     {
         if (!isset($configuration['disable'])) {
             return false;

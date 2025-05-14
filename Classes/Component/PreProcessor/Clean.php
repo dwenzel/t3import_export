@@ -35,6 +35,7 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -100,27 +101,27 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
                 }
 
                 if (isset($localConfig['trim'])) {
-                    $record[$fieldName] = trim($record[$fieldName]);
+                    $record[$fieldName] = trim((string) $record[$fieldName]);
                 }
 
                 if (isset($localConfig['trim'])) {
-                    $record[$fieldName] = trim($record[$fieldName]);
+                    $record[$fieldName] = trim((string) $record[$fieldName]);
                 }
 
                 if (isset($localConfig['ltrim'])) {
-                    $record[$fieldName] = ltrim($record[$fieldName]);
+                    $record[$fieldName] = ltrim((string) $record[$fieldName]);
                 }
 
                 if (isset($localConfig['rtrim'])) {
-                    $record[$fieldName] = rtrim($record[$fieldName]);
+                    $record[$fieldName] = rtrim((string) $record[$fieldName]);
                 }
 
                 if (isset($localConfig['strtolower'])) {
-                    $record[$fieldName] = strtolower($record[$fieldName]);
+                    $record[$fieldName] = strtolower((string) $record[$fieldName]);
                 }
 
                 if (isset($localConfig['strtoupper'])) {
-                    $record[$fieldName] = strtoupper($record[$fieldName]);
+                    $record[$fieldName] = strtoupper((string) $record[$fieldName]);
                 }
             }
         }

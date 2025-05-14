@@ -44,10 +44,10 @@ trait SetCommandTrait
      * @param DataTransferProcessor|null $dataTransferProcessor
      */
     public function __construct(
-        string $name = null,
-        TransferSetFactory $transferSetFactory = null,
-        DataTransferProcessor $dataTransferProcessor = null,
-        ConfigurationManagerInterface $configurationManager = null
+        ?string $name = null,
+        ?TransferSetFactory $transferSetFactory = null,
+        ?DataTransferProcessor $dataTransferProcessor = null,
+        ?ConfigurationManagerInterface $configurationManager = null
 
     )
     {

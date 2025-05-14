@@ -31,7 +31,7 @@ interface InitializerInterface extends ComponentInterface
      * @param TaskResult|\Iterator|array $result
      * @return mixed
      */
-    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool;
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool;
 
     /**
      * Sets the configuration

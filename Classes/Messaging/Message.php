@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Messaging;
 
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 
 /***************************************************************
@@ -47,7 +48,7 @@ class Message extends AbstractMessage
      * @param int|null $id
      * @param array|null $additionalInformation Additional information
      */
-    public function __construct($message, $title = '', $severity = self::OK, $id = null, array $additionalInformation = null)
+    public function __construct($message, $title = '', $severity = ContextualFeedbackSeverity::OK, $id = null, ?array $additionalInformation = null)
     {
         $this->setMessage($message);
         $this->setTitle($title);

@@ -64,7 +64,7 @@ class PropertyMappingConfigurationBuilder
             $allowedProperties = $this->getAllowedProperties($configuration);
             if ((bool)$allowedProperties) {
                 call_user_func_array(
-                    [$propertyMappingConfiguration, 'allowProperties'],
+                    $propertyMappingConfiguration->allowProperties(...),
                     $allowedProperties
                 );
             }
@@ -173,7 +173,7 @@ class PropertyMappingConfigurationBuilder
         ) {
             $allowedProperties = explode(
                 ',',
-                preg_replace('/\s+/', '', $configuration['allowProperties'])
+                (string) preg_replace('/\s+/', '', $configuration['allowProperties'])
             );
 
             return $allowedProperties;

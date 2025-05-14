@@ -33,7 +33,7 @@ class DataTargetDummy implements DataTargetInterface
      * @param array|null $configuration
      * @return bool|mixed
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
         return true;
     }
@@ -46,7 +46,7 @@ class DataTargetDummy implements DataTargetInterface
      * @param array|null $configuration
      * @return void
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
     }
 }

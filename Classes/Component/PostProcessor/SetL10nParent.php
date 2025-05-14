@@ -61,6 +61,7 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         return $this->configurationValidator->isValid($configuration);

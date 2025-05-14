@@ -42,22 +42,22 @@ class MoveFile extends AbstractFinisher
     /**
      * cancel file operation
      */
-    final public const CONFLICT_MODE_CANCEL = 'cancel';
+    final public const string CONFLICT_MODE_CANCEL = 'cancel';
 
     /**
      * change name of new file according to TYPO3 conventions
      */
-    final public const CONFLICT_MODE_RENAME_NEW_FILE = 'renameNewFile';
+    final public const string CONFLICT_MODE_RENAME_NEW_FILE = 'renameNewFile';
 
     /**
      * replace existing file
      */
-    final public const CONFLICT_MODE_OVERRIDE_EXISTING_FILE = 'overrideExistingFile';
+    final public const string CONFLICT_MODE_OVERRIDE_EXISTING_FILE = 'overrideExistingFile';
 
     /**
      * Valid values for conflict modes (for operations on new file)
      */
-    final public const CONFLICT_MODES = [
+    final public const array CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_RENAME_NEW_FILE,
         self::CONFLICT_MODE_OVERRIDE_EXISTING_FILE
@@ -67,7 +67,7 @@ class MoveFile extends AbstractFinisher
      * Error by id
      * <unique id> => ['title', ['message']
      */
-    final public const ERROR_CODES = [
+    final public const array ERROR_CODES = [
         1_509_011_717 => ['Empty configuration', 'Configuration must not be empty'],
         1_509_011_925 => ['Missing target', 'config.target.name. must be a string'],
         1_509_022_342 => ['Missing source', 'config.source.name. must be a string'],
@@ -78,7 +78,7 @@ class MoveFile extends AbstractFinisher
      * Notice by id
      * <unique id> => ['title', ['message']
      */
-    final public const NOTICE_CODES = [
+    final public const array NOTICE_CODES = [
         1_509_024_162 => ['File moved', 'File %1s has been moved succesfully to %2s.'],
     ];
 
@@ -86,8 +86,8 @@ class MoveFile extends AbstractFinisher
     protected ResourceFactory $resourceFactory;
 
     public function __construct(
-        ResourceFactory $resourceFactory = null,
-        MessageContainer $messageContainer = null
+        ?ResourceFactory $resourceFactory = null,
+        ?MessageContainer $messageContainer = null
     )
     {
         $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
@@ -128,6 +128,7 @@ class MoveFile extends AbstractFinisher
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration)) {

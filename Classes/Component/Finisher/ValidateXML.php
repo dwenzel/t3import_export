@@ -41,7 +41,7 @@ class ValidateXML extends AbstractFinisher
      * Notice by id
      * <unique id> => ['Title', ['Message']
      */
-    final public const NOTICE_CODES = [
+    final public const array NOTICE_CODES = [
         1_508_776_068 => ['Validation failed', 'XML is invalid. There %1s %d %2s.'],
         1_508_914_030 => ['Validation succeed', 'XML is valid.'],
     ];
@@ -50,7 +50,7 @@ class ValidateXML extends AbstractFinisher
      * Error by id
      * <unique id> => ['Title', ['Message']
      */
-    final public const ERROR_CODES = [
+    final public const array ERROR_CODES = [
         1_508_774_170 => ['Invalid type for target schema', 'config[\'target\'][\'schema\'] must be a string, %s given.'],
         1_508_914_547 => ['Empty resource', 'Could not load resource or resource empty'],
     ];
@@ -62,9 +62,9 @@ class ValidateXML extends AbstractFinisher
      * @param MessageContainer|null $messageContainer
      */
     public function __construct(
-        XMLReader $xmlReader = null,
-        ResourcePathConfigurationValidator $validator = null,
-        MessageContainer $messageContainer = null
+        ?XMLReader $xmlReader = null,
+        ?ResourcePathConfigurationValidator $validator = null,
+        ?MessageContainer $messageContainer = null
     ) {
         $this->xmlReader = $xmlReader ?? GeneralUtility::makeInstance(XMLReader::class);
         $this->pathValidator = $validator ?? GeneralUtility::makeInstance(ResourcePathConfigurationValidator::class);
@@ -98,6 +98,7 @@ class ValidateXML extends AbstractFinisher
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!$this->pathValidator->isValid($configuration)) {

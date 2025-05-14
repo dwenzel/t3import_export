@@ -37,6 +37,7 @@ class SetHiddenProperties extends AbstractPostProcessor implements PostProcessor
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {

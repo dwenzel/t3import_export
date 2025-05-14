@@ -17,7 +17,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use CPSIT\T3importExport\Messaging\Message;
 use PHPUnit\Framework\TestCase;
 
@@ -50,7 +50,7 @@ class MessageTest extends TestCase
     {
         $message = 'foo';
         $title = 'bar';
-        $severity = Message::ERROR;
+        $severity = ContextualFeedbackSeverity::ERROR;
         $id = 12;
         $additionalInformation = ['baz'];
 
@@ -89,7 +89,7 @@ class MessageTest extends TestCase
     {
         $message = 'foo';
         $defaultTitle = '';
-        $defaultSeverity = Message::OK;
+        $defaultSeverity = ContextualFeedbackSeverity::OK;
         $additionalInformation = [];
 
         $this->subject->__construct($message);

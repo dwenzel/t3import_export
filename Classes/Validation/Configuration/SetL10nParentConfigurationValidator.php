@@ -27,7 +27,7 @@ class SetL10nParentConfigurationValidator implements ConfigurationValidatorInter
     protected const KEY_ARGUMENTS = 'arguments';
     protected const KEY_SUBJECT = 'subject';
 
-    final public const VALIDATORS = [
+    final public const array VALIDATORS = [
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
             self::KEY_ARGUMENTS => [self::KEY_SUBJECT . '/' . self::KEY_PARENT_FIELD]

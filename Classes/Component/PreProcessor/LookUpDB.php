@@ -67,6 +67,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['select'])
@@ -124,7 +125,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         if (!empty($queryConfiguration['singleRow'])) {
             $queryConfiguration['limit'] = 1;
         }
-        $queryResult = (new QueryFacade())->getQueryResultByConfig($queryConfiguration);
+        $queryResult = new QueryFacade()->getQueryResultByConfig($queryConfiguration);
 
         $targetField = $configuration['targetField'];
 

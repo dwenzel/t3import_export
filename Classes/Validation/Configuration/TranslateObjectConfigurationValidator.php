@@ -26,7 +26,7 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
 {
     protected const KEY_ARGUMENTS = 'arguments';
 
-    final public const VALIDATORS = [
+    final public const array VALIDATORS = [
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
             self::KEY_ARGUMENTS => [self::KEY_PARENT_FIELD]

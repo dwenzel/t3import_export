@@ -10,7 +10,7 @@ use CPSIT\T3importExport\Configuration\Extension;
 class ImportModuleRegistration
 {
 
-    final public const ROUTE = 'site_ApiToken';
+    final public const string ROUTE = 'site_ApiToken';
 
     static protected string $subModuleName = 'Import';
     static protected string $mainModuleName = 'system';

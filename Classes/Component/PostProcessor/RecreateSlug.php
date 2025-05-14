@@ -33,6 +33,7 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!empty($configuration[self::KEY_TABLE_NAME])

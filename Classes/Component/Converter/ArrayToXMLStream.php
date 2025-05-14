@@ -44,15 +44,15 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
  */
 class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 {
-    final public const DEFAULT_NODE_NAME = 'row';
-    final public const XML_CONFIG_NODE_KEY = 'nodeName';
-    final public const XML_CONFIG_FIELD_KEY = 'fields';
+    final public const string DEFAULT_NODE_NAME = 'row';
+    final public const string XML_CONFIG_NODE_KEY = 'nodeName';
+    final public const string XML_CONFIG_FIELD_KEY = 'fields';
 
-    final public const XML_CONFIG_FIELD_ATTR = '@attribute';
-    final public const XML_CONFIG_FIELD_MAP = '@mapTo';
-    final public const XML_CONFIG_FIELD_VALUE = '@value';
-    final public const XML_CONFIG_FIELD_CDATA = '@cdata';
-    final public const XML_CONFIG_FIELD_SEPARATE_ROW = '@separateRow';
+    final public const string XML_CONFIG_FIELD_ATTR = '@attribute';
+    final public const string XML_CONFIG_FIELD_MAP = '@mapTo';
+    final public const string XML_CONFIG_FIELD_VALUE = '@value';
+    final public const string XML_CONFIG_FIELD_CDATA = '@cdata';
+    final public const string XML_CONFIG_FIELD_SEPARATE_ROW = '@separateRow';
 
     /**
      * @var PropertyMapper
@@ -317,6 +317,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
      * @throws MissingClassException
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         return (

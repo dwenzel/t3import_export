@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 trait MessageContainerTrait
 {
-    public function __construct(MessageContainer $messageContainer = null)
+    public function __construct(?MessageContainer $messageContainer = null)
     {
         $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
     }
