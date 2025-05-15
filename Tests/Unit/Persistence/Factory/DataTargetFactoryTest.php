@@ -10,9 +10,9 @@ use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
  *
@@ -122,9 +122,12 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
  */
 class DataTargetFactoryTest extends TestCase
 {
-    use MockPersistenceManagerTrait;
-
     protected DataTargetFactory $subject;
+
+    /**
+     * @var PersistenceManagerInterface&MockObject
+     */
+    protected $persistenceManager;
 
     /**
      * @var DataTargetInterface|MockObject
@@ -137,7 +140,9 @@ class DataTargetFactoryTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockPersistenceManager();
+        // Create persistence manager mock directly
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
+
         $this->subject = new DataTargetFactory($this->persistenceManager);
     }
 
