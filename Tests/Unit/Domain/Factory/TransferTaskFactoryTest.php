@@ -13,9 +13,9 @@ use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockTransferTaskTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -45,10 +45,12 @@ use PHPUnit\Framework\TestCase;
  */
 class TransferTaskFactoryTest extends TestCase
 {
-    use MockTransferTaskTrait,
-        MockObjectManagerTrait;
-
     protected TransferTaskFactory $subject;
+
+    /**
+     * @var TransferTask|MockObject
+     */
+    protected TransferTask $transferTask;
 
     /**
      * @var DataTargetInterface|MockObject
@@ -59,6 +61,7 @@ class TransferTaskFactoryTest extends TestCase
      * @var DataSourceInterface|MockObject
      */
     protected DataSourceInterface $dataSource;
+
     /**
      * @var DataSourceFactory|MockObject
      */
@@ -73,6 +76,7 @@ class TransferTaskFactoryTest extends TestCase
      * @var PreProcessorInterface|MockObject
      */
     protected PreProcessorInterface $preProcessor;
+
     /**
      * @var ConverterInterface|MockObject
      */
@@ -87,15 +91,45 @@ class TransferTaskFactoryTest extends TestCase
      * @var FinisherInterface|MockObject
      */
     protected FinisherInterface $finisher;
+
+    /**
+     * @var FactoryFactory|MockObject
+     */
     protected FactoryFactory $factoryFactory;
+
+    /**
+     * @var FactoryInterface|MockObject
+     */
     protected FactoryInterface $factory;
+
+    /**
+     * Creates a mock transfer task
+     */
+    protected function mockTransferTask(): void
+    {
+        $this->transferTask = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods([
+                'setIdentifier',
+                'setDescription',
+                'setTargetClass',
+                'setSource',
+                'setTarget',
+                'setConverters',
+                'setPreProcessors',
+                'setPostProcessors',
+                'setFinishers',
+                'setInitializers',
+                'setLabel'
+            ])
+            ->getMock();
+    }
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
     protected function setUp(): void
     {
         $this->factoryFactory = $this->getMockBuilder(FactoryFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->getMock();
         $this->factory = $this->getMockForAbstractClass(FactoryInterface::class);
 
@@ -150,6 +184,7 @@ class TransferTaskFactoryTest extends TestCase
         $this->initializer = $this->getMockForAbstractClass(InitializerInterface::class);
     }
 
+    #[Test]
     public function testGetSetsIdentifier(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -162,6 +197,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsLabel(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -177,6 +213,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsTargetClass(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -193,6 +230,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsDescription(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -209,6 +247,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsSourceAndTargetWithIdentifier(): void
     {
         $identifier = 'foo';
@@ -250,6 +289,7 @@ class TransferTaskFactoryTest extends TestCase
 
     }
 
+    #[Test]
     public function testGetThrowsExceptionForMissingTarget(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -260,6 +300,7 @@ class TransferTaskFactoryTest extends TestCase
         $this->subject->get($settings, $identifier);
     }
 
+    #[Test]
     public function testGetThrowsExceptionForMissingSource(): void
     {
         $this->expectExceptionCode(TransferTaskFactory::MISSING_SOURCE_EXCEPTION_CODE);
@@ -271,6 +312,7 @@ class TransferTaskFactoryTest extends TestCase
     }
 
 
+    #[Test]
     public function testGetSetsPreProcessors(): void
     {
         $identifier = 'bar';
@@ -316,6 +358,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsPostProcessors(): void
     {
         $identifier = 'bar';
@@ -358,6 +401,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsConverters(): void
     {
         $identifier = 'bar';
@@ -403,6 +447,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsFinishers(): void
     {
         $identifier = 'bar';
@@ -449,6 +494,7 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsInitializers(): void
     {
         $identifier = 'bar';
