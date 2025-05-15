@@ -23,9 +23,6 @@ use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockFileIndexRepositoryTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockFileReferenceFactoryTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -33,15 +30,13 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Class GenerateFileReferenceTest
  */
 class GenerateFileReferenceTest extends TestCase
 {
-    use MockPersistenceManagerTrait,
-        MockFileReferenceFactoryTrait,
-        MockFileIndexRepositoryTrait;
 
     /**
      * @var GenerateFileReference|MockObject
@@ -49,9 +44,24 @@ class GenerateFileReferenceTest extends TestCase
     protected $subject;
 
     /**
+     * @var PersistenceManagerInterface&MockObject
+     */
+    protected $persistenceManager;
+
+    /**
      * @var MessageContainer&MockObject
      */
     protected $messageContainer;
+
+    /**
+     * @var FileReferenceFactory&MockObject
+     */
+    protected $fileReferenceFactory;
+
+    /**
+     * @var FileIndexRepository&MockObject
+     */
+    protected $fileIndexRepository;
 
 
     /**
@@ -60,9 +70,20 @@ class GenerateFileReferenceTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockPersistenceManager()
-            ->mockFileReferenceFactory()
-            ->mockFileIndexRepository();
+        // Create persistence manager mock directly
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
+
+        // Create file reference factory mock directly
+        $this->fileReferenceFactory = $this->getMockBuilder(FileReferenceFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['createFileReferenceObject'])
+            ->getMock();
+
+        // Create file index repository mock directly
+        $this->fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['findOneByUid'])
+            ->getMock();
 
         // Create message container mock directly
         $this->messageContainer = $this->createMock(MessageContainer::class);
@@ -76,7 +97,7 @@ class GenerateFileReferenceTest extends TestCase
                     $this->messageContainer
                 ]
             )
-            ->setMethods(['logError', 'logNotice'])->getMock();
+            ->onlyMethods(['logError', 'logNotice'])->getMock();
 
     }
 
@@ -189,17 +210,17 @@ class GenerateFileReferenceTest extends TestCase
         $sourceFieldValue = $fileId;
         $targetFieldName = 'bar';
         $mockOriginalFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()
-            ->setMethods(['getUid'])
+            ->onlyMethods(['getUid'])
             ->getMock();
         $mockOriginalFile->expects($this->once())->method('getUid')
             ->willReturn($fileId);
         $mockOriginalResource = $this->getMockBuilder(CoreFileReference::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getOriginalFile'])->getMock();
+            ->onlyMethods(['getOriginalFile'])->getMock();
         $mockOriginalResource->expects($this->once())->method('getOriginalFile')
             ->willReturn($mockOriginalFile);
         $targetFieldValue = $this->getMockBuilder(FileReference::class)
-            ->setMethods(['getOriginalResource'])->getMock();
+            ->onlyMethods(['getOriginalResource'])->getMock();
         $targetFieldValue->expects($this->once())->method('getOriginalResource')
             ->willReturn($mockOriginalResource);
 
@@ -228,17 +249,17 @@ class GenerateFileReferenceTest extends TestCase
         $sourceFieldValue = $fileId;
         $targetFieldName = 'bar';
         $mockOriginalFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()
-            ->setMethods(['getUid'])
+            ->onlyMethods(['getUid'])
             ->getMock();
         $mockOriginalFile->expects($this->once())->method('getUid')
             ->willReturn($existingFileId);
         $mockOriginalResource = $this->getMockBuilder(CoreFileReference::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getOriginalFile'])->getMock();
+            ->onlyMethods(['getOriginalFile'])->getMock();
         $mockOriginalResource->expects($this->once())->method('getOriginalFile')
             ->willReturn($mockOriginalFile);
         $targetFieldValue = $this->getMockBuilder(FileReference::class)
-            ->setMethods(['getOriginalResource'])->getMock();
+            ->onlyMethods(['getOriginalResource'])->getMock();
         $targetFieldValue->expects($this->once())->method('getOriginalResource')
             ->willReturn($mockOriginalResource);
 
@@ -277,16 +298,16 @@ class GenerateFileReferenceTest extends TestCase
             'sourceField' => $sourceFieldName
         ];
         $this->fileReferenceFactory->expects($this->once())
-            ->method('create')
-            ->with($fileId, $configuration)
+            ->method('createFileReferenceObject')
+            ->with($fileId, $configuration, null)
             ->willReturn($mockFileReference);
 
         $this->subject->process($configuration, $object, $record);
 
-        $this->assertAttributeSame(
+        // Replace deprecated assertAttributeSame with direct property access
+        $this->assertSame(
             $mockFileReference,
-            $targetFieldName,
-            $object
+            $object->$targetFieldName
         );
     }
 
@@ -312,7 +333,7 @@ class GenerateFileReferenceTest extends TestCase
             ->willReturn(false);
 
         $this->fileReferenceFactory->expects($this->never())
-            ->method('create');
+            ->method('createFileReferenceObject');
 
         $this->assertFalse(
             $this->subject->process($configuration, $object, $record)
