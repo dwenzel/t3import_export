@@ -34,7 +34,7 @@ trait MockFileIndexRepositoryTrait
     {
         $this->fileIndexRepository = $this->getMockBuilder(FileIndexRepository::class)
             ->disableOriginalConstructor()
-            ->setMethods([
+            ->onlyMethods([
                 'findOneByUid',
                 'add'
             ])
