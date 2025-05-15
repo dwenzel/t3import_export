@@ -34,7 +34,7 @@ trait MockResourceFactoryTrait
     {
         $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'getStorageObject',
                     'getDefaultStorage',

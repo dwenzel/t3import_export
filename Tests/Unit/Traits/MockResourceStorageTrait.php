@@ -33,7 +33,7 @@ trait MockResourceStorageTrait
     {
         $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
-            ->setMethods([
+            ->onlyMethods([
                 'addFile',
                 'getConfiguration',
                 'getDefaultFolder',
