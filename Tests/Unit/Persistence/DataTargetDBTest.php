@@ -22,8 +22,13 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * Class DataTargetDBTest
@@ -32,8 +37,6 @@ use PHPUnit\Framework\TestCase;
  */
 class DataTargetDBTest extends TestCase
 {
-    use MockDatabaseTrait;
-
     final public const array VALID_CONFIG_EMPTY_FIELD = [
         DataTargetDB::FIELD_TABLE => 'foo',
         DataTargetDB::FIELD_SKIP => [
@@ -58,18 +61,41 @@ class DataTargetDBTest extends TestCase
     protected $subject;
 
     /**
+     * @var ConnectionPool&MockObject
+     */
+    protected ConnectionPool $connectionPool;
+
+    /**
+     * @var Connection&MockObject
+     */
+    protected Connection $connection;
+
+    /**
+     * @var DatabaseConnectionService&MockObject
+     */
+    protected DatabaseConnectionService $connectionService;
+
+    /**
      * set up subject
      */
     protected function setUp(): void
     {
-        $this->mockConnectionService();
+        // Create connection mock
+        $this->connection = $this->createMock(Connection::class);
+
+        // Create connection pool mock
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
         $this->connectionPool->method('getConnectionForTable')
             ->willReturn($this->connection);
+
+        // Create connection service mock
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
 
         $this->subject = new DataTargetDB($this->connectionPool, $this->connectionService);
     }
 
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'missing field table' => [
@@ -171,8 +197,8 @@ class DataTargetDBTest extends TestCase
 
     /**
      * @param array $invalidConfig
-     * @dataProvider invalidConfigurationDataProvider
      */
+    #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfig(array $invalidConfig): void
     {
         self::assertFalse(
@@ -180,7 +206,7 @@ class DataTargetDBTest extends TestCase
         );
     }
 
-    public function validConfigurationDataProvider(): array
+    public static function validConfigurationDataProvider(): array
     {
         return [
             'minimal config' => [
@@ -205,8 +231,8 @@ class DataTargetDBTest extends TestCase
 
     /**
      * @param array $configuration
-     * @dataProvider validConfigurationDataProvider
      */
+    #[DataProvider('validConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
         $this->assertTrue(
@@ -214,9 +240,7 @@ class DataTargetDBTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function persistUnSetsConfiguredKeys()
     {
 
@@ -246,9 +270,7 @@ class DataTargetDBTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function persistUpdatesRecordsWithIdentityKey()
     {
         $tableName = 'baz';
@@ -281,7 +303,7 @@ class DataTargetDBTest extends TestCase
         );
     }
 
-    public function skipIfDataProvider(): array
+    public static function skipIfDataProvider(): array
     {
         return [
             // $configuration, $record
@@ -312,8 +334,8 @@ class DataTargetDBTest extends TestCase
      * @param array $configuration
      * @param array $record
      * @throws InvalidConfigurationException
-     * @dataProvider skipIfDataProvider
      */
+    #[DataProvider('skipIfDataProvider')]
     public function testPersistSkipsIfRecordMatchesCondition(array $configuration, array $record): void
     {
         self::assertFalse(

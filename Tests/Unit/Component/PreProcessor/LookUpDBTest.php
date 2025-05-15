@@ -4,10 +4,10 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /***************************************************************
  *  Copyright notice
@@ -35,12 +35,25 @@ use TYPO3\CMS\Core\Database\Connection;
  */
 class LookUpDBTest extends TestCase
 {
-    use MockDatabaseTrait;
-
     /**
      * @var LookUpDB|MockObject
      */
     protected LookUpDB $subject;
+
+    /**
+     * @var ConnectionPool&MockObject
+     */
+    protected ConnectionPool $connectionPool;
+
+    /**
+     * @var DatabaseConnectionService&MockObject
+     */
+    protected DatabaseConnectionService $connectionService;
+
+    /**
+     * @var Connection&MockObject
+     */
+    protected Connection $connection;
 
     /**
      * @var array
@@ -54,7 +67,18 @@ class LookUpDBTest extends TestCase
          * fixme: we mock the subject in order to prevent access to method performQuery
          * which uses now invalid database methods
          */
-        $this->mockConnectionService();
+        // Create connection mock
+        $this->connection = $this->createMock(Connection::class);
+
+        // Create connection pool mock
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+
+        // Create connection service mock
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
+
         $this->subject = new LookUpDB(
             $this->connectionPool,
             $this->connectionService

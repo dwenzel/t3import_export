@@ -4,9 +4,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence\Query;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\QueryInterface;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 /***************************************************************
@@ -28,14 +31,11 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class SelectQueryTest extends TestCase
 {
-    use MockDatabaseTrait;
-
     protected SelectQuery $subject;
-
-    /**
-     * @var QueryBuilder|MockObject
-     */
-    protected QueryBuilder $builder;
+    protected ConnectionPool&MockObject $connectionPool;
+    protected Connection&MockObject $connection;
+    protected DatabaseConnectionService&MockObject $connectionService;
+    protected QueryBuilder&MockObject $builder;
 
     protected function setUp(): void
     {
@@ -52,12 +52,24 @@ class SelectQueryTest extends TestCase
 
         $this->builder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods($fluidBuilderMethods)
+            ->onlyMethods($fluidBuilderMethods)
             ->getMock();
 
-        $this->mockConnectionService();
+        // Create connection mock
+        $this->connection = $this->createMock(Connection::class);
         $this->connection->method('createQueryBuilder')->willReturn($this->builder);
+
+        // Create connection pool mock
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+
+        // Create connection service mock
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
+
         $this->subject = new SelectQuery($this->connectionPool, $this->connectionService);
+
         foreach ($fluidBuilderMethods as $method) {
             $this->builder->method($method)->willReturn($this->builder);
         }
@@ -77,7 +89,7 @@ class SelectQueryTest extends TestCase
      *
      * @return array[]
       */
-    public function configurationDataProvider(): array
+    public static function configurationDataProvider(): array
     {
         return [
             'where' => [['table' => 'foo', 'where' => 'bar'], 'where', 'bar'],
@@ -103,9 +115,9 @@ class SelectQueryTest extends TestCase
      * @param array $config
      * @param string $expectedMethod
      * @param $expectedValue
-     * @dataProvider configurationDataProvider
      * @throws InvalidConfigurationException
      */
+    #[DataProvider('configurationDataProvider')]
     public function testWithConfigurationConfiguresQueryBuilder(array $config, string $expectedMethod, $expectedValue): void
     {
         $this->connectionPool->expects($this->once())
