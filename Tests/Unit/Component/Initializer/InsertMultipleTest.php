@@ -4,8 +4,11 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\InsertMultiple;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /***************************************************************
  *  Copyright notice
@@ -29,21 +32,30 @@ use PHPUnit\Framework\TestCase;
  * Class InsertMultipleTest
  *
  * @package CPSIT\T3importExport\Tests\Service\Initializer
- * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\InsertMultiple
  */
+#[CoversClass(\CPSIT\T3importExport\Component\Initializer\InsertMultiple::class)]
 class InsertMultipleTest extends TestCase
 {
-
-    use MockDatabaseTrait;
-
     protected InsertMultiple $subject;
+    protected Connection&MockObject $connection;
+    protected ConnectionPool&MockObject $connectionPool;
+    protected DatabaseConnectionService&MockObject $connectionService;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     protected function setUp(): void
     {
         $this->subject = new InsertMultiple();
-        $this->mockConnectionService();
-        $this->mockConnection();
+
+        // Create connection mock
+        $this->connection = $this->createMock(Connection::class);
+
+        // Create connection pool mock
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+
+        // Create connection service mock
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
     }
 
     /**

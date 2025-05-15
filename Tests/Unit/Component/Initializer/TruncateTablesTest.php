@@ -3,12 +3,12 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\TruncateTables;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /***************************************************************
  *  Copyright notice
@@ -32,25 +32,28 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  * Class TruncateTablesTest
  *
  * @package CPSIT\T3importExport\Tests\Service\Initializer
- * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\TruncateTables
  */
+#[CoversClass(\CPSIT\T3importExport\Component\Initializer\TruncateTables::class)]
 class TruncateTablesTest extends TestCase
 {
-    use MockDatabaseTrait;
-
     protected TruncateTables $subject;
+    protected ConnectionPool&MockObject $connectionPool;
+    protected Connection&MockObject $connection;
 
     protected function setUp(): void
     {
-        $this->mockConnectionPool()
-            ->mockConnection();
+        // Create connection mock
+        $this->connection = $this->createMock(Connection::class);
+
+        // Create connection pool mock
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+
         $this->subject = new TruncateTables($this->connectionPool);
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     * @dataProvider invalidConfigurationDataProvider
-     */
+    #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration($configuration): void
     {
         $this->assertFalse(
@@ -58,7 +61,7 @@ class TruncateTablesTest extends TestCase
         );
     }
 
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty configuration' => [
@@ -79,9 +82,6 @@ class TruncateTablesTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $validConfiguration = [
