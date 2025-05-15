@@ -58,6 +58,7 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
     protected function tearDown(): void
     {
         GeneralUtility::purgeInstances();
+        parent::tearDown();
     }
 
     #[Test]
