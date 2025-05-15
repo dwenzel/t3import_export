@@ -44,7 +44,7 @@ class TaskResultTest extends TestCase
         $this->subject = new TaskResult($this->messageContainer);
     }
 
-    public function testAddAndRemoveObjectsToIterator()
+    public function testAddAndRemoveObjectsToIterator(): void
     {
         /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
         $list = new TaskResult();
@@ -72,7 +72,7 @@ class TaskResultTest extends TestCase
         $this->assertEquals(2, $list->count());
     }
 
-    public function testWhenMockThreeIterationWithNoKey()
+    public function testWhenMockThreeIterationWithNoKey(): void
     {
         // fixme: This test is way to complicated and should be replaced
         $this->markTestSkipped('This test is overly complicated and should be replaced');
@@ -138,7 +138,7 @@ class TaskResultTest extends TestCase
             ->will($this->returnValue(false));
     }
 
-    public function testRemoveElementsReturnsFalseForNonExistingElement()
+    public function testRemoveElementsReturnsFalseForNonExistingElement(): void
     {
         $nonExistingElement = 'foo';
         $this->assertFalse(
@@ -146,7 +146,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    public function testKeyInitiallyReturnsZero()
+    public function testKeyInitiallyReturnsZero(): void
     {
         $this->assertSame(
             0,
@@ -154,7 +154,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    public function testKeyReturnsPosition()
+    public function testKeyReturnsPosition(): void
     {
         $element = new stdClass();
         $this->subject->add($element);
@@ -165,7 +165,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    public function testCountInitiallyReturnsZero()
+    public function testCountInitiallyReturnsZero(): void
     {
         $this->assertSame(
             0,
@@ -173,7 +173,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    public function testCountReturnsSize()
+    public function testCountReturnsSize(): void
     {
         $elements = [
             'foo',
@@ -188,7 +188,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    public function testGetMessagesReturnsMessagesFromContainer()
+    public function testGetMessagesReturnsMessagesFromContainer(): void
     {
         $messages = ['foo'];
         $this->messageContainer->expects($this->once())

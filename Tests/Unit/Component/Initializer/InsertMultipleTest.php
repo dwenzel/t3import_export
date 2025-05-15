@@ -60,7 +60,7 @@ class InsertMultipleTest extends TestCase
 
     /**
      */
-    public function testProcessSetsDatabase(): never
+    public function testProcessSetsDatabase(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 
@@ -183,7 +183,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    public function testProcessInsertsMultipleRecordsIntoTable(): never
+    public function testProcessInsertsMultipleRecordsIntoTable(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 

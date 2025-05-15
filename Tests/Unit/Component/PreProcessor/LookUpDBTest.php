@@ -85,7 +85,7 @@ class LookUpDBTest extends TestCase
         );
     }
 
-    public function testProcess(): never
+    public function testProcess(): void
     {
         /**
          * @see LookUpDB::process() for details
