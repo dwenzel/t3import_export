@@ -9,9 +9,10 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use CPSIT\T3importExport\Persistence\DataTargetXMLStream;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockBasicFileUtilityTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockXmlWriterTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
@@ -46,14 +47,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Class DataTargetRepositoryTest
  *
  * @package CPSIT\T3importExport\Tests\Unit\Persistence
- * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
+#[CoversClass(\CPSIT\T3importExport\Persistence\DataTargetFileStream::class)]
 class DataTargetXMLStreamTest extends TestCase
 {
     use MockBasicFileUtilityTrait,
         MockXmlWriterTrait,
-        MockPersistenceManagerTrait,
-        MockObjectManagerTrait;
+        MockPersistenceManagerTrait;
 
     protected const TARGET_CLASS = 'baz';
 
@@ -79,6 +79,7 @@ class DataTargetXMLStreamTest extends TestCase
      * @outputBuffering enabled
      * @throws FileOperationErrorException
      */
+    #[Test]
     public function testPersistDataStreamInTaskResultIteratorWithDirectOutput(): void
     {
         $this->markTestIncomplete('test fails after refactoring');
@@ -116,6 +117,7 @@ class DataTargetXMLStreamTest extends TestCase
     /**
      * @outputBuffering enabled
      */
+    #[Test]
     public function testPersistDataStreamInTaskResultIteratorWithDirectOutputAndCustomConfig(): void
     {
         /**
@@ -166,6 +168,7 @@ class DataTargetXMLStreamTest extends TestCase
         $this->expectOutputString($config['header'] . '<test><a>b</a><a>b</a><a>b</a><a>b</a></test>');
     }
 
+    #[Test]
     public function testPersistDataSteamXMLInTaskResultIteratorWithFileOutput(): void
     {
         $this->markTestIncomplete('test fails after refactoring');

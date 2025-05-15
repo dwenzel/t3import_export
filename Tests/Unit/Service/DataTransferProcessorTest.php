@@ -1,6 +1,6 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests\Service;
+namespace CPSIT\T3importExport\Tests\Unit\Service;
 
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
@@ -18,7 +18,8 @@ use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingFinisher;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingInitializer;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPostProcessor;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -45,12 +46,11 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 /**
  * Class ImportCommandControllerTest
  *
- * @package CPSIT\T3importExport\Tests\Service
- * @coversDefaultClass DataTransferProcessor
+ * @package CPSIT\T3importExport\Tests\Unit\Service
  */
+#[CoversClass(DataTransferProcessor::class)]
 class DataTransferProcessorTest extends TestCase
 {
-    use MockObjectManagerTrait;
 
     protected const TASK_IDENTIFIER = 'fooBarBaz';
     protected const CONVERTER_CONFIGURATION = ['fooConverterConfig'];
@@ -177,7 +177,7 @@ class DataTransferProcessorTest extends TestCase
     protected function mockDataSource(): void
     {
         $this->dataSource = $this->getMockBuilder(DataSourceInterface::class)
-            ->setMethods(['getRecords', 'getConfiguration'])
+            ->onlyMethods(['getRecords', 'getConfiguration'])
             ->getMockForAbstractClass();
         $sourceConfig = ['baz'];
         $this->dataSource->method('getConfiguration')
@@ -188,7 +188,7 @@ class DataTransferProcessorTest extends TestCase
     protected function mockDataTarget(): void
     {
         $this->dataTarget = $this->getMockBuilder(DataTargetInterface::class)
-            ->setMethods(['getRecords', 'getConfiguration'])
+            ->onlyMethods(['getRecords', 'getConfiguration'])
             ->getMockForAbstractClass();
         $targetConfig = ['baz'];
         $this->dataTarget
@@ -201,7 +201,7 @@ class DataTransferProcessorTest extends TestCase
     {
         $this->persistenceManager = $this->getMockBuilder(PersistenceManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(['persistAll'])
+            ->onlyMethods(['persistAll'])
             ->getMock();
 
         $this->subject->injectPersistenceManager($this->persistenceManager);
@@ -221,7 +221,7 @@ class DataTransferProcessorTest extends TestCase
     protected function mockTransferTask(): void
     {
         $this->transferTask = $this->getMockBuilder(TransferTask::class)
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'getIdentifier',
                     'getTasks',
@@ -247,7 +247,7 @@ class DataTransferProcessorTest extends TestCase
     protected function mockTaskDemand(): void
     {
         $this->taskDemand = $this->getMockBuilder(TaskDemand::class)
-            ->setMethods(['getTasks'])
+            ->onlyMethods(['getTasks'])
             ->getMock();
 
         $this->taskDemand->method('getTasks')
@@ -257,11 +257,12 @@ class DataTransferProcessorTest extends TestCase
     protected function mockTaskResult(): void
     {
         $this->taskResult = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getMessages', 'addMessages'])->getMock();
+            ->onlyMethods(['getMessages', 'addMessages'])->getMock();
         GeneralUtility::addInstance(TaskResult::class, $this->taskResult);
     }
 
 
+    #[Test]
     public function testBuildQueueSetsQueue(): void
     {
         $expectedQueue = [
@@ -277,6 +278,7 @@ class DataTransferProcessorTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessPreProcesses(): void
     {
         $preProcessorConfig = ['foo'];
@@ -295,6 +297,7 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessConverts(): void
     {
         $this->converter->expects($this->atLeastOnce())
@@ -311,6 +314,7 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessPostProcesses(): void
     {
         $this->postProcessor->expects($this->atLeastOnce())
@@ -327,6 +331,7 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessExecutesFinishers(): void
     {
         $this->finisher->expects($this->once())
@@ -341,6 +346,7 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessExecutesInitializers(): void
     {
         $this->initializer->expects($this->once())
@@ -354,11 +360,12 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingPreProcessors(): void
     {
         $messages = ['foo'];
         $this->preProcessor = $this->getMockBuilder(LoggingPreProcessor::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+            ->onlyMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong preProcessor
         $this->mockTransferTask();
@@ -381,11 +388,12 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingPostProcessors(): void
     {
         $messages = ['foo'];
         $this->postProcessor = $this->getMockBuilder(LoggingPostProcessor::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+            ->onlyMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
         $this->mockTransferTask();
@@ -401,11 +409,12 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingInitializers(): void
     {
         $messages = ['foo'];
         $this->initializer = $this->getMockBuilder(LoggingInitializer::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+            ->onlyMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
         $this->mockTransferTask();
@@ -421,11 +430,12 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingFinishers(): void
     {
         $messages = ['foo'];
         $this->finisher = $this->getMockBuilder(LoggingFinisher::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+            ->onlyMethods(['getAndPurgeMessages'])->getMock();
 
         // we have to re-initialize task and demand since $this->transferTask returns wrong finisher
         $this->mockTransferTask();
