@@ -18,10 +18,10 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  */
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockFileIndexRepositoryTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockFilePathFactoryTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockFileStructureTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceStorageTrait;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamException;
@@ -38,13 +38,17 @@ class GenerateFileResourceTest extends TestCase
     use MockFileIndexRepositoryTrait,
         MockFilePathFactoryTrait,
         MockFileStructureTrait,
-        MockMessageContainerTrait,
         MockResourceStorageTrait;
 
     /**
      * @var GenerateFileResource |MockObject
      */
     protected $subject;
+
+    /**
+     * @var MessageContainer&MockObject
+     */
+    protected $messageContainer;
 
     /**
      * set up subject
@@ -55,8 +59,10 @@ class GenerateFileResourceTest extends TestCase
     {
         $this->mockFileIndexRepository()
             ->mockResourceStorage()
-            ->mockFilePathFactory()
-            ->mockMessageContainer();
+            ->mockFilePathFactory();
+
+        // Create message container mock directly
+        $this->messageContainer = $this->createMock(MessageContainer::class);
 
         $this->subject = $this->getMockBuilder(GenerateFileResource::class)
             ->setConstructorArgs(
