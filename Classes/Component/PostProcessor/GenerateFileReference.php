@@ -77,20 +77,19 @@ class GenerateFileReference extends AbstractPostProcessor
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
+        $sourceField = $configuration['sourceField'];
+        $targetField = $configuration['targetField'];
+        $identityField = $configuration['identityField'] ?? '__identity';
+        $tableName = $configuration['tableName'] ?? '';
+
+        $fileId = isset($record[$sourceField]) ? $record[$sourceField] : null;
+
         if (is_object($convertedRecord)
             && (!ObjectAccess::isPropertySettable($convertedRecord, $targetField)
             || !MathUtility::canBeInterpretedAsInteger($fileId))
         ) {
             return false;
         }
-
-        $sourceField = $configuration['sourceField'];
-        $targetField = $configuration['targetField'];
-        $identityField = $configuration['identityField'] ?? '__identity';
-        $tableName = $configuration['tableName']?? '';
-
-
-        $fileId = $convertedRecord[$sourceField];
         if ($fileId instanceof File) {
             $fileId = $fileId->getUid();
         }
@@ -101,11 +100,14 @@ class GenerateFileReference extends AbstractPostProcessor
         }
 
         $foreignUid = null;
-        if (isset($convertedRecord[$identityField])) {
+        if (is_array($convertedRecord) && isset($convertedRecord[$identityField])) {
             $foreignUid = (int)$convertedRecord[$identityField];
+        } elseif (is_object($convertedRecord) && isset($convertedRecord->$identityField)) {
+            $foreignUid = (int)$convertedRecord->$identityField;
         }
 
-        if ($this->fileReferenceExists($tableName, $fileId, $foreignUid, $targetField)) {
+        // Only check if file reference exists if we have a foreign UID
+        if ($foreignUid !== null && $this->fileReferenceExists($tableName, $fileId, $foreignUid, $targetField)) {
             return false;
         }
 
