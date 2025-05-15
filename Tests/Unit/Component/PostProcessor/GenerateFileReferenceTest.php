@@ -21,11 +21,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
 use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockFileIndexRepositoryTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockFileReferenceFactoryTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\File;
@@ -39,7 +40,6 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 class GenerateFileReferenceTest extends TestCase
 {
     use MockPersistenceManagerTrait,
-        MockMessageContainerTrait,
         MockFileReferenceFactoryTrait,
         MockFileIndexRepositoryTrait;
 
@@ -47,6 +47,11 @@ class GenerateFileReferenceTest extends TestCase
      * @var GenerateFileReference|MockObject
      */
     protected $subject;
+
+    /**
+     * @var MessageContainer&MockObject
+     */
+    protected $messageContainer;
 
 
     /**
@@ -57,8 +62,10 @@ class GenerateFileReferenceTest extends TestCase
     {
         $this->mockPersistenceManager()
             ->mockFileReferenceFactory()
-            ->mockFileIndexRepository()
-            ->mockMessageContainer();
+            ->mockFileIndexRepository();
+
+        // Create message container mock directly
+        $this->messageContainer = $this->createMock(MessageContainer::class);
 
         $this->subject = $this->getMockBuilder(GenerateFileReference::class)
             ->setConstructorArgs(
@@ -74,10 +81,10 @@ class GenerateFileReferenceTest extends TestCase
     }
 
     /**
-     * provides invalid configurations
+     * Provides invalid configurations
      * @return array
      */
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'sourceField missing' => [[]],
@@ -115,8 +122,8 @@ class GenerateFileReferenceTest extends TestCase
 
     /**
      * @param array $configuration
-     * @dataProvider invalidConfigurationDataProvider
      */
+    #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
     {
         $this->assertFalse(

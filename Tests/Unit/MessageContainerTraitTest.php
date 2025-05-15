@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************
@@ -29,29 +29,31 @@ use PHPUnit\Framework\TestCase;
  */
 class MessageContainerTraitTest extends TestCase
 {
-    use MockMessageContainerTrait;
-
     /**
      * subject
-     * @var MessageContainerTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var MessageContainerTrait&MockObject
      */
     protected $subject;
+
+    /**
+     * @var MessageContainer&MockObject
+     */
+    protected $messageContainer;
 
     /**
      * set up subject
      */
     protected function setUp(): void
     {
-        $this->mockMessageContainer();
+        // Create message container mock directly
+        $this->messageContainer = $this->createMock(MessageContainer::class);
+
         $this->subject = $this->getMockBuilder(MessageContainerTrait::class)
             ->setConstructorArgs([$this->messageContainer])
             ->getMockForTrait();
     }
 
-    /**
-     * @test
-     */
-    public function getMessagesReturnsMessagesFromContainer() {
+    public function testGetMessagesReturnsMessagesFromContainer() {
         $messages = ['foo'];
         $this->messageContainer->expects($this->once())
             ->method('getMessages')->willReturn($messages);
@@ -61,10 +63,7 @@ class MessageContainerTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function hasMessageWithIdReturnsResultFromMessageContainter() {
+    public function testHasMessageWithIdReturnsResultFromMessageContainter() {
         $id = 123;
         $this->messageContainer->expects($this->once())
             ->method('hasMessageWithId')

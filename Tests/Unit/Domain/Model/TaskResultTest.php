@@ -4,7 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -34,12 +34,13 @@ use stdClass;
  ***************************************************************/
 class TaskResultTest extends TestCase
 {
-    use MockMessageContainerTrait;
     protected TaskResult $subject;
+    protected MessageContainer&MockObject $messageContainer;
 
     protected function setUp(): void
     {
-        $this->mockMessageContainer();
+        // Create message container mock directly
+        $this->messageContainer = $this->createMock(MessageContainer::class);
         $this->subject = new TaskResult($this->messageContainer);
     }
 
@@ -74,7 +75,7 @@ class TaskResultTest extends TestCase
     public function testWhenMockThreeIterationWithNoKey()
     {
         // fixme: This test is way to complicated and should be replaced
-        $this->markAsRisky();
+        $this->markTestSkipped('This test is overly complicated and should be replaced');
         /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
         $list = $this->getMockBuilder(TaskResult::class)->getMock();
 
@@ -137,10 +138,7 @@ class TaskResultTest extends TestCase
             ->will($this->returnValue(false));
     }
 
-    /**
-     * @test
-     */
-    public function removeElementsReturnsFalseForNonExistingElement()
+    public function testRemoveElementsReturnsFalseForNonExistingElement()
     {
         $nonExistingElement = 'foo';
         $this->assertFalse(
@@ -148,10 +146,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function keyInitiallyReturnsZero()
+    public function testKeyInitiallyReturnsZero()
     {
         $this->assertSame(
             0,
@@ -159,10 +154,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function keyReturnsPosition()
+    public function testKeyReturnsPosition()
     {
         $element = new stdClass();
         $this->subject->add($element);
@@ -173,10 +165,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function countInitiallyReturnsZero()
+    public function testCountInitiallyReturnsZero()
     {
         $this->assertSame(
             0,
@@ -184,10 +173,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function countReturnsSize()
+    public function testCountReturnsSize()
     {
         $elements = [
             'foo',
@@ -202,10 +188,7 @@ class TaskResultTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getMessagesReturnsMessagesFromContainer()
+    public function testGetMessagesReturnsMessagesFromContainer()
     {
         $messages = ['foo'];
         $this->messageContainer->expects($this->once())
