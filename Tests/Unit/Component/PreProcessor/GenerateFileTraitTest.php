@@ -19,28 +19,30 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
+// Class that uses the GenerateFileTrait for testing
+class GenerateFileTraitImplementation
+{
+    use GenerateFileTrait;
+
+    public function getFile($configuration, $sourceFilePath)
+    {
+        return '';
+    }
+}
+
 /**
- * Class GenerateFileResourceTest
+ * Class GenerateFileTraitTest
  */
 class GenerateFileTraitTest extends TestCase
 {
-    /**
-     * @var GenerateFileTrait |\PHPUnit_Framework_MockObject_MockObject
-     */
     protected $subject;
-
-    /**
-     * @var ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
-     */
     protected $storage;
-
-    /**
-     * @var StorageRepository|\PHPUnit_Framework_MockObject_MockObject
-     */
     protected $storageRepository;
 
     /**
@@ -48,21 +50,22 @@ class GenerateFileTraitTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockBuilder(GenerateFileTrait::class)
-            ->setMethods(['logError'])->getMockForTrait();
+        $this->subject = $this->getMockBuilder(GenerateFileTraitImplementation::class)
+            ->onlyMethods(['logError', 'getFile'])
+            ->getMock();
 
         $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
             ->disableOriginalConstructor()
-            ->setMethods(['findByUid'])->getMock();
+            ->onlyMethods(['findByUid'])
+            ->getMock();
 
         $this->subject->injectStorageRepository($this->storageRepository);
     }
 
-
     /**
      * Provides dependencies for injection tests
      */
-    public function dependenciesDataProvider()
+    public static function dependenciesDataProvider()
     {
         return [
             [FilePathFactory::class, 'filePathFactory']
@@ -70,11 +73,11 @@ class GenerateFileTraitTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider dependenciesDataProvider
      * @param string $class Class name of the dependency to inject
      * @param string $propertyName The property holding the dependency
      */
+    #[Test]
+    #[DataProvider('dependenciesDataProvider')]
     public function dependenciesCanBeInjected($class, $propertyName)
     {
         $mockDependency = $this->getMockBuilder($class)->disableOriginalConstructor()
@@ -82,16 +85,19 @@ class GenerateFileTraitTest extends TestCase
 
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
-
-        $this->assertAttributeSame(
+        
+        // Use reflection to access the protected property
+        $reflection = new \ReflectionClass($this->subject);
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+        
+        $this->assertSame(
             $mockDependency,
-            $propertyName,
-            $this->subject
+            $property->getValue($this->subject)
         );
     }
 
-
-    public function invalidConfigurationDataProvider()
+    public static function invalidConfigurationDataProvider()
     {
         // $configuration, $expected, $errorId
         return [
@@ -145,13 +151,13 @@ class GenerateFileTraitTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider invalidConfigurationDataProvider
      * @param array $configuration
      * @param bool $expected
      * @param $expectedErrorId
      * @param $expectedErrorArguments
      */
+    #[Test]
+    #[DataProvider('invalidConfigurationDataProvider')]
     public function isConfigurationValidReturnsCorrectValuesForInvalidConfiguration($configuration, $expected, $expectedErrorId, $expectedErrorArguments)
     {
         $this->subject->expects($this->once())
@@ -164,14 +170,13 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function isConfigurationValidReturnsFalseForMissingDirectory()
     {
         $this->storage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
-            ->setMethods(['hasFolder', 'getConfiguration'])->getMock();
+            ->onlyMethods(['hasFolder', 'getConfiguration'])
+            ->getMock();
 
         $configuration = [
             'storageId' => 3,
@@ -202,14 +207,13 @@ class GenerateFileTraitTest extends TestCase
         $this->subject->isConfigurationValid($configuration);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function isConfigurationValidReturnsTrueForValidConfiguration()
     {
         $this->storage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
-            ->setMethods(['hasFolder', 'getConfiguration'])->getMock();
+            ->onlyMethods(['hasFolder', 'getConfiguration'])
+            ->getMock();
 
         $configuration = [
             'storageId' => 3,
@@ -238,9 +242,7 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getErrorCodesReturnsCorrectResult()
     {
         $expectedCodes = $errors = [
@@ -258,9 +260,7 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processGetsSingleFile()
     {
         $fieldName = 'foo';
@@ -290,9 +290,7 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processGetsMultipleFiles()
     {
         $fieldName = 'foo';
@@ -330,9 +328,7 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processPrefixesFilePaths()
     {
         $fieldName = 'foo';
@@ -375,9 +371,7 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processRespectsSeparator()
     {
         $fieldName = 'foo';
