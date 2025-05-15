@@ -3,10 +3,11 @@
 namespace CPSIT\T3importExport\Tests\Service;
 
 use CPSIT\T3importExport\Service\TranslationService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use Exception;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
@@ -28,9 +29,12 @@ class DummyDomainObjectB extends AbstractEntity
 
 class TranslationServiceTest extends TestCase
 {
-    use MockPersistenceManagerTrait;
-
     protected TranslationService $subject;
+
+    /**
+     * @var PersistenceManagerInterface&MockObject
+     */
+    protected $persistenceManager;
 
     /**
      * @var DataMapper|MockObject
@@ -50,8 +54,11 @@ class TranslationServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->mockDataMap()
-            ->mockDataMapper()
-            ->mockPersistenceManager();
+            ->mockDataMapper();
+
+        // Create persistence manager mock directly
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
+
         $this->subject = new TranslationService($this->dataMapper, $this->persistenceManager);
     }
 
@@ -59,7 +66,7 @@ class TranslationServiceTest extends TestCase
     {
         $this->dataMap = $this->getMockBuilder(DataMap::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getTranslationOriginColumnName', 'getColumnMap', 'getClassName', 'getTableName'])
+            ->onlyMethods(['getTranslationOriginColumnName', 'getColumnMap', 'getClassName', 'getTableName'])
             ->getMock();
 
         return $this;
@@ -69,7 +76,7 @@ class TranslationServiceTest extends TestCase
     {
         $this->dataMapper = $this->getMockBuilder(DataMapper::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getDataMap'])
+            ->onlyMethods(['getDataMap'])
             ->getMock();
         $this->dataMapper->method('getDataMap')
             ->willReturn($this->dataMap);
@@ -111,9 +118,9 @@ class TranslationServiceTest extends TestCase
     }
 
     /**
-     * @test
      * @throws Exception
      */
+    #[Test]
     public function translateSetsLanguageUid(): void
     {
         $language = 1;
@@ -139,9 +146,7 @@ class TranslationServiceTest extends TestCase
         $this->subject->translate($origin, $translation, $language);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function translateSetsTranslationOriginal(): void
     {
         $language = 1;

@@ -5,7 +5,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Domain\Repository\QueueRepository;
 use CPSIT\T3importExport\Persistence\DataTargetQueue;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -28,8 +28,6 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  ***************************************************************/
 class DataTargetQueueTest extends TestCase
 {
-    use MockPersistenceManagerTrait;
-
     protected DataTargetQueue $subject;
     /***
      * @var QueueItemRepository
@@ -43,13 +41,12 @@ class DataTargetQueueTest extends TestCase
     {
         $this->repository = $this->getMockBuilder(QueueItemRepository::class)
             ->disableOriginalConstructor()
-            ->setMethods([])
             ->getMock();
 
         $this->subject = new DataTargetQueue($this->repository);
     }
 
-    public function inValidConfigurationDataProvider(): array
+    public static function inValidConfigurationDataProvider(): array
     {
         return [
             'empty configuration' => [
@@ -75,8 +72,8 @@ class DataTargetQueueTest extends TestCase
 
     /**
      * @param array $configuration
-     * @dataProvider inValidConfigurationDataProvider
      */
+    #[DataProvider('inValidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
     {
         self::assertFalse(
@@ -86,7 +83,7 @@ class DataTargetQueueTest extends TestCase
 
     public function testPersistReturnsFalseIfObjectIsNotArray(): void
     {
-        $object = $this->getMockForAbstractClass(DomainObjectInterface::class);
+        $object = $this->createMock(DomainObjectInterface::class);
         $configuration = self::VALID_CONFIGURATION;
         self::assertFalse(
             $this->subject->persist($object, $configuration)
