@@ -18,27 +18,24 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  */
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
+use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockFileIndexRepositoryTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockFilePathFactoryTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockFileStructureTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceStorageTrait;
+use PHPUnit\Framework\Attributes\Test;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamException;
 use org\bovigo\vfs\vfsStreamWrapper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
  * Class GenerateFileResourceTest
  */
 class GenerateFileResourceTest extends TestCase
 {
-    use MockFileIndexRepositoryTrait,
-        MockFilePathFactoryTrait,
-        MockFileStructureTrait,
-        MockResourceStorageTrait;
 
     /**
      * @var GenerateFileResource |MockObject
@@ -51,6 +48,26 @@ class GenerateFileResourceTest extends TestCase
     protected $messageContainer;
 
     /**
+     * @var FileIndexRepository&MockObject
+     */
+    protected $fileIndexRepository;
+
+    /**
+     * @var ResourceStorage&MockObject
+     */
+    protected $resourceStorage;
+
+    /**
+     * @var FilePathFactory&MockObject
+     */
+    protected $filePathFactory;
+
+    /**
+     * @var StorageRepository&MockObject
+     */
+    protected $storageRepository;
+
+    /**
      * set up subject
      * @throws vfsStreamException
      * @noinspection ReturnTypeCanBeDeclaredInspection
@@ -59,7 +76,8 @@ class GenerateFileResourceTest extends TestCase
     {
         $this->mockFileIndexRepository()
             ->mockResourceStorage()
-            ->mockFilePathFactory();
+            ->mockFilePathFactory()
+            ->mockStorageRepository();
 
         // Create message container mock directly
         $this->messageContainer = $this->createMock(MessageContainer::class);
@@ -68,14 +86,130 @@ class GenerateFileResourceTest extends TestCase
             ->setConstructorArgs(
                 [
                     $this->fileIndexRepository,
-                    $this->resourceStorage,
                     $this->filePathFactory,
                     $this->messageContainer
                 ]
             )
-            ->setMethods(['logError', 'getAbsoluteFilePath'])->getMock();
+            ->onlyMethods(['logError', 'getAbsoluteFilePath'])
+            ->getMock();
+
+        // Set protected properties via reflection
+        $reflection = new \ReflectionClass($this->subject);
+        $property = $reflection->getProperty('resourceStorage');
+        $property->setAccessible(true);
+        $property->setValue($this->subject, $this->resourceStorage);
+
+        // Inject the storage repository
+        $injectMethod = $reflection->getMethod('injectStorageRepository');
+        $injectMethod->setAccessible(true);
+        $injectMethod->invoke($this->subject, $this->storageRepository);
 
         vfsStreamWrapper::register();
+    }
+
+    /**
+     * Mock file index repository
+     *
+     * @return $this
+     */
+    protected function mockFileIndexRepository(): self
+    {
+        $this->fileIndexRepository = $this->createMock(FileIndexRepository::class);
+        return $this;
+    }
+
+    /**
+     * Mock resource storage
+     *
+     * @return $this
+     */
+    protected function mockResourceStorage(): self
+    {
+        $this->resourceStorage = $this->createMock(ResourceStorage::class);
+        return $this;
+    }
+
+    /**
+     * Mock file path factory
+     *
+     * @return $this
+     */
+    protected function mockFilePathFactory(): self
+    {
+        $this->filePathFactory = $this->createMock(FilePathFactory::class);
+        return $this;
+    }
+
+    /**
+     * Mock storage repository
+     *
+     * @return $this
+     */
+    protected function mockStorageRepository(): self
+    {
+        $this->storageRepository = $this->createMock(StorageRepository::class);
+        $this->storageRepository->method('findByUid')->willReturn($this->resourceStorage);
+        return $this;
+    }
+
+    /**
+     * Create a new subject with mocked getFile method for process testing
+     * 
+     * @return GenerateFileResource&MockObject
+     */
+    protected function createSubjectWithMockedGetFile(): GenerateFileResource
+    {
+        $subject = $this->getMockBuilder(GenerateFileResource::class)
+            ->setConstructorArgs(
+                [
+                    $this->fileIndexRepository,
+                    $this->filePathFactory,
+                    $this->messageContainer
+                ]
+            )
+            ->onlyMethods(['getFile', 'logError'])
+            ->getMock();
+            
+        // Set protected properties via reflection
+        $reflection = new \ReflectionClass($subject);
+        $property = $reflection->getProperty('resourceStorage');
+        $property->setAccessible(true);
+        $property->setValue($subject, $this->resourceStorage);
+        
+        // Inject the storage repository
+        $injectMethod = $reflection->getMethod('injectStorageRepository');
+        $injectMethod->setAccessible(true);
+        $injectMethod->invoke($subject, $this->storageRepository);
+        
+        return $subject;
+    }
+
+    /**
+     * Creates file structure for testing
+     *
+     * @return array Array containing [rootDirectory, sourceFileName, sourceFilePath, targetDirectory, configuration, fileStructure]
+     */
+    protected function mockFileStructure(): array
+    {
+        $rootDirectory = 'root';
+        $sourceFileContent = 'source file content';
+        $sourceDirectory = 'sourceDir';
+        $sourceFileName = 'foo.csv';
+        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $targetDirectory = 'targetDir';
+
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectory
+        ];
+
+        $fileStructure = [
+            $sourceDirectory => [
+                $sourceFileName => $sourceFileContent
+            ],
+            $targetDirectory => []
+        ];
+
+        return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
     }
 
 
@@ -186,4 +320,190 @@ class GenerateFileResourceTest extends TestCase
             ->willReturn(vfsStream::url($expectedFilePath));
     }
 
+    public function testProcessGetsSingleFile(): void
+    {
+        $sourceField = 'sourceField';
+        $targetField = 'targetField';
+        $sourceFilePath = 'path/to/file.txt';
+        
+        $record = [
+            $sourceField => $sourceFilePath
+        ];
+        
+        $configuration = [
+            'sourceField' => $sourceField,
+            'targetField' => $targetField,
+            'targetDirectoryPath' => 'some/path'
+        ];
+        
+        $fileObject = $this->createMock(File::class);
+        
+        $subject = $this->createSubjectWithMockedGetFile();
+        $subject->expects($this->once())
+            ->method('getFile')
+            ->with($configuration, $sourceFilePath)
+            ->willReturn($fileObject);
+            
+        $this->assertTrue(
+            $subject->process($configuration, $record)
+        );
+            
+        $this->assertSame(
+            $fileObject,
+            $record[$targetField]
+        );
+    }
+    
+    public function testProcessGetsMultipleFiles(): void
+    {
+        $sourceField = 'sourceField';
+        $targetField = 'targetField';
+        $sourceFilePaths = 'file1.txt,file2.txt';
+        
+        $record = [
+            $sourceField => $sourceFilePaths
+        ];
+        
+        $configuration = [
+            'sourceField' => $sourceField,
+            'targetField' => $targetField,
+            'targetDirectoryPath' => 'some/path',
+            'multipleRows' => true
+        ];
+        
+        $fileObject1 = $this->createMock(File::class);
+        $fileObject2 = $this->createMock(File::class);
+        
+        $subject = $this->createSubjectWithMockedGetFile();
+        $subject->expects($this->exactly(2))
+            ->method('getFile')
+            ->withConsecutive(
+                [$configuration, 'file1.txt'],
+                [$configuration, 'file2.txt']
+            )
+            ->willReturnOnConsecutiveCalls($fileObject1, $fileObject2);
+            
+        $this->assertTrue(
+            $subject->process($configuration, $record)
+        );
+            
+        $this->assertSame(
+            [$fileObject1, $fileObject2],
+            $record[$targetField]
+        );
+    }
+    
+    public function testProcessWithSourcePath(): void
+    {
+        $sourceField = 'sourceField';
+        $targetField = 'targetField';
+        $sourcePath = 'prefix/';
+        $sourceFilePath = 'file.txt';
+        
+        $record = [
+            $sourceField => $sourceFilePath
+        ];
+        
+        $configuration = [
+            'sourceField' => $sourceField,
+            'targetField' => $targetField,
+            'targetDirectoryPath' => 'some/path',
+            'sourcePath' => $sourcePath
+        ];
+        
+        $fileObject = $this->createMock(File::class);
+        
+        $subject = $this->createSubjectWithMockedGetFile();
+        $subject->expects($this->once())
+            ->method('getFile')
+            ->with($configuration, $sourcePath . $sourceFilePath)
+            ->willReturn($fileObject);
+            
+        $this->assertTrue(
+            $subject->process($configuration, $record)
+        );
+            
+        $this->assertSame(
+            $fileObject,
+            $record[$targetField]
+        );
+    }
+    
+    public function testProcessWithCustomSeparator(): void
+    {
+        $sourceField = 'sourceField';
+        $targetField = 'targetField';
+        $separator = '|';
+        $sourceFilePaths = 'file1.txt|file2.txt';
+        
+        $record = [
+            $sourceField => $sourceFilePaths
+        ];
+        
+        $configuration = [
+            'sourceField' => $sourceField,
+            'targetField' => $targetField,
+            'targetDirectoryPath' => 'some/path',
+            'multipleRows' => true,
+            'separator' => $separator
+        ];
+        
+        $fileObject1 = $this->createMock(File::class);
+        $fileObject2 = $this->createMock(File::class);
+        
+        $subject = $this->createSubjectWithMockedGetFile();
+        $subject->expects($this->exactly(2))
+            ->method('getFile')
+            ->withConsecutive(
+                [$configuration, 'file1.txt'],
+                [$configuration, 'file2.txt']
+            )
+            ->willReturnOnConsecutiveCalls($fileObject1, $fileObject2);
+            
+        $this->assertTrue(
+            $subject->process($configuration, $record)
+        );
+            
+        $this->assertSame(
+            [$fileObject1, $fileObject2],
+            $record[$targetField]
+        );
+    }
+    
+    public function testIsConfigurationValidWithValidConfiguration(): void
+    {
+        $configuration = [
+            'storageId' => 1,
+            'targetDirectoryPath' => 'some/path',
+            'sourceField' => 'source',
+            'targetField' => 'target'
+        ];
+        
+        $this->resourceStorage->expects($this->once())
+            ->method('hasFolder')
+            ->with($configuration['targetDirectoryPath'])
+            ->willReturn(true);
+            
+        $this->assertTrue(
+            $this->subject->isConfigurationValid($configuration)
+        );
+    }
+    
+    public function testIsConfigurationValidWithInvalidConfiguration(): void
+    {
+        $configuration = [
+            'storageId' => 1,
+            'targetDirectoryPath' => 'some/path',
+            'sourceField' => 'source',
+            // Missing targetField
+        ];
+        
+        $this->subject->expects($this->once())
+            ->method('logError')
+            ->with(1_497_427_336);
+            
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($configuration)
+        );
+    }
 }

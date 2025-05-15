@@ -32,7 +32,7 @@ trait MockFilePathFactoryTrait
     protected function mockFilePathFactory(): self
     {
         $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)
-            ->setMethods(['createFromParts'])
+            ->onlyMethods(['createFromParts'])
             ->getMock();
 
         return $this;
