@@ -19,9 +19,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockFileStructureTrait;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -31,10 +31,8 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateUploadFileTest extends TestCase
 {
-    use MockFileStructureTrait;
-
     /**
-     * @var GenerateUploadFile |MockObject
+     * @var GenerateUploadFile|MockObject
      */
     protected $subject;
 
@@ -59,23 +57,24 @@ class GenerateUploadFileTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
-            ->setMethods(['getAbsoluteFilePath'])->getMock();
+            ->onlyMethods(['getAbsoluteFilePath'])->getMock();
 
         $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getConfiguration'])->getMock();
+            ->onlyMethods(['getConfiguration'])->getMock();
 
         $this->subject->withStorage($this->resourceStorage);
 
-        $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)->setMethods(['createFromParts'])->getMock();
+        $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)
+            ->onlyMethods(['createFromParts'])->getMock();
+        
         $this->subject->injectFilePathFactory($this->filePathFactory);
-        vfsStreamWrapper::register();
     }
 
     /**
      * Provides dependencies for injection tests
      */
-    public function dependenciesDataProvider()
+    public static function dependenciesDataProvider()
     {
         return [
             [StorageRepository::class, 'storageRepository']
@@ -83,11 +82,11 @@ class GenerateUploadFileTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider dependenciesDataProvider
      * @param string $class Class name of the dependency to inject
      * @param string $propertyName The property holding the dependency
      */
+    #[Test]
+    #[DataProvider('dependenciesDataProvider')]
     public function dependenciesCanBeInjected($class, $propertyName)
     {
         $mockDependency = $this->getMockBuilder($class)->disableOriginalConstructor()
@@ -95,17 +94,19 @@ class GenerateUploadFileTest extends TestCase
 
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
-
-        $this->assertAttributeSame(
+        
+        // Use reflection to access the protected property
+        $reflection = new \ReflectionClass($this->subject);
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+        
+        $this->assertSame(
             $mockDependency,
-            $propertyName,
-            $this->subject
+            $property->getValue($this->subject)
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getFileInitiallyReturnsEmptyString()
     {
         $sourceFilePath = 'bang';
@@ -126,19 +127,14 @@ class GenerateUploadFileTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getFileCopiesFileToTarget()
     {
         [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
 
-        vfsStream::setup($rootDirectory, null, $fileStructure);
-
         $storageConfiguration = [
             'basePath' => $rootDirectory
         ];
-
 
         $this->resourceStorage->expects($this->once())
             ->method('getConfiguration')
@@ -154,11 +150,37 @@ class GenerateUploadFileTest extends TestCase
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
             ->with($expectedFilePath)
-            ->will($this->returnValue(vfsStream::url($expectedFilePath)));
+            ->will($this->returnValue($expectedFilePath));
 
         $this->assertSame(
             $expectedFilePath,
             $this->subject->getFile($configuration, $sourceFilePath)
         );
+    }
+    
+    /**
+     * Creates a mock file structure for testing
+     *
+     * @return array Array containing [rootDirectory, sourceFileName, sourceFilePath, targetDirectory, configuration, fileStructure]
+     */
+    protected function mockFileStructure(): array
+    {
+        $rootDirectory = 'root';
+        $sourceFileContent = 'source file content';
+        $sourceDirectory = 'sourceDir';
+        $sourceFileName = 'foo.csv';
+        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $targetDirectory = 'targetDir';
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectory
+        ];
+
+        $fileStructure = [
+            $sourceDirectory => [
+                $sourceFileName => $sourceFileContent
+            ],
+            $targetDirectory => []
+        ];
+        return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
     }
 }
