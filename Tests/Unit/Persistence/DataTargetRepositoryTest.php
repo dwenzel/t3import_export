@@ -4,8 +4,9 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\Attributes\Covers;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
@@ -132,8 +133,7 @@ class MockRepositoryObjectRepository extends Repository
  */
 class DataTargetRepositoryTest extends TestCase
 {
-    use MockObjectManagerTrait,
-        MockPersistenceManagerTrait;
+    use MockPersistenceManagerTrait;
 
     protected const TARGET_CLASS = 'oof';
 
@@ -163,9 +163,8 @@ class DataTargetRepositoryTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::getRepository
-     */
+    #[Covers('getRepository')]
+    #[Test]
     public function testGetRepositoryThrowsExceptionForUnknownClass(): void
     {
         $this->expectException(MissingClassException::class);
@@ -174,10 +173,8 @@ class DataTargetRepositoryTest extends TestCase
         $this->subject->getRepository();
     }
 
-    /**
-     * @covers ::getRepository
-     * @throws MissingClassException
-     */
+    #[Covers('getRepository')]
+    #[Test]
     public function testGetRepositoryReturnsRepositoryIfSet(): void
     {
         $this->assertSame(
@@ -186,6 +183,7 @@ class DataTargetRepositoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testPersistAddsObject(): void
     {
         $mockObject = $this->getMockForAbstractClass(DomainObjectInterface::class);
@@ -201,9 +199,8 @@ class DataTargetRepositoryTest extends TestCase
     }
 
 
-    /**
-     * @covers ::persist
-     */
+    #[Covers('persist')]
+    #[Test]
     public function testPersistUpdatesObject(): void
     {
         $mockObject = $this->getMockForAbstractClass(AbstractDomainObject::class);
@@ -215,6 +212,7 @@ class DataTargetRepositoryTest extends TestCase
         $this->subject->persist($mockObject);
     }
 
+    #[Test]
     public function testConstructorSetsTargetClass(): void
     {
         $this->assertSame(
@@ -223,6 +221,7 @@ class DataTargetRepositoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testPersistAllPersistsThroughPersistenceManager(): void
     {
         $this->persistenceManager->expects($this->once())

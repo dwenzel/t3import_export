@@ -1,6 +1,6 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests\Domain\Factory;
+namespace CPSIT\T3importExport\Tests\Unit\Domain\Factory;
 
 /***************************************************************
  *  Copyright notice
@@ -24,10 +24,11 @@ use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockTransferTaskTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
 /**
  * Class ImportSetFactoryTest
@@ -36,8 +37,7 @@ use PHPUnit\Framework\TestCase;
  */
 class TransferSetFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait,
-        MockTransferTaskTrait;
+    use MockTransferTaskTrait;
 
     protected TransferSetFactory $subject;
 
@@ -51,20 +51,33 @@ class TransferSetFactoryTest extends TestCase
      */
     protected TransferSet $transferSet;
 
+    /**
+     * @var ConfigurationManager|MockObject
+     */
+    protected ConfigurationManager $configurationManager;
+
     protected array $settings = [];
     /**
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
+    protected function mockConfigurationManager(): void
+    {
+        $this->configurationManager = $this->getMockBuilder(ConfigurationManager::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getConfiguration'])
+            ->getMock();
+    }
+
     protected function setUp(): void
     {
         $this->mockConfigurationManager();
         $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->getMock();
         $this->transferSet = $this->getMockBuilder(TransferSet::class)
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'setIdentifier',
                     'setDescription',
@@ -125,9 +138,7 @@ class TransferSetFactoryTest extends TestCase
         $this->subject->get($settings);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getSetsTask(): void
     {
         $fooTaskConfiguration = ['baz'];

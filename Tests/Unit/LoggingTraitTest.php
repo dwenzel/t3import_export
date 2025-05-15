@@ -25,10 +25,9 @@ use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class LoggingTraitTest
@@ -58,7 +57,7 @@ class LoggingTraitTest extends TestCase
         $this->mockMessageContainer();
         $this->subject = $this->getMockBuilder(LoggingTrait::class)
             ->setConstructorArgs([$this->messageContainer])
-            ->setMethods(['getErrorCodes', 'getNoticeCodes'])
+            ->onlyMethods(['getErrorCodes', 'getNoticeCodes'])
             ->getMockForTrait();
     }
 
@@ -75,7 +74,7 @@ class LoggingTraitTest extends TestCase
     public function testGetNoticeCodesInitiallyReturnsEmptyArray(): void
     {
         $this->subject = $this->getMockBuilder(LoggingTrait::class)
-            ->setMethods(['dummy'])
+            ->onlyMethods(['dummy'])
             ->getMockForTrait();
         $expected = [];
         $this->assertSame(
