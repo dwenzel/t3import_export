@@ -3,10 +3,11 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockContentObjectRendererTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptFrontendControllerTrait;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Frontend\ContentObject\ContentContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -32,27 +33,58 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  * Class ConcatenateFieldsTest
  *
  * @package CPSIT\T3importExport\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields
  */
+#[CoversClass(ConcatenateFields::class)]
 class ConcatenateFieldsTest extends TestCase
 {
-    use MockTypoScriptFrontendControllerTrait,
-        MockContentObjectRendererTrait;
+    /**
+     * @var ContentObjectRenderer|MockObject
+     */
+    protected ContentObjectRenderer $contentObjectRenderer;
+
+    /**
+     * @var ContentContentObject|MockObject
+     */
+    protected ContentContentObject $contentObject;
 
     protected ConcatenateFields $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
     protected function setUp(): void
     {
-        $this->mockTypoScriptFrontendController();
+        // Create TypoScriptFrontendController mock directly
+        $typoScriptFrontendController = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $GLOBALS['TSFE'] = $typoScriptFrontendController;
+
+        // Set backup globals to preserve TSFE state
+        $this->setBackupGlobals(true);
+
         $this->mockContentObjectRenderer();
         $this->subject = new ConcatenateFields($this->contentObjectRenderer);
     }
 
     /**
-     * @test
-     * @covers ::process
+     * Mock content object renderer
      */
+    protected function mockContentObjectRenderer(): void
+    {
+        $this->contentObject = $this->getMockBuilder(ContentContentObject::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['render'])
+            ->getMock();
+
+        $this->contentObjectRenderer = $this->getMockBuilder(ContentObjectRenderer::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getContentObject', 'wrap', 'noTrimWrap', 'start'])
+            ->getMock();
+
+        $this->contentObjectRenderer->method('getContentObject')
+            ->willReturn($this->contentObject);
+    }
+
+    #[Test]
     public function processConcatenatesFieldValues(): void
     {
         $mockRecord = [
@@ -76,10 +108,7 @@ class ConcatenateFieldsTest extends TestCase
         $this->assertSame($expectedResult, $mockRecord);
     }
 
-    /**
-     * @test
-     * @covers ::process
-     */
+    #[Test]
     public function processWrapsFieldValues(): void
     {
         $originalFieldValue = 'foo';
@@ -110,10 +139,7 @@ class ConcatenateFieldsTest extends TestCase
         $this->assertSame($expectedResult, $mockRecord);
     }
 
-    /**
-     * @test
-     * @covers ::process
-     */
+    #[Test]
     public function processNoTrimWrapsFieldValues(): void
     {
         $originalFieldValue = 'foo';
@@ -144,10 +170,7 @@ class ConcatenateFieldsTest extends TestCase
         $this->assertSame($expectedResult, $mockRecord);
     }
 
-    /**
-     * @test
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function isConfigurationValidReturnsFalseIfTargetFieldIsNotSet(): void
     {
         $mockConfiguration = ['foo'];
@@ -156,10 +179,7 @@ class ConcatenateFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function isConfigurationValidReturnsFalseIfTargetFieldIsNotString(): void
     {
         $mockConfiguration = [
@@ -171,10 +191,7 @@ class ConcatenateFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function isConfigurationValidReturnsFalseIfFieldsIsNotSet(): void
     {
         $mockConfiguration = [
@@ -185,10 +202,7 @@ class ConcatenateFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function isConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $mockConfiguration = [
@@ -200,10 +214,7 @@ class ConcatenateFieldsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function isConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $validConfiguration = [

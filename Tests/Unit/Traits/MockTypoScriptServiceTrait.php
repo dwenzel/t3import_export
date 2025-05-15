@@ -33,7 +33,7 @@ trait MockTypoScriptServiceTrait
     {
         $this->typoScriptService = $this->getMockBuilder(TypoScriptService::class)
             ->disableOriginalConstructor()
-            ->setMethods(['convertPlainArrayToTypoScriptArray'])
+            ->onlyMethods(['convertPlainArrayToTypoScriptArray'])
             ->getMock();
 
         if (method_exists($this, 'injectTypoScriptService')) {

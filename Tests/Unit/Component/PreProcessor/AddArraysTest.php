@@ -21,6 +21,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\AddArrays;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -44,7 +46,7 @@ class AddArraysTest extends TestCase
      *
      * @return array
      */
-    public function isConfigurationValidDataProvider(): array
+    public static function isConfigurationValidDataProvider(): array
     {
         return [
             [
@@ -86,13 +88,9 @@ class AddArraysTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider isConfigurationValidDataProvider
-     * @param array $configuration
-     * @param bool $result
-     */
-    public function configurationIsValidatedCorrectly($configuration, $result): void
+    #[Test]
+    #[DataProvider('isConfigurationValidDataProvider')]
+    public function configurationIsValidatedCorrectly(array $configuration, bool $result): void
     {
         $this->assertEquals(
             $result,
@@ -104,7 +102,7 @@ class AddArraysTest extends TestCase
      * provides data for processing
      * @return array
      */
-    public function processDataProvider(): array
+    public static function processDataProvider(): array
     {
         return [
             [
@@ -173,13 +171,9 @@ class AddArraysTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider processDataProvider
-     * @param array $record
-     * $param array $result
-     */
-    public function processAddsArrays($record, $result): void
+    #[Test]
+    #[DataProvider('processDataProvider')]
+    public function processAddsArrays(array $record, array $result): void
     {
         $configuration = [
             'targetField' => 'foo',

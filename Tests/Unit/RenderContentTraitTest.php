@@ -2,13 +2,11 @@
 namespace CPSIT\T3importExport\Tests;
 
 use CPSIT\T3importExport\RenderContentTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockContentObjectRendererTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptFrontendControllerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockTypoScriptServiceTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Form\Controller\FrontendController;
-use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Frontend\ContentObject\ContentContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -41,9 +39,16 @@ class MockClassWithRenderContentTrait {
 }
 class RenderContentTraitTest extends TestCase
 {
-    use MockContentObjectRendererTrait,
-        MockTypoScriptServiceTrait,
-        MockTypoScriptFrontendControllerTrait;
+
+    /**
+     * @var ContentObjectRenderer|MockObject
+     */
+    protected ContentObjectRenderer $contentObjectRenderer;
+
+    /**
+     * @var ContentContentObject|MockObject
+     */
+    protected ContentContentObject $contentObject;
 
     /**
      * @var MockClassWithRenderContentTrait|MockObject
@@ -56,15 +61,52 @@ class RenderContentTraitTest extends TestCase
         $this->subject = $this->getMockBuilder(MockClassWithRenderContentTrait::class)
             ->getMock();
         $this->mockTypoScriptService();
-        $this->mockTypoScriptFrontendController();
+
+        // Create TypoScriptFrontendController mock directly
+        $typoScriptFrontendController = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $GLOBALS['TSFE'] = $typoScriptFrontendController;
+
+        // Set backup globals to preserve TSFE state
+        $this->setBackupGlobals(true);
+
         $this->mockContentObjectRenderer();
 
-        $this->subject->method('getTypoScriptFrontendController')->willReturn($this->typoScriptFrontendController);
+        $this->subject->method('getTypoScriptFrontendController')->willReturn($GLOBALS['TSFE']);
     }
 
     /**
-     * @test
+     * Mock TypoScript service
      */
+    protected function mockTypoScriptService(): void
+    {
+        $this->typoScriptService = $this->getMockBuilder(TypoScriptService::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['convertPlainArrayToTypoScriptArray'])
+            ->getMock();
+    }
+
+    /**
+     * Mock content object renderer
+     */
+    protected function mockContentObjectRenderer(): void
+    {
+        $this->contentObject = $this->getMockBuilder(ContentContentObject::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['render'])
+            ->getMock();
+
+        $this->contentObjectRenderer = $this->getMockBuilder(ContentObjectRenderer::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getContentObject', 'wrap', 'noTrimWrap', 'start'])
+            ->getMock();
+
+        $this->contentObjectRenderer->method('getContentObject')
+            ->willReturn($this->contentObject);
+    }
+
+    #[Test]
     public function renderContentConvertsPlainArrayToTypoScriptArray(): void
     {
         $configuration = [
@@ -77,6 +119,7 @@ class RenderContentTraitTest extends TestCase
         $this->subject->renderContent([], $configuration);
     }
 
+    #[Test]
     public function testRenderContentGetsContentObject(): void
     {
         $configuration = [
@@ -88,9 +131,7 @@ class RenderContentTraitTest extends TestCase
         $this->subject->renderContent([], $configuration);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function renderContentReturnsContentFromObject(): void
     {
         $configuration = [
@@ -115,9 +156,7 @@ class RenderContentTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function getTypoScriptFrontendControllerReturnsObjectFromGlobals(): void
     {
         // setup mocks method 'getTypoScriptFrontendController
