@@ -146,9 +146,10 @@ class DataTransferProcessorTest extends TestCase
         $this->mockTaskResult();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         GeneralUtility::purgeInstances();
+        parent::tearDown();
     }
 
     protected function mockPreProcessor(): void
