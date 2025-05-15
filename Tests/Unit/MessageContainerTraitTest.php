@@ -4,6 +4,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -53,6 +54,7 @@ class MessageContainerTraitTest extends TestCase
             ->getMockForTrait();
     }
 
+    #[Test]
     public function testGetMessagesReturnsMessagesFromContainer() {
         $messages = ['foo'];
         $this->messageContainer->expects($this->once())
@@ -63,6 +65,7 @@ class MessageContainerTraitTest extends TestCase
         );
     }
 
+    #[Test]
     public function testHasMessageWithIdReturnsResultFromMessageContainter() {
         $id = 123;
         $this->messageContainer->expects($this->once())

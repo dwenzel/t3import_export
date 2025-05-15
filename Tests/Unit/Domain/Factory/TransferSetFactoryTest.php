@@ -24,7 +24,6 @@ use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockTransferTaskTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -37,8 +36,6 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
  */
 class TransferSetFactoryTest extends TestCase
 {
-    use MockTransferTaskTrait;
-
     protected TransferSetFactory $subject;
 
     /**
@@ -52,11 +49,17 @@ class TransferSetFactoryTest extends TestCase
     protected TransferSet $transferSet;
 
     /**
+     * @var TransferTask|MockObject
+     */
+    protected TransferTask $transferTask;
+
+    /**
      * @var ConfigurationManager|MockObject
      */
     protected ConfigurationManager $configurationManager;
 
     protected array $settings = [];
+
     /**
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
@@ -66,6 +69,28 @@ class TransferSetFactoryTest extends TestCase
         $this->configurationManager = $this->getMockBuilder(ConfigurationManager::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getConfiguration'])
+            ->getMock();
+    }
+
+    /**
+     * Creates mock transfer task
+     */
+    protected function mockTransferTask(): void
+    {
+        $this->transferTask = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods([
+                'setIdentifier',
+                'setDescription',
+                'setTargetClass',
+                'setSource',
+                'setTarget',
+                'setConverters',
+                'setPreProcessors',
+                'setPostProcessors',
+                'setFinishers',
+                'setInitializers',
+                'setLabel'
+            ])
             ->getMock();
     }
 

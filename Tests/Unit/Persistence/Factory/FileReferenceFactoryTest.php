@@ -3,10 +3,13 @@
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceFactoryTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
+use TYPO3\CMS\Core\Resource\Folder;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference as ExtbaseFileReference;
@@ -44,8 +47,6 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference as ExtbaseFileReference;
  */
 class FileReferenceFactoryTest extends TestCase
 {
-    use MockResourceFactoryTrait;
-
     protected FileReferenceFactory $subject;
 
     /**
@@ -56,14 +57,80 @@ class FileReferenceFactoryTest extends TestCase
     protected ExtbaseFileReference $extbaseFileReference;
 
     /**
+     * @var ResourceStorage|MockObject
+     */
+    protected ResourceStorage $resourceStorage;
+
+    /**
+     * @var Folder|MockObject
+     */
+    protected Folder $folder;
+
+    /**
+     * @var ResourceFactory|MockObject
+     */
+    protected ResourceFactory $resourceFactory;
+
+    /**
+     * Creates a mock resource storage
+     */
+    protected function mockResourceStorage(): void
+    {
+        $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'addFile',
+                'getConfiguration',
+                'getDefaultFolder',
+                'getFile',
+                'hasFile',
+                'hasFolder',
+                'hasFileInFolder',
+                'getFolder',
+                'createFolder',
+                'moveFile'
+            ])
+            ->getMock();
+    }
+
+    /**
+     * Creates a mock storage folder
+     */
+    protected function mockStorageFolder(): void
+    {
+        $this->folder = $this->getMockBuilder(Folder::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->resourceStorage->method('getDefaultFolder')
+            ->willReturn($this->folder);
+    }
+
+    /**
+     * Creates a mock resource factory
+     */
+    protected function mockResourceFactory(): void
+    {
+        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'getStorageObject',
+                'getDefaultStorage',
+                'createFileReferenceObject'
+            ])
+            ->getMock();
+        $this->resourceFactory->method('getDefaultStorage')
+            ->willReturn($this->resourceStorage);
+    }
+
+    /**
      * set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
-        $this->mockResourceStorage()
-            ->mockStorageFolder()
-            ->mockResourceFactory();
+        $this->mockResourceStorage();
+        $this->mockStorageFolder();
+        $this->mockResourceFactory();
 
         $this->subject = new FileReferenceFactory(
             $this->resourceFactory
@@ -72,13 +139,11 @@ class FileReferenceFactoryTest extends TestCase
         $this->coreFileReference = $this->getMockBuilder(CoreFileReference::class)
             ->disableOriginalConstructor()->getMock();
         $this->extbaseFileReference = $this->getMockBuilder(ExtbaseFileReference::class)
-            ->setMethods(['setOriginalResource', 'setPid'])
+            ->onlyMethods(['setOriginalResource', 'setPid'])
             ->disableOriginalConstructor()->getMock();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function createSetsOriginalResourceAndReturnsFileReference(): void
     {
         $fileId = 7;
@@ -95,6 +160,7 @@ class FileReferenceFactoryTest extends TestCase
         $this->subject->create($fileId, $configuration);
     }
 
+    #[Test]
     public function testCreateSetsInitialPageIdZero(): void
     {
         $fileId = 7;
@@ -112,6 +178,7 @@ class FileReferenceFactoryTest extends TestCase
         $this->subject->create($fileId, $configuration);
     }
 
+    #[Test]
     public function testCreateSetsPageIdFromConfiguration(): void
     {
         $fileId = 7;

@@ -6,7 +6,7 @@ use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -78,6 +78,7 @@ class PostProcessorFactoryTest extends TestCase
         $this->subject = new PostProcessorFactory();
     }
 
+    #[Test]
     public function testGetThrowsInvalidConfigurationExceptionIfClassIsNotSet(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -87,6 +88,7 @@ class PostProcessorFactoryTest extends TestCase
         $this->subject->get($configurationWithoutClassName, 'fooIdentifier');
     }
 
+    #[Test]
     public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -99,6 +101,7 @@ class PostProcessorFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetThrowsExceptionIfClassDoesNotImplementPostProcessorInterface(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -111,6 +114,7 @@ class PostProcessorFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetReturnsPostProcessor(): void
     {
         $identifier = 'fooIdentifier';

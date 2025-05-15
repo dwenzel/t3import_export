@@ -24,7 +24,6 @@ use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -36,8 +35,6 @@ use PHPUnit\Framework\TestCase;
  */
 class LoggingTraitTest extends TestCase
 {
-    use
-        MockMessageContainerTrait;
     /**
      * @var LoggingTrait|MockObject
      */
@@ -54,13 +51,17 @@ class LoggingTraitTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockMessageContainer();
+        $this->messageContainer = $this->getMockBuilder(MessageContainer::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['addMessage', 'logMessage', 'getMessages', 'hasMessageWithId'])
+            ->getMock();
         $this->subject = $this->getMockBuilder(LoggingTrait::class)
             ->setConstructorArgs([$this->messageContainer])
             ->onlyMethods(['getErrorCodes', 'getNoticeCodes'])
             ->getMockForTrait();
     }
 
+    #[Test]
     public function testLogErrorCreatesDefaultMessage(): void
     {
         $fooErrorId = 0;
@@ -71,6 +72,7 @@ class LoggingTraitTest extends TestCase
         $this->subject->logError($fooErrorId);
     }
 
+    #[Test]
     public function testGetNoticeCodesInitiallyReturnsEmptyArray(): void
     {
         $this->subject = $this->getMockBuilder(LoggingTrait::class)
