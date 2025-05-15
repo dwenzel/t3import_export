@@ -123,6 +123,7 @@ class UpdateTableTest extends TestCase
             'minimal' => [
                 [
                     UpdateTable::KEY_TABLE => 'foo',
+                    UpdateTable::KEY_WHERE => 'uid=1',
                     UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
                 ]
             ]
