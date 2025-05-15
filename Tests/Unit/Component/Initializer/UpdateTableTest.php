@@ -3,6 +3,7 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\UpdateTable;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
