@@ -7,10 +7,12 @@ use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockBasicFileUtilityTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
  *
@@ -45,12 +47,41 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DataTargetFileStreamTest extends TestCase
 {
-    use MockBasicFileUtilityTrait,
-        MockPersistenceManagerTrait;
-
     protected const TARGET_CLASS = 'foo';
 
     protected DataTargetFileStream $subject;
+
+    /**
+     * @var BasicFileUtility|MockObject
+     */
+    protected BasicFileUtility $fileUtility;
+
+    /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface $persistenceManager;
+
+    /**
+     * Creates a mock basic file utility
+     */
+    protected function mockBasicFileUtility(): void
+    {
+        $this->fileUtility = $this->getMockBuilder(BasicFileUtility::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getUniqueName'])
+            ->getMock();
+    }
+
+    /**
+     * Creates a mock persistence manager
+     */
+    protected function mockPersistenceManager(): void
+    {
+        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['remove', 'add', 'isNewObject'])
+            ->getMockForAbstractClass();
+    }
 
     /**
      * Set up
@@ -67,6 +98,7 @@ class DataTargetFileStreamTest extends TestCase
         $this->mockBasicFileUtility();
     }
 
+    #[Test]
     public function testPersistDataSteamInTaskResultIterator(): void
     {
         $this->markTestSkipped('should rewrite it mocking file access');

@@ -4,7 +4,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use PHPUnit\Framework\Attributes\Covers;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -133,8 +132,6 @@ class MockRepositoryObjectRepository extends Repository
  */
 class DataTargetRepositoryTest extends TestCase
 {
-    use MockPersistenceManagerTrait;
-
     protected const TARGET_CLASS = 'oof';
 
     protected DataTargetRepository $subject;
@@ -144,7 +141,21 @@ class DataTargetRepositoryTest extends TestCase
      */
     protected RepositoryInterface $objectRepository;
 
-    protected PersistenceManagerInterface $persistanceManager;
+    /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface $persistenceManager;
+
+    /**
+     * Creates a mock persistence manager
+     */
+    protected function mockPersistenceManager(): void
+    {
+        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['remove', 'add', 'isNewObject', 'persistAll'])
+            ->getMockForAbstractClass();
+    }
 
     /**
      * Set up
