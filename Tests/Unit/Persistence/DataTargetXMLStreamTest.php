@@ -8,15 +8,15 @@ use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use CPSIT\T3importExport\Persistence\DataTargetXMLStream;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockBasicFileUtilityTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockXmlWriterTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
+use XMLWriter;
 
 /***************************************************************
  *
@@ -51,13 +51,59 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[CoversClass(\CPSIT\T3importExport\Persistence\DataTargetFileStream::class)]
 class DataTargetXMLStreamTest extends TestCase
 {
-    use MockBasicFileUtilityTrait,
-        MockXmlWriterTrait,
-        MockPersistenceManagerTrait;
-
     protected const TARGET_CLASS = 'baz';
 
     protected DataTargetXMLStream $subject;
+
+    /**
+     * @var BasicFileUtility|MockObject
+     */
+    protected BasicFileUtility $fileUtility;
+
+    /**
+     * @var XMLWriter|MockObject
+     */
+    protected XMLWriter $xmlWriter;
+
+    /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface $persistenceManager;
+
+    /**
+     * Creates a mock basic file utility
+     */
+    protected function mockBasicFileUtility(): void
+    {
+        $this->fileUtility = $this->getMockBuilder(BasicFileUtility::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getUniqueName'])
+            ->getMock();
+    }
+
+    /**
+     * Creates a mock XML writer
+     */
+    protected function mockXmlWriter(): void
+    {
+        $this->xmlWriter = $this->getMockBuilder(XMLWriter::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    /**
+     * Creates a mock persistence manager
+     */
+    protected function mockPersistenceManager(): void
+    {
+        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['remove', 'add', 'isNewObject'])
+            ->getMockForAbstractClass();
+        if(method_exists($this, 'injectPersistenceManager')) {
+            $this->subject->injectPersistenceManager($this->persistenceManager);
+        }
+    }
 
     /**
      * Set up
@@ -65,9 +111,10 @@ class DataTargetXMLStreamTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockBasicFileUtility()
-            ->mockPersistenceManager()
-            ->mockXmlWriter();
+        $this->mockBasicFileUtility();
+        $this->mockPersistenceManager();
+        $this->mockXmlWriter();
+
         $this->subject = new DataTargetXMLStream(
             self::TARGET_CLASS,
             null,
