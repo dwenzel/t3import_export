@@ -90,17 +90,17 @@ class DataTargetQueueTest extends TestCase
         );
     }
 
-    public function testPersistAddsNewObject(): never
+    public function testPersistAddsNewObject(): void
     {
         $this->markTestIncomplete('to be done');
     }
 
-    public function testPersistUpdatesObjectsIfAllowedByConfiguration(): never
+    public function testPersistUpdatesObjectsIfAllowedByConfiguration(): void
     {
         $this->markTestIncomplete('to be done');
     }
 
-    public function testPersistReturnsFalseIfRepositoryRejectsObject(): never
+    public function testPersistReturnsFalseIfRepositoryRejectsObject(): void
     {
         // repository throws InvalidArgumentException
         $this->markTestIncomplete('to be done');

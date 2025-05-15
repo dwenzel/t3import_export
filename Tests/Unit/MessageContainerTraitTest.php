@@ -55,7 +55,7 @@ class MessageContainerTraitTest extends TestCase
     }
 
     #[Test]
-    public function testGetMessagesReturnsMessagesFromContainer() {
+    public function testGetMessagesReturnsMessagesFromContainer(): void {
         $messages = ['foo'];
         $this->messageContainer->expects($this->once())
             ->method('getMessages')->willReturn($messages);
@@ -66,7 +66,7 @@ class MessageContainerTraitTest extends TestCase
     }
 
     #[Test]
-    public function testHasMessageWithIdReturnsResultFromMessageContainter() {
+    public function testHasMessageWithIdReturnsResultFromMessageContainter(): void {
         $id = 123;
         $this->messageContainer->expects($this->once())
             ->method('hasMessageWithId')
