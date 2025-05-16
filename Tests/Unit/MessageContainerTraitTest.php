@@ -49,9 +49,12 @@ class MessageContainerTraitTest extends TestCase
         // Create message container mock directly
         $this->messageContainer = $this->createMock(MessageContainer::class);
 
-        $this->subject = $this->getMockBuilder(MessageContainerTrait::class)
-            ->setConstructorArgs([$this->messageContainer])
-            ->getMockForTrait();
+        // In PHPUnit 12, getMockForTrait is removed - use anonymous class instead
+        $this->subject = new class($this->messageContainer) {
+            use MessageContainerTrait;
+
+            public MessageContainer $messageContainer;
+        };
     }
 
     #[Test]

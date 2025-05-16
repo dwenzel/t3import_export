@@ -3,10 +3,14 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\ClearCache;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Service\CacheService;
 
 /***************************************************************
@@ -47,12 +51,20 @@ class ClearCacheTest extends TestCase
 
     protected function mockCacheService(): void
     {
+        // Mock dependencies for CacheService
+        $configurationManager = $this->createMock(ConfigurationManagerInterface::class);
+        $cacheManager = $this->createMock(CacheManager::class);
+        $connectionPool = $this->createMock(ConnectionPool::class);
+
         $this->cacheService = $this->getMockBuilder(CacheService::class)
+            ->setConstructorArgs([$configurationManager, $cacheManager, $connectionPool])
             ->onlyMethods(['clearPageCache'])
             ->getMock();
+
         $this->subject->injectCacheService($this->cacheService);
     }
 
+    #[Test]
     public function testProcessDoesNotClearCacheForEmptyResult(): void
     {
         $configuration = [];
@@ -65,6 +77,7 @@ class ClearCacheTest extends TestCase
         $this->subject->process($configuration, $records, $result);
     }
 
+    #[Test]
     public function testProcessClearsAllCachesIfGlobalOptionIsset(): void
     {
         $configuration = [
@@ -80,6 +93,7 @@ class ClearCacheTest extends TestCase
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
+    #[Test]
     public function testProcessClearsSelectedPagesCachesIfGlobalOptionIsset(): void
     {
         $configuration = [
@@ -97,6 +111,7 @@ class ClearCacheTest extends TestCase
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
+    #[Test]
     public function testProcessClearsAllCachesIfResultClassMatchesConfiguration(): void
     {
         $configuration = [
@@ -118,6 +133,7 @@ class ClearCacheTest extends TestCase
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
+    #[Test]
     public function testProcessClearsSelectedPageCachesIfResultClassMatchesConfiguration(): void
     {
         $configuration = [
@@ -143,6 +159,7 @@ class ClearCacheTest extends TestCase
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
 
+    #[Test]
     public function testIsConfigurationValidAlwaysReturnsTrue(): void
     {
         $configuration = [];
@@ -151,6 +168,7 @@ class ClearCacheTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessSkipsIfResultClassDoesNotMatch(): void
     {
         $configuration = [

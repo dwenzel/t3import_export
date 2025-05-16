@@ -18,6 +18,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
  */
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainer;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,7 +27,7 @@ use PHPUnit\Framework\TestCase;
 class MessageContainerTest extends TestCase
 {
     /**
-     * @var MessageContainer|\PHPUnit_Framework_MockObject_MockObject
+     * @var MessageContainer
      */
     protected $subject;
 
@@ -35,14 +36,12 @@ class MessageContainerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockBuilder(MessageContainer::class)
-            ->onlyMethods(['dummy'])->getMock();
+        // No need to mock methods, use actual implementation
+        $this->subject = new MessageContainer();
     }
 
-    /**
-     * @test
-     */
-    public function getMessagesInitiallyReturnsEmptyArray()
+    #[Test]
+    public function getMessagesInitiallyReturnsEmptyArray(): void
     {
         $expected = [];
         $this->assertSame(
@@ -51,14 +50,11 @@ class MessageContainerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function singleMessageCanBeAdded()
+    #[Test]
+    public function singleMessageCanBeAdded(): void
     {
         /** @var Message $message */
-        $message = $this->getMockBuilder(Message::class)
-            ->disableOriginalConstructor()->getMock();
+        $message = $this->createMock(Message::class);
         $this->subject->addMessage($message);
 
         $expected = [$message];
@@ -69,14 +65,11 @@ class MessageContainerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function multipleMessagesCanBeAdded()
+    #[Test]
+    public function multipleMessagesCanBeAdded(): void
     {
         /** @var Message $message */
-        $message = $this->getMockBuilder(Message::class)
-            ->disableOriginalConstructor()->getMock();
+        $message = $this->createMock(Message::class);
 
         $messages = [$message];
         $this->subject->addMessages($messages);
@@ -86,10 +79,8 @@ class MessageContainerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function messagesCanBeCleared()
+    #[Test]
+    public function messagesCanBeCleared(): void
     {
         $messages = ['foo'];
         $expected = [];
@@ -102,10 +93,9 @@ class MessageContainerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function hasMessageInitiallyReturnsFalse() {
+    #[Test]
+    public function hasMessageInitiallyReturnsFalse(): void
+    {
         $nonExistingId = 4447;
         $this->subject->clear();
         $this->assertFalse(
@@ -113,15 +103,12 @@ class MessageContainerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function hasMessageReturnsTrueForMessageInContainer() {
+    #[Test]
+    public function hasMessageReturnsTrueForMessageInContainer(): void
+    {
         $id = 7;
-        $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()
-            ->onlyMethods(['getId'])
-            ->getMock();
-        $mockMessage->expects($this->once())->method('getId')
+        $mockMessage = $this->createMock(Message::class);
+        $mockMessage->method('getId')
             ->willReturn($id);
         $this->subject->addMessage($mockMessage);
         $this->assertTrue(
