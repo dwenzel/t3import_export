@@ -15,10 +15,6 @@ jobs:
       matrix:
         typo3-version: ['^13.4']
         php-version: ['8.2', '8.3', '8.4']
-        exclude:
-          # TYPO3 v13 requires PHP 8.2+
-          - typo3-version: '^13.4'
-            php-version: '8.1'
 
     steps:
       - name: Checkout repository
