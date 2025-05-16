@@ -22,6 +22,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 
 use CPSIT\T3importExport\Component\PreProcessor\StringToTime;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -43,7 +45,7 @@ class StringToTimeTest extends TestCase
      *
      * @return array
      */
-    public function isConfigurationValidDataProvider(): array
+    public static function isConfigurationValidDataProvider(): array
     {
         return [
             [['foo'], false],
@@ -51,11 +53,8 @@ class StringToTimeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider isConfigurationValidDataProvider
-     * @param array $configuration
-     * @param bool $expectedValue
-     */
+    #[Test]
+    #[DataProvider('isConfigurationValidDataProvider')]
     public function testIsConfigurationValidReturnsCorrectValues(array $configuration, bool $expectedValue): void
     {
         $this->assertSame(
@@ -64,6 +63,7 @@ class StringToTimeTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessConvertsFields(): void
     {
         $configuration = [
@@ -85,9 +85,7 @@ class StringToTimeTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processConvertsMultipleRowFields(): void
     {
         $configuration = [

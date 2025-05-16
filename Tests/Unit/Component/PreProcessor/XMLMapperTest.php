@@ -21,6 +21,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\XMLMapper;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -39,6 +41,7 @@ class XMLMapperTest extends TestCase
         $this->subject = new XMLMapper();
     }
 
+    #[Test]
     public function testConfigurationIsEmpty(): void
     {
         $testConfig = [];
@@ -51,7 +54,7 @@ class XMLMapperTest extends TestCase
     /**
      * @return array
      */
-    public function isConfigurationInvalidDataProvider(): array
+    public static function isConfigurationInvalidDataProvider(): array
     {
         return [
             [
@@ -95,10 +98,8 @@ class XMLMapperTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider isConfigurationInvalidDataProvider
-     * @param array $testConfig
-     */
+    #[Test]
+    #[DataProvider('isConfigurationInvalidDataProvider')]
     public function testConfigurationIsInvalid(array $testConfig): void
     {
         $this->assertFalse(
@@ -109,7 +110,7 @@ class XMLMapperTest extends TestCase
     /**
      * @return array
      */
-    public function isConfigurationValidDataProvider(): array
+    public static function isConfigurationValidDataProvider(): array
     {
         return [
             // empty is valid, only the key 'fields' is required
@@ -163,10 +164,8 @@ class XMLMapperTest extends TestCase
     }
 
 
-    /**
-     * @dataProvider isConfigurationValidDataProvider
-     * @param array $testConfig
-     */
+    #[Test]
+    #[DataProvider('isConfigurationValidDataProvider')]
     public function testConfigurationIsValid(array $testConfig): void
     {
         $this->assertTrue(
@@ -177,7 +176,7 @@ class XMLMapperTest extends TestCase
     /**
      * @return array
      */
-    public function processWithValidConfigDataProvider(): array
+    public static function processWithValidConfigDataProvider(): array
     {
         return [
             // check attribute
@@ -380,12 +379,8 @@ class XMLMapperTest extends TestCase
     }
 
 
-    /**
-     * @dataProvider processWithValidConfigDataProvider
-     * @param array $testConfig
-     * @param array $data
-     * @param array $expectedData
-     */
+    #[Test]
+    #[DataProvider('processWithValidConfigDataProvider')]
     public function testProcessWithValidConfig(array $data, array $testConfig, array $expectedData): void
     {
         $this->subject->process($testConfig, $data);
