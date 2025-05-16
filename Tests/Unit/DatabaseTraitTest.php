@@ -22,6 +22,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
@@ -36,7 +37,7 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
 class DatabaseTraitTest extends TestCase
 {
     /**
-     * @var DatabaseTrait
+     * @var object Class using DatabaseTrait
      */
     protected $subject;
 
@@ -59,30 +60,63 @@ class DatabaseTraitTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getObjectForTrait(DatabaseTrait::class);
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
             ->disableOriginalConstructor()
             ->getMock();
+        
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
+        
         $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
             ->getMock();
+            
+        // In PHPUnit 12, getObjectForTrait is removed
+        // Create an anonymous class that uses the trait instead
+        $this->subject = new class($this->connectionPool, $this->connectionService) {
+            use DatabaseTrait;
+            
+            public function getDataBase()
+            {
+                return $this->database; // Property name is 'database' not 'db'
+            }
+            
+            public function getDatabaseConnectionService()
+            {
+                return $this->connectionService;
+            }
+        };
     }
 
+    #[Test]
     public function testConstructorGetsDatabaseConnectionFromGlobals(): void
     {
         $GLOBALS['TYPO3_DB'] = $this->connection;
 
-        $this->subject->__construct();
+        // Re-create the subject to ensure the constructor runs again with the global value set
+        $subject = new class($this->connectionPool, $this->connectionService) {
+            use DatabaseTrait;
+            
+            public function getDataBase()
+            {
+                return $this->database;
+            }
+            
+            public function getDatabaseConnectionService()
+            {
+                return $this->connectionService;
+            }
+        };
+        
         $this->assertSame(
             $this->connection,
-            $this->subject->getDataBase()
+            $subject->getDataBase()
         );
     }
+    
+    #[Test]
     public function testConstructorSetsConnectionService(): void
     {
-        $this->subject->__construct(null, $this->connectionService);
         $this->assertSame(
             $this->connectionService,
             $this->subject->getDatabaseConnectionService()
