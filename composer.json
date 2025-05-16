@@ -1,15 +1,15 @@
 {
   "name": "cpsit/t3import_export",
-  "type": "typo3-cms-extension",
   "description": "General import and export tool for the TYPO3 CMS",
+  "license": [
+    "GPL-2.0-or-later"
+  ],
+  "type": "typo3-cms-extension",
   "keywords": [
     "TYPO3",
     "extension",
     "import",
     "export"
-  ],
-  "license": [
-    "GPL-2.0-or-later"
   ],
   "authors": [
     {
@@ -17,33 +17,32 @@
       "role": "Developer"
     }
   ],
-	"repositories": {
-		"import-export-core": {
-			"type": "vcs",
-			"url": "git@github.com:CPS-IT/import-export-core.git"
-		}
-	},
   "require": {
     "php": ">=8.2",
-	  "cpsit/import-export-core": "~0.1",
+    "ext-xmlreader": "*",
+    "cpsit/import-export-core": "^0.1",
     "dwenzel/t3extension-tools": "^4.0 || ^5.0",
-    "typo3/cms-core": "^12.4 || ^13.4",
-    "ext-xmlreader": "*"
+    "typo3/cms-core": "^12.4 || ^13.4"
   },
   "require-dev": {
     "armin/editorconfig-cli": "^2.0",
+    "cpsit/import-export-core": "dev-develop as 0.1.0",
     "ergebnis/composer-normalize": "^2.28",
     "friendsofphp/php-cs-fixer": "^3.57",
     "helmich/typo3-typoscript-lint": "^3.0",
-    "mikey179/vfsstream": "~1.6.0",
-    "nimut/testing-framework": "^5.2",
     "phpstan/extension-installer": "^1.2",
-    "phpstan/phpstan": "^1.10",
+    "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^12.1",
     "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^2.0",
     "ssch/typo3-rector": "^3.0",
     "typo3/coding-standards": "^0.8.0"
+  },
+  "repositories": {
+    "import-export-core": {
+      "type": "vcs",
+      "url": "git@github.com:CPS-IT/import-export-core.git"
+    }
   },
   "autoload": {
     "psr-4": {
@@ -56,22 +55,30 @@
     }
   },
   "config": {
-    "vendor-dir": ".Build/vendor",
-    "bin-dir": ".Build/bin",
     "allow-plugins": {
-      "typo3/class-alias-loader": true,
-      "typo3/cms-composer-installers": true,
       "composer/installers": true,
       "ergebnis/composer-normalize": true,
-      "phpstan/extension-installer": true
+      "phpstan/extension-installer": true,
+      "typo3/class-alias-loader": true,
+      "typo3/cms-composer-installers": true
     },
-    "sort-packages": true
+    "bin-dir": ".Build/bin",
+    "preferred-install": {
+      "cpsit/import-export-core": "source"
+    },
+    "sort-packages": true,
+    "vendor-dir": ".Build/vendor"
+  },
+  "extra": {
+    "typo3/cms": {
+      "cms-package-dir": "{$vendor-dir}/typo3/cms",
+      "extension-key": "t3import_export",
+      "web-dir": ".Build/Web"
+    }
   },
   "scripts": {
     "post-autoload-dump": [
-      "mkdir -p .Build/Web/typo3conf/ext/",
-      "mkdir -p .Build/log/coverage/",
-      "[ -L .Build/Web/typo3conf/ext/t3import_export ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/t3import_export"
+      "mkdir -p .Build/log/coverage/"
     ],
     "fix": [
       "@fix:composer",
@@ -105,11 +112,11 @@
     "test": [
       "@test:unit"
     ],
-    "test:unit": [
-      ".Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit"
-    ],
     "test:coverage": [
       "XDEBUG_MODE=coverage .Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit --coverage-html=.Build/log/coverage"
+    ],
+    "test:unit": [
+      ".Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit"
     ]
   },
   "scripts-descriptions": {
@@ -127,15 +134,7 @@
     "sca": "Run all registered static code analyzers to detect issues in the codebase",
     "sca:php": "Analyze all PHP files by using PHPStan, based on the configured level",
     "test": "Run all configured test suites",
-    "test:unit": "Run unit tests",
-    "test:coverage": "Generate code coverage report"
-  },
-  "extra": {
-    "typo3/cms": {
-      "extension-key": "t3import_export",
-      "cms-package-dir": "{$vendor-dir}/typo3/cms",
-      "web-dir": ".Build/Web"
-    }
+    "test:coverage": "Generate code coverage report",
+    "test:unit": "Run unit tests"
   }
 }
-
