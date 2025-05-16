@@ -17,8 +17,10 @@ return RectorConfig::configure()
         ExtEmConfRector::ADDITIONAL_VALUES_TO_BE_REMOVED => [],
     ])
     ->withPaths(
-        __DIR__ . '/Classes',
+        [
+            __DIR__ . '/Classes',
 
+        ]
     )->withSets([
         Typo3LevelSetList::UP_TO_TYPO3_13,
     ])
