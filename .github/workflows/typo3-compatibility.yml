@@ -10,12 +10,12 @@ jobs:
   typo3-compatibility:
     name: TYPO3 ${{ matrix.typo3-version }} Compatibility Check
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
-        typo3-version: ['^12.4', '^13.4']
-        php-version: ['8.2', '8.4']
-    
+        typo3-version: ['^13.4']
+        php-version: ['8.2', '8.3', '8.4']
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
