@@ -40,6 +40,7 @@ class AbstractPostProcessorTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->createMock(AbstractPostProcessor::class);
+        $this->subject->method('isConfigurationValid')->willReturn(true);
     }
 
     /**
