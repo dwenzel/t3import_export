@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
@@ -31,13 +33,11 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 /**
  * Class DataTargetDB
  * Persists records into a database.
- *
- * @package CPSIT\T3importExport\Persistence
  */
-class DataTargetDB extends AbstractComponent
-    implements DataTargetInterface, ConfigurableInterface
+class DataTargetDB extends AbstractComponent implements DataTargetInterface, ConfigurableInterface
 {
-    use ConfigurableTrait, DatabaseTrait;
+    use ConfigurableTrait;
+    use DatabaseTrait;
 
     final public const string MISSING_CONNECTION_MESSAGE = 'Missing database connection for table "%s"';
     final public const int MISSING_CONNECTION_CODE = 1_646_037_375;
@@ -51,9 +51,6 @@ class DataTargetDB extends AbstractComponent
 
     /**
      * Tells if the configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -75,7 +72,8 @@ class DataTargetDB extends AbstractComponent
 
         if (
             isset($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
-            && (!is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
+            && (
+                !is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
                 || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY])
                 || !is_string($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY][self::FIELD_FIELD])
                 || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_EMPTY][self::FIELD_FIELD])
@@ -86,16 +84,15 @@ class DataTargetDB extends AbstractComponent
 
         if (
             isset($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
-            && (!is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
+            && (
+                !is_array($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
                 || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY])
                 || !is_string($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY][self::FIELD_FIELD])
                 || empty($configuration[self::FIELD_SKIP][self::FIELD_IF_NOT_EMPTY][self::FIELD_FIELD])
-
             )
         ) {
             return false;
         }
-
 
         return true;
     }
@@ -109,7 +106,6 @@ class DataTargetDB extends AbstractComponent
      * Any of those keys will be unset before persisting.
      *
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
      * @return bool
      * @throws InvalidConfigurationException
      */
@@ -126,7 +122,6 @@ class DataTargetDB extends AbstractComponent
          */
         $this->connection = $this->connectionPool->getConnectionForTable($tableName);
         if (!$this->connection instanceof Connection) {
-
             $message = sprintf(self::MISSING_CONNECTION_MESSAGE, $tableName);
             throw new InvalidConfigurationException(
                 $message,
@@ -143,13 +138,11 @@ class DataTargetDB extends AbstractComponent
             }
         }
 
-
         if (!empty($object[self::DEFAULT_IDENTITY_FIELD])) {
             $data = $object;
             $uid = $object[self::DEFAULT_IDENTITY_FIELD];
             unset($data[self::DEFAULT_IDENTITY_FIELD]);
             try {
-
                 $this->connection->update(
                     $tableName,
                     $data,
@@ -159,7 +152,7 @@ class DataTargetDB extends AbstractComponent
                 $message = 'Update Exception:' . PHP_EOL;
                 $message .= 'Data:' . PHP_EOL;
                 $message .= json_encode($object, JSON_THROW_ON_ERROR);
-                $message .= $exception->getMessage()  . PHP_EOL;
+                $message .= $exception->getMessage() . PHP_EOL;
 
                 /**
                  * Fixme: write to log instead of catch and re-throw
@@ -174,8 +167,7 @@ class DataTargetDB extends AbstractComponent
             return true;
         }
 
-        if(empty($object[self::DEFAULT_IDENTITY_FIELD]))
-        {
+        if (empty($object[self::DEFAULT_IDENTITY_FIELD])) {
             unset($object[self::DEFAULT_IDENTITY_FIELD]);
         }
 
@@ -188,7 +180,7 @@ class DataTargetDB extends AbstractComponent
             $message = 'Insert Exception:' . PHP_EOL;
             $message .= 'Data:' . PHP_EOL;
             $message .= json_encode($object, JSON_THROW_ON_ERROR) . PHP_EOL;
-            $message .= $exception->getMessage()  . PHP_EOL;
+            $message .= $exception->getMessage() . PHP_EOL;
 
             throw new PersistenceException(
                 $message,
@@ -205,7 +197,6 @@ class DataTargetDB extends AbstractComponent
      * Currently doesn't do anything
      *
      * @param null $result
-     * @param array|null $configuration
      * @return void
      */
     public function persistAll($result = null, ?array $configuration = null)
@@ -214,9 +205,6 @@ class DataTargetDB extends AbstractComponent
 
     /**
      * Tells if the record should be skipped, i.e. not be persisted
-     * @param array $record
-     * @param array $configuration
-     * @return bool
      */
     protected function shouldSkip(array $record, array $configuration): bool
     {

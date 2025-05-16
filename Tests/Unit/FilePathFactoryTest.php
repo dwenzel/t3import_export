@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Factory;
 
 /**
@@ -42,7 +44,7 @@ class FilePathFactoryTest extends TestCase
     {
         $parts = [
             'foo/',
-            'bar//'
+            'bar//',
         ];
 
         $expectedPath = 'foo/bar/';

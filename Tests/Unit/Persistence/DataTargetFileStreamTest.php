@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Domain\Model\DataStream;
@@ -42,7 +44,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 /**
  * Class DataTargetRepositoryTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
 class DataTargetFileStreamTest extends TestCase
@@ -108,7 +109,6 @@ class DataTargetFileStreamTest extends TestCase
                 $this->createDataStreamWithSampleBuffer('ddddddd'),
             ]
         );
-
 
         $absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY . uniqid('', true));
         $tmpPath = $absPath . '/' . uniqid('', true);

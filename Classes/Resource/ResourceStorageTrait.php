@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Resource;
 
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -37,7 +39,6 @@ trait ResourceStorageTrait
     }
 
     /**
-     * @param ResourceStorageInterface $resourceStorage
      * @return $this
      * @deprecated Inject dependency via constructor instead
      */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Command\Argument;
 
 use DWenzel\T3extensionTools\Command\Argument\InputArgumentInterface;
@@ -32,5 +34,4 @@ class SetArgument implements InputArgumentInterface
     final public const string DESCRIPTION = 'set identifier';
     final public const string SHORTCUT = 's';
     final public const null DEFAULT = null;
-
 }

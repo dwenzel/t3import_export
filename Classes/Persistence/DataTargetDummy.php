@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -30,7 +32,6 @@ class DataTargetDummy implements DataTargetInterface
      * Dummy method to make component compatible wit DataTargetInterface
      *
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
      * @return bool|mixed
      */
     public function persist($object, ?array $configuration = null)
@@ -38,12 +39,10 @@ class DataTargetDummy implements DataTargetInterface
         return true;
     }
 
-
     /**
      * Dummy method to make component compatible wit DataTargetInterface
      *
      * @param null $result
-     * @param array|null $configuration
      * @return void
      */
     public function persistAll($result = null, ?array $configuration = null)

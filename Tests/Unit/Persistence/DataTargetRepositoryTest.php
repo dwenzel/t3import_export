@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\MissingClassException;
@@ -42,13 +44,17 @@ use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
  ***************************************************************/
 class MockRepositoryObjectRepository extends Repository
 {
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     #[\Override]
     public function add($object)
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     #[\Override]
     public function remove($object)
     {
@@ -77,7 +83,9 @@ class MockRepositoryObjectRepository extends Repository
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     #[\Override]
     public function removeAll()
     {
@@ -102,13 +110,17 @@ class MockRepositoryObjectRepository extends Repository
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     #[\Override]
     public function setDefaultOrderings(array $defaultOrderings)
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     #[\Override]
     public function setDefaultQuerySettings(QuerySettingsInterface $defaultQuerySettings)
     {
@@ -127,7 +139,6 @@ class MockRepositoryObjectRepository extends Repository
 /**
  * Class DataTargetRepositoryTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetRepository
  */
 class DataTargetRepositoryTest extends TestCase
@@ -205,7 +216,6 @@ class DataTargetRepositoryTest extends TestCase
 
         $this->subject->persist($mockObject, []);
     }
-
 
     #[Covers('persist')]
     #[Test]

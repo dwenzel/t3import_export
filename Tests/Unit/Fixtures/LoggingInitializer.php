@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
 /***************************************************************
@@ -44,14 +46,10 @@ class LoggingInitializer extends AbstractInitializer implements InitializerInter
     }
 
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
-     * @return bool
      */
     public function process(array $configuration, array &$records): bool
     {
         return true;
     }
-
-
 }

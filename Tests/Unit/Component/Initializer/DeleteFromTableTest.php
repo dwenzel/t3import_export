@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 /**
@@ -67,7 +69,7 @@ class DeleteFromTableTest extends TestCase
         $configuration = [
             'table' => 'foo',
             'fields' => 'bar',
-            'where' => 'id=1'
+            'where' => 'id=1',
         ];
         $this->connectionPool->expects($this->once())
             ->method('getConnectionForTable')
@@ -89,7 +91,7 @@ class DeleteFromTableTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfTableIsNotString(): void
     {
         $mockConfiguration = [
-            'table' => 1
+            'table' => 1,
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -99,7 +101,7 @@ class DeleteFromTableTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfWhereIsNotSet(): void
     {
         $mockConfiguration = [
-            'table' => 'foo'
+            'table' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -110,7 +112,7 @@ class DeleteFromTableTest extends TestCase
     {
         $mockConfiguration = [
             'table' => 'foo',
-            'where' => []
+            'where' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)

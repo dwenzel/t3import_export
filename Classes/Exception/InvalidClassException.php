@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Exception;
 
 use Exception;
@@ -20,7 +22,6 @@ use Exception;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class InvalidClassException extends Exception
+class InvalidClassException extends \Exception
 {
-
 }

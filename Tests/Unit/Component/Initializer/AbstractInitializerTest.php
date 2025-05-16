@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
@@ -34,20 +36,15 @@ use ReflectionException;
 /**
  * Class AbstractInitializerTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Initializer
  * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\AbstractInitializer
  */
 class AbstractInitializerTest extends TestCase
 {
-
-    /**
-     * @var AbstractInitializer
-     */
     protected AbstractInitializer $subject;
 
     /**
      * set up
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void

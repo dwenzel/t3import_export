@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Repository;
 
 use CPSIT\T3importExport\Domain\Model\QueueItem;
@@ -53,7 +55,7 @@ class QueueItemRepositoryTest extends TestCase
                 'update',
                 'select',
                 'quoteIdentifier',
-                'quoteIdentifiers'
+                'quoteIdentifiers',
             ])
             ->getMock();
     }
@@ -77,7 +79,7 @@ class QueueItemRepositoryTest extends TestCase
             ->onlyMethods([
                 'isRegistered',
                 'getDatabase',
-                'getConnectionPool'
+                'getConnectionPool',
             ])
             ->getMock();
         $this->connectionService->method('getDatabase')->willReturn($this->connection);
@@ -87,7 +89,7 @@ class QueueItemRepositoryTest extends TestCase
     protected function mockPersistenceManager(): void
     {
         $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
-        if(method_exists($this, 'injectPersistenceManager')) {
+        if (method_exists($this, 'injectPersistenceManager')) {
             $this->subject->injectPersistenceManager($this->persistenceManager);
         }
     }
@@ -106,7 +108,7 @@ class QueueItemRepositoryTest extends TestCase
     {
         $record = [
             QueueItem::FIELD_IDENTIFIER => 'import.foo',
-            QueueItem::FIELD_CHECKSUM => 'bar'
+            QueueItem::FIELD_CHECKSUM => 'bar',
         ];
 
         $this->connectionPool->expects($this->once())
@@ -128,7 +130,7 @@ class QueueItemRepositoryTest extends TestCase
     {
         $record = [
             QueueItem::FIELD_IDENTIFIER => 'import.foo',
-            QueueItem::FIELD_CHECKSUM => 'bar'
+            QueueItem::FIELD_CHECKSUM => 'bar',
         ];
 
         $this->connectionPool->expects($this->once())
@@ -156,7 +158,7 @@ class QueueItemRepositoryTest extends TestCase
             QueueItem::FIELD_IDENTIFIER => $identifier,
             QueueItem::FIELD_DATA => $data,
             QueueItem::FIELD_CHECKSUM => $checksum,
-            QueueItem::FIELD_CREATED => time()
+            QueueItem::FIELD_CREATED => time(),
         ];
         $validRecord = array_merge(
             QueueItemRepository::TEMPLATE_QUEUE_ITEM,
@@ -165,7 +167,7 @@ class QueueItemRepositoryTest extends TestCase
 
         $expectedIdentifiers = [
             QueueItem::FIELD_IDENTIFIER => $identifier,
-            QueueItem::FIELD_CHECKSUM => $checksum
+            QueueItem::FIELD_CHECKSUM => $checksum,
         ];
 
         $this->connection->expects($this->once())
@@ -224,7 +226,7 @@ class QueueItemRepositoryTest extends TestCase
             QueueItem::FIELD_IDENTIFIER => $identifier,
             QueueItem::FIELD_DATA => $data,
             QueueItem::FIELD_CHECKSUM => $checksum,
-            QueueItem::FIELD_CREATED => time()
+            QueueItem::FIELD_CREATED => time(),
         ];
         $validRecord = array_merge(
             QueueItemRepository::TEMPLATE_QUEUE_ITEM,
@@ -233,13 +235,13 @@ class QueueItemRepositoryTest extends TestCase
 
         $expectedIdentifiers = [
             QueueItem::FIELD_IDENTIFIER => $identifier,
-            QueueItem::FIELD_CHECKSUM => $checksum
+            QueueItem::FIELD_CHECKSUM => $checksum,
         ];
 
         return [
             'record with checksum and identifier' => [
-                $validRecord, $expectedIdentifiers
-            ]
+                $validRecord, $expectedIdentifiers,
+            ],
         ];
     }
 
@@ -258,7 +260,6 @@ class QueueItemRepositoryTest extends TestCase
 
         $this->subject->remove($validRecord);
     }
-
 
     /**
      * @throws InvalidArgumentException
@@ -280,5 +281,4 @@ class QueueItemRepositoryTest extends TestCase
             $this->subject->remove($validRecord)
         );
     }
-
 }

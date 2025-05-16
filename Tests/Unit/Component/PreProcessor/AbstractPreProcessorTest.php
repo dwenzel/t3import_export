@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
@@ -27,12 +29,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AbstractPreProcessorTest
  *
- * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor
  */
 class AbstractPreProcessorTest extends TestCase
 {
-
     /**
      * @var AbstractPreProcessor|MockObject
      */
@@ -76,7 +76,7 @@ class AbstractPreProcessorTest extends TestCase
     public function isDisabledReturnsTrueIfDisabledIsSet(): void
     {
         $configuration = [
-            'disable' => '1'
+            'disable' => '1',
         ];
         $this->assertTrue(
             $this->subject->isDisabled($configuration, [])
@@ -93,10 +93,10 @@ class AbstractPreProcessorTest extends TestCase
             'disable' => [
                 'value' => '1',
                 'if' => [
-                    'isTrue' => '1'
+                    'isTrue' => '1',
                 ],
                 '_typoScriptNodeValue' => 'TEXT',
-            ]
+            ],
         ];
 
         $this->subject->expects($this->once())

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Factory;
 
 /***************************************************************
@@ -31,8 +33,6 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
 /**
  * Class ImportSetFactoryTest
- *
- * @package CPSIT\T3importExport\Tests\Domain\Factory
  */
 class TransferSetFactoryTest extends TestCase
 {
@@ -89,7 +89,7 @@ class TransferSetFactoryTest extends TestCase
                 'setPostProcessors',
                 'setFinishers',
                 'setInitializers',
-                'setLabel'
+                'setLabel',
             ])
             ->getMock();
     }
@@ -107,8 +107,9 @@ class TransferSetFactoryTest extends TestCase
                     'setIdentifier',
                     'setDescription',
                     'setLabel',
-                    'setTasks'
-                ])
+                    'setTasks',
+                ]
+            )
             ->getMock();
 
         $this->mockTransferTask();
@@ -139,7 +140,7 @@ class TransferSetFactoryTest extends TestCase
     {
         $description = 'foo';
         $settings = [
-            'description' => $description
+            'description' => $description,
         ];
 
         $this->transferSet->expects($this->once())
@@ -153,7 +154,7 @@ class TransferSetFactoryTest extends TestCase
     {
         $label = 'foo';
         $settings = [
-            'label' => $label
+            'label' => $label,
         ];
 
         $this->transferSet->expects($this->once())
@@ -172,14 +173,14 @@ class TransferSetFactoryTest extends TestCase
             'import' => [
                 'tasks' => [
                     'foo' => $fooTaskConfiguration,
-                    'bar' => $barTaskConfiguration
-                ]
-            ]
+                    'bar' => $barTaskConfiguration,
+                ],
+            ],
         ];
         $this->subject = $this->subject->withSettings($frameworkSettings);
 
         $config = [
-            'tasks' => 'foo,bar'
+            'tasks' => 'foo,bar',
         ];
 
         // Since withConsecutive is removed in PHPUnit 12, we'll simplify the test
@@ -190,7 +191,7 @@ class TransferSetFactoryTest extends TestCase
 
         $expectedTasks = [
             'foo' => $this->transferTask,
-            'bar' => $this->transferTask
+            'bar' => $this->transferTask,
         ];
         $this->transferSet->expects($this->once())
             ->method('setTasks')
@@ -198,5 +199,4 @@ class TransferSetFactoryTest extends TestCase
 
         $this->subject->get($config);
     }
-
 }

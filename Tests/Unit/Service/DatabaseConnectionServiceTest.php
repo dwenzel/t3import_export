@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Service;
 
 /***************************************************************
@@ -19,13 +21,11 @@ namespace CPSIT\T3importExport\Tests\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /**
  * Class DatabaseConnectionServiceTest
- *
- * @package CPSIT\T3importExport\Tests\Service
  */
 class DatabaseConnectionServiceTest extends TestCase
 {
@@ -41,7 +41,8 @@ class DatabaseConnectionServiceTest extends TestCase
     {
         $this->markTestSkipped('DataBaseConnectionService must be rewritten');
         $this->subject = $this->getAccessibleMock(
-            DatabaseConnectionService::class, ['dummy']
+            DatabaseConnectionService::class,
+            ['dummy']
         );
     }
 

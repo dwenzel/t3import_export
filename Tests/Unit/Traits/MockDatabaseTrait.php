@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use PHPUnit\Framework\MockObject\MockBuilder;
-use TYPO3\CMS\Core\Database\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /***************************************************************
@@ -40,13 +42,12 @@ trait MockDatabaseTrait
      */
     protected Connection $connection;
 
-//    /**
-//     * Returns a builder object to create mock objects using a fluent interface.
-//     *
-//     * @param string|string[] $className
-//     */
-//    abstract public function getMockBuilder($className): MockBuilder;
-
+    //    /**
+    //     * Returns a builder object to create mock objects using a fluent interface.
+    //     *
+    //     * @param string|string[] $className
+    //     */
+    //    abstract public function getMockBuilder($className): MockBuilder;
 
     protected function mockConnectionService(): self
     {
@@ -60,8 +61,9 @@ trait MockDatabaseTrait
                     'isRegistered',
                     'getDatabase',
                     'getConnectionForTable',
-                    'getConnectionPool'
-                ])
+                    'getConnectionPool',
+                ]
+            )
             ->getMock();
         $this->connectionService->method('getDatabase')->willReturn($this->connection);
         $this->connectionService->method('getConnectionPool')->willReturn($this->connectionPool);
@@ -85,7 +87,7 @@ trait MockDatabaseTrait
                     'update',
                     'select',
                     'quoteIdentifier',
-                    'quoteIdentifiers'
+                    'quoteIdentifiers',
                 ]
             )
             ->getMock();

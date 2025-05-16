@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
@@ -24,9 +26,6 @@ class UnsetEmptyFields extends AbstractPreProcessor implements PreProcessorInter
 {
     /**
      * Tells whether a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool

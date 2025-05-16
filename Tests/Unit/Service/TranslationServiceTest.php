@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Service;
 
 use CPSIT\T3importExport\Service\TranslationService;
@@ -7,18 +9,15 @@ use Exception;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 class DummyDomainObjectA extends AbstractEntity
 {
-    /**
-     * @var DummyDomainObjectA
-     */
     public DummyDomainObjectA $translationParent;
 }
 
@@ -47,7 +46,6 @@ class TranslationServiceTest extends TestCase
 
     /**
      * Set up the subject
-     * @return void
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
@@ -85,7 +83,7 @@ class TranslationServiceTest extends TestCase
 
     public function testTranslateThrowsExceptionIfClassesDoNotMatch(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionCode(1_432_499_926);
         $objectA = new DummyDomainObjectA();
         $objectB = new DummyDomainObjectB();
@@ -94,7 +92,7 @@ class TranslationServiceTest extends TestCase
 
     public function testTranslateThrowsExceptionIfOrginAndTranslationAreIdentical(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionCode(1_432_502_696);
         $objectA = new DummyDomainObjectA();
         $this->subject->translate($objectA, $objectA, 1);
@@ -102,7 +100,7 @@ class TranslationServiceTest extends TestCase
 
     public function testTranslateThrowsExceptionIfOriginalIsNotTranslatable(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionCode(1_432_500_079);
         $origin = new DummyDomainObjectA();
         $translation = new DummyDomainObjectA();
@@ -117,7 +115,7 @@ class TranslationServiceTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     #[Test]
     public function translateSetsLanguageUid(): void

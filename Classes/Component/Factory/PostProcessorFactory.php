@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
@@ -36,10 +38,8 @@ class PostProcessorFactory extends AbstractFactory implements FactoryInterface
     /**
      * Builds a PostProcessor object
      *
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return PostProcessorInterface
      */
     public function get(array $settings = [], $identifier = null): PostProcessorInterface
     {

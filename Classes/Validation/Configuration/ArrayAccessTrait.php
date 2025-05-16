@@ -22,7 +22,6 @@ namespace CPSIT\T3importExport\Validation\Configuration;
  ***************************************************************/
 trait ArrayAccessTrait
 {
-
     protected string $path;
     protected string $delimiter;
 

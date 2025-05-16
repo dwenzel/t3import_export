@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
@@ -32,12 +34,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Provides a database connection service and a
  * database. The database property is set to the
  * default TYPO DB on instantiation.
- *
- * @package CPSIT\T3importExport
  */
 trait DatabaseTrait
 {
-
     /**
      * Database
      *
@@ -59,7 +58,6 @@ trait DatabaseTrait
     }
 
     /**
-     * @return Connection
      * @deprecated
      * use @see ConnectionPool->getConnectionForTable() instead
      */

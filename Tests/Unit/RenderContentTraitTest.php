@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests;
 
 use CPSIT\T3importExport\RenderContentTrait;
@@ -34,12 +36,12 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class MockClassWithRenderContentTrait {
+class MockClassWithRenderContentTrait
+{
     use RenderContentTrait;
 }
 class RenderContentTraitTest extends TestCase
 {
-
     /**
      * @var ContentObjectRenderer|MockObject
      */
@@ -110,7 +112,7 @@ class RenderContentTraitTest extends TestCase
     public function renderContentConvertsPlainArrayToTypoScriptArray(): void
     {
         $configuration = [
-            '_typoScriptNodeValue' => 'BAR'
+            '_typoScriptNodeValue' => 'BAR',
         ];
         $this->typoScriptService->expects($this->once())
             ->method('convertPlainArrayToTypoScriptArray')
@@ -123,7 +125,7 @@ class RenderContentTraitTest extends TestCase
     public function testRenderContentGetsContentObject(): void
     {
         $configuration = [
-            '_typoScriptNodeValue' => 'FOO'
+            '_typoScriptNodeValue' => 'FOO',
         ];
         $this->contentObjectRenderer->expects($this->once())
             ->method('getContentObject')
@@ -135,7 +137,7 @@ class RenderContentTraitTest extends TestCase
     public function renderContentReturnsContentFromObject(): void
     {
         $configuration = [
-            '_typoScriptNodeValue' => 'FOO'
+            '_typoScriptNodeValue' => 'FOO',
         ];
         $mockContent = 'bar';
         $this->typoScriptService->expects($this->once())
@@ -162,7 +164,12 @@ class RenderContentTraitTest extends TestCase
         // setup mocks method 'getTypoScriptFrontendController
         $this->subject = $this->getMockForTrait(
             RenderContentTrait::class,
-            [], '', true, true, true, []
+            [],
+            '',
+            true,
+            true,
+            true,
+            []
         );
 
         $GLOBALS['TSFE'] = new \stdClass();

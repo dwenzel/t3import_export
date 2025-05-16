@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /**
@@ -71,52 +73,52 @@ class UnsetEmptyFieldsTest extends TestCase
             [
                 ['fields' => 'foo'], // configuration
                 [], // incomingRecord
-                [] // expectedResult
+                [], // expectedResult
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => ''],
-                []
+                [],
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => 0],
-                []
+                [],
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => 0.0],
-                []
+                [],
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => "0"],
-                []
+                [],
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => null],
-                []
+                [],
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => false],
-                []
+                [],
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => []],
-                []
+                [],
             ],
             [
                 ['fields' => 'foo'],
                 ['foo' => 'bar'],
-                ['foo' => 'bar']
+                ['foo' => 'bar'],
             ],
             [
                 ['fields' => 'foo'],
                 ['bar' => ''],
-                ['bar' => '']
+                ['bar' => ''],
             ],
         ];
     }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /***************************************************************
  *
  *  Copyright notice
@@ -34,7 +36,6 @@ class TaskResult implements \Iterator
 {
     use MessageContainerTrait;
 
-
     /**
      * @var int
      */
@@ -57,7 +58,6 @@ class TaskResult implements \Iterator
 
     /**
      * TaskResult constructor.
-     * @param MessageContainer|null $messageContainer
      */
     public function __construct(?MessageContainer $messageContainer = null)
     {
@@ -118,7 +118,6 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @param array $elements
      * @return void
      */
     public function setElements(array $elements)
@@ -129,7 +128,6 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @param $newElement
      * @return void
      */
     public function add($newElement)
@@ -139,7 +137,6 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @param $element
      * @return bool
      */
     public function removeElement($element)
@@ -152,7 +149,6 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @param $index
      * @return bool
      */
     public function removeIndex($index)
@@ -180,7 +176,6 @@ class TaskResult implements \Iterator
     }
 
     /**
-     * @param $mixed
      * @return void
      */
     public function setInfo($mixed)
@@ -196,10 +191,9 @@ class TaskResult implements \Iterator
     /**
      * Adds all messages.
      * Existing messages are kept.
-     *
-     * @param array $messages
      */
-    public function addMessages(array $messages) {
+    public function addMessages(array $messages)
+    {
         $this->messageContainer->addMessages($messages);
     }
 }

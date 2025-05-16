@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /**
@@ -20,10 +22,10 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Messaging\MessageContainer;
-use PHPUnit\Framework\Attributes\Test;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamException;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\File;
@@ -36,7 +38,6 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateFileResourceTest extends TestCase
 {
-
     /**
      * @var GenerateFileResource |MockObject
      */
@@ -87,7 +88,7 @@ class GenerateFileResourceTest extends TestCase
                 [
                     $this->fileIndexRepository,
                     $this->filePathFactory,
-                    $this->messageContainer
+                    $this->messageContainer,
                 ]
             )
             ->onlyMethods(['logError', 'getAbsoluteFilePath'])
@@ -165,7 +166,7 @@ class GenerateFileResourceTest extends TestCase
                 [
                     $this->fileIndexRepository,
                     $this->filePathFactory,
-                    $this->messageContainer
+                    $this->messageContainer,
                 ]
             )
             ->onlyMethods(['getFile', 'logError'])
@@ -200,19 +201,18 @@ class GenerateFileResourceTest extends TestCase
         $targetDirectory = 'targetDir';
 
         $configuration = [
-            'targetDirectoryPath' => $targetDirectory
+            'targetDirectoryPath' => $targetDirectory,
         ];
 
         $fileStructure = [
             $sourceDirectory => [
-                $sourceFileName => $sourceFileContent
+                $sourceFileName => $sourceFileContent,
             ],
-            $targetDirectory => []
+            $targetDirectory => [],
         ];
 
         return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
     }
-
 
     public function testGetFileReturnsExistingFileFromResourceStorage(): void
     {
@@ -224,7 +224,7 @@ class GenerateFileResourceTest extends TestCase
         $expectedPath = $targetDirectoryPath . $fileName;
 
         $configuration = [
-            'targetDirectoryPath' => $targetDirectoryPath
+            'targetDirectoryPath' => $targetDirectoryPath,
         ];
 
         $this->resourceStorage->expects($this->once())
@@ -275,13 +275,11 @@ class GenerateFileResourceTest extends TestCase
     /**
      * @param string $rootDirectory
      * @param array $fileStructure
-     * @param $targetDirectoryPath
-     * @param string $sourceFileName
      */
     protected function mockFileGenerationBehavior($targetDirectoryPath, string $sourceFileName): void
     {
         $storageConfiguration = [
-            'basePath' => 'root'
+            'basePath' => 'root',
         ];
 
         $this->resourceStorage->expects($this->once())
@@ -308,13 +306,13 @@ class GenerateFileResourceTest extends TestCase
         $sourceFilePath = 'path/to/file.txt';
 
         $record = [
-            $sourceField => $sourceFilePath
+            $sourceField => $sourceFilePath,
         ];
 
         $configuration = [
             'sourceField' => $sourceField,
             'targetField' => $targetField,
-            'targetDirectoryPath' => 'some/path'
+            'targetDirectoryPath' => 'some/path',
         ];
 
         $fileObject = $this->createMock(File::class);
@@ -342,14 +340,14 @@ class GenerateFileResourceTest extends TestCase
         $sourceFilePaths = 'file1.txt,file2.txt';
 
         $record = [
-            $sourceField => $sourceFilePaths
+            $sourceField => $sourceFilePaths,
         ];
 
         $configuration = [
             'sourceField' => $sourceField,
             'targetField' => $targetField,
             'targetDirectoryPath' => 'some/path',
-            'multipleRows' => true
+            'multipleRows' => true,
         ];
 
         $fileObject1 = $this->createMock(File::class);
@@ -378,14 +376,14 @@ class GenerateFileResourceTest extends TestCase
         $sourceFilePath = 'file.txt';
 
         $record = [
-            $sourceField => $sourceFilePath
+            $sourceField => $sourceFilePath,
         ];
 
         $configuration = [
             'sourceField' => $sourceField,
             'targetField' => $targetField,
             'targetDirectoryPath' => 'some/path',
-            'sourcePath' => $sourcePath
+            'sourcePath' => $sourcePath,
         ];
 
         $fileObject = $this->createMock(File::class);
@@ -414,7 +412,7 @@ class GenerateFileResourceTest extends TestCase
         $sourceFilePaths = 'file1.txt|file2.txt';
 
         $record = [
-            $sourceField => $sourceFilePaths
+            $sourceField => $sourceFilePaths,
         ];
 
         $configuration = [
@@ -422,7 +420,7 @@ class GenerateFileResourceTest extends TestCase
             'targetField' => $targetField,
             'targetDirectoryPath' => 'some/path',
             'multipleRows' => true,
-            'separator' => $separator
+            'separator' => $separator,
         ];
 
         $fileObject1 = $this->createMock(File::class);
@@ -449,7 +447,7 @@ class GenerateFileResourceTest extends TestCase
             'storageId' => 1,
             'targetDirectoryPath' => 'some/path',
             'sourceField' => 'source',
-            'targetField' => 'target'
+            'targetField' => 'target',
         ];
 
         $this->resourceStorage->expects($this->once())

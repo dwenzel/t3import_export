@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
@@ -36,8 +38,6 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class DummyInvalidPreProcessor
  * Does not implement PreProcessorInterface
- *
- * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidPreProcessor
 {
@@ -45,15 +45,12 @@ class DummyInvalidPreProcessor
 
 /**
  * Class DummyValidPreProcessor
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidPreProcessor extends AbstractPreProcessor implements PreProcessorInterface
 {
     /**
      * @param array $configuration
      * @param array $record
-     * @return bool
      * @noinspection PhpMissingParamTypeInspection
      */
     public function process($configuration, &$record): bool
@@ -64,15 +61,12 @@ class DummyValidPreProcessor extends AbstractPreProcessor implements PreProcesso
 
 /**
  * Class PreProcessorFactoryTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class PreProcessorFactoryTest extends TestCase
 {
     protected PreProcessorFactory $subject;
 
     /**
-     *
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
@@ -95,7 +89,7 @@ class PreProcessorFactoryTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_447_427_184);
         $configurationWithNonExistingClass = [
-            'class' => 'NonExistingClass'
+            'class' => 'NonExistingClass',
         ];
         $this->subject->get(
             $configurationWithNonExistingClass
@@ -107,7 +101,7 @@ class PreProcessorFactoryTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_447_428_235);
         $configurationWithExistingClass = [
-            'class' => DummyInvalidPreProcessor::class
+            'class' => DummyInvalidPreProcessor::class,
         ];
         $this->subject->get(
             $configurationWithExistingClass

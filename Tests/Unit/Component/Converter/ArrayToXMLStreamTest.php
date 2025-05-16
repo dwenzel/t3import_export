@@ -1,4 +1,7 @@
-<?php /** @noinspection PhpUnitTestsInspection */
+<?php
+
+declare(strict_types=1);
+/** @noinspection PhpUnitTestsInspection */
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
@@ -42,7 +45,6 @@ use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 /**
  * Class ArrayToDomainObjectTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
  */
 class ArrayToXMLStreamTest extends TestCase
@@ -52,9 +54,6 @@ class ArrayToXMLStreamTest extends TestCase
      */
     protected $subject;
 
-    /**
-     *
-     */
     protected function setUp(): void
     {
         $this->subject = new ArrayToXMLStream();
@@ -97,7 +96,7 @@ class ArrayToXMLStreamTest extends TestCase
         $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 
         $config = [
-            'targetClass' => DataStream::class
+            'targetClass' => DataStream::class,
         ];
         $mockedTargetValidator->expects($this->once())
             ->method('isValid')
@@ -116,12 +115,13 @@ class ArrayToXMLStreamTest extends TestCase
 
         /** @var MappingConfigurationValidator|MockObject $mockedMappingValidator */
         $mockedMappingValidator = $this->getMockBuilder(
-            MappingConfigurationValidator::class)->onlyMethods(['isValid'])
+            MappingConfigurationValidator::class
+        )->onlyMethods(['isValid'])
             ->getMock();
         $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 
         $config = [
-            'targetClass' => DataStream::class
+            'targetClass' => DataStream::class,
         ];
         $mockedTargetValidator->expects($this->once())
             ->method('isValid')
@@ -138,7 +138,7 @@ class ArrayToXMLStreamTest extends TestCase
     {
         $testArray = ['value' => 'a'];
         $testConfig = [
-            'targetClass' => DataStream::class
+            'targetClass' => DataStream::class,
         ];
         $resultObject = new DataStream();
         $result = $this->subject->convert($testArray, $testConfig);
@@ -152,7 +152,7 @@ class ArrayToXMLStreamTest extends TestCase
         $testArray = ['value' => 'a'];
         $testConfig = [
             'targetClass' => DataStream::class,
-            'nodeName' => 'unitTest'
+            'nodeName' => 'unitTest',
         ];
         /** @var DataStream $result */
         $result = $this->subject->convert($testArray, $testConfig);
@@ -169,22 +169,22 @@ class ArrayToXMLStreamTest extends TestCase
             '@mapTo' => 'unitTest',
             'childNodeArray' => [
                 '@mapTo' => 'customSubNode',
-                'v' => 'a'
+                'v' => 'a',
             ],
             'childs' => [
                 '@mapTo' => 'someChilds',
                 [
                     '@mapTo' => 'child',
-                    'v' => 'a'
+                    'v' => 'a',
                 ],
                 [
                     '@mapTo' => 'child',
-                    'v' => 'a'
-                ]
-            ]
+                    'v' => 'a',
+                ],
+            ],
         ];
         $testConfig = [
-            'targetClass' => DataStream::class
+            'targetClass' => DataStream::class,
         ];
         /** @var DataStream $result */
         $result = $this->subject->convert($testArray, $testConfig);
@@ -214,32 +214,32 @@ class ArrayToXMLStreamTest extends TestCase
             'value' => 'a',
             '@attribute' => [
                 'key' => '1',
-                'otherKey' => '2'
+                'otherKey' => '2',
             ],
             'childNodeArray' => [
                 'v' => 'a',
                 '@attribute' => [
                     'key' => '1',
-                    'otherKey' => '2'
-                ]
+                    'otherKey' => '2',
+                ],
             ],
             'childs' => [
                 '@attribute' => [
-                    'key' => '1'
+                    'key' => '1',
                 ],
                 [
                     'v' => 'a',
                     '@attribute' => [
-                        'key' => '1'
-                    ]
+                        'key' => '1',
+                    ],
                 ],
                 [
-                    'v' => 'a'
-                ]
-            ]
+                    'v' => 'a',
+                ],
+            ],
         ];
         $testConfig = [
-            'targetClass' => DataStream::class
+            'targetClass' => DataStream::class,
         ];
         $result = $this->subject->convert($testArray, $testConfig);
         $expected = '<row key="1" otherKey="2">
@@ -260,9 +260,6 @@ class ArrayToXMLStreamTest extends TestCase
         $this->assertEquals($expected, $result->getStreamBuffer());
     }
 
-    /**
-     * @return MockObject|PropertyMapper
-     */
     protected function injectPropertyMapperObject(): MockObject|PropertyMapper
     {
         /** @var PropertyMapper|MockObject $mockPropertyMapper */
@@ -278,7 +275,6 @@ class ArrayToXMLStreamTest extends TestCase
      */
     protected function injectPropertyMappingConfigurationBuilderObject()
     {
-
         /** @var PropertyMappingConfigurationBuilder|MockObject $mockPropertyMappingBuilder */
         $mockPropertyMappingBuilder = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)
             ->getMock();

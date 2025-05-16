@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\IdentifiableTrait;

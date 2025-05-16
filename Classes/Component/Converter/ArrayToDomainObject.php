@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Converter;
 
 /***************************************************************
@@ -64,12 +66,12 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
      */
     protected $mappingConfigurationValidator;
 
-    public function __construct(         ?PropertyMapper $propertyMapper = null,
-    ?PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null,
-    ?TargetClassConfigurationValidator $targetClassConfigurationValidator = null,
-    ?MappingConfigurationValidator $mappingConfigurationValidator = null
-    )
-    {
+    public function __construct(
+        ?PropertyMapper $propertyMapper = null,
+        ?PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null,
+        ?TargetClassConfigurationValidator $targetClassConfigurationValidator = null,
+        ?MappingConfigurationValidator $mappingConfigurationValidator = null
+    ) {
         $this->propertyMapper = $propertyMapper ?? GeneralUtility::makeInstance(PropertyMapper::class);
         $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder ??
             GeneralUtility::makeInstance(PropertyMappingConfigurationBuilder::class);
@@ -82,8 +84,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     /**
      * Converts the record
      *
-     * @param array $configuration
-     * @param array $record
      * @return DomainObjectInterface
      */
     public function convert(array $record, array $configuration)
@@ -119,9 +119,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
         return $propertyMappingConfiguration;
     }
 
-    /**
-     * @param PropertyMappingConfiguration $propertyMappingConfiguration
-     */
     public function setPropertyMappingConfiguration(PropertyMappingConfiguration $propertyMappingConfiguration): void
     {
         $this->propertyMappingConfiguration = $propertyMappingConfiguration;
@@ -140,7 +137,7 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
             PersistentObjectConverter::class,
             [
                 PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
-                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
+                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true,
             ]
         )->skipUnknownProperties();
 
@@ -148,10 +145,8 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     }
 
     /**
-     * @param array $configuration
      * @throws InvalidConfigurationException
      * @throws MissingClassException
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool

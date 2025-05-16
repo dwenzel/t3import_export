@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
@@ -37,10 +39,8 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
     /**
      * Builds a Converter object
      *
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return ConverterInterface
      */
     public function get(array $settings = [], $identifier = null): ConverterInterface
     {

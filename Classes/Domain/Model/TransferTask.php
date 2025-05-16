@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Domain\Model;
 
 /***************************************************************
@@ -27,8 +29,6 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 /**
  * Class TransferTask
  * An transfer task describes an transfer from one source to one class
- *
- * @package CPSIT\T3importExport\Domain\Model
  */
 class TransferTask extends AbstractEntity implements IdentifiableInterface
 {
@@ -143,8 +143,6 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface
 
     /**
      * Sets the source of import
-     *
-     * @param DataSourceInterface $source
      */
     public function setSource(DataSourceInterface $source)
     {
@@ -163,8 +161,6 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface
 
     /**
      * Sets the target of import
-     *
-     * @param DataTargetInterface $target
      */
     public function setTarget(DataTargetInterface $target)
     {

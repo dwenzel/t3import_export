@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
-
-use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use CPSIT\T3importExport\Utility\TcaUtility;
-use TYPO3\CMS\Core\DataHandling\Model\RecordStateFactory;
 use TYPO3\CMS\Core\DataHandling\Model\RecordState;
+use TYPO3\CMS\Core\DataHandling\Model\RecordStateFactory;
 use TYPO3\CMS\Core\DataHandling\SlugHelper;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Class RecreateSlug
@@ -26,13 +27,8 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
 
     public function __construct()
     {
-
     }
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
@@ -49,15 +45,12 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
             return false;
         }
 
-
         return true;
     }
 
     /**
-     * @param array $configuration
      * @param AbstractDomainObject $convertedRecord
-     * @param array $record
-     * @return TRUE
+     * @return true
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
@@ -71,8 +64,6 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
     }
 
     /**
-     * @param array $row
-     * @param string $tableName
      * @return void
      * @throws SiteNotFoundException
      */
@@ -94,12 +85,10 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
     /**
      * @param array $row tx_extension_domain_model_anything.*
      * @param string $tableName tx_extension_domain_model_anything
-     * @return RecordState
      */
     protected function getRecordState(array $row, string $tableName): RecordState
     {
         return GeneralUtility::makeInstance(RecordStateFactory::class, $tableName)
             ->fromArray($row);
     }
-
 }

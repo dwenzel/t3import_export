@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
@@ -30,16 +32,12 @@ use CPSIT\T3importExport\InvalidConfigurationException;
  ***************************************************************/
 class MappingConfigurationValidator implements ConfigurationValidatorInterface
 {
-    /**
-     * @param array $config
-     */
     public function isValid(array $config): bool
     {
         return $this->validatePropertyConfiguration($config);
     }
 
     /**
-     * @param array $configuration
      * @throws InvalidConfigurationException
      */
     protected function validatePropertyConfiguration(array $configuration): bool
@@ -55,7 +53,6 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
             );
         }
         if (isset($configuration['properties'])) {
-
             if (!is_array($configuration['properties'])
             ) {
                 throw new InvalidConfigurationException(
@@ -74,7 +71,6 @@ class MappingConfigurationValidator implements ConfigurationValidatorInterface
     }
 
     /**
-     * @param array $localConfiguration
      * @throws InvalidConfigurationException
      */
     protected function validatePropertyConfigurationRecursive(array $localConfiguration)

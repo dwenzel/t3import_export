@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\DatabaseTrait;
@@ -33,8 +35,6 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  * Children must implement PreProcessorInterface
  *
  * Configuration @see SelectQuery, SelectJoinQuery
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 {
@@ -63,9 +63,6 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -91,7 +88,6 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @param array $record
      *
-     * @return bool
      * @throws InvalidConfigurationException
      */
     public function process($configuration, &$record): bool
@@ -125,7 +121,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         if (!empty($queryConfiguration['singleRow'])) {
             $queryConfiguration['limit'] = 1;
         }
-        $queryResult = new QueryFacade()->getQueryResultByConfig($queryConfiguration);
+        $queryResult = (new QueryFacade())->getQueryResultByConfig($queryConfiguration);
 
         $targetField = $configuration['targetField'];
 
@@ -149,14 +145,9 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             $record[$targetField] = $mappedRecords;
         }
 
-
         return true;
     }
 
-    /**
-     * @param $configuration
-     * @return array
-     */
     protected function getQueryConfiguration($configuration): array
     {
         $queryConfiguration = SelectQuery::DEFAULT_CONFIGURATION;
@@ -175,9 +166,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * Parses the constraints of a query configuration into a
      * WHERE clause
      *
-     * @param $record
-     * @param $queryConfiguration
-     * @return array | FALSE Parsed query configuration
+     * @return array | false Parsed query configuration
      */
     protected function parseQueryConstraints(array $record, array $queryConfiguration): array
     {
@@ -264,5 +253,4 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             }
         }
     }
-
 }

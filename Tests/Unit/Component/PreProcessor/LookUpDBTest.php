@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
@@ -30,7 +32,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 /**
  * Class LookUpDBTest
  *
- * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\LookUpDB
  */
 class LookUpDBTest extends TestCase
@@ -55,12 +56,11 @@ class LookUpDBTest extends TestCase
      */
     protected Connection $connection;
 
-    /**
-     * @var array
-     */
     protected array $queryResult = [];
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         /**
@@ -111,7 +111,7 @@ class LookUpDBTest extends TestCase
     {
         $mockConfiguration = [
             'targetField' => 1,
-            'fields' => []
+            'fields' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -124,7 +124,7 @@ class LookUpDBTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfTableIsNotSet(): void
     {
         $mockConfiguration = [
-            'select' => []
+            'select' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -138,8 +138,8 @@ class LookUpDBTest extends TestCase
     {
         $mockConfiguration = [
             'select' => [
-                'table' => 1
-            ]
+                'table' => 1,
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -152,7 +152,7 @@ class LookUpDBTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfSourceIsNotSet(): void
     {
         $mockConfiguration = [
-            'targetField' => 'foo'
+            'targetField' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -166,7 +166,7 @@ class LookUpDBTest extends TestCase
     {
         $mockConfiguration = [
             'targetField' => 'foo',
-            'source' => 'invalidStringValue'
+            'source' => 'invalidStringValue',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -181,12 +181,11 @@ class LookUpDBTest extends TestCase
         $mockConfiguration = [
             'identifier' => [],
             'select' => [
-                'table' => 'fooTable'
+                'table' => 'fooTable',
             ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
         );
     }
-
 }

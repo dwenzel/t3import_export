@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
@@ -29,23 +31,22 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
     final public const array VALIDATORS = [
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_PARENT_FIELD]
+            self::KEY_ARGUMENTS => [self::KEY_PARENT_FIELD],
         ],
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_LANGUAGE]
+            self::KEY_ARGUMENTS => [self::KEY_LANGUAGE],
         ],
         [
             ConfigurationValidatorInterface::KEY_CLASS => NotEmptyValidator::class,
-            self::KEY_ARGUMENTS => []
-        ]
+            self::KEY_ARGUMENTS => [],
+        ],
     ];
 
     public function __construct(
         protected TargetClassConfigurationValidator $targetClassConfigurationValidator,
         protected MappingConfigurationValidator $mappingConfigurationValidator
-    )
-    {
+    ) {
         $this->targetClassConfigurationValidator = $targetClassConfigurationValidator ?? GeneralUtility::makeInstance(TargetClassConfigurationValidator::class);
         $this->mappingConfigurationValidator = $mappingConfigurationValidator ?? GeneralUtility::makeInstance(MappingConfigurationValidator::class);
     }
@@ -66,11 +67,6 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
         );
     }
 
-    /**
-     * @param array $validatorSettings
-     * @param array $config
-     * @return bool
-     */
     protected function isBasicConfigurationValid(array $validatorSettings, array $config): bool
     {
         foreach ($validatorSettings as $settings) {
@@ -89,8 +85,6 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
     }
 
     /**
-     * @param array $config
-     * @return bool
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      */

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
@@ -32,12 +34,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AbstractConverterTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\AbstractConverter
  */
 class AbstractConverterTest extends TestCase
 {
-
     /**
      * @var AbstractConverter
      */

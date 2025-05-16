@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Messaging;
 
 /***************************************************************
@@ -64,10 +66,10 @@ class MessageContainer
      * Tells by id if a container has a certain message
      * Note: not all messages must have an id!
      *
-     * @param $id
-     * @return boolean
+     * @return bool
      */
-    public function hasMessageWithId($id) {
+    public function hasMessageWithId($id)
+    {
         /** @var Message $message */
         foreach ($this->getMessages() as $message) {
             if ($id === $message->getId()) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
@@ -88,7 +90,7 @@ class FileReferenceFactoryTest extends TestCase
                 'hasFileInFolder',
                 'getFolder',
                 'createFolder',
-                'moveFile'
+                'moveFile',
             ])
             ->getMock();
     }
@@ -115,7 +117,7 @@ class FileReferenceFactoryTest extends TestCase
             ->onlyMethods([
                 'getStorageObject',
                 'getDefaultStorage',
-                'createFileReferenceObject'
+                'createFileReferenceObject',
             ])
             ->getMock();
         $this->resourceFactory->method('getDefaultStorage')
@@ -185,7 +187,7 @@ class FileReferenceFactoryTest extends TestCase
         $expectedPageId = 0;
 
         $configuration = [
-            'targetPage' => $expectedPageId
+            'targetPage' => $expectedPageId,
         ];
 
         /** @noinspection ClassConstantUsageCorrectnessInspection */

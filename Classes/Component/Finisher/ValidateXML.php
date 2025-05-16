@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
 /***************************************************************
@@ -121,7 +123,6 @@ class ValidateXML extends AbstractFinisher
      */
     public function process(array $configuration, array &$records, &$result): bool
     {
-
         $resource = $this->loadResource($configuration);
         if (empty($resource)) {
             $this->logError(1_508_914_547, null, [$configuration]);

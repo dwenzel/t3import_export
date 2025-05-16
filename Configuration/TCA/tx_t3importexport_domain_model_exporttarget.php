@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 if (!defined('TYPO3')) {
     die('Access denied.');
 }
@@ -7,7 +9,7 @@ $ll = 'LLL:EXT:t3import_export/Resources/Private/Language/locallang_db.xlf:';
 
 return [
     'ctrl' => [
-        'title' => $ll. 'tx_t3importexport_domain_model_exporttarget',
+        'title' => $ll . 'tx_t3importexport_domain_model_exporttarget',
         'label' => 'title',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
@@ -23,7 +25,7 @@ return [
             'endtime' => 'endtime',
         ],
         'searchFields' => 'title,description',
-        'iconfile' => 'EXT:t3import_export/Resources/Public/Icons/tx_t3events_domain_model_event.gif'
+        'iconfile' => 'EXT:t3import_export/Resources/Public/Icons/tx_t3events_domain_model_event.gif',
     ],
     'types' => [
         '1' => ['showitem' => 'sys_language_uid,--palette--,l10n_parent,l10n_diffsource,hidden,--palette--;;1,title,description,--palette--'],
@@ -66,7 +68,7 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim'
+                'eval' => 'trim',
             ],
         ],
         'description' => [
@@ -80,5 +82,5 @@ return [
                 'enableRichtext' => true,
             ],
         ],
-    ]
+    ],
 ];

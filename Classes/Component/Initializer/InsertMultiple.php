@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Initializer;
 
 /**
@@ -20,7 +22,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class InsertMultiple
  * Inserts predefined rows into a table
- * @package CPSIT\T3importExport\Component\Initializer
  */
 class InsertMultiple extends AbstractComponent implements InitializerInterface
 {
@@ -28,9 +29,6 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
 
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -44,15 +42,9 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
             return false;
         }
 
-
         return true;
     }
 
-    /**
-     * @param array $configuration
-     * @param array $records
-     * @return bool
-     */
     public function process(array $configuration, array &$records): bool
     {
         $table = $configuration['table'];
@@ -64,7 +56,7 @@ class InsertMultiple extends AbstractComponent implements InitializerInterface
         try {
             $this->connectionPool->getConnectionForTable($table)
                 ->bulkInsert($table, $values, $fields);
-        } catch (Exception) {
+        } catch (\Exception) {
             return false;
         }
 

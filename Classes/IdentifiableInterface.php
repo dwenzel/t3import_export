@@ -1,10 +1,10 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport;
 
 /**
  * Interface IdentifiableInterface
- *
- * @package CPSIT\T3importExport\Persistence\Factory
  */
 interface IdentifiableInterface
 {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
 /***************************************************************
@@ -34,10 +36,10 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 /**
  * Class MoveFileFromStream
  */
-class MoveFile extends AbstractFinisher
-    implements FinisherInterface, LoggingInterface
+class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInterface
 {
-    use LoggingTrait, ResourceStorageTrait;
+    use LoggingTrait;
+    use ResourceStorageTrait;
 
     /**
      * cancel file operation
@@ -60,7 +62,7 @@ class MoveFile extends AbstractFinisher
     final public const array CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_RENAME_NEW_FILE,
-        self::CONFLICT_MODE_OVERRIDE_EXISTING_FILE
+        self::CONFLICT_MODE_OVERRIDE_EXISTING_FILE,
     ];
 
     /**
@@ -82,14 +84,12 @@ class MoveFile extends AbstractFinisher
         1_509_024_162 => ['File moved', 'File %1s has been moved succesfully to %2s.'],
     ];
 
-
     protected ResourceFactory $resourceFactory;
 
     public function __construct(
         ?ResourceFactory $resourceFactory = null,
         ?MessageContainer $messageContainer = null
-    )
-    {
+    ) {
         $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
         $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
     }
@@ -124,9 +124,6 @@ class MoveFile extends AbstractFinisher
 
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -144,9 +141,9 @@ class MoveFile extends AbstractFinisher
             return false;
         }
         if (
-             !isset($configuration['source']['name'])
-                || empty($configuration['source']['name'])
-             || !is_string($configuration['source']['name'])
+            !isset($configuration['source']['name'])
+               || empty($configuration['source']['name'])
+            || !is_string($configuration['source']['name'])
         ) {
             $this->logError(1_509_022_342);
             return false;
@@ -185,15 +182,14 @@ class MoveFile extends AbstractFinisher
      * If a file with target file name already exists the conflictMode
      * determines the result: cancel, renameNewFile, overrideExistingFile are allowed.
      * Default is renameNewFile (according to TYPO3 conventions)
-     * @param array $configuration
-     * @param array $records
      * @param array|TaskResult $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      */
-    public function process(array $configuration,
-                            array &$records,
-                            &$result): bool
-    {
+    public function process(
+        array $configuration,
+        array &$records,
+        &$result
+    ): bool {
         $defaultStorage = $this->resourceFactory->getDefaultStorage();
         $targetStorage = $defaultStorage;
         $sourceStorage = $defaultStorage;
@@ -212,7 +208,7 @@ class MoveFile extends AbstractFinisher
             }
         }
 
-        if ( (null === $sourceFolder )
+        if ((null === $sourceFolder)
             || !$sourceStorage->hasFileInFolder($sourceFileName, $sourceFolder)) {
             $this->logError(1_509_023_738, [$sourceFileName], $configuration);
             return false;

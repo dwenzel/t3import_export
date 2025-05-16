@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
@@ -30,22 +32,21 @@ class SetL10nParentConfigurationValidator implements ConfigurationValidatorInter
     final public const array VALIDATORS = [
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_SUBJECT . '/' . self::KEY_PARENT_FIELD]
+            self::KEY_ARGUMENTS => [self::KEY_SUBJECT . '/' . self::KEY_PARENT_FIELD],
         ],
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_PARENT . '/' . self::KEY_TABLE]
+            self::KEY_ARGUMENTS => [self::KEY_PARENT . '/' . self::KEY_TABLE],
         ],
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_PARENT . '/' . self::KEY_MATCH_FIELD]
+            self::KEY_ARGUMENTS => [self::KEY_PARENT . '/' . self::KEY_MATCH_FIELD],
         ],
         [
             ConfigurationValidatorInterface::KEY_CLASS => NotEmptyValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_PARENT . '/'. self::KEY_IDENTITY_FIELD]
+            self::KEY_ARGUMENTS => [self::KEY_PARENT . '/' . self::KEY_IDENTITY_FIELD],
         ],
     ];
-
 
     /**
      * @inheritDoc
@@ -58,11 +59,6 @@ class SetL10nParentConfigurationValidator implements ConfigurationValidatorInter
         return $this->isBasicConfigurationValid(static::VALIDATORS, $config);
     }
 
-    /**
-     * @param array $validatorSettings
-     * @param array $config
-     * @return bool
-     */
     protected function isBasicConfigurationValid(array $validatorSettings, array $config): bool
     {
         foreach ($validatorSettings as $settings) {

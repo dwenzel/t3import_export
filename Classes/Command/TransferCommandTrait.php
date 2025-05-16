@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Command;
 
 /***************************************************************
@@ -26,20 +28,15 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  */
 trait TransferCommandTrait
 {
-    /**
-     * @var array
-     */
     protected array $settings;
 
     protected DataTransferProcessor $dataTransferProcessor;
-
 
     public function withSettings(array $settings): self
     {
         $this->settings = $settings;
         return $this;
     }
-
 
     /**
      * initialize object

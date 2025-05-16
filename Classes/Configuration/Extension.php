@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Configuration;
 
 use CPSIT\T3importExport\Command\ImportCommandController;
@@ -37,7 +39,7 @@ class Extension extends ExtensionConfiguration
 
     final public const array MODULES_TO_REGISTER = [
         ImportModuleRegistration::class,
-        ExportModuleRegistration::class
+        ExportModuleRegistration::class,
     ];
 
     final public const array COMMANDS_TO_REGISTER = [
@@ -90,14 +92,13 @@ class Extension extends ExtensionConfiguration
             $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportImport'] = \CPSIT\T3importExport\Legacy\Command\ImportCommandController::class;
             $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportExport'] = \CPSIT\T3importExport\Legacy\Command\ExportCommandController::class;
         }
-
     }
 
-    public static function getModuleConfiguration():array
+    public static function getModuleConfiguration(): array
     {
         $configuration = [];
         foreach (self::MODULES_TO_REGISTER as $registrationClass) {
-            if(!in_array(ModuleRegistrationInterface::class, class_implements($registrationClass), true)) {
+            if (!in_array(ModuleRegistrationInterface::class, class_implements($registrationClass), true)) {
                 continue;
             }
             $moduleConfiguration = $registrationClass::getModuleConfiguration();

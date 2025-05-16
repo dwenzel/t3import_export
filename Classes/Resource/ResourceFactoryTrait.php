@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Resource;
 
 /***************************************************************
@@ -32,5 +34,4 @@ trait ResourceFactoryTrait
      * @var ResourceFactory
      */
     protected $resourceFactory;
-
 }

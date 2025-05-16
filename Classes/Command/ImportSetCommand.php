@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Command;
 
 use CPSIT\T3importExport\Command\Argument\SetArgument;
@@ -12,11 +14,11 @@ use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use Symfony\Component\Console\Attribute\AsCommand;
 
 /***************************************************************
  *  Copyright notice
@@ -36,7 +38,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-
 /**
  * Provides import set commands for cli and scheduler tasks
  */
@@ -47,10 +48,10 @@ use Symfony\Component\Console\Attribute\AsCommand;
 )]
 class ImportSetCommand extends Command implements ArgumentAwareInterface
 {
-    use ArgumentAwareTrait,
-        ConfigureTrait,
-        InitializeTrait,
-        SetCommandTrait;
+    use ArgumentAwareTrait;
+    use ConfigureTrait;
+    use InitializeTrait;
+    use SetCommandTrait;
 
     /**
      * Key under which configuration are found in
@@ -69,14 +70,12 @@ class ImportSetCommand extends Command implements ArgumentAwareInterface
     final public const array OPTIONS = [
     ];
     final public const array ARGUMENTS = [
-        SetArgument::class
+        SetArgument::class,
     ];
 
     /**
      * @var array|string[]
      */
-    static protected array $optionsToConfigure = self::OPTIONS;
-    static protected array $argumentsToConfigure = self::ARGUMENTS;
-
-
+    protected static array $optionsToConfigure = self::OPTIONS;
+    protected static array $argumentsToConfigure = self::ARGUMENTS;
 }

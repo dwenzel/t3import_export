@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * This file is part of the johanniter Extension for TYPO3 CMS.
  *
@@ -29,7 +31,7 @@ class QueryFacade implements QueryFacadeInterface
 {
     private const array MAP_TYPE_CLASS = [
         QueryInterface::TYPE_SELECT => SelectQuery::class,
-        QueryInterface::TYPE_SELECT_JOIN => SelectJoinQuery::class
+        QueryInterface::TYPE_SELECT_JOIN => SelectJoinQuery::class,
     ];
 
     public function getQueryResultByConfig(array $queryConfiguration): array
@@ -73,8 +75,5 @@ class QueryFacade implements QueryFacadeInterface
         $instance = new $class($connectionPool, $databaseConnectionService);
 
         return $instance;
-
     }
-
-
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
@@ -35,9 +37,6 @@ abstract class AbstractPreProcessor extends AbstractComponent
      * Tells whether a given configuration is valid
      * Override this method in order to perform validation of
      * configuration
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -37,15 +39,13 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
 {
     final public const string DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
 
-    public function __construct(protected PersistenceManagerInterface $persistenceManager) {
-
+    public function __construct(protected PersistenceManagerInterface $persistenceManager)
+    {
     }
     /**
      * Builds a factory object
      *
-     * @param array $settings
      * @param string $identifier
-     * @return DataTargetInterface
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException

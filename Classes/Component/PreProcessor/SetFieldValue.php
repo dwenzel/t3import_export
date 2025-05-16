@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -22,12 +24,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 /**
  * Class SetFieldValue
  * Sets the value of a field to a new value from configuration
- *
- * @package CPSIT\T3importExport\Component\PreProcessor
  */
 class SetFieldValue extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * Tells whether $configuration is valid
      * $configuration must contain a key 'targetField'
@@ -37,9 +36,6 @@ class SetFieldValue extends AbstractPreProcessor implements PreProcessorInterfac
      *   targetField = foo
      *   value = bar
      * }
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool

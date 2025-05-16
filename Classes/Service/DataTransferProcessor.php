@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Service;
 
 /***************************************************************
@@ -36,8 +38,6 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class DataTransferProcessor
- *
- * @package CPSIT\T3importExport\Service
  */
 class DataTransferProcessor
 {
@@ -54,8 +54,6 @@ class DataTransferProcessor
 
     /**
      * injects the persistence manager
-     *
-     * @param PersistenceManager $persistenceManager
      */
     public function injectPersistenceManager(PersistenceManager $persistenceManager)
     {
@@ -70,8 +68,6 @@ class DataTransferProcessor
 
     /**
      * gets the queue
-     *
-     * @return array
      */
     public function getQueue(): array
     {
@@ -156,7 +152,6 @@ class DataTransferProcessor
      *
      * @param array $records Processed records
      * @param TransferTask $task Import task
-     * @param TaskResult $result
      */
     protected function processInitializers(&$records, TransferTask $task, TaskResult $result)
     {
@@ -192,8 +187,6 @@ class DataTransferProcessor
      * Pre processes a single record if any preprocessor is configured
      *
      * @param array $record
-     * @param TransferTask $task
-     * @param TaskResult $result
      */
     protected function preProcessSingle(&$record, TransferTask $task, TaskResult $result)
     {
@@ -213,7 +206,6 @@ class DataTransferProcessor
      *
      * @param array $record Record which should be converted
      * @param TransferTask $task Import type
-     * @param TaskResult $result
      * @return mixed The converted object
      */
     protected function convertSingle(array $record, TransferTask $task, TaskResult $result)
@@ -235,10 +227,7 @@ class DataTransferProcessor
     /**
      * Post processes a single record if any post processor is configured
      *
-     * @param mixed $convertedRecord
      * @param array $record
-     * @param TransferTask $task
-     * @param TaskResult $result
      */
     protected function postProcessSingle(mixed &$convertedRecord, &$record, TransferTask $task, TaskResult $result)
     {

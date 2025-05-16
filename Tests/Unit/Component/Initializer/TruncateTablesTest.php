@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\TruncateTables;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -32,8 +34,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * Class TruncateTablesTest
- *
- * @package CPSIT\T3importExport\Tests\Service\Initializer
  */
 #[CoversClass(\CPSIT\T3importExport\Component\Initializer\TruncateTables::class)]
 class TruncateTablesTest extends TestCase
@@ -73,20 +73,20 @@ class TruncateTablesTest extends TestCase
     {
         return [
             'empty configuration' => [
-                []
+                [],
             ],
             'tables value is integer' => [
-                [TruncateTables::KEY_TABLES => 3]
+                [TruncateTables::KEY_TABLES => 3],
             ],
             'tables is float' => [
-                [TruncateTables::KEY_TABLES => 1.5]
+                [TruncateTables::KEY_TABLES => 1.5],
             ],
             'tables is array' => [
-                [TruncateTables::KEY_TABLES => []]
+                [TruncateTables::KEY_TABLES => []],
             ],
             'tables is empty string' => [
-                [TruncateTables::KEY_TABLES => '']
-            ]
+                [TruncateTables::KEY_TABLES => ''],
+            ],
         ];
     }
 
@@ -107,7 +107,7 @@ class TruncateTablesTest extends TestCase
     {
         $tableName = 'fooTable';
         $config = [
-            'tables' => $tableName
+            'tables' => $tableName,
         ];
         $records = [];
         $this->connectionPool->expects($this->once())

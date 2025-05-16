@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
@@ -32,12 +34,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AbstractFinisherTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Finisher
  * @coversDefaultClass \CPSIT\T3importExport\Component\Finisher\AbstractFinisher
  */
 class AbstractFinisherTest extends TestCase
 {
-
     /**
      * @var AbstractFinisher
      */

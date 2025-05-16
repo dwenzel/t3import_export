@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Factory\FinisherFactory;
@@ -37,8 +39,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class DummyInvalidFinisher
  * Does not implement FinisherInterface
- *
- * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidFinisher
 {
@@ -46,16 +46,11 @@ class DummyInvalidFinisher
 
 /**
  * Class DummyValidFinisher
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
 {
     /**
-     * @param array $configuration
-     * @param array $records
      * @param array $result
-     * @return bool
      */
     public function process(array $configuration, array &$records, &$result): bool
     {
@@ -65,18 +60,14 @@ class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
 
 /**
  * Class FinisherFactoryTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class FinisherFactoryTest extends TestCase
 {
-
-    /**
-     * @var FinisherFactory
-     */
     protected FinisherFactory $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new FinisherFactory();
@@ -93,7 +84,7 @@ class FinisherFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $configurationWithNonExistingClass = [
-            'class' => 'NonExistingClass'
+            'class' => 'NonExistingClass',
         ];
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_454_187_903);
@@ -105,7 +96,7 @@ class FinisherFactoryTest extends TestCase
     public function testGetThrowsExceptionIfClassDoesNotImplementFinisherInterface(): void
     {
         $configurationWithExistingClass = [
-            'class' => DummyInvalidFinisher::class
+            'class' => DummyInvalidFinisher::class,
         ];
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_454_187_910);

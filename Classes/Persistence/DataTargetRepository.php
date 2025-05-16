@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\MissingClassException;
@@ -52,16 +54,10 @@ class DataTargetRepository implements DataTargetInterface
      */
     protected $repository;
 
-
     protected PersistenceManagerInterface $persistenceManager;
-
 
     /**
      * Constructor
-     *
-     * @param string $targetClass
-     * @param RepositoryInterface|null $repository
-     * @param PersistenceManagerInterface|null $persistenceManager
      */
     public function __construct(string $targetClass, ?RepositoryInterface $repository = null, ?PersistenceManagerInterface $persistenceManager = null)
     {
@@ -96,7 +92,6 @@ class DataTargetRepository implements DataTargetInterface
     /**
      * Gets the repository
      *
-     * @return Repository
      * @throws MissingClassException
      */
     public function getRepository(): Repository
@@ -125,7 +120,6 @@ class DataTargetRepository implements DataTargetInterface
 
     /**
      * @param array|null $result
-     * @param array|null $configuration
      * @return mixed
      */
     public function persistAll($result = null, ?array $configuration = null)

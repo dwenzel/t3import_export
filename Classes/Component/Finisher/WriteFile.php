@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
 /***************************************************************
@@ -55,25 +57,20 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
     final public const array CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_CHANGENAME,
-        self::CONFLICT_MODE_REPLACE
+        self::CONFLICT_MODE_REPLACE,
     ];
     protected ResourceFactory $resourceFactory;
 
     /**
      * WriteFile constructor.
-     * @param ResourceFactory|null $resourceFactory
      */
     public function __construct(?ResourceFactory $resourceFactory = null)
     {
         $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
     }
 
-
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -115,8 +112,6 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      * If a file with target file name already exists the conflictMode
      * determines the result: cancel, rename, replace are allowed.
      * Default is rename (according to TYPO3 conventions)
-     * @param array $configuration
-     * @param array $records
      * @param array|TaskResult $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      * @throws InsufficientFolderAccessPermissionsException
@@ -125,7 +120,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
     public function process(array $configuration, array &$records, &$result): bool
     {
         if (
-        !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)
+            !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)
         ) {
             return false;
         }

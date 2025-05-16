@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
@@ -35,7 +37,7 @@ class DataTargetQueueTest extends TestCase
     protected QueueItemRepository $repository;
 
     protected const VALID_CONFIGURATION = [
-        DataTargetQueue::KEY_IDENTIFIER => 'import.foo'
+        DataTargetQueue::KEY_IDENTIFIER => 'import.foo',
     ];
     protected function setUp(): void
     {
@@ -50,29 +52,26 @@ class DataTargetQueueTest extends TestCase
     {
         return [
             'empty configuration' => [
-                []
+                [],
             ],
             'identifier not set' => [
-                ['foo' => 'bar']
+                ['foo' => 'bar'],
             ],
             'identifier must begin with import. or export.' => [
-                [DataTargetQueue::KEY_IDENTIFIER => 'foo']
+                [DataTargetQueue::KEY_IDENTIFIER => 'foo'],
             ],
             'allowUpdate must not be array' => [
-                [DataTargetQueue::KEY_ALLOW_UPDATE => []]
+                [DataTargetQueue::KEY_ALLOW_UPDATE => []],
             ],
             'allowUpdate must not be float' => [
-                [DataTargetQueue::KEY_ALLOW_UPDATE => 3.1]
+                [DataTargetQueue::KEY_ALLOW_UPDATE => 3.1],
             ],
             'allowUpdate must not be integer' => [
-                [DataTargetQueue::KEY_ALLOW_UPDATE => 3.1]
-            ]
+                [DataTargetQueue::KEY_ALLOW_UPDATE => 3.1],
+            ],
         ];
     }
 
-    /**
-     * @param array $configuration
-     */
     #[DataProvider('inValidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
     {

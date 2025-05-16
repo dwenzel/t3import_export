@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\ClearCache;
@@ -81,7 +83,7 @@ class ClearCacheTest extends TestCase
     public function testProcessClearsAllCachesIfGlobalOptionIsset(): void
     {
         $configuration = [
-            'all' => '1'
+            'all' => '1',
         ];
         $records = ['foo'];
         $nonEmptyResult = ['bar'];
@@ -97,12 +99,14 @@ class ClearCacheTest extends TestCase
     public function testProcessClearsSelectedPagesCachesIfGlobalOptionIsset(): void
     {
         $configuration = [
-            'pages' => '1,5,7'
+            'pages' => '1,5,7',
         ];
         $records = ['foo'];
         $nonEmptyResult = ['bar'];
         $expectedPagesToClear = GeneralUtility::intExplode(
-            ',', $configuration['pages'], true
+            ',',
+            $configuration['pages'],
+            true
         );
         $this->cacheService->expects($this->once())
             ->method('clearPageCache')
@@ -117,13 +121,13 @@ class ClearCacheTest extends TestCase
         $configuration = [
             'classes' => [
                 'stdClass' => [
-                    'all' => '1'
-                ]
-            ]
+                    'all' => '1',
+                ],
+            ],
         ];
         $records = ['foo'];
         $nonEmptyResult = [
-            new stdClass()
+            new \stdClass(),
         ];
 
         $this->cacheService->expects($this->once())
@@ -139,17 +143,19 @@ class ClearCacheTest extends TestCase
         $configuration = [
             'classes' => [
                 'stdClass' => [
-                    'pages' => '1,5,7'
-                ]
-            ]
+                    'pages' => '1,5,7',
+                ],
+            ],
         ];
         $expectedPagesToClear = GeneralUtility::intExplode(
-            ',', $configuration['classes']['stdClass']['pages'], true
+            ',',
+            $configuration['classes']['stdClass']['pages'],
+            true
         );
 
         $records = ['foo'];
         $nonEmptyResult = [
-            new stdClass()
+            new \stdClass(),
         ];
 
         $this->cacheService->expects($this->once())
@@ -174,14 +180,14 @@ class ClearCacheTest extends TestCase
         $configuration = [
             'classes' => [
                 'NonMatchingClassName' => [
-                    'pages' => '1,5,7'
-                ]
-            ]
+                    'pages' => '1,5,7',
+                ],
+            ],
         ];
 
         $records = ['foo'];
         $nonEmptyResult = [
-            new stdClass()
+            new \stdClass(),
         ];
 
         $this->cacheService->expects($this->never())

@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\RenderContent;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
@@ -33,8 +35,6 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Class RenderContentTest
- *
- * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  */
 #[CoversClass(RenderContent::class)]
 class RenderContentTest extends TestCase
@@ -56,7 +56,9 @@ class RenderContentTest extends TestCase
 
     protected RenderContent $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->mockTypoScriptService();
@@ -117,7 +119,7 @@ class RenderContentTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
-            'fields' => 'foo'
+            'fields' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -129,8 +131,8 @@ class RenderContentTest extends TestCase
     {
         $config = [
             'fields' => [
-                'foo' => 0
-            ]
+                'foo' => 0,
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -142,8 +144,8 @@ class RenderContentTest extends TestCase
     {
         $config = [
             'fields' => [
-                'foo' => ''
-            ]
+                'foo' => '',
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -156,8 +158,8 @@ class RenderContentTest extends TestCase
         $config = [
             'fields' => [
                 'foo' => ['bar'],
-                'baz' => ['fooBar']
-            ]
+                'baz' => ['fooBar'],
+            ],
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($config)
@@ -174,9 +176,9 @@ class RenderContentTest extends TestCase
             'fields' => [
                 $fieldName => [
                     '_typoScriptNodeValue' => $renderObjectType,
-                    'value' => '1'
-                ]
-            ]
+                    'value' => '1',
+                ],
+            ],
         ];
         $convertedConfiguration = ['boo'];
         $expectedConfiguration = $configuration['fields'][$fieldName];
@@ -213,9 +215,9 @@ class RenderContentTest extends TestCase
         $record = [
             'fooField' => [
                 [
-                    'barField' => 'initialValue'
-                ]
-            ]
+                    'barField' => 'initialValue',
+                ],
+            ],
         ];
         $configuration = [
             'fields' => [
@@ -224,11 +226,11 @@ class RenderContentTest extends TestCase
                     'fields' => [
                         'barField' => [
                             '_typoScriptNodeValue' => 'TEXT',
-                            'value' => '1'
-                        ]
-                    ]
+                            'value' => '1',
+                        ],
+                    ],
                 ],
-            ]
+            ],
         ];
 
         $typoScriptConf = ['foo'];

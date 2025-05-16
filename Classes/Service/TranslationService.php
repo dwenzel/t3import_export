@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Service;
 
 /***************************************************************
@@ -43,36 +45,33 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
     final public const int MISSING_COLUMN_MAP_EXCEPTION_CODE = 1_641_229_990;
     final public const string MISSING_COLUMN_MAP_MESSAGE = 'Missing column map for property %s';
 
-    public function __construct(protected DataMapper $dataMapper,
-                                protected PersistenceManagerInterface $persistenceManager
-    )
-    {
+    public function __construct(
+        protected DataMapper $dataMapper,
+        protected PersistenceManagerInterface $persistenceManager
+    ) {
     }
 
     /**
      * Translates a domain object
      *
-     * @param DomainObjectInterface $origin
-     * @param DomainObjectInterface $translation
      * @param int $language Language id
-     * @return void
-     * @throws Exception
+     * @throws \Exception
      * @throws InvalidColumnMapException
      */
     public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, int $language): void
     {
         if (!$this->haveSameClass($origin, $translation)) {
-            throw new Exception('Origin and translation must be the same type.', 1_432_499_926);
+            throw new \Exception('Origin and translation must be the same type.', 1_432_499_926);
         }
 
         if ($origin === $translation) {
-            throw new Exception('Origin can\'t be translation of its own.', 1_432_502_696);
+            throw new \Exception('Origin can\'t be translation of its own.', 1_432_502_696);
         }
 
         $dataMap = $this->dataMapper->getDataMap($origin::class);
 
         if (!$dataMap->getTranslationOriginColumnName()) {
-            throw new Exception('The type is not translatable.', 1_432_500_079);
+            throw new \Exception('The type is not translatable.', 1_432_500_079);
         }
 
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($dataMap->getTranslationOriginColumnName());
@@ -105,21 +104,12 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
 
     /**
      * Tells if two object are instances of the same class
-     *
-     * @param DomainObjectInterface $origin
-     * @param DomainObjectInterface $translation
-     * @return bool
      */
     public function haveSameClass(DomainObjectInterface $origin, DomainObjectInterface $translation): bool
     {
         return $origin::class === $translation::class;
     }
 
-    /**
-     * @param $identity
-     * @param $targetType
-     * @return object
-     */
     public function getLocalizationParent($identity, $targetType): ?object
     {
         $query = $this->persistenceManager->createQueryForType($targetType);
@@ -137,11 +127,6 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
     /**
      * Returns localizations as array of records [sic!].
      * This method is a wrapper for a static method call of the core BackendUtility
-     *
-     * @param string $table
-     * @param int $uid
-     * @param int $language
-     * @return array
      */
     public function getRecordLocalization(string $table, int $uid, int $language): array
     {

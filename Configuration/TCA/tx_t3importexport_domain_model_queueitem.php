@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use CPSIT\T3importExport\Configuration\Extension;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 
@@ -15,7 +17,7 @@ return [
             'default' => Extension::SVG_ICON_IDENTIFIER_JOBS,
         ],
         'adminOnly' => true,
-        'rootLevel' => 1
+        'rootLevel' => 1,
     ],
     'types' => [
         '1' => [
@@ -27,7 +29,7 @@ return [
                 finished_date,
                 checksum,
                 data,
-          '
+          ',
         ],
     ],
     'columns' => [
@@ -83,7 +85,7 @@ return [
                 'renderType' => 'selectSingle',
                 'items' => [
                     [
-                        'label' => $ll . 'label.status.item.'. QueueItem::STATUS_NEW,
+                        'label' => $ll . 'label.status.item.' . QueueItem::STATUS_NEW,
                         'value' => QueueItem::STATUS_NEW,
                     ],
                     [
@@ -91,7 +93,7 @@ return [
                         'value' => QueueItem::STATUS_PROCESSING,
                     ],
                     [
-                        'label' => $ll . 'label.status.item.'. QueueItem::STATUS_FINISHED,
+                        'label' => $ll . 'label.status.item.' . QueueItem::STATUS_FINISHED,
                         'value' => QueueItem::STATUS_FINISHED,
                     ],
                     [
@@ -101,6 +103,6 @@ return [
                 ],
                 'readOnly' => true,
             ],
-        ]
+        ],
     ],
 ];

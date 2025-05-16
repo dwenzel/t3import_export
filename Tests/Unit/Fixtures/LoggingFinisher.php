@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
 /***************************************************************
@@ -44,14 +46,11 @@ class LoggingFinisher extends AbstractFinisher implements FinisherInterface, Log
     }
 
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
      * @param array $result Array with result records
-     * @return bool
      */
     public function process(array $configuration, array &$records, &$result): bool
     {
         return true;
     }
-
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Factory;
 
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
@@ -40,8 +42,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class TransferTaskFactory
  * builds import tasks from settings
- *
- * @package CPSIT\T3importExport\Domain\Factory
  */
 class TransferTaskFactory extends AbstractFactory implements FactoryInterface
 {
@@ -50,16 +50,13 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
 
     public function __construct(
         protected FactoryFactory $factoryFactory
-    )
-    {
+    ) {
     }
 
     /**
      * Builds a task
      *
-     * @param array $settings
      * @param string $identifier
-     * @return TransferTask
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException
@@ -89,7 +86,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
         if (isset($settings['label'])) {
             $task->setLabel($settings['label']);
         }
-
 
         if (isset($settings['preProcessors'])
             && is_array($settings['preProcessors'])
@@ -147,7 +143,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
      * Sets the target for the import task
      *
      * @param TransferTask $task
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
@@ -169,7 +164,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
      * Sets the source for the import task
      *
      * @param TransferTask $task
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
      * @throws MissingClassException
@@ -194,7 +188,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
      * Sets the pre processors for the import task
      *
      * @param TransferTask $task
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
@@ -209,7 +202,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
      * Sets the post processors for the import task
      *
      * @param TransferTask $task
-     * @param array $settings
      * @param string $identifier
      */
     protected function setPostProcessors($task, array $settings, $identifier): void
@@ -227,7 +219,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
      * Sets the converters for the import task
      *
      * @param TransferTask $task
-     * @param array $settings
      * @param string $identifier
      */
     protected function setConverters($task, array $settings, $identifier): void
@@ -244,7 +235,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
      * Sets the finishers for the import task
      *
      * @param TransferTask $task
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
@@ -263,7 +253,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
      * Sets the initializers for the import task
      *
      * @param TransferTask $task
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
      */
@@ -277,12 +266,6 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
         $task->setInitializers($components);
     }
 
-    /**
-     * @param string $componentClass
-     * @param array $settings
-     * @param string $identifier
-     * @return array
-     */
     protected function createComponents(string $componentClass, array $settings, string $identifier): array
     {
         $factory = $this->factoryFactory->get($componentClass);

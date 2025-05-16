@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
@@ -25,19 +27,11 @@ abstract class AbstractPostProcessor extends AbstractComponent
 {
     /**
      * processes the converted record
-     *
-     * @param array $configuration
-     * @param mixed $convertedRecord
-     * @param array $record
-     * @return bool
      */
     abstract public function process(array $configuration, mixed &$convertedRecord, array &$record): bool;
 
     /**
      * Tells whether a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {

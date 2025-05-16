@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -35,32 +37,20 @@ interface PreProcessorInterface extends ComponentInterface
      */
     public function process($configuration, &$record);
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     public function isConfigurationValid(array $configuration): bool;
 
     /**
      * Tells if the component is disabled
-     * @param array $configuration
-     * @param array $record
-     * @param TaskResult|null $result
-     * @return bool
      */
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool;
 
     /**
      * Sets the configuration
-     *
-     * @param array $configuration
      */
     public function setConfiguration(array $configuration): void;
 
     /**
      * Returns the configuration
-     *
-     * @return array
      */
     public function getConfiguration(): array;
 }

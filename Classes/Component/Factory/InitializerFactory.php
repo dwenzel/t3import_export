@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
@@ -34,18 +36,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class InitializerFactory
- *
- * @package CPSIT\T3importExport\Component\Factory
  */
 class InitializerFactory extends AbstractFactory implements FactoryInterface
 {
     /**
      * Builds a Initializer object
      *
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return InitializerInterface
      */
     public function get(array $settings = [], $identifier = null): InitializerInterface
     {

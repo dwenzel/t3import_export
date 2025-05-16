@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -36,7 +38,9 @@ class NotEmptyValidator implements ConfigurationValidatorInterface
 
         if (!empty($this->path)) {
             $value = ArrayUtility::getValueByPath(
-                $config, $this->path, $this->delimiter
+                $config,
+                $this->path,
+                $this->delimiter
             );
         }
         return (!empty($value));

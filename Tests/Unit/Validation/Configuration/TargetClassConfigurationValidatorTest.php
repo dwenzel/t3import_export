@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
@@ -33,7 +35,6 @@ use stdClass;
  ***************************************************************/
 class TargetClassConfigurationValidatorTest extends TestCase
 {
-
     protected TargetClassConfigurationValidator $subject;
 
     /**
@@ -59,7 +60,7 @@ class TargetClassConfigurationValidatorTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_451_146_384);
         $configuration = [
-            'targetClass' => 1
+            'targetClass' => 1,
         ];
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->subject->isValid($configuration);
@@ -70,7 +71,7 @@ class TargetClassConfigurationValidatorTest extends TestCase
         $this->expectException(MissingClassException::class);
         $this->expectExceptionCode(1_451_146_564);
         $configuration = [
-            'targetClass' => 'NonExistingClassName'
+            'targetClass' => 'NonExistingClassName',
         ];
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->subject->isValid($configuration);
@@ -81,9 +82,9 @@ class TargetClassConfigurationValidatorTest extends TestCase
      */
     public function validateReturnsTrueForValidConfiguration(): void
     {
-        $existingClassName = stdClass::class;
+        $existingClassName = \stdClass::class;
         $validConfiguration = [
-            'targetClass' => $existingClassName
+            'targetClass' => $existingClassName,
         ];
 
         /** @noinspection PhpUnhandledExceptionInspection */

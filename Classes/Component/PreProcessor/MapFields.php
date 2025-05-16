@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -22,16 +24,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 /**
  * Class MapFields
  * Maps one field of a record to another. Existing fields are overwritten!
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class MapFields extends AbstractPreProcessor implements PreProcessorInterface
 {
-
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
@@ -55,7 +50,7 @@ class MapFields extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * @param array $configuration
      * @param array $record
-     * @return TRUE
+     * @return true
      */
     public function process($configuration, &$record)
     {

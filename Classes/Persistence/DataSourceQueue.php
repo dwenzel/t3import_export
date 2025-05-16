@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -38,7 +40,6 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
     final public const string KEY_BATCH_SIZE = 'batchSize';
     final public const int DEFAULT_BATCH_SIZE = 10;
     protected string $targetClass = QueueItem::class;
-
 
     public function __construct(protected QueueItemRepository $repository)
     {

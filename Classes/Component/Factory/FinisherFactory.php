@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
@@ -36,10 +38,8 @@ class FinisherFactory extends AbstractFactory implements FactoryInterface
     /**
      * Builds a Finisher object
      *
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return FinisherInterface
      */
     public function get(array $settings = [], $identifier = null): FinisherInterface
     {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -28,32 +30,21 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 interface PostProcessorInterface extends ComponentInterface
 {
     /**
-     * @param array $configuration
      * @param mixed $convertedRecord
-     * @param array $record
-     * @return bool
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool;
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     public function isConfigurationValid(array $configuration): bool;
 
     /**
      * Tells if the component is disabled
-     * @param array $configuration
      * @param array|null $record
-     * @param TaskResult|null $result
-     * @return bool
      */
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool;
 
     /**
      * Sets the configuration
      *
-     * @param array $configuration
      * @return mixed
      */
     public function setConfiguration(array $configuration);

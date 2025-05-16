@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /**
@@ -74,7 +76,7 @@ class GenerateFileTraitTest extends TestCase
     public static function dependenciesDataProvider()
     {
         return [
-            [FilePathFactory::class, 'filePathFactory']
+            [FilePathFactory::class, 'filePathFactory'],
         ];
     }
 
@@ -112,46 +114,46 @@ class GenerateFileTraitTest extends TestCase
                 [],
                 false,
                 1_499_007_587,
-                null
+                null,
             ],
             // missing target directory path
             [
                 [
-                    'foo' => 'bar'
+                    'foo' => 'bar',
                 ],
                 false,
                 1_497_427_320,
-                null
+                null,
             ],
             // missing source field name
             [
                 [
-                    'targetDirectoryPath' => 'bar'
+                    'targetDirectoryPath' => 'bar',
                 ],
                 false,
                 1_497_427_335,
-                null
+                null,
             ],
             // missing target field name
             [
                 [
                     'targetDirectoryPath' => 'bar',
-                    'sourceField' => 'baz'
+                    'sourceField' => 'baz',
                 ],
                 false,
                 1_497_427_336,
-                null
+                null,
             ],
             // missing storage id
             [
                 [
                     'targetDirectoryPath' => 'bar',
                     'sourceField' => 'baz',
-                    'targetField' => 'baz'
+                    'targetField' => 'baz',
                 ],
                 false,
                 1_497_427_302,
-                null
+                null,
             ],
             // missing resourceStorage
             [
@@ -159,11 +161,11 @@ class GenerateFileTraitTest extends TestCase
                     'storageId' => 42,
                     'targetDirectoryPath' => 'bar',
                     'sourceField' => 'baz',
-                    'targetField' => 'baz'
+                    'targetField' => 'baz',
                 ],
                 false,
                 1_497_427_346,
-                [42]
+                [42],
             ],
         ];
     }
@@ -171,8 +173,6 @@ class GenerateFileTraitTest extends TestCase
     /**
      * @param array $configuration
      * @param bool $expected
-     * @param $expectedErrorId
-     * @param $expectedErrorArguments
      */
     #[Test]
     #[DataProvider('invalidConfigurationDataProvider')]
@@ -200,7 +200,7 @@ class GenerateFileTraitTest extends TestCase
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
             'sourceField' => 'bar',
-            'targetField' => 'bar'
+            'targetField' => 'bar',
         ];
         $storageConfiguration = ['basePath' => 'baz'];
         $expectedErrorId = 1_497_427_363;
@@ -238,7 +238,7 @@ class GenerateFileTraitTest extends TestCase
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
             'sourceField' => 'bar',
-            'targetField' => 'bar'
+            'targetField' => 'bar',
         ];
 
         $this->storageRepository->expects($this->once())
@@ -290,18 +290,18 @@ class GenerateFileTraitTest extends TestCase
         $sourceField = 'foo';
         $targetField = 'foo';
         $record = [
-            $sourceField => 'bar'
+            $sourceField => 'bar',
         ];
         $configuration = [
             'sourceField' => 'foo',
             'targetField' => 'foo',
-            'multipleRows' => false
+            'multipleRows' => false,
         ];
 
         $fieldValue = 'bar';
 
         $expectedRecord = [
-            $targetField => $fieldValue
+            $targetField => $fieldValue,
         ];
 
         $this->subject->expects($this->once())
@@ -324,20 +324,20 @@ class GenerateFileTraitTest extends TestCase
         $targetField = 'foo';
 
         $record = [
-            $sourceField => 'baz,boom'
+            $sourceField => 'baz,boom',
         ];
 
         $configuration = [
             'sourceField' => 'foo',
             'targetField' => 'foo',
-            'multipleRows' => '1'
+            'multipleRows' => '1',
         ];
 
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
         $expectedRecord = [
-            $targetField => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue],
         ];
 
         $this->subject->expects($this->exactly(2))
@@ -360,21 +360,21 @@ class GenerateFileTraitTest extends TestCase
         $prefix = 'prefix/';
 
         $record = [
-            $sourceField => 'baz,boom'
+            $sourceField => 'baz,boom',
         ];
 
         $configuration = [
             'sourceField' => 'foo',
             'targetField' => 'foo',
             'multipleRows' => '1',
-            'sourcePath' => $prefix
+            'sourcePath' => $prefix,
         ];
 
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
         $expectedRecord = [
-            $targetField => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue],
         ];
 
         $this->subject->expects($this->exactly(2))
@@ -397,21 +397,21 @@ class GenerateFileTraitTest extends TestCase
         $separator = '|';
 
         $record = [
-            $sourceField => 'baz|boom'
+            $sourceField => 'baz|boom',
         ];
 
         $configuration = [
             'sourceField' => 'foo',
             'targetField' => 'foo',
             'multipleRows' => '1',
-            'separator' => $separator
+            'separator' => $separator,
         ];
 
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
         $expectedRecord = [
-            $targetField => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue],
         ];
 
         $this->subject->expects($this->exactly(2))

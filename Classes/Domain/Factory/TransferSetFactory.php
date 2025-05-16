@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Factory;
 
 /***************************************************************
@@ -31,18 +33,14 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class TransferSetFactory
  * builds import sets from settings
- *
- * @package CPSIT\T3importExport\Domain\Repository
  */
 class TransferSetFactory extends AbstractFactory
 {
-
     public function __construct(
         protected TransferTaskFactory $transferTaskFactory,
         protected ConfigurationManagerInterface $configurationManager,
-        protected TransferSet $transferSet)
-    {
-
+        protected TransferSet $transferSet
+    ) {
         $extensionConfiguration = $configurationManager->getConfiguration(
             ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
             't3importexport'
@@ -53,7 +51,6 @@ class TransferSetFactory extends AbstractFactory
     /**
      * Builds a set of tasks
      *
-     * @param array $settings
      * @param string $identifier
      * @return TransferSet
      * @throws InvalidConfigurationException
@@ -73,7 +70,8 @@ class TransferSetFactory extends AbstractFactory
             foreach ($taskIdentifiers as $taskIdentifier) {
                 if (isset($this->settings['import']['tasks'][$taskIdentifier])) {
                     $task = $this->transferTaskFactory->get(
-                        $this->settings['import']['tasks'][$taskIdentifier], $taskIdentifier
+                        $this->settings['import']['tasks'][$taskIdentifier],
+                        $taskIdentifier
                     );
                     $tasks[$taskIdentifier] = $task;
                 }

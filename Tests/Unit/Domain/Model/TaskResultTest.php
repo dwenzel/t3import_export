@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\T3importExport\Domain\Model\TaskResult;
@@ -49,9 +51,9 @@ class TaskResultTest extends TestCase
         /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
         $list = new TaskResult();
 
-        $obj1 = new stdClass();
-        $obj2 = new stdClass();
-        $obj3 = new stdClass();
+        $obj1 = new \stdClass();
+        $obj2 = new \stdClass();
+        $obj3 = new \stdClass();
 
         $list->add($obj1);
         $list->add($obj2);
@@ -113,13 +115,11 @@ class TaskResultTest extends TestCase
      * This attaches all the required expectations in the right order so that
      * our iterator will act like an iterator
      * @param \Iterator|\PHPUnit_Framework_MockObject_MockObject $iterator
-     * @param array $items
      */
     private function mockIterator(
         \Iterator $iterator,
         array $items
-    )
-    {
+    ) {
         $iterator->expects($this->at(0))
             ->method('rewind');
         $counter = 1;
@@ -156,7 +156,7 @@ class TaskResultTest extends TestCase
 
     public function testKeyReturnsPosition(): void
     {
-        $element = new stdClass();
+        $element = new \stdClass();
         $this->subject->add($element);
         $this->subject->next();
         $this->assertSame(
@@ -177,7 +177,7 @@ class TaskResultTest extends TestCase
     {
         $elements = [
             'foo',
-            'bar'
+            'bar',
         ];
         $size = count($elements);
 

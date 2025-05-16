@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -42,8 +44,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class DummyMissingSourceInterface
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingSourceInterfaceClass
 {
@@ -51,8 +51,6 @@ class DummyMissingSourceInterfaceClass
 
 /**
  * Class DummyMissingConfigurableInterfaceClass
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingConfigurableInterfaceClass
 {
@@ -60,9 +58,6 @@ class DummyMissingConfigurableInterfaceClass
 
     /**
      * Fake method matches DataSourceInterface
-     *
-     * @param array $configuration
-     * @return array
      */
     public function getRecords(array $configuration): array
     {
@@ -72,18 +67,14 @@ class DummyMissingConfigurableInterfaceClass
 
 /**
  * Class DummyIdentifiableSourceInterfaceClass
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, IdentifiableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
 
     /**
      * Fake method matches DataSourceInterface
-     *
-     * @param array $configuration
-     * @return array
      */
     public function getRecords(array $configuration): array
     {
@@ -92,9 +83,6 @@ class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, Iden
 
     /**
      * Fake method matches abstract method in ConfigurableInterface
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -104,18 +92,14 @@ class DummyIdentifiableSourceInterfaceClass implements DataSourceInterface, Iden
 
 /**
  * Class DummySourceInterfaceClass
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummySourceClass implements DataSourceInterface, ConfigurableInterface, IdentifiableInterface
 {
-    use ConfigurableTrait, IdentifiableTrait;
+    use ConfigurableTrait;
+    use IdentifiableTrait;
 
     /**
      * Fake method matches DataSourceInterface
-     *
-     * @param array $configuration
-     * @return array
      */
     public function getRecords(array $configuration): array
     {
@@ -124,9 +108,6 @@ class DummySourceClass implements DataSourceInterface, ConfigurableInterface, Id
 
     /**
      * Fake method matches abstract method in ConfigurableInterface
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -137,7 +118,6 @@ class DummySourceClass implements DataSourceInterface, ConfigurableInterface, Id
 /**
  * Class DataSourceFactoryTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataSourceFactory
  */
 class DataSourceFactoryTest extends TestCase
@@ -165,7 +145,7 @@ class DataSourceFactoryTest extends TestCase
         $this->expectException(MissingClassException::class);
         $identifier = 'foo';
         $settings = [
-            'class' => 'NonExistingSourceClass'
+            'class' => 'NonExistingSourceClass',
         ];
         $this->subject->get($settings, $identifier);
     }
@@ -177,7 +157,7 @@ class DataSourceFactoryTest extends TestCase
         $this->expectException(MissingInterfaceException::class);
         $identifier = 'foo';
         $settings = [
-            'class' => DummyMissingSourceInterfaceClass::class
+            'class' => DummyMissingSourceInterfaceClass::class,
         ];
         $this->subject->get($settings, $identifier);
     }
@@ -204,7 +184,7 @@ class DataSourceFactoryTest extends TestCase
         $settings = [
             'class' => $dataSourceClass,
             'identifier' => 'barSourceIdentifier',
-            'config' => []
+            'config' => [],
         ];
 
         $dataSource = $this->subject->get($settings, $identifier);
@@ -232,7 +212,7 @@ class DataSourceFactoryTest extends TestCase
         $settings = [
             'config' => [
                 'table' => $tableName,
-            ]
+            ],
         ];
 
         /** @noinspection UnnecessaryAssertionInspection */
@@ -251,7 +231,7 @@ class DataSourceFactoryTest extends TestCase
         $identifier = 'foo';
         $settings = [
             'class' => $sourceClass,
-            'config' => []
+            'config' => [],
         ];
         /** @noinspection UnnecessaryAssertionInspection */
         $this->assertInstanceOf(
@@ -269,7 +249,7 @@ class DataSourceFactoryTest extends TestCase
         $dataSourceClass = DummySourceClass::class;
         $settings = [
             'class' => $dataSourceClass,
-            'config' => ['boo']
+            'config' => ['boo'],
         ];
 
         $dataSource = $this->subject->get($settings, $identifier);

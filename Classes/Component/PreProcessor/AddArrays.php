@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -20,10 +22,6 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  ***************************************************************/
 class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
 {
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
@@ -49,7 +47,7 @@ class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process($configuration, &$record)
     {
-        $fields = explode(',', (string) $configuration['fields']);
+        $fields = explode(',', (string)$configuration['fields']);
         $targetField = $configuration['targetField'];
 
         foreach ($fields as $field) {

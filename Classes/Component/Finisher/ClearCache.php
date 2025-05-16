@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
@@ -35,8 +37,6 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
 
     /**
      * Injects the cache service
-     *
-     * @param CacheService $cacheService
      */
     public function injectCacheService(CacheService $cacheService)
     {
@@ -73,10 +73,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      *   }
      *  }
      * }
-     * @param array $configuration
-     * @param array $records
      * @param array $result
-     * @return bool
      */
     public function process(array $configuration, array &$records, &$result): bool
     {
@@ -124,7 +121,6 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      * Returns true if $configuration['all'] can be interpreted as
      * 'true'
      *
-     * @param $configuration
      * @return bool
      */
     protected function shouldClearAll($configuration)
@@ -133,10 +129,6 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
         && (bool)$configuration['all'];
     }
 
-    /**
-     * @param $localConfig
-     * @param $pagesToClear
-     */
     protected function addPagesToClear($localConfig, &$pagesToClear)
     {
         if (isset($localConfig['pages'])) {

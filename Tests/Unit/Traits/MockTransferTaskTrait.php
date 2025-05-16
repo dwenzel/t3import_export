@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Domain\Model\TransferTask;
@@ -24,7 +26,6 @@ use PHPUnit\Framework\MockObject\MockObject;
  ***************************************************************/
 trait MockTransferTaskTrait
 {
-
     /**
      * @var TransferTask|MockObject
      */
@@ -45,8 +46,9 @@ trait MockTransferTaskTrait
                     'setPostProcessors',
                     'setFinishers',
                     'setInitializers',
-                    'setLabel'
-                ])
+                    'setLabel',
+                ]
+            )
             ->getMock();
     }
 }

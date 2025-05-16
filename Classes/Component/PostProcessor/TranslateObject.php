@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -33,24 +35,19 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 /**
  * Class TranslateObject
  * Translates
- *
- * @package CPSIT\T3importExport\Component\PostProcessor
  */
 class TranslateObject extends AbstractPostProcessor implements PostProcessorInterface
 {
-
     public function __construct(
         protected PersistenceManagerInterface $persistenceManager,
         protected TranslationService $translationService,
         protected TranslateObjectConfigurationValidator $configurationValidator
-    )
-    {
+    ) {
     }
 
     /**
      * Tells whether a given configuration is valid
      *
-     * @param array $configuration
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      */
@@ -64,10 +61,7 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * Finds the localization parent of the converted record
      * and translates it (adding the converted record as translation)
      *
-     * @param array $configuration
      * @param DomainObjectInterface $convertedRecord
-     * @param array $record
-     * @return bool
      * @throws InvalidColumnMapException
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool

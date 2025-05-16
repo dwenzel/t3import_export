@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 /**
@@ -29,7 +31,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
+    use ResourceTrait;
 
     protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
 
@@ -41,12 +45,8 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
     {
     }
 
-
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -86,7 +86,7 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
     {
         $records = [];
 
-        $resource = rtrim((string) $this->loadResource($configuration));
+        $resource = rtrim((string)$this->loadResource($configuration));
 
         if (!empty($resource)) {
             $delimiter = null;
@@ -105,7 +105,7 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
 
             $rows = array_filter(str_getcsv($resource, "\n", escape: '\\'));
 
-            $records = array_map(fn($d) => str_getcsv($d, $delimiter, $enclosure, $escape), $rows);
+            $records = array_map(fn ($d) => str_getcsv($d, $delimiter, $enclosure, $escape), $rows);
 
             $headers = $records[0];
             if (isset($configuration['fields'])) {

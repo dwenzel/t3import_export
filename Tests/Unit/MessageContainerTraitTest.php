@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\Messaging\MessageContainer;
@@ -58,7 +60,8 @@ class MessageContainerTraitTest extends TestCase
     }
 
     #[Test]
-    public function testGetMessagesReturnsMessagesFromContainer(): void {
+    public function testGetMessagesReturnsMessagesFromContainer(): void
+    {
         $messages = ['foo'];
         $this->messageContainer->expects($this->once())
             ->method('getMessages')->willReturn($messages);
@@ -69,7 +72,8 @@ class MessageContainerTraitTest extends TestCase
     }
 
     #[Test]
-    public function testHasMessageWithIdReturnsResultFromMessageContainter(): void {
+    public function testHasMessageWithIdReturnsResultFromMessageContainter(): void
+    {
         $id = 123;
         $this->messageContainer->expects($this->once())
             ->method('hasMessageWithId')

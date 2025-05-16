@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 /***************************************************************
@@ -20,10 +22,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Traits;
  ***************************************************************/
 trait MockFileStructureTrait
 {
-
-    /**
-     * @return array
-     */
     protected function mockFileStructure(): array
     {
         $rootDirectory = 'root';
@@ -35,14 +33,14 @@ trait MockFileStructureTrait
         $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
         $targetDirectory = 'targetDir';
         $configuration = [
-            'targetDirectoryPath' => $targetDirectory
+            'targetDirectoryPath' => $targetDirectory,
         ];
 
         $fileStructure = [
             $sourceDirectory => [
-                $sourceFileName => $sourceFileContent
+                $sourceFileName => $sourceFileContent,
             ],
-            $targetDirectory => []
+            $targetDirectory => [],
         ];
         return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
     }

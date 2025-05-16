@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Factory;
 
+use CPSIT\T3importExport\Component\ComponentInterface;
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Factory\ConverterFactory;
 use CPSIT\T3importExport\Component\Factory\FinisherFactory;
@@ -14,7 +17,6 @@ use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Exception\InvalidClassException;
-use CPSIT\T3importExport\Component\ComponentInterface;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
@@ -70,8 +72,7 @@ class ComponentFactoryMap implements FactoryMapInterface
             );
         }
 
-        if(array_key_exists($productClass, static::FACTORY_MAP))
-        {
+        if (array_key_exists($productClass, static::FACTORY_MAP)) {
             $factoryClass = static::FACTORY_MAP[$productClass];
         }
 

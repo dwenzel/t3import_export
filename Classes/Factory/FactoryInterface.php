@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Factory;
 
 use TYPO3Fluid\Fluid\Component\ComponentInterface;
@@ -24,7 +26,6 @@ interface FactoryInterface
 {
     /**
      * Returns a factory object
-     * @param array $settings
      * @param null $identifier
      * @return mixed
      */

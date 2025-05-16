@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 /***************************************************************
@@ -27,17 +29,14 @@ use TYPO3\CMS\Core\Database\Connection;
 /**
  * Class UpdateTable
  * Updates records from a database table.
- * @package \CPSIT\T3importExport\Component\Initializer
  */
 class UpdateTable extends AbstractInitializer implements InitializerInterface
 {
     use DatabaseTrait;
 
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
-     * @return bool
-     * @throws Exception
+     * @throws \Exception
      */
     public function process(array $configuration, array &$records): bool
     {
@@ -77,9 +76,6 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
 
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool

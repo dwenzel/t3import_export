@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableTrait;
@@ -42,8 +44,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Class DummyMissingTargetInterfaceClass
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingTargetInterfaceClass
 {
@@ -51,8 +51,6 @@ class DummyMissingTargetInterfaceClass
 
 /**
  * Class DummyTargetObjectClass
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyTargetObjectClass
 {
@@ -63,13 +61,11 @@ class DummyTargetObjectClass
  */
 class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, IdentifiableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
 
     /**
      * Fake method matches DataTargetInterface
-     *
-     * @param array $configuration
-     * @return array
      */
     public function testGetRecords(array $configuration): array
     {
@@ -78,9 +74,6 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
 
     /**
      * Fake method matches abstract method in DataTargetInterface
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -90,8 +83,6 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
     /**
      * Fake method matches abstract method in ConfigurableInterface
      *
-     * @param $object
-     * @param array|null $configuration
      * @return bool
      * @noinspection PhpMissingReturnTypeInspection
      * @noinspection ReturnTypeCanBeDeclaredInspection
@@ -106,7 +97,6 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
      * Doesn't do anything
      *
      * @param null $result
-     * @param array|null $configuration
      * @return void
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
@@ -118,7 +108,6 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
 /**
  * Class DataTargetFactoryTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataTargetFactory
  */
 class DataTargetFactoryTest extends TestCase
@@ -154,7 +143,7 @@ class DataTargetFactoryTest extends TestCase
         $this->expectException(MissingClassException::class);
         $identifier = 'foo';
         $settings = [
-            'class' => 'NonExistingTargetClass'
+            'class' => 'NonExistingTargetClass',
         ];
         $this->subject->get($settings, $identifier);
     }
@@ -166,7 +155,7 @@ class DataTargetFactoryTest extends TestCase
         $this->expectException(MissingInterfaceException::class);
         $identifier = 'foo';
         $settings = [
-            'class' => DummyMissingTargetInterfaceClass::class
+            'class' => DummyMissingTargetInterfaceClass::class,
         ];
         $this->subject->get($settings, $identifier);
     }
@@ -179,8 +168,8 @@ class DataTargetFactoryTest extends TestCase
         $identifier = 'foo';
         $settings = [
             'object' => [
-                'class' => 'NonExistingObjectClass'
-            ]
+                'class' => 'NonExistingObjectClass',
+            ],
         ];
         $this->subject->get($settings, $identifier);
     }
@@ -194,8 +183,8 @@ class DataTargetFactoryTest extends TestCase
         $objectClass = DummyTargetObjectClass::class;
         $settings = [
             'object' => [
-                'class' => $objectClass
-            ]
+                'class' => $objectClass,
+            ],
         ];
 
         $dataTarget = $this->subject->get($settings, $identifier);
@@ -213,7 +202,7 @@ class DataTargetFactoryTest extends TestCase
         $settings = [
             'class' => $dataTargetClass,
             'identifier' => 'barSourceIdentifier',
-            'config' => []
+            'config' => [],
         ];
 
         $dataTarget = $this->subject->get($settings, $identifier);

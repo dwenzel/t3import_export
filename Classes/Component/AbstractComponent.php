@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -30,20 +32,15 @@ use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /**
  * Class AbstractComponent
- *
- * @package CPSIT\T3importExport\Component
  */
 abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
 {
-    use ConfigurableTrait, RenderContentTrait;
+    use ConfigurableTrait;
+    use RenderContentTrait;
 
     /**
      * Tells if the component is disabled
      *
-     * @param array $configuration
-     * @param array $record
-     * @param TaskResult|null $result
-     * @return bool
      * @throws ContentRenderingException
      */
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
@@ -57,7 +54,6 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
             return true;
         }
         if (is_array($configuration['disable'])) {
-
             $localConfiguration = $configuration['disable'];
             if (isset($localConfiguration['if']['result']['hasMessage'])) {
                 $messageIds = GeneralUtility::intExplode(

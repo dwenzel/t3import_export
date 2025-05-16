@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /***************************************************************
  *
  *  Copyright notice
@@ -33,7 +35,6 @@ class DataStream extends AbstractEntity implements DataStreamInterface
     protected $buffer;
 
     /**
-     * @param $buffer
      * @return mixed
      */
     public function setStreamBuffer($buffer)

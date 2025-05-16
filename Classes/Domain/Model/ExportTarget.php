@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Domain\Model;
 
 /***************************************************************
@@ -29,13 +31,9 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
  * Class ExportTarget
-
- *
-*@package Domain\Model
  */
 class ExportTarget extends AbstractEntity
 {
-
     /**
      * @var string
      */

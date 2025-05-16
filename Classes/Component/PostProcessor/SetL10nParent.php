@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -20,7 +22,6 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Database\Connection;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\InvalidColumnMapException;
 use CPSIT\T3importExport\InvalidConfigurationException;
@@ -30,6 +31,7 @@ use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\SetL10nParentConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -39,8 +41,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 /**
  * Class TranslateObject
  * Translates
- *
- * @package CPSIT\T3importExport\Component\PostProcessor
  */
 class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterface
 {
@@ -51,13 +51,11 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
         protected DatabaseConnectionService $connectionService,
         protected SetL10nParentConfigurationValidator $configurationValidator
     ) {
-
     }
 
     /**
      * Tells whether a given configuration is valid
      *
-     * @param array $configuration
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      */
@@ -71,16 +69,11 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
      * Finds the localization parent of the converted record
      * and translates it (adding the converted record as translation)
      *
-     * @param array $configuration
      * @param array $convertedRecord
-     * @param array $record
-     * @return bool
      * @throws InvalidColumnMapException
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
-
-
         $subjectParentField = $configuration['subject']['parentField'];
 
         if (empty($convertedRecord[$subjectParentField])) {
@@ -103,7 +96,7 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
             ->createQueryBuilder();
 
         $matchValueType = Connection::PARAM_STR;
-        if (is_integer($matchValue)) {
+        if (is_int($matchValue)) {
             $matchValueType = Connection::PARAM_INT;
         }
 
