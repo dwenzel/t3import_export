@@ -1,0 +1,25 @@
+paths:
+  - Configuration/
+  - Resources/Private/TypoScript/
+
+excludePaths:
+  - .Build/
+
+filePatterns:
+  - "*.typoscript"
+  - "*.tsconfig"
+  - "*.ts"
+
+sniffs:
+  - class: Indentation
+    parameters:
+      indentPerLevel: 2
+      useSpaces: true
+  - class: RepeatingRValue
+    parameters:
+      allowedIdentifiers:
+        - EXT:
+  - class: DeadCode
+  - class: OperatorWhitespace
+  - class: DuplicateAssignment
+  - class: EmptySection

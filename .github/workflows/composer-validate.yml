@@ -25,4 +25,5 @@ jobs:
         run: composer validate --strict
 
       - name: Check for normalized composer.json
-        run: composer normalize --dry-run
+        run: composer install --no-progress
+        run: composer lint:composer

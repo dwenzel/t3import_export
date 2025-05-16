@@ -50,5 +50,5 @@ jobs:
 
       - name: Run unit tests
         run: |
-          mkdir -p .Build/log/coverage/
-          vendor/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit --coverage-text
+          composer install --no-progress
+          XDEBUG_MODE=coverage composer test:coverage
