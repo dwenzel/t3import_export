@@ -151,7 +151,6 @@ class DataSourceFactoryTest extends TestCase
 
     /**
      * set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
