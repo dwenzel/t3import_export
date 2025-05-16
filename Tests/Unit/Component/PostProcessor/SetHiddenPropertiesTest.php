@@ -3,7 +3,6 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\DummyDomainObject;
 use PHPUnit\Framework\Attributes\Covers;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -29,6 +28,11 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+class DummyDomainObject extends AbstractDomainObject
+{
+
+}
+
 /**
  * Class SetHiddenPropertiesTest
  *
@@ -47,10 +51,10 @@ class SetHiddenPropertiesTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->markTestSkipped('DummyDomainObject class not found due to autoloading issues in PHPUnit 12');
+        //$this->markTestSkipped('DummyDomainObject class not found due to autoloading issues in PHPUnit 12');
 
         $this->subject = new SetHiddenProperties();
-        // $this->domainObject = new DummyDomainObject();
+        $this->domainObject = new DummyDomainObject();
     }
 
     #[Test]
