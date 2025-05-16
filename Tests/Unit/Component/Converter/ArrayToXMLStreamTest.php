@@ -85,7 +85,7 @@ class ArrayToXMLStreamTest extends TestCase
     {
         // test for default configurator
         $propertyMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
-            ->setMethods(['setTypeConverterOptions', 'skipUnknownProperties'])
+            ->onlyMethods(['setTypeConverterOptions', 'skipUnknownProperties'])
             ->getMock();
         $propertyMappingConfiguration->expects($this->once())
             ->method('setTypeConverterOptions')
@@ -120,7 +120,7 @@ class ArrayToXMLStreamTest extends TestCase
     {
         /** @var TargetClassConfigurationValidator|MockObject $mockedTargetValidator */
         $mockedTargetValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
 
@@ -147,14 +147,14 @@ class ArrayToXMLStreamTest extends TestCase
     {
         /** @var TargetClassConfigurationValidator|MockObject $mockedTargetValidator */
         $mockedTargetValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->subject->injectTargetClassConfigurationValidator($mockedTargetValidator);
 
 
         /** @var MappingConfigurationValidator|MockObject $mockedMappingValidator */
         $mockedMappingValidator = $this->getMockBuilder(
-            MappingConfigurationValidator::class)->setMethods(['isValid'])
+            MappingConfigurationValidator::class)->onlyMethods(['isValid'])
             ->getMock();
         $this->subject->injectMappingConfigurationValidator($mockedMappingValidator);
 

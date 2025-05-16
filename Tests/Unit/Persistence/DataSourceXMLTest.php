@@ -32,7 +32,7 @@ class DataSourceXMLTest extends TestCase
     protected function mockSubject(): void
     {
         $this->subject = $this->getMockBuilder(DataSourceXML::class)
-            ->setMethods(['getAbsoluteFilePath'])
+            ->onlyMethods(['getAbsoluteFilePath'])
             ->getMock();
     }
 

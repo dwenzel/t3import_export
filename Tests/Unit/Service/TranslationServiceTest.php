@@ -128,11 +128,11 @@ class TranslationServiceTest extends TestCase
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($translationOriginColumnName);
 
         $origin = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
+            ->onlyMethods(['_setProperty'])
             ->getMock();
 
         $translation = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
+            ->onlyMethods(['_setProperty'])
             ->getMock();
 
         $this->dataMap->method('getTranslationOriginColumnName')
@@ -157,14 +157,14 @@ class TranslationServiceTest extends TestCase
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($translationOriginColumnName);
 
         $origin = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
+            ->onlyMethods(['_setProperty'])
             ->getMock();
         $translation = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
+            ->onlyMethods(['_setProperty'])
             ->getMock();
         $mockColumnMap = $this->getMockBuilder(ColumnMap::class)
             ->disableOriginalConstructor()
-            ->setMethods(['setTypeOfRelation', 'setType', 'setChildTableName'])
+            ->onlyMethods(['setTypeOfRelation', 'setType', 'setChildTableName'])
             ->getMock();
 
         $this->dataMapper->expects($this->once())

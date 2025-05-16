@@ -236,7 +236,7 @@ class QueueItemRepositoryTest extends TestCase
         $this->subject->update($validRecord);
     }
 
-    public function validRecordDataProvider(): array
+    public static function validRecordDataProvider(): array
     {
         $identifier = 'import.foo';
 

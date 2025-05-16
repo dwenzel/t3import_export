@@ -48,7 +48,7 @@ class ClearCacheTest extends TestCase
     protected function mockCacheService(): void
     {
         $this->cacheService = $this->getMockBuilder(CacheService::class)
-            ->setMethods(['clearPageCache'])
+            ->onlyMethods(['clearPageCache'])
             ->getMock();
         $this->subject->injectCacheService($this->cacheService);
     }

@@ -43,12 +43,12 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         $this->targetClassConfigurationValidator = $this->getMockBuilder(
             TargetClassConfigurationValidator::class
         )
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->mappingConfigurationValidator = $this->getMockBuilder(
             MappingConfigurationValidator::class
         )
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->subject = new TranslateObjectConfigurationValidator(
             $this->targetClassConfigurationValidator,

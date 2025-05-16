@@ -39,7 +39,7 @@ class MessageTest extends TestCase
     {
         $this->subject = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
-            ->setMethods(['dummy'])
+            ->onlyMethods(['dummy'])
             ->getMock();
     }
 

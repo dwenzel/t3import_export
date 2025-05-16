@@ -156,7 +156,7 @@ class DataSourceFactoryTest extends TestCase
     {
         $this->subject = new DataSourceFactory();
         $this->dataSource = $this->getMockBuilder(DummySourceClass::class)
-            ->setMethods(['setIdentifier'])
+            ->onlyMethods(['setIdentifier'])
             ->getMock();
     }
 

@@ -34,7 +34,7 @@ trait MockFileReferenceFactoryTrait
     {
         $this->fileReferenceFactory = $this->getMockBuilder(FileReferenceFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])->getMock();
+            ->onlyMethods(['create'])->getMock();
 
         return $this;
     }

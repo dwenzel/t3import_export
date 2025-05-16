@@ -35,7 +35,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->setMethods(['dummy', 'getAbsoluteFilePath'])
+            ->onlyMethods(['dummy', 'getAbsoluteFilePath'])
             ->getMock();
         vfsStreamWrapper::register();
     }

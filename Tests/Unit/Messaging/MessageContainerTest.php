@@ -36,7 +36,7 @@ class MessageContainerTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(MessageContainer::class)
-            ->setMethods(['dummy'])->getMock();
+            ->onlyMethods(['dummy'])->getMock();
     }
 
     /**
@@ -119,7 +119,7 @@ class MessageContainerTest extends TestCase
     public function hasMessageReturnsTrueForMessageInContainer() {
         $id = 7;
         $mockMessage = $this->getMockBuilder(Message::class)->disableOriginalConstructor()
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->getMock();
         $mockMessage->expects($this->once())->method('getId')
             ->willReturn($id);

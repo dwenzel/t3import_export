@@ -81,10 +81,10 @@ class TranslateObjectTest extends TestCase
         $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
         $this->translationService = $this->getMockBuilder(TranslationService::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getLocalizationParent', 'translate'])
+            ->onlyMethods(['getLocalizationParent', 'translate'])
             ->getMock();
         $this->configurationValidator = $this->getMockBuilder(TranslateObjectConfigurationValidator::class)
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
 
         $this->subject = new TranslateObject(
