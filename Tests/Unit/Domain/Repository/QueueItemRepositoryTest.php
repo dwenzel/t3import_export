@@ -35,25 +35,10 @@ class QueueItemRepositoryTest extends TestCase
 {
     protected QueueItemRepository $subject;
 
-    /**
-     * @var ConnectionPool|MockObject
-     */
-    protected ConnectionPool $connectionPool;
-
-    /**
-     * @var DatabaseConnectionService|MockObject
-     */
-    protected DatabaseConnectionService $connectionService;
-
-    /**
-     * @var Connection|MockObject
-     */
-    protected Connection $connection;
-
-    /**
-     * @var PersistenceManagerInterface|MockObject
-     */
-    protected PersistenceManagerInterface $persistenceManager;
+    protected ConnectionPool&MockObject $connectionPool;
+    protected DatabaseConnectionService&MockObject $connectionService;
+    protected Connection&MockObject $connection;
+    protected PersistenceManagerInterface&MockObject $persistenceManager;
 
     protected function mockConnection(): void
     {
@@ -62,8 +47,6 @@ class QueueItemRepositoryTest extends TestCase
             ->onlyMethods([
                 'createQueryBuilder',
                 'delete',
-                'where',
-                'execute',
                 'count',
                 'insert',
                 'truncate',
@@ -94,7 +77,6 @@ class QueueItemRepositoryTest extends TestCase
             ->onlyMethods([
                 'isRegistered',
                 'getDatabase',
-                'getConnectionForTable',
                 'getConnectionPool'
             ])
             ->getMock();
@@ -199,8 +181,6 @@ class QueueItemRepositoryTest extends TestCase
     }
 
     /**
-     * @param array $validRecord
-     * @param array $expectedIdentifiers
      * @throws InvalidArgumentException
      */
     #[DataProvider('validRecordDataProvider')]
@@ -219,8 +199,6 @@ class QueueItemRepositoryTest extends TestCase
     }
 
     /**
-     * @param array $validRecord
-     * @param array $expectedIdentifiers
      * @throws InvalidArgumentException
      */
     #[DataProvider('validRecordDataProvider')]
@@ -266,8 +244,6 @@ class QueueItemRepositoryTest extends TestCase
     }
 
     /**
-     * @param array $validRecord
-     * @param array $expectedIdentifiers
      * @throws InvalidArgumentException
      */
     #[DataProvider('validRecordDataProvider')]
@@ -285,8 +261,6 @@ class QueueItemRepositoryTest extends TestCase
 
 
     /**
-     * @param array $validRecord
-     * @param array $expectedIdentifiers
      * @throws InvalidArgumentException
      */
     #[DataProvider('validRecordDataProvider')]

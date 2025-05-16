@@ -150,8 +150,7 @@ class TransferTaskFactoryTest extends TestCase
 
     protected function mockDataTarget(): void
     {
-        $this->dataTarget = $this->getMockBuilder(DataTargetInterface::class)
-            ->getMockForAbstractClass();
+        $this->dataTarget = $this->createMock(DataTargetInterface::class);
     }
 
     protected function mockDataSource(): void
@@ -250,6 +249,8 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsSourceAndTargetWithIdentifier(): void
     {
+        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
+
         $identifier = 'foo';
         $settings = [
             'source' => [
@@ -286,7 +287,6 @@ class TransferTaskFactoryTest extends TestCase
             $this->dataSource,
             $task->getSource()
         );
-
     }
 
     #[Test]
@@ -315,6 +315,8 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsPreProcessors(): void
     {
+        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
+
         $identifier = 'bar';
         $processorClass = PreProcessorInterface::class;
         $singleConfiguration = [
@@ -361,6 +363,8 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsPostProcessors(): void
     {
+        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
+
         $identifier = 'bar';
         $processorClass = PostProcessorInterface::class;
         $singleConfiguration = [
@@ -404,6 +408,8 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsConverters(): void
     {
+        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
+
         $identifier = 'bar';
         $processorClass = ConverterInterface::class;
         $singleConfiguration = [
@@ -450,6 +456,8 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsFinishers(): void
     {
+        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
+
         $identifier = 'bar';
         $finisherClass = FinisherInterface::class;
         $singleConfiguration = [
@@ -497,6 +505,8 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsInitializers(): void
     {
+        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
+
         $identifier = 'bar';
         $initializerClass = InitializerInterface::class;
         $singleConfiguration = [
