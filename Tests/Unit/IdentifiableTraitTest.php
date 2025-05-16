@@ -1,8 +1,9 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests;
+namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\IdentifiableTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************
@@ -31,20 +32,21 @@ use PHPUnit\Framework\TestCase;
  ***************************************************************/
 class IdentifiableTraitTest extends TestCase
 {
-
     /**
-     * @var IdentifiableTrait
+     * @var object Class using IdentifiableTrait
      */
     protected $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     protected function setUp(): void
     {
-        $this->subject = $this->getObjectForTrait(
-            IdentifiableTrait::class
-        );
+        // In PHPUnit 12, getObjectForTrait is removed
+        // Create an anonymous class that uses the trait instead
+        $this->subject = new class() {
+            use IdentifiableTrait;
+        };
     }
 
+    #[Test]
     public function testGetIdentifierInitiallyReturnsNull(): void
     {
         $this->assertNull(
@@ -52,6 +54,7 @@ class IdentifiableTraitTest extends TestCase
         );
     }
 
+    #[Test]
     public function testSetIdentifierSetsIdentifier(): void
     {
         $identifier = 'foo';
