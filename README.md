@@ -22,7 +22,7 @@ Tasks can be executed manually via backend module or command line or automatical
 * [Persistence](./Documentation/Persistence.md)
 * Services
     * [DatabaseConnectionService](./Documentation/Service/DatabaseConnectionService.md)
-    
+
 ## Credits
 Thanks for contribution and feedback
 

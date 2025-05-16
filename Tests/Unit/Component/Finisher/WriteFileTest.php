@@ -52,17 +52,17 @@ class WriteFileTest extends TestCase
         $this->fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
             ->getMock();
-            
+
         $this->result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])
             ->getMock();
-            
+
         $this->resourceStorage = $this->createMock(ResourceStorage::class);
-        
+
         $this->folder = $this->createMock(Folder::class);
         $this->resourceStorage->method('getDefaultFolder')
             ->willReturn($this->folder);
-            
+
         $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
@@ -71,12 +71,12 @@ class WriteFileTest extends TestCase
                 'createFileReferenceObject'
             ])
             ->getMock();
-            
+
         $this->resourceFactory->method('getDefaultStorage')
             ->willReturn($this->resourceStorage);
-            
+
         $this->messageContainer = $this->createMock(MessageContainer::class);
-        
+
         $this->subject = new WriteFile(
             $this->resourceFactory
         );

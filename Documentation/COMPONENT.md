@@ -13,11 +13,11 @@ Currently the following types of components are implemented:
 * [PostProcessors](./Components/POSTPROCESSOR.md)
 * [Finishers](./Components/Finisher.md)
 
-A set of standard components is included. You may write your own components and include them by configuration in TypoScript. 
+A set of standard components is included. You may write your own components and include them by configuration in TypoScript.
 
 There exist interfaces for each type of component. Your custom class **must** implement one of them.
 
-Please see [Overview](./OVERVIEW.md) for the general application flow. 
+Please see [Overview](./OVERVIEW.md) for the general application flow.
 A more in-depth description of components can be found in the correspondend sections linked above. There are references for single components too.
 
 ## Disable Components
@@ -53,7 +53,7 @@ Disable finisher with key `30` if the task result has a message with one of the 
 Messages are added to the task result by components. For instance finisher ValidateXML adds the message with the ID `1508776068` when the validation fails.
 
 ### By Rendering Content
-If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering will be interpreted as boolean. 
+If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering will be interpreted as boolean.
 
 ### Example
 ```

@@ -1,7 +1,7 @@
 Finisher ClearCache
 ===================
 Clears caches.
-Currently only _all_, and _pages_ cache are supported. Arbitrary caches or cache groups are not supported yet.  
+Currently only _all_, and _pages_ cache are supported. Arbitrary caches or cache groups are not supported yet.
 **Note**: Nothing will be done, if the result is empty.
 
 ### Examples

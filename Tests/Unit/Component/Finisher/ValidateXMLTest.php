@@ -48,7 +48,7 @@ class ValidateXMLTest extends TestCase
      * @var XMLReader|MockObject
      */
     protected $xmlReader;
-    
+
     /**
      * @var MessageContainer|MockObject
      */
@@ -60,10 +60,10 @@ class ValidateXMLTest extends TestCase
     protected function setUp(): void
     {
         $this->messageContainer = $this->createMock(MessageContainer::class);
-        
+
         $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->onlyMethods(['isValid'])->getMock();
-            
+
         $this->xmlReader = $this->getMockBuilder(XMLReader::class)
             ->onlyMethods(
                 [
@@ -74,7 +74,7 @@ class ValidateXMLTest extends TestCase
                     'close'
                 ])
             ->getMock();
-            
+
         $this->subject = new ValidateXML($this->xmlReader, $this->pathValidator, $this->messageContainer);
     }
 

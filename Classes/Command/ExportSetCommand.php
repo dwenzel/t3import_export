@@ -70,4 +70,3 @@ class ExportSetCommand extends Command implements ArgumentAwareInterface
     static protected array $argumentsToConfigure = self::ARGUMENTS;
 
 }
-

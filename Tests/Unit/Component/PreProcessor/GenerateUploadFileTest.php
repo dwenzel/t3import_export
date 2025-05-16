@@ -67,7 +67,7 @@ class GenerateUploadFileTest extends TestCase
 
         $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)
             ->onlyMethods(['createFromParts'])->getMock();
-        
+
         $this->subject->injectFilePathFactory($this->filePathFactory);
     }
 
@@ -94,12 +94,12 @@ class GenerateUploadFileTest extends TestCase
 
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
-        
+
         // Use reflection to access the protected property
         $reflection = new \ReflectionClass($this->subject);
         $property = $reflection->getProperty($propertyName);
         $property->setAccessible(true);
-        
+
         $this->assertSame(
             $mockDependency,
             $property->getValue($this->subject)
@@ -142,7 +142,7 @@ class GenerateUploadFileTest extends TestCase
         // $this->subject->expects($this->once())->method('getAbsoluteFilePath')->with($expectedFilePath)->willReturn($expectedFilePath);
         // $this->assertSame($expectedFilePath, $this->subject->getFile($configuration, $sourceFilePath));
     }
-    
+
     /**
      * Creates a mock file structure for testing
      *

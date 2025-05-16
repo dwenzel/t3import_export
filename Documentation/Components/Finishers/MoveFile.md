@@ -17,7 +17,7 @@ module.tx_t3importexport.settings.import.tasks.example {
   }
 }
 ```
-Renames the file `foo.xml` into `bar.xml`. It is assumed that the source file exists in the root directory of the storage with ID 1 (default storage).  
+Renames the file `foo.xml` into `bar.xml`. It is assumed that the source file exists in the root directory of the storage with ID 1 (default storage).
 The file must be readable and the directory writable for the current user. Note: The rights for scripts run by scheduler task or at the command line might differ.
 
 **Extended Configuration**
@@ -41,8 +41,8 @@ module.tx_t3importexport.settings.import.tasks.example {
   }
 }
 ```
-Renames (moves) the file `foo.xml` from directory `foo/bar` of the storage with ID 
-`2` to the file `bar.xml` in the directory `boom` of the storage with ID `7`. 
+Renames (moves) the file `foo.xml` from directory `foo/bar` of the storage with ID
+`2` to the file `bar.xml` in the directory `boom` of the storage with ID `7`.
 
 ### Options
 | option                    | type    | required | default    |description         |
@@ -71,4 +71,3 @@ Renames (moves) the file `foo.xml` from directory `foo/bar` of the storage with 
 | 1509011717  | Empty configuration | Configuration must not be empty |
 | 1509011925  | Missing target      | config.target.name. must be a string |
 | 1509022342  | Missing source      | config.source.name. must be a string |
-

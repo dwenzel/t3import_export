@@ -6,7 +6,7 @@ Note: This finisher will **not** stop the execution of the current task, if vali
 
 ## Examples
 
-### Validate XML from file 
+### Validate XML from file
 ```
 module.tx_t3importexport.settings.import.tasks.exampleTask {
   preProcessors.20 {
@@ -17,7 +17,7 @@ module.tx_t3importexport.settings.import.tasks.exampleTask {
   }
 }
 ```
-### Validate XML from URL   
+### Validate XML from URL
 
 ```
 module.tx_t3importexport.settings.import.tasks.exampleTask {
@@ -52,4 +52,3 @@ module.tx_t3importexport.settings.import.tasks.exampleTask {
 | ------------|---------------------|-------------------------|
 | 1508774170  | Invalid type for target schema | config['target']['schema'] must be a string, [type] given.] |
 | 1508914547  | Empty resource                 | Could not load resource or resource empty |
-

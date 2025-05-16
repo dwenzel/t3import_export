@@ -1,7 +1,7 @@
 ﻿TypoScript Config für Import Export
 
-DataSourceDynamicRepository 
-class 
+DataSourceDynamicRepository
+class
 Die Zeilentity die geladen werden soll mit vollem Klassennamen
 
 source {
@@ -9,10 +9,10 @@ source {
     config {
         class = CPSIT\IhkofEvents\Domain\Model\Schedule
 
-Die Ziel Entity Klasse kann eine Beliebige Entity auf den System sein. Hier ist zwingend notwendig das eine Repository Klasse zu dieser Entity Existert 
+Die Ziel Entity Klasse kann eine Beliebige Entity auf den System sein. Hier ist zwingend notwendig das eine Repository Klasse zu dieser Entity Existert
 im Beispiel ' CPSIT\IhkofEvents\Domain\Model\Schedule' muss die Repository Datei unter ' CPSIT\IhkofEvents\Domain\Repository\ScheduleRepository' Liegen
 
-constraints 
+constraints
 Logische bedingunen die, in zb. SQL, zu einer WHERE bedingung gebaut werden.
 
 constraints {
@@ -50,7 +50,7 @@ NOT
 
 
 
-LOGICAL CRITERION sind 
+LOGICAL CRITERION sind
 
 equals
 contains
@@ -62,7 +62,7 @@ lessThan
 greaterThanOrEquals
 lessThanOrEquals
 
-PLACEHOLDER sind 
+PLACEHOLDER sind
 
 NOW - aktueller unix timestamp
 
@@ -71,11 +71,11 @@ ein LOGISCHES NOT in ein LOGISCHEN NOT hebt die Negierung für LOGICAL CRITERION
 
 storagePids
 
-Eine Komma Seperierte Liste aus aus PageIds welche als StoragePids bei der Abfrage gesetzt werden. 
+Eine Komma Seperierte Liste aus aus PageIds welche als StoragePids bei der Abfrage gesetzt werden.
 Wenn dieser eintrag fehlt oder Leer gelassen wird, wird die StoragePage nicht Respektiert beim abfragen und es werden alle Datensätze des Systems einbezogen.
 
 
-limit 
+limit
 
 Wieviele Datensätze geladen werden sollen.
 
@@ -141,53 +141,53 @@ arrayKey = @cdata
 arrayKey = @separateRow
 children {}
 
-@attribute ist dafür zuständig ein wert des arrayKeys als Attribut des Darüberliegenden Array-Nodes zu deklarieren. 
-Array: 
+@attribute ist dafür zuständig ein wert des arrayKeys als Attribut des Darüberliegenden Array-Nodes zu deklarieren.
+Array:
 $array [
-	primaryNode => [
+    primaryNode => [
                      id => 12345
                      content => my Dog is a Hairy Beast!
             ]
 ]
-TypoScript: 
+TypoScript:
 config.fields {
-	 primaryNode {
-		id = @attribute
-	}
+     primaryNode {
+        id = @attribute
+    }
 }
-Output: 
+Output:
 <primaryNode id=“12345“>
-	<content>my Dog is a Hairy Beast!</content>
+    <content>my Dog is a Hairy Beast!</content>
 </primaryNode>
 
 
 mapTo bennet den jeweiligen arrayKey um. Der Value wird hier nicht verändert.
-Array: 
+Array:
 gleiches wie bei @attribute
-TypoScript: 
+TypoScript:
 config.fields {
-	 primaryNode {
-		mapTo = missingDog
-		id = @attribute
-		 content {
-			mapTo = description
-		}
-	}
+     primaryNode {
+        mapTo = missingDog
+        id = @attribute
+         content {
+            mapTo = description
+        }
+    }
 }
-Output: 
+Output:
 <missingDog id=“12345“>
-	<description>my Dog is a Hairy Beast!</description>
+    <description>my Dog is a Hairy Beast!</description>
 </missingDog>
 @value definiert den Content eines Nodes
-Array: 
+Array:
 gleiches wie bei @attribute
-TypoScript: 
+TypoScript:
 config.fields {
-	 primaryNode {
-		mapTo = missingDog
-		id = @attribute
-		content  = @value
-	}
+     primaryNode {
+        mapTo = missingDog
+        id = @attribute
+        content  = @value
+    }
 }
 Output:
 <missingDog id=“12345“>my Dog is a Hairy Beast!</ missingDog>
@@ -195,7 +195,7 @@ Output:
 @cdata definiert ob der Content eines Nodes in ein CDATA element eingepackt werden soll
 Array:
 $array [
-	primaryNode => [
+    primaryNode => [
                      id => 12345
                      content => my Dog is a Hairy Beast!
             ]
@@ -203,69 +203,69 @@ $array [
 ]
 TypoScript:
 config.fields {
-	 primaryNode {
-		mapTo = missingDog
-		id = @attribute
-		content  = @value|@cdata
-	}
-	secondNode = @cdata
+     primaryNode {
+        mapTo = missingDog
+        id = @attribute
+        content  = @value|@cdata
+    }
+    secondNode = @cdata
 }
 Output:
 <missingDog id=“12345“><![CDATA[my Dog is a Hairy Beast!]]></missingDog>
 <secondNode><![CDATA[HELLO WORLD]]></secondNode>
 
 children ist für den Mapper die anweisung das sich auf dieser Ebene mehrere Elemente befinden (liste) die alle gleich behandelt werden sollen.
-Array: 
+Array:
 $array [
-	dogs => [
+    dogs => [
                      0 => [
-			id => 1
-			name => CptnFluffy
-		],
-		1 => [
-			id => 2
-			name => Muffles the Village Destroyer
-		]
+            id => 1
+            name => CptnFluffy
+        ],
+        1 => [
+            id => 2
+            name => Muffles the Village Destroyer
+        ]
             ]
 ]
 TypoScript:
 config.fields {
-	dogs {
-		mapTo = missingDogs
-		children {
-			mapTo = dog
-			id = @attribute
-			name = @value
-		}
-	}
+    dogs {
+        mapTo = missingDogs
+        children {
+            mapTo = dog
+            id = @attribute
+            name = @value
+        }
+    }
 }
-Output: 
+Output:
 <missingDogs>
-	<dog id=“1“>CptnFluffy</dog>
-	<dog id=“2“>Muffles the Village Destroyer</dog>
+    <dog id=“1“>CptnFluffy</dog>
+    <dog id=“2“>Muffles the Village Destroyer</dog>
 </missingDogs>
 @separateRow sorgt dafür das ein eine Liste nicht gewarpt wird.
-Array: 
+Array:
 $array [
-	dogSettings [
-		breed => [
-			0 => ‘Beagle‘,
-			1 => ‘German Shepherd‘,
-			2 => ‘Bulldog‘
-            	]
-	]
+    dogSettings [
+        breed => [
+            0 => ‘Beagle‘,
+            1 => ‘German Shepherd‘,
+            2 => ‘Bulldog‘
+                ]
+    ]
 ]
-TypoScript: 
+TypoScript:
 config.fields {
-	 dogSettings {
-		breed=  @separateRow
-	}
+     dogSettings {
+        breed=  @separateRow
+    }
 }
-Output: 
+Output:
 < dogSettings>
-	<breed>Beagle</breed>
-	<breed>German Shepherd</breed>
-	<breed>Bulldog</breed>
+    <breed>Beagle</breed>
+    <breed>German Shepherd</breed>
+    <breed>Bulldog</breed>
 </dogSettings>
 
 Die TypoScript Einstellungen werden als Meta Informationen an den Record gehangen und erst zu einem späterem Zeitpunt Ausgewertet. (ArrayToXMLStream)
@@ -285,22 +285,22 @@ config
 Ausgabe im TempFile im typo3temp
 output = file
 Ausgabe direkt in php://output
-output = direct 
+output = direct
 Löscht den Steam buffer des jeweiligen DataStream direkt nach den Schreibprozess (Speicher Optimierung)
 flush = true
 Template vs. Dynamic
 Es ist möglich den XML körper als Template zu hinterlegen oder Direct Dynamisch zu genierieren.
-Dynamic 
+Dynamic
 Hier wird der Header definiert der in die erste zeile der Datei geschrieben wird
 header = <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 der Name des Obersten Elementes
 rootNodeName = root
 Attribute des Obersten Elementes
 rootAttributes {
-	xmlns:xsi = http://www.w3.org/2001/XMLSchema-instance
-	version = 1.1
-	xsi:noNamespaceSchemaLocation = openQ-cat.V1.1.xsd
-	fancyKey = value
+    xmlns:xsi = http://www.w3.org/2001/XMLSchema-instance
+    version = 1.1
+    xsi:noNamespaceSchemaLocation = openQ-cat.V1.1.xsd
+    fancyKey = value
 }
 Template
 das Template ist die Bequemste und Variabelste Methode eine XML zu generieren besonders wenn sehr viel statischer Inhalt vorhanden ist.

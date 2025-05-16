@@ -65,9 +65,9 @@ class ValidateXML extends AbstractPreProcessor implements
     final public const string TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
     Record ID %s
     Error Code (lib xml): %s
-    Level: %s 
-    Message: %s 
-    Line: %s 
+    Level: %s
+    Message: %s
+    Line: %s
     Column: %s';
     protected DOMDocument $document;
     protected ResourcePathConfigurationValidator $pathConfigurationValidator;

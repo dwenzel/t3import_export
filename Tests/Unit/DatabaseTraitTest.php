@@ -63,24 +63,24 @@ class DatabaseTraitTest extends TestCase
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
             ->getMock();
-            
+
         // In PHPUnit 12, getObjectForTrait is removed
         // Create an anonymous class that uses the trait instead
         $this->subject = new class($this->connectionPool, $this->connectionService) {
             use DatabaseTrait;
-            
+
             public function getDataBase()
             {
                 return $this->database; // Property name is 'database' not 'db'
             }
-            
+
             public function getDatabaseConnectionService()
             {
                 return $this->connectionService;
@@ -96,24 +96,24 @@ class DatabaseTraitTest extends TestCase
         // Re-create the subject to ensure the constructor runs again with the global value set
         $subject = new class($this->connectionPool, $this->connectionService) {
             use DatabaseTrait;
-            
+
             public function getDataBase()
             {
                 return $this->database;
             }
-            
+
             public function getDatabaseConnectionService()
             {
                 return $this->connectionService;
             }
         };
-        
+
         $this->assertSame(
             $this->connection,
             $subject->getDataBase()
         );
     }
-    
+
     #[Test]
     public function testConstructorSetsConnectionService(): void
     {

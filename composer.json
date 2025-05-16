@@ -2,139 +2,139 @@
   "name": "cpsit/t3import_export",
   "description": "General import and export tool for the TYPO3 CMS",
   "license": [
-    "GPL-2.0-or-later"
+	"GPL-2.0-or-later"
   ],
   "type": "typo3-cms-extension",
   "keywords": [
-    "TYPO3",
-    "extension",
-    "import",
-    "export"
+	"TYPO3",
+	"extension",
+	"import",
+	"export"
   ],
   "authors": [
-    {
-      "name": "Dirk Wenzel",
-      "role": "Developer"
-    }
+	{
+	  "name": "Dirk Wenzel",
+	  "role": "Developer"
+	}
   ],
   "require": {
-    "php": ">=8.2",
-    "ext-xmlreader": "*",
-    "cpsit/import-export-core": "^0.1",
-    "dwenzel/t3extension-tools": "^4.0 || ^5.0",
-    "typo3/cms-core": "^13.4"
+	"php": ">=8.2",
+	"ext-xmlreader": "*",
+	"cpsit/import-export-core": "^0.1",
+	"dwenzel/t3extension-tools": "^4.0 || ^5.0",
+	"typo3/cms-core": "^13.4"
   },
   "require-dev": {
-    "armin/editorconfig-cli": "^2.0",
-    "cpsit/import-export-core": "dev-develop as 0.1.0",
-    "ergebnis/composer-normalize": "^2.28",
-    "friendsofphp/php-cs-fixer": "^3.57",
-    "helmich/typo3-typoscript-lint": "^3.0",
-    "phpstan/extension-installer": "^1.2",
-    "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^11.5 || ^12.1",
-    "roave/security-advisories": "dev-latest",
-    "saschaegerer/phpstan-typo3": "^2.0",
-    "ssch/typo3-rector": "^3.0",
-    "typo3/coding-standards": "^0.8.0"
+	"armin/editorconfig-cli": "^2.0",
+	"cpsit/import-export-core": "dev-develop as 0.1.0",
+	"ergebnis/composer-normalize": "^2.28",
+	"friendsofphp/php-cs-fixer": "^3.57",
+	"helmich/typo3-typoscript-lint": "^3.0",
+	"phpstan/extension-installer": "^1.2",
+	"phpstan/phpstan": "^2.1",
+	"phpunit/phpunit": "^11.5 || ^12.1",
+	"roave/security-advisories": "dev-latest",
+	"saschaegerer/phpstan-typo3": "^2.0",
+	"ssch/typo3-rector": "^3.0",
+	"typo3/coding-standards": "^0.8.0"
   },
   "repositories": {
-    "import-export-core": {
-      "type": "vcs",
-      "url": "git@github.com:CPS-IT/import-export-core.git"
-    }
+	"import-export-core": {
+	  "type": "vcs",
+	  "url": "git@github.com:CPS-IT/import-export-core.git"
+	}
   },
   "autoload": {
-    "psr-4": {
-      "CPSIT\\T3importExport\\": "Classes"
-    }
+	"psr-4": {
+	  "CPSIT\\T3importExport\\": "Classes"
+	}
   },
   "autoload-dev": {
-    "psr-4": {
-      "CPSIT\\T3importExport\\Tests\\": "Tests"
-    }
+	"psr-4": {
+	  "CPSIT\\T3importExport\\Tests\\": "Tests"
+	}
   },
   "config": {
-    "allow-plugins": {
-      "composer/installers": true,
-      "ergebnis/composer-normalize": true,
-      "phpstan/extension-installer": true,
-      "typo3/class-alias-loader": true,
-      "typo3/cms-composer-installers": true
-    },
-    "bin-dir": ".Build/bin",
-    "preferred-install": {
-      "cpsit/import-export-core": "source"
-    },
-    "sort-packages": true,
-    "vendor-dir": ".Build/vendor"
+	"allow-plugins": {
+	  "composer/installers": true,
+	  "ergebnis/composer-normalize": true,
+	  "phpstan/extension-installer": true,
+	  "typo3/class-alias-loader": true,
+	  "typo3/cms-composer-installers": true
+	},
+	"bin-dir": ".Build/bin",
+	"preferred-install": {
+	  "cpsit/import-export-core": "source"
+	},
+	"sort-packages": true,
+	"vendor-dir": ".Build/vendor"
   },
   "extra": {
-    "typo3/cms": {
-      "cms-package-dir": "{$vendor-dir}/typo3/cms",
-      "extension-key": "t3import_export",
-      "web-dir": ".Build/Web"
-    }
+	"typo3/cms": {
+	  "cms-package-dir": "{$vendor-dir}/typo3/cms",
+	  "extension-key": "t3import_export",
+	  "web-dir": ".Build/Web"
+	}
   },
   "scripts": {
-    "post-autoload-dump": [
-      "mkdir -p .Build/log/coverage/"
-    ],
-    "fix": [
-      "@fix:composer",
-      "@fix:editorconfig",
-      "@fix:php"
-    ],
-    "fix:composer": "@composer normalize",
-    "fix:editorconfig": "ec --fix",
-    "fix:php": "php-cs-fixer fix",
-    "lint": [
-      "@lint:composer",
-      "@lint:editorconfig",
-      "@lint:php",
-      "@lint:typoscript"
-    ],
-    "lint:composer": "@composer normalize --dry-run",
-    "lint:editorconfig": "ec",
-    "lint:php": "php-cs-fixer fix --dry-run --diff",
-    "lint:typoscript": "typoscript-lint",
-    "migration": [
-      "@migration:rector"
-    ],
-    "migration:rector": [
-      "Composer\\Config::disableProcessTimeout",
-      "rector process"
-    ],
-    "sca": [
-      "@sca:php"
-    ],
-    "sca:php": "phpstan analyse -c phpstan.neon --memory-limit=1G",
-    "test": [
-      "@test:unit"
-    ],
-    "test:coverage": [
-      "XDEBUG_MODE=coverage .Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit --coverage-html=.Build/log/coverage"
-    ],
-    "test:unit": [
-      ".Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit"
-    ]
+	"post-autoload-dump": [
+	  "mkdir -p .Build/log/coverage/"
+	],
+	"fix": [
+	  "@fix:composer",
+	  "@fix:editorconfig",
+	  "@fix:php"
+	],
+	"fix:composer": "@composer normalize",
+	"fix:editorconfig": "ec --fix",
+	"fix:php": "php-cs-fixer fix",
+	"lint": [
+	  "@lint:composer",
+	  "@lint:editorconfig",
+	  "@lint:php",
+	  "@lint:typoscript"
+	],
+	"lint:composer": "@composer normalize --dry-run",
+	"lint:editorconfig": "ec",
+	"lint:php": "php-cs-fixer fix --dry-run --diff",
+	"lint:typoscript": "typoscript-lint",
+	"migration": [
+	  "@migration:rector"
+	],
+	"migration:rector": [
+	  "Composer\\Config::disableProcessTimeout",
+	  "rector process"
+	],
+	"sca": [
+	  "@sca:php"
+	],
+	"sca:php": "phpstan analyse -c phpstan.neon --memory-limit=1G",
+	"test": [
+	  "@test:unit"
+	],
+	"test:coverage": [
+	  "XDEBUG_MODE=coverage .Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit --coverage-html=.Build/log/coverage"
+	],
+	"test:unit": [
+	  ".Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit"
+	]
   },
   "scripts-descriptions": {
-    "fix": "Fix all code quality issues reported by the registered linters",
-    "fix:composer": "Fix all issues in `composer.json`",
-    "fix:editorconfig": "Fix all styling issues violating the `.editorconfig` rules",
-    "fix:php": "Fix all styling issues violating the configured PHP-CS-Fixer rules",
-    "lint": "Run all registered linters to detect code quality issues",
-    "lint:composer": "Lint `composer.json` to detect unnormalized styles",
-    "lint:editorconfig": "Lint all project files to detect violations of the `.editorconfig` rules",
-    "lint:php": "Lint all PHP files to detect coding style violations",
-    "lint:typoscript": "Lint all TypoScript and TSconfig files to detect coding style violations",
-    "migration": "Run all registered automatic code migrations",
-    "migration:rector": "Perform automatic code migration with TYPO3 Rector, based on the registered rules",
-    "sca": "Run all registered static code analyzers to detect issues in the codebase",
-    "sca:php": "Analyze all PHP files by using PHPStan, based on the configured level",
-    "test": "Run all configured test suites",
-    "test:coverage": "Generate code coverage report",
-    "test:unit": "Run unit tests"
+	"fix": "Fix all code quality issues reported by the registered linters",
+	"fix:composer": "Fix all issues in `composer.json`",
+	"fix:editorconfig": "Fix all styling issues violating the `.editorconfig` rules",
+	"fix:php": "Fix all styling issues violating the configured PHP-CS-Fixer rules",
+	"lint": "Run all registered linters to detect code quality issues",
+	"lint:composer": "Lint `composer.json` to detect unnormalized styles",
+	"lint:editorconfig": "Lint all project files to detect violations of the `.editorconfig` rules",
+	"lint:php": "Lint all PHP files to detect coding style violations",
+	"lint:typoscript": "Lint all TypoScript and TSconfig files to detect coding style violations",
+	"migration": "Run all registered automatic code migrations",
+	"migration:rector": "Perform automatic code migration with TYPO3 Rector, based on the registered rules",
+	"sca": "Run all registered static code analyzers to detect issues in the codebase",
+	"sca:php": "Analyze all PHP files by using PHPStan, based on the configured level",
+	"test": "Run all configured test suites",
+	"test:coverage": "Generate code coverage report",
+	"test:unit": "Run unit tests"
   }
 }

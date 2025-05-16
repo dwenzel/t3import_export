@@ -1,26 +1,26 @@
 includes:
-    - .Build/vendor/phpstan/phpstan/conf/bleedingEdge.neon
+		- .Build/vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
-    level: 5
-    treatPhpDocTypesAsCertain: false
-    reportUnmatchedIgnoredErrors: false
-    checkGenericClassInNonGenericObjectType: false
-    paths:
-        - Classes
-        - Configuration
-        - Tests
+		level: 5
+		treatPhpDocTypesAsCertain: false
+		reportUnmatchedIgnoredErrors: false
+		checkGenericClassInNonGenericObjectType: false
+		paths:
+				- Classes
+				- Configuration
+				- Tests
 
-    ignoreErrors:
-        # Common TYPO3 patterns that can't be easily fixed
-        - '#Method .+::.+\(\) has parameter \$.+ with no value type specified in iterable type array.#'
-        - '#Property .+::\$.+ type has no value type specified in iterable type array.#'
-        - '#PHPDoc tag @var for variable \$.+ contains unresolvable type.#'
-        
-        # Ignore warnings for test classes
-        - message: '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject(.*?)#'
-          path: Tests/
-        - message: '#Access to an undefined property PHPUnit\\Framework\\MockObject\\MockObject(.*?)#'
-          path: Tests/
-        - message: '#Call to static method PHPUnit\\Framework\\Assert::assert(.+)#'
-          path: Tests/
+		ignoreErrors:
+				# Common TYPO3 patterns that can't be easily fixed
+				- '#Method .+::.+\(\) has parameter \$.+ with no value type specified in iterable type array.#'
+				- '#Property .+::\$.+ type has no value type specified in iterable type array.#'
+				- '#PHPDoc tag @var for variable \$.+ contains unresolvable type.#'
+
+				# Ignore warnings for test classes
+				- message: '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject(.*?)#'
+					path: Tests/
+				- message: '#Access to an undefined property PHPUnit\\Framework\\MockObject\\MockObject(.*?)#'
+					path: Tests/
+				- message: '#Call to static method PHPUnit\\Framework\\Assert::assert(.+)#'
+					path: Tests/
