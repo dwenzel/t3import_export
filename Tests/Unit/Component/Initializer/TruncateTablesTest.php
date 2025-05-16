@@ -3,8 +3,10 @@
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\TruncateTables;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
@@ -39,6 +41,7 @@ class TruncateTablesTest extends TestCase
     protected TruncateTables $subject;
     protected ConnectionPool&MockObject $connectionPool;
     protected Connection&MockObject $connection;
+    protected DatabaseConnectionService&MockObject $connectionService;
 
     protected function setUp(): void
     {
@@ -50,9 +53,14 @@ class TruncateTablesTest extends TestCase
         $this->connectionPool->method('getConnectionForTable')
             ->willReturn($this->connection);
 
-        $this->subject = new TruncateTables($this->connectionPool);
+        // Create connection service mock
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
+
+        $this->subject = new TruncateTables($this->connectionPool, $this->connectionService);
     }
 
+    #[Test]
     #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration($configuration): void
     {
@@ -82,6 +90,7 @@ class TruncateTablesTest extends TestCase
         ];
     }
 
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $validConfiguration = [
@@ -93,6 +102,7 @@ class TruncateTablesTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessTruncatesTables(): void
     {
         $tableName = 'fooTable';
