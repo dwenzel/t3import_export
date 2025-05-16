@@ -2,12 +2,12 @@
 # Backend Module
 #################
 module.tx_t3importexport {
-	view {
-		templateRootPath = EXT:t3import_export/Resources/Private/Templates/
-		partialRootPath = EXT:t3import_export/Resources/Private/Partials/
-		layoutRootPath = EXT:t3import_export/Resources/Private/Layouts/
-	}
-	settings {
+    view {
+        templateRootPath = EXT:t3import_export/Resources/Private/Templates/
+        partialRootPath = EXT:t3import_export/Resources/Private/Partials/
+        layoutRootPath = EXT:t3import_export/Resources/Private/Layouts/
+    }
+    settings {
 
-	}
+    }
 }

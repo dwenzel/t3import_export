@@ -10,7 +10,7 @@ If a record has a field with the special key `__identity` its value will be set 
 
 ## required
 
-| property               | type   | default | description       | 
+| property               | type   | default | description       |
 | -----------------------|:------:|---------|-------------------|
 | **class**              | string | none    | fully qualified class name, i.e. *
 CPSIT\T3importExport\Persistence\DataTargetDB* |
@@ -18,7 +18,7 @@ CPSIT\T3importExport\Persistence\DataTargetDB* |
 
 ## optional
 
-| property               | type   | default | description       | 
+| property               | type   | default | description       |
 | -----------------------|:------:|---------|-------------------|
 | **
 config.identifier**  | string | none    | Identifier of a database connection registered with the [DatabaseConnectionService](../Service/DatabaseConnectionService.md) |
@@ -85,4 +85,3 @@ module.tx_t3importexport.settings.import.tasks.exampleTask {
   }
 }
 ```
-

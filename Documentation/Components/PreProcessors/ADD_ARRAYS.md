@@ -1,7 +1,7 @@
 AddArrays
 =========
 
-Adds the content of each configured field to a target field. 
+Adds the content of each configured field to a target field.
 
 Only the target field will be changed. If the content of a field is not an array it will be ignored.
 
@@ -14,9 +14,9 @@ Only the target field will be changed. If the content of a field is not an array
 ## optional
 * **config.disable** *boolean*
 
-    If the value is 1, the PreProcessor will not be called. 
+    If the value is 1, the PreProcessor will not be called.
     If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering
-    will be interpreted as boolean. 
+    will be interpreted as boolean.
 
 ### Example
 ```

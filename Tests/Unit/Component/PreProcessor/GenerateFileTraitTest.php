@@ -56,7 +56,7 @@ class GenerateFileTraitTest extends TestCase
         $this->subject = $this->getMockBuilder(GenerateFileTraitImplementation::class)
             ->onlyMethods(['logError', 'getFile'])
             ->getMock();
-        
+
         $this->filePathFactory = $this->createMock(FilePathFactory::class);
         $this->subject->injectFilePathFactory($this->filePathFactory);
 
@@ -91,12 +91,12 @@ class GenerateFileTraitTest extends TestCase
 
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
-        
+
         // Use reflection to access the protected property
         $reflection = new \ReflectionClass($this->subject);
         $property = $reflection->getProperty($propertyName);
         $property->setAccessible(true);
-        
+
         $this->assertSame(
             $mockDependency,
             $property->getValue($this->subject)
