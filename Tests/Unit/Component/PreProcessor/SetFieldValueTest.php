@@ -21,6 +21,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\SetFieldValue;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -46,7 +48,7 @@ class SetFieldValueTest extends TestCase
      *
      * @return array
      */
-    public function validateConfigurationDataProvider(): array
+    public static function validateConfigurationDataProvider(): array
     {
         return [
             // empty targetField
@@ -76,12 +78,9 @@ class SetFieldValueTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider validateConfigurationDataProvider
-     * @param array $configuration
-     * @param bool $result
-     */
-    public function testConfigurationIsValidatedCorrectly($configuration, $result): void
+    #[Test]
+    #[DataProvider('validateConfigurationDataProvider')]
+    public function testConfigurationIsValidatedCorrectly(array $configuration, bool $result): void
     {
         $this->assertEquals(
             $result,
@@ -89,6 +88,7 @@ class SetFieldValueTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessSetsValue(): void
     {
         $targetFieldName = 'foo';
