@@ -45,5 +45,5 @@ jobs:
 
       - name: Run TYPO3 Rector compatibility check
         run: |
-          composer require ssch/typo3-rector --dev --no-progress
-          vendor/bin/rector process --dry-run
+          composer install --no-progress
+          composer migration:rector --dry-run

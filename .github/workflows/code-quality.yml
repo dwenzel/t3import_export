@@ -24,7 +24,8 @@ jobs:
 
       - name: Check coding standards
         run: |
-          php-cs-fixer fix --dry-run --diff
+          composer install --no-progress
+          composer lint:php
 
   phpstan:
     name: PHPStan Static Analysis
@@ -58,4 +59,5 @@ jobs:
 
       - name: Run PHPStan
         run: |
-          vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G
+          composer install --no-progress
+          composer sca:php
