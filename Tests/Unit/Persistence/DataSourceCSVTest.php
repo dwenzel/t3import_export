@@ -34,10 +34,10 @@ class DataSourceCSVTest extends TestCase
     protected function setUp(): void
     {
         $this->configurationValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->setMethods(['isValid'])->getMock();
+            ->onlyMethods(['isValid'])->getMock();
         $this->subject = $this->getMockBuilder(DataSourceCSV::class)
             ->setConstructorArgs([$this->configurationValidator])
-            ->setMethods(['getAbsoluteFilePath'])
+            ->onlyMethods(['getAbsoluteFilePath'])
             ->getMock();
 
         vfsStreamWrapper::register();

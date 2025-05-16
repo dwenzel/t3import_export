@@ -158,10 +158,10 @@ class SetHiddenPropertiesTest extends TestCase
     public function testProcessSetsPropertiesRecursive(): void
     {
         $domainObject = $this->getMockBuilder(DummyDomainObject::class)
-            ->setMethods(['_hasProperty', '_getProperty'])
+            ->onlyMethods(['_hasProperty', '_getProperty'])
             ->getMock();
         $childObject = $this->getMockBuilder(DummyDomainObject::class)
-            ->setMethods(['_hasProperty', '_getProperty'])
+            ->onlyMethods(['_hasProperty', '_getProperty'])
             ->getMock();
         $fieldName = 'languageUid';
         $config = [

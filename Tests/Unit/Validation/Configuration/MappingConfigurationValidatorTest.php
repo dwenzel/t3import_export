@@ -71,7 +71,7 @@ class MappingConfigurationValidatorTest extends TestCase
     public function testValidateValidatedPropertiesRecursive(): void
     {
         $this->subject = $this->getMockBuilder(MappingConfigurationValidator::class)
-            ->setMethods(['validatePropertyConfigurationRecursive'])
+            ->onlyMethods(['validatePropertyConfigurationRecursive'])
             ->getMock();
 
         $configuration = [

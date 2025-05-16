@@ -29,7 +29,7 @@ trait MockXmlWriterTrait
     {
         $this->xmlWriter = $this->getMockBuilder(XMLWriter::class)
             ->disableOriginalConstructor()
-            ->setMethods([
+            ->onlyMethods([
 
                 ]
             )

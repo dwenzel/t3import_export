@@ -33,7 +33,7 @@ trait MockBasicFileUtilityTrait
     {
         $this->fileUtility = $this->getMockBuilder(BasicFileUtility::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getUniqueName'])
+            ->onlyMethods(['getUniqueName'])
             ->getMock();
 
         return $this;

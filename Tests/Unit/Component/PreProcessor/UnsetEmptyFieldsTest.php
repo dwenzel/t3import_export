@@ -33,7 +33,7 @@ class UnsetEmptyFieldsTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(UnsetEmptyFields::class)
-            ->setMethods(['dummy'])->getMock();
+            ->onlyMethods(['dummy'])->getMock();
     }
 
     /**

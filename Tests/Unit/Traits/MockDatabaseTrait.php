@@ -55,7 +55,7 @@ trait MockDatabaseTrait
 
         $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
             ->disableOriginalConstructor()
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'isRegistered',
                     'getDatabase',
@@ -73,7 +73,7 @@ trait MockDatabaseTrait
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'createQueryBuilder',
                     'delete',
@@ -96,7 +96,7 @@ trait MockDatabaseTrait
     protected function mockConnectionPool(): self
     {
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
-            ->setMethods([
+            ->onlyMethods([
                 'getConnectionForTable',
 
             ])

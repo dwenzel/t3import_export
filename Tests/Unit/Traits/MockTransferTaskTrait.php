@@ -33,7 +33,7 @@ trait MockTransferTaskTrait
     protected function mockTransferTask(): void
     {
         $this->transferTask = $this->getMockBuilder(TransferTask::class)
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'setIdentifier',
                     'setDescription',

@@ -85,19 +85,19 @@ class ArrayToDomainObjectTest extends TestCase
     {
         $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->getMock();
         $this->propertyMapper = $this->getMockBuilder(PropertyMapper::class)
-            ->setMethods(['convert'])
+            ->onlyMethods(['convert'])
             ->getMock();
         $this->propertyMappingConfigurationBuilder = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)
-            ->setMethods(['build'])
+            ->onlyMethods(['build'])
             ->getMock();
         $this->targetClassConfigurationValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->mappingConfigurationValidator = $this->getMockBuilder(MappingConfigurationValidator::class)
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->subject = new ArrayToDomainObject(
             $this->propertyMapper,
