@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Initializer;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
@@ -30,19 +32,14 @@ use CPSIT\T3importExport\Component\AbstractComponent;
 abstract class AbstractInitializer extends AbstractComponent
 {
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
-     * @return bool
      */
-    abstract public function process(array  $configuration, array &$records): bool;
+    abstract public function process(array $configuration, array &$records): bool;
 
     /**
      * Tells whether a given configuration is valid
      * Override this method in order to perform validation of
      * configuration
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {

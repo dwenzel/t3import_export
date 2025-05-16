@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Tests\Unit\Component\PostProcessor\GenerateFileReferenceTest;
@@ -23,7 +25,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  ***************************************************************/
 trait MockPersistenceManagerTrait
 {
-
     /**
      * @var PersistenceManagerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
@@ -35,7 +36,7 @@ trait MockPersistenceManagerTrait
             ->disableOriginalConstructor()
             ->onlyMethods(['remove', 'add', 'isNewObject'])
             ->getMockForAbstractClass();
-        if(method_exists($this, 'injectPersistenceManager')) {
+        if (method_exists($this, 'injectPersistenceManager')) {
             $this->subject->injectPersistenceManager($this->persistenceManager);
         }
 

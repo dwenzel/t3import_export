@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit;
 
 /***************************************************************
@@ -31,8 +33,6 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /**
  * Class DatabaseTraitTest
- *
- * @package CPSIT\T3importExport\Tests\Unit
  */
 class DatabaseTraitTest extends TestCase
 {

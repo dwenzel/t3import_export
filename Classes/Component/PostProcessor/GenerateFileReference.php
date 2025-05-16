@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -24,6 +26,7 @@ use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
@@ -35,13 +38,11 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
-use TYPO3\CMS\Core\Database\Connection;
 
 /**
  * Class GenerateFileReference
  */
-class GenerateFileReference extends AbstractPostProcessor
-    implements PostProcessorInterface, LoggingInterface
+class GenerateFileReference extends AbstractPostProcessor implements PostProcessorInterface, LoggingInterface
 {
     use LoggingTrait;
 
@@ -57,22 +58,18 @@ class GenerateFileReference extends AbstractPostProcessor
         1_510_524_679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
     ];
 
-
     public function __construct(
         protected PersistenceManagerInterface $persistenceManager,
-        protected FileReferenceFactory        $fileReferenceFactory,
-        protected FileIndexRepository         $fileIndexRepository,
-        protected MessageContainer            $messageContainer)
-    {
+        protected FileReferenceFactory $fileReferenceFactory,
+        protected FileIndexRepository $fileIndexRepository,
+        protected MessageContainer $messageContainer
+    ) {
     }
 
     /**
      * processes the converted record
      *
-     * @param array $configuration
      * @param mixed $convertedRecord
-     * @param array $record
-     * @return bool
      * @throws PropertyNotAccessibleException
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
@@ -111,7 +108,6 @@ class GenerateFileReference extends AbstractPostProcessor
             return false;
         }
 
-
         if (
             is_object($convertedRecord)
             && ObjectAccess::isPropertyGettable($convertedRecord, $targetField)) {
@@ -145,9 +141,6 @@ class GenerateFileReference extends AbstractPostProcessor
 
     /**
      * Tells whether the configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -189,15 +182,13 @@ class GenerateFileReference extends AbstractPostProcessor
         $connection = (GeneralUtility::makeInstance(ConnectionPool::class))
             ->getConnectionForTable(self::TABLE_SYS_FILE_REFERENCE);
         $result = $connection->insert(self::TABLE_SYS_FILE_REFERENCE, $row);
-
     }
     protected function fileReferenceExists(
         string $tableName,
-        int    $localUid,
-        int    $foreignUid,
+        int $localUid,
+        int $foreignUid,
         string $fieldName = ''
-    ): bool
-    {
+    ): bool {
         $connection = (GeneralUtility::makeInstance(ConnectionPool::class))->getConnectionForTable(
             self::TABLE_SYS_FILE_REFERENCE,
         );

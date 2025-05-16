@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Resource;
 
 /**
@@ -19,11 +21,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait ResourceTrait
 {
-
     /**
      * Wrapper method for testing purposes
      *
-     * @param $path
      * @return string
      * @codeCoverageIgnore
      */

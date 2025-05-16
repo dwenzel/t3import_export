@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Service;
 
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
@@ -10,13 +12,9 @@ use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingFinisher;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingInitializer;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPostProcessor;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -45,13 +43,10 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class ImportCommandControllerTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Service
  */
 #[CoversClass(DataTransferProcessor::class)]
 class DataTransferProcessorTest extends TestCase
 {
-
     protected const TASK_IDENTIFIER = 'fooBarBaz';
     protected const CONVERTER_CONFIGURATION = ['fooConverterConfig'];
     protected const POST_PROCESSOR_CONFIGURATION = ['fooPostProcessorConfig'];
@@ -60,8 +55,8 @@ class DataTransferProcessorTest extends TestCase
     protected const CONVERTED_RECORD = ['fooConverted' => 'convertedBar'];
     protected const QUEUE_WITH_RECORD = [
         self::TASK_IDENTIFIER => [
-            self::SINGLE_RECORD
-        ]
+            self::SINGLE_RECORD,
+        ],
     ];
 
     protected DataTransferProcessor $subject;
@@ -96,9 +91,6 @@ class DataTransferProcessorTest extends TestCase
      */
     protected PersistenceManager $persistenceManager;
 
-    /**
-     * @var array
-     */
     protected array $records = [['foo']];
 
     /**
@@ -132,7 +124,8 @@ class DataTransferProcessorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = new DataTransferProcessor()->withQueue(self::QUEUE_WITH_RECORD);
+        /** @noinspection PhpParenthesesCanBeOmittedForNewCallInspection */
+        $this->subject = (new DataTransferProcessor())->withQueue(self::QUEUE_WITH_RECORD);
         $this->mockPreProcessor();
         $this->mockPostProcessor();
         $this->mockConverter();
@@ -204,7 +197,6 @@ class DataTransferProcessorTest extends TestCase
 
     protected function mockFinisher(): void
     {
-
         $this->finisher = $this->createMock(FinisherInterface::class);
     }
 
@@ -220,8 +212,9 @@ class DataTransferProcessorTest extends TestCase
                     'getPostProcessors',
                     'getInitializers',
                     'getFinishers',
-                    'getConverters'
-                ])->getMock();
+                    'getConverters',
+                ]
+            )->getMock();
         $this->transferTask->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
         $this->transferTask->method('getSource')->willReturn($this->dataSource);
         $this->transferTask->method('getInitializers')->willReturn([$this->initializer]);
@@ -249,7 +242,6 @@ class DataTransferProcessorTest extends TestCase
             ->onlyMethods(['getMessages', 'addMessages'])->getMock();
         GeneralUtility::addInstance(TaskResult::class, $this->taskResult);
     }
-
 
     #[Test]
     public function testBuildQueueSetsQueue(): void
@@ -289,7 +281,6 @@ class DataTransferProcessorTest extends TestCase
         $this->converter->expects($this->once())
             ->method('convert')
             ->with(self::SINGLE_RECORD, self::CONVERTER_CONFIGURATION);
-
 
         $this->subject->process($this->taskDemand);
     }

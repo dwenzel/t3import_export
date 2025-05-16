@@ -1,25 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
 /**
  * Class ConfigurableTrait
- *
- * @package CPSIT\T3importExport
  */
 trait ConfigurableTrait
 {
     /**
      * Configuration for this component
      * A plain TypoScript array
-     *
-     * @var array
      */
     protected array $configuration = [];
 
-    /**
-     * @return array
-     */
     public function getConfiguration(): array
     {
         return $this->configuration;
@@ -29,7 +24,6 @@ trait ConfigurableTrait
      * Sets the configuration if it is valid.
      * Throws an exception otherwise.
      *
-     * @param array $configuration
      * @throws InvalidConfigurationException
      */
     public function setConfiguration(array $configuration): void
@@ -47,9 +41,6 @@ trait ConfigurableTrait
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     abstract public function isConfigurationValid(array $configuration): bool;
 }

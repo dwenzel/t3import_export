@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -22,16 +24,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 /**
  * Class RemoveFields
  * Removes fields from an incoming array (recursively)
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
 {
-
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
@@ -53,7 +48,6 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * validate config array recursively
      *
-     * @param $fieldListConfig
      * @return bool
      */
     protected function validateFieldsList($fieldListConfig)

@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
@@ -27,8 +29,8 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
 {
     public function __construct(
         protected ContentObjectRenderer $contentObjectRenderer,
-        protected TypoScriptService $typoScriptService)
-    {
+        protected TypoScriptService $typoScriptService
+    ) {
     }
 
     /**
@@ -45,9 +47,6 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
 
     /**
      * Tells whether a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -70,9 +69,6 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
     }
 
     /**
-     * @param $configuration
-     * @param $record
-     * @return array
      * @throws ContentRenderingException
      */
     protected function renderFields($configuration, &$record): ?array

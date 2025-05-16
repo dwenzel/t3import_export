@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Factory\FilePathFactory;
@@ -23,7 +25,6 @@ use PHPUnit\Framework\MockObject\MockObject;
  ***************************************************************/
 trait MockFilePathFactoryTrait
 {
-
     /**
      * @var FilePathFactory|MockObject
      */

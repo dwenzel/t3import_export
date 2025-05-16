@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 use CPSIT\T3importExport\ConfigurableTrait;
@@ -37,21 +39,17 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Class TruncateTables
  * truncates given tables either from default database or a
  * database registered with DatabaseConnectionService by identifier
- *
- * @package CPSIT\T3importExport\Component\Initializer
  */
 class TruncateTables extends AbstractInitializer implements InitializerInterface
 {
-    use ConfigurableTrait,
-        DatabaseTrait;
+    use ConfigurableTrait;
+    use DatabaseTrait;
 
     final public const string KEY_TABLES = 'tables';
     final public const string DELIMITER = ',';
 
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
-     * @return bool
      */
     public function process(array $configuration, array &$records): bool
     {
@@ -74,9 +72,6 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
 
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool

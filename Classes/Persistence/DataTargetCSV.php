@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 /**
@@ -32,18 +34,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
+    use ResourceTrait;
 
     final public const string TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
     protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
 
-
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -70,8 +70,6 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
     }
 
     /**
-     * @param $result
-     * @param array|null $configuration
      * @return array|array[]|mixed
      */
     public function persistAll($result = null, ?array $configuration = null)
@@ -79,7 +77,6 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         if (empty($result)) {
             return false;
         }
-
 
         $delimiter = ',';
         $enclosure = "\"";
@@ -108,12 +105,11 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         touch($absFileName);
 
         $output = fopen($absFileName, 'r+');
-        fputs($output, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+        fwrite($output, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF)));
         if (!$output) {
             throw new FileOperationErrorException(
-                'can\'t create new temp file: \''. $absFileName .'\''
+                'can\'t create new temp file: \'' . $absFileName . '\''
             );
-
         }
         if (isset($configuration['fields'])) {
             $fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);

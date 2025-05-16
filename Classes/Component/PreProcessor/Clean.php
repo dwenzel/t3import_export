@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -25,16 +27,11 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 class Clean extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * @var array
      */
     protected $fields = [];
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
@@ -58,7 +55,7 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
      *
      * @param array $configuration
      * @param array $record
-     * @return boolean
+     * @return bool
      */
     public function process($configuration, &$record)
     {
@@ -101,34 +98,33 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
                 }
 
                 if (isset($localConfig['trim'])) {
-                    $record[$fieldName] = trim((string) $record[$fieldName]);
+                    $record[$fieldName] = trim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['trim'])) {
-                    $record[$fieldName] = trim((string) $record[$fieldName]);
+                    $record[$fieldName] = trim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['ltrim'])) {
-                    $record[$fieldName] = ltrim((string) $record[$fieldName]);
+                    $record[$fieldName] = ltrim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['rtrim'])) {
-                    $record[$fieldName] = rtrim((string) $record[$fieldName]);
+                    $record[$fieldName] = rtrim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['strtolower'])) {
-                    $record[$fieldName] = strtolower((string) $record[$fieldName]);
+                    $record[$fieldName] = strtolower((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['strtoupper'])) {
-                    $record[$fieldName] = strtoupper((string) $record[$fieldName]);
+                    $record[$fieldName] = strtoupper((string)$record[$fieldName]);
                 }
             }
         }
 
         return true;
     }
-
 
     /**
      * Removes or replaces empty tags

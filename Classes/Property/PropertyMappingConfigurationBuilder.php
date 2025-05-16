@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Property;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -31,9 +33,6 @@ class PropertyMappingConfigurationBuilder
 {
     /**
      * Build a PropertyMappingConfiguration object from configuration array
-     *
-     * @param array $configuration
-     * @return PropertyMappingConfiguration
      */
     public function build(array $configuration): PropertyMappingConfiguration
     {
@@ -46,10 +45,6 @@ class PropertyMappingConfigurationBuilder
         return $propertyMappingConfiguration;
     }
 
-    /**
-     * @param array $configuration
-     * @param PropertyMappingConfiguration $propertyMappingConfiguration
-     */
     protected function configure(array $configuration, PropertyMappingConfiguration $propertyMappingConfiguration)
     {
         $propertyMappingConfiguration->setTypeConverterOptions(
@@ -102,7 +97,6 @@ class PropertyMappingConfigurationBuilder
      * Gets the type converter class
      * Default class name is returned if not set in configuration
      *
-     * @param $configuration
      * @return string
      */
     protected function getTypeConverterClass($configuration)
@@ -120,14 +114,13 @@ class PropertyMappingConfigurationBuilder
      * Gets the type converter options
      * Default options are returned if not set in configuration
      *
-     * @param $configuration
      * @return array
      */
     protected function getTypeConverterOptions($configuration)
     {
         $options = [
             PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
-            PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
+            PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true,
         ];
 
         if (isset($configuration['typeConverter']['options'])
@@ -145,7 +138,6 @@ class PropertyMappingConfigurationBuilder
     /**
      * Tells if all properties should be allowed to map
      *
-     * @param $configuration
      * @return bool
      */
     protected function getAllowAllProperties($configuration)
@@ -163,7 +155,6 @@ class PropertyMappingConfigurationBuilder
      * Gets the allowed properties from configuration
      * An empty array is returned if not set
      *
-     * @param $configuration
      * @return array
      */
     protected function getAllowedProperties($configuration)
@@ -173,7 +164,7 @@ class PropertyMappingConfigurationBuilder
         ) {
             $allowedProperties = explode(
                 ',',
-                (string) preg_replace('/\s+/', '', $configuration['allowProperties'])
+                (string)preg_replace('/\s+/', '', $configuration['allowProperties'])
             );
 
             return $allowedProperties;
@@ -183,7 +174,6 @@ class PropertyMappingConfigurationBuilder
     }
 
     /**
-     * @param $configuration
      * @return array
      */
     public function getProperties($configuration)

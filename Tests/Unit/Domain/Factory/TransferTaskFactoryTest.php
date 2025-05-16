@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Domain\Factory;
 
 use CPSIT\T3importExport\Component\Converter\ConverterInterface;
@@ -8,12 +10,12 @@ use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Factory\FactoryFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
-use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -40,7 +42,6 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class ImportTaskFactoryTest
  *
- * @package CPSIT\T3importExport\Tests\Domain\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
  */
 class TransferTaskFactoryTest extends TestCase
@@ -119,12 +120,14 @@ class TransferTaskFactoryTest extends TestCase
                 'setPostProcessors',
                 'setFinishers',
                 'setInitializers',
-                'setLabel'
+                'setLabel',
             ])
             ->getMock();
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->factoryFactory = $this->getMockBuilder(FactoryFactory::class)
@@ -203,7 +206,7 @@ class TransferTaskFactoryTest extends TestCase
         $identifier = 'foo';
         $label = 'bar';
         $settings = [
-            'label' => $label
+            'label' => $label,
         ];
         $task = $this->subject->get($settings, $identifier);
         $this->assertSame(
@@ -219,7 +222,7 @@ class TransferTaskFactoryTest extends TestCase
         $identifier = 'foo';
         $targetClass = 'fooClassName';
         $settings = [
-            'class' => $targetClass
+            'class' => $targetClass,
         ];
 
         $task = $this->subject->get($settings, $identifier);
@@ -236,7 +239,7 @@ class TransferTaskFactoryTest extends TestCase
         $identifier = 'foo';
         $description = 'fooDescription';
         $settings = [
-            'description' => $description
+            'description' => $description,
         ];
 
         $task = $this->subject->get($settings, $identifier);
@@ -254,11 +257,11 @@ class TransferTaskFactoryTest extends TestCase
         $identifier = 'foo';
         $settings = [
             'source' => [
-                'identifier' => 'sourceId'
+                'identifier' => 'sourceId',
             ],
             'target' => [
-                'identifier' => 'targetId'
-            ]
+                'identifier' => 'targetId',
+            ],
         ];
 
         $this->factoryFactory->expects($this->atLeastOnce())
@@ -311,7 +314,6 @@ class TransferTaskFactoryTest extends TestCase
         $this->subject->get($settings, $identifier);
     }
 
-
     #[Test]
     public function testGetSetsPreProcessors(): void
     {
@@ -321,14 +323,14 @@ class TransferTaskFactoryTest extends TestCase
         $processorClass = PreProcessorInterface::class;
         $singleConfiguration = [
             'class' => $processorClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'preProcessors' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
         $this->preProcessor->expects($this->once())
             ->method('setConfiguration')
@@ -346,7 +348,8 @@ class TransferTaskFactoryTest extends TestCase
             ->withConsecutive(
                 [$configuration['target'], null],
                 [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
+                [$singleConfiguration, $identifier]
+            )
             ->willReturnOnConsecutiveCalls(
                 $this->dataTarget,
                 $this->dataSource,
@@ -369,14 +372,14 @@ class TransferTaskFactoryTest extends TestCase
         $processorClass = PostProcessorInterface::class;
         $singleConfiguration = [
             'class' => $processorClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'postProcessors' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
@@ -391,7 +394,8 @@ class TransferTaskFactoryTest extends TestCase
             ->withConsecutive(
                 [$configuration['target'], null],
                 [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
+                [$singleConfiguration, $identifier]
+            )
             ->willReturnOnConsecutiveCalls(
                 $this->dataTarget,
                 $this->dataSource,
@@ -414,14 +418,14 @@ class TransferTaskFactoryTest extends TestCase
         $processorClass = ConverterInterface::class;
         $singleConfiguration = [
             'class' => $processorClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'converters' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
         $this->converter->expects($this->once())
             ->method('setConfiguration')
@@ -439,7 +443,8 @@ class TransferTaskFactoryTest extends TestCase
             ->withConsecutive(
                 [$configuration['target'], null],
                 [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
+                [$singleConfiguration, $identifier]
+            )
             ->willReturnOnConsecutiveCalls(
                 $this->dataTarget,
                 $this->dataSource,
@@ -462,14 +467,14 @@ class TransferTaskFactoryTest extends TestCase
         $finisherClass = FinisherInterface::class;
         $singleConfiguration = [
             'class' => $finisherClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'finishers' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
 
         $this->finisher->expects($this->once())
@@ -488,7 +493,8 @@ class TransferTaskFactoryTest extends TestCase
             ->withConsecutive(
                 [$configuration['target'], null],
                 [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
+                [$singleConfiguration, $identifier]
+            )
             ->willReturnOnConsecutiveCalls(
                 $this->dataTarget,
                 $this->dataSource,
@@ -511,14 +517,14 @@ class TransferTaskFactoryTest extends TestCase
         $initializerClass = InitializerInterface::class;
         $singleConfiguration = [
             'class' => $initializerClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'initializers' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
@@ -533,7 +539,8 @@ class TransferTaskFactoryTest extends TestCase
             ->withConsecutive(
                 [$configuration['target'], null],
                 [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
+                [$singleConfiguration, $identifier]
+            )
             ->willReturnOnConsecutiveCalls(
                 $this->dataTarget,
                 $this->dataSource,

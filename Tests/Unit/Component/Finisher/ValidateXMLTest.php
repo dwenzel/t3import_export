@@ -1,4 +1,7 @@
-<?php /** @noinspection PhpComposerExtensionStubsInspection */
+<?php
+
+declare(strict_types=1);
+/** @noinspection PhpComposerExtensionStubsInspection */
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
@@ -45,7 +48,7 @@ class ValidateXMLTest extends TestCase
     protected $pathValidator;
 
     /**
-     * @var XMLReader|MockObject
+     * @var \XMLReader|MockObject
      */
     protected $xmlReader;
 
@@ -64,15 +67,16 @@ class ValidateXMLTest extends TestCase
         $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->onlyMethods(['isValid'])->getMock();
 
-        $this->xmlReader = $this->getMockBuilder(XMLReader::class)
+        $this->xmlReader = $this->getMockBuilder(\XMLReader::class)
             ->onlyMethods(
                 [
                     'setParserProperty',
                     'isValid',
                     'setSchema',
                     'read',
-                    'close'
-                ])
+                    'close',
+                ]
+            )
             ->getMock();
 
         $this->subject = new ValidateXML($this->xmlReader, $this->pathValidator, $this->messageContainer);
@@ -96,7 +100,6 @@ class ValidateXMLTest extends TestCase
 
     /**
      * Invalid configuration data provider
-     * @return array
      */
     public static function invalidConfigurationDataProvider(): array
     {
@@ -105,12 +108,12 @@ class ValidateXMLTest extends TestCase
                 [
                     'target' => [
                         'file' => 'foo',
-                        'schema' => []
-                    ]
+                        'schema' => [],
+                    ],
                 ],
                 1_508_774_170,
-                ['array']
-            ]
+                ['array'],
+            ],
         ];
     }
 
@@ -146,7 +149,6 @@ class ValidateXMLTest extends TestCase
 
     /**
      * Valid configuration data provider
-     * @return array
      */
     public static function validConfigurationDataProvider(): array
     {
@@ -156,7 +158,7 @@ class ValidateXMLTest extends TestCase
                 [
                     'schema' => 'http://typo3.org',
 
-                ]
+                ],
             ],
         ];
     }
@@ -198,7 +200,7 @@ class ValidateXMLTest extends TestCase
             ->willReturn($validXML);
         $this->xmlReader->expects($this->once())
             ->method('setParserProperty')
-            ->with(...[XMLReader::VALIDATE, true]);
+            ->with(...[\XMLReader::VALIDATE, true]);
         $this->xmlReader->expects($this->once())
             ->method('isValid');
 
@@ -211,14 +213,15 @@ class ValidateXMLTest extends TestCase
         $validXML = 'bar';
         $configuration = [
             'schema' => [
-                'file' => 'mockSchema'
-            ]
+                'file' => 'mockSchema',
+            ],
         ];
         $records = [];
         $result = [];
 
         $this->subject = $this->getMockBuilder(
-            ValidateXML::class)
+            ValidateXML::class
+        )
             ->onlyMethods(['loadResource', 'getAbsoluteFilePath', 'logNotice'])
             ->setConstructorArgs([$this->xmlReader, $this->pathValidator, $this->messageContainer])
             ->getMock();
@@ -257,10 +260,11 @@ class ValidateXMLTest extends TestCase
 
         $this->subject->expects($this->once())
             ->method('logNotice')
-            ->with(...[
+            ->with(
+                ...[
                     1_508_776_068,
                     ['was', 0, 'error'],
-                    []
+                    [],
                 ]
             );
 

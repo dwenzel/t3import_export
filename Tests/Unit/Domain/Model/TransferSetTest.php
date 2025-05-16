@@ -1,9 +1,11 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Domain\Model;
 
+use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use PHPUnit\Framework\TestCase;
-use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 
 /***************************************************************
  *  Copyright notice
@@ -24,10 +26,11 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
  ***************************************************************/
 class TransferSetTest extends TestCase
 {
-
     protected TransferSet $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new TransferSet();

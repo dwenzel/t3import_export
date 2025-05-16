@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /**
@@ -77,7 +79,7 @@ class GenerateUploadFileTest extends TestCase
     public static function dependenciesDataProvider()
     {
         return [
-            [StorageRepository::class, 'storageRepository']
+            [StorageRepository::class, 'storageRepository'],
         ];
     }
 
@@ -111,10 +113,10 @@ class GenerateUploadFileTest extends TestCase
     {
         $sourceFilePath = 'bang';
         $storageConfiguration = [
-            'basePath' => ''
+            'basePath' => '',
         ];
         $configuration = [
-            'targetDirectoryPath' => 'foo'
+            'targetDirectoryPath' => 'foo',
         ];
 
         $this->resourceStorage->expects($this->once())
@@ -157,14 +159,14 @@ class GenerateUploadFileTest extends TestCase
         $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
         $targetDirectory = 'targetDir';
         $configuration = [
-            'targetDirectoryPath' => $targetDirectory
+            'targetDirectoryPath' => $targetDirectory,
         ];
 
         $fileStructure = [
             $sourceDirectory => [
-                $sourceFileName => $sourceFileContent
+                $sourceFileName => $sourceFileContent,
             ],
-            $targetDirectory => []
+            $targetDirectory => [],
         ];
         return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
     }

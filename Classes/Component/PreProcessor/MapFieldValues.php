@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -22,12 +24,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * Class MapFieldValues
  * Maps matching values in incoming record to new values from
  * configuration
- *
- * @package CPSIT\T3importExport\Component\PreProcessor
  */
 class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * Tells whether the configuration is valid
      * $configuration['fields'] must be an array with keys indicating
@@ -47,9 +46,6 @@ class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterfa
      *  }
      * Value of barField will be set to bazValue if fooField
      * contains bazValue.
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -84,7 +80,7 @@ class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterfa
      *
      * @param array $configuration
      * @param array $record
-     * @return TRUE
+     * @return true
      */
     public function process($configuration, &$record)
     {

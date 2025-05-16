@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Domain\Model\Dto;
 
 /***************************************************************
@@ -21,12 +23,9 @@ namespace CPSIT\T3importExport\Domain\Model\Dto;
 
 /**
  * Class TaskDemand
- *
- * @package CPSIT\T3importExport\Domain\Model\Dto
  */
 class TaskDemand implements DemandInterface
 {
-
     /**
      * @var array
      */
@@ -40,9 +39,6 @@ class TaskDemand implements DemandInterface
         return $this->tasks;
     }
 
-    /**
-     * @param array $tasks
-     */
     public function setTasks(array $tasks)
     {
         $this->tasks = $tasks;

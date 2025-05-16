@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Converter;
 
 /***************************************************************
@@ -26,8 +28,8 @@ namespace CPSIT\T3importExport\Component\Converter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
@@ -80,8 +82,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 
     /**
      * injects the property mapper
-     *
-     * @param PropertyMapper $propertyMapper
      */
     public function injectPropertyMapper(PropertyMapper $propertyMapper)
     {
@@ -90,8 +90,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 
     /**
      * injects the property mapping configuration builder
-     *
-     * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
      */
     public function injectPropertyMappingConfigurationBuilder(
         PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
@@ -101,8 +99,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 
     /**
      * injects the TargetClassConfigurationValidator
-     *
-     * @param TargetClassConfigurationValidator $validator
      */
     public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator)
     {
@@ -111,8 +107,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 
     /**
      * injects the MappingConfigurationValidator
-     *
-     * @param MappingConfigurationValidator $validator
      */
     public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator)
     {
@@ -122,8 +116,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     /**
      * Converts the record
      *
-     * @param array $configuration
-     * @param array $record
      * @return DomainObjectInterface
      */
     public function convert(array $record, array $configuration)
@@ -170,8 +162,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     }
 
     /**
-     * @param array $data
-     * @param $enclosure
      * @param null|string $fieldsConfig
      * @return string
      */
@@ -192,7 +182,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
             $this->writeAttributes($xml, $data[static::XML_CONFIG_FIELD_ATTR]);
             unset($data[static::XML_CONFIG_FIELD_ATTR]);
         }
-
 
         foreach ($data as $key => $sub) {
             $nodeConfig = null;
@@ -216,11 +205,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         }
     }
 
-    /**
-     * @param \XMLWriter $xml
-     * @param $key
-     * @param $value
-     */
     private function xmlRecursive(\XMLWriter $xml, $key, $value, $subFieldConfig = null)
     {
         if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_MAP])) {
@@ -245,7 +229,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         if (!$asSeparateRowKey) {
             $xml->startElement($key);
         }
-
 
         if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_ATTR])) {
             if (!$this->isValueEmpty($value[static::XML_CONFIG_FIELD_ATTR])) {
@@ -291,7 +274,6 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
      * false => false
      * true => false
      *
-     * @param $value
      * @return bool
      */
     public function isValueEmpty($value)
@@ -308,14 +290,12 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
             return empty($value);
         }
 
-        return !(isset($value) && strlen((string) $value) > 0);
+        return !(isset($value) && strlen((string)$value) > 0);
     }
 
     /**
-     * @param array $configuration
      * @throws InvalidConfigurationException
      * @throws MissingClassException
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -360,7 +340,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
             PersistentObjectConverter::class,
             [
                 PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
-                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
+                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true,
             ]
         )->skipUnknownProperties();
 

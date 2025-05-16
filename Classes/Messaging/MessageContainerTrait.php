@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Messaging;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -42,7 +44,6 @@ trait MessageContainerTrait
 
     /**
      * Returns and purges all messages from the message container
-     * @return array
      */
     public function getAndPurgeMessages(): array
     {
@@ -56,8 +57,7 @@ trait MessageContainerTrait
      * Tells by id if a container has a certain message
      * Note: not all messages must have an id!
      *
-     * @param $id
-     * @return boolean
+     * @return bool
      */
     public function hasMessageWithId($id)
     {

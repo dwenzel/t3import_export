@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 /***************************************************************
@@ -32,8 +34,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * Class DataTargetDBTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence
  */
 class DataTargetDBTest extends TestCase
 {
@@ -41,18 +41,18 @@ class DataTargetDBTest extends TestCase
         DataTargetDB::FIELD_TABLE => 'foo',
         DataTargetDB::FIELD_SKIP => [
             DataTargetDB::FIELD_IF_EMPTY => [
-                DataTargetDB::FIELD_FIELD => 'bar'
-            ]
-        ]
+                DataTargetDB::FIELD_FIELD => 'bar',
+            ],
+        ],
     ];
 
     final public const array VALID_CONFIG_NOT_EMPTY_FIELD = [
         DataTargetDB::FIELD_TABLE => 'foo',
         DataTargetDB::FIELD_SKIP => [
             DataTargetDB::FIELD_IF_NOT_EMPTY => [
-                DataTargetDB::FIELD_FIELD => 'bar'
-            ]
-        ]
+                DataTargetDB::FIELD_FIELD => 'bar',
+            ],
+        ],
     ];
 
     /**
@@ -99,105 +99,102 @@ class DataTargetDBTest extends TestCase
     {
         return [
             'missing field table' => [
-                []
+                [],
             ],
             'field `unsetKeys` is not string' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
-                    DataTargetDB::FIELD_UNSET_KEYS => []
-                ]
+                    DataTargetDB::FIELD_UNSET_KEYS => [],
+                ],
             ],
             'skip must not be string' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
-                    DataTargetDB::FIELD_SKIP => 'bar'
-                ]
+                    DataTargetDB::FIELD_SKIP => 'bar',
+                ],
             ],
             'skip must not be empty' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
-                    DataTargetDB::FIELD_SKIP => []
-                ]
+                    DataTargetDB::FIELD_SKIP => [],
+                ],
             ],
             'ifEmpty must not be string' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
-                        DataTargetDB::FIELD_IF_EMPTY => 'baz'
-                    ]
-                ]
+                        DataTargetDB::FIELD_IF_EMPTY => 'baz',
+                    ],
+                ],
             ],
             'ifEmpty must not be empty' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
-                        DataTargetDB::FIELD_IF_EMPTY => []
-                    ]
-                ]
+                        DataTargetDB::FIELD_IF_EMPTY => [],
+                    ],
+                ],
             ],
             'ifNotEmpty must not be string' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
-                        DataTargetDB::FIELD_IF_NOT_EMPTY => 'baz'
-                    ]
-                ]
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => 'baz',
+                    ],
+                ],
             ],
             'ifNotEmpty must not be empty' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
-                        DataTargetDB::FIELD_IF_NOT_EMPTY => []
-                    ]
-                ]
+                        DataTargetDB::FIELD_IF_NOT_EMPTY => [],
+                    ],
+                ],
             ],
             'ifEmpty.field must not be array' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
                         DataTargetDB::FIELD_IF_EMPTY => [
-                            DataTargetDB::FIELD_FIELD => []
-                        ]
-                    ]
-                ]
+                            DataTargetDB::FIELD_FIELD => [],
+                        ],
+                    ],
+                ],
             ],
             'ifEmpty.field must not be empty' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
                         DataTargetDB::FIELD_IF_EMPTY => [
-                            DataTargetDB::FIELD_FIELD => ''
-                        ]
-                    ]
-                ]
+                            DataTargetDB::FIELD_FIELD => '',
+                        ],
+                    ],
+                ],
             ],
             'ifNotEmpty.field must not be array' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
                         DataTargetDB::FIELD_IF_NOT_EMPTY => [
-                            DataTargetDB::FIELD_FIELD => []
-                        ]
-                    ]
-                ]
+                            DataTargetDB::FIELD_FIELD => [],
+                        ],
+                    ],
+                ],
             ],
             'ifNotEmpty.field must not be empty' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
                     DataTargetDB::FIELD_SKIP => [
                         DataTargetDB::FIELD_IF_NOT_EMPTY => [
-                            DataTargetDB::FIELD_FIELD => ''
-                        ]
-                    ]
-                ]
+                            DataTargetDB::FIELD_FIELD => '',
+                        ],
+                    ],
+                ],
             ],
 
         ];
     }
 
-    /**
-     * @param array $invalidConfig
-     */
     #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfig(array $invalidConfig): void
     {
@@ -211,27 +208,24 @@ class DataTargetDBTest extends TestCase
         return [
             'minimal config' => [
                 [
-                    DataTargetDB::FIELD_TABLE => 'foo'
-                ]
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                ],
             ],
             'table + unsetKeys ' => [
                 [
                     DataTargetDB::FIELD_TABLE => 'foo',
-                    DataTargetDB::FIELD_UNSET_KEYS => 'bar,baz'
-                ]
+                    DataTargetDB::FIELD_UNSET_KEYS => 'bar,baz',
+                ],
             ],
             'skip if field `bar` is empty' => [
-                self::VALID_CONFIG_EMPTY_FIELD
+                self::VALID_CONFIG_EMPTY_FIELD,
             ],
             'skip if field `bar` is not empty' => [
-                self::VALID_CONFIG_NOT_EMPTY_FIELD
+                self::VALID_CONFIG_NOT_EMPTY_FIELD,
             ],
         ];
     }
 
-    /**
-     * @param array $configuration
-     */
     #[DataProvider('validConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
@@ -243,16 +237,15 @@ class DataTargetDBTest extends TestCase
     #[Test]
     public function persistUnSetsConfiguredKeys()
     {
-
         $tableName = 'baz';
         $keyToUnset = 'foo';
         $configuration = [
             DataTargetDB::FIELD_TABLE => $tableName,
-            DataTargetDB::FIELD_UNSET_KEYS => $keyToUnset
+            DataTargetDB::FIELD_UNSET_KEYS => $keyToUnset,
         ];
 
         $record = [
-            $keyToUnset => 'bar'
+            $keyToUnset => 'bar',
         ];
         $expectedRecord = [];
         $this->connection->expects($this->once())
@@ -260,7 +253,7 @@ class DataTargetDBTest extends TestCase
             ->with(
                 ...[
                     $tableName,
-                    $expectedRecord
+                    $expectedRecord,
                 ]
             );
 
@@ -281,12 +274,12 @@ class DataTargetDBTest extends TestCase
         $identity = 'foo';
         $record = [
             DataTargetDB::DEFAULT_IDENTITY_FIELD => $identity,
-            'barField' => 'boom'
+            'barField' => 'boom',
         ];
 
         $expectedIdentifiers = ['uid' => $identity];
         $expectedRecord = [
-            'barField' => 'boom'
+            'barField' => 'boom',
         ];
         $this->connection->expects($this->once())
             ->method('update')
@@ -294,8 +287,9 @@ class DataTargetDBTest extends TestCase
                 ...[
                 $tableName,
                 $expectedRecord,
-                $expectedIdentifiers
-            ]);
+                $expectedIdentifiers,
+            ]
+            );
 
         $this->subject->persist(
             $record,
@@ -309,30 +303,28 @@ class DataTargetDBTest extends TestCase
             // $configuration, $record
             'skip b/c field `bar` is empty string' => [
                 self::VALID_CONFIG_EMPTY_FIELD,
-                ['bar' => '']
+                ['bar' => ''],
             ],
             'skip b/c field `bar` is empty array' => [
                 self::VALID_CONFIG_EMPTY_FIELD,
-                ['bar' => []]
+                ['bar' => []],
             ],
             'skip b/c field `bar` is not empty string' => [
                 self::VALID_CONFIG_NOT_EMPTY_FIELD,
-                ['bar' => 'lala']
+                ['bar' => 'lala'],
             ],
             'skip b/c field `bar` is not empty array' => [
                 self::VALID_CONFIG_NOT_EMPTY_FIELD,
-                ['bar' => ['baz']]
+                ['bar' => ['baz']],
             ],
             'skip b/c field `bar` is not empty but float' => [
                 self::VALID_CONFIG_NOT_EMPTY_FIELD,
-                ['bar' => 3.12]
+                ['bar' => 3.12],
             ],
         ];
     }
 
     /**
-     * @param array $configuration
-     * @param array $record
      * @throws InvalidConfigurationException
      */
     #[DataProvider('skipIfDataProvider')]

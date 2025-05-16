@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Tests\Unit\Component\PostProcessor\GenerateFileReferenceTest;
@@ -24,7 +26,6 @@ use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
  ***************************************************************/
 trait MockFileIndexRepositoryTrait
 {
-
     /**
      * @var FileIndexRepository|MockObject
      */
@@ -36,7 +37,7 @@ trait MockFileIndexRepositoryTrait
             ->disableOriginalConstructor()
             ->onlyMethods([
                 'findOneByUid',
-                'add'
+                'add',
             ])
             ->getMock();
         return $this;

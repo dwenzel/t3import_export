@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\TranslateObject;
@@ -44,7 +46,6 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
  ***************************************************************/
 class TranslateObjectTest extends TestCase
 {
-
     protected TranslateObject $subject;
 
     /**
@@ -94,7 +95,6 @@ class TranslateObjectTest extends TestCase
         );
     }
 
-
     /**
      * @test
      */
@@ -125,10 +125,9 @@ class TranslateObjectTest extends TestCase
         );
     }
 
-
     /**
      * @test
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws InvalidColumnMapException
      */
     public function processConvertsParentIfParentFieldIsSet(): void
@@ -136,10 +135,10 @@ class TranslateObjectTest extends TestCase
         $identity = 1;
         $config = [
             'language' => '1',
-            'parentField' => 'foo'
+            'parentField' => 'foo',
         ];
         $record = [
-            'foo' => $identity
+            'foo' => $identity,
         ];
 
         $targetClass = DomainObjectInterface::class;
@@ -149,7 +148,7 @@ class TranslateObjectTest extends TestCase
 
         $expectedTargetClass = $convertedRecord::class;
 
-            $this->translationService->expects($this->once())
+        $this->translationService->expects($this->once())
             ->method('getLocalizationParent')
             ->with(...[$identity, $expectedTargetClass])
             ->willReturn($parentObject);

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Functional\Service;
 
 /***************************************************************
@@ -18,23 +20,20 @@ namespace CPSIT\T3importExport\Tests\Functional\Service;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * Class DataTransferProcessorTest
  * Functional tests for CPSIT\T3importExport\Service\DataTransferProcessor
- *
- * @package CPSIT\T3importExport\Tests\Functional\Service
  */
 class ImportProcessorTest extends FunctionalTestCase
 {
-
     /**
      * @var DataTransferProcessor
      */
@@ -69,12 +68,12 @@ class ImportProcessorTest extends FunctionalTestCase
             'source' => [
                 'config' => [
                     'table' => 'fe_users',
-                    'where' => 'name="findFeUser"'
-                ]
+                    'where' => 'name="findFeUser"',
+                ],
             ],
             'target' => [
 
-            ]
+            ],
         ];
         $importTask = $this->transferTaskFactory->get($settings, $taskIdentifier);
         $importDemand = new TaskDemand();

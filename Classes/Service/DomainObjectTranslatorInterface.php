@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Service;
 
 /***************************************************************
@@ -30,18 +32,11 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
 /**
  * Interface DomainObjectTranslatorInterface
- *
- * @package CPSIT\T3importExport\Service
  */
 interface DomainObjectTranslatorInterface
 {
     /**
      * Translates a domain object
-     *
-     * @param DomainObjectInterface $origin
-     * @param DomainObjectInterface $translation
-     * @param int $language
-     * @return void
      */
     public function translate(DomainObjectInterface $origin, DomainObjectInterface $translation, int $language): void;
 }

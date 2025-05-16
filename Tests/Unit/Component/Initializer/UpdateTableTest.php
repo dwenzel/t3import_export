@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\UpdateTable;
@@ -66,53 +68,52 @@ class UpdateTableTest extends TestCase
         );
     }
 
-
     public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty configuration' => [
-                []
+                [],
             ],
             'table value is integer' => [
                 [
                     UpdateTable::KEY_TABLE => 3,
                     UpdateTable::KEY_WHERE => [],
-                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
-                ]
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5],
+                ],
             ],
             'table is float' => [
                 [
                     UpdateTable::KEY_TABLE => 1.5,
                     UpdateTable::KEY_WHERE => [],
-                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
-                ]
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5],
+                ],
             ],
             'table is array' => [
                 [
                     UpdateTable::KEY_TABLE => [],
                     UpdateTable::KEY_WHERE => [],
-                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
-                ]
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5],
+                ],
             ],
             'table is empty string' => [
                 [
                     UpdateTable::KEY_TABLE => '',
-                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
-                ]
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5],
+                ],
             ],
             'where is integer' => [
                 [
                     UpdateTable::KEY_TABLE => 'foo',
                     UpdateTable::KEY_WHERE => 1,
-                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
-                ]
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5],
+                ],
             ],
             'where is float' => [
                 [
                     UpdateTable::KEY_TABLE => 'foo',
                     UpdateTable::KEY_WHERE => 1.7,
-                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
-                ]
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5],
+                ],
             ],
         ];
     }
@@ -124,9 +125,9 @@ class UpdateTableTest extends TestCase
                 [
                     UpdateTable::KEY_TABLE => 'foo',
                     UpdateTable::KEY_WHERE => 'uid=1',
-                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
-                ]
-            ]
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5],
+                ],
+            ],
         ];
     }
 }

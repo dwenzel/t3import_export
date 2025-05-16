@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
 /**
@@ -15,9 +17,9 @@ namespace CPSIT\T3importExport\Tests\Validation\Configuration;
  */
 
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
-use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ResourcePathConfigurationValidatorTest
@@ -40,7 +42,6 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         vfsStreamWrapper::register();
     }
 
-
     /**
      * @test
      */
@@ -58,7 +59,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     public function validateReturnsFalseIfFileIsNotString()
     {
         $configuration = [
-            'file' => []
+            'file' => [],
         ];
         $this->assertFalse(
             $this->subject->isValid($configuration)
@@ -72,9 +73,8 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     {
         $invalidPath = 'fooPath';
         $configuration = [
-            'file' => $invalidPath
+            'file' => $invalidPath,
         ];
-
 
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
@@ -96,7 +96,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         $relativePath = $fileDirectory . '/' . $fileName;
 
         $configuration = [
-            'file' => $relativePath
+            'file' => $relativePath,
         ];
 
         $root = vfsStream::setup($fileDirectory);
@@ -119,7 +119,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     {
         $configuration = [
             'file' => 'foo',
-            'url' => 'bar'
+            'url' => 'bar',
         ];
 
         $this->assertFalse(
@@ -133,7 +133,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     public function validateReturnsFalseIfUrlIsNotString()
     {
         $configuration = [
-            'url' => []
+            'url' => [],
         ];
         $this->assertFalse(
             $this->subject->isValid($configuration)
@@ -146,7 +146,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     public function validateReturnsFalseIfUrlIsInvalid()
     {
         $configuration = [
-            'url' => 'foo'
+            'url' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isValid($configuration)
@@ -159,7 +159,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     public function validateReturnsTrueIfUrlIsValid()
     {
         $configuration = [
-            'url' => 'http://typo3.org'
+            'url' => 'http://typo3.org',
         ];
         $this->assertTrue(
             $this->subject->isValid($configuration)

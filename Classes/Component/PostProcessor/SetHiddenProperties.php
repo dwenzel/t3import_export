@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -27,16 +29,9 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  * Sets fields of AbstractDomainObject instances
  * which are not settable via PropertyMapper.
  * I.e. _languageUid, _localizedUid, $_versionedUid
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class SetHiddenProperties extends AbstractPostProcessor implements PostProcessorInterface
 {
-
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
@@ -63,10 +58,8 @@ class SetHiddenProperties extends AbstractPostProcessor implements PostProcessor
     }
 
     /**
-     * @param array $configuration
      * @param AbstractDomainObject $convertedRecord
-     * @param array $record
-     * @return TRUE
+     * @return true
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
@@ -88,7 +81,6 @@ class SetHiddenProperties extends AbstractPostProcessor implements PostProcessor
      * @param array $configuration
      * @param AbstractDomainObject $convertedRecord
      * @param string $fieldName
-     * @param $value
      */
     protected function setHiddenProperty($configuration, &$convertedRecord, $fieldName, $value)
     {
@@ -102,7 +94,6 @@ class SetHiddenProperties extends AbstractPostProcessor implements PostProcessor
     /**
      * @param AbstractDomainObject $convertedRecord
      * @param string $fieldName
-     * @param $value
      * @param array $configuration
      */
     protected function setPropertiesRecursive(&$convertedRecord, $fieldName, $value, $configuration)

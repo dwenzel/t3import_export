@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Domain\Model;
 
 /***************************************************************
@@ -24,8 +26,6 @@ use CPSIT\T3importExport\IdentifiableTrait;
 /**
  * Class TransferSet
  * A set of transfer tasks
- *
- * @package CPSIT\T3importExport\Domain\Model
  */
 class TransferSet implements IdentifiableInterface
 {

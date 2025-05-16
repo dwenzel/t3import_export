@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
 /**
@@ -14,7 +16,6 @@ namespace CPSIT\T3importExport;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 interface LoggingInterface
 {
     public const DEFAULT_MESSAGE_TITLE = 'Message';
@@ -32,7 +33,6 @@ interface LoggingInterface
 
     /**
      * Returns and purges all messages from the message container
-     * @return array
      */
     public function getAndPurgeMessages(): array;
 }

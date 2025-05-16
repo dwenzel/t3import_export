@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
+use CPSIT\T3importExport\Domain\Model\TaskResult;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
 class DataTargetFileStream extends DataTargetRepository implements ConfigurableInterface
 {
@@ -33,7 +35,6 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
 
     /**
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
      * @return void
      * @throws FileOperationErrorException
      */
@@ -70,7 +71,6 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     }
 
     /**
-     * @param $buffer
      * @return void
      * @throws FileOperationErrorException
      */
@@ -83,7 +83,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
         // file put content
         if (file_put_contents($this->tempFile, $buffer, FILE_APPEND|LOCK_EX) === false) {
             throw new FileOperationErrorException(
-                'can\'t write in temp file: \''. $this->tempFile .'\''
+                'can\'t write in temp file: \'' . $this->tempFile . '\''
             );
         }
     }
@@ -100,7 +100,6 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     /**
      * return absolute path of the temp file
      *
-     * @param $fileName
      * @return string
      * @throws FileOperationErrorException
      */
@@ -113,7 +112,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
         if (!file_exists($absPath)) {
             if (!GeneralUtility::mkdir($absPath)) {
                 throw new FileOperationErrorException(
-                    'can\'t create temp folder: \''. static::TEMP_DIRECTORY.'\''
+                    'can\'t create temp folder: \'' . static::TEMP_DIRECTORY . '\''
                 );
             }
         }
@@ -121,7 +120,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
         $absFileName = $basicFileUtility->getUniqueName($fileName, $absPath);
         if (!touch($absFileName)) {
             throw new FileOperationErrorException(
-                'can\'t create new temp file: \''.$absFileName .'\''
+                'can\'t create new temp file: \'' . $absFileName . '\''
             );
         }
         return $absFileName;

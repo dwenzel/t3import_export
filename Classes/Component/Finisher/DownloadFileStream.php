@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
@@ -30,11 +32,7 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 class DownloadFileStream extends AbstractFinisher implements FinisherInterface
 {
     /**
-     *
-     * @param array $configuration
-     * @param array $records
      * @param array $result
-     * @return bool
      */
     public function process(array $configuration, array &$records, &$result): bool
     {
@@ -70,7 +68,7 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface
 
             header('Content-Description: File Transfer');
             header('Content-Type: ' . $cType);
-            header('Content-Disposition: attachment; filename="'.  $fileName . $fileExt .'"');
+            header('Content-Disposition: attachment; filename="' . $fileName . $fileExt . '"');
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');

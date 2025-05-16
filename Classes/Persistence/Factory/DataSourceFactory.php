@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -49,7 +51,6 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
      *
      * @param array $settings Configuration for the data source
      * @param string $identifier Identifier
-     * @return DataSourceInterface
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException
@@ -97,8 +98,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
 
         if (
             in_array(ConfigurableInterface::class, class_implements($dataSourceClass))
-        )
-        {
+        ) {
             $dataSource->setConfiguration(
                 $settings['config']
             );

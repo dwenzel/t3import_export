@@ -1,4 +1,7 @@
-<?php /** @noinspection PhpParamsInspection */
+<?php
+
+declare(strict_types=1);
+/** @noinspection PhpParamsInspection */
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
@@ -42,12 +45,10 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 /**
  * Class ArrayToDomainObjectTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
  */
 class ArrayToDomainObjectTest extends TestCase
 {
-
     /**
      * @var ArrayToDomainObject
      */
@@ -78,9 +79,6 @@ class ArrayToDomainObjectTest extends TestCase
      */
     protected $objectManager;
 
-    /**
-     *
-     */
     protected function setUp(): void
     {
         $this->objectManager = $this->getMockBuilder(ObjectManager::class)
@@ -122,7 +120,6 @@ class ArrayToDomainObjectTest extends TestCase
         );
         $this->subject->getMappingConfiguration([]);
     }
-
 
     /**
      * @test
@@ -168,7 +165,7 @@ class ArrayToDomainObjectTest extends TestCase
         $record = [];
         $expectedObject = $this->createMock(DomainObjectInterface::class);
         $configuration = [
-            'targetClass' => 'FooClassName'
+            'targetClass' => 'FooClassName',
         ];
         $mappingConfiguration = $configuration;
         unset($mappingConfiguration['targetClass']);

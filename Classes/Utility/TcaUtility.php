@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace CPSIT\T3importExport\Utility;
 
@@ -24,11 +25,6 @@ namespace CPSIT\T3importExport\Utility;
  */
 class TcaUtility
 {
-    /**
-     * @param string $fieldName
-     * @param string $tableName
-     * @return array
-     */
     public static function getTcaOfField(string $fieldName, string $tableName): array
     {
         if (empty($GLOBALS['TCA'][$tableName]['columns'][$fieldName])) {

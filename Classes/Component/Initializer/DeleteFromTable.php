@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 /**
@@ -22,16 +24,13 @@ use CPSIT\T3importExport\DatabaseTrait;
  * Deletes records from a given table either from default database or a
  * database registered with DatabaseConnectionService by identifier.
  * Records to delete are determined by a where clause
- * @package \CPSIT\T3importExport\Component\Initializer
  */
 class DeleteFromTable extends AbstractInitializer implements InitializerInterface
 {
     use DatabaseTrait;
 
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
-     * @return bool
      */
     public function process(array $configuration, array &$records): bool
     {
@@ -48,9 +47,6 @@ class DeleteFromTable extends AbstractInitializer implements InitializerInterfac
 
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool

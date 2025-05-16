@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Factory;
 
 use CPSIT\T3importExport\Component\ComponentInterface;
@@ -32,13 +34,12 @@ use PHPUnit\Framework\TestCase;
  * Class DummyProduct
  * Does not implement ComponentInterface
  */
-class DummyProduct {
-
+class DummyProduct
+{
 }
 
 class MissingProductImplementingComponentInterface implements ComponentInterface
 {
-
 }
 class ComponentFactoryMapTest extends TestCase
 {

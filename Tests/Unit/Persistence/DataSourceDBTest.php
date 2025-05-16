@@ -1,10 +1,12 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /***************************************************************
  *
@@ -34,26 +36,26 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class DataSourceDBTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataSourceDB
  */
 class DataSourceDBTest extends TestCase
 {
-
     /**
      * @var DataSourceDB
      */
     protected $subject;
 
-    /**
-     *
-     */
     protected function setUp(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 
-        $this->subject = $this->getAccessibleMock(DataSourceDB::class,
-            ['dummy'], [], '', false);
+        $this->subject = $this->getAccessibleMock(
+            DataSourceDB::class,
+            ['dummy'],
+            [],
+            '',
+            false
+        );
     }
 
     /**
@@ -67,7 +69,11 @@ class DataSourceDBTest extends TestCase
             DatabaseConnectionService::class
         );
         $mockDataBase = $this->getMock(
-            DatabaseConnection::class, [], [], '', false
+            DatabaseConnection::class,
+            [],
+            [],
+            '',
+            false
         );
         $this->subject->injectDatabaseConnectionService($mockConnectionService);
         $mockConnectionService->expects($this->once())
@@ -91,14 +97,18 @@ class DataSourceDBTest extends TestCase
             'where' => '',
             'groupBy' => '',
             'orderBy' => '',
-            'limit' => '1'
+            'limit' => '1',
         ];
         $result = ['baz'];
         $mockConnectionService = $this->getMock(
             DatabaseConnectionService::class
         );
         $mockDataBase = $this->getMock(
-            DatabaseConnection::class, ['exec_SELECTgetRows'], [], '', false
+            DatabaseConnection::class,
+            ['exec_SELECTgetRows'],
+            [],
+            '',
+            false
         );
         $this->subject->injectDatabaseConnectionService($mockConnectionService);
         $mockConnectionService->expects($this->once())
@@ -126,18 +136,27 @@ class DataSourceDBTest extends TestCase
      */
     public function getRecordsRendersContentOfConfiguration()
     {
-        $this->subject = $this->getAccessibleMock(DataSourceDB::class,
-            ['renderContent'], [], '', false);
+        $this->subject = $this->getAccessibleMock(
+            DataSourceDB::class,
+            ['renderContent'],
+            [],
+            '',
+            false
+        );
 
         $configuration = [
             'table' => 'baz',
-            'foo' => ['bar']
+            'foo' => ['bar'],
         ];
         $mockConnectionService = $this->getMock(
             DatabaseConnectionService::class
         );
         $mockDataBase = $this->getMock(
-            DatabaseConnection::class, ['exec_SELECTgetRows'], [], '', false
+            DatabaseConnection::class,
+            ['exec_SELECTgetRows'],
+            [],
+            '',
+            false
         );
         $this->subject->injectDatabaseConnectionService($mockConnectionService);
         $mockConnectionService->expects($this->once())
@@ -159,10 +178,15 @@ class DataSourceDBTest extends TestCase
         $this->subject->setIdentifier($identifier);
         /** @var DatabaseConnectionService | \PHPUnit_Framework_MockObject_MockObject $mockConnectionService */
         $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class, ['getDatabase'], [], '', false
+            DatabaseConnectionService::class,
+            ['getDatabase'],
+            [],
+            '',
+            false
         );
         $mockDataBase = $this->getMock(
-            DatabaseConnection::class);
+            DatabaseConnection::class
+        );
         $this->subject->injectDatabaseConnectionService($mockConnectionService);
         $mockConnectionService->expects($this->once())
             ->method('getDatabase')
@@ -192,7 +216,7 @@ class DataSourceDBTest extends TestCase
     public function isConfigurationValidReturnsFalseForInvalidTable()
     {
         $configuration = [
-            'table' => []
+            'table' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
@@ -205,7 +229,7 @@ class DataSourceDBTest extends TestCase
     public function isConfigurationValidReturnsTrueForValidConfiguration()
     {
         $configuration = [
-            'table' => 'foo'
+            'table' => 'foo',
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)

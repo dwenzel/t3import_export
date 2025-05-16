@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\WriteFile;
@@ -68,7 +70,7 @@ class WriteFileTest extends TestCase
             ->onlyMethods([
                 'getStorageObject',
                 'getDefaultStorage',
-                'createFileReferenceObject'
+                'createFileReferenceObject',
             ])
             ->getMock();
 
@@ -84,82 +86,81 @@ class WriteFileTest extends TestCase
 
     /**
      * Invalid configuration data provider
-     * @return array
      */
     public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty configuration' => [
-                []
+                [],
             ],
             'empty target file name' => [
                 [
                     'target' => [
-                        'name' => ''
-                    ]
-                ]
+                        'name' => '',
+                    ],
+                ],
             ],
             'target name must not be array' => [
                 [
                     'target' => [
-                        'name' => ['bar']
-                    ]
-                ]
+                        'name' => ['bar'],
+                    ],
+                ],
             ],
             'target name must not be integer' => [
                 [
                     'target' => [
-                        'name' => 0
-                    ]
-                ]
+                        'name' => 0,
+                    ],
+                ],
             ],
             'target storage string: can not be interpreted as integer' => [
                 [
                     'target' => [
                         'name' => 'foo',
-                        'storage' => 'bar'
-                    ]
-                ]
+                        'storage' => 'bar',
+                    ],
+                ],
             ],
             'target storage array: can not be interpreted as integer' => [
                 [
                     'target' => [
                         'name' => 'foo',
-                        'storage' => ['bar']
-                    ]
-                ]
+                        'storage' => ['bar'],
+                    ],
+                ],
             ],
             'target directory integer: must be string' => [
                 [
                     'target' => [
                         'name' => 'foo',
-                        'directory' => 8
-                    ]
-                ]
+                        'directory' => 8,
+                    ],
+                ],
             ],
             'invalid target conflictMode: foo' => [
                 [
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => 'foo',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'invalid target conflictMode: empty string' => [
                 [
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => '',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'invalid target conflictMode: array' => [
                 [
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => [],
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }
@@ -174,7 +175,6 @@ class WriteFileTest extends TestCase
 
     /**
      * Valid configuration data provider
-     * @return array
      */
     public static function validConfigurationDataProvider(): array
     {
@@ -182,50 +182,50 @@ class WriteFileTest extends TestCase
             'minimal: only file name' => [
                 [
                     'target' => [
-                        'name' => 'bar'
-                    ]
-                ]
+                        'name' => 'bar',
+                    ],
+                ],
             ],
             'file name and valid conflictMode: cancel' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'conflictMode' => WriteFile::CONFLICT_MODE_CANCEL
-                    ]
-                ]
+                        'conflictMode' => WriteFile::CONFLICT_MODE_CANCEL,
+                    ],
+                ],
             ],
             'file name and valid conflictMode: changeName' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'conflictMode' => WriteFile::CONFLICT_MODE_CHANGENAME
-                    ]
-                ]
+                        'conflictMode' => WriteFile::CONFLICT_MODE_CHANGENAME,
+                    ],
+                ],
             ],
             'file name and valid conflictMode: replace' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'conflictMode' => WriteFile::CONFLICT_MODE_REPLACE
-                    ]
-                ]
+                        'conflictMode' => WriteFile::CONFLICT_MODE_REPLACE,
+                    ],
+                ],
             ],
             'target storage string: can be interpreted as integer' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'storage' => '3'
-                    ]
-                ]
+                        'storage' => '3',
+                    ],
+                ],
             ],
             'target storage integer' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'storage' => 5
-                    ]
-                ]
-            ]
+                        'storage' => 5,
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -264,8 +264,8 @@ class WriteFileTest extends TestCase
         $records = [];
         $configurationWithoutStorage = [
             'target' => [
-                'name' => 'bar.xml'
-            ]
+                'name' => 'bar.xml',
+            ],
         ];
         $result = $this->expectDefaultFolderAccess();
 
@@ -274,7 +274,6 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     /**
@@ -303,8 +302,8 @@ class WriteFileTest extends TestCase
         $configurationWithStorage = [
             'target' => [
                 'name' => 'bar.xml',
-                'storage' => $storageId
-            ]
+                'storage' => $storageId,
+            ],
         ];
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
@@ -326,7 +325,6 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     public function testProcessAddsFileToFolderInStorage(): void
@@ -335,8 +333,8 @@ class WriteFileTest extends TestCase
         $fileName = 'bar.xml';
         $configuration = [
             'target' => [
-                'name' => $fileName
-            ]
+                'name' => $fileName,
+            ],
         ];
         $realPath = 'foobar';
         $fileInfo = $this->getMockBuilder(FileInfo::class)
@@ -353,11 +351,12 @@ class WriteFileTest extends TestCase
 
         $this->resourceStorage->expects($this->once())
             ->method('addFile')
-            ->with(...
+            ->with(
+                ...
                 [
                     $realPath,
                     $this->folder,
-                    $fileName
+                    $fileName,
                 ]
             );
 
@@ -375,8 +374,8 @@ class WriteFileTest extends TestCase
         $configurationWithStorage = [
             'target' => [
                 'name' => 'bar.xml',
-                'directory' => $directory
-            ]
+                'directory' => $directory,
+            ],
         ];
 
         $result = $this->expectCreationOfMissingDirectory($directory);
@@ -386,11 +385,9 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     /**
-     * @param string $directory
      * @return TaskResult|MockObject
      */
     protected function expectCreationOfMissingDirectory(string $directory)
@@ -421,8 +418,8 @@ class WriteFileTest extends TestCase
         $configurationWithStorage = [
             'target' => [
                 'name' => 'bar.xml',
-                'directory' => $directory
-            ]
+                'directory' => $directory,
+            ],
         ];
         $result = $this->expectAccessOfExistingDirectory($directory);
 
@@ -431,11 +428,9 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     /**
-     * @param string $directory
      * @return TaskResult|MockObject
      */
     protected function expectAccessOfExistingDirectory(string $directory)
@@ -466,8 +461,8 @@ class WriteFileTest extends TestCase
         $configuration = [
             'target' => [
                 'name' => 'bar.xml',
-                'conflictMode' => $conflictMode
-            ]
+                'conflictMode' => $conflictMode,
+            ],
         ];
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
@@ -479,11 +474,12 @@ class WriteFileTest extends TestCase
         $this->resourceStorage
             ->expects($this->once())
             ->method('addFile')
-            ->with(...[
+            ->with(
+                ...[
                     null,
                     $this->folder,
                     $configuration['target']['name'],
-                    $conflictMode
+                    $conflictMode,
                 ]
             )
             ->willReturn(false);
@@ -493,6 +489,5 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 }

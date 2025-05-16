@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use PHPUnit\Framework\MockObject\MockObject;
@@ -23,7 +25,6 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
  ***************************************************************/
 trait MockTypoScriptServiceTrait
 {
-
     /**
      * @var TypoScriptService|MockObject
      */

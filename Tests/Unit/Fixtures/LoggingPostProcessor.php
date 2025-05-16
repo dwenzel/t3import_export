@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
 /***************************************************************
@@ -44,10 +46,7 @@ class LoggingPostProcessor extends AbstractPostProcessor implements PostProcesso
     }
 
     /**
-     * @param array $configuration
      * @param mixed $convertedRecord
-     * @param array $record
-     * @return bool
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
     {

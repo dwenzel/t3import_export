@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -28,14 +30,15 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class XMLMapperTest
  *
- * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\XMLMapper
  */
 class XMLMapperTest extends TestCase
 {
     protected XMLMapper $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new XMLMapper();
@@ -51,49 +54,46 @@ class XMLMapperTest extends TestCase
         );
     }
 
-    /**
-     * @return array
-     */
     public static function isConfigurationInvalidDataProvider(): array
     {
         return [
             [
                 [
                     'foo' => 'bar',
-                    'bar' => []
-                ]
+                    'bar' => [],
+                ],
             ],
             [
                 [
                     'fields' => 'bar',
-                    'otherShit' => true
-                ]
+                    'otherShit' => true,
+                ],
             ],
             [
                 [
                     'foo' => true,
-                    'stuff' => '@something'
-                ]
+                    'stuff' => '@something',
+                ],
             ],
             [
                 [
                     'fields' => [
                         'staticSub' => [
                             'foo' => false,
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
             [
                 [
                     'fields' => [
                         'manyChildren' => [
                             'children' => [
-                                'id' => false
+                                'id' => false,
                             ],
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
         ];
     }
@@ -107,9 +107,6 @@ class XMLMapperTest extends TestCase
         );
     }
 
-    /**
-     * @return array
-     */
     public static function isConfigurationValidDataProvider(): array
     {
         return [
@@ -117,8 +114,8 @@ class XMLMapperTest extends TestCase
             [
                 [
                     'fields' => [],
-                    'otherShit' => true
-                ]
+                    'otherShit' => true,
+                ],
             ],
             // recursion with list array
             [
@@ -126,43 +123,42 @@ class XMLMapperTest extends TestCase
                     'fields' => [
                         'manyChildren' => [
                             'children' => [
-                                'id' => '@attribute'
-                            ]
-                        ]
-                    ]
-                ]
+                                'id' => '@attribute',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             // recursion with assoc array
             [
                 [
                     'fields' => [
                         'single' => [
-                            'id' => '@attribute'
-                        ]
-                    ]
-                ]
+                            'id' => '@attribute',
+                        ],
+                    ],
+                ],
             ],
             // CDATA
             [
                 [
                     'fields' => [
-                        'element' => '@cdata'
-                    ]
-                ]
+                        'element' => '@cdata',
+                    ],
+                ],
             ],
             // ADVANCED CDATA
             [
                 [
                     'fields' => [
                         'element' => [
-                            'content' => '@value|@cdata'
-                        ]
-                    ]
-                ]
-            ]
+                            'content' => '@value|@cdata',
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
-
 
     #[Test]
     #[DataProvider('isConfigurationValidDataProvider')]
@@ -173,171 +169,168 @@ class XMLMapperTest extends TestCase
         );
     }
 
-    /**
-     * @return array
-     */
     public static function processWithValidConfigDataProvider(): array
     {
         return [
             // check attribute
             [
                 [
-                    'id' => 123
+                    'id' => 123,
                 ],
                 [
                     'fields' => [
-                        'id' => '@attribute'
-                    ]
+                        'id' => '@attribute',
+                    ],
                 ],
                 [
                     '@attribute' => [
-                        'id' => 123
-                    ]
-                ]
+                        'id' => 123,
+                    ],
+                ],
             ],
             // check separate row in 1 dimension
             [
                 [
                     'setting' => [
-                        'foo'
-                    ]
+                        'foo',
+                    ],
                 ],
                 [
                     'fields' => [
-                        'setting' => '@separateRow'
-                    ]
+                        'setting' => '@separateRow',
+                    ],
                 ],
                 [
                     'setting' => [
                         'foo',
-                        '@separateRow' => true
-                    ]
-                ]
+                        '@separateRow' => true,
+                    ],
+                ],
             ],
             // check separate row in multi dimensions
             [
                 [
                     'setting' => [
-                        'foo'
-                    ]
+                        'foo',
+                    ],
                 ],
                 [
                     'fields' => [
                         'setting' => [
-                            '@separateRow' => true
-                        ]
-                    ]
+                            '@separateRow' => true,
+                        ],
+                    ],
                 ],
                 [
                     'setting' => [
                         'foo',
-                        '@separateRow' => true
-                    ]
-                ]
+                        '@separateRow' => true,
+                    ],
+                ],
             ],
 
             // check mapTo in sub element
             [
                 [
                     'setting' => [
-                        'foo'
-                    ]
+                        'foo',
+                    ],
                 ],
                 [
                     'fields' => [
                         'setting' => [
-                            'mapTo' => 'setup'
-                        ]
-                    ]
+                            'mapTo' => 'setup',
+                        ],
+                    ],
                 ],
                 [
                     'setting' => [
                         'foo',
-                        '@mapTo' => 'setup'
-                    ]
-                ]
+                        '@mapTo' => 'setup',
+                    ],
+                ],
             ],
             // check mapTo in direct element
             [
                 [
-                    'foo' => 1
+                    'foo' => 1,
                 ],
                 [
                     'fields' => [
                         'foo' => [
-                            'mapTo' => 'bar'
-                        ]
-                    ]
+                            'mapTo' => 'bar',
+                        ],
+                    ],
                 ],
                 [
                     'foo' => [
                         '@value' => 1,
-                        '@mapTo' => 'bar'
-                    ]
-                ]
+                        '@mapTo' => 'bar',
+                    ],
+                ],
             ],
 
             // check value
             [
                 [
                     'element' => [
-                        'content' => 'fooBar'
+                        'content' => 'fooBar',
 
-                    ]
+                    ],
                 ],
                 [
                     'fields' => [
                         'element' => [
-                            'content' => '@value'
-                        ]
-                    ]
+                            'content' => '@value',
+                        ],
+                    ],
                 ],
                 [
                     'element' => [
                         '@value' => 'fooBar',
-                    ]
-                ]
+                    ],
+                ],
             ],
 
             // check simple CDATA
             [
                 [
-                    'element' => 'fooBar'
+                    'element' => 'fooBar',
                 ],
                 [
                     'fields' => [
-                        'element' => '@cdata'
-                    ]
+                        'element' => '@cdata',
+                    ],
                 ],
                 [
                     'element' => [
                         '@value' => 'fooBar',
-                        '@cdata' => true
-                    ]
-                ]
+                        '@cdata' => true,
+                    ],
+                ],
             ],
 
             // check complex simple CDATA
             [
                 [
                     'element' => [
-                        'content' => 'fooBar'
+                        'content' => 'fooBar',
 
-                    ]
+                    ],
                 ],
                 [
                     'fields' => [
                         'element' => [
-                            'content' => '@value|@cdata'
-                        ]
-                    ]
+                            'content' => '@value|@cdata',
+                        ],
+                    ],
                 ],
                 [
                     'element' => [
                         '@value' => 'fooBar',
-                        '@cdata' => true
-                    ]
-                ]
+                        '@cdata' => true,
+                    ],
+                ],
             ],
 
             // check children element with mapTo and value
@@ -345,39 +338,38 @@ class XMLMapperTest extends TestCase
                 [
                     'element' => [
                         [
-                            'foo' => 'bar'
+                            'foo' => 'bar',
                         ],
                         [
-                            'foo' => 'bar'
-                        ]
-                    ]
+                            'foo' => 'bar',
+                        ],
+                    ],
                 ],
                 [
                     'fields' => [
                         'element' => [
                             'children' => [
                                 'mapTo' => 'item',
-                                'foo' => '@value'
-                            ]
-                        ]
-                    ]
+                                'foo' => '@value',
+                            ],
+                        ],
+                    ],
                 ],
                 [
                     'element' => [
                         [
                             '@value' => 'bar',
-                            '@mapTo' => 'item'
+                            '@mapTo' => 'item',
                         ],
                         [
                             '@value' => 'bar',
-                            '@mapTo' => 'item'
-                        ]
-                    ]
-                ]
+                            '@mapTo' => 'item',
+                        ],
+                    ],
+                ],
             ],
         ];
     }
-
 
     #[Test]
     #[DataProvider('processWithValidConfigDataProvider')]

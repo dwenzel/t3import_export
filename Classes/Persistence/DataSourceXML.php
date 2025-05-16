@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 /**
@@ -26,13 +28,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DataSourceXML implements DataSourceInterface, ConfigurableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
+    use ResourceTrait;
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {

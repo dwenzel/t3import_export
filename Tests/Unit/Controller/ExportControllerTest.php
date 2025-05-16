@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Controller;
 
-use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Controller\ExportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
@@ -34,12 +36,10 @@ use TYPO3\CMS\Fluid\View\TemplateView;
 /**
  * Class ExportControllerTest
  *
- * @package CPSIT\T3importExport\Tests\Controller
  * @coversDefaultClass \CPSIT\T3importExport\Controller\ExportController
  */
 class ExportControllerTest extends TestCase
 {
-
     /**
      * @var ExportController
      */
@@ -49,8 +49,13 @@ class ExportControllerTest extends TestCase
     {
         $this->markTestSkipped('Todo: replace ExtbaseCommandController by Symfony Command');
 
-        $this->subject = $this->getAccessibleMock(ExportController::class,
-            ['dummy'], [], '', false);
+        $this->subject = $this->getAccessibleMock(
+            ExportController::class,
+            ['dummy'],
+            [],
+            '',
+            false
+        );
     }
 
     /**
@@ -107,16 +112,17 @@ class ExportControllerTest extends TestCase
         $settings = [
             'export' => [
                 'tasks' => [
-                    $identifier => ['bar']
-                ]
-            ]
+                    $identifier => ['bar'],
+                ],
+            ],
         ];
         $this->subject->_set('settings', $settings);
         $mockTask = $this->getMock(
             TransferTask::class
         );
         $transferTaskFactory = $this->getMock(
-            TransferTaskFactory::class, ['get']
+            TransferTaskFactory::class,
+            ['get']
         );
         $transferTaskFactory->expects($this->once())
             ->method('get')
@@ -126,19 +132,28 @@ class ExportControllerTest extends TestCase
 
         $importProcessor = $this->getMock(
             DataTransferProcessor::class,
-            ['buildQueue', 'process'], [], '', false
+            ['buildQueue', 'process'],
+            [],
+            '',
+            false
         );
         $task = 'foo';
         $result = ['bar'];
         $this->subject->injectDataTransferProcessor($importProcessor);
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
+        $mockObjectManager = $this->getMock(
+            'TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
+            ['get']
+        );
         $this->subject->injectObjectManager($mockObjectManager);
         $mockDemand = $this->getMock(
             DemandInterface::class
         );
         $mockView = $this->getMock(
-            TemplateView::class, ['assignMultiple'], [], '', false
+            TemplateView::class,
+            ['assignMultiple'],
+            [],
+            '',
+            false
         );
         $this->subject->_set('view', $mockView);
 
@@ -157,7 +172,7 @@ class ExportControllerTest extends TestCase
             ->with(
                 [
                     'task' => $task,
-                    'result' => $result
+                    'result' => $result,
                 ]
             );
         $this->subject->exportTaskAction($task);
@@ -173,9 +188,9 @@ class ExportControllerTest extends TestCase
         $settings = [
             'export' => [
                 'tasks' => [
-                    $identifierForTask => $settingsForTask
-                ]
-            ]
+                    $identifierForTask => $settingsForTask,
+                ],
+            ],
         ];
         $this->subject->_set('settings', $settings);
         $mockView = $this->getMockForAbstractClass(
@@ -184,7 +199,8 @@ class ExportControllerTest extends TestCase
 
         $this->subject->_set('view', $mockView);
         $mockTaskFactory = $this->getMock(
-            TransferTaskFactory::class, ['get']
+            TransferTaskFactory::class,
+            ['get']
         );
         $this->subject->injectTransferTaskFactory($mockTaskFactory);
 
@@ -205,9 +221,9 @@ class ExportControllerTest extends TestCase
         $settings = [
             'export' => [
                 'sets' => [
-                    $identifierForSet => $settingsForSet
-                ]
-            ]
+                    $identifierForSet => $settingsForSet,
+                ],
+            ],
         ];
         $this->subject->_set('settings', $settings);
         $mockView = $this->getMockForAbstractClass(
@@ -216,7 +232,8 @@ class ExportControllerTest extends TestCase
 
         $this->subject->_set('view', $mockView);
         $mockSetFactory = $this->getMock(
-            TransferSetFactory::class, ['get']
+            TransferSetFactory::class,
+            ['get']
         );
         $this->subject->injectTransferSetFactory($mockSetFactory);
 
@@ -227,7 +244,6 @@ class ExportControllerTest extends TestCase
         $this->subject->indexAction();
     }
 
-
     /**
      * @test
      */
@@ -237,19 +253,21 @@ class ExportControllerTest extends TestCase
         $settings = [
             'export' => [
                 'sets' => [
-                    $identifier => ['bar']
-                ]
-            ]
+                    $identifier => ['bar'],
+                ],
+            ],
         ];
         $this->subject->_set('settings', $settings);
         $mockSet = $this->getMock(
-            TransferSet::class, ['getTasks']
+            TransferSet::class,
+            ['getTasks']
         );
         $mockSet->expects($this->once())
             ->method('getTasks')
             ->will($this->returnValue([]));
         $importSetFactory = $this->getMock(
-            TransferSetFactory::class, ['get']
+            TransferSetFactory::class,
+            ['get']
         );
         $importSetFactory->expects($this->once())
             ->method('get')
@@ -259,19 +277,28 @@ class ExportControllerTest extends TestCase
 
         $importProcessor = $this->getMock(
             DataTransferProcessor::class,
-            ['buildQueue', 'process'], [], '', false
+            ['buildQueue', 'process'],
+            [],
+            '',
+            false
         );
         $set = 'foo';
         $result = ['bar'];
         $this->subject->injectDataTransferProcessor($importProcessor);
-        $mockObjectManager = $this->getMock('TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
-            ['get']);
+        $mockObjectManager = $this->getMock(
+            'TYPO3\\CMS\\Extbase\\Object\\ObjectManager',
+            ['get']
+        );
         $this->subject->injectObjectManager($mockObjectManager);
         $mockDemand = $this->getMock(
             DemandInterface::class
         );
         $mockView = $this->getMock(
-            TemplateView::class, ['assignMultiple'], [], '', false
+            TemplateView::class,
+            ['assignMultiple'],
+            [],
+            '',
+            false
         );
         $this->subject->_set('view', $mockView);
 
@@ -290,7 +317,7 @@ class ExportControllerTest extends TestCase
             ->with(
                 [
                     'set' => $set,
-                    'result' => $result
+                    'result' => $result,
                 ]
             );
         $this->subject->exportSetAction($set);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
 /**
@@ -16,9 +18,9 @@ namespace CPSIT\T3importExport;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  */
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -36,7 +38,6 @@ trait LoggingTrait
      *  <id> => ['errorTitle', 'errorDescription']
      * ]
      * 'errorDescription' may contain placeholder (%s) for arguments.
-     * @return array
      */
     public function getErrorCodes(): array
     {
@@ -51,7 +52,6 @@ trait LoggingTrait
      *  <id> => ['title', 'description']
      * ]
      * 'description' may contain placeholder (%s) for arguments.
-     * @return array
      */
     public function getNoticeCodes(): array
     {
@@ -87,17 +87,14 @@ trait LoggingTrait
         $title = $this->renderTitle($id, $codes, LoggingInterface::NOTICE_UNKNOWN_TITLE);
         $description = $this->renderDescription($id, $codes, $arguments, LoggingInterface::NOTICE_UNKNOWN_MESSAGE);
 
-        $this->logMessage($title, $description, ContextualFeedbackSeverity::NOTICE, $id, $additionalInformation);;
+        $this->logMessage($title, $description, ContextualFeedbackSeverity::NOTICE, $id, $additionalInformation);
     }
 
     /**
      * Logs a message
      *
-     * @param $title
-     * @param $description
      * @param int $severity
      * @param null int $id
-     * @param array|null $additionalInformation
      */
     public function logMessage($title, $description, $severity = ContextualFeedbackSeverity::OK, $id = null, ?array $additionalInformation = null): void
     {
@@ -120,7 +117,6 @@ trait LoggingTrait
      * @param array $codes An array of codes.
      * @param array|null $arguments Optional arguments
      * @param string $default Default description
-     * @return string
      */
     protected function renderDescription($id, $codes, ?array $arguments, $default = LoggingInterface::DEFAULT_UNKNOWN_MESSAGE): string
     {
@@ -130,7 +126,6 @@ trait LoggingTrait
             if (null !== $arguments) {
                 array_unshift($arguments, $description);
                 $description = sprintf(...$arguments);
-
             }
         }
 
@@ -156,5 +151,4 @@ trait LoggingTrait
 
         return $default;
     }
-
 }

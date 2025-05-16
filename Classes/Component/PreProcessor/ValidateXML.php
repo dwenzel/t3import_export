@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\Finisher;
@@ -40,8 +42,8 @@ class ValidateXML extends AbstractPreProcessor implements
     PreProcessorInterface,
     LoggingInterface
 {
-    use ResourceTrait,
-        LoggingTrait;
+    use ResourceTrait;
+    use LoggingTrait;
 
     final public const string KEY_FIELDS = 'fields';
     final public const string KEY_IDENTIFIER = 'identifier';
@@ -55,7 +57,7 @@ class ValidateXML extends AbstractPreProcessor implements
      * ]
      */
     final public const array ERROR_CODES = [
-        1_646_304_431 => ['Validation Error', 'XML ist invalid']
+        1_646_304_431 => ['Validation Error', 'XML ist invalid'],
     ];
     final public const string SEPARATOR = ',';
     final public const string DEFAULT_XML_VERSION = '1.0';
@@ -69,27 +71,26 @@ class ValidateXML extends AbstractPreProcessor implements
     Message: %s
     Line: %s
     Column: %s';
-    protected DOMDocument $document;
+    protected \DOMDocument $document;
     protected ResourcePathConfigurationValidator $pathConfigurationValidator;
     protected string $schema = '';
 
     public function __construct(
-        ?DOMDocument $document = null,
+        ?\DOMDocument $document = null,
         ?ResourcePathConfigurationValidator $pathConfigurationValidator = null,
         ?MessageContainer $messageContainer = null
-    )
-    {
-        $this->document = $document ?? new DOMDocument(
-                self::DEFAULT_XML_VERSION,
-                self::DEFAULT_XML_ENCODING
-            );
+    ) {
+        $this->document = $document ?? new \DOMDocument(
+            self::DEFAULT_XML_VERSION,
+            self::DEFAULT_XML_ENCODING
+        );
 
         $this->pathConfigurationValidator = $pathConfigurationValidator ?? GeneralUtility::makeInstance(
-                ResourcePathConfigurationValidator::class
-            );
+            ResourcePathConfigurationValidator::class
+        );
         $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(
-                MessageContainer::class
-            );
+            MessageContainer::class
+        );
     }
 
     #[\Override]
@@ -154,7 +155,7 @@ class ValidateXML extends AbstractPreProcessor implements
     protected function isValidXML(array $record, string $fieldName, array $configuration): bool
     {
         $xml = '';
-        if ($record[$fieldName] instanceof DOMDocument) {
+        if ($record[$fieldName] instanceof \DOMDocument) {
             $xml = $record[$fieldName]->saveXML();
         }
         if (is_string($record[$fieldName])) {
@@ -198,5 +199,4 @@ class ValidateXML extends AbstractPreProcessor implements
 
         return empty($errors);
     }
-
 }

@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
@@ -28,17 +30,13 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * Class ConcatenateFields
  * Concatenates fields of a given record and sets the result
  * into a new or existing field of this record
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     public function __construct(
         ?ContentObjectRenderer $contentObjectRenderer = null,
         ?TypoScriptService $typoScriptService = null
-    )
-    {
+    ) {
         $this->contentObjectRenderer = $contentObjectRenderer ?? $this->getContentObjectRenderer();
         $this->typoScriptService = $typoScriptService ?? GeneralUtility::makeInstance(TypoScriptService::class);
     }
@@ -74,9 +72,6 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool

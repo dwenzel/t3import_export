@@ -57,27 +57,19 @@ abstract class AbstractTemplateQuery implements QueryInterface
     public const CODE_MISSING_FIELD = 1_642_072_670;
     public const DEFAULT_DATABASE_IDENTIFIER = 'Default';
 
-
     public const DEFAULT_CONFIGURATION = [
         QueryInterface::TYPE => QueryInterface::DEFAULT_TYPE,
         QueryInterface::FIELDS => '*',
         QueryInterface::WHERE => '',
         QueryInterface::GROUP_BY => '',
         QueryInterface::ORDER_BY => '',
-        QueryInterface::LIMIT => ''
+        QueryInterface::LIMIT => '',
     ];
 
-    /**
-     * @var array
-     */
     protected array $config = [];
-
 
     protected $databaseIdentifier = self::DEFAULT_DATABASE_IDENTIFIER;
 
-    /**
-     * @var QueryBuilder
-     */
     protected QueryBuilder $queryBuilder;
 
     public function withDatabaseIdentifier(string $identifier): self
@@ -87,8 +79,6 @@ abstract class AbstractTemplateQuery implements QueryInterface
     }
 
     /**
-     * @param array $config
-     * @return QueryInterface
      * @throws InvalidConfigurationException
      */
     final public function withConfiguration(array $config): QueryInterface
@@ -118,10 +108,9 @@ abstract class AbstractTemplateQuery implements QueryInterface
 
     final protected function setQueryBuilder(): void
     {
-        if(self::DEFAULT_DATABASE_IDENTIFIER !== $this->databaseIdentifier) {
+        if (self::DEFAULT_DATABASE_IDENTIFIER !== $this->databaseIdentifier) {
             $connection = $this->connectionService->getDatabase($this->databaseIdentifier);
             $this->queryBuilder = $connection->createQueryBuilder();
-
         } else {
             $this->queryBuilder = $this->connectionPool->getConnectionForTable(
                 $this->config[QueryInterface::TABLE]
@@ -179,7 +168,6 @@ abstract class AbstractTemplateQuery implements QueryInterface
             $joinAlias,
             $joinCondition
         );
-
     }
     final protected function buildGroupBy(): void
     {
@@ -204,7 +192,7 @@ abstract class AbstractTemplateQuery implements QueryInterface
                 [$orderField, $ascDesc] = GeneralUtility::trimExplode(' ', $orderItem, true);
                 // count == 1 means that no direction is given
                 if ($ascDesc) {
-                    $ascDesc = ((strtolower((string) $ascDesc) === 'desc') ?
+                    $ascDesc = ((strtolower((string)$ascDesc) === 'desc') ?
                         QueryInterface::ORDER_DESCENDING :
                         QueryInterface::ORDER_ASCENDING);
                 } else {

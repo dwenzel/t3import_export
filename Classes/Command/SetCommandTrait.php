@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Command;
 
 use CPSIT\T3importExport\Command\Argument\SetArgument;
@@ -36,21 +38,15 @@ trait SetCommandTrait
 
     protected TransferSetFactory $transferSetFactory;
 
-
     /**
      * TransferCommandTrait constructor.
-     * @param string|null $name
-     * @param TransferSetFactory|null $transferSetFactory
-     * @param DataTransferProcessor|null $dataTransferProcessor
      */
     public function __construct(
         ?string $name = null,
         ?TransferSetFactory $transferSetFactory = null,
         ?DataTransferProcessor $dataTransferProcessor = null,
         ?ConfigurationManagerInterface $configurationManager = null
-
-    )
-    {
+    ) {
         $this->transferSetFactory = $transferSetFactory ?? GeneralUtility::makeInstance(TransferSetFactory::class);
         $this->dataTransferProcessor = $dataTransferProcessor ?? GeneralUtility::makeInstance(DataTransferProcessor::class);
         $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
@@ -65,7 +61,6 @@ trait SetCommandTrait
      *
      * @param string $identifier Identifier of set which should be performed
      * @param bool $dryRun If set nothing will be saved
-     * @return void
      * @throws InvalidConfigurationException
      */
     public function process($identifier, $dryRun = false): void
@@ -75,7 +70,8 @@ trait SetCommandTrait
 
         if (isset($this->settings['sets'][$identifier])) {
             $set = $this->transferSetFactory->get(
-                $this->settings['sets'][$identifier], $identifier
+                $this->settings['sets'][$identifier],
+                $identifier
             );
             $demand->setTasks($set->getTasks());
             $this->dataTransferProcessor->buildQueue($demand);

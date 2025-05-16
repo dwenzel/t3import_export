@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
@@ -47,7 +49,9 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  */
 class GenerateFileResource extends AbstractPreProcessor implements PreProcessorInterface
 {
-    use FileIndexRepositoryTrait, GenerateFileTrait, ResourceTrait;
+    use FileIndexRepositoryTrait;
+    use GenerateFileTrait;
+    use ResourceTrait;
 
     protected ResourceStorageInterface $resourceStorage;
 
@@ -55,8 +59,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
         protected FileIndexRepository $fileIndexRepository,
         protected FilePathFactory $filePathFactory,
         protected MessageContainer $messageContainer
-    )
-    {
+    ) {
     }
 
     /**

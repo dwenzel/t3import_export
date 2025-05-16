@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Persistence\DataSourceXML;
@@ -58,7 +60,7 @@ class DataSourceXMLTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfFileIsNotString(): void
     {
         $configuration = [
-            'file' => []
+            'file' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
@@ -71,7 +73,7 @@ class DataSourceXMLTest extends TestCase
         $this->mockSubject();
         $invalidPath = 'fooPath';
         $configuration = [
-            'file' => $invalidPath
+            'file' => $invalidPath,
         ];
 
         $this->subject->expects($this->once())
@@ -93,7 +95,7 @@ class DataSourceXMLTest extends TestCase
         $relativePath = $fileDirectory . '/' . $fileName;
 
         $configuration = [
-            'file' => $relativePath
+            'file' => $relativePath,
         ];
 
         // vfsStream setup replaced with direct mock
@@ -112,7 +114,7 @@ class DataSourceXMLTest extends TestCase
     {
         $configuration = [
             'file' => 'foo',
-            'url' => 'bar'
+            'url' => 'bar',
         ];
 
         $this->assertFalse(
@@ -124,7 +126,7 @@ class DataSourceXMLTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfUrlIsNotString(): void
     {
         $configuration = [
-            'url' => []
+            'url' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
@@ -135,7 +137,7 @@ class DataSourceXMLTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfUrlIsInvalid(): void
     {
         $configuration = [
-            'url' => 'foo'
+            'url' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
@@ -146,7 +148,7 @@ class DataSourceXMLTest extends TestCase
     public function testIsConfigurationValidReturnsTrueIfUrlIsValid(): void
     {
         $configuration = [
-            'url' => 'http://typo3.org'
+            'url' => 'http://typo3.org',
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
@@ -158,7 +160,7 @@ class DataSourceXMLTest extends TestCase
     {
         $configuration = [
             'url' => 'http://typo3.org',
-            'expression' => 5
+            'expression' => 5,
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)

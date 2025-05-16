@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 /**
@@ -15,7 +17,6 @@ namespace CPSIT\T3importExport\Validation\Configuration;
  * The TYPO3 project - inspiring people to share!
  */
 
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -26,7 +27,6 @@ class ResourcePathConfigurationValidator implements ConfigurationValidatorInterf
     /**
      * Tells if the configuration is valid
      *
-     * @param array $config
      * @return bool True for a valid configuration
      */
     public function isValid(array $config): bool
@@ -61,7 +61,6 @@ class ResourcePathConfigurationValidator implements ConfigurationValidatorInterf
     /**
      * Wrapper method for testing purposes
      *
-     * @param $path
      * @return string
      */
     protected function getAbsoluteFilePath($path)

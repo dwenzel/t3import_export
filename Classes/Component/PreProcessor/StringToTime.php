@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -23,16 +25,11 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  ***************************************************************/
 class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * @var array
      */
     protected $fields = [];
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
@@ -46,7 +43,7 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * @param array $configuration
      * @param array $record
-     * @return TRUE
+     * @return true
      */
     public function process($configuration, &$record)
     {

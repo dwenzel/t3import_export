@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit;
 
 /***************************************************************
@@ -29,7 +31,6 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class StorageRepositoryTraitTest extends TestCase
 {
-
     /**
      * subject
      * @var object Class using the StorageRepositoryTrait
@@ -47,7 +48,8 @@ class StorageRepositoryTraitTest extends TestCase
         $this->subject = new class() {
             use StorageRepositoryTrait;
 
-            public function getStorageRepository() {
+            public function getStorageRepository()
+            {
                 return $this->storageRepository;
             }
         };

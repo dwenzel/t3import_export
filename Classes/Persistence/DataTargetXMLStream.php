@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -17,11 +19,10 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     final public const string TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
 
-    protected XMLWriter $writer;
+    protected \XMLWriter $writer;
 
     /**
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
      * @return void
      * @throws FileOperationErrorException
      */
@@ -51,7 +52,6 @@ class DataTargetXMLStream extends DataTargetFileStream
                 $this->writer->endElement();
             }
 
-
             // remove writer from memory and remove possible access locks from files
             $this->writer->flush();
             unset($this->writer);
@@ -61,7 +61,6 @@ class DataTargetXMLStream extends DataTargetFileStream
     }
 
     /**
-     * @param $buffer
      * @throws FileOperationErrorException
      */
     #[\Override]
@@ -75,13 +74,12 @@ class DataTargetXMLStream extends DataTargetFileStream
     }
 
     /**
-     * @param $configuration
      * @throws FileOperationErrorException
      */
     protected function initFileIfNotExist($configuration)
     {
         if (!isset($this->writer)) {
-            $this->writer = new XMLWriter();
+            $this->writer = new \XMLWriter();
 
             if (isset($configuration['output']) && $configuration['output'] === 'file') {
                 $this->tempFile = $this->createAnonymTempFile();
@@ -144,7 +142,7 @@ class DataTargetXMLStream extends DataTargetFileStream
     protected function getAboveContentTemplate($configuration)
     {
         $entireTemplate = $this->loadTemplate($configuration);
-        $subString = substr($entireTemplate, 0, strpos($entireTemplate, (string) static::TEMPLATE_CONTENT_PLACEHOLDER));
+        $subString = substr($entireTemplate, 0, strpos($entireTemplate, (string)static::TEMPLATE_CONTENT_PLACEHOLDER));
         return $this->computePlaceholder($subString, $configuration);
     }
 
@@ -155,7 +153,7 @@ class DataTargetXMLStream extends DataTargetFileStream
     protected function getBelowContentTemplate($configuration)
     {
         $entireTemplate = $this->loadTemplate($configuration);
-        $belowOffset = strpos($entireTemplate, (string) static::TEMPLATE_CONTENT_PLACEHOLDER) + strlen((string) static::TEMPLATE_CONTENT_PLACEHOLDER);
+        $belowOffset = strpos($entireTemplate, (string)static::TEMPLATE_CONTENT_PLACEHOLDER) + strlen((string)static::TEMPLATE_CONTENT_PLACEHOLDER);
         $subString = substr($entireTemplate, $belowOffset);
         return $this->computePlaceholder($subString, $configuration);
     }
@@ -199,7 +197,6 @@ class DataTargetXMLStream extends DataTargetFileStream
     }
 
     /**
-     * @param $replacement
      * @return string
      */
     protected function replaceKeyReplacement($replacement)

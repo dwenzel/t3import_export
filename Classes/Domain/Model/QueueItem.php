@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Model;
 
 use DateTime;
@@ -38,7 +40,6 @@ class QueueItem extends AbstractEntity
     final public const string FIELD_STATUS = 'status';
     final public const string FIELD_UID = 'uid';
 
-
     /**
      * allowed status values
      */
@@ -46,12 +47,12 @@ class QueueItem extends AbstractEntity
         self::STATUS_NEW,
         self::STATUS_PROCESSING,
         self::STATUS_FINISHED,
-        self::STATUS_FAILED
+        self::STATUS_FAILED,
     ];
 
-    protected DateTime $createdDate;
-    protected DateTime $startedDate;
-    protected DateTime $finishedDate;
+    protected \DateTime $createdDate;
+    protected \DateTime $startedDate;
+    protected \DateTime $finishedDate;
     protected string $checksum;
     protected string $data;
     protected int $status;

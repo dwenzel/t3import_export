@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Command;
 
 /***************************************************************
@@ -25,8 +27,8 @@ use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * Class ExportCommandController
@@ -39,10 +41,10 @@ use Symfony\Component\Console\Attribute\AsCommand;
 )]
 class ExportSetCommand extends Command implements ArgumentAwareInterface
 {
-    use ArgumentAwareTrait,
-        ConfigureTrait,
-        InitializeTrait,
-        SetCommandTrait;
+    use ArgumentAwareTrait;
+    use ConfigureTrait;
+    use InitializeTrait;
+    use SetCommandTrait;
     /**
      * Key under which configuration are found in
      * Framework configuration.
@@ -60,13 +62,12 @@ class ExportSetCommand extends Command implements ArgumentAwareInterface
     final public const array OPTIONS = [
     ];
     final public const array ARGUMENTS = [
-        SetArgument::class
+        SetArgument::class,
     ];
 
     /**
      * @var array|string[]
      */
-    static protected array $optionsToConfigure = self::OPTIONS;
-    static protected array $argumentsToConfigure = self::ARGUMENTS;
-
+    protected static array $optionsToConfigure = self::OPTIONS;
+    protected static array $argumentsToConfigure = self::ARGUMENTS;
 }

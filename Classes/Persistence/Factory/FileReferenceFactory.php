@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
 /***************************************************************
@@ -30,7 +32,6 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
  */
 class FileReferenceFactory
 {
-
     public function __construct(protected ResourceFactory $resourceFactory)
     {
     }
@@ -44,7 +45,7 @@ class FileReferenceFactory
     public function createFileReferenceObject($fileId, array $configuration, $foreignUid = null)
     {
         $pageId = 0;
-        if($foreignUid === null) {
+        if ($foreignUid === null) {
             $foreignUid = uniqid('NEW_');
         }
         if (isset($configuration['targetPage'])) {

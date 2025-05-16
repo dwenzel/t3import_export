@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableTrait;
@@ -39,7 +41,6 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  */
 class DataSourceDummy implements DataSourceInterface
 {
-
     /**
      * Dummy method to make component compatible wit DataSourceInterface
      *

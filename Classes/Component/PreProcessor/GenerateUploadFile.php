@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
@@ -23,7 +25,8 @@ use CPSIT\T3importExport\Resource\ResourceTrait;
  */
 class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInterface
 {
-    use GenerateFileTrait, ResourceTrait;
+    use GenerateFileTrait;
+    use ResourceTrait;
 
     /**
      * Generates a file path for a TYPO3 upload file field

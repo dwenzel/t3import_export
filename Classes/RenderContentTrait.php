@@ -1,31 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
-use TYPO3\CMS\Core\Http\ServerRequestFactory;
-use TYPO3\CMS\Core\Site\Entity\NullSite;
-use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
-use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Routing\PageArguments;
+use TYPO3\CMS\Core\Site\Entity\NullSite;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Class RenderContentTrait
- *
- * @package CPSIT\T3importExport
  */
 trait RenderContentTrait
 {
@@ -34,8 +34,7 @@ trait RenderContentTrait
      */
     public function getContentObjectRenderer(): ContentObjectRenderer
     {
-        if(!$this->contentObjectRenderer instanceof ContentObjectRenderer)
-        {
+        if (!$this->contentObjectRenderer instanceof ContentObjectRenderer) {
             $this->assertTypoScriptFrontendController();
             $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
         }
@@ -43,11 +42,9 @@ trait RenderContentTrait
         return $this->contentObjectRenderer;
     }
 
-
     public function getTypoScriptService(): TypoScriptService
     {
-        if (!$this->typoScriptService instanceof TypoScriptService)
-        {
+        if (!$this->typoScriptService instanceof TypoScriptService) {
             $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
         }
 
@@ -129,7 +126,6 @@ trait RenderContentTrait
             );
 
             $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
-
         }
     }
 }

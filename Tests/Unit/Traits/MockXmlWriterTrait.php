@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use PHPUnit\Framework\MockObject\MockBuilder;
@@ -23,13 +25,14 @@ use XMLWriter;
  ***************************************************************/
 trait MockXmlWriterTrait
 {
-    protected XMLWriter $xmlWriter;
+    protected \XMLWriter $xmlWriter;
 
     public function mockXmlWriter(): self
     {
-        $this->xmlWriter = $this->getMockBuilder(XMLWriter::class)
+        $this->xmlWriter = $this->getMockBuilder(\XMLWriter::class)
             ->disableOriginalConstructor()
-            ->onlyMethods([
+            ->onlyMethods(
+                [
 
                 ]
             )
@@ -44,5 +47,4 @@ trait MockXmlWriterTrait
      * @param string|string[] $className
      */
     abstract public function getMockBuilder($className): MockBuilder;
-
 }

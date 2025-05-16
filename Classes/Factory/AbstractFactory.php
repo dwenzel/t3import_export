@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Factory;
 
 /***************************************************************
@@ -25,14 +27,10 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 /**
  * Class AbstractFactory
  *
- * @package CPSIT\T3importExport\Domain\Factory
  * @deprecated
  */
 abstract class AbstractFactory
 {
-    /**
-     * @var array
-     */
     protected array $settings;
 
     public function withSettings(array $settings): self
@@ -44,7 +42,6 @@ abstract class AbstractFactory
     /**
      * Builds a factory object
      *
-     * @param array $settings
      * @param string $identifier
      * @return object
      */

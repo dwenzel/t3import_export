@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Query;
 
 use CPSIT\T3importExport\InvalidConfigurationException;
@@ -76,7 +78,6 @@ class SelectQueryTest extends TestCase
         }
     }
 
-
     /**
      * valid config:
      * [
@@ -96,7 +97,7 @@ class SelectQueryTest extends TestCase
             'where' => [['table' => 'foo', 'where' => 'bar'], 'where', 'bar'],
             'limit' => [['table' => 'foo', 'limit' => '2'], 'setMaxResults', 2],
             'orderBy' => [['table' => 'foo', 'orderBy' => 'moo'], 'addOrderBy', 'moo'],
-            'groupBy' => [['table' => 'foo', 'groupBy' => 'foo'], 'groupBy', 'foo']
+            'groupBy' => [['table' => 'foo', 'groupBy' => 'foo'], 'groupBy', 'foo'],
         ];
     }
 
@@ -115,9 +116,6 @@ class SelectQueryTest extends TestCase
     }
 
     /**
-     * @param array $config
-     * @param string $expectedMethod
-     * @param $expectedValue
      * @throws InvalidConfigurationException
      */
     #[Test]

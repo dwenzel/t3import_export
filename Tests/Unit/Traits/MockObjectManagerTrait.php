@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use PHPUnit\Framework\MockObject\MockObject;
@@ -25,8 +27,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
  ***************************************************************/
 trait MockObjectManagerTrait
 {
-
-
     /**
      * @var ObjectManagerInterface|MockObject
      */
@@ -37,19 +37,23 @@ trait MockObjectManagerTrait
      * methods of the class mocked. Concrete methods are not mocked by default.
      * To mock concrete methods, use the 7th parameter ($mockedMethods).
      * This method is here to ensure compatibility with @param $originalClassName
-     * @param array $arguments
      * @param string $mockClassName
      * @param bool $callOriginalConstructor
      * @param bool $callOriginalClone
      * @param bool $callAutoload
      * @param array $mockedMethods
      * @param false $cloneArguments
-     * @return MockObject
      * @see TestCase::getMockForAbstractClass()
-     *
      */
     abstract public function getMockForAbstractClass(
-        $originalClassName, array $arguments = [], $mockClassName = '', $callOriginalConstructor = true, $callOriginalClone = true, $callAutoload = true, $mockedMethods = [], $cloneArguments = false
+        $originalClassName,
+        array $arguments = [],
+        $mockClassName = '',
+        $callOriginalConstructor = true,
+        $callOriginalClone = true,
+        $callAutoload = true,
+        $mockedMethods = [],
+        $cloneArguments = false
     ): MockObject;
 
     protected function mockObjectManager(): void
@@ -60,5 +64,4 @@ trait MockObjectManagerTrait
             ->getMock();
         $this->subject->injectObjectManager($this->objectManager);
     }
-
 }

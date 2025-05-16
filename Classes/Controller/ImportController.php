@@ -1,9 +1,11 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Controller;
 
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
 use TYPO3\CMS\Backend\Attribute\AsController;
+use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
 
 /***************************************************************
  *  Copyright notice

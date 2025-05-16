@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Messaging;
 
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 
 /***************************************************************
  *  Copyright notice
@@ -65,7 +67,8 @@ class Message extends AbstractMessage
      * Get the ID
      * @return int|null
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -73,15 +76,16 @@ class Message extends AbstractMessage
      * Get the additional information
      * @return array
      */
-    public function getAdditionalInformation() {
+    public function getAdditionalInformation()
+    {
         return $this->additionalInformation;
     }
 
     /**
      * Set the additional information
-     * @param array $additionalInformation
      */
-    public function setAdditionalInformation(array $additionalInformation) {
+    public function setAdditionalInformation(array $additionalInformation)
+    {
         $this->additionalInformation = $additionalInformation;
     }
 }

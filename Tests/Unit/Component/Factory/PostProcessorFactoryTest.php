@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
@@ -11,18 +13,13 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class DummyValidPostProcessor
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidPostProcessor extends AbstractPostProcessor implements PostProcessorInterface
 {
     /**
      * processes the converted record
      *
-     * @param array $configuration
      * @param mixed $convertedRecord
-     * @param array $record
-     * @return bool
      */
     public function process(array $configuration, &$convertedRecord, array &$record): bool
     {
@@ -58,8 +55,6 @@ class DummyValidPostProcessor extends AbstractPostProcessor implements PostProce
 /**
  * Class DummyInvalidPostProcessor
  * Does not implement PostProcessorInterface
- *
- * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidPostProcessor
 {
@@ -72,7 +67,9 @@ class PostProcessorFactoryTest extends TestCase
 {
     protected PostProcessorFactory $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new PostProcessorFactory();
@@ -94,7 +91,7 @@ class PostProcessorFactoryTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_447_864_223);
         $configurationWithNonExistingClass = [
-            'class' => 'NonExistingClass'
+            'class' => 'NonExistingClass',
         ];
         $this->subject->get(
             $configurationWithNonExistingClass
@@ -107,7 +104,7 @@ class PostProcessorFactoryTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_447_864_243);
         $configurationWithExistingClass = [
-            'class' => DummyInvalidPostProcessor::class
+            'class' => DummyInvalidPostProcessor::class,
         ];
         $this->subject->get(
             $configurationWithExistingClass

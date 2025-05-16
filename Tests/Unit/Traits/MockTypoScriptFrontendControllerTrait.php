@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use CPSIT\T3importExport\Tests\Unit\Component\PreProcessor\ConcatenateFieldsTest;
@@ -24,7 +26,6 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  ***************************************************************/
 trait MockTypoScriptFrontendControllerTrait
 {
-
     /**
      * @var TypoScriptFrontendController|MockObject
      */

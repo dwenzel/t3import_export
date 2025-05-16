@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
@@ -32,7 +34,6 @@ use PHPUnit\Framework\TestCase;
  ***************************************************************/
 class AbstractComponentTest extends TestCase
 {
-
     /**
      * @var AbstractComponent
      */
@@ -58,14 +59,14 @@ class AbstractComponentTest extends TestCase
                 [], false,
             ],
             [
-                ['disable' => '1'], true
+                ['disable' => '1'], true,
             ],
             [
-                ['disable' => ['foo']], true
+                ['disable' => ['foo']], true,
             ],
             [
-                ['disable' => 'foo'], false
-            ]
+                ['disable' => 'foo'], false,
+            ],
         ];
     }
 
@@ -99,10 +100,10 @@ class AbstractComponentTest extends TestCase
                     'disable' => [
                         'if' => [
                             'result' => [
-                                'hasMessage' => '12345'
-                            ]
-                        ]
-                    ]
+                                'hasMessage' => '12345',
+                            ],
+                        ],
+                    ],
                 ],
             ],
             'multiple message ids' => [
@@ -110,10 +111,10 @@ class AbstractComponentTest extends TestCase
                     'disable' => [
                         'if' => [
                             'result' => [
-                                'hasMessage' => '12345,2,7'
-                            ]
-                        ]
-                    ]
+                                'hasMessage' => '12345,2,7',
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -121,7 +122,6 @@ class AbstractComponentTest extends TestCase
 
     /**
      * @test
-     * @param $configuration
      * @dataProvider isDisabledReturnsTrueIfResultContainsMessageWithMatchingIdDataProvider
      */
     public function isDisabledReturnsTrueIfResultContainsMessageWithMatchingId($configuration)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Domain\Model\DataStream;
@@ -45,8 +47,6 @@ use XMLWriter;
 
 /**
  * Class DataTargetRepositoryTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence
  */
 #[CoversClass(\CPSIT\T3importExport\Persistence\DataTargetFileStream::class)]
 class DataTargetXMLStreamTest extends TestCase
@@ -61,9 +61,9 @@ class DataTargetXMLStreamTest extends TestCase
     protected BasicFileUtility $fileUtility;
 
     /**
-     * @var XMLWriter|MockObject
+     * @var \XMLWriter|MockObject
      */
-    protected XMLWriter $xmlWriter;
+    protected \XMLWriter $xmlWriter;
 
     /**
      * @var PersistenceManagerInterface|MockObject
@@ -86,7 +86,7 @@ class DataTargetXMLStreamTest extends TestCase
      */
     protected function mockXmlWriter(): void
     {
-        $this->xmlWriter = $this->getMockBuilder(XMLWriter::class)
+        $this->xmlWriter = $this->getMockBuilder(\XMLWriter::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -97,7 +97,7 @@ class DataTargetXMLStreamTest extends TestCase
     protected function mockPersistenceManager(): void
     {
         $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
-        if(method_exists($this, 'injectPersistenceManager')) {
+        if (method_exists($this, 'injectPersistenceManager')) {
             $this->subject->injectPersistenceManager($this->persistenceManager);
         }
     }
@@ -138,7 +138,7 @@ class DataTargetXMLStreamTest extends TestCase
         );
 
         $config = [
-            'flush' => true
+            'flush' => true,
         ];
 
         /** @var DataStreamInterface $streamObject */
@@ -188,7 +188,7 @@ class DataTargetXMLStreamTest extends TestCase
         $config = [
             'rootNodeName' => 'test',
             'header' => '<xml myheader="123">',
-            'flush' => true
+            'flush' => true,
         ];
 
         $mockFileInfo = new FileInfo($tmpPath);
@@ -231,7 +231,7 @@ class DataTargetXMLStreamTest extends TestCase
             'rootNodeName' => 'test',
             'header' => '<xml myheader="123">',
             'flush' => true,
-            'output' => 'file'
+            'output' => 'file',
         ];
 
         $absPath = GeneralUtility::getFileAbsFileName('typo3temp/test_mock_' . uniqid('', true));
@@ -273,5 +273,4 @@ class DataTargetXMLStreamTest extends TestCase
         unlink($tmpPath);
         rmdir($absPath);
     }
-
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Traits;
 
 use PHPUnit\Framework\MockObject\MockObject;
@@ -38,8 +40,9 @@ trait MockResourceFactoryTrait
                 [
                     'getStorageObject',
                     'getDefaultStorage',
-                    'createFileReferenceObject'
-                ])
+                    'createFileReferenceObject',
+                ]
+            )
             ->getMock();
         if (method_exists($this, 'injectResourceFactory')) {
             $this->subject->injectResourceFactory($this->resourceFactory);

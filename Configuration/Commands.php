@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use CPSIT\T3importExport\Configuration\Extension;

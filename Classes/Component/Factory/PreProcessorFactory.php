@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
@@ -37,9 +39,7 @@ class PreProcessorFactory extends AbstractFactory implements FactoryInterface
     /**
      * Builds a PreProcessor object
      *
-     * @param array $settings
      * @param string $identifier
-     * @return PreProcessorInterface
      * @throws InvalidConfigurationException
      */
     public function get(array $settings = [], $identifier = null): PreProcessorInterface

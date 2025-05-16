@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
@@ -32,7 +34,7 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
 
     protected const MINIMAL_VALID_CONFIG = [
         TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'oof',
-        TranslateObjectConfigurationValidator::KEY_LANGUAGE => 0
+        TranslateObjectConfigurationValidator::KEY_LANGUAGE => 0,
     ];
 
     /**
@@ -72,15 +74,15 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
     {
         return [
             'minimal - w/o mapping' => [
-                self::MINIMAL_VALID_CONFIG
+                self::MINIMAL_VALID_CONFIG,
             ],
             'mapping set, empty mapping config' => [
                 [
                     TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'bar',
                     TranslateObjectConfigurationValidator::KEY_LANGUAGE => 9,
-                    TranslateObjectConfigurationValidator::KEY_MAPPING => []
-                ]
-            ]
+                    TranslateObjectConfigurationValidator::KEY_MAPPING => [],
+                ],
+            ],
         ];
     }
 
@@ -93,22 +95,21 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
         );
     }
 
-
     public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty config' => [
-                []
+                [],
             ],
 
             'language missing' => [
-                [TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'bar']
+                [TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'bar'],
             ],
             'parentField missing' => [
                 [
-                    TranslateObjectConfigurationValidator::KEY_LANGUAGE => 8
-                ]
-            ]
+                    TranslateObjectConfigurationValidator::KEY_LANGUAGE => 8,
+                ],
+            ],
         ];
     }
 
@@ -118,7 +119,7 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
         $config = self::MINIMAL_VALID_CONFIG;
         $validClass = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass
+            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass,
         ];
         $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
         $this->targetClassConfigurationValidator->expects($this->once())
@@ -135,7 +136,7 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
         $config = self::MINIMAL_VALID_CONFIG;
         $validClass = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass
+            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass,
         ];
         $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
         $this->targetClassConfigurationValidator->expects($this->once())
@@ -151,7 +152,7 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
         $config = self::MINIMAL_VALID_CONFIG;
         $valid = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_CONFIG => $valid
+            TranslateObjectConfigurationValidator::KEY_CONFIG => $valid,
         ];
         $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
         $this->mappingConfigurationValidator->expects($this->once())
@@ -168,7 +169,7 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
         $config = self::MINIMAL_VALID_CONFIG;
         $validConfig = ['FooBar'];
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_CONFIG => $validConfig
+            TranslateObjectConfigurationValidator::KEY_CONFIG => $validConfig,
         ];
         $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
         $this->mappingConfigurationValidator->expects($this->once())

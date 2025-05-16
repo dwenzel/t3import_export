@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -35,13 +37,13 @@ use DWenzel\T3extensionTools\Command\Status;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * Provides import set commands for cli and scheduler tasks
@@ -53,10 +55,10 @@ use Symfony\Component\Console\Attribute\AsCommand;
 )]
 class ImportTaskCommand extends Command implements ArgumentAwareInterface
 {
-    use ConfigureTrait,
-        InitializeTrait,
-        ArgumentAwareTrait,
-        TransferCommandTrait;
+    use ConfigureTrait;
+    use InitializeTrait;
+    use ArgumentAwareTrait;
+    use TransferCommandTrait;
 
     /**
      * Key under which configuration are found in
@@ -75,11 +77,11 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     final public const string WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
     protected const OPTIONS = [];
     protected const ARGUMENTS = [
-        TaskArgument::class
+        TaskArgument::class,
     ];
 
-    static protected $optionsToConfigure = self::OPTIONS;
-    static protected $argumentsToConfigure = self::ARGUMENTS;
+    protected static $optionsToConfigure = self::OPTIONS;
+    protected static $argumentsToConfigure = self::ARGUMENTS;
     /**
      * @var string
      */
@@ -88,18 +90,14 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
     /**
      * TransferCommandTrait constructor.
-     * @param string|null $name
-     * @param TransferTaskFactory|null $transferTaskFactory
      * @param TransferSetFactory|null $transferSetFactory
-     * @param DataTransferProcessor|null $dataTransferProcessor
      */
     public function __construct(
         ?string $name = null,
         ?TransferTaskFactory $transferTaskFactory = null,
         ?DataTransferProcessor $dataTransferProcessor = null,
         ?ConfigurationManagerInterface $configurationManager = null
-    )
-    {
+    ) {
         $this->transferTaskFactory = $transferTaskFactory ?? GeneralUtility::makeInstance(TransferTaskFactory::class);
         $this->dataTransferProcessor = $dataTransferProcessor ?? GeneralUtility::makeInstance(DataTransferProcessor::class);
         $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
@@ -115,7 +113,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
         $status = $this->assertValidIdentifier($identifier);
 
-        if(empty($this->settings['tasks'][$identifier])) {
+        if (empty($this->settings['tasks'][$identifier])) {
             $this->io->warning(
                 sprintf(self::WARNING_MISSING_CONFIGURATION, $identifier)
             );
@@ -137,7 +135,6 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         $this->io->error($errorMessage);
         return $status;
     }
-
 
     /**
      * Processes predefined import sets
@@ -161,7 +158,8 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
             $taskSettings = $this->settings['tasks'][$identifier];
 
             $task = $this->transferTaskFactory->get(
-                $taskSettings, $identifier
+                $taskSettings,
+                $identifier
             );
 
             $taskDemand->setTasks([$task]);
@@ -174,9 +172,6 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         return $status;
     }
 
-    /**
-     * @param string $identifier
-     */
     protected function assertValidIdentifier(string $identifier): int
     {
         $status = Status::success();
@@ -193,5 +188,4 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
         return $status;
     }
-
 }

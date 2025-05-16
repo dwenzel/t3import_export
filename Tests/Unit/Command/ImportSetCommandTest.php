@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
 use CPSIT\T3importExport\Command\ImportSetCommand;
@@ -33,16 +35,16 @@ class ImportSetCommandTest extends TestCase
 {
     protected const SET_IDENTIFIER = 'bar';
     protected const VALID_SET_CONFIGURATION = [
-        'foo'
+        'foo',
     ];
     protected const VALID_SETTINGS = [
         'settings' => [
             ImportSetCommand::SETTINGS_KEY => [
                 'sets' => [
-                    self::SET_IDENTIFIER => self::VALID_SET_CONFIGURATION
-                ]
-            ]
-        ]
+                    self::SET_IDENTIFIER => self::VALID_SET_CONFIGURATION,
+                ],
+            ],
+        ],
     ];
 
     protected ImportSetCommand $subject;
@@ -56,7 +58,9 @@ class ImportSetCommandTest extends TestCase
      */
     protected $taskDemand;
 
-    /** @var TransferSetFactory&ObjectProphecy<TransferSetFactory>  */
+    /**
+     * @var TransferSetFactory&ObjectProphecy<TransferSetFactory>
+     */
     protected $transferSetFactory;
 
     /**
@@ -102,13 +106,13 @@ class ImportSetCommandTest extends TestCase
         );
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
+    /**
+     * @noinspection PhpUndefinedMethodInspection
+     */
     public function testMethodProcessOfDataTransferProcessorIsNotCallWithDryRun(): void
     {
         $this->dataTransferProcessor->process($this->taskDemand)
             ->shouldNotBeCalled();
         $this->subject->process(self::SET_IDENTIFIER, true);
     }
-
-
 }

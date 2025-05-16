@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Controller;
 
-use Psr\Http\Message\ResponseInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\Service\DataTransferProcessor;
+use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -31,7 +33,6 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  ***************************************************************/
 abstract class BaseController extends ActionController
 {
-
     /**
      * @var DataTransferProcessor
      */
@@ -50,36 +51,28 @@ abstract class BaseController extends ActionController
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
         protected PageRenderer $pageRenderer
-    ) {}
+    ) {
+    }
 
     public function initializeAction(): void
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $this->moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue('module.t3import_export'));
         $this->moduleTemplate->getDocHeaderComponent()->disable();
-
     }
     /**
      * Injects the event import processor
-     *
-     * @param DataTransferProcessor $dataTransferProcessor
      */
     public function injectDataTransferProcessor(DataTransferProcessor $dataTransferProcessor): void
     {
         $this->dataTransferProcessor = $dataTransferProcessor;
     }
 
-    /**
-     * @param TransferTaskFactory $importTaskFactory
-     */
     public function injectTransferTaskFactory(TransferTaskFactory $importTaskFactory): void
     {
         $this->transferTaskFactory = $importTaskFactory;
     }
 
-    /**
-     * @param TransferSetFactory $importSetFactory
-     */
     public function injectTransferSetFactory(TransferSetFactory $importSetFactory): void
     {
         $this->transferSetFactory = $importSetFactory;
@@ -113,7 +106,7 @@ abstract class BaseController extends ActionController
             [
                 'tasks' => $tasks,
                 'sets' => $sets,
-                'settings' => $this->settings[$settingsKey]
+                'settings' => $this->settings[$settingsKey],
             ]
         );
         $this->moduleTemplate->setContent($this->view->render());
@@ -134,7 +127,8 @@ abstract class BaseController extends ActionController
             TaskDemand::class
         );
         $task = $this->transferTaskFactory->get(
-            $this->settings[$this->getSettingsKey()]['tasks'][$identifier], $identifier
+            $this->settings[$this->getSettingsKey()]['tasks'][$identifier],
+            $identifier
         );
         $importDemand->setTasks([$task]);
 
@@ -143,7 +137,7 @@ abstract class BaseController extends ActionController
         $this->view->assignMultiple(
             [
                 'task' => $identifier,
-                'result' => $result
+                'result' => $result,
             ]
         );
     }
@@ -164,7 +158,8 @@ abstract class BaseController extends ActionController
         );
         if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
             $set = $this->transferSetFactory->get(
-                $this->settings[$settingsKey]['sets'][$identifier], $identifier
+                $this->settings[$settingsKey]['sets'][$identifier],
+                $identifier
             );
             $importDemand->setTasks($set->getTasks());
         }
@@ -174,16 +169,13 @@ abstract class BaseController extends ActionController
         $this->view->assignMultiple(
             [
                 'set' => $identifier,
-                'result' => $result
+                'result' => $result,
             ]
         );
     }
 
     /**
      * Gets tasks from settings
-     *
-     * @param $settings
-     * @return array
      */
     protected function buildTasksFromSettings($settings): array
     {
@@ -192,7 +184,8 @@ abstract class BaseController extends ActionController
         if (is_array($settings)) {
             foreach ($settings as $identifier => $taskSettings) {
                 $tasks[$identifier] = $this->transferTaskFactory->get(
-                    $taskSettings, $identifier
+                    $taskSettings,
+                    $identifier
                 );
             }
         }
@@ -202,9 +195,6 @@ abstract class BaseController extends ActionController
 
     /**
      * Gets tasks from settings
-     *
-     * @param $settings
-     * @return array
      */
     protected function buildSetsFromSettings($settings): array
     {

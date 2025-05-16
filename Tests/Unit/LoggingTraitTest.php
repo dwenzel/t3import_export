@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit;
 
 /***************************************************************
@@ -30,8 +32,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class LoggingTraitTest
- *
- * @package CPSIT\T3importExport\Tests\Unit
  */
 class LoggingTraitTest extends TestCase
 {

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Messaging;
 
 /***************************************************************
@@ -17,16 +19,15 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use CPSIT\T3importExport\Messaging\Message;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 
 /**
  * Class MessageTest
  */
 class MessageTest extends TestCase
 {
-
     /**
      * @var Message|\PHPUnit_Framework_MockObject_MockObject
      */

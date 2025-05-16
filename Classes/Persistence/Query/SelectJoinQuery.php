@@ -59,7 +59,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
         }
     }
 * }
- *
  */
 class SelectJoinQuery extends AbstractTemplateQuery
 {
@@ -68,7 +67,8 @@ class SelectJoinQuery extends AbstractTemplateQuery
         $this->queryBuilder->select(...GeneralUtility::trimExplode(',', $this->config[QueryInterface::FIELDS], true))
             ->from(
                 $this->config[QueryInterface::TABLE],
-                $this->config[QueryInterface::LEFT_JOIN][QueryInterface::FROM_ALIAS] ?? null);
+                $this->config[QueryInterface::LEFT_JOIN][QueryInterface::FROM_ALIAS] ?? null
+            );
 
         $this->setJoin();
 
@@ -86,5 +86,4 @@ class SelectJoinQuery extends AbstractTemplateQuery
             );
         }
     }
-
 }

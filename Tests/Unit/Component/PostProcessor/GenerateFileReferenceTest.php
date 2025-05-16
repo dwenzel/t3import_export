@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 /***************************************************************
@@ -37,7 +39,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  */
 class GenerateFileReferenceTest extends TestCase
 {
-
     /**
      * @var GenerateFileReference|MockObject
      */
@@ -62,7 +63,6 @@ class GenerateFileReferenceTest extends TestCase
      * @var FileIndexRepository&MockObject
      */
     protected $fileIndexRepository;
-
 
     /**
      * setup subject
@@ -94,56 +94,51 @@ class GenerateFileReferenceTest extends TestCase
                     $this->persistenceManager,
                     $this->fileReferenceFactory,
                     $this->fileIndexRepository,
-                    $this->messageContainer
+                    $this->messageContainer,
                 ]
             )
             ->onlyMethods(['logError', 'logNotice'])->getMock();
-
     }
 
     /**
      * Provides invalid configurations
-     * @return array
      */
     public static function invalidConfigurationDataProvider(): array
     {
         return [
             'sourceField missing' => [[]],
             'sourceField integer, not string' => [
-                ['sourceField' => 4]
+                ['sourceField' => 4],
             ],
             'sourceField array instead of string' => [
-                ['sourceField' => ['bar']]
+                ['sourceField' => ['bar']],
             ],
             'targetField missing' => [
-                ['sourceField' => 'foo']
+                ['sourceField' => 'foo'],
             ],
             'targetField integer, not string' => [
-                ['targetField' => 4]
+                ['targetField' => 4],
             ],
             'targetField array instead of string' => [
-                ['targetField' => ['bar']]
+                ['targetField' => ['bar']],
             ],
             'targetPage is string, can not be interpreted as integer' => [
                 [
                     'targetField' => 'foo',
                     'sourceField' => 'bar',
-                    'targetPage' => 'baz'
-                ]
+                    'targetPage' => 'baz',
+                ],
             ],
             'targetPage is array, not integer' => [
                 [
                     'targetField' => 'foo',
                     'sourceField' => 'bar',
-                    'targetPage' => ['baz']
-                ]
-            ]
+                    'targetPage' => ['baz'],
+                ],
+            ],
         ];
     }
 
-    /**
-     * @param array $configuration
-     */
     #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
     {
@@ -156,7 +151,7 @@ class GenerateFileReferenceTest extends TestCase
     {
         $configuration = [
             'sourceField' => 'foo',
-            'targetField' => 'bar'
+            'targetField' => 'bar',
         ];
 
         $this->assertTrue(
@@ -173,7 +168,7 @@ class GenerateFileReferenceTest extends TestCase
         $record = [];
         $configuration = [
             'targetField' => $targetFieldName,
-            'sourceField' => $sourceFieldName
+            'sourceField' => $sourceFieldName,
         ];
 
         $this->assertFalse(
@@ -187,15 +182,15 @@ class GenerateFileReferenceTest extends TestCase
         $sourceFieldValue = 'can not interpreted as integer';
         $targetFieldName = 'bar';
         $properties = [
-            $sourceFieldName => $sourceFieldValue
+            $sourceFieldName => $sourceFieldValue,
         ];
         $object = (object)$properties;
         $record = [
-            $sourceFieldName => $sourceFieldValue
+            $sourceFieldName => $sourceFieldValue,
         ];
         $configuration = [
             'targetField' => $targetFieldName,
-            'sourceField' => $sourceFieldName
+            'sourceField' => $sourceFieldName,
         ];
 
         $this->assertFalse(
@@ -225,15 +220,15 @@ class GenerateFileReferenceTest extends TestCase
             ->willReturn($mockOriginalResource);
 
         $properties = [
-            $targetFieldName => $targetFieldValue
+            $targetFieldName => $targetFieldValue,
         ];
         $object = (object)$properties;
         $record = [
-            $sourceFieldName => $sourceFieldValue
+            $sourceFieldName => $sourceFieldValue,
         ];
         $configuration = [
             'targetField' => $targetFieldName,
-            'sourceField' => $sourceFieldName
+            'sourceField' => $sourceFieldName,
         ];
 
         $this->assertFalse(
@@ -264,15 +259,15 @@ class GenerateFileReferenceTest extends TestCase
             ->willReturn($mockOriginalResource);
 
         $properties = [
-            $targetFieldName => $targetFieldValue
+            $targetFieldName => $targetFieldValue,
         ];
         $object = (object)$properties;
         $record = [
-            $sourceFieldName => $sourceFieldValue
+            $sourceFieldName => $sourceFieldValue,
         ];
         $configuration = [
             'targetField' => $targetFieldName,
-            'sourceField' => $sourceFieldName
+            'sourceField' => $sourceFieldName,
         ];
 
         $this->subject->process($configuration, $object, $record);
@@ -287,15 +282,15 @@ class GenerateFileReferenceTest extends TestCase
             ->disableOriginalConstructor()->getMock();
 
         $properties = [
-            $targetFieldName => null
+            $targetFieldName => null,
         ];
         $object = (object)$properties;
         $record = [
-            $sourceFieldName => $fileId
+            $sourceFieldName => $fileId,
         ];
         $configuration = [
             'targetField' => $targetFieldName,
-            'sourceField' => $sourceFieldName
+            'sourceField' => $sourceFieldName,
         ];
         $this->fileReferenceFactory->expects($this->once())
             ->method('createFileReferenceObject')
@@ -318,15 +313,15 @@ class GenerateFileReferenceTest extends TestCase
         $targetFieldName = 'bar';
 
         $properties = [
-            $targetFieldName => null
+            $targetFieldName => null,
         ];
         $object = (object)$properties;
         $record = [
-            $sourceFieldName => $fileId
+            $sourceFieldName => $fileId,
         ];
         $configuration = [
             'targetField' => $targetFieldName,
-            'sourceField' => $sourceFieldName
+            'sourceField' => $sourceFieldName,
         ];
         $this->fileIndexRepository->expects($this->once())
             ->method('findOneByUid')
@@ -355,5 +350,4 @@ class GenerateFileReferenceTest extends TestCase
             $this->subject->getErrorCodes()
         );
     }
-
 }

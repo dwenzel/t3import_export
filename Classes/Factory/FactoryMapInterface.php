@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Factory;
 
 /***************************************************************
@@ -25,7 +27,6 @@ interface FactoryMapInterface
      * the required factory product (component).
      *
      * @param string $productClass Class or interface of the product
-     * @return string
      */
     public function resolve(string $productClass): string;
 }

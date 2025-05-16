@@ -1,13 +1,15 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Property\TypeConverter;
 
-use TYPO3\CMS\Extbase\Property\Exception\InvalidTargetException;
-use TYPO3\CMS\Extbase\Persistence\QueryInterface;
-use TYPO3\CMS\Extbase\Exception;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
-use TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException;
-use TYPO3\CMS\Extbase\Property\Exception\TargetNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Exception;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException;
+use TYPO3\CMS\Extbase\Property\Exception\InvalidTargetException;
+use TYPO3\CMS\Extbase\Property\Exception\TargetNotFoundException;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -108,8 +110,6 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      *
      * @param mixed $source
      * @param string $targetType
-     * @param array $convertedChildProperties
-     * @param PropertyMappingConfigurationInterface $configuration
      * @throws \InvalidArgumentException
      * @return object the target type
      * @throws InvalidTargetException
@@ -124,8 +124,6 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 
     /**
      * set configuration to overload query settings
-     *
-     * @param PropertyMappingConfigurationInterface $configuration
      */
     protected function setConfiguration(?PropertyMappingConfigurationInterface $configuration = null)
     {
@@ -174,7 +172,6 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
     }
 
     /**
-     * @param $targetType
      * @return QueryInterface
      */
     protected function buildQuery($targetType)
@@ -201,13 +198,12 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @param string $targetType
      * @throws TargetNotFoundException
      * @throws InvalidSourceException
-     * @return object
      */
     #[\Override]
     protected function fetchObjectFromPersistence($identity, $targetType): object
     {
         $object = null;
-        if (ctype_digit((string) $identity)) {
+        if (ctype_digit((string)$identity)) {
             $object = $this->persistenceManager->getObjectByIdentifier($identity, $targetType);
             try {
                 $object = parent::fetchObjectFromPersistence($identity, $targetType);

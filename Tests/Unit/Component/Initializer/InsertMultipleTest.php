@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\InsertMultiple;
@@ -31,8 +33,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * Class InsertMultipleTest
- *
- * @package CPSIT\T3importExport\Tests\Service\Initializer
  */
 #[CoversClass(\CPSIT\T3importExport\Component\Initializer\InsertMultiple::class)]
 class InsertMultipleTest extends TestCase
@@ -72,13 +72,23 @@ class InsertMultipleTest extends TestCase
             'table' => 'foo',
             'fields' => 'bar',
             'rows' => [],
-            'identifier' => 'fooDatabase'
+            'identifier' => 'fooDatabase',
         ];
         $mockDatabase = $this->getMock(
-            DatabaseConnection::class, ['exec_INSERTmultipleRows'], [], '', false);
+            DatabaseConnection::class,
+            ['exec_INSERTmultipleRows'],
+            [],
+            '',
+            false
+        );
         /** @var DatabaseConnectionService $connectionService |\PHPUnit_Framework_MockObject_MockObject */
-        $connectionService = $this->getAccessibleMock(DatabaseConnectionService::class,
-            ['getDatabase'], [], '', false);
+        $connectionService = $this->getAccessibleMock(
+            DatabaseConnectionService::class,
+            ['getDatabase'],
+            [],
+            '',
+            false
+        );
         $connectionService->expects($this->once())
             ->method('getDatabase')
             ->with($configuration['identifier'])
@@ -103,7 +113,7 @@ class InsertMultipleTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfTableIsNotString(): void
     {
         $mockConfiguration = [
-            'table' => 1
+            'table' => 1,
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -114,7 +124,7 @@ class InsertMultipleTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotSet(): void
     {
         $mockConfiguration = [
-            'table' => 'foo'
+            'table' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -126,7 +136,7 @@ class InsertMultipleTest extends TestCase
     {
         $mockConfiguration = [
             'table' => 'foo',
-            'fields' => 1
+            'fields' => 1,
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -138,7 +148,7 @@ class InsertMultipleTest extends TestCase
     {
         $mockConfiguration = [
             'table' => 'foo',
-            'fields' => 'bar'
+            'fields' => 'bar',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -151,7 +161,7 @@ class InsertMultipleTest extends TestCase
         $mockConfiguration = [
             'table' => 'foo',
             'fields' => 'bar',
-            'rows' => 'baz'
+            'rows' => 'baz',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($mockConfiguration)
@@ -165,8 +175,8 @@ class InsertMultipleTest extends TestCase
             'table' => 'tableName',
             'fields' => 'foo,bar',
             'rows' => [
-                '1' => 'bar,baz'
-            ]
+                '1' => 'bar,baz',
+            ],
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($validConfiguration)
@@ -182,12 +192,12 @@ class InsertMultipleTest extends TestCase
         $fields = 'foo,bar';
         $rows = [
             '10' => 'baz,boom',
-            '20' => 'boing,peng'
+            '20' => 'boing,peng',
         ];
         $config = [
             'table' => $tableName,
             'fields' => $fields,
-            'rows' => $rows
+            'rows' => $rows,
         ];
         $records = [];
 

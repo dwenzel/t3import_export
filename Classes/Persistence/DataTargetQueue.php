@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\ConfigurableInterface;
@@ -59,13 +61,11 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
         }
 
         if (!empty($configuration[self::KEY_ALLOW_UPDATE])
-            && !is_string($configuration[self::KEY_ALLOW_UPDATE]))
-        {
+            && !is_string($configuration[self::KEY_ALLOW_UPDATE])) {
             return false;
         }
         return true;
     }
-
 
     /**
      * Persist QueueItems
@@ -73,12 +73,10 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
      * Instances of DomainObjectInterface are ignored.
      *
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
      * @return bool|mixed
      */
     public function persist($object, ?array $configuration = null)
     {
-
         $result = null;
         if (!is_array($object)) {
             // todo log warning
@@ -103,13 +101,11 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
         return $result;
     }
 
-
     /**
      * Method doesn't do anything.
      * Please @see DataTargetQueue::persist
      *
      * @param null $result
-     * @param array|null $configuration
      * @return mixed|void
      */
     public function persistAll($result = null, ?array $configuration = null)
