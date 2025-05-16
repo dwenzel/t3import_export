@@ -18,13 +18,12 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: mbstring, xml, intl, zip, json, iconv
           tools: composer:v2, php-cs-fixer
 
       - name: Check coding standards
         run: |
-          composer install --no-progress
           composer lint:php
 
   phpstan:
@@ -38,7 +37,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: mbstring, xml, intl, zip, json, iconv
           tools: composer:v2
 
@@ -53,11 +52,6 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install dependencies
-        run: |
-          composer install --no-progress
-
       - name: Run PHPStan
         run: |
-          composer install --no-progress
           composer sca:php
