@@ -5,6 +5,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 use CPSIT\T3importExport\Component\Initializer\InsertMultiple;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
@@ -43,8 +44,6 @@ class InsertMultipleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->subject = new InsertMultiple();
-
         // Create connection mock
         $this->connection = $this->createMock(Connection::class);
 
@@ -56,10 +55,15 @@ class InsertMultipleTest extends TestCase
         // Create connection service mock
         $this->connectionService = $this->createMock(DatabaseConnectionService::class);
         $this->connectionService->method('getDatabase')->willReturn($this->connection);
+
+        // Create subject with required dependencies
+        $this->subject = new InsertMultiple(
+            $this->connectionPool,
+            $this->connectionService
+        );
     }
 
-    /**
-     */
+    #[Test]
     public function testProcessSetsDatabase(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
@@ -86,9 +90,7 @@ class InsertMultipleTest extends TestCase
         $this->subject->process($configuration, $record);
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfTableIsNotSet(): void
     {
         $mockConfiguration = [];
@@ -97,9 +99,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfTableIsNotString(): void
     {
         $mockConfiguration = [
@@ -110,9 +110,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotSet(): void
     {
         $mockConfiguration = [
@@ -123,9 +121,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotString(): void
     {
         $mockConfiguration = [
@@ -137,9 +133,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfRowsIsNotSet(): void
     {
         $mockConfiguration = [
@@ -151,9 +145,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfRowsIsNotArray(): void
     {
         $mockConfiguration = [
@@ -166,9 +158,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $validConfiguration = [
@@ -183,6 +173,7 @@ class InsertMultipleTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessInsertsMultipleRecordsIntoTable(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');

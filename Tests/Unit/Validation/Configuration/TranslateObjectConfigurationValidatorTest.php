@@ -5,7 +5,10 @@ namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -23,7 +26,7 @@ use PHPUnit\Framework\MockObject\MockObject;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestCase
+class TranslateObjectConfigurationValidatorTest extends TestCase
 {
     protected TranslateObjectConfigurationValidator $subject;
 
@@ -56,10 +59,8 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         );
     }
 
-    /**
-     * @param array $configuration
-     * @dataProvider validConfigurationDataProvider
-     */
+    #[Test]
+    #[DataProvider('validConfigurationDataProvider')]
     public function testValidateReturnsTrueForValidConfiguration(array $configuration): void
     {
         self::assertTrue(
@@ -67,7 +68,7 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         );
     }
 
-    public function validConfigurationDataProvider(): array
+    public static function validConfigurationDataProvider(): array
     {
         return [
             'minimal - w/o mapping' => [
@@ -83,11 +84,9 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         ];
     }
 
-    /**
-     * @param array $configuration
-     * @dataProvider invalidConfigurationDataProvider
-     */
-    public function testValidateReturnsFalseForValidConfiguration(array $configuration): void
+    #[Test]
+    #[DataProvider('invalidConfigurationDataProvider')]
+    public function testValidateReturnsFalseForInvalidConfiguration(array $configuration): void
     {
         self::assertFalse(
             $this->subject->isValid($configuration)
@@ -95,7 +94,7 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
     }
 
 
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty config' => [
@@ -113,6 +112,7 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         ];
     }
 
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidTargetClassConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
@@ -129,6 +129,7 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         $this->subject->isValid($config);
     }
 
+    #[Test]
     public function testIsConfigurationValidReturnsFalseForInvalidTargetClassConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
@@ -144,6 +145,7 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
 
         $this->subject->isValid($config);
     }
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidMappingConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
@@ -160,6 +162,7 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         $this->subject->isValid($config);
     }
 
+    #[Test]
     public function testIsConfigurationValidReturnsFalseForInvalidMappingConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
