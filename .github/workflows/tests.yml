@@ -1,0 +1,54 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master, develop, feature/** ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  unit-tests:
+    name: "Unit Tests with TYPO3 ${{ matrix.typo3-version }} and PHP ${{ matrix.php-version }}"
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        typo3-version: ['^12.4', '^13.4']
+        php-version: ['8.2', '8.3', '8.4']
+        exclude:
+          # TYPO3 v13 requires PHP 8.2+
+          - typo3-version: '^13.4'
+            php-version: '8.1'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP version ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, intl, zip, json, iconv, gd
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies with TYPO3 ${{ matrix.typo3-version }}
+        run: |
+          composer require typo3/cms-core:${{ matrix.typo3-version }} --no-progress --prefer-dist --optimize-autoloader
+          git checkout composer.json
+
+      - name: Run unit tests
+        run: |
+          mkdir -p .Build/log/coverage/
+          vendor/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit --coverage-text
