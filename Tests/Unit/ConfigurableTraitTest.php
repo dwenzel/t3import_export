@@ -1,11 +1,11 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests;
+namespace CPSIT\T3importExport\Tests\Unit;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 
 /***************************************************************
  *
@@ -33,24 +33,19 @@ use ReflectionException;
  ***************************************************************/
 class ConfigurableTraitTest extends TestCase
 {
-
-    /**
-     * @var ConfigurableTrait
-     */
-    protected $subject;
-
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
     protected function setUp(): void
     {
-        try {
-            $this->subject = $this->getMockForTrait(
-                ConfigurableTrait::class
-            );
-        } catch (ReflectionException) {
-            $this->markTestIncomplete('setup failed');
-        }
+        $this->subject = new class() {
+            use ConfigurableTrait;
+
+            public function isConfigurationValid(array $configuration): bool
+            {
+                return true;
+            }
+        };
     }
 
+    #[Test]
     public function testGetConfigurationInitiallyReturnsEmptyArray(): void
     {
         $expected = [];
@@ -60,16 +55,10 @@ class ConfigurableTraitTest extends TestCase
         );
     }
 
-    /**
-     * @throws InvalidConfigurationException
-     */
+    #[Test]
     public function testSetConfigurationSetsValidConfiguration(): void
     {
         $configuration = ['foo'];
-
-        $this->subject->expects($this->once())
-            ->method('isConfigurationValid')
-            ->willReturn(true);
 
         $this->subject->setConfiguration($configuration);
 
@@ -79,15 +68,22 @@ class ConfigurableTraitTest extends TestCase
         );
     }
 
+    #[Test]
     public function testSetConfigurationThrowsExceptionForInvalidConfiguration(): void
     {
+        // set up a test subject which validates any configuration as false
+        $this->subject = new class() {
+            use ConfigurableTrait;
+
+            public function isConfigurationValid(array $configuration): bool
+            {
+                return false;
+            }
+        };
+
         $this->expectExceptionCode(1_451_659_793);
         $this->expectException(InvalidConfigurationException::class);
         $configuration = ['foo'];
-
-        $this->subject->expects($this->once())
-            ->method('isConfigurationValid')
-            ->willReturn(false);
 
         $this->subject->setConfiguration($configuration);
     }
