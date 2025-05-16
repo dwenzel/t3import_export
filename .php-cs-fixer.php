@@ -11,6 +11,7 @@ $finder = PhpCsFixer\Finder::create()
 
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRules([
         '@PSR2' => true,
         '@DoctrineAnnotation' => true,
@@ -22,7 +23,7 @@ return (new PhpCsFixer\Config())
         'concat_space' => ['spacing' => 'one'],
         'declare_equal_normalize' => ['space' => 'none'],
         'declare_strict_types' => true,
-        'diff_line_ending' => false,
+        'string_line_ending' => false,
         'function_typehint_space' => true,
         'global_namespace_import' => ['import_classes' => false, 'import_constants' => false, 'import_functions' => false],
         'heredoc_to_nowdoc' => true,
@@ -50,7 +51,7 @@ return (new PhpCsFixer\Config())
         'no_spaces_around_offset' => true,
         'no_superfluous_phpdoc_tags' => ['allow_mixed' => true, 'allow_unused_params' => true],
         'no_trailing_comma_in_singleline' => true,
-        'no_unnecessary_braces' => true,
+        'no_unneeded_braces' => true,
         'no_whitespace_before_comma_in_array' => true,
         'no_whitespace_in_blank_line' => true,
         'ordered_imports' => true,
