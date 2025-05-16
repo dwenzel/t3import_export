@@ -131,7 +131,7 @@ class TransferTaskFactoryTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['get'])
             ->getMock();
-        $this->factory = $this->getMockForAbstractClass(FactoryInterface::class);
+        $this->factory = $this->createMock(FactoryInterface::class);
 
         $this->factoryFactory->method('get')
             ->willReturn($this->factory);
@@ -156,32 +156,32 @@ class TransferTaskFactoryTest extends TestCase
 
     protected function mockDataSource(): void
     {
-        $this->dataSource = $this->getMockForAbstractClass(DataSourceInterface::class);
+        $this->dataSource = $this->createMock(DataSourceInterface::class);
     }
 
     protected function mockPreProcessor(): void
     {
-        $this->preProcessor = $this->getMockForAbstractClass(PreProcessorInterface::class);
+        $this->preProcessor = $this->createMock(PreProcessorInterface::class);
     }
 
     protected function mockPostProcessor(): void
     {
-        $this->postProcessor = $this->getMockForAbstractClass(PostProcessorInterface::class);
+        $this->postProcessor = $this->createMock(PostProcessorInterface::class);
     }
 
     protected function mockConverter(): void
     {
-        $this->converter = $this->getMockForAbstractClass(ConverterInterface::class);
+        $this->converter = $this->createMock(ConverterInterface::class);
     }
 
     protected function mockFinisher(): void
     {
-        $this->finisher = $this->getMockForAbstractClass(FinisherInterface::class);
+        $this->finisher = $this->createMock(FinisherInterface::class);
     }
 
     protected function mockInitializer(): void
     {
-        $this->initializer = $this->getMockForAbstractClass(InitializerInterface::class);
+        $this->initializer = $this->createMock(InitializerInterface::class);
     }
 
     #[Test]

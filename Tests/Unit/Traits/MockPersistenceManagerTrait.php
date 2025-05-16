@@ -33,7 +33,7 @@ trait MockPersistenceManagerTrait
     {
         $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
             ->disableOriginalConstructor()
-            ->setMethods(['remove', 'add', 'isNewObject'])
+            ->onlyMethods(['remove', 'add', 'isNewObject'])
             ->getMockForAbstractClass();
         if(method_exists($this, 'injectPersistenceManager')) {
             $this->subject->injectPersistenceManager($this->persistenceManager);

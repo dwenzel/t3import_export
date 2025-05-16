@@ -163,11 +163,10 @@ class ArrayToDomainObjectTest extends TestCase
     /**
      * @test
      */
-    public function convertReturnsConvertedObject()
+    public function convertReturnsConvertedObject(): void
     {
         $record = [];
-        $expectedObject = $this->getMockBuilder(DomainObjectInterface::class)
-            ->getMockForAbstractClass();
+        $expectedObject = $this->createMock(DomainObjectInterface::class);
         $configuration = [
             'targetClass' => 'FooClassName'
         ];

@@ -154,14 +154,14 @@ class DataTransferProcessorTest extends TestCase
 
     protected function mockPreProcessor(): void
     {
-        $this->preProcessor = $this->getMockForAbstractClass(
+        $this->preProcessor = $this->createMock(
             PreProcessorInterface::class
         );
     }
 
     protected function mockPostProcessor(): void
     {
-        $this->postProcessor = $this->getMockForAbstractClass(
+        $this->postProcessor = $this->createMock(
             PostProcessorInterface::class
         );
         $this->postProcessor->method('getConfiguration')
@@ -170,7 +170,7 @@ class DataTransferProcessorTest extends TestCase
 
     protected function mockConverter(): void
     {
-        $this->converter = $this->getMockForAbstractClass(ConverterInterface::class);
+        $this->converter = $this->createMock(ConverterInterface::class);
         $this->converter->method('getConfiguration')->willReturn(self::CONVERTER_CONFIGURATION);
         $this->converter->method('convert')->willReturn(self::CONVERTED_RECORD);
     }
@@ -210,13 +210,13 @@ class DataTransferProcessorTest extends TestCase
 
     protected function mockInitializer(): void
     {
-        $this->initializer = $this->getMockForAbstractClass(InitializerInterface::class);
+        $this->initializer = $this->createMock(InitializerInterface::class);
     }
 
     protected function mockFinisher(): void
     {
 
-        $this->finisher = $this->getMockForAbstractClass(FinisherInterface::class);
+        $this->finisher = $this->createMock(FinisherInterface::class);
     }
 
     protected function mockTransferTask(): void

@@ -43,9 +43,7 @@ class AbstractComponentTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockBuilder(AbstractComponent::class)
-            ->setMethods(['renderContent'])
-            ->getMockForAbstractClass();
+        $this->subject = $this->createMock(AbstractComponent::class);
     }
 
     /**

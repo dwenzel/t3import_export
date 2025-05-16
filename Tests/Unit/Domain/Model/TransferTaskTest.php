@@ -95,7 +95,7 @@ class TransferTaskTest extends TestCase
 
     public function testSetTargetForObjectSetsTarget(): void
     {
-        $target = $this->getMockForAbstractClass(DataTargetInterface::class);
+        $target = $this->createMock(DataTargetInterface::class);
         $this->subject->setTarget($target);
         $this->assertSame(
             $target,
@@ -105,7 +105,7 @@ class TransferTaskTest extends TestCase
 
     public function testSetSourceForObjectSetsSource(): void
     {
-        $source = $this->getMockForAbstractClass(DataSourceInterface::class);
+        $source = $this->createMock(DataSourceInterface::class);
         $this->subject->setSource($source);
         $this->assertSame(
             $source,

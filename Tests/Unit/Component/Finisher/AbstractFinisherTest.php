@@ -49,7 +49,7 @@ class AbstractFinisherTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockForAbstractClass(AbstractFinisher::class);
+        $this->subject = $this->createMock(AbstractFinisher::class);
     }
 
     public function testIsConfigurationValidInitiallyReturnsTrue(): void
