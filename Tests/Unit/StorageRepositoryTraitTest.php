@@ -32,7 +32,7 @@ class StorageRepositoryTraitTest extends TestCase
 
     /**
      * subject
-     * @var StorageRepositoryTrait|MockObject
+     * @var object Class using the StorageRepositoryTrait
      */
     protected $subject;
 
@@ -42,8 +42,15 @@ class StorageRepositoryTraitTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockBuilder(StorageRepositoryTrait::class)
-            ->getMockForTrait();
+        // In PHPUnit 12, getMockForTrait is removed
+        // Create an anonymous class that uses the trait instead
+        $this->subject = new class() {
+            use StorageRepositoryTrait;
+
+            public function getStorageRepository() {
+                return $this->storageRepository;
+            }
+        };
     }
 
     public function testStorageRepositoryCanBeInjected(): void
