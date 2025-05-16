@@ -189,20 +189,8 @@ class ArrayToXMLStreamTest extends TestCase
         /** @var DataStream $result */
         $result = $this->subject->convert($testArray, $testConfig);
         $this->assertInstanceOf(DataStream::class, $result);
-        $expected = '<unitTest>
-            <value>a</value>
-            <customSubNode>
-                <v>a</v>
-            </customSubNode>
-            <someChilds>
-                <child>
-                    <v>a</v>
-                </child>
-                <child>
-                    <v>a</v>
-                </child>
-            </someChilds>
-        </unitTest>';
+        // phpcs:ignore
+        $expected = "<unitTest><value>a</value><customSubNode><v>a</v></customSubNode><someChilds><child><v>a</v></child><child><v>a</v></child></someChilds></unitTest>";
         $expected = preg_replace("/\r|\n|\t/", "", $expected);
         $this->assertEquals($expected, $result->getStreamBuffer());
     }
@@ -242,21 +230,8 @@ class ArrayToXMLStreamTest extends TestCase
             'targetClass' => DataStream::class,
         ];
         $result = $this->subject->convert($testArray, $testConfig);
-        $expected = '<row key="1" otherKey="2">
-                        <value>a</value>
-                        <childNodeArray key="1" otherKey="2">
-                            <v>a</v>
-                        </childNodeArray>
-                        <childs key="1">
-                            <row key="1">
-                                <v>a</v>
-                            </row>
-                            <row>
-                                <v>a</v>
-                            </row>
-                        </childs>
-                    </row>';
-        $expected = preg_replace("/\r|\n|\t/", "", $expected);
+        //phpcs:ignore
+        $expected = '<row key="1" otherKey="2"><value>a</value><childNodeArray key="1" otherKey="2"><v>a</v></childNodeArray><childs key="1"><row key="1"><v>a</v></row><row><v>a</v></row></childs></row>';
         $this->assertEquals($expected, $result->getStreamBuffer());
     }
 
