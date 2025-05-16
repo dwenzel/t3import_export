@@ -4,7 +4,7 @@ on: [ push, pull_request ]
 jobs:
   tests:
     name: PHP ${{ matrix.php-version }} & TYPO3 ${{ matrix.typo3-version }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -12,8 +12,8 @@ jobs:
           #- typo3-version: 9.5
           #  php-version: 7.4
           #  composer-version: v1
-          - typo3-version: 10.4
-            php-version: 7.4
+          - typo3-version: 13.4
+            php-version: 8.4
             composer-version: v2
           #- typo3-version: 11.5
           #  php-version: 7.4
