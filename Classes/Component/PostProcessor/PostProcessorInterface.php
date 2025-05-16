@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -52,7 +53,7 @@ interface PostProcessorInterface extends ComponentInterface
     /**
      * Returns the configuration
      *
-     * @return array | null
+     * @return array|null
      */
     public function getConfiguration();
 }

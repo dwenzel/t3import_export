@@ -8,7 +8,6 @@ use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /***************************************************************
@@ -41,9 +40,7 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
     final public const int DEFAULT_BATCH_SIZE = 10;
     protected string $targetClass = QueueItem::class;
 
-    public function __construct(protected QueueItemRepository $repository)
-    {
-    }
+    public function __construct(protected QueueItemRepository $repository) {}
 
     public function isConfigurationValid(array $configuration): bool
     {

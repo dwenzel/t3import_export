@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
 /**
@@ -15,8 +16,6 @@ namespace CPSIT\T3importExport\Component\Initializer;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use Exception;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**

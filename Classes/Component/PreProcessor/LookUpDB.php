@@ -166,7 +166,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * Parses the constraints of a query configuration into a
      * WHERE clause
      *
-     * @return array | false Parsed query configuration
+     * @return array|false Parsed query configuration
      */
     protected function parseQueryConstraints(array $record, array $queryConfiguration): array
     {

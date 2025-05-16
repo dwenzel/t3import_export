@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Factory;
 
-use TYPO3Fluid\Fluid\Component\ComponentInterface;
-
 /***************************************************************
  *  Copyright notice
  *

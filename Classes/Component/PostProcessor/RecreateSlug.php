@@ -25,9 +25,7 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
     public const DEFAULT_SLUG_FIELD = 'slug';
     public const DEFAULT_SITE_ID = 1;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -64,7 +62,6 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
     }
 
     /**
-     * @return void
      * @throws SiteNotFoundException
      */
     public function recreateSlug(array $row, string $tableName, $slugField): string

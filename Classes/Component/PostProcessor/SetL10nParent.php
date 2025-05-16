@@ -27,16 +27,9 @@ use CPSIT\T3importExport\InvalidColumnMapException;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\SetL10nParentConfigurationValidator;
-use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Class TranslateObject
@@ -50,8 +43,7 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
         protected ConnectionPool $connectionPool,
         protected DatabaseConnectionService $connectionService,
         protected SetL10nParentConfigurationValidator $configurationValidator
-    ) {
-    }
+    ) {}
 
     /**
      * Tells whether a given configuration is valid

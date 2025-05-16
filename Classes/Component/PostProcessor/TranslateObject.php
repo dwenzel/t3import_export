@@ -27,9 +27,7 @@ use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
@@ -42,8 +40,7 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
         protected PersistenceManagerInterface $persistenceManager,
         protected TranslationService $translationService,
         protected TranslateObjectConfigurationValidator $configurationValidator
-    ) {
-    }
+    ) {}
 
     /**
      * Tells whether a given configuration is valid

@@ -197,11 +197,8 @@ class DataTargetDB extends AbstractComponent implements DataTargetInterface, Con
      * Currently doesn't do anything
      *
      * @param null $result
-     * @return void
      */
-    public function persistAll($result = null, ?array $configuration = null)
-    {
-    }
+    public function persistAll($result = null, ?array $configuration = null) {}
 
     /**
      * Tells if the record should be skipped, i.e. not be persisted

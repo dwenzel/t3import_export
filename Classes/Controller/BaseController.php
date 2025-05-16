@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Controller;
 
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
@@ -51,8 +52,7 @@ abstract class BaseController extends ActionController
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
         protected PageRenderer $pageRenderer
-    ) {
-    }
+    ) {}
 
     public function initializeAction(): void
     {

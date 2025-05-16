@@ -141,7 +141,6 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      *
      * @param string $identifier Identifier of set which should be processed
      * @param bool $dryRun If set nothing will be saved
-     * @return void
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException

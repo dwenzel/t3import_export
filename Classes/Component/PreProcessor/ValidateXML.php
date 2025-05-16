@@ -11,7 +11,6 @@ use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
-use DOMDocument;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************

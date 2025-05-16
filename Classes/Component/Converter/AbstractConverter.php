@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Converter;
 
 use CPSIT\T3importExport\Component\AbstractComponent;

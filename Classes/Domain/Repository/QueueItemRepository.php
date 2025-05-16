@@ -7,7 +7,6 @@ namespace CPSIT\T3importExport\Domain\Repository;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Exception\InvalidArgumentException;
-use PDO;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -218,10 +217,10 @@ class QueueItemRepository
 
     protected function isValid($queueItem): bool
     {
-        return (
+        return
             !empty($queueItem[QueueItem::FIELD_IDENTIFIER])
             && isset($queueItem[QueueItem::FIELD_DATA])
-        );
+        ;
     }
 
     /**
@@ -297,7 +296,7 @@ class QueueItemRepository
         $result = $query->execute()
             ->fetchAllAssociative();
 
-        return is_array($result)? $result : [];
+        return is_array($result) ? $result : [];
     }
 
     public function setDefaultOrderings(array $defaultOrderings)

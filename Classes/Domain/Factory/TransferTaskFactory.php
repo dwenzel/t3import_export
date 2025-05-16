@@ -50,8 +50,7 @@ class TransferTaskFactory extends AbstractFactory implements FactoryInterface
 
     public function __construct(
         protected FactoryFactory $factoryFactory
-    ) {
-    }
+    ) {}
 
     /**
      * Builds a task

@@ -1,10 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
@@ -30,8 +30,7 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
     public function __construct(
         protected ContentObjectRenderer $contentObjectRenderer,
         protected TypoScriptService $typoScriptService
-    ) {
-    }
+    ) {}
 
     /**
      * @param array $configuration

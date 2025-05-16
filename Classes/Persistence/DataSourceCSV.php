@@ -20,10 +20,8 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
-use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -41,9 +39,7 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
      * DataSourceCSV constructor.
      * @param ConfigurationValidatorInterface|null $configurationValidator
      */
-    public function __construct(protected ConfigurationValidatorInterface $configurationValidator)
-    {
-    }
+    public function __construct(protected ConfigurationValidatorInterface $configurationValidator) {}
 
     /**
      * Tells if a given configuration is valid
@@ -105,7 +101,7 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
 
             $rows = array_filter(str_getcsv($resource, "\n", escape: '\\'));
 
-            $records = array_map(fn ($d) => str_getcsv($d, $delimiter, $enclosure, $escape), $rows);
+            $records = array_map(fn($d) => str_getcsv($d, $delimiter, $enclosure, $escape), $rows);
 
             $headers = $records[0];
             if (isset($configuration['fields'])) {

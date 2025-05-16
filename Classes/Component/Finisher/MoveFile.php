@@ -22,12 +22,10 @@ namespace CPSIT\T3importExport\Component\Finisher;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -208,7 +206,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
             }
         }
 
-        if ((null === $sourceFolder)
+        if (($sourceFolder === null)
             || !$sourceStorage->hasFileInFolder($sourceFileName, $sourceFolder)) {
             $this->logError(1_509_023_738, [$sourceFileName], $configuration);
             return false;

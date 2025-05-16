@@ -36,9 +36,9 @@ class QueryFacade implements QueryFacadeInterface
 
     public function getQueryResultByConfig(array $queryConfiguration): array
     {
-        return ($this->getConcreteQueryInstance(
+        return $this->getConcreteQueryInstance(
             $queryConfiguration[QueryInterface::TYPE]
-        ))->withConfiguration($queryConfiguration)
+        )->withConfiguration($queryConfiguration)
             ->setQuery()
             ->build()
             ->execute()

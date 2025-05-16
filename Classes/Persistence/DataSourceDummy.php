@@ -4,20 +4,6 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingDatabaseException;
-use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use CPSIT\T3importExport\RenderContentInterface;
-use CPSIT\T3importExport\RenderContentTrait;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>

@@ -9,8 +9,6 @@ use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Exception\InvalidArgumentException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
 /***************************************************************
@@ -42,9 +40,7 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
     final public const string KEY_ALLOW_UPDATE = 'allowUpdate';
     protected string $targetClass = QueueItem::class;
 
-    public function __construct(protected QueueItemRepository $repository)
-    {
-    }
+    public function __construct(protected QueueItemRepository $repository) {}
 
     public function isConfigurationValid(array $configuration): bool
     {
@@ -108,7 +104,5 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
      * @param null $result
      * @return mixed|void
      */
-    public function persistAll($result = null, ?array $configuration = null)
-    {
-    }
+    public function persistAll($result = null, ?array $configuration = null) {}
 }

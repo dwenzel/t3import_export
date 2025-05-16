@@ -93,7 +93,7 @@ trait SetCommandTrait
             );
 
             // @todo this is a workaround for TYPO3 9.5 where the class constant is not defined
-            return (defined(Command::class . '::INVALID')? Command::INVALID : 2);
+            return defined(Command::class . '::INVALID') ? Command::INVALID : 2;
         }
         $this->io->comment(static::MESSAGE_STARTING);
 
@@ -101,6 +101,6 @@ trait SetCommandTrait
         $this->io->success(static::MESSAGE_SUCCESS);
 
         // @todo this is a workaround for TYPO3 9.5 where the class constant is not defined
-        return (defined(Command::class . '::SUCCESS')? Command::SUCCESS : 0);
+        return defined(Command::class . '::SUCCESS') ? Command::SUCCESS : 0;
     }
 }

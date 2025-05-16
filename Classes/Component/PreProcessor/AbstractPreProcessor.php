@@ -1,11 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
-use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice

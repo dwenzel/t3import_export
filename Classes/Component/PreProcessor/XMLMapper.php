@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -60,14 +61,16 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
                 }
             }
             return true;
-        } elseif (is_array($value)) {
+        }
+        if (is_array($value)) {
             foreach ($value as $subField => $subValue) {
                 if (!$this->validateFieldsList($subField, $subValue)) {
                     return false;
                 }
             }
             return true;
-        } elseif (
+        }
+        if (
             $value === '@attribute' ||
             $value === '@cdata' ||
             $value === '@value' ||

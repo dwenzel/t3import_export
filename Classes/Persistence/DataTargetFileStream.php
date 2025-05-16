@@ -35,7 +35,6 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
 
     /**
      * @param array|DomainObjectInterface $object
-     * @return void
      * @throws FileOperationErrorException
      */
     #[\Override]
@@ -52,7 +51,6 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     /**
      * @param array|null $result
      * @param array|\Iterator|null $configuration
-     * @return void
      */
     #[\Override]
     public function persistAll($result = null, ?array $configuration = null)
@@ -71,7 +69,6 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     }
 
     /**
-     * @return void
      * @throws FileOperationErrorException
      */
     protected function writeBuffer($buffer)
@@ -81,7 +78,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
         }
 
         // file put content
-        if (file_put_contents($this->tempFile, $buffer, FILE_APPEND|LOCK_EX) === false) {
+        if (file_put_contents($this->tempFile, $buffer, FILE_APPEND | LOCK_EX) === false) {
             throw new FileOperationErrorException(
                 'can\'t write in temp file: \'' . $this->tempFile . '\''
             );

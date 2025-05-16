@@ -25,16 +25,13 @@ use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
-use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
@@ -63,8 +60,7 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
         protected FileReferenceFactory $fileReferenceFactory,
         protected FileIndexRepository $fileIndexRepository,
         protected MessageContainer $messageContainer
-    ) {
-    }
+    ) {}
 
     /**
      * processes the converted record
@@ -216,6 +212,6 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
                 )
             )
             ->executeQuery()->fetchOne();
-        return ($result === 1);
+        return $result === 1;
     }
 }

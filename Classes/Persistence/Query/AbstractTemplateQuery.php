@@ -108,7 +108,7 @@ abstract class AbstractTemplateQuery implements QueryInterface
 
     final protected function setQueryBuilder(): void
     {
-        if (self::DEFAULT_DATABASE_IDENTIFIER !== $this->databaseIdentifier) {
+        if ($this->databaseIdentifier !== self::DEFAULT_DATABASE_IDENTIFIER) {
             $connection = $this->connectionService->getDatabase($this->databaseIdentifier);
             $this->queryBuilder = $connection->createQueryBuilder();
         } else {

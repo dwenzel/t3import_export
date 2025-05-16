@@ -23,7 +23,6 @@ namespace CPSIT\T3importExport\Component\Initializer;
  ***************************************************************/
 
 use CPSIT\T3importExport\DatabaseTrait;
-use Exception;
 use TYPO3\CMS\Core\Database\Connection;
 
 /**
