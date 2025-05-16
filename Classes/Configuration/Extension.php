@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Configuration;
 
-use CPSIT\T3importExport\Command\ImportCommandController;
 use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Command\ImportTaskCommand;
 use CPSIT\T3importExport\Configuration\Module\ExportModuleRegistration;

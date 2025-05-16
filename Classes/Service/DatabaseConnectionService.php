@@ -1,13 +1,13 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Service;
 
 use CPSIT\T3importExport\MissingDatabaseException;
 use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 

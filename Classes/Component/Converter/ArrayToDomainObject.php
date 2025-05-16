@@ -30,7 +30,6 @@ namespace CPSIT\T3importExport\Component\Converter;
  ***************************************************************/
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
@@ -151,9 +150,9 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
-        return (
+        return
             $this->targetClassConfigurationValidator->isValid($configuration)
             && $this->mappingConfigurationValidator->isValid($configuration)
-        );
+        ;
     }
 }

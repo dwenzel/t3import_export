@@ -1,9 +1,8 @@
 <?php
 
 declare(strict_types=1);
-namespace CPSIT\T3importExport;
 
-use CPSIT\T3importExport\InvalidConfigurationException;
+namespace CPSIT\T3importExport;
 
 /**
  * Interface ConfigurableInterface

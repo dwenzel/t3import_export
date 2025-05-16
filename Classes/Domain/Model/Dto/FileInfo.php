@@ -21,6 +21,4 @@ namespace CPSIT\T3importExport\Domain\Model\Dto;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-class FileInfo extends \SplFileInfo
-{
-}
+class FileInfo extends \SplFileInfo {}

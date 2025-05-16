@@ -21,12 +21,8 @@ use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
-use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
-use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
-use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -79,7 +75,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         }
 
         $delimiter = ',';
-        $enclosure = "\"";
+        $enclosure = '"';
         $escape = '\\';
 
         if (isset($configuration['delimiter'])) {
@@ -105,7 +101,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         touch($absFileName);
 
         $output = fopen($absFileName, 'r+');
-        fwrite($output, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF)));
+        fwrite($output, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
         if (!$output) {
             throw new FileOperationErrorException(
                 'can\'t create new temp file: \'' . $absFileName . '\''

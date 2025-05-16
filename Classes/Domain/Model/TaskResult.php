@@ -52,7 +52,7 @@ class TaskResult implements \Iterator
     protected $size = 0;
 
     /**
-     * @var null|mixed
+     * @var mixed|null
      */
     protected $info;
 
@@ -76,9 +76,6 @@ class TaskResult implements \Iterator
         return $this->list[$this->position];
     }
 
-    /**
-     * @return void
-     */
     public function next()
     {
         ++$this->position;
@@ -108,18 +105,11 @@ class TaskResult implements \Iterator
         return $this->size;
     }
 
-    /**
-     * @return void
-     * @return void
-     */
     public function rewind()
     {
         $this->position = 0;
     }
 
-    /**
-     * @return void
-     */
     public function setElements(array $elements)
     {
         $this->list = $elements;
@@ -127,9 +117,6 @@ class TaskResult implements \Iterator
         $this->rewind();
     }
 
-    /**
-     * @return void
-     */
     public function add($newElement)
     {
         $this->list[] = $newElement;
@@ -175,9 +162,6 @@ class TaskResult implements \Iterator
         return $this->list;
     }
 
-    /**
-     * @return void
-     */
     public function setInfo($mixed)
     {
         $this->info = $mixed;

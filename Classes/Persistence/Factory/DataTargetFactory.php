@@ -14,8 +14,6 @@ use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
@@ -39,9 +37,7 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
 {
     final public const string DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
 
-    public function __construct(protected PersistenceManagerInterface $persistenceManager)
-    {
-    }
+    public function __construct(protected PersistenceManagerInterface $persistenceManager) {}
     /**
      * Builds a factory object
      *

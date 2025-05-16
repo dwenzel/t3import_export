@@ -67,7 +67,7 @@ class DataTargetRepository implements DataTargetInterface
             $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
                 ->get(PersistenceManagerInterface::class);
         }
-        if (null !== $persistenceManager) {
+        if ($persistenceManager !== null) {
             $this->persistenceManager = $persistenceManager;
         }
     }

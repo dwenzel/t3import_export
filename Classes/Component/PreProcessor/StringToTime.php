@@ -1,10 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -78,7 +78,7 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
     protected function stringToTime(/*mixed*/ $recordField): ?int
     {
         if (isset($recordField) && is_string($recordField)) {
-            return strtotime($recordField) ? : null;
+            return strtotime($recordField) ?: null;
         }
 
         return null;

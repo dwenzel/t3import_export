@@ -43,6 +43,6 @@ class NotEmptyValidator implements ConfigurationValidatorInterface
                 $this->delimiter
             );
         }
-        return (!empty($value));
+        return !empty($value);
     }
 }

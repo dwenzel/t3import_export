@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ObjectManagerTrait;
-use FluidTYPO3\Flux\Form\Field\DateTime;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use XMLWriter;
 
 class DataTargetXMLStream extends DataTargetFileStream
 {
@@ -23,7 +19,6 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     /**
      * @param array|DomainObjectInterface $object
-     * @return void
      * @throws FileOperationErrorException
      */
     #[\Override]
@@ -38,7 +33,6 @@ class DataTargetXMLStream extends DataTargetFileStream
     /**
      * @param array|null $result
      * @param array|\Iterator|null $configuration
-     * @return void
      */
     #[\Override]
     public function persistAll($result = null, ?array $configuration = null)
@@ -101,7 +95,6 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     /**
      * @param array $configuration
-     * @return void
      */
     protected function writeXMLTemplateBased($configuration)
     {
@@ -111,7 +104,6 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     /**
      * @param array $configuration
-     * @return void
      */
     protected function writeXMLEndTemplateBased($configuration)
     {
@@ -121,7 +113,6 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     /**
      * @param array $configuration
-     * @return void
      */
     protected function writeXMLDynamically($configuration)
     {

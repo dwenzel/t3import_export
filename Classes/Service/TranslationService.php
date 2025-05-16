@@ -25,16 +25,13 @@ namespace CPSIT\T3importExport\Service;
  ***************************************************************/
 
 use CPSIT\T3importExport\InvalidColumnMapException;
-use Exception;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
@@ -48,8 +45,7 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
     public function __construct(
         protected DataMapper $dataMapper,
         protected PersistenceManagerInterface $persistenceManager
-    ) {
-    }
+    ) {}
 
     /**
      * Translates a domain object

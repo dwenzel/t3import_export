@@ -68,7 +68,7 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
                 }
             }
 
-            return ($this->renderContent($record, $localConfiguration) === '1');
+            return $this->renderContent($record, $localConfiguration) === '1';
         }
 
         return false;

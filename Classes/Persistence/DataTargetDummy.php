@@ -43,9 +43,6 @@ class DataTargetDummy implements DataTargetInterface
      * Dummy method to make component compatible wit DataTargetInterface
      *
      * @param null $result
-     * @return void
      */
-    public function persistAll($result = null, ?array $configuration = null)
-    {
-    }
+    public function persistAll($result = null, ?array $configuration = null) {}
 }

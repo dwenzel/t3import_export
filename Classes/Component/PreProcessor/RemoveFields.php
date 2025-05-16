@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -59,7 +60,8 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
                 }
             }
             return true;
-        } elseif (is_array($fieldListConfig)) {
+        }
+        if (is_array($fieldListConfig)) {
             foreach ($fieldListConfig as $field => $value) {
                 if (!$this->validateFieldsList($value)) {
                     return false;
@@ -68,7 +70,7 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
 
-        return ((is_bool($fieldListConfig) && $fieldListConfig) || $fieldListConfig == 'true');
+        return (is_bool($fieldListConfig) && $fieldListConfig) || $fieldListConfig == 'true';
     }
 
     /**

@@ -1,15 +1,12 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerAwareInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice

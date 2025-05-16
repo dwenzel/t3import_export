@@ -1,15 +1,12 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
-use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\ConfigurableInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -96,7 +93,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
         ) {
             $resultClass = $result[0]::class;
 
-            foreach ($configuration['classes'] as $key=>$localConfig) {
+            foreach ($configuration['classes'] as $key => $localConfig) {
                 if ($key !== $resultClass) {
                     continue;
                 }

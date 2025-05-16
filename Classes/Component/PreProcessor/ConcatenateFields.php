@@ -44,7 +44,6 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
     /**
      * @param array $configuration
      * @param array $record
-     * @return void
      */
     public function process($configuration, &$record)
     {

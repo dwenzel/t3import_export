@@ -61,10 +61,10 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
     {
         $validatorSettings = static::VALIDATORS;
 
-        return (
+        return
             $this->isBasicConfigurationValid($validatorSettings, $config)
             && $this->isMappingConfigurationValid($config)
-        );
+        ;
     }
 
     protected function isBasicConfigurationValid(array $validatorSettings, array $config): bool

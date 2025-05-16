@@ -2,72 +2,8 @@
 
 declare(strict_types=1);
 
-$finder = PhpCsFixer\Finder::create()
-    ->in([
-        __DIR__ . '/Classes',
-        __DIR__ . '/Configuration',
-        __DIR__ . '/Tests',
-    ]);
+$config = \TYPO3\CodingStandards\CsFixerConfig::create();
+$config->setParallelConfig(\PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect());
+$config->getFinder()->in(__DIR__ . '/Classes')->notName('ValidateXML.php');
 
-return (new PhpCsFixer\Config())
-    ->setRiskyAllowed(true)
-    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
-    ->setRules([
-        '@PSR2' => true,
-        '@DoctrineAnnotation' => true,
-        'array_syntax' => ['syntax' => 'short'],
-        'blank_line_after_opening_tag' => true,
-        'braces' => ['allow_single_line_closure' => true],
-        'cast_spaces' => ['space' => 'none'],
-        'compact_nullable_typehint' => true,
-        'concat_space' => ['spacing' => 'one'],
-        'declare_equal_normalize' => ['space' => 'none'],
-        'declare_strict_types' => true,
-        'string_line_ending' => false,
-        'function_typehint_space' => true,
-        'global_namespace_import' => ['import_classes' => false, 'import_constants' => false, 'import_functions' => false],
-        'heredoc_to_nowdoc' => true,
-        'include' => true,
-        'linebreak_after_opening_tag' => true,
-        'list_syntax' => ['syntax' => 'short'],
-        'lowercase_cast' => true,
-        'lowercase_keywords' => true,
-        'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],
-        'method_chaining_indentation' => true,
-        'native_function_casing' => true,
-        'new_with_braces' => true,
-        'no_alias_functions' => true,
-        'no_blank_lines_after_class_opening' => true,
-        'no_blank_lines_after_phpdoc' => true,
-        'no_closing_tag' => true,
-        'no_empty_phpdoc' => true,
-        'no_empty_statement' => true,
-        'no_extra_blank_lines' => true,
-        'no_leading_import_slash' => true,
-        'no_leading_namespace_whitespace' => true,
-        'no_multiline_whitespace_around_double_arrow' => true,
-        'no_php4_constructor' => true,
-        'no_singleline_whitespace_before_semicolons' => true,
-        'no_spaces_around_offset' => true,
-        'no_superfluous_phpdoc_tags' => ['allow_mixed' => true, 'allow_unused_params' => true],
-        'no_trailing_comma_in_singleline' => true,
-        'no_unneeded_braces' => true,
-        'no_whitespace_before_comma_in_array' => true,
-        'no_whitespace_in_blank_line' => true,
-        'ordered_imports' => true,
-        'phpdoc_line_span' => ['method' => 'multi', 'property' => 'multi'],
-        'phpdoc_no_package' => true,
-        'phpdoc_scalar' => true,
-        'phpdoc_single_line_var_spacing' => true,
-        'phpdoc_trim' => true,
-        'phpdoc_types' => true,
-        'phpdoc_var_without_name' => true,
-        'return_type_declaration' => ['space_before' => 'none'],
-        'single_blank_line_at_eof' => true,
-        'single_import_per_statement' => true,
-        'single_line_after_imports' => true,
-        'single_trait_insert_per_statement' => true,
-        'trailing_comma_in_multiline' => ['elements' => ['arrays']],
-        'visibility_required' => ['elements' => ['property', 'method']],
-    ])
-    ->setFinder($finder);
+return $config;

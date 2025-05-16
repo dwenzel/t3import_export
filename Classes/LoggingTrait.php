@@ -123,7 +123,7 @@ trait LoggingTrait
         $description = $default;
         if (isset($codes[$id])) {
             $description = $codes[$id][1];
-            if (null !== $arguments) {
+            if ($arguments !== null) {
                 array_unshift($arguments, $description);
                 $description = sprintf(...$arguments);
             }

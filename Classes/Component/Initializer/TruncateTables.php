@@ -6,8 +6,6 @@ namespace CPSIT\T3importExport\Component\Initializer;
 
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -76,7 +74,7 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
-        return (!empty($configuration[static::KEY_TABLES])
-            && is_string($configuration[static::KEY_TABLES]));
+        return !empty($configuration[static::KEY_TABLES])
+            && is_string($configuration[static::KEY_TABLES]);
     }
 }

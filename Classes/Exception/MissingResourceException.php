@@ -20,6 +20,4 @@ namespace CPSIT\T3importExport\Exception;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class MissingResourceException extends \Exception
-{
-}
+class MissingResourceException extends \Exception {}

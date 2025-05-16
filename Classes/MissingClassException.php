@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
 /***************************************************************
@@ -27,6 +28,4 @@ namespace CPSIT\T3importExport;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class MissingClassException extends \Exception
-{
-}
+class MissingClassException extends \Exception {}

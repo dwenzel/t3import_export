@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Messaging;
 
 use TYPO3\CMS\Core\Messaging\AbstractMessage;

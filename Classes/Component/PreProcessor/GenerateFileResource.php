@@ -26,9 +26,7 @@ use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
-use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
@@ -59,8 +57,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
         protected FileIndexRepository $fileIndexRepository,
         protected FilePathFactory $filePathFactory,
         protected MessageContainer $messageContainer
-    ) {
-    }
+    ) {}
 
     /**
      * Get File object

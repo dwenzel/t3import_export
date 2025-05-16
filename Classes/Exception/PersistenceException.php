@@ -11,6 +11,4 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Exception;
 
-class PersistenceException extends \Exception
-{
-}
+class PersistenceException extends \Exception {}
