@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: TYPO3 Slack Channel
+    url: https://typo3.slack.com/
+    about: For general discussions and questions, please use the TYPO3 Slack channel.
+  - name: Documentation
+    url: https://github.com/dwenzel/t3import_export/tree/master/Documentation
+    about: Check if your question is already answered in the documentation.
