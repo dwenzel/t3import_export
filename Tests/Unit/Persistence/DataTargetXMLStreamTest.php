@@ -96,10 +96,7 @@ class DataTargetXMLStreamTest extends TestCase
      */
     protected function mockPersistenceManager(): void
     {
-        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['remove', 'add', 'isNewObject'])
-            ->getMockForAbstractClass();
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
         if(method_exists($this, 'injectPersistenceManager')) {
             $this->subject->injectPersistenceManager($this->persistenceManager);
         }

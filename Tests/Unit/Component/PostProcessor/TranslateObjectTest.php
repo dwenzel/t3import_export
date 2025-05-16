@@ -78,7 +78,7 @@ class TranslateObjectTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->persistenceManager = $this->getMockForAbstractClass(PersistenceManagerInterface::class);
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
         $this->translationService = $this->getMockBuilder(TranslationService::class)
             ->disableOriginalConstructor()
             ->setMethods(['getLocalizationParent', 'translate'])
@@ -144,8 +144,8 @@ class TranslateObjectTest extends TestCase
 
         $targetClass = DomainObjectInterface::class;
         /** @var DomainObjectInterface|MockObject $convertedRecord */
-        $convertedRecord = $this->getMockForAbstractClass($targetClass);
-        $parentObject = $this->getMockForAbstractClass($targetClass);
+        $convertedRecord = $this->createMock($targetClass);
+        $parentObject = $this->createMock($targetClass);
 
         $expectedTargetClass = $convertedRecord::class;
 

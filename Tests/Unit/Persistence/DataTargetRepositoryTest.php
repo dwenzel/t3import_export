@@ -151,10 +151,7 @@ class DataTargetRepositoryTest extends TestCase
      */
     protected function mockPersistenceManager(): void
     {
-        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['remove', 'add', 'isNewObject', 'persistAll'])
-            ->getMockForAbstractClass();
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
     }
 
     /**
@@ -197,7 +194,7 @@ class DataTargetRepositoryTest extends TestCase
     #[Test]
     public function testPersistAddsObject(): void
     {
-        $mockObject = $this->getMockForAbstractClass(DomainObjectInterface::class);
+        $mockObject = $this->createMock(DomainObjectInterface::class);
         $this->persistenceManager->expects($this->once())
             ->method('isNewObject')
             ->with(...[$mockObject])
@@ -214,7 +211,7 @@ class DataTargetRepositoryTest extends TestCase
     #[Test]
     public function testPersistUpdatesObject(): void
     {
-        $mockObject = $this->getMockForAbstractClass(AbstractDomainObject::class);
+        $mockObject = $this->createMock(AbstractDomainObject::class);
 
         $this->objectRepository->expects($this->once())
             ->method('update')

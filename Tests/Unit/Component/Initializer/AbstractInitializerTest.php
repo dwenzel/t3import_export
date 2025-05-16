@@ -52,7 +52,7 @@ class AbstractInitializerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockForAbstractClass(AbstractInitializer::class);
+        $this->subject = $this->createMock(AbstractInitializer::class);
     }
 
     public function testIsConfigurationValidInitiallyReturnsTrue(): void

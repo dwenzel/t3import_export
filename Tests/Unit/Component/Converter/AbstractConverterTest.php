@@ -48,15 +48,13 @@ class AbstractConverterTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockForAbstractClass(
-            AbstractConverter::class
-        );
+        $this->subject = $this->createMock(AbstractConverter::class);
     }
 
     /**
      * @test
      */
-    public function isConfigurationValidInitiallyReturnsTrue()
+    public function isConfigurationValidInitiallyReturnsTrue(): void
     {
         $this->assertTrue(
             $this->subject->isConfigurationValid([])
