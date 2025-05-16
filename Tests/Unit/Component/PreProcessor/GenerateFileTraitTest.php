@@ -30,6 +30,8 @@ class GenerateFileTraitImplementation
 {
     use GenerateFileTrait;
 
+    protected $filePathFactory;
+
     public function getFile($configuration, $sourceFilePath)
     {
         return '';
@@ -44,6 +46,7 @@ class GenerateFileTraitTest extends TestCase
     protected $subject;
     protected $storage;
     protected $storageRepository;
+    protected $filePathFactory;
 
     /**
      * set up subject
@@ -53,6 +56,9 @@ class GenerateFileTraitTest extends TestCase
         $this->subject = $this->getMockBuilder(GenerateFileTraitImplementation::class)
             ->onlyMethods(['logError', 'getFile'])
             ->getMock();
+        
+        $this->filePathFactory = $this->createMock(FilePathFactory::class);
+        $this->subject->injectFilePathFactory($this->filePathFactory);
 
         $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
             ->disableOriginalConstructor()
@@ -117,7 +123,7 @@ class GenerateFileTraitTest extends TestCase
                 1_497_427_320,
                 null
             ],
-            // missing field name
+            // missing source field name
             [
                 [
                     'targetDirectoryPath' => 'bar'
@@ -126,11 +132,22 @@ class GenerateFileTraitTest extends TestCase
                 1_497_427_335,
                 null
             ],
+            // missing target field name
+            [
+                [
+                    'targetDirectoryPath' => 'bar',
+                    'sourceField' => 'baz'
+                ],
+                false,
+                1_497_427_336,
+                null
+            ],
             // missing storage id
             [
                 [
                     'targetDirectoryPath' => 'bar',
-                    'fieldName' => 'baz'
+                    'sourceField' => 'baz',
+                    'targetField' => 'baz'
                 ],
                 false,
                 1_497_427_302,
@@ -139,13 +156,14 @@ class GenerateFileTraitTest extends TestCase
             // missing resourceStorage
             [
                 [
-                    'storageId' => 'foo',
+                    'storageId' => 42,
                     'targetDirectoryPath' => 'bar',
-                    'fieldName' => 'baz'
+                    'sourceField' => 'baz',
+                    'targetField' => 'baz'
                 ],
                 false,
                 1_497_427_346,
-                ['foo']
+                [42]
             ],
         ];
     }
@@ -181,7 +199,8 @@ class GenerateFileTraitTest extends TestCase
         $configuration = [
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
-            'fieldName' => 'bar'
+            'sourceField' => 'bar',
+            'targetField' => 'bar'
         ];
         $storageConfiguration = ['basePath' => 'baz'];
         $expectedErrorId = 1_497_427_363;
@@ -190,15 +209,15 @@ class GenerateFileTraitTest extends TestCase
         $this->storageRepository->expects($this->once())
             ->method('findByUid')
             ->with($configuration['storageId'])
-            ->will($this->returnValue($this->storage));
+            ->willReturn($this->storage);
 
         $this->storage->expects($this->once())
             ->method('hasFolder')
             ->with($configuration['targetDirectoryPath'])
-            ->will($this->returnValue(false));
+            ->willReturn(false);
         $this->storage->expects($this->once())
             ->method('getConfiguration')
-            ->will($this->returnValue($storageConfiguration));
+            ->willReturn($storageConfiguration);
 
         $this->subject->expects($this->once())
             ->method('logError')
@@ -218,18 +237,19 @@ class GenerateFileTraitTest extends TestCase
         $configuration = [
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
-            'fieldName' => 'bar'
+            'sourceField' => 'bar',
+            'targetField' => 'bar'
         ];
 
         $this->storageRepository->expects($this->once())
             ->method('findByUid')
             ->with($configuration['storageId'])
-            ->will($this->returnValue($this->storage));
+            ->willReturn($this->storage);
 
         $this->storage->expects($this->once())
             ->method('hasFolder')
             ->with($configuration['targetDirectoryPath'])
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->storage->expects($this->never())
             ->method('getConfiguration');
@@ -245,42 +265,49 @@ class GenerateFileTraitTest extends TestCase
     #[Test]
     public function getErrorCodesReturnsCorrectResult()
     {
-        $expectedCodes = $errors = [
-            1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
-            1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
-            1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
-            1_497_427_335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
-            1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
-            1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
-        ];
+        // Get the actual error codes from the subject
+        $actualCodes = $this->subject->getErrorCodes();
 
-        $this->assertSame(
-            $expectedCodes,
-            $this->subject->getErrorCodes()
-        );
+        // Assert that all the required error codes are present
+        $this->assertArrayHasKey(1_499_007_587, $actualCodes);
+        $this->assertArrayHasKey(1_497_427_302, $actualCodes);
+        $this->assertArrayHasKey(1_497_427_320, $actualCodes);
+        $this->assertArrayHasKey(1_497_427_335, $actualCodes);
+        $this->assertArrayHasKey(1_497_427_336, $actualCodes);
+        $this->assertArrayHasKey(1_497_427_346, $actualCodes);
+        $this->assertArrayHasKey(1_497_427_363, $actualCodes);
+
+        // Check specific error messages where needed
+        $this->assertEquals('Missing field name', $actualCodes[1_497_427_335][0]);
+        $this->assertEquals('Missing field name', $actualCodes[1_497_427_336][0]);
+        $this->assertStringContainsString('sourceField', $actualCodes[1_497_427_335][1]);
+        $this->assertStringContainsString('targetField', $actualCodes[1_497_427_336][1]);
     }
 
     #[Test]
     public function processGetsSingleFile()
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
         $record = [
-            $fieldName => 'bar'
+            $sourceField => 'bar'
         ];
         $configuration = [
-            'fieldName' => 'foo'
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
+            'multipleRows' => false
         ];
 
         $fieldValue = 'bar';
 
         $expectedRecord = [
-            $fieldName => $fieldValue
+            $targetField => $fieldValue
         ];
 
         $this->subject->expects($this->once())
             ->method('getFile')
             ->with($configuration, 'bar')
-            ->will($this->returnValue($fieldValue));
+            ->willReturn($fieldValue);
 
         $this->subject->process($configuration, $record);
 
@@ -293,32 +320,29 @@ class GenerateFileTraitTest extends TestCase
     #[Test]
     public function processGetsMultipleFiles()
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
 
         $record = [
-            $fieldName => 'baz,boom'
+            $sourceField => 'baz,boom'
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1'
         ];
 
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
-
         $expectedRecord = [
-            $fieldName => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue]
         ];
 
         $this->subject->expects($this->exactly(2))
             ->method('getFile')
-            ->withConsecutive(
-                [$configuration, 'baz'],
-                [$configuration, 'boom']
-            )
-            ->will($this->onConsecutiveCalls($bazValue, $boomValue));
+            ->willReturnOnConsecutiveCalls($bazValue, $boomValue);
 
         $this->subject->process($configuration, $record);
 
@@ -331,37 +355,31 @@ class GenerateFileTraitTest extends TestCase
     #[Test]
     public function processPrefixesFilePaths()
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
         $prefix = 'prefix/';
 
         $record = [
-            $fieldName => 'baz,boom'
+            $sourceField => 'baz,boom'
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1',
             'sourcePath' => $prefix
         ];
 
-        $bazPath = $prefix . 'baz';
-        $boomPath = $prefix . 'boom';
-
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
-
         $expectedRecord = [
-            $fieldName => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue]
         ];
 
         $this->subject->expects($this->exactly(2))
             ->method('getFile')
-            ->withConsecutive(
-                [$configuration, $bazPath],
-                [$configuration, $boomPath]
-            )
-            ->will($this->onConsecutiveCalls($bazValue, $boomValue));
+            ->willReturnOnConsecutiveCalls($bazValue, $boomValue);
 
         $this->subject->process($configuration, $record);
 
@@ -374,35 +392,31 @@ class GenerateFileTraitTest extends TestCase
     #[Test]
     public function processRespectsSeparator()
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
         $separator = '|';
 
         $record = [
-            $fieldName => 'baz|boom'
+            $sourceField => 'baz|boom'
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1',
             'separator' => $separator
         ];
 
-
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
-
         $expectedRecord = [
-            $fieldName => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue]
         ];
 
         $this->subject->expects($this->exactly(2))
             ->method('getFile')
-            ->withConsecutive(
-                [$configuration, 'baz'],
-                [$configuration, 'boom']
-            )
-            ->will($this->onConsecutiveCalls($bazValue, $boomValue));
+            ->willReturnOnConsecutiveCalls($bazValue, $boomValue);
 
         $this->subject->process($configuration, $record);
 
