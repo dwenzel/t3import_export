@@ -36,7 +36,8 @@
     "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^2.0",
     "ssch/typo3-rector": "^3.0",
-    "typo3/coding-standards": "^0.8.0"
+    "typo3/coding-standards": "^0.8.0",
+    "typo3/testing-framework": "^9.0"
   },
   "repositories": {
     "import-export-core": {
@@ -113,10 +114,10 @@
       "@test:unit"
     ],
     "test:coverage": [
-      "XDEBUG_MODE=coverage .Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit --coverage-html=.Build/log/coverage"
+      "XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit.xml Tests/Unit --coverage-html=.Build/log/coverage"
     ],
     "test:unit": [
-      ".Build/bin/phpunit -c Tests/Build/UnitTests.xml Tests/Unit"
+      ".Build/bin/phpunit -c phpunit.xml Tests/Unit"
     ]
   },
   "scripts-descriptions": {
