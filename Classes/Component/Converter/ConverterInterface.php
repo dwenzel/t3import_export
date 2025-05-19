@@ -20,7 +20,8 @@ interface ConverterInterface extends ComponentInterface
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool;
 
     /**
-     * @return mixed
+     * @param array $configuration
+     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool;
 
