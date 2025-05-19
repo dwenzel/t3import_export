@@ -11,6 +11,7 @@ use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
+use DOMDocument;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -70,16 +71,16 @@ class ValidateXML extends AbstractPreProcessor implements
     Message: %s
     Line: %s
     Column: %s';
-    protected \DOMDocument $document;
+    protected DOMDocument $document;
     protected ResourcePathConfigurationValidator $pathConfigurationValidator;
     protected string $schema = '';
 
     public function __construct(
-        ?\DOMDocument $document = null,
+        ?DOMDocument                        $document = null,
         ?ResourcePathConfigurationValidator $pathConfigurationValidator = null,
-        ?MessageContainer $messageContainer = null
+        ?MessageContainer                   $messageContainer = null
     ) {
-        $this->document = $document ?? new \DOMDocument(
+        $this->document = $document ?? new DOMDocument(
             self::DEFAULT_XML_VERSION,
             self::DEFAULT_XML_ENCODING
         );
@@ -113,7 +114,7 @@ class ValidateXML extends AbstractPreProcessor implements
     /**
      * @inheritDoc
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $fields = GeneralUtility::trimExplode(
             self::SEPARATOR,
@@ -154,7 +155,7 @@ class ValidateXML extends AbstractPreProcessor implements
     protected function isValidXML(array $record, string $fieldName, array $configuration): bool
     {
         $xml = '';
-        if ($record[$fieldName] instanceof \DOMDocument) {
+        if ($record[$fieldName] instanceof DOMDocument) {
             $xml = $record[$fieldName]->saveXML();
         }
         if (is_string($record[$fieldName])) {

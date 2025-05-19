@@ -30,7 +30,7 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * @var array
      */
-    protected $fields = [];
+    protected array $fields = [];
 
     #[\Override]
     public function isConfigurationValid(array $configuration): bool
@@ -57,7 +57,7 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $fieldName => $localConfig) {

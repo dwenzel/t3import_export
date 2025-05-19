@@ -51,7 +51,7 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
      *
      * @return bool
      */
-    protected function validateFieldsList($fieldListConfig)
+    protected function validateFieldsList($fieldListConfig): bool
     {
         if (is_array($fieldListConfig) && isset($fieldListConfig['children'])) {
             foreach ($fieldListConfig['children'] as $field => $value) {
@@ -78,7 +78,7 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $fields = $configuration['fields'];
         $this->removeFieldInArray($record, $fields);

@@ -88,7 +88,7 @@ trait GenerateFileTrait
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $separator = ',';
         if (isset($configuration['separator'])) {
@@ -99,7 +99,7 @@ trait GenerateFileTrait
 
         $filePaths = GeneralUtility::trimExplode($separator, $record[$sourceField], true);
 
-        // Prefix all files with source path
+        // Prefix all files with the source path
         if (isset($configuration['sourcePath'])) {
             $filePaths = preg_filter('/^/', (string)$configuration['sourcePath'], $filePaths);
         }

@@ -45,7 +45,7 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return true
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $this->fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         $this->convertFields($record);

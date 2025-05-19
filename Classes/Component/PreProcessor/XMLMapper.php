@@ -52,7 +52,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
      * @param array|string $value
      * @return bool
      */
-    protected function validateFieldsList($field, $value)
+    protected function validateFieldsList($field, $value): bool
     {
         if (is_array($value) && isset($value['children'])) {
             foreach ($value['children'] as $subField => $subValue) {
@@ -80,7 +80,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
 
-        // check for multi single line statements (Recursion)
+        // check for multi/single line statements (Recursion)
         $multiValue = [];
         if (is_string($value)) {
             $multiValue = explode('|', $value);
@@ -103,7 +103,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $fields = $configuration['fields'];
         $record = $this->remapXMLStructure($record, $fields);

@@ -50,7 +50,7 @@ class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterfa
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record): bool
+    public function process(array $configuration, array $record): bool
     {
         return true;
     }

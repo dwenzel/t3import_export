@@ -53,7 +53,7 @@ class DummyValidPreProcessor extends AbstractPreProcessor implements PreProcesso
      * @param array $record
      * @noinspection PhpMissingParamTypeInspection
      */
-    public function process($configuration, &$record): bool
+    public function process(array $configuration, array $record): bool
     {
         return true;
     }

@@ -33,6 +33,9 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
+    protected ContentObjectRenderer $contentObjectRenderer;
+    protected TypoScriptService $typoScriptService;
+
     public function __construct(
         ?ContentObjectRenderer $contentObjectRenderer = null,
         ?TypoScriptService $typoScriptService = null
@@ -45,7 +48,7 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
      * @param array $configuration
      * @param array $record
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $targetFieldName = $configuration['targetField'];
         foreach ($configuration['fields'] as $key => $value) {
@@ -67,6 +70,8 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
             }
             $record[$targetFieldName] .= $record[$key];
         }
+
+        return true;
     }
 
     /**
