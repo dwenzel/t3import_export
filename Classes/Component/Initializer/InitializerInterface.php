@@ -21,8 +21,6 @@ interface InitializerInterface extends ComponentInterface
 
     /**
      * Tells if the component is disabled
-     * @param TaskResult|\Iterator|array $result
-     * @return mixed
      */
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool;
 
