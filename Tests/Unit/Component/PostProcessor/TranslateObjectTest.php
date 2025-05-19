@@ -5,20 +5,15 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\TranslateObject;
-use CPSIT\T3importExport\InvalidColumnMapException;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
-use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
-use TYPO3\CMS\Extbase\Persistence\QueryInterface;
-use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
 /***************************************************************
  *
@@ -49,42 +44,43 @@ class TranslateObjectTest extends TestCase
     protected TranslateObject $subject;
 
     /**
-     * @var TargetClassConfigurationValidator|MockObject
+     * @var MockObject|TargetClassConfigurationValidator
      */
-    protected TargetClassConfigurationValidator $targetClassConfigurationValidator;
+    protected TargetClassConfigurationValidator|MockObject $targetClassConfigurationValidator;
 
     /**
      * @var MappingConfigurationValidator|MockObject
      */
-    protected MappingConfigurationValidator $mappingConfigurationValidator;
+    protected MappingConfigurationValidator|MockObject $mappingConfigurationValidator;
 
     /**
-     * @var PersistenceManagerInterface|MockObject
+     * @var MockObject|PersistenceManagerInterface
      */
-    protected PersistenceManagerInterface $persistenceManager;
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
     /**
-     * @var TranslationService | MockObject
+     * @var MockObject | TranslationService
      */
-    protected TranslationService $translationService;
+    protected TranslationService|MockObject $translationService;
 
     /**
-     * @var TranslateObjectConfigurationValidator|MockObject
+     * @var MockObject|TranslateObjectConfigurationValidator
      */
-    protected TranslateObjectConfigurationValidator $configurationValidator;
+    protected TranslateObjectConfigurationValidator|MockObject $configurationValidator;
 
     /**
      * set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
-        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
+        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
+            ->getMock();
         $this->translationService = $this->getMockBuilder(TranslationService::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getLocalizationParent', 'translate'])
             ->getMock();
         $this->configurationValidator = $this->getMockBuilder(TranslateObjectConfigurationValidator::class)
+            ->disableOriginalConstructor()
             ->onlyMethods(['isValid'])
             ->getMock();
 
@@ -96,12 +92,14 @@ class TranslateObjectTest extends TestCase
     }
 
     /**
-     * @test
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws \CPSIT\T3importExport\MissingClassException
      */
+    #[Test]
     public function isConfigurationValidReturnsFalseFromValidator(): void
     {
         $config = ['bar' => 'foo'];
-        $this->configurationValidator->expects(self::once())
+        $this->configurationValidator->expects($this->once())
             ->method('isValid')
             ->with($config)
             ->willReturn(false);
@@ -111,12 +109,14 @@ class TranslateObjectTest extends TestCase
     }
 
     /**
-     * @test
+     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws \CPSIT\T3importExport\MissingClassException
      */
+    #[Test]
     public function isConfigurationValidReturnsTrueFromValidator(): void
     {
         $config = ['bar' => 'foo'];
-        $this->configurationValidator->expects(self::once())
+        $this->configurationValidator->expects($this->once())
             ->method('isValid')
             ->with($config)
             ->willReturn(true);
@@ -126,10 +126,9 @@ class TranslateObjectTest extends TestCase
     }
 
     /**
-     * @test
-     * @throws \ReflectionException
-     * @throws InvalidColumnMapException
+     * @throws \CPSIT\T3importExport\InvalidColumnMapException
      */
+    #[Test]
     public function processConvertsParentIfParentFieldIsSet(): void
     {
         $identity = 1;
@@ -143,14 +142,14 @@ class TranslateObjectTest extends TestCase
 
         $targetClass = DomainObjectInterface::class;
         /** @var DomainObjectInterface|MockObject $convertedRecord */
-        $convertedRecord = $this->createMock($targetClass);
-        $parentObject = $this->createMock($targetClass);
+        $convertedRecord = $this->getMockBuilder($targetClass)->getMock();
+        $parentObject = $this->getMockBuilder($targetClass)->getMock();
 
         $expectedTargetClass = $convertedRecord::class;
 
         $this->translationService->expects($this->once())
             ->method('getLocalizationParent')
-            ->with(...[$identity, $expectedTargetClass])
+            ->with($identity, $expectedTargetClass)
             ->willReturn($parentObject);
 
         $this->subject->process(
