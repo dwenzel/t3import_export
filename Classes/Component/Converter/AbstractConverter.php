@@ -32,10 +32,7 @@ use CPSIT\T3importExport\Component\AbstractComponent;
  ***************************************************************/
 abstract class AbstractConverter extends AbstractComponent
 {
-    /**
-     * @return bool
-     */
-    abstract public function convert(array $record, array $configuration);
+    abstract public function convert(array $record, array $configuration): mixed;
 
     /**
      * Tells whether a given configuration is valid.
