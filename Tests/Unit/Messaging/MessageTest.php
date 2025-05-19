@@ -11,8 +11,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
  *
  * The GNU General Public License can be found at
  * http://www.gnu.org/copyleft/gpl.html.
- * A copy is found in the text file GPL.txt and important notices to the license
- * from the author is found in LICENSE.txt distributed with these scripts.
+ * A copy is found in the text file GPL.txt, and important notices to the license
+ * from the author are found in LICENSE.txt distributed with these scripts.
  * This script is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -20,6 +20,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\T3importExport\Messaging\Message;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 
@@ -29,25 +30,13 @@ use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 class MessageTest extends TestCase
 {
     /**
-     * @var Message|\PHPUnit_Framework_MockObject_MockObject
+     * @var Message
      */
-    protected $subject;
+    protected Message $subject;
 
-    /**
-     * set up subject
-     */
-    protected function setUp(): void
-    {
-        $this->subject = $this->getMockBuilder(Message::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['dummy'])
-            ->getMock();
-    }
 
-    /**
-     * @test
-     */
-    public function constructorSetsProperties()
+    #[Test]
+    public function constructorSetsProperties(): void
     {
         $message = 'foo';
         $title = 'bar';
@@ -55,8 +44,8 @@ class MessageTest extends TestCase
         $id = 12;
         $additionalInformation = ['baz'];
 
-        $this->subject->__construct($message, $title, $severity, $id, $additionalInformation);
 
+        $this->subject = new Message($message, $title, $severity, $id, $additionalInformation);
         $this->assertSame(
             $message,
             $this->subject->getMessage()
@@ -82,19 +71,15 @@ class MessageTest extends TestCase
             $this->subject->getAdditionalInformation()
         );
     }
-
-    /**
-     * @test
-     */
-    public function constructorSetsDefaultValues()
+    #[Test]
+    public function constructorSetsDefaultValues(): void
     {
         $message = 'foo';
         $defaultTitle = '';
         $defaultSeverity = ContextualFeedbackSeverity::OK;
         $additionalInformation = [];
 
-        $this->subject->__construct($message);
-
+        $this->subject = new Message($message, $defaultTitle, $defaultSeverity, null, $additionalInformation);
         $this->assertSame(
             $defaultTitle,
             $this->subject->getTitle()
