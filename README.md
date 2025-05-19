@@ -33,6 +33,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the branching model and the release p
 * [Persistence](./Documentation/Persistence.md)
 * Services
     * [DatabaseConnectionService](./Documentation/Service/DatabaseConnectionService.md)
+* [Development Guide](./Documentation/DEVELOPMENT.md)
 
 ## Credits
 Thanks for contribution and feedback
