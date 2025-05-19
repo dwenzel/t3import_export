@@ -27,7 +27,7 @@ use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingFinisher
- * Dummy class for testing: Finisher implementing LoggingInterface
+ * Fake class for testing: Finisher implementing LoggingInterface
  */
 class LoggingFinisher extends AbstractFinisher implements FinisherInterface, LoggingInterface
 {
@@ -35,7 +35,7 @@ class LoggingFinisher extends AbstractFinisher implements FinisherInterface, Log
      * Gets all messages
      * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return [];
     }
@@ -46,10 +46,12 @@ class LoggingFinisher extends AbstractFinisher implements FinisherInterface, Log
     }
 
     /**
+     * @param array $configuration
      * @param array $records Array with prepared records
-     * @param array $result Array with result records
+     * @param object|array $result Array with result records
+     * @return bool
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array $records, array|object $result): bool
     {
         return true;
     }

@@ -13,15 +13,17 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 interface FinisherInterface extends ComponentInterface
 {
     /**
+     * @param array $configuration
      * @param array $records Array with prepared records
-     * @param array|\Iterator|null $result Array with result records
+     * @param array|object $result Array with result records
+     * @return bool
      */
-    public function process(array $configuration, array &$records, &$result): bool;
+    public function process(array $configuration, array $records, array|object $result): bool;
 
     /**
      * @return bool
      */
-    public function isConfigurationValid(array $configuration);
+    public function isConfigurationValid(array $configuration): bool;
 
     /**
      * Tells if the component is disabled

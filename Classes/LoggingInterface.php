@@ -29,7 +29,7 @@ interface LoggingInterface
      * Gets all messages
      * @return array
      */
-    public function getMessages();
+    public function getMessages(): array;
 
     /**
      * Returns and purges all messages from the message container

@@ -28,6 +28,7 @@ use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -44,7 +45,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      */
     final public const string CONFLICT_MODE_CANCEL = 'cancel';
     /**
-     * change name of new file according to TYPO3 conventions
+     * Change name of a new file according to TYPO3 conventions
      */
     final public const string CONFLICT_MODE_CHANGENAME = 'changeName';
     /**
@@ -105,19 +106,24 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
 
     /**
      * Process the result:
-     * write file from fileInfo field of
+     * Write the file from the fileInfo field of
      * TaskResult object to a configured storage/folder/file name
      * If no storage or folder is configured, the file is written
      * to the default folder in the default storage.
-     * If a file with target file name already exists the conflictMode
+     * If a file with this target file name already exists, the conflictMode
      * determines the result: cancel, rename, replace are allowed.
-     * Default is rename (according to TYPO3 conventions)
-     * @param array|TaskResult $result
+     * Default is 'rename' (according to TYPO3 conventions)
+     *
+     * @param array $configuration
+     * @param array $records
+     * @param object|array $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
+     * @throws ExistingTargetFileNameException
+     * @throws ExistingTargetFolderException
      * @throws InsufficientFolderAccessPermissionsException
-     * @throws ExistingTargetFolderException|ExistingTargetFileNameException
+     * @throws InsufficientFolderWritePermissionsException
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array $records, array|object $result): bool
     {
         if (
             !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)

@@ -27,7 +27,7 @@ use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingPreProcessor
- * Dummy class for testing: PreProcessor implementing LoggingInterface
+ * Fake class for testing: PreProcessor implementing LoggingInterface
  */
 class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterface, PreProcessorInterface
 {
@@ -35,7 +35,7 @@ class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterfa
      * Gets all messages
      * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return [];
     }
@@ -50,7 +50,7 @@ class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterfa
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process($configuration, &$record): bool
     {
         return true;
     }
