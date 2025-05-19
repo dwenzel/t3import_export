@@ -43,7 +43,7 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
 {
     use LoggingTrait;
 
-    public const TABLE_SYS_FILE_REFERENCE = 'sys_file_reference';
+    public const string TABLE_SYS_FILE_REFERENCE = 'sys_file_reference';
 
     /**
      * Error by id
@@ -158,7 +158,7 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
         if (!empty($configuration['targetPage'])
             && !MathUtility::canBeInterpretedAsInteger($configuration['targetPage'])
         ) {
-            $this->logError(1_510_524_679, (string)$configuration['targetPage']);
+            $this->logError(1_510_524_679, [(string)$configuration['targetPage']]);
             return false;
         }
 
