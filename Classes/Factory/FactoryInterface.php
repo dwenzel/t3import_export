@@ -24,8 +24,9 @@ interface FactoryInterface
 {
     /**
      * Returns a factory object
-     * @param null $identifier
+     * @param array $settings
+     * @param string|null $identifier
      * @return mixed
      */
-    public function get(array $settings = [], $identifier = null);
+    public function get(array $settings = [], ?string $identifier = null): mixed;
 }

@@ -39,10 +39,12 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
     /**
      * Builds a Converter object
      *
-     * @param string $identifier
+     * @param array $settings
+     * @param string|null $identifier
+     * @return ConverterInterface
      * @throws InvalidConfigurationException
      */
-    public function get(array $settings = [], $identifier = null): ConverterInterface
+    public function get(array $settings = [], ?string $identifier = null): ConverterInterface
     {
         $additionalInformation = '.';
         if (!is_null($identifier)) {
@@ -64,7 +66,7 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        if (!in_array(ConverterInterface::class, class_implements($className))) {
+        if (!in_array(ConverterInterface::class, class_implements($className), true)) {
             throw new InvalidConfigurationException(
                 'Converter class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement ConverterInterface.',
@@ -72,7 +74,7 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        // note: we want an independend instance for each component
+        // note: we want an independent instance for each component
         return clone GeneralUtility::makeInstance($className);
     }
 }

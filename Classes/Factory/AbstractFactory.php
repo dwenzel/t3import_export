@@ -40,8 +40,9 @@ abstract class AbstractFactory
     /**
      * Builds a factory object
      *
-     * @param string $identifier
+     * @param array $settings
+     * @param string|null $identifier
      * @return object
      */
-    abstract public function get(array $settings, $identifier = null);
+    abstract public function get(array $settings = [], ?string $identifier = null): object;
 }
