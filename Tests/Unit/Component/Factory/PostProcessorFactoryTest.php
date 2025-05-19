@@ -19,9 +19,8 @@ class DummyValidPostProcessor extends AbstractPostProcessor implements PostProce
     /**
      * processes the converted record
      *
-     * @param mixed $convertedRecord
      */
-    public function process(array $configuration, &$convertedRecord, array &$record): bool
+    public function process(array $configuration, mixed $convertedRecord, array $record): bool
     {
         return true;
     }

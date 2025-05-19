@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 use CPSIT\T3importExport\Utility\TcaUtility;
+use Override;
 use TYPO3\CMS\Core\DataHandling\Model\RecordState;
 use TYPO3\CMS\Core\DataHandling\Model\RecordStateFactory;
 use TYPO3\CMS\Core\DataHandling\SlugHelper;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 
 /**
  * Class RecreateSlug
@@ -17,17 +20,17 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  */
 class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterface
 {
-    public const KEY_TABLE_NAME = 'tableName';
-    public const KEY_SLUG_FIELD = 'slugField';
-    public const KEY_SITE_ID = 'siteId';
+    public const string KEY_TABLE_NAME = 'tableName';
+    public const string KEY_SLUG_FIELD = 'slugField';
+    public const string KEY_SITE_ID = 'siteId';
 
-    public const DEFAULT_TABLE_NAME = 'pages';
-    public const DEFAULT_SLUG_FIELD = 'slug';
-    public const DEFAULT_SITE_ID = 1;
+    public const string DEFAULT_TABLE_NAME = 'pages';
+    public const string DEFAULT_SLUG_FIELD = 'slug';
+    public const int DEFAULT_SITE_ID = 1;
 
     public function __construct() {}
 
-    #[\Override]
+    #[Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!empty($configuration[self::KEY_TABLE_NAME])
@@ -47,10 +50,12 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
     }
 
     /**
-     * @param AbstractDomainObject $convertedRecord
+     * @param array $configuration
+     * @param mixed $convertedRecord
+     * @param array $record
      * @return true
      */
-    public function process(array $configuration, &$convertedRecord, array &$record): bool
+    public function process(array $configuration, mixed $convertedRecord, array $record): bool
     {
         $tableName = $configuration[self::KEY_TABLE_NAME] ?? self::DEFAULT_TABLE_NAME;
         $slugField = $configuration[self::KEY_SLUG_FIELD] ?? self::DEFAULT_SLUG_FIELD;
