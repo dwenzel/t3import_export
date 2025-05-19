@@ -1,5 +1,5 @@
-includes:
-		- .Build/vendor/phpstan/phpstan/conf/bleedingEdge.neon
+#includes:
+#		- .Build/vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
 		level: 5
