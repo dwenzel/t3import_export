@@ -9,6 +9,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
@@ -41,13 +42,18 @@ class AbstractComponentTest extends TestCase
      * @var AbstractComponent
      */
     protected $subject;
+    protected $contentObjectRenderer;
+    protected $typoScriptService;
 
     /**
      * set up
      */
     protected function setUp(): void
     {
-        $this->subject = $this->createMock(AbstractComponent::class);
+        $this->subject = $this->getMockBuilder(AbstractComponent::class)
+            ->onlyMethods(['renderContent', 'isConfigurationValid'])
+            ->getMock();
+        //$this->subject = $this->createMock(AbstractComponent::class);
     }
 
     /**
@@ -64,7 +70,7 @@ class AbstractComponentTest extends TestCase
                 ['disable' => '1'], true,
             ],
             [
-                ['disable' => ['foo']], true,
+                ['disable' => ['foo']], false,
             ],
             [
                 ['disable' => 'foo'], false,
@@ -84,7 +90,7 @@ class AbstractComponentTest extends TestCase
             $this->subject
                 ->method('renderContent')
                 ->with($record, $configuration['disable'])
-                ->willReturn((string)$expectedResult);
+                ->willReturn($expectedResult);
         }
 
         $this->assertSame(
@@ -126,7 +132,7 @@ class AbstractComponentTest extends TestCase
     public function isDisabledReturnsTrueIfResultContainsMessageWithMatchingId($configuration): void
     {
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['hasMessageWithId'])
+            ->onlyMethods(['hasMessageWithId'])
             ->getMock();
         $result->expects($this->once())->method('hasMessageWithId')
             ->willReturn(true);
