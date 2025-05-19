@@ -31,9 +31,9 @@ class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterfa
     /**
      * Tells whether the configuration is valid
      * $configuration['fields'] must be an array with keys indicating
-     * field names in record.
+     * field names in the record.
      * Each field configuration must contain a targetField and
-     * an a field 'values' which holds an array of <oldValue> = <newValue> pairs.
+     * a field 'values' which holds an array of <oldValue> = <newValue> pairs.
      * Example:
      * config {
      *  fields {
@@ -83,7 +83,7 @@ class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterfa
      * @param array $record
      * @return true
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $fieldName => $localConfig) {

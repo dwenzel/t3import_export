@@ -46,7 +46,7 @@ class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $fields = explode(',', (string)$configuration['fields']);
         $targetField = $configuration['targetField'];

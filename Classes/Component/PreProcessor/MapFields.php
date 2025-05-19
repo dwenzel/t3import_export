@@ -53,7 +53,7 @@ class MapFields extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return true
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array $record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $sourceField => $targetField) {

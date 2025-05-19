@@ -88,14 +88,14 @@ class ValidateXML extends AbstractFinisher
      * 'description' may contain placeholder (%s) for arguments.
      * @return array
      */
-    public function getNoticeCodes()
+    public function getNoticeCodes(): array
     {
         return static::NOTICE_CODES;
     }
 
     /**
      * Tells whether a given configuration is valid
-     * Override this method in order to perform validation of
+     * Override this method to perform validation of
      * configuration
      *
      * @param array $configuration
