@@ -82,10 +82,8 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
 
     /**
      * Converts the record
-     *
-     * @return DomainObjectInterface
      */
-    public function convert(array $record, array $configuration)
+    public function convert(array $record, array $configuration): mixed
     {
         $mappingConfiguration = $configuration;
         unset($mappingConfiguration['targetClass']);

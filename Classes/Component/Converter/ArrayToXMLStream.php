@@ -114,10 +114,8 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
 
     /**
      * Converts the record
-     *
-     * @return DomainObjectInterface
      */
-    public function convert(array $record, array $configuration)
+    public function convert(array $record, array $configuration): mixed
     {
         // setup config
         $rootEnclosure = $this->getRootEnclosureConfiguration($configuration);
