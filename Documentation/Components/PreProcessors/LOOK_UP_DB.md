@@ -1,6 +1,8 @@
 LookUpDB
 ========
-The LookUpDB PreProcessor gets a value from the source record, creates a sql lookup query and sets a new value based on the lookup result to the processed record.
+The LookUpDB PreProcessor gets a value from the source record, creates a sql
+lookup query and sets a new value based on the lookup result to the processed
+record.
 
 
 ### Example
@@ -18,10 +20,12 @@ config {
     where {
       AND {
 
-        # the sql where clause, in this case we like to compare the title column of the lookup table with a value
+        # the sql where clause, in this case we like to compare the title
+        # column of the lookup table with a value
         condition = title=
 
-        # the attribute of our source record we want to copmpare with the title column
+        # the attribute of our source record we want to copmpare with the title
+        # column
         value = source_fieldname
 
       }
@@ -29,12 +33,14 @@ config {
     singleRow = true
   }
 
-  # the attribute containing the lookup value in our processed record after the pre processing
+  # the attribute containing the lookup value in our processed record after the
+  # pre processing
   targetField = target_fieldname
 
   fields {
 
-    # map the uid from the lookup record to the attribute in our pre processor record
+    # map the uid from the lookup record to the attribute in our pre processor
+    # record
     uid {
       mapTo = target_fieldname
     }

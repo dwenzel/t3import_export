@@ -1,6 +1,7 @@
 RemoveFields
 ============
-Removes attributes from the record. This is useful for cleaning up e.g. import data or after the usage of [PreProcessor MapFields](MAP_FIELDS.md).
+Removes attributes from the record. This is useful for cleaning up e.g. import
+data or after the usage of [PreProcessor MapFields](MAP_FIELDS.md).
 
 ### Example
 
