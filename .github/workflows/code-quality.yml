@@ -54,4 +54,5 @@ jobs:
 
       - name: Run PHPStan
         run: |
+          composer install --dev --no-progress
           composer sca:php
