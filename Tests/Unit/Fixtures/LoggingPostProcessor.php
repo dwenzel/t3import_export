@@ -27,7 +27,7 @@ use CPSIT\T3importExport\LoggingInterface;
 
 /**
  * Class LoggingPostProcessor
- * Dummy class for testing: PostProcessor implementing LoggingInterface
+ * Fake class for testing: PostProcessor implementing LoggingInterface
  */
 class LoggingPostProcessor extends AbstractPostProcessor implements PostProcessorInterface, LoggingInterface
 {
@@ -35,7 +35,7 @@ class LoggingPostProcessor extends AbstractPostProcessor implements PostProcesso
      * Gets all messages
      * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return [];
     }

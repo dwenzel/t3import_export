@@ -180,13 +180,13 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
      * If a file with target file name already exists the conflictMode
      * determines the result: cancel, renameNewFile, overrideExistingFile are allowed.
      * Default is renameNewFile (according to TYPO3 conventions)
-     * @param array|TaskResult $result
+     * @param object|array $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      */
     public function process(
         array $configuration,
-        array &$records,
-        &$result
+        array $records,
+        object|array $result
     ): bool {
         $defaultStorage = $this->resourceFactory->getDefaultStorage();
         $targetStorage = $defaultStorage;

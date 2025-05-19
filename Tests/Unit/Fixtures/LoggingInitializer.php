@@ -35,7 +35,7 @@ class LoggingInitializer extends AbstractInitializer implements InitializerInter
      * Gets all messages
      * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return [];
     }

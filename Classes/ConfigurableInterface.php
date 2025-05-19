@@ -24,7 +24,7 @@ interface ConfigurableInterface
     /**
      * @return array
      */
-    public function getConfiguration();
+    public function getConfiguration(): array;
 
     /**
      * Sets the configuration if it is valid.

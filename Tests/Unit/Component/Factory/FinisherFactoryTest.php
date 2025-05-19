@@ -50,9 +50,12 @@ class DummyInvalidFinisher
 class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
 {
     /**
-     * @param array $result
+     * @param array $configuration
+     * @param array $records
+     * @param object|array $result
+     * @return bool
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array $records, array|object $result): bool
     {
         return true;
     }

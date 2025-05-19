@@ -37,7 +37,7 @@ trait MessageContainerTrait
      * Messages are kept.
      * @return array<Message>
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return $this->messageContainer->getMessages();
     }

@@ -41,18 +41,18 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
     }
 
     /**
-     * Clears the page class depending on result and configuration
+     *  Clears the page class depending on result and configuration
      *
      * Configuration examples (TypoScript):
-     * 1. clear all if any result
+     * 1. Clear all if any result
      * config {
      *  all = 1
      * }
-     * 2. clear selected pages (if any result)
+     * 2. Clear selected pages (if any result)
      * config {
      *  pages = '1,3,5'
      * }
-     * 3. clear all if any result for given class name
+     * 3. Clear all if any result for a given class name
      * ($result[0] must contain an object of the given class)
      * config {
      *  classes {
@@ -61,7 +61,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      *   }
      *  }
      * }
-     * 4. clear selected pages if any result for given class name
+     * 4. Clear selected pages if any result for a given class name
      * ($result[0] must contain an object of the given class)
      * config {
      *  classes {
@@ -70,9 +70,8 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      *   }
      *  }
      * }
-     * @param array $result
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array $records, array|object $result): bool
     {
         if (!(bool)$result) {
             // nothing imported - do not clear any cache

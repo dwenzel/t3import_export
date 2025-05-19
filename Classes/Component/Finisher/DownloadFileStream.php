@@ -25,17 +25,15 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
  ***************************************************************/
 class DownloadFileStream extends AbstractFinisher implements FinisherInterface
 {
-    /**
-     * @param array $result
-     */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array $records, array|object $result): bool
     {
-        if (is_a($result, TaskResult::class)) {
-            /** @var TaskResult $taskResult */
+        if ($result instanceof TaskResult) {
             $taskResult = $result;
             $tempFile = $taskResult->getInfo();
             $this->prepareFileToDownload($tempFile, $configuration);
         }
+        // we expect $this->prepareFileToDownload to exit if the file was downloaded
+        return false;
     }
 
     protected function prepareFileToDownload($filePath, $configuration)
