@@ -30,6 +30,7 @@
     "ergebnis/composer-normalize": "^2.28",
     "friendsofphp/php-cs-fixer": "^3.57",
     "helmich/typo3-typoscript-lint": "^3.0",
+    "mikey179/vfsstream": "^1.6",
     "phpstan/extension-installer": "^1.2",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^11.5 || ^12.1",
@@ -37,8 +38,7 @@
     "saschaegerer/phpstan-typo3": "^2.0",
     "ssch/typo3-rector": "^3.0",
     "typo3/coding-standards": "^0.8.0",
-    "typo3/testing-framework": "^9.0",
-    "mikey179/vfsstream": "^1.6"
+    "typo3/testing-framework": "^9.0"
   },
   "repositories": {
     "import-export-core": {
@@ -52,10 +52,12 @@
     }
   },
   "autoload-dev": {
+    "psr-0": {
+      "org\\bovigo\\vfs\\": ".Build/vendor/mikey179/vfsstream/src/main/php"
+    },
     "psr-4": {
       "CPSIT\\T3importExport\\Tests\\": "Tests"
-    },
-    "psr-0": { "org\\bovigo\\vfs\\": ".Build/vendor/mikey179/vfsstream/src/main/php" }
+    }
   },
   "config": {
     "allow-plugins": {
