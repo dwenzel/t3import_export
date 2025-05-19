@@ -23,7 +23,6 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\InvalidColumnMapException;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
@@ -61,10 +60,13 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
      * Finds the localization parent of the converted record
      * and translates it (adding the converted record as translation)
      *
-     * @param array $convertedRecord
-     * @throws InvalidColumnMapException
+     * @param array $configuration
+     * @param mixed $convertedRecord
+     * @param array $record
+     * @return bool
+     * @throws \Doctrine\DBAL\Exception
      */
-    public function process(array $configuration, &$convertedRecord, array &$record): bool
+    public function process(array $configuration, mixed $convertedRecord, array $record): bool
     {
         $subjectParentField = $configuration['subject']['parentField'];
 
@@ -74,7 +76,6 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
         $subjectParentId = $convertedRecord[$subjectParentField];
 
         $matchValue = $subjectParentId;
-        $prefix = '';
         if (!empty($configuration['parent']['prefix'])
             && is_string($configuration['parent']['prefix'])
         ) {

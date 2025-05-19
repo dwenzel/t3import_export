@@ -31,9 +31,12 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
 interface PostProcessorInterface extends ComponentInterface
 {
     /**
+     * @param array $configuration
      * @param mixed $convertedRecord
+     * @param array $record
+     * @return bool
      */
-    public function process(array $configuration, &$convertedRecord, array &$record): bool;
+    public function process(array $configuration, mixed $convertedRecord, array $record): bool;
 
     public function isConfigurationValid(array $configuration): bool;
 

@@ -28,7 +28,7 @@ abstract class AbstractPostProcessor extends AbstractComponent
     /**
      * processes the converted record
      */
-    abstract public function process(array $configuration, mixed &$convertedRecord, array &$record): bool;
+    abstract public function process(array $configuration, mixed $convertedRecord, array $record): bool;
 
     /**
      * Tells whether a given configuration is valid

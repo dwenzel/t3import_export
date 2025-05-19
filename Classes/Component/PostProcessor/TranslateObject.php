@@ -58,10 +58,9 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * Finds the localization parent of the converted record
      * and translates it (adding the converted record as translation)
      *
-     * @param DomainObjectInterface $convertedRecord
      * @throws InvalidColumnMapException
      */
-    public function process(array $configuration, &$convertedRecord, array &$record): bool
+    public function process(array $configuration, mixed $convertedRecord, array $record): bool
     {
         $targetType = $convertedRecord::class;
 
