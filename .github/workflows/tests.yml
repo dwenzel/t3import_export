@@ -46,5 +46,6 @@ jobs:
 
       - name: Run unit tests
         run: |
+          php --version
           composer install --no-progress
           XDEBUG_MODE=coverage composer test:coverage
