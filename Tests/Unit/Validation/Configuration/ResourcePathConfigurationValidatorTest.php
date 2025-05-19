@@ -19,6 +19,8 @@ namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,25 +29,23 @@ use PHPUnit\Framework\TestCase;
 class ResourcePathConfigurationValidatorTest extends TestCase
 {
     /**
-     * @var ResourcePathConfigurationValidator | \PHPUnit_Framework_MockObject_MockObject
+     * @var ResourcePathConfigurationValidator |MockObject
      */
     protected $subject;
 
     /**
      * set up the subject
+     * @throws \org\bovigo\vfs\vfsStreamException
      */
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->onlyMethods(['dummy', 'getAbsoluteFilePath'])
+            ->onlyMethods(['getAbsoluteFilePath'])
             ->getMock();
         vfsStreamWrapper::register();
     }
-
-    /**
-     * @test
-     */
-    public function validateReturnsFalseForMissingFile()
+    #[Test]
+    public function validateReturnsFalseForMissingFile(): void
     {
         $configuration = [];
         $this->assertFalse(
@@ -53,10 +53,8 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function validateReturnsFalseIfFileIsNotString()
+    #[Test]
+    public function validateReturnsFalseIfFileIsNotString(): void
     {
         $configuration = [
             'file' => [],
@@ -66,10 +64,8 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function validateReturnsFalseForInvalidFilePath()
+    #[Test]
+    public function validateReturnsFalseForInvalidFilePath(): void
     {
         $invalidPath = 'fooPath';
         $configuration = [
@@ -79,17 +75,15 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
             ->with($invalidPath)
-            ->will($this->returnValue(''));
+            ->willReturn('');
 
         $this->assertFalse(
             $this->subject->isValid($configuration)
         );
     }
 
-    /**
-     * @test
-     */
-    public function validateReturnsTrueForValidConfiguration()
+    #[Test]
+    public function validateReturnsTrueForValidConfiguration(): void
     {
         $fileDirectory = 'typo3temp';
         $fileName = 'foo.xml';
@@ -105,17 +99,15 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
             ->with($relativePath)
-            ->will($this->returnValue(vfsStream::url($relativePath)));
+            ->willReturn(vfsStream::url($relativePath));
 
         $this->assertTrue(
             $this->subject->isValid($configuration)
         );
     }
 
-    /**
-     * @test
-     */
-    public function validateReturnsFalseIfFileAndUrlAreSet()
+    #[Test]
+    public function validateReturnsFalseIfFileAndUrlAreSet(): void
     {
         $configuration = [
             'file' => 'foo',
@@ -127,10 +119,8 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function validateReturnsFalseIfUrlIsNotString()
+    #[Test]
+    public function validateReturnsFalseIfUrlIsNotString(): void
     {
         $configuration = [
             'url' => [],
@@ -140,10 +130,8 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function validateReturnsFalseIfUrlIsInvalid()
+    #[Test]
+    public function validateReturnsFalseIfUrlIsInvalid(): void
     {
         $configuration = [
             'url' => 'foo',
@@ -153,13 +141,11 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function validateReturnsTrueIfUrlIsValid()
+    #[Test]
+    public function validateReturnsTrueIfUrlIsValid(): void
     {
         $configuration = [
-            'url' => 'http://typo3.org',
+            'url' => "https://typo3.org",
         ];
         $this->assertTrue(
             $this->subject->isValid($configuration)

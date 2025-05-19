@@ -6,7 +6,10 @@
     stopOnError="false"
     stopOnFailure="false"
     stopOnIncomplete="false"
-    stopOnSkipped="false">
+    stopOnSkipped="false"
+    failOnWarning="false"
+    failOnPhpunitDeprecation="false"
+>
 
     <testsuites>
         <testsuite name="EXT:t3import_export tests">
