@@ -6,12 +6,12 @@ Sets a single field value.
 
 ### Required
 * **class** *string*
-
-    fully qualified class name *CPSIT\T3importExport\Component\PreProcessor\SetFieldValue*
+fully qualified class name
+*CPSIT\T3importExport\Component\PreProcessor\SetFieldValue*
 
 * **config.targetField** *string*
-
-    field name of record to which the content of the fields are added. Field **must** contain a string value.
+  field name of record to which the content of the fields are added. Field
+  **must** contain a string value.
 
 * **config.value** *string*
 

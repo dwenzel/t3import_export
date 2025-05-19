@@ -3,11 +3,14 @@ Clean
 
 Cleans or transforms string fields by default PHP functions.
 
-The source field has to be defined by name. Each field needs a process instruction.
+The source field has to be defined by name. Each field needs a process
+instruction.
 
-Most functions are just routed to the original PHP functions without any parameters.
+Most functions are just routed to the original PHP functions without any
+parameters.
 
-The function **strip_empty_tags** is an exception and used a RegEx to remove empty HTML tags.
+The function **strip_empty_tags** is an exception and used a RegEx to remove
+empty HTML tags.
 
 
 ### Example

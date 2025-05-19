@@ -1,13 +1,17 @@
-t3import_export
-===============
-[![code coverage](https://codecov.io/gh/dwenzel/t3import_export/branch/master/graph/badge.svg)](https://codecov.io/gh/dwenzel/t3import_export)
-[![Build Status](https://travis-ci.org/dwenzel/t3import_export.svg?branch=master)](https://travis-ci.org/dwenzel/t3import_export)
+# t3import_export
 
-Imports data from different sources into TYPO3 and exports from TYPO3 to different targets.
-Possible data sources and targets are databases, and files (XML, CSV...).
-Import and export tasks are described via TypoScript and can be grouped to sets.
-Tasks can be executed manually via backend module or command line or automatically as a scheduler task.
+[![code coverage](
+https://codecov.io/gh/dwenzel/t3import_export/branch/master/graph/badge.svg)](
+https://codecov.io/gh/dwenzel/t3import_export)
+[![Build Status](
+https://travis-ci.org/dwenzel/t3import_export.svg?branch=master)](
+https://travis-ci.org/dwenzel/t3import_export)
 
+Imports data from different sources into TYPO3 and exports from TYPO3 to
+different targets. Possible data sources and targets are databases, and files
+(XML, CSV...). Import and export tasks are described via TypoScript and can be
+grouped to sets. Tasks can be executed manually via backend module or command
+line or automatically as a scheduler task.
 
 ## Table of contents
 * [Installation and requirements](/Documentation/INSTALL.md)
@@ -21,7 +25,8 @@ Tasks can be executed manually via backend module or command line or automatical
     * [Finishers](./Documentation/Components/FINISHER.md)
 * [Persistence](./Documentation/Persistence.md)
 * Services
-    * [DatabaseConnectionService](./Documentation/Service/DatabaseConnectionService.md)
+    * [DatabaseConnectionService](
+      ./Documentation/Service/DatabaseConnectionService.md)
 * [Development Guide](./Documentation/DEVELOPMENT.md)
 
 ## Credits
@@ -34,4 +39,4 @@ Thanks for contribution and feedback
 * [Vladimir Falcón Piva](https://github.com/vladimirfalconpiva)
 * [Benjamin Schütz](https://github.com/schuetzbenjamin)
 
-This extension has been developed at [CPS IT GmbH](https://cps-it.de).
+This extension has been developed at [CPS IT GmbH](https://cps-it.de)

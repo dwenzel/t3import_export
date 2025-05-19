@@ -3,7 +3,8 @@ Components
 
 Import and export tasks are performed by a data transfer processor.
 
-Each task has a data source and target and may request sub-tasks which will be performed by components.
+Each task has a data source and target and may request sub-tasks which will be
+performed by components.
 
 Currently the following types of components are implemented:
 
@@ -13,12 +14,15 @@ Currently the following types of components are implemented:
 * [PostProcessors](./Components/POSTPROCESSOR.md)
 * [Finishers](./Components/Finisher.md)
 
-A set of standard components is included. You may write your own components and include them by configuration in TypoScript.
+A set of standard components is included. You may write your own components and
+include them by configuration in TypoScript.
 
-There exist interfaces for each type of component. Your custom class **must** implement one of them.
+There exist interfaces for each type of component. Your custom class **must**
+implement one of them.
 
 Please see [Overview](./OVERVIEW.md) for the general application flow.
-A more in-depth description of components can be found in the correspondend sections linked above. There are references for single components too.
+A more in-depth description of components can be found in the correspondent
+sections linked above. There are references for single components too.
 
 ## Disable Components
 Any component can be disabled.
@@ -49,11 +53,14 @@ module.tx_t3importexport.settings.import.tasks.example {
   }
 }
 ```
-Disable finisher with key `30` if the task result has a message with one of the IDs  `12345` or `9876`
-Messages are added to the task result by components. For instance finisher ValidateXML adds the message with the ID `1508776068` when the validation fails.
+Disable finisher with key `30` if the task result has a message with one of the
+IDs  `12345` or `9876` Messages are added to the task result by components. For
+instance finisher ValidateXML adds the message with the ID `1508776068` when
+the validation fails.
 
 ### By Rendering Content
-If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering will be interpreted as boolean.
+If the value is an array and can be interpreted as a content object, it will be
+rendered. The result of the rendering will be interpreted as boolean.
 
 ### Example
 ```
@@ -69,5 +76,7 @@ module.tx_t3importexport.settings.import.tasks.exampleTask.preProcessors {
   }
 }
 ```
-If content of `disable` renders to an expression which can be interpreted as `true`, the component is disabled.
-Note: The content object renderer receives the current record. Thus conditions (or any other manipulation) for any field of the record are possible too.
+If content of `disable` renders to an expression which can be interpreted as
+`true`, the component is disabled. Note: The content object renderer receives
+the current record. Thus conditions (or any other manipulation) for any field
+of the record are possible too.

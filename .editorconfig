@@ -65,7 +65,7 @@ indent_style = tab
 
 # Markdown
 [*.md]
-max_line_length = 80
+# max_line_length = 80
 indent_size = 2
 
 # HTML

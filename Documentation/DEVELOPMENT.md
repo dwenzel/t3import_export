@@ -1,10 +1,12 @@
 # Development Guide
 
-This document provides guidelines and information for developers contributing to the t3import_export extension.
+This document provides guidelines and information for developers contributing to the
+t3import_export extension.
 
 ## Code Quality Tools
 
-The extension uses various code quality tools to maintain high code standards. These tools can be executed via Composer scripts.
+The extension uses various code quality tools to maintain high code standards. These
+tools can be executed via Composer scripts.
 
 ### Available Commands
 
@@ -54,11 +56,15 @@ To generate a code coverage report:
 composer test:coverage
 ```
 
-The code coverage setup has been updated to use a centralized configuration file (`phpunit.xml` in the root directory). This change ensures consistent test execution across different environments.
+The code coverage setup has been updated to use a centralized configuration file
+(`phpunit.xml` in the root directory). This change ensures consistent test execution
+across different environments.
 
 **Important changes:**
-- The test:coverage command now uses `phpunit.xml` instead of `Tests/Build/UnitTests.xml`
-- Xdebug mode is explicitly set with `XDEBUG_MODE=coverage` to ensure proper coverage reporting
+- The test:coverage command now uses `phpunit.xml` instead of
+  `Tests/Build/UnitTests.xml`
+- Xdebug mode is explicitly set with `XDEBUG_MODE=coverage` to ensure proper
+  coverage reporting
 - Coverage reports are generated in `.Build/log/coverage/`
 
 ## GitHub Workflows
@@ -69,18 +75,22 @@ The extension includes CI workflows for:
 - Composer validation
 - TYPO3 compatibility checks
 
-All workflows use the same Composer scripts that are available locally, ensuring consistent behavior between local development and CI environments.
+All workflows use the same Composer scripts that are available locally, ensuring
+consistent behavior between local development and CI environments.
 
 ## PHP and TYPO3 Requirements
 
 - PHP 8.3 or 8.4
 - TYPO3 13.4
 
-The extension is designed to work with the latest PHP and TYPO3 versions for optimal security and performance.
+The extension is designed to work with the latest PHP and TYPO3 versions for optimal
+security and performance.
 
 ## Coding Standards
 
-The extension follows the [TYPO3 Coding Guidelines](https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/CodingGuidelines/Index.html). These standards are enforced through PHP-CS-Fixer, PHPStan, and EditorConfig.
+The extension follows the
+[TYPO3 Coding Guidelines](https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/CodingGuidelines/Index.html).
+These standards are enforced through PHP-CS-Fixer, PHPStan, and EditorConfig.
 
 ## Contributing
 

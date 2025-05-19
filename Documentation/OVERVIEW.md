@@ -2,11 +2,13 @@ Overview
 ========
 
 ## Configuration
-Import and export tasks are configured via TypoScript. Please referr to the [Configuration](./CONFIGURATION.MD)
+Import and export tasks are configured via TypoScript. Please refer to the
+[Configuration](./CONFIGURATION.MD)
 
 
 ## Execution
-Pre-configured Tasks can be performed via Backend-Module, Scheduler or command line.
+Pre-configured Tasks can be performed via Backend-Module, Scheduler or command
+line.
 
 ## Flow
 

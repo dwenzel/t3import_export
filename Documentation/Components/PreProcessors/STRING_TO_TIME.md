@@ -1,9 +1,12 @@
 StringToTime
 ============
 
-Processes attributes with the PHP function [strtotime()](https://secure.php.net/manual/de/function.strtotime.php) to create timestamps from text based date fields.
+Processes attributes with the PHP function
+[strtotime()](https://secure.php.net/manual/de/function.strtotime.php) to create
+timestamps from text based date fields.
 
-All date fields, which should be processed are added as a comma separated list to config.fields.
+All date fields, which should be processed are added as a comma separated list
+to config.fields.
 
 
 ### Example
@@ -19,7 +22,8 @@ preProcessors {
 }
 ```
 
-In many cases it makes sense to map the fields afterwards and remove the origial ones.
+In many cases it makes sense to map the fields afterwards and remove the
+original ones.
 
 
 ```

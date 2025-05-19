@@ -3,7 +3,8 @@ ImplodeArray
 
 Implodes an array or nested array to a string value.
 
-The source field has to be defined by name and optional by a child array name (useful for XML imports) and a glue.
+The source field has to be defined by name and optional by a child array name
+(useful for XML imports) and a glue.
 
 
 ### Example

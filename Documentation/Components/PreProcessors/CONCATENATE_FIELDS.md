@@ -1,28 +1,28 @@
 ConcatenateFields
 =================
 
-Concatenates fields of a given record and adds the result to a new or existing field of this record.
-All fields **must** contain strings. If targetField is not empty the result will be added to its value.
+Concatenates fields of a given record and adds the result to a new or existing
+field of this record. All fields **must** contain strings. If targetField is
+not empty the result will be added to its value.
 
 ## Configuration
 
 ### required
 * **class** *string*
-
-    fully qualified class name *CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields*
+  fully qualified class name
+  *CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields*
 * **config.targetField** *string*
 
-    field name of record to which the content of the fields are added. Field **must** contain a string value.
+  field name of record to which the content of the fields are added. Field
+  **must** contain a string value.
 * **config.fields** *array*
-
-    An array of field names as keys. Each key must hold an array!
+  An array of field names as keys. Each key must hold an array!
 ### optional
 * **config.fields.\<field name\>.wrap** *string*
-
-    TypoScript wrap expression. The content will be trimmed and wrapped around the field value
+  TypoScript wrap expression. The content will be trimmed and wrapped around
+  the field value
 * **config.fields.\<field name\>.noTrimWrap** *string*
-
-    TypoScript noTrimWrap expression. Content will be wrapped and whitespace kept.
+  TypoScript noTrimWrap expression. Content will be wrapped and whitespace kept.
 
 ### Example
 

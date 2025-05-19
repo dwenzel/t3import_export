@@ -25,8 +25,9 @@ composer.json
 }
 ```
 
-Currently the extension is not yet available in the TYPO3 Extension Repository (TER).
-After installation via composer you have to activate it in the TYPO3 Extension Manager.
+Currently the extension is not yet available in the TYPO3 Extension Repository
+(TER). After installation via composer you have to activate it in the TYPO3
+Extension Manager.
 
 ## Sources
 

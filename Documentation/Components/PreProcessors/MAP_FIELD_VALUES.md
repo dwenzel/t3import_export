@@ -14,7 +14,8 @@ preProcessors {
         # the attribute anme of the processed record with the value to map
         datasource_fieldname {
 
-          # set the new attributes which will include the mapped value, here the pid
+          # set the new attributes which will include the mapped value,
+          # here the pid
           targetField = pid
 
           # define n mappings, here from a source int to a target int
