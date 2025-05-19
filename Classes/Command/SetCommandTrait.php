@@ -37,6 +37,7 @@ trait SetCommandTrait
     use TransferCommandTrait;
 
     protected TransferSetFactory $transferSetFactory;
+    protected configurationManagerInterface $configurationManager;
 
     /**
      * TransferCommandTrait constructor.
