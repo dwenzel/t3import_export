@@ -22,10 +22,8 @@ namespace CPSIT\T3importExport\Tests\Functional\Service;
  ***************************************************************/
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
@@ -47,12 +45,13 @@ class ImportProcessorTest extends FunctionalTestCase
     /**
      * @var array
      */
-    protected $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
+    protected array $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
 
     #[\Override]
     protected function setUp(): void
     {
-        $this->importProcessor = $this->objectManager->get(DataTransferProcessor::class);
+        $this->importProcessor = new DataTransferProcessor();
+
         $this->transferTaskFactory = GeneralUtility::makeInstance(TransferTaskFactory::class);
         $this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');
     }
