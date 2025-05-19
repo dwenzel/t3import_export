@@ -24,6 +24,7 @@ jobs:
 
       - name: Check coding standards
         run: |
+          composer install --dev --no-progress
           composer lint:php
 
   phpstan:
