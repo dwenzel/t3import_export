@@ -48,4 +48,10 @@ jobs:
         run: |
           php --version
           composer install --no-progress --dev
-          test:coverage
+          composer test:unit
+
+      - name: Run unit tests with coverage
+        run: |
+          php --version
+          composer install --no-progress --dev
+          composer test:coverage
