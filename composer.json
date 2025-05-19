@@ -114,7 +114,7 @@
       "@test:unit"
     ],
     "test:coverage": [
-      "XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit.xml Tests/Unit --coverage-html=.Build/log/coverage"
+      "XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit.xml"
     ],
     "test:unit": [
       ".Build/bin/phpunit -c phpunit.xml Tests/Unit"
