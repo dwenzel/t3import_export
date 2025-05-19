@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -45,10 +46,7 @@ class AbstractPreProcessorTest extends TestCase
             ->getMock();
     }
 
-    /**
-     * @test
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function isConfigurationValidReturnsAlwaysTrue(): void
     {
         $mockConfiguration = ['foo'];
@@ -57,10 +55,7 @@ class AbstractPreProcessorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @covers ::isDisabled
-     */
+    #[Test]
     public function isDisabledReturnsInitiallyFalse(): void
     {
         $configuration = [];
@@ -69,10 +64,7 @@ class AbstractPreProcessorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @covers ::isDisabled
-     */
+    #[Test]
     public function isDisabledReturnsTrueIfDisabledIsSet(): void
     {
         $configuration = [
@@ -83,10 +75,7 @@ class AbstractPreProcessorTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @covers ::isDisabled
-     */
+    #[Test]
     public function isDisabledRendersContent(): void
     {
         $configuration = [
