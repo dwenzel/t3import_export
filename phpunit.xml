@@ -1,17 +1,12 @@
 <phpunit
     backupGlobals="true"
-    backupStaticAttributes="false"
     bootstrap=".Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php"
     colors="true"
-    convertErrorsToExceptions="true"
-    convertWarningsToExceptions="false"
-    forceCoversAnnotation="false"
     processIsolation="false"
     stopOnError="false"
     stopOnFailure="false"
     stopOnIncomplete="false"
-    stopOnSkipped="false"
-    verbose="false">
+    stopOnSkipped="false">
 
     <testsuites>
         <testsuite name="EXT:t3import_export tests">
