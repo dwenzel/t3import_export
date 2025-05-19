@@ -19,8 +19,4 @@ parameters:
 
 				# Ignore warnings for test classes
 				- message: '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject(.*?)#'
-					path: Tests/
-				- message: '#Access to an undefined property PHPUnit\\Framework\\MockObject\\MockObject(.*?)#'
-					path: Tests/
-				- message: '#Call to static method PHPUnit\\Framework\\Assert::assert(.+)#'
-					path: Tests/
+				  path: Tests/
