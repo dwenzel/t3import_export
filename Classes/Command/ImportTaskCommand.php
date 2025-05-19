@@ -87,10 +87,13 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      */
     protected static $defaultName = self::DEFAULT_NAME;
     protected TransferTaskFactory $transferTaskFactory;
+    protected configurationManagerInterface $configurationManager;
 
     /**
-     * TransferCommandTrait constructor.
-     * @param TransferSetFactory|null $transferSetFactory
+     * @param string|null $name
+     * @param TransferTaskFactory|null $transferTaskFactory
+     * @param DataTransferProcessor|null $dataTransferProcessor
+     * @param ConfigurationManagerInterface|null $configurationManager
      */
     public function __construct(
         ?string $name = null,
