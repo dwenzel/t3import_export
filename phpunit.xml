@@ -13,11 +13,6 @@
             <directory>../Unit/</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="false">
-            <directory suffix=".php">../../Classes/</directory>
-        </whitelist>
-    </filter>
     <coverage>
         <include>
             <directory suffix=".php">../../Classes</directory>
