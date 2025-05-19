@@ -25,6 +25,7 @@ namespace CPSIT\T3importExport\Domain\Factory;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\T3importExport\MissingClassException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -50,13 +51,16 @@ class TransferSetFactory extends AbstractFactory
     /**
      * Builds a set of tasks
      *
-     * @param string $identifier
+     * @param array $settings
+     * @param string|null $identifier
      * @return TransferSet
      * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException|\CPSIT\T3importExport\MissingInterfaceException
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], ?string $identifier = null): object
     {
-        // clone object in order to prevent from returning the same object on subsequent calls
+        // clone object to prevent from returning the same object on later calls
         // transferSet must be injected for testing purposes
         $this->transferSet = clone $this->transferSet;
         $this->transferSet->setIdentifier($identifier);
