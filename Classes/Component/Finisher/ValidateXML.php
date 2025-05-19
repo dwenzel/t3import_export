@@ -38,6 +38,7 @@ class ValidateXML extends AbstractFinisher
     use ResourceTrait, LoggingTrait;
 
     protected ResourcePathConfigurationValidator $pathValidator;
+    protected MessageContainer $messageContainer;
 
     /**
      * Notice by id
