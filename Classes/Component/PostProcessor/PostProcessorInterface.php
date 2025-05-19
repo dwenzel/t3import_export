@@ -39,7 +39,6 @@ interface PostProcessorInterface extends ComponentInterface
 
     /**
      * Tells if the component is disabled
-     * @param array|null $record
      */
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool;
 
