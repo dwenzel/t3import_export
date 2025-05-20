@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
+use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
@@ -32,16 +33,16 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
 {
     protected TranslateObjectConfigurationValidator $subject;
 
-    protected const MINIMAL_VALID_CONFIG = [
-        TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'oof',
-        TranslateObjectConfigurationValidator::KEY_LANGUAGE => 0,
+    protected const array MINIMAL_VALID_CONFIG = [
+        ConfigurationValidatorInterface::KEY_PARENT_FIELD => 'oof',
+        ConfigurationValidatorInterface::KEY_LANGUAGE => 0,
     ];
 
     /**
-     * @var TargetClassConfigurationValidator|MockObject
+     * @var MockObject|TargetClassConfigurationValidator
      */
-    protected TargetClassConfigurationValidator $targetClassConfigurationValidator;
-    protected MappingConfigurationValidator $mappingConfigurationValidator;
+    protected TargetClassConfigurationValidator|MockObject $targetClassConfigurationValidator;
+    protected MappingConfigurationValidator|MockObject $mappingConfigurationValidator;
 
     protected function setUp(): void
     {
@@ -119,9 +120,9 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
         $config = self::MINIMAL_VALID_CONFIG;
         $validClass = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass,
+            ConfigurationValidatorInterface::KEY_TARGET_CLASS => $validClass,
         ];
-        $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
+        $config[ConfigurationValidatorInterface::KEY_MAPPING] = $mappingConfiguration;
         $this->targetClassConfigurationValidator->expects($this->once())
             ->method('isValid')
             ->with(...[$mappingConfiguration])
@@ -152,9 +153,9 @@ class TranslateObjectConfigurationValidatorTest extends TestCase
         $config = self::MINIMAL_VALID_CONFIG;
         $valid = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_CONFIG => $valid,
+            ConfigurationValidatorInterface::KEY_CONFIG => $valid,
         ];
-        $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
+        $config[ConfigurationValidatorInterface::KEY_MAPPING] = $mappingConfiguration;
         $this->mappingConfigurationValidator->expects($this->once())
             ->method('isValid')
             ->with(...[$mappingConfiguration])

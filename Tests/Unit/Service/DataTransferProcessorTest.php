@@ -15,6 +15,7 @@ use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPostProcessor;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,6 +23,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -47,13 +49,13 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 #[CoversClass(DataTransferProcessor::class)]
 class DataTransferProcessorTest extends TestCase
 {
-    protected const TASK_IDENTIFIER = 'fooBarBaz';
-    protected const CONVERTER_CONFIGURATION = ['fooConverterConfig'];
-    protected const POST_PROCESSOR_CONFIGURATION = ['fooPostProcessorConfig'];
-    protected const FINISHER_CONFIGURATION = ['fooFinisherConfig'];
-    protected const SINGLE_RECORD = ['foo' => 'bar'];
-    protected const CONVERTED_RECORD = ['fooConverted' => 'convertedBar'];
-    protected const QUEUE_WITH_RECORD = [
+    protected const string TASK_IDENTIFIER = 'fooBarBaz';
+    protected const array CONVERTER_CONFIGURATION = ['fooConverterConfig'];
+    protected const array POST_PROCESSOR_CONFIGURATION = ['fooPostProcessorConfig'];
+    protected const array FINISHER_CONFIGURATION = ['fooFinisherConfig'];
+    protected const array SINGLE_RECORD = ['foo' => 'bar'];
+    protected const array CONVERTED_RECORD = ['fooConverted' => 'convertedBar'];
+    protected const array QUEUE_WITH_RECORD = [
         self::TASK_IDENTIFIER => [
             self::SINGLE_RECORD,
         ],
@@ -64,63 +66,62 @@ class DataTransferProcessorTest extends TestCase
     /**
      * @var TaskResult|MockObject
      */
-    protected $taskResult;
+    protected TaskResult|MockObject $taskResult;
 
     /**
      * @var TransferTask|MockObject
      */
-    protected $transferTask;
+    protected TransferTask|MockObject $transferTask;
 
     /**
      * @var TaskDemand|MockObject
      */
-    protected TaskDemand $taskDemand;
+    protected TaskDemand|MockObject $taskDemand;
 
     /**
      * @var DataSourceInterface|MockObject
      */
-    protected $dataSource;
+    protected DataSourceInterface|MockObject$dataSource;
 
     /**
      * @var DataTargetInterface|MockObject
      */
-    protected $dataTarget;
+    protected DataTargetInterface|MockObject $dataTarget;
 
     /**
-     * @var PersistenceManager|MockObject
+     * @var PersistenceManagerInterface|MockObject
      */
-    protected PersistenceManager $persistenceManager;
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
     protected array $records = [['foo']];
 
     /**
      * @var PreProcessorInterface|LoggingPreProcessor|MockObject
      */
-    protected $preProcessor;
+    protected PreProcessorInterface|LoggingPreProcessor|MockObject $preProcessor;
 
     /**
      * @var PostProcessorInterface|LoggingPreProcessor|MockObject
      */
-    protected PostProcessorInterface $postProcessor;
+    protected PostProcessorInterface|LoggingPreProcessor|MockObject $postProcessor;
 
     /**
      * @var ConverterInterface|MockObject
      */
-    protected ConverterInterface $converter;
+    protected ConverterInterface|MockObject $converter;
 
     /**
      * @var InitializerInterface|MockObject
      */
-    protected InitializerInterface $initializer;
+    protected InitializerInterface|MockObject $initializer;
 
     /**
      * @var FinisherInterface|MockObject
      */
-    protected FinisherInterface $finisher;
+    protected FinisherInterface|MockObject $finisher;
 
     /**
      * set up the subject
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {

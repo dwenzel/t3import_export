@@ -35,10 +35,10 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 class SelectQueryTest extends TestCase
 {
     protected SelectQuery $subject;
-    protected ConnectionPool&MockObject $connectionPool;
-    protected Connection&MockObject $connection;
-    protected DatabaseConnectionService&MockObject $connectionService;
-    protected QueryBuilder&MockObject $builder;
+    protected ConnectionPool|MockObject $connectionPool;
+    protected Connection|MockObject $connection;
+    protected DatabaseConnectionService|MockObject $connectionService;
+    protected QueryBuilder|MockObject $builder;
 
     protected function setUp(): void
     {
@@ -115,9 +115,6 @@ class SelectQueryTest extends TestCase
         $this->subject->withConfiguration($config);
     }
 
-    /**
-     * @throws InvalidConfigurationException
-     */
     #[Test]
     #[DataProvider('configurationDataProvider')]
     public function testWithConfigurationConfiguresQueryBuilder(array $config, string $expectedMethod, $expectedValue): void
@@ -127,6 +124,7 @@ class SelectQueryTest extends TestCase
             'Skipping test due to issues with QueryBuilder->restrictionContainer initialization in PHPUnit 12'
         );
 
+        /** @phpstan-ignore deadCode.unreachable */
         $this->connectionPool->expects($this->once())
             ->method('getConnectionForTable')
             ->with($config[QueryInterface::TABLE])

@@ -30,23 +30,22 @@ class TranslationServiceTest extends TestCase
     protected TranslationService $subject;
 
     /**
-     * @var PersistenceManagerInterface&MockObject
+     * @var PersistenceManagerInterface|MockObject
      */
-    protected $persistenceManager;
+    protected PersistenceManagerInterface | MockObject $persistenceManager;
 
     /**
      * @var DataMapper|MockObject
      */
-    protected DataMapper $dataMapper;
+    protected DataMapper|MockObject $dataMapper;
 
     /**
      * @var DataMap|MockObject
      */
-    protected DataMap $dataMap;
+    protected DataMap|MockObject $dataMap;
 
     /**
      * Set up the subject
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
