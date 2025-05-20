@@ -167,7 +167,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     protected function generateXMLStream(array $data, $enclosure, array $fieldsConfig = null)
     {
         // init xmlBuilder (XMLWriter)
-        $xml = new XMLWriter();
+        $xml = new \XMLWriter();
         $xml->openMemory();
 
         if (isset($data[static::XML_CONFIG_FIELD_MAP])) {
@@ -197,14 +197,14 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         return $buffer;
     }
 
-    private function writeAttributes(XMLWriter $xml, $attributes)
+    private function writeAttributes(\XMLWriter $xml, $attributes)
     {
         foreach ($attributes as $name => $value) {
             $xml->writeAttribute($name, $value);
         }
     }
 
-    private function xmlRecursive(XMLWriter $xml, $key, $value, $subFieldConfig = null)
+    private function xmlRecursive(\XMLWriter $xml, $key, $value, $subFieldConfig = null)
     {
         if (is_array($value) && isset($value[static::XML_CONFIG_FIELD_MAP])) {
             $key = $value[static::XML_CONFIG_FIELD_MAP];

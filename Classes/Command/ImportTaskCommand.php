@@ -25,7 +25,6 @@ namespace CPSIT\T3importExport\Command;
 use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Argument\TaskArgument;
 use CPSIT\T3importExport\Controller\ImportController;
-use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\InvalidConfigurationException;

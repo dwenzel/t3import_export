@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 use CPSIT\T3importExport\Utility\TcaUtility;
-use Override;
 use TYPO3\CMS\Core\DataHandling\Model\RecordState;
 use TYPO3\CMS\Core\DataHandling\Model\RecordStateFactory;
 use TYPO3\CMS\Core\DataHandling\SlugHelper;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 
 /**
  * Class RecreateSlug
@@ -30,7 +28,7 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
 
     public function __construct() {}
 
-    #[Override]
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!empty($configuration[self::KEY_TABLE_NAME])
