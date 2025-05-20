@@ -25,7 +25,8 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
  ***************************************************************/
 class DownloadFileStream extends AbstractFinisher implements FinisherInterface
 {
-    public function process(array $configuration, array $records, array|object $result): bool
+    /** @noinspection ReferencingObjectsInspection */
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         if ($result instanceof TaskResult) {
             $taskResult = $result;
@@ -36,7 +37,7 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface
         return false;
     }
 
-    protected function prepareFileToDownload($filePath, $configuration)
+    protected function prepareFileToDownload($filePath, $configuration): void
     {
         if (file_exists($filePath)) {
             $cType = 'application/octet-stream';
