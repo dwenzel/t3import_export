@@ -20,8 +20,8 @@ namespace CPSIT\T3importExport\Component\Finisher;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
-use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;

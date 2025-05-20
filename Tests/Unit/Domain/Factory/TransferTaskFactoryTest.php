@@ -8,7 +8,7 @@ use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Factory\FactoryFactory;

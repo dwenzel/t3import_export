@@ -37,6 +37,7 @@ abstract class AbstractFinisher extends AbstractComponent
      * @param array $records Array with prepared records
      * @param object|array $result Array with result records
      * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
     abstract public function process(array $configuration, array &$records, array|object &$result): bool;
 

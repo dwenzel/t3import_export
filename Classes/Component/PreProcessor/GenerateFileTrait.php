@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
 /**
  * Trait GenerateFileTrait

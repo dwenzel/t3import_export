@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\InvalidConfigurationException;

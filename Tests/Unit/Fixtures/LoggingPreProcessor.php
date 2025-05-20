@@ -22,7 +22,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\LoggingInterface;
 
 /**

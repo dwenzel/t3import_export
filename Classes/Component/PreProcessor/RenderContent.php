@@ -25,6 +25,8 @@ use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 class RenderContent extends AbstractPreProcessor implements PreProcessorInterface
 {
     public function __construct(

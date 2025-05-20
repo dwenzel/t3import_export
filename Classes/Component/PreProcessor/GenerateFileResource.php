@@ -28,6 +28,7 @@ use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
 /**
  * Class GenerateFileResource
