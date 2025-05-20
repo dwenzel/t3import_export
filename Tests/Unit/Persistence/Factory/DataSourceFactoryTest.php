@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\ImportExportCore\Component\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableInterface;
 use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;

@@ -24,7 +24,7 @@ namespace CPSIT\T3importExport\Domain\Factory;
 
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;

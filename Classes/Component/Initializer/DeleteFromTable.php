@@ -18,6 +18,7 @@ namespace CPSIT\T3importExport\Component\Initializer;
  */
 
 use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 
 /**
  * Class DeleteFromTable

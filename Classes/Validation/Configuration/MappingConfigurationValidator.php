@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Validation\Configuration;
 
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 
 /***************************************************************
  *

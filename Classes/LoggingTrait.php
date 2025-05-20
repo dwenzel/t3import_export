@@ -22,7 +22,7 @@ use CPSIT\T3importExport\Messaging\Message;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
+use CPSIT\ImportExportCore\LoggingInterface;
 /**
  * Trait LoggingTrait
  * Provides logging capabilities
@@ -118,7 +118,7 @@ trait LoggingTrait
      * @param array|null $arguments Optional arguments
      * @param string $default Default description
      */
-    protected function renderDescription($id, $codes, ?array $arguments, $default = LoggingInterface::DEFAULT_UNKNOWN_MESSAGE): string
+    protected function renderDescription($id, $codes, ?array $arguments, string $default = LoggingInterface::DEFAULT_UNKNOWN_MESSAGE): string
     {
         $description = $default;
         if (isset($codes[$id])) {

@@ -5,8 +5,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Factory\InitializerFactory;
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************

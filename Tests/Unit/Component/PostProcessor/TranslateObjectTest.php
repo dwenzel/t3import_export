@@ -92,7 +92,7 @@ class TranslateObjectTest extends TestCase
     }
 
     /**
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws \CPSIT\ImportExportCore\Exception\InvalidConfigurationException
      * @throws \CPSIT\T3importExport\MissingClassException
      */
     #[Test]
@@ -109,7 +109,7 @@ class TranslateObjectTest extends TestCase
     }
 
     /**
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws \CPSIT\ImportExportCore\Exception\InvalidConfigurationException
      * @throws \CPSIT\T3importExport\MissingClassException
      */
     #[Test]

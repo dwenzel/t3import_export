@@ -7,7 +7,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 use CPSIT\T3importExport\Component\Factory\FinisherFactory;
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 

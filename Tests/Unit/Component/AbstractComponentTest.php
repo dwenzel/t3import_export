@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

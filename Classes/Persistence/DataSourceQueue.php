@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\Component\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use TYPO3\CMS\Core\Utility\MathUtility;

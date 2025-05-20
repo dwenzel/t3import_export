@@ -10,7 +10,7 @@ use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;

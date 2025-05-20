@@ -7,7 +7,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************

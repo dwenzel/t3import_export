@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit;
 
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

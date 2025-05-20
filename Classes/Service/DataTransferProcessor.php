@@ -30,9 +30,9 @@ use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\ImportExportCore\Component\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 

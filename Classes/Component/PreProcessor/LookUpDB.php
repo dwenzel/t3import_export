@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\QueryFacade;
 use CPSIT\T3importExport\Persistence\Query\SelectJoinQuery;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
