@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Factory\ConverterFactory;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use PHPUnit\Framework\TestCase;
