@@ -50,7 +50,7 @@ class AbstractConverterTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = new class() extends AbstractConverter{
-            public function convert(array $record, array $configuration): array
+            public function convert(array &$record, array $configuration): array
             {
                 return $record;
             }

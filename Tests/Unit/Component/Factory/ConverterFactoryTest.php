@@ -49,7 +49,7 @@ class DummyInvalidConverter
  */
 class DummyValidConverter extends AbstractConverter implements ConverterInterface
 {
-    public function convert(array $record, array $configuration): bool
+    public function convert(array &$record, array $configuration): bool
     {
         return true;
     }
