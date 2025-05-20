@@ -55,7 +55,7 @@ class RecreateSlug extends AbstractPostProcessor implements PostProcessorInterfa
      * @param array $record
      * @return true
      */
-    public function process(array $configuration, mixed $convertedRecord, array $record): bool
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
         $tableName = $configuration[self::KEY_TABLE_NAME] ?? self::DEFAULT_TABLE_NAME;
         $slugField = $configuration[self::KEY_SLUG_FIELD] ?? self::DEFAULT_SLUG_FIELD;

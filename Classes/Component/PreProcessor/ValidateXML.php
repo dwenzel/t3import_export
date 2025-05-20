@@ -114,7 +114,7 @@ class ValidateXML extends AbstractPreProcessor implements
     /**
      * @inheritDoc
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         $fields = GeneralUtility::trimExplode(
             self::SEPARATOR,

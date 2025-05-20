@@ -90,7 +90,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      *
      * @throws InvalidConfigurationException
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         /**
          * todo method cannot be tested because of its complexity and

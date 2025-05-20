@@ -61,7 +61,7 @@ class SetHiddenProperties extends AbstractPostProcessor implements PostProcessor
      * @param mixed $convertedRecord
      * @return bool
      */
-    public function process(array $configuration, mixed $convertedRecord, array $record): bool
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $fieldName => $localConfiguration) {

@@ -66,7 +66,7 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
      * @return bool
      * @throws \Doctrine\DBAL\Exception
      */
-    public function process(array $configuration, mixed $convertedRecord, array $record): bool
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
         $subjectParentField = $configuration['subject']['parentField'];
 

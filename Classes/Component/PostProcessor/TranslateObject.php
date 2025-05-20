@@ -60,7 +60,7 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      *
      * @throws InvalidColumnMapException
      */
-    public function process(array $configuration, mixed $convertedRecord, array $record): bool
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
         $targetType = $convertedRecord::class;
 

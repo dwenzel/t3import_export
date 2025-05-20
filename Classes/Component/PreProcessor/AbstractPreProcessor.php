@@ -30,7 +30,7 @@ abstract class AbstractPreProcessor extends AbstractComponent
      * @param array $record
      * @return bool
      */
-    abstract public function process(array $configuration, array $record): bool;
+    abstract public function process(array $configuration, array &$record): bool;
 
     /**
      * Tells whether a given configuration is valid

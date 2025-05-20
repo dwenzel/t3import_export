@@ -35,7 +35,6 @@ use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
@@ -116,7 +115,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     /**
      * Converts the record
      */
-    public function convert(array $record, array $configuration): mixed
+    public function convert(array &$record, array $configuration): mixed
     {
         // setup config
         $rootEnclosure = $this->getRootEnclosureConfiguration($configuration);

@@ -88,7 +88,7 @@ trait GenerateFileTrait
      * @param array $record
      * @return bool
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         $separator = ',';
         if (isset($configuration['separator'])) {

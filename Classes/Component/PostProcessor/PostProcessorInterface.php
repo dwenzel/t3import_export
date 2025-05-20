@@ -36,7 +36,7 @@ interface PostProcessorInterface extends ComponentInterface
      * @param array $record
      * @return bool
      */
-    public function process(array $configuration, mixed $convertedRecord, array $record): bool;
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool;
 
     public function isConfigurationValid(array $configuration): bool;
 
