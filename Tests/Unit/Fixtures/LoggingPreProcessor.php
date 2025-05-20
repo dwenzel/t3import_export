@@ -23,11 +23,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 
 /**
  * Class LoggingPreProcessor
  * Fake class for testing: PreProcessor implementing LoggingInterface
+ * @deprecated
  */
 class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterface, PreProcessorInterface
 {

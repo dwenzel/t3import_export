@@ -23,6 +23,7 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  ***************************************************************/
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 
 /**
  * Class SetHiddenProperties

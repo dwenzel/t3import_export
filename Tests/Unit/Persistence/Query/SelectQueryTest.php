@@ -3,7 +3,7 @@
 declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Query;
 
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\QueryInterface;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;

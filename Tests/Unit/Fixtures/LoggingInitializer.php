@@ -23,11 +23,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 
 /**
  * Class LoggingInitializer
  * Dummy class for testing: Initializer implementing LoggingInterface
+ * @deprecated
  */
 class LoggingInitializer extends AbstractInitializer implements InitializerInterface, LoggingInterface
 {

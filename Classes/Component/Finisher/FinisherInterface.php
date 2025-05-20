@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\ImportExportCore\Component\ComponentInterface;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 
 /**
  * Interface FinisherInterface

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Initializer;
 
-use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 
 /***************************************************************
  *
