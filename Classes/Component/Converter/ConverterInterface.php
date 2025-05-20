@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Converter;
 
-use CPSIT\T3importExport\Component\ComponentInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface as CoreConverterInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 /**
  * Interface ConverterInterface
  */
-interface ConverterInterface extends ComponentInterface
+interface ConverterInterface extends CoreConverterInterface
 {
     public function convert(array &$record, array $configuration): mixed;
 

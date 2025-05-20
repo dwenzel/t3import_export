@@ -22,7 +22,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\Component\ComponentInterface;
+use CPSIT\ImportExportCore\Component\ComponentInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 /**

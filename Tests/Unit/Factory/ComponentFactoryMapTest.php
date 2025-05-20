@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Factory;
 
-use CPSIT\T3importExport\Component\ComponentInterface;
+use CPSIT\ImportExportCore\Component\ComponentInterface;
 use CPSIT\T3importExport\Component\Factory\NullComponentFactory;
 use CPSIT\T3importExport\Exception\InvalidClassException;
 use CPSIT\T3importExport\Factory\ComponentFactoryMap;

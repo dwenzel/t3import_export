@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Finisher;
 
-use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\ImportExportCore\Component\ConfigurableInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;
 

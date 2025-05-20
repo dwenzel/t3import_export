@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
