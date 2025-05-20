@@ -55,7 +55,7 @@ class MessageContainerTraitTest extends TestCase
         $this->subject = new class($this->messageContainer) {
             use MessageContainerTrait;
 
-            public MessageContainer $messageContainer;
+            protected MessageContainer $messageContainer;
         };
     }
 

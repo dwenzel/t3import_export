@@ -35,14 +35,10 @@ use PHPUnit\Framework\TestCase;
  ***************************************************************/
 class MappingConfigurationValidatorTest extends TestCase
 {
-    /**
-     * @var MappingConfigurationValidator | MockObject
-     */
-    protected MappingConfigurationValidator $subject;
+    protected MappingConfigurationValidator|MockObject $subject;
 
     /**
      * set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {

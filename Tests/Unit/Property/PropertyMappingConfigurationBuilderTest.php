@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Tests\Property;
 
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
@@ -37,11 +38,8 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 class PropertyMappingConfigurationBuilderTest extends TestCase
 {
     protected PropertyMappingConfigurationBuilder $subject;
-    protected PropertyMappingConfiguration $propertyMappingConfiguration;
+    protected PropertyMappingConfiguration|MockObject $propertyMappingConfiguration;
 
-    /**
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     */
     protected function setUp(): void
     {
         $this->subject = new PropertyMappingConfigurationBuilder();

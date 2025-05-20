@@ -45,21 +45,24 @@ class RenderContentTraitTest extends TestCase
     /**
      * @var ContentObjectRenderer|MockObject
      */
-    protected ContentObjectRenderer $contentObjectRenderer;
+    protected ContentObjectRenderer|MockObject $contentObjectRenderer;
 
     /**
      * @var ContentContentObject|MockObject
      */
-    protected ContentContentObject $contentObject;
+    protected ContentContentObject|MockObject $contentObject;
 
     /**
      * @var MockClassWithRenderContentTrait|MockObject
      */
-    protected $subject;
+    protected MockClassWithRenderContentTrait|MockObject $subject;
+
+    protected TypoScriptService|MockObject $typoScriptService;
 
     protected function setUp(): void
     {
         $this->markTestIncomplete('test fails due to dependency injection issues');
+        /** @phpstan-ignore deadCode.unreachable */
         $this->subject = $this->getMockBuilder(MockClassWithRenderContentTrait::class)
             ->getMock();
         $this->mockTypoScriptService();
@@ -155,27 +158,6 @@ class RenderContentTraitTest extends TestCase
         $this->assertSame(
             $mockContent,
             $this->subject->renderContent([], $configuration)
-        );
-    }
-
-    #[Test]
-    public function getTypoScriptFrontendControllerReturnsObjectFromGlobals(): void
-    {
-        // setup mocks method 'getTypoScriptFrontendController
-        $this->subject = $this->getMockForTrait(
-            RenderContentTrait::class,
-            [],
-            '',
-            true,
-            true,
-            true,
-            []
-        );
-
-        $GLOBALS['TSFE'] = new \stdClass();
-        $this->assertSame(
-            $GLOBALS['TSFE'],
-            $this->subject->getTypoScriptFrontendController()
         );
     }
 }

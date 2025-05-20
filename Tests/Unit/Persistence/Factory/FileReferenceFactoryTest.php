@@ -54,24 +54,24 @@ class FileReferenceFactoryTest extends TestCase
     /**
      * @var CoreFileReference|MockObject
      */
-    protected CoreFileReference $coreFileReference;
+    protected CoreFileReference|MockObject $coreFileReference;
 
-    protected ExtbaseFileReference $extbaseFileReference;
+    protected ExtbaseFileReference|MockObject $extbaseFileReference;
 
     /**
      * @var ResourceStorage|MockObject
      */
-    protected ResourceStorage $resourceStorage;
+    protected ResourceStorage|MockObject $resourceStorage;
 
     /**
      * @var Folder|MockObject
      */
-    protected Folder $folder;
+    protected Folder|MockObject $folder;
 
     /**
      * @var ResourceFactory|MockObject
      */
-    protected ResourceFactory $resourceFactory;
+    protected ResourceFactory|MockObject $resourceFactory;
 
     /**
      * Creates a mock resource storage

@@ -82,11 +82,6 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
 
     /**
      * Fake method matches abstract method in ConfigurableInterface
-     *
-     * @return bool
-     * @noinspection PhpMissingReturnTypeInspection
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     * @noinspection PhpInconsistentReturnPointsInspection
      */
     public function persist($object, ?array $configuration = null)
     {
@@ -115,18 +110,17 @@ class DataTargetFactoryTest extends TestCase
     protected DataTargetFactory $subject;
 
     /**
-     * @var PersistenceManagerInterface&MockObject
+     * @var PersistenceManagerInterface|MockObject
      */
-    protected $persistenceManager;
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
     /**
      * @var DataTargetInterface|MockObject
      */
-    protected DataTargetInterface $dataTarget;
+    protected DataTargetInterface|MockObject $dataTarget;
 
     /**
      * set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
@@ -179,6 +173,7 @@ class DataTargetFactoryTest extends TestCase
     {
         $this->markTestSkipped('DataTargetRepository requires constructor arguments in PHPUnit 12');
 
+        /** @phpstan-ignore deadCode.unreachable */
         $identifier = 'foo';
         $objectClass = DummyTargetObjectClass::class;
         $settings = [
