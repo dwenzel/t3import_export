@@ -121,8 +121,9 @@ class ValidateXML extends AbstractFinisher
      * @param array $records Array with prepared records
      * @param object|array $result Array with result records
      * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array $records, array|object $result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         $resource = $this->loadResource($configuration);
         if (empty($resource)) {

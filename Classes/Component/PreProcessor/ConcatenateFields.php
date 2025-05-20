@@ -48,7 +48,7 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
      * @param array $configuration
      * @param array $record
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         $targetFieldName = $configuration['targetField'];
         foreach ($configuration['fields'] as $key => $value) {

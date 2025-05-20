@@ -62,7 +62,7 @@ class SetFieldValue extends AbstractPreProcessor implements PreProcessorInterfac
      * @param array $record
      * @return bool
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         $record[$configuration['targetField']] = $configuration['value'];
 

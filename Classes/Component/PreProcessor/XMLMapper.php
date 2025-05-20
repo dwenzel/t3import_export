@@ -103,7 +103,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         $fields = $configuration['fields'];
         $record = $this->remapXMLStructure($record, $fields);

@@ -43,7 +43,7 @@ class UnsetEmptyFields extends AbstractPreProcessor implements PreProcessorInter
      * @param array $record
      * @return bool
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         $fieldNames = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         foreach ($fieldNames as $fieldName) {

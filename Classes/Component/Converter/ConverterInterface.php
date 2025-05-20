@@ -12,7 +12,7 @@ use CPSIT\T3importExport\Domain\Model\TaskResult;
  */
 interface ConverterInterface extends ComponentInterface
 {
-    public function convert(array $record, array $configuration) : mixed;
+    public function convert(array &$record, array $configuration) : mixed;
 
     /**
      * Tells if the component is disabled

@@ -18,7 +18,7 @@ interface FinisherInterface extends ComponentInterface
      * @param array|object $result Array with result records
      * @return bool
      */
-    public function process(array $configuration, array $records, array|object $result): bool;
+    public function process(array $configuration, array &$records, array|object &$result): bool;
 
     /**
      * @return bool

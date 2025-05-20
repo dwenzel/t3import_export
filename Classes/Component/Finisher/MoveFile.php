@@ -182,11 +182,12 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
      * Default is renameNewFile (according to TYPO3 conventions)
      * @param object|array $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
+     * @noinspection ReferencingObjectsInspection
      */
     public function process(
         array $configuration,
-        array $records,
-        object|array $result
+        array &$records,
+        object|array &$result
     ): bool {
         $defaultStorage = $this->resourceFactory->getDefaultStorage();
         $targetStorage = $defaultStorage;

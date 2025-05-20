@@ -122,8 +122,10 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      * @throws ExistingTargetFolderException
      * @throws InsufficientFolderAccessPermissionsException
      * @throws InsufficientFolderWritePermissionsException
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array $records, array|object $result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         if (
             !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)

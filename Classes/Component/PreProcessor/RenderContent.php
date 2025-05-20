@@ -38,7 +38,7 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
      * @return bool
      * @throws ContentRenderingException
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         $this->renderFields($configuration, $record);
 

@@ -71,7 +71,7 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
      * @return bool
      * @throws PropertyNotAccessibleException
      */
-    public function process(array $configuration, mixed $convertedRecord, array $record): bool
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
         $sourceField = $configuration['sourceField'];
         $targetField = $configuration['targetField'];
