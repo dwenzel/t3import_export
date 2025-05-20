@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;

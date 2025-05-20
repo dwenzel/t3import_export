@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
 use CPSIT\T3importExport\Command\ImportSetCommand;
-use CPSIT\T3importExport\Configuration\Extension;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
