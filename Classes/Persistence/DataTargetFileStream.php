@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\ImportExportCore\Component\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;

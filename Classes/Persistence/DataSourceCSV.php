@@ -17,7 +17,7 @@ namespace CPSIT\T3importExport\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\ImportExportCore\Component\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\IdentifiableTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;

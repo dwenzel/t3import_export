@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
-use CPSIT\ImportExportCore\Component\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Exception\PersistenceException;
@@ -34,7 +33,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  * Class DataTargetDB
  * Persists records into a database.
  */
-class DataTargetDB extends AbstractComponent implements DataTargetInterface, ConfigurableInterface
+class DataTargetDB extends AbstractComponent implements DataTargetInterface
 {
     use ConfigurableTrait;
     use DatabaseTrait;
