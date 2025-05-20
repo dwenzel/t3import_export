@@ -53,7 +53,6 @@ class AbstractComponentTest extends TestCase
         $this->subject = $this->getMockBuilder(AbstractComponent::class)
             ->onlyMethods(['renderContent', 'isConfigurationValid'])
             ->getMock();
-        //$this->subject = $this->createMock(AbstractComponent::class);
     }
 
     /**

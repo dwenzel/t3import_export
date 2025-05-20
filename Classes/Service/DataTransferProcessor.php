@@ -28,7 +28,7 @@ use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\ImportExportCore\Component\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
