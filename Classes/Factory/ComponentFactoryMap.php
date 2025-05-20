@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Factory;
 
 use CPSIT\ImportExportCore\Component\ComponentInterface;
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Factory\ConverterFactory;
 use CPSIT\T3importExport\Component\Factory\FinisherFactory;
 use CPSIT\T3importExport\Component\Factory\InitializerFactory;
