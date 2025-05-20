@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component;
 
+use CPSIT\ImportExportCore\Component\ComponentInterface as CoreComponentInterface;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -20,4 +22,4 @@ namespace CPSIT\T3importExport\Component;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-interface ComponentInterface {}
+interface ComponentInterface extends CoreComponentInterface {}

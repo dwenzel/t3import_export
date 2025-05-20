@@ -21,8 +21,8 @@ namespace CPSIT\T3importExport\Domain\Model;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\ImportExportCore\IdentifiableInterface;
+use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;

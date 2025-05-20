@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Initializer;
 
-use CPSIT\T3importExport\Component\ComponentInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface as CoreInitializerInterface;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 
 /**

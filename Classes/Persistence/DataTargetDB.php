@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
-use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\ImportExportCore\Component\ConfigurableInterface;
 use CPSIT\T3importExport\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Exception\PersistenceException;

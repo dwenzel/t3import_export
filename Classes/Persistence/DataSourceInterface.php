@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\Component\ComponentInterface;
+use CPSIT\ImportExportCore\Component\ComponentInterface;
 
 /**
  * Interface DataSourceInterface
