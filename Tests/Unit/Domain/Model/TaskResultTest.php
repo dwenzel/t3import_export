@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -37,18 +37,19 @@ use stdClass;
 class TaskResultTest extends TestCase
 {
     protected TaskResult $subject;
-    protected MessageContainer&MockObject $messageContainer;
+    protected MessageContainer|MockObject $messageContainer;
 
     protected function setUp(): void
     {
         // Create message container mock directly
-        $this->messageContainer = $this->createMock(MessageContainer::class);
+        $this->messageContainer = $this->getMockBuilder(MessageContainer::class)
+            ->getMock();
         $this->subject = new TaskResult($this->messageContainer);
     }
 
     public function testAddAndRemoveObjectsToIterator(): void
     {
-        /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
+        /** @var TaskResult|MockObject $list */
         $list = new TaskResult();
 
         $obj1 = new \stdClass();

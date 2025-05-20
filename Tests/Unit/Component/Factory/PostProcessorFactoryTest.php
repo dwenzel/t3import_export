@@ -9,7 +9,7 @@ use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 /**
  * Class DummyValidPostProcessor
  */

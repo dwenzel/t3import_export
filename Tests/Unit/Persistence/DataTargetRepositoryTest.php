@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
-use PHPUnit\Framework\Attributes\Covers;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -16,7 +15,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
-use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
+use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;use function Symfony\Component\String\u;
 
 /***************************************************************
  *

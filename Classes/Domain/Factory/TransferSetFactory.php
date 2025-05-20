@@ -58,7 +58,7 @@ class TransferSetFactory extends AbstractFactory
      * @throws MissingClassException
      * @throws MissingInterfaceException|\CPSIT\T3importExport\MissingInterfaceException
      */
-    public function get(array $settings = [], ?string $identifier = null): object
+    public function get(array $settings = [], ?string $identifier = ''): object
     {
         // clone object to prevent from returning the same object on later calls
         // transferSet must be injected for testing purposes

@@ -6,8 +6,8 @@ namespace CPSIT\T3importExport\Tests\Domain\Factory;
 
 use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
