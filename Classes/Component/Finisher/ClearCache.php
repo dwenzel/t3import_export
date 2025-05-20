@@ -70,8 +70,9 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      *   }
      *  }
      * }
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array $records, array|object $result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         if (!(bool)$result) {
             // nothing imported - do not clear any cache

@@ -54,8 +54,9 @@ class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
      * @param array $records
      * @param object|array $result
      * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array $records, array|object $result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         return true;
     }
