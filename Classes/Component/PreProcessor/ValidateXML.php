@@ -31,6 +31,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 /**
  * Class ValidateXML
  *

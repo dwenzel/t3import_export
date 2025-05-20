@@ -21,6 +21,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 class ImplodeArray extends AbstractPreProcessor implements PreProcessorInterface
 {
     /**

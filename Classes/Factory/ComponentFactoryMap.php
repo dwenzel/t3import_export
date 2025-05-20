@@ -15,7 +15,7 @@ use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Exception\InvalidClassException;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;

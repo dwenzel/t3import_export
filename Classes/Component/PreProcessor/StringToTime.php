@@ -23,6 +23,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
 {
     /**

@@ -18,6 +18,8 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 
 /**
  * Class UnsetEmptyFields
