@@ -24,7 +24,7 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
 
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use CPSIT\T3importExport\Validation\Configuration\SetL10nParentConfigurationValidator;
 use TYPO3\CMS\Core\Database\Connection;

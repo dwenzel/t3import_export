@@ -22,9 +22,9 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\InvalidColumnMapException;
+use CPSIT\ImportExportCore\Exception\InvalidColumnMapException;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;

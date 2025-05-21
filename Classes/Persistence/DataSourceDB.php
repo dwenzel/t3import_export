@@ -20,6 +20,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 
 /***************************************************************
  *  Copyright notice
