@@ -17,7 +17,7 @@ use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 

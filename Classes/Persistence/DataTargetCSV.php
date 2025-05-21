@@ -24,7 +24,7 @@ use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 /**
  * Class DataSourceCSV
  */

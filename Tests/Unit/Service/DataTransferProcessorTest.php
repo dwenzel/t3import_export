@@ -13,7 +13,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
 use PHPUnit\Framework\Attributes\CoversClass;

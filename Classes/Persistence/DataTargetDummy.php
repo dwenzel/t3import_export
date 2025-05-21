@@ -22,7 +22,8 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 
 /**
  * Dummy data target - does not persist anything

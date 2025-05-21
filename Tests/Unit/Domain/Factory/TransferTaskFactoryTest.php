@@ -15,7 +15,7 @@ use CPSIT\T3importExport\Factory\FactoryFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;

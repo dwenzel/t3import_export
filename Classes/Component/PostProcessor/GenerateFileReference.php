@@ -24,6 +24,7 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainerInterface;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -60,7 +61,7 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
         protected PersistenceManagerInterface $persistenceManager,
         protected FileReferenceFactory $fileReferenceFactory,
         protected FileIndexRepository $fileIndexRepository,
-        protected MessageContainer $messageContainer
+        protected MessageContainerInterface $messageContainer
     ) {}
 
     /**
