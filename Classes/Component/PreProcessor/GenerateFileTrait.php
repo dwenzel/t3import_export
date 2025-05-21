@@ -32,6 +32,7 @@ trait GenerateFileTrait
     use ResourceStorageTrait;
     use LoggingTrait;
 
+    protected FilePathFactory $filePathFactory;
     /**
      * Errors by id
      *

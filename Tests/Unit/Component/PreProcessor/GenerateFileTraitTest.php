@@ -32,9 +32,7 @@ class GenerateFileTraitImplementation
 {
     use GenerateFileTrait;
 
-    protected $filePathFactory;
-
-    public function getFile($configuration, $sourceFilePath)
+    public function getFile($configuration, $sourceFilePath): string
     {
         return '';
     }
@@ -73,7 +71,7 @@ class GenerateFileTraitTest extends TestCase
     /**
      * Provides dependencies for injection tests
      */
-    public static function dependenciesDataProvider()
+    public static function dependenciesDataProvider(): array
     {
         return [
             [FilePathFactory::class, 'filePathFactory'],
@@ -86,7 +84,7 @@ class GenerateFileTraitTest extends TestCase
      */
     #[Test]
     #[DataProvider('dependenciesDataProvider')]
-    public function dependenciesCanBeInjected($class, $propertyName)
+    public function dependenciesCanBeInjected($class, $propertyName): void
     {
         $mockDependency = $this->getMockBuilder($class)->disableOriginalConstructor()
             ->getMock();
@@ -105,7 +103,7 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    public static function invalidConfigurationDataProvider()
+    public static function invalidConfigurationDataProvider(): array
     {
         // $configuration, $expected, $errorId
         return [
@@ -176,7 +174,7 @@ class GenerateFileTraitTest extends TestCase
      */
     #[Test]
     #[DataProvider('invalidConfigurationDataProvider')]
-    public function isConfigurationValidReturnsCorrectValuesForInvalidConfiguration($configuration, $expected, $expectedErrorId, $expectedErrorArguments)
+    public function isConfigurationValidReturnsCorrectValuesForInvalidConfiguration($configuration, $expected, $expectedErrorId, $expectedErrorArguments): void
     {
         $this->subject->expects($this->once())
             ->method('logError')
@@ -189,7 +187,7 @@ class GenerateFileTraitTest extends TestCase
     }
 
     #[Test]
-    public function isConfigurationValidReturnsFalseForMissingDirectory()
+    public function isConfigurationValidReturnsFalseForMissingDirectory(): void
     {
         $this->storage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
@@ -227,7 +225,7 @@ class GenerateFileTraitTest extends TestCase
     }
 
     #[Test]
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    public function isConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $this->storage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
@@ -263,7 +261,7 @@ class GenerateFileTraitTest extends TestCase
     }
 
     #[Test]
-    public function getErrorCodesReturnsCorrectResult()
+    public function getErrorCodesReturnsCorrectResult(): void
     {
         // Get the actual error codes from the subject
         $actualCodes = $this->subject->getErrorCodes();
@@ -285,7 +283,7 @@ class GenerateFileTraitTest extends TestCase
     }
 
     #[Test]
-    public function processGetsSingleFile()
+    public function processGetsSingleFile(): void
     {
         $sourceField = 'foo';
         $targetField = 'foo';
@@ -318,7 +316,7 @@ class GenerateFileTraitTest extends TestCase
     }
 
     #[Test]
-    public function processGetsMultipleFiles()
+    public function processGetsMultipleFiles(): void
     {
         $sourceField = 'foo';
         $targetField = 'foo';
@@ -353,7 +351,7 @@ class GenerateFileTraitTest extends TestCase
     }
 
     #[Test]
-    public function processPrefixesFilePaths()
+    public function processPrefixesFilePaths(): void
     {
         $sourceField = 'foo';
         $targetField = 'foo';
@@ -390,7 +388,7 @@ class GenerateFileTraitTest extends TestCase
     }
 
     #[Test]
-    public function processRespectsSeparator()
+    public function processRespectsSeparator(): void
     {
         $sourceField = 'foo';
         $targetField = 'foo';

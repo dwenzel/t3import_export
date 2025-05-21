@@ -34,6 +34,9 @@ use CPSIT\ImportExportCore\LoggingInterface;
 class LoggingPostProcessor extends AbstractPostProcessor implements PostProcessorInterface, LoggingInterface
 {
     use LoggingTrait;
+
+    public const array ERROR_CODES = [];
+
     /**
      * Gets all messages
      * @return array
