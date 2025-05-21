@@ -20,11 +20,11 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
+use CPSIT\T3importExport\Persistence\DataTargetInterface;
 /**
  * Class DataSourceCSV
  */

@@ -7,7 +7,7 @@ namespace CPSIT\T3importExport\Component;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\T3importExport\RenderContentInterface;
+use CPSIT\ImportExportCore\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;

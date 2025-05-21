@@ -6,8 +6,8 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\ValidateXML;
-use CPSIT\T3importExport\Messaging\Message;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\Message;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;

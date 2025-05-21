@@ -23,7 +23,7 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
 
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;

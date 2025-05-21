@@ -7,7 +7,7 @@ namespace CPSIT\T3importExport\Persistence\Factory;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\T3importExport\IdentifiableInterface;
+use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;

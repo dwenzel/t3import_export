@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit;
 
-use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainerTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

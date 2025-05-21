@@ -19,7 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\Messaging\Message;
+use CPSIT\ImportExportCore\Messaging\Message;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;

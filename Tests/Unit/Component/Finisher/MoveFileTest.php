@@ -6,7 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\MoveFile;
 use CPSIT\ImportExportCore\LoggingInterface;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Folder;
