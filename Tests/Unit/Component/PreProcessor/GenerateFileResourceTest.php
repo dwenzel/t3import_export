@@ -22,6 +22,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use CPSIT\T3importExport\LoggingInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamException;
 use org\bovigo\vfs\vfsStreamWrapper;
@@ -159,7 +160,7 @@ class GenerateFileResourceTest extends TestCase
      *
      * @return GenerateFileResource&MockObject
      */
-    protected function createSubjectWithMockedGetFile(): GenerateFileResource
+    protected function createSubjectWithMockedGetFile(): LoggingInterface
     {
         $subject = $this->getMockBuilder(GenerateFileResource::class)
             ->setConstructorArgs(

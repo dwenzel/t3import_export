@@ -10,7 +10,7 @@ use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Exception\InvalidArgumentException;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 
 /***************************************************************
  *  Copyright notice
