@@ -19,7 +19,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use CPSIT\ImportExportCore\Messaging\MessageContainerInterface;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
@@ -27,8 +27,6 @@ use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
-use TYPO3\CMS\Core\Resource\ResourceStorage;
-use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
@@ -53,11 +51,11 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
     use FileIndexRepositoryTrait;
     use GenerateFileTrait;
     use ResourceTrait;
-    
+
     public function __construct(
         protected FileIndexRepository $fileIndexRepository,
         protected FilePathFactory $filePathFactory,
-        protected MessageContainerInterface $messageContainer
+        protected MessageContainer $messageContainer
     ) {}
 
     /**
