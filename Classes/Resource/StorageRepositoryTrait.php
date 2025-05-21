@@ -27,7 +27,7 @@ trait StorageRepositoryTrait
     /**
      * @var StorageRepository
      */
-    protected $storageRepository;
+    protected StorageRepository $storageRepository;
 
     /**
      * Injects the resourceStorage repository

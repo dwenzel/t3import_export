@@ -85,5 +85,7 @@ class ImplodeArray extends AbstractPreProcessor implements PreProcessorInterface
                 }
             }
         }
+
+        return true;
     }
 }

@@ -78,28 +78,10 @@ class Extension extends ExtensionConfiguration
         return [];
     }
 
-    /**
-     * Register legacy command controllers for cli environment in TYPO3 9
-     */
-    public static function registerLegacyCommands(): void
-    {
-        $version = GeneralUtility::makeInstance(Typo3Version::class);
-        /** @var Environment $environment */
-        $environment = GeneralUtility::makeInstance(Environment::class);
-
-        if ($version->getMajorVersion() === 9) {
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportImport'] = \CPSIT\T3importExport\Legacy\Command\ImportCommandController::class;
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportExport'] = \CPSIT\T3importExport\Legacy\Command\ExportCommandController::class;
-        }
-    }
-
     public static function getModuleConfiguration(): array
     {
         $configuration = [];
         foreach (self::MODULES_TO_REGISTER as $registrationClass) {
-            if (!in_array(ModuleRegistrationInterface::class, class_implements($registrationClass), true)) {
-                continue;
-            }
             $moduleConfiguration = $registrationClass::getModuleConfiguration();
             $configuration[$registrationClass::getSubModuleName()] = [
                 'parent' => $registrationClass::getMainModuleName(),
@@ -108,7 +90,7 @@ class Extension extends ExtensionConfiguration
                 'workspaces' => 'live',
                 'path' => '/module/' . $registrationClass::getMainModuleName() . '/' . $registrationClass::getMainModuleName() . $registrationClass::getSubModuleName(),
                 'labels' => $moduleConfiguration['labels'],
-                'extensionName' => \CPSIT\T3importExport\Configuration\Extension::NAME,
+                'extensionName' => self::NAME,
                 'icon' => $moduleConfiguration['icon'],
                 'controllerActions' => $registrationClass::getControllerActions(),
                 'inheritNavigationComponentFromMainModule' => false,

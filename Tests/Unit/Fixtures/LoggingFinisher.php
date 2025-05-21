@@ -33,6 +33,7 @@ use CPSIT\ImportExportCore\LoggingInterface;
  */
 class LoggingFinisher extends AbstractFinisher implements FinisherInterface, LoggingInterface
 {
+    public const array ERROR_CODES = [];
     use LoggingTrait;
     /**
      * Gets all messages

@@ -34,6 +34,9 @@ use CPSIT\ImportExportCore\LoggingInterface;
 class LoggingInitializer extends AbstractInitializer implements InitializerInterface, LoggingInterface
 {
     use LoggingTrait;
+
+    public const array ERROR_CODES = [];
+
     /**
      * Gets all messages
      * @return array

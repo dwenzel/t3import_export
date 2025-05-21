@@ -119,8 +119,8 @@ class DataTargetDB extends AbstractComponent implements DataTargetInterface
          * @todo We should respect the 'identifier' for additional (external) databases here
          * (without table mapping by core connection service)
          */
-        $this->connection = $this->connectionPool->getConnectionForTable($tableName);
-        if (!$this->connection instanceof Connection) {
+        $connection = $this->connectionPool->getConnectionForTable($tableName);
+        if (!$connection instanceof Connection) {
             $message = sprintf(self::MISSING_CONNECTION_MESSAGE, $tableName);
             throw new InvalidConfigurationException(
                 $message,
@@ -142,7 +142,7 @@ class DataTargetDB extends AbstractComponent implements DataTargetInterface
             $uid = $object[self::DEFAULT_IDENTITY_FIELD];
             unset($data[self::DEFAULT_IDENTITY_FIELD]);
             try {
-                $this->connection->update(
+                $connection->update(
                     $tableName,
                     $data,
                     ['uid' => $uid]
@@ -171,7 +171,7 @@ class DataTargetDB extends AbstractComponent implements DataTargetInterface
         }
 
         try {
-            $this->connection->insert(
+            $connection->insert(
                 $tableName,
                 $object
             );

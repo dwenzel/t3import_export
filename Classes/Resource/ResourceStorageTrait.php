@@ -28,12 +28,13 @@ trait ResourceStorageTrait
 {
     use StorageRepositoryTrait;
 
+    protected ResourceStorageInterface|ResourceStorage $resourceStorage;
     /**
      * Initializes the resource resourceStorage
      *
      * @param array $configuration
      */
-    public function initializeStorage($configuration)
+    public function initializeStorage(array $configuration): void
     {
         $this->resourceStorage = $this->storageRepository->findByUid($configuration['storageId']);
     }

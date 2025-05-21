@@ -165,7 +165,7 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
      * @param array|null $fieldsConfig
      * @return string
      */
-    protected function generateXMLStream(array $data, $enclosure, array $fieldsConfig = null)
+    protected function generateXMLStream(array $data, $enclosure, ?array $fieldsConfig = null)
     {
         // init xmlBuilder (XMLWriter)
         $xml = new \XMLWriter();

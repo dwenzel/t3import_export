@@ -35,6 +35,9 @@ class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterfa
 {
     use LoggingTrait;
 
+    public const array ERROR_CODES = [];
+
+
     /**
      * Gets all messages
      * @return array

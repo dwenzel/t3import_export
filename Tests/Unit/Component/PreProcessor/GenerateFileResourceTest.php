@@ -22,7 +22,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
-use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamException;
 use org\bovigo\vfs\vfsStreamWrapper;
