@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\MissingInterfaceException;
+use CPSIT\ImportExportCore\IdentifiableInterface;
+use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 use PHPUnit\Framework\Attributes\Test;
