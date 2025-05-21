@@ -115,7 +115,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
      * 'description' may contain placeholder (%s) for arguments.
      * @return array
      */
-    public function getNoticeCodes()
+    public function getNoticeCodes(): array
     {
         return static::NOTICE_CODES;
     }
