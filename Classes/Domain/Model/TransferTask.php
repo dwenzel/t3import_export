@@ -23,7 +23,7 @@ namespace CPSIT\T3importExport\Domain\Model;
  ***************************************************************/
 use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\IdentifiableTrait;
-use CPSIT\T3importExport\Persistence\DataSourceInterface;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 

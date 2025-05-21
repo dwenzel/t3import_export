@@ -25,7 +25,7 @@ namespace CPSIT\T3importExport\Service;
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\ImportExportCore\ConfigurableInterface;

@@ -22,7 +22,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\ImportExportCore\LoggingInterface;
 
 /**
