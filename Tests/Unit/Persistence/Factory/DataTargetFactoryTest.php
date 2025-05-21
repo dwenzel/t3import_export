@@ -9,7 +9,7 @@ use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;

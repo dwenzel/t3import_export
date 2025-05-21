@@ -21,6 +21,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;
@@ -46,7 +47,7 @@ use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
  * the record. Fields with single file references and object
  * storage of file references are handled.
  */
-class GenerateFileResource extends AbstractPreProcessor implements PreProcessorInterface
+class GenerateFileResource extends AbstractPreProcessor implements PreProcessorInterface, LoggingInterface
 {
     use FileIndexRepositoryTrait;
     use GenerateFileTrait;
