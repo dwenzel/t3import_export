@@ -22,7 +22,7 @@ namespace CPSIT\T3importExport\Component\Finisher;
  ***************************************************************/
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\LoggingInterface;
-use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
@@ -38,7 +38,6 @@ class ValidateXML extends AbstractFinisher
     use ResourceTrait, LoggingTrait;
 
     protected ResourcePathConfigurationValidator $pathValidator;
-    protected MessageContainer $messageContainer;
 
     /**
      * Notice by id
