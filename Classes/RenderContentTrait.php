@@ -25,6 +25,9 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 trait RenderContentTrait
 {
+    private ?ContentObjectRenderer $contentObjectRenderer;
+    private ?TypoScriptService $typoScriptService;
+
     /**
      * Get a ContentObjectRenderer
      */
@@ -46,6 +49,7 @@ trait RenderContentTrait
 
         return $this->typoScriptService;
     }
+
     /**
      * Renders content using TypoScript objects
      * @param array $record Optional data array

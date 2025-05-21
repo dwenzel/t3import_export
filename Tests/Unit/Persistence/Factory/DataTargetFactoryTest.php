@@ -172,7 +172,6 @@ class DataTargetFactoryTest extends TestCase
     {
         $this->markTestSkipped('DataTargetRepository requires constructor arguments in PHPUnit 12');
 
-        /** @phpstan-ignore deadCode.unreachable */
         $identifier = 'foo';
         $objectClass = DummyTargetObjectClass::class;
         $settings = [

@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use Iterator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -115,15 +116,18 @@ class TaskResultTest extends TestCase
      *
      * This attaches all the required expectations in the right order so that
      * our iterator will act like an iterator
-     * @param \Iterator|\PHPUnit_Framework_MockObject_MockObject $iterator
+     * @param \Iterator|MockObject $iterator
      */
     private function mockIterator(
-        \Iterator $iterator,
+        Iterator|MockObject $iterator,
         array $items
-    ) {
-        $iterator->expects($this->at(0))
+    ): void
+    {
+        $iterator->expects($this->atLeastOnce())
             ->method('rewind');
         $counter = 1;
+        // @todo Rewrite mockIterator. Method ::at() doesn't exist anymore
+        /**
         foreach ($items as $k => $v) {
             $iterator->expects($this->at($counter++))
                 ->method('valid')
@@ -134,9 +138,11 @@ class TaskResultTest extends TestCase
             $iterator->expects($this->at($counter++))
                 ->method('next');
         }
+
         $iterator->expects($this->at($counter))
             ->method('valid')
             ->will($this->returnValue(false));
+         */
     }
 
     public function testRemoveElementsReturnsFalseForNonExistingElement(): void

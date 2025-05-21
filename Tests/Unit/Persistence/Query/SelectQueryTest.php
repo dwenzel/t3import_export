@@ -124,7 +124,6 @@ class SelectQueryTest extends TestCase
             'Skipping test due to issues with QueryBuilder->restrictionContainer initialization in PHPUnit 12'
         );
 
-        /** @phpstan-ignore deadCode.unreachable */
         $this->connectionPool->expects($this->once())
             ->method('getConnectionForTable')
             ->with($config[QueryInterface::TABLE])

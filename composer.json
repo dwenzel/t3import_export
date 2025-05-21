@@ -54,7 +54,7 @@
   "autoload-dev": {
     "psr-0": {
       "org\\bovigo\\vfs\\": ".Build/vendor/mikey179/vfsstream/src/main/php",
-      "CPSIT\\ImportExportCore": "../import-export-core"
+      "CPSIT\\ImportExportCore\\": "../import-export-core"
     },
     "psr-4": {
       "CPSIT\\T3importExport\\Tests\\": "Tests"

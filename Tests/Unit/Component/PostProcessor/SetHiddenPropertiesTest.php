@@ -57,7 +57,6 @@ class SetHiddenPropertiesTest extends TestCase
     }
 
     #[Test]
-    #[Covers('isConfigurationValid')]
     public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
@@ -67,7 +66,6 @@ class SetHiddenPropertiesTest extends TestCase
     }
 
     #[Test]
-    #[Covers('isConfigurationValid')]
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
@@ -79,7 +77,6 @@ class SetHiddenPropertiesTest extends TestCase
     }
 
     #[Test]
-    #[Covers('isConfigurationValid')]
     public function testIsConfigurationValidReturnsFalseIfFieldValueIsNotString(): void
     {
         $config = [
@@ -93,7 +90,6 @@ class SetHiddenPropertiesTest extends TestCase
     }
 
     #[Test]
-    #[Covers('isConfigurationValid')]
     public function testIsConfigurationValidReturnsFalseIfFieldValueIsEmpty(): void
     {
         $config = [
@@ -107,7 +103,6 @@ class SetHiddenPropertiesTest extends TestCase
     }
 
     #[Test]
-    #[Covers('isConfigurationValid')]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
@@ -123,7 +118,6 @@ class SetHiddenPropertiesTest extends TestCase
     }
 
     #[Test]
-    #[Covers('isConfigurationValid')]
     public function testIsConfigurationValidReturnsFalseIfChildrenIsNotArray(): void
     {
         $config = [

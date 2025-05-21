@@ -62,7 +62,6 @@ class RenderContentTraitTest extends TestCase
     protected function setUp(): void
     {
         $this->markTestIncomplete('test fails due to dependency injection issues');
-        /** @phpstan-ignore deadCode.unreachable */
         $this->subject = $this->getMockBuilder(MockClassWithRenderContentTrait::class)
             ->getMock();
         $this->mockTypoScriptService();
