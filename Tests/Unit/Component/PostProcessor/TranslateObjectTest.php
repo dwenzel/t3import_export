@@ -93,7 +93,7 @@ class TranslateObjectTest extends TestCase
 
     /**
      * @throws \CPSIT\ImportExportCore\Exception\InvalidConfigurationException
-     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws \CPSIT\ImportExportCore\Exception\MissingClassException
      */
     #[Test]
     public function isConfigurationValidReturnsFalseFromValidator(): void
@@ -110,7 +110,7 @@ class TranslateObjectTest extends TestCase
 
     /**
      * @throws \CPSIT\ImportExportCore\Exception\InvalidConfigurationException
-     * @throws \CPSIT\T3importExport\MissingClassException
+     * @throws \CPSIT\ImportExportCore\Exception\MissingClassException
      */
     #[Test]
     public function isConfigurationValidReturnsTrueFromValidator(): void

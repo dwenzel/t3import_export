@@ -25,7 +25,6 @@ trait ResourceTrait
      * Wrapper method for testing purposes
      *
      * @return string
-     * @codeCoverageIgnore
      */
     protected function getAbsoluteFilePath($path)
     {

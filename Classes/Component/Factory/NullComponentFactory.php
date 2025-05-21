@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3importExport\Component\NullComponent;
+use CPSIT\ImportExportCore\Component\NullComponent;
 use CPSIT\T3importExport\Factory\FactoryInterface;
 
 /***************************************************************

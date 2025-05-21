@@ -30,7 +30,7 @@ namespace CPSIT\T3importExport\Component\Converter;
  ***************************************************************/
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
