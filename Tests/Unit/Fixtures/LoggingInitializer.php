@@ -21,6 +21,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
 use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\ImportExportCore\LoggingInterface;
@@ -28,10 +29,11 @@ use CPSIT\ImportExportCore\LoggingInterface;
 /**
  * Class LoggingInitializer
  * Dummy class for testing: Initializer implementing LoggingInterface
- * @deprecated
+ * @deprecated Autoloading of fixtures in phpunit does not work correctly.
  */
 class LoggingInitializer extends AbstractInitializer implements InitializerInterface, LoggingInterface
 {
+    use LoggingTrait;
     /**
      * Gets all messages
      * @return array

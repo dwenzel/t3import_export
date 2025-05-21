@@ -67,7 +67,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
                 1_451_060_913
             );
         }
-        if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass))) {
+        if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass), true)) {
             throw new MissingInterfaceException(
                 'Missing interface in configuration for source. Class ' . $dataSourceClass .
                 ' must implement interface ' . DataSourceInterface::class . '.',

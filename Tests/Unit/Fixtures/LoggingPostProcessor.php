@@ -21,6 +21,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\LoggingInterface;
@@ -28,10 +29,11 @@ use CPSIT\ImportExportCore\LoggingInterface;
 /**
  * Class LoggingPostProcessor
  * Fake class for testing: PostProcessor implementing LoggingInterface
- * @deprecated
+ * @deprecated Autoloading of fixtures in phpunit does not work correctly.
  */
 class LoggingPostProcessor extends AbstractPostProcessor implements PostProcessorInterface, LoggingInterface
 {
+    use LoggingTrait;
     /**
      * Gets all messages
      * @return array

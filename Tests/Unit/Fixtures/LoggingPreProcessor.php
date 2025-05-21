@@ -21,6 +21,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\ImportExportCore\LoggingInterface;
@@ -32,6 +33,8 @@ use CPSIT\ImportExportCore\LoggingInterface;
  */
 class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterface, PreProcessorInterface
 {
+    use LoggingTrait;
+
     /**
      * Gets all messages
      * @return array
@@ -51,7 +54,7 @@ class LoggingPreProcessor extends AbstractPreProcessor implements LoggingInterfa
      * @param array $record
      * @return bool
      */
-    public function process(array $configuration, array $record): bool
+    public function process(array $configuration, array &$record): bool
     {
         return true;
     }
