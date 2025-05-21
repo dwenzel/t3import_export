@@ -35,6 +35,8 @@ use PHPUnit\Framework\TestCase;
  ***************************************************************/
 class ConfigurableTraitTest extends TestCase
 {
+    protected object $subject;
+
     protected function setUp(): void
     {
         $this->subject = new class() {

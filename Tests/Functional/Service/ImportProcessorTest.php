@@ -35,12 +35,12 @@ class ImportProcessorTest extends FunctionalTestCase
     /**
      * @var DataTransferProcessor
      */
-    protected $importProcessor;
+    protected DataTransferProcessor $importProcessor;
 
     /**
      * @var TransferTaskFactory
      */
-    protected $transferTaskFactory;
+    protected TransferTaskFactory $transferTaskFactory;
 
     /**
      * @var array
@@ -53,13 +53,16 @@ class ImportProcessorTest extends FunctionalTestCase
         $this->importProcessor = new DataTransferProcessor();
 
         $this->transferTaskFactory = GeneralUtility::makeInstance(TransferTaskFactory::class);
-        $this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');
+        /**
+         * @todo use method importCSVDataSet, fixture must be migrated
+         */
+        //$this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');
     }
 
     /**
      * @test
      */
-    public function buildQueueFindsRecords()
+    public function buildQueueFindsRecords(): void
     {
         $taskIdentifier = 'findFeUser';
 

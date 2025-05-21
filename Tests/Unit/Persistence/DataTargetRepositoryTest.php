@@ -15,7 +15,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
-use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;use function Symfony\Component\String\u;
+use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
 
 /***************************************************************
  *
@@ -71,11 +71,11 @@ class MockRepositoryObjectRepository extends Repository
     #[\Override]
     public function findAll()
     {
+        return [];
     }
 
     /**
      * @return int|void
-     * @noinspection PhpMissingReturnTypeInspection
      */
     #[\Override]
     public function countAll()
@@ -93,7 +93,6 @@ class MockRepositoryObjectRepository extends Repository
     /**
      * @param int $uid
      * @return object|void|null
-     * @noinspection PhpMissingReturnTypeInspection
      */
     #[\Override]
     public function findByUid($uid)
@@ -127,7 +126,6 @@ class MockRepositoryObjectRepository extends Repository
 
     /**
      * @return QueryInterface|void
-     * @noinspection PhpMissingReturnTypeInspection
      */
     #[\Override]
     public function createQuery()
@@ -149,24 +147,24 @@ class DataTargetRepositoryTest extends TestCase
     /**
      * @var RepositoryInterface|MockObject
      */
-    protected RepositoryInterface $objectRepository;
+    protected RepositoryInterface|MockObject $objectRepository;
 
     /**
      * @var PersistenceManagerInterface|MockObject
      */
-    protected PersistenceManagerInterface $persistenceManager;
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
     /**
      * Creates a mock persistence manager
      */
     protected function mockPersistenceManager(): void
     {
-        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
+        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
+            ->getMock();
     }
 
     /**
      * Set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
@@ -181,7 +179,6 @@ class DataTargetRepositoryTest extends TestCase
         );
     }
 
-    #[Covers('getRepository')]
     #[Test]
     public function testGetRepositoryThrowsExceptionForUnknownClass(): void
     {
@@ -191,7 +188,6 @@ class DataTargetRepositoryTest extends TestCase
         $this->subject->getRepository();
     }
 
-    #[Covers('getRepository')]
     #[Test]
     public function testGetRepositoryReturnsRepositoryIfSet(): void
     {
@@ -216,7 +212,6 @@ class DataTargetRepositoryTest extends TestCase
         $this->subject->persist($mockObject, []);
     }
 
-    #[Covers('persist')]
     #[Test]
     public function testPersistUpdatesObject(): void
     {

@@ -24,7 +24,7 @@ namespace CPSIT\T3importExport\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\InvalidColumnMapException;
+use CPSIT\ImportExportCore\Exception\InvalidColumnMapException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\SingletonInterface;
