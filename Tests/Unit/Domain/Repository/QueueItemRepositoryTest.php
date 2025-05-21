@@ -7,7 +7,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Repository;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Domain\Repository\QueueRepository;
-use CPSIT\T3importExport\Exception\InvalidArgumentException;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;

@@ -28,7 +28,7 @@ trait ResourceStorageTrait
 {
     use StorageRepositoryTrait;
 
-    protected ResourceStorageInterface|ResourceStorage $resourceStorage;
+    protected ResourceStorage|ResourceStorageInterface|null $resourceStorage = null;
     /**
      * Initializes the resource resourceStorage
      *
