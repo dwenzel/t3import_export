@@ -53,9 +53,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
     use FileIndexRepositoryTrait;
     use GenerateFileTrait;
     use ResourceTrait;
-
-    protected ResourceStorageInterface|ResourceStorage $resourceStorage;
-
+    
     public function __construct(
         protected FileIndexRepository $fileIndexRepository,
         protected FilePathFactory $filePathFactory,

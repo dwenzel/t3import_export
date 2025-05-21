@@ -33,20 +33,15 @@ trait RenderContentTrait
      */
     public function getContentObjectRenderer(): ContentObjectRenderer
     {
-        if (!$this->contentObjectRenderer instanceof ContentObjectRenderer) {
-            $this->assertTypoScriptFrontendController();
-            $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-        }
+        $this->assertTypoScriptFrontendController();
+        $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
 
         return $this->contentObjectRenderer;
     }
 
     public function getTypoScriptService(): TypoScriptService
     {
-        if (!$this->typoScriptService instanceof TypoScriptService) {
-            $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
-        }
-
+        $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
         return $this->typoScriptService;
     }
 
