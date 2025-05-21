@@ -26,8 +26,6 @@ services:
       public: true
     CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource:
       public: true
-      arguments:
-        $messageContainer: '@CPSIT\ImportExportCore\Messaging\MessageContainer'
     CPSIT\T3importExport\Component\PreProcessor\LookUpDB:
       public: true
     CPSIT\T3importExport\Component\PreProcessor\RenderContent:
