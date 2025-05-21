@@ -6,13 +6,14 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 
 class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableInterface
 {

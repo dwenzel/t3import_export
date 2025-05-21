@@ -20,7 +20,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;

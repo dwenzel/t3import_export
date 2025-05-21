@@ -23,7 +23,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference;
 use CPSIT\ImportExportCore\LoggingInterface;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;

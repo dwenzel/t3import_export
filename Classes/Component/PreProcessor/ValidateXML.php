@@ -8,7 +8,7 @@ use CPSIT\T3importExport\Component\Finisher;
 use CPSIT\T3importExport\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;

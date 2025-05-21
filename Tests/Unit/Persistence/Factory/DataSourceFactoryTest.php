@@ -6,8 +6,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\ImportExportCore\IdentifiableInterface;
+use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;

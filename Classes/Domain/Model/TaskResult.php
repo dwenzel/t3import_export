@@ -28,8 +28,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Domain\Model;
 
-use CPSIT\T3importExport\Messaging\MessageContainer;
-use CPSIT\T3importExport\Messaging\MessageContainerTrait;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Messaging\MessageContainerTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class TaskResult implements \Iterator
