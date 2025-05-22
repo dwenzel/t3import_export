@@ -36,11 +36,6 @@ class Extension extends ExtensionConfiguration
     final public const string NAME = 'T3importExport';
     final public const string VENDOR_NAME = 'CPSIT';
 
-    final public const array MODULES_TO_REGISTER = [
-        ImportModuleRegistration::class,
-        ExportModuleRegistration::class,
-    ];
-
     final public const array COMMANDS_TO_REGISTER = [
         ImportSetCommand::DEFAULT_NAME => [
             'class' => ImportSetCommand::class,
@@ -51,11 +46,15 @@ class Extension extends ExtensionConfiguration
     ];
 
     final public const string SVG_ICON_IDENTIFIER_JOBS = 'jobs';
+    final public const string SVG_ICON_IDENTIFIER_MODULE_IMPORT = 't3import_export-module-import';
+    final public const string SVG_ICON_IDENTIFIER_MODULE_EXPORT = 't3import_export-module-export';
     /**
      * SVG icons to register
      */
     protected const SVG_ICONS_TO_REGISTER = [
         self::SVG_ICON_IDENTIFIER_JOBS => 'EXT:t3import_export/Resources/Public/Icons/tx_t3importexport_domain_model_job.svg',
+        self::SVG_ICON_IDENTIFIER_MODULE_IMPORT => 'EXT:t3import_export/Resources/Public/Icons/module_import.svg',
+        self::SVG_ICON_IDENTIFIER_MODULE_EXPORT => 'EXT:t3import_export/Resources/Public/Icons/module_export.svg',
     ];
 
     public function getCommandsToRegister(): array
@@ -76,26 +75,5 @@ class Extension extends ExtensionConfiguration
         }
 
         return [];
-    }
-
-    public static function getModuleConfiguration(): array
-    {
-        $configuration = [];
-        foreach (self::MODULES_TO_REGISTER as $registrationClass) {
-            $moduleConfiguration = $registrationClass::getModuleConfiguration();
-            $configuration[$registrationClass::getSubModuleName()] = [
-                'parent' => $registrationClass::getMainModuleName(),
-                'position' => [$registrationClass::getPosition()],
-                'access' => $moduleConfiguration['access'],
-                'workspaces' => 'live',
-                'path' => '/module/' . $registrationClass::getMainModuleName() . '/' . $registrationClass::getMainModuleName() . $registrationClass::getSubModuleName(),
-                'labels' => $moduleConfiguration['labels'],
-                'extensionName' => self::NAME,
-                'icon' => $moduleConfiguration['icon'],
-                'controllerActions' => $registrationClass::getControllerActions(),
-                'inheritNavigationComponentFromMainModule' => false,
-            ];
-        }
-        return $configuration;
     }
 }
