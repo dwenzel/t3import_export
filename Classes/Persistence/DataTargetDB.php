@@ -6,10 +6,10 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\PersistenceException;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\ImportExportCore\Exception\PersistenceException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
