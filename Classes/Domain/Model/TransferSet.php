@@ -23,12 +23,14 @@ namespace CPSIT\T3importExport\Domain\Model;
  ***************************************************************/
 use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Domain\Model\TransferSetInterface;
 
 /**
  * Class TransferSet
+ * @todo refactor in to cpsit/import-export-core
  * A set of transfer tasks
  */
-class TransferSet implements IdentifiableInterface
+class TransferSet implements IdentifiableInterface, TransferSetInterface
 {
     use IdentifiableTrait;
 
@@ -37,26 +39,26 @@ class TransferSet implements IdentifiableInterface
      *
      * @var string
      */
-    protected $description;
+    protected string $description;
 
     /**
      * Label
      *
      * @var string
      */
-    protected $label;
+    protected string $label;
 
     /**
      * Tasks to perform
      *
      * @var array
      */
-    protected $tasks;
+    protected array $tasks;
 
     /**
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -64,7 +66,7 @@ class TransferSet implements IdentifiableInterface
     /**
      * @param string $description
      */
-    public function setDescription($description)
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
@@ -72,7 +74,7 @@ class TransferSet implements IdentifiableInterface
     /**
      * @return array
      */
-    public function getTasks()
+    public function getTasks(): array
     {
         return $this->tasks;
     }
@@ -80,7 +82,7 @@ class TransferSet implements IdentifiableInterface
     /**
      * @param array $tasks
      */
-    public function setTasks($tasks)
+    public function setTasks(array $tasks): void
     {
         $this->tasks = $tasks;
     }
@@ -90,7 +92,7 @@ class TransferSet implements IdentifiableInterface
      *
      * @return string
      */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->label;
     }
@@ -100,7 +102,7 @@ class TransferSet implements IdentifiableInterface
      *
      * @param string $label
      */
-    public function setLabel($label)
+    public function setLabel(string $label): void
     {
         $this->label = $label;
     }

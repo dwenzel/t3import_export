@@ -21,6 +21,8 @@ namespace CPSIT\T3importExport\Domain\Model;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\ImportExportCore\Domain\Model\TransferTaskInterface;
 use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
@@ -31,7 +33,7 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  * Class TransferTask
  * An transfer task describes an transfer from one source to one class
  */
-class TransferTask extends AbstractEntity implements IdentifiableInterface
+class TransferTask extends AbstractEntity implements IdentifiableInterface, TransferTaskInterface
 {
     use IdentifiableTrait;
 
@@ -111,7 +113,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface
     /**
      * @param string $description
      */
-    public function setDescription($description)
+    public function setDescription(string $description)
     {
         $this->description = $description;
     }
@@ -127,7 +129,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface
     /**
      * @param string $targetClass
      */
-    public function setTargetClass($targetClass)
+    public function setTargetClass(string $targetClass)
     {
         $this->targetClass = $targetClass;
     }
@@ -182,7 +184,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface
      * Sets the pre-processors
      * @param array $preProcessors
      */
-    public function setPreProcessors($preProcessors)
+    public function setPreProcessors(array $preProcessors)
     {
         $this->preProcessors = $preProcessors;
     }
