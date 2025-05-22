@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Controller;
 
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
-use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
 
 /***************************************************************
  *  Copyright notice
@@ -30,23 +32,22 @@ use TYPO3\CMS\Core\Resource\Exception\InvalidConfigurationException;
 class ImportController extends BaseController implements TransferControllerInterface
 {
     final public const string SETTINGS_KEY = 'import';
-    public const TEMPLATE_PATH = 'Import/Index';
+    public const string TEMPLATE_PATH_INDEX = 'Import/Index';
+
     /**
      * Import task action
      *
      * @param string $identifier
      *
+     * @return ResponseInterface
      * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function importTaskAction($identifier): ResponseInterface
+    public function importTaskAction(string $identifier): ResponseInterface
     {
         $this->taskAction($identifier);
-        $this->moduleTemplate->setContent($this->view->render());
-
-        // this fails randomly since ModuleTemplate tries to access the
-        // fe user session for flash message and a valid user seems to be missing.
-        //return $this->htmlResponse($this->moduleTemplate->renderContent());
-        return $this->htmlResponse();
+        $this->moduleTemplate->renderResponse('Import/ImportTask');
     }
 
     /**
@@ -54,17 +55,14 @@ class ImportController extends BaseController implements TransferControllerInter
      *
      * @param string $identifier
      *
+     * @return ResponseInterface
      * @throws InvalidConfigurationException
      */
-    public function importSetAction($identifier): ResponseInterface
+    public function importSetAction(string $identifier): ResponseInterface
     {
         $this->setAction($identifier);
-        $this->moduleTemplate->setContent($this->view->render());
+        $this->moduleTemplate->renderResponse('Import/ImportTask');
 
-        // this fails randomly since ModuleTemplate tries to access the
-        // fe user session for flash message and a valid user seems to be missing.
-        //return $this->htmlResponse($this->moduleTemplate->renderContent());
-        return $this->htmlResponse();
     }
 
     /**
@@ -72,7 +70,7 @@ class ImportController extends BaseController implements TransferControllerInter
      *
      * @return string
      */
-    public function getSettingsKey()
+    public function getSettingsKey(): string
     {
         return self::SETTINGS_KEY;
     }
