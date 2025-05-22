@@ -27,13 +27,12 @@ use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
  * Class TransferTask
- * An transfer task describes an transfer from one source to one class
+ * A transfer task describes a transfer from one source to a target
  */
-class TransferTask extends AbstractEntity implements IdentifiableInterface, TransferTaskInterface
+class TransferTask implements IdentifiableInterface, TransferTaskInterface
 {
     use IdentifiableTrait;
 
@@ -42,70 +41,70 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @var string
      */
-    protected $targetClass;
+    protected string $targetClass;
 
     /**
      * Label
      *
      * @var string
      */
-    protected $label;
+    protected string $label;
     /**
      * Description
      *
      * @var string
      */
-    protected $description;
+    protected string $description;
 
     /**
      * @var DataSourceInterface
      */
-    protected $source;
+    protected DataSourceInterface $source;
 
     /**
      * @var DataTargetInterface
      */
-    protected $target;
+    protected DataTargetInterface $target;
 
     /**
      * Pre Processors
      *
      * @var array
      */
-    protected $preProcessors = [];
+    protected array $preProcessors = [];
 
     /**
      * Post Processors
      *
      * @var array
      */
-    protected $postProcessors = [];
+    protected array $postProcessors = [];
 
     /**
      * Converters
      *
      * @var array
      */
-    protected $converters = [];
+    protected array $converters = [];
 
     /**
      * Finishers
      *
      * @var array
      */
-    protected $finishers = [];
+    protected array $finishers = [];
 
     /**
      * Initializers
      *
      * @var array
      */
-    protected $initializers = [];
+    protected array $initializers = [];
 
     /**
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -113,7 +112,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
     /**
      * @param string $description
      */
-    public function setDescription(string $description)
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
@@ -121,7 +120,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
     /**
      * @return string
      */
-    public function getTargetClass()
+    public function getTargetClass(): string
     {
         return $this->targetClass;
     }
@@ -129,7 +128,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
     /**
      * @param string $targetClass
      */
-    public function setTargetClass(string $targetClass)
+    public function setTargetClass(string $targetClass): void
     {
         $this->targetClass = $targetClass;
     }
@@ -139,7 +138,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @return DataSourceInterface
      */
-    public function getSource()
+    public function getSource(): DataSourceInterface
     {
         return $this->source;
     }
@@ -147,7 +146,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
     /**
      * Sets the source of import
      */
-    public function setSource(DataSourceInterface $source)
+    public function setSource(DataSourceInterface $source): void
     {
         $this->source = $source;
     }
@@ -157,7 +156,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @return DataTargetInterface
      */
-    public function getTarget()
+    public function getTarget(): DataTargetInterface
     {
         return $this->target;
     }
@@ -165,7 +164,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
     /**
      * Sets the target of import
      */
-    public function setTarget(DataTargetInterface $target)
+    public function setTarget(DataTargetInterface $target): void
     {
         $this->target = $target;
     }
@@ -175,7 +174,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @return array
      */
-    public function getPreProcessors()
+    public function getPreProcessors(): array
     {
         return $this->preProcessors;
     }
@@ -184,7 +183,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      * Sets the pre-processors
      * @param array $preProcessors
      */
-    public function setPreProcessors(array $preProcessors)
+    public function setPreProcessors(array $preProcessors): void
     {
         $this->preProcessors = $preProcessors;
     }
@@ -194,7 +193,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @return array
      */
-    public function getPostProcessors()
+    public function getPostProcessors(): array
     {
         return $this->postProcessors;
     }
@@ -204,7 +203,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @param array $postProcessors
      */
-    public function setPostProcessors($postProcessors)
+    public function setPostProcessors(array $postProcessors): void
     {
         $this->postProcessors = $postProcessors;
     }
@@ -214,7 +213,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @return array
      */
-    public function getConverters()
+    public function getConverters(): array
     {
         return $this->converters;
     }
@@ -224,7 +223,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @param array $converters
      */
-    public function setConverters($converters)
+    public function setConverters(array $converters): void
     {
         $this->converters = $converters;
     }
@@ -234,7 +233,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @return array
      */
-    public function getFinishers()
+    public function getFinishers(): array
     {
         return $this->finishers;
     }
@@ -244,7 +243,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @param array $finishers
      */
-    public function setFinishers($finishers)
+    public function setFinishers(array $finishers): void
     {
         $this->finishers = $finishers;
     }
@@ -254,7 +253,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @return array
      */
-    public function getInitializers()
+    public function getInitializers(): array
     {
         return $this->initializers;
     }
@@ -264,7 +263,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @param array $initializers
      */
-    public function setInitializers($initializers)
+    public function setInitializers(array $initializers): void
     {
         $this->initializers = $initializers;
     }
@@ -273,7 +272,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      * Gets the label
      * @return string
      */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->label;
     }
@@ -283,7 +282,7 @@ class TransferTask extends AbstractEntity implements IdentifiableInterface, Tran
      *
      * @param string $label
      */
-    public function setLabel($label)
+    public function setLabel(string $label): void
     {
         $this->label = $label;
     }
