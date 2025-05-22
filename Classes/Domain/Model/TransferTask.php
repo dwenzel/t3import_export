@@ -31,6 +31,7 @@ use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 /**
  * Class TransferTask
  * A transfer task describes a transfer from one source to a target
+ * @todo refactor in to cpsit/import-export-core
  */
 class TransferTask implements IdentifiableInterface, TransferTaskInterface
 {
