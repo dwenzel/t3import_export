@@ -22,7 +22,7 @@ class DataTargetXMLStream extends DataTargetFileStream
      * @throws FileOperationErrorException
      */
     #[\Override]
-    public function persist($object, ?array $configuration = null)
+    public function persist($object, ?array $configuration = null): mixed
     {
         // init XML
         $this->initFileIfNotExist($configuration);
