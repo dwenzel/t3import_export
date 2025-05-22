@@ -6,10 +6,7 @@ namespace CPSIT\T3importExport\Configuration;
 
 use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Command\ImportTaskCommand;
-use CPSIT\T3importExport\Configuration\Module\ExportModuleRegistration;
-use CPSIT\T3importExport\Configuration\Module\ImportModuleRegistration;
 use DWenzel\T3extensionTools\Configuration\ExtensionConfiguration;
-use DWenzel\T3extensionTools\Configuration\ModuleRegistrationInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;

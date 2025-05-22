@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Persistence\Query\QueryFacade;
 use CPSIT\T3importExport\Persistence\Query\SelectJoinQuery;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
  * Class LookUpDB

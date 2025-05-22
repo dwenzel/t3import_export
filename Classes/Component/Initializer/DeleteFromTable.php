@@ -17,8 +17,8 @@ namespace CPSIT\T3importExport\Component\Initializer;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\T3importExport\DatabaseTrait;
 
 /**
  * Class DeleteFromTable

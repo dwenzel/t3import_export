@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Finisher;
 
-use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 
 /***************************************************************
  *  Copyright notice

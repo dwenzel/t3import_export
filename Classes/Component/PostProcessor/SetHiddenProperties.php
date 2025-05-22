@@ -21,9 +21,9 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
-use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 
 /**
  * Class SetHiddenProperties

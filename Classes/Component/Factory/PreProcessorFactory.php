@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Factory;
 
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************

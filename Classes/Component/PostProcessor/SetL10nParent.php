@@ -22,14 +22,14 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use CPSIT\T3importExport\Validation\Configuration\SetL10nParentConfigurationValidator;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 
 /**
  * Class TranslateObject

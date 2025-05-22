@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -23,7 +23,7 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
 /**
  * Dummy data target - does not persist anything

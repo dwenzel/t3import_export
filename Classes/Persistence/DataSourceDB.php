@@ -6,13 +6,14 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\ImportExportCore\IdentifiableInterface;
-use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingDatabaseException;
-use CPSIT\T3importExport\Persistence\Query\SelectQuery;
+use CPSIT\ImportExportCore\IdentifiableInterface;
+use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\ImportExportCore\RenderContentInterface;
+use CPSIT\T3importExport\DatabaseTrait;
+use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\RenderContentTrait;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
@@ -20,7 +21,6 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
-use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 
 /***************************************************************
  *  Copyright notice

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Persistence\Factory;
 
 use CPSIT\ImportExportCore\ConfigurableInterface;
-use CPSIT\T3importExport\Factory\AbstractFactory;
-use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
-use CPSIT\T3importExport\Persistence\DataSourceDB;
+use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
+use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\T3importExport\Factory\FactoryInterface;
+use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 

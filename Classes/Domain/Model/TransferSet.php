@@ -21,9 +21,9 @@ namespace CPSIT\T3importExport\Domain\Model;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\ImportExportCore\Domain\Model\TransferSetInterface;
 use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\IdentifiableTrait;
-use CPSIT\ImportExportCore\Domain\Model\TransferSetInterface;
 
 /**
  * Class TransferSet

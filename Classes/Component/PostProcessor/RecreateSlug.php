@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\T3importExport\Utility\TcaUtility;
 use TYPO3\CMS\Core\DataHandling\Model\RecordState;
 use TYPO3\CMS\Core\DataHandling\Model\RecordStateFactory;
@@ -11,7 +12,6 @@ use TYPO3\CMS\Core\DataHandling\SlugHelper;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 
 /**
  * Class RecreateSlug

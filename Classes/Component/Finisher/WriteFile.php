@@ -22,8 +22,8 @@ namespace CPSIT\T3importExport\Component\Finisher;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;

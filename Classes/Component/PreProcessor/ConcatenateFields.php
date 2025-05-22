@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice
@@ -25,7 +25,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Class ConcatenateFields

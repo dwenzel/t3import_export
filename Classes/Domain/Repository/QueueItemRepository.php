@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Domain\Repository;
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
-use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;

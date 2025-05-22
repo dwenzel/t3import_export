@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Command;
 
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Argument\TaskArgument;
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\ImportExportCore\Exception\MissingClassException;
-use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Command\Status;

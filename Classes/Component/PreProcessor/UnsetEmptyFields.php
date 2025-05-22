@@ -17,9 +17,8 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
-
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class UnsetEmptyFields

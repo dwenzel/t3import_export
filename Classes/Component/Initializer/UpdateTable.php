@@ -22,9 +22,9 @@ namespace CPSIT\T3importExport\Component\Initializer;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\DatabaseTrait;
 use TYPO3\CMS\Core\Database\Connection;
-use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 
 /**
  * Class UpdateTable

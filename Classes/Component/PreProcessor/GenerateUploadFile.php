@@ -16,8 +16,8 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Resource\ResourceTrait;
 
 /**
  * Class GenerateUploadFile

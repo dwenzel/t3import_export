@@ -6,14 +6,13 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
-use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 
 class DataTargetFileStream extends DataTargetRepository implements ConfigurableInterface
 {
