@@ -46,6 +46,8 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
                 $object->setStreamBuffer(null);
             }
         }
+
+        return null;
     }
 
     /**
