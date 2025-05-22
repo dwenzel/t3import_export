@@ -39,6 +39,7 @@ services:
     CPSIT\T3importExport\Persistence\DataSourceDB:
       public: true
     CPSIT\T3importExport\Persistence\DataSourceCSV:
+      public: true
       arguments:
         $configurationValidator: '@CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator'
     CPSIT\T3importExport\Persistence\DataSourceQueue:
