@@ -64,7 +64,7 @@ class PreProcessorFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        if (!in_array(PreProcessorInterface::class, class_implements($className))) {
+        if (!in_array(PreProcessorInterface::class, class_implements($className), true)) {
             throw new InvalidConfigurationException(
                 'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement PreProcessorInterface.',

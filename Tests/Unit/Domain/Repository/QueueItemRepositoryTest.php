@@ -35,12 +35,12 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  ***************************************************************/
 class QueueItemRepositoryTest extends TestCase
 {
-    protected QueueItemRepository $subject;
+    protected QueueItemRepository|MockObject $subject;
 
-    protected ConnectionPool&MockObject $connectionPool;
-    protected DatabaseConnectionService&MockObject $connectionService;
-    protected Connection&MockObject $connection;
-    protected PersistenceManagerInterface&MockObject $persistenceManager;
+    protected ConnectionPool|MockObject $connectionPool;
+    protected DatabaseConnectionService|MockObject $connectionService;
+    protected Connection|MockObject $connection;
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
     protected function mockConnection(): void
     {

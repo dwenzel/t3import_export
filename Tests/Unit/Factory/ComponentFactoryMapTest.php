@@ -6,9 +6,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Factory;
 
 use CPSIT\ImportExportCore\Component\ComponentInterface;
 use CPSIT\T3importExport\Component\Factory\NullComponentFactory;
-use CPSIT\T3importExport\Exception\InvalidClassException;
+use CPSIT\ImportExportCore\Exception\InvalidClassException;
 use CPSIT\T3importExport\Factory\ComponentFactoryMap;
-use DummyClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -69,9 +68,6 @@ class ComponentFactoryMapTest extends TestCase
         );
     }
 
-    /**
-     * @throws InvalidClassException
-     */
     #[DataProvider('validClassDataProvider')]
     #[Test]
     public function testResolveReturnsValidFactoryClassForValidProductClass(string $productClass, string $factoryClass): void

@@ -56,7 +56,7 @@ class MessageContainerTest extends TestCase
     public function singleMessageCanBeAdded(): void
     {
         /** @var Message $message */
-        $message = $this->createMock(Message::class);
+        $message = new Message('fooMessage', 'barTitle');
         $this->subject->addMessage($message);
 
         $expected = [$message];
@@ -84,10 +84,10 @@ class MessageContainerTest extends TestCase
     #[Test]
     public function messagesCanBeCleared(): void
     {
-        $messages = ['foo'];
+        $message = new Message('fooMessage', 'barTitle');
         $expected = [];
-        $this->subject->addMessages($messages);
-        $this->subject->clear();
+        $this->subject->addMessages([$message]);
+        $this->subject->clearMessages();
 
         $this->assertSame(
             $expected,
@@ -99,7 +99,7 @@ class MessageContainerTest extends TestCase
     public function hasMessageInitiallyReturnsFalse(): void
     {
         $nonExistingId = 4447;
-        $this->subject->clear();
+        $this->subject->clearMessages();
         $this->assertFalse(
             $this->subject->hasMessageWithId($nonExistingId)
         );
