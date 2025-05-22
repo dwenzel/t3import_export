@@ -30,14 +30,11 @@ namespace CPSIT\T3importExport\Domain\Model;
 
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
-class DataStream extends AbstractEntity implements DataStreamInterface
+class DataStream implements DataStreamInterface
 {
-    protected $buffer;
+    protected string $buffer;
 
-    /**
-     * @return mixed
-     */
-    public function setStreamBuffer($buffer)
+    public function setStreamBuffer(string $buffer): void
     {
         $this->buffer = $buffer;
     }
@@ -45,7 +42,7 @@ class DataStream extends AbstractEntity implements DataStreamInterface
     /**
      * @return mixed
      */
-    public function getStreamBuffer()
+    public function getStreamBuffer(): string
     {
         return $this->buffer;
     }

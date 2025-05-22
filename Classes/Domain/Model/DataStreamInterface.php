@@ -9,10 +9,10 @@ interface DataStreamInterface
     /**
      * @return string
      */
-    public function setStreamBuffer($buffer);
+    public function setStreamBuffer(string $buffer): void;
 
     /**
      * @return string
      */
-    public function getStreamBuffer();
+    public function getStreamBuffer(): string;
 }
