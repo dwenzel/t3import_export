@@ -39,38 +39,18 @@ use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
  ***************************************************************/
 class DataTargetRepository implements DataTargetInterface
 {
-    public const MISSING_CLASS_EXCEPTION_CODE = 1_641_374_612;
-    public const MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
-
-    /**
-     * Fully qualified class name of the object which should be persisted.
-     * The object must extend the \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject class.
-     *
-     * @var string
-     */
-    protected $targetClass;
-
-    /**
-     * @var Repository
-     */
-    protected $repository;
-
-    protected PersistenceManagerInterface $persistenceManager;
+    public const int MISSING_CLASS_EXCEPTION_CODE = 1_641_374_612;
+    public const string MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
 
     /**
      * Constructor
      */
-    public function __construct(string $targetClass, ?RepositoryInterface $repository = null, ?PersistenceManagerInterface $persistenceManager = null)
+    public function __construct(
+        protected string $targetClass,
+        protected ?RepositoryInterface $repository,
+        protected PersistenceManagerInterface $persistenceManager
+    )
     {
-        $this->targetClass = $targetClass;
-        $this->repository = $repository;
-        if ($persistenceManager === null) {
-            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
-                ->get(PersistenceManagerInterface::class);
-        }
-        if ($persistenceManager !== null) {
-            $this->persistenceManager = $persistenceManager;
-        }
     }
 
     /**
@@ -80,7 +60,7 @@ class DataTargetRepository implements DataTargetInterface
      * @param array $configuration Configuration array.
      * @return mixed
      */
-    public function persist($object, ?array $configuration = null)
+    public function persist($object, ?array $configuration = null): mixed
     {
         $repository = $this->getRepository();
         if (!$this->persistenceManager->isNewObject($object)) {
