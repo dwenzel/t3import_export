@@ -68,6 +68,8 @@ class DataTargetRepository implements DataTargetInterface
         } else {
             $repository->add($object);
         }
+
+        return null;
     }
 
     /**

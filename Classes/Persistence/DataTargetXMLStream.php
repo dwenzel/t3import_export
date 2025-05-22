@@ -28,6 +28,7 @@ class DataTargetXMLStream extends DataTargetFileStream
         $this->initFileIfNotExist($configuration);
         // write object data into array
         parent::persist($object, $configuration);
+        return null;
     }
 
     /**
