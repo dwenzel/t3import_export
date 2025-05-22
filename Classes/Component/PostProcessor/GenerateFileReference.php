@@ -61,7 +61,10 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
         protected PersistenceManagerInterface $persistenceManager,
         protected FileReferenceFactory $fileReferenceFactory,
         protected FileIndexRepository $fileIndexRepository,
-        protected MessageContainer $messageContainer
+        /**
+         * @todo temporarily disabled, because of dependency injection issues
+         */
+        //protected MessageContainer $messageContainer
     ) {}
 
     /**
