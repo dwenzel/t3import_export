@@ -32,7 +32,7 @@ class DataStream implements DataStreamInterface
 {
     protected string $buffer;
 
-    public function setStreamBuffer(string $buffer): void
+    public function setStreamBuffer(?string $buffer): void
     {
         $this->buffer = $buffer;
     }

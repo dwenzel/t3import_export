@@ -38,7 +38,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
      * @throws FileOperationErrorException
      */
     #[\Override]
-    public function persist($object, ?array $configuration = null)
+    public function persist($object, ?array $configuration = null): mixed
     {
         if ($object instanceof DataStreamInterface) {
             $this->writeBuffer($object->getStreamBuffer());
