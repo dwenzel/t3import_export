@@ -85,7 +85,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        // note: we want an independend instance for each component
+        // note: we want an independent instance for each component
         /** @var DataSourceInterface $dataSource */
         $dataSource = clone GeneralUtility::makeInstance($dataSourceClass);
         if (
