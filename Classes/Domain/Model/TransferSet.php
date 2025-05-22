@@ -39,21 +39,21 @@ class TransferSet implements IdentifiableInterface, TransferSetInterface
      *
      * @var string
      */
-    protected string $description;
+    protected string $description = '';
 
     /**
      * Label
      *
      * @var string
      */
-    protected string $label;
+    protected string $label = '';
 
     /**
      * Tasks to perform
      *
      * @var array
      */
-    protected array $tasks;
+    protected array $tasks = [];
 
     /**
      * @return string

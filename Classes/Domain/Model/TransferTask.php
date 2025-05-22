@@ -42,30 +42,30 @@ class TransferTask implements IdentifiableInterface, TransferTaskInterface
      *
      * @var string
      */
-    protected string $targetClass;
+    protected string $targetClass = '';
 
     /**
      * Label
      *
      * @var string
      */
-    protected string $label;
+    protected string $label = '';
     /**
      * Description
      *
      * @var string
      */
-    protected string $description;
+    protected string $description = '';
 
     /**
-     * @var DataSourceInterface
+     * @var DataSourceInterface|null
      */
-    protected DataSourceInterface $source;
+    protected ?DataSourceInterface $source = null;
 
     /**
-     * @var DataTargetInterface
+     * @var DataTargetInterface|null
      */
-    protected DataTargetInterface $target;
+    protected ?DataTargetInterface $target = null;
 
     /**
      * Pre Processors
@@ -136,10 +136,8 @@ class TransferTask implements IdentifiableInterface, TransferTaskInterface
 
     /**
      * Gets the source of import
-     *
-     * @return DataSourceInterface
      */
-    public function getSource(): DataSourceInterface
+    public function getSource(): ?DataSourceInterface
     {
         return $this->source;
     }
@@ -155,9 +153,9 @@ class TransferTask implements IdentifiableInterface, TransferTaskInterface
     /**
      * Gets the target of import
      *
-     * @return DataTargetInterface
+     * @return ?DataTargetInterface
      */
-    public function getTarget(): DataTargetInterface
+    public function getTarget(): ?DataTargetInterface
     {
         return $this->target;
     }
