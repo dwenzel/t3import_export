@@ -44,7 +44,7 @@ class ExportController extends BaseController implements TransferControllerInter
     public function exportTaskAction(string $identifier): ResponseInterface
     {
         $this->taskAction($identifier);
-        $this->moduleTemplate->renderResponse('Export/ExportTask');
+        return $this->moduleTemplate->renderResponse('Export/ExportTask');
     }
 
     /**
@@ -58,7 +58,7 @@ class ExportController extends BaseController implements TransferControllerInter
     public function exportSetAction(string $identifier): ResponseInterface
     {
         $this->setAction($identifier);
-        $this->moduleTemplate->renderResponse('Export/ExportSet');
+        return $this->moduleTemplate->renderResponse('Export/ExportSet');
     }
 
     /**
