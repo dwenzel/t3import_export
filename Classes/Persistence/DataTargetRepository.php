@@ -8,7 +8,6 @@ use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
@@ -49,9 +48,7 @@ class DataTargetRepository implements DataTargetInterface
         protected string $targetClass,
         protected ?RepositoryInterface $repository,
         protected PersistenceManagerInterface $persistenceManager
-    )
-    {
-    }
+    ) {}
 
     /**
      * Persist both new and updated objects.
