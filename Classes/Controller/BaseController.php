@@ -38,6 +38,12 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 abstract class BaseController extends ActionController
 {
     /**
+     * Note: this constant must be overridden in child classes
+     * with the correct path to the templates for the controller.
+     */
+    public const string TEMPLATE_PATH_INDEX = 'Fake/Index';
+
+    /**
      * @var DataTransferProcessor
      */
     protected DataTransferProcessor $dataTransferProcessor;
