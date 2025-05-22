@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Controller;
 
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -37,18 +40,18 @@ abstract class BaseController extends ActionController
     /**
      * @var DataTransferProcessor
      */
-    protected $dataTransferProcessor;
+    protected DataTransferProcessor $dataTransferProcessor;
 
     /**
      * @var TransferTaskFactory
      */
-    protected $transferTaskFactory;
+    protected TransferTaskFactory $transferTaskFactory;
 
     /**
      * @var TransferSetFactory
      */
-    protected $transferSetFactory;
-    protected $moduleTemplate;
+    protected TransferSetFactory $transferSetFactory;
+    protected ModuleTemplate $moduleTemplate;
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
         protected PageRenderer $pageRenderer
@@ -102,16 +105,14 @@ abstract class BaseController extends ActionController
             $sets = $this->buildSetsFromSettings($this->settings[$settingsKey]['sets']);
         }
 
-        $this->view->assignMultiple(
+        $this->moduleTemplate->assignMultiple(
             [
                 'tasks' => $tasks,
                 'sets' => $sets,
                 'settings' => $this->settings[$settingsKey],
             ]
         );
-        $this->moduleTemplate->setContent($this->view->render());
-
-        return $this->htmlResponse($this->moduleTemplate->renderContent());
+        return $this->moduleTemplate->renderResponse(static::TEMPLATE_PATH_INDEX);
     }
 
     /**
@@ -119,6 +120,8 @@ abstract class BaseController extends ActionController
      *
      * @param string $identifier
      * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException|\CPSIT\ImportExportCore\Exception\MissingInterfaceException
      */
     protected function taskAction($identifier): void
     {
