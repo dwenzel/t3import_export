@@ -55,7 +55,10 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
     public function __construct(
         protected FileIndexRepository $fileIndexRepository,
         protected FilePathFactory $filePathFactory,
-        protected MessageContainer $messageContainer
+        /**
+         * @todo temporarily disabled, because of dependency injection issues
+         */
+        //protected MessageContainer $messageContainer
     ) {}
 
     /**
