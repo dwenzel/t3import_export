@@ -16,7 +16,7 @@ use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\Exception\InvalidClassException;
+use CPSIT\ImportExportCore\Exception\InvalidClassException;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
@@ -64,7 +64,7 @@ class ComponentFactoryMap implements FactoryMapInterface
     public function resolve(string $productClass): string
     {
         $factoryClass = NullComponentFactory::class;
-        if (!in_array(ComponentInterface::class, class_implements($productClass))) {
+        if (!in_array(ComponentInterface::class, class_implements($productClass), true)) {
             $message = sprintf(self::INVALID_CLASS_MESSAGE, $productClass, ComponentInterface::class);
             throw new InvalidClassException(
                 $message,

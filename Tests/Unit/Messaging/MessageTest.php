@@ -40,7 +40,7 @@ class MessageTest extends TestCase
     {
         $message = 'foo';
         $title = 'bar';
-        $severity = ContextualFeedbackSeverity::ERROR;
+        $severity = Message::SEVERITY_ERROR;
         $id = 12;
         $additionalInformation = ['baz'];
 
@@ -76,7 +76,7 @@ class MessageTest extends TestCase
     {
         $message = 'foo';
         $defaultTitle = '';
-        $defaultSeverity = ContextualFeedbackSeverity::OK;
+        $defaultSeverity = Message::SEVERITY_OK;
         $additionalInformation = [];
 
         $this->subject = new Message($message, $defaultTitle, $defaultSeverity, null, $additionalInformation);
