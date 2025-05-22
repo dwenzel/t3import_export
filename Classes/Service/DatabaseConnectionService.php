@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Service;
 
 use CPSIT\ImportExportCore\Exception\MissingDatabaseException;
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;

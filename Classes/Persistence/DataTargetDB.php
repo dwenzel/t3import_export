@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Exception\PersistenceException;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
+
 /**
  * Copyright notice
  * (c) 2016. Vladimir Falcón Piva <falcon@cps-it.de>

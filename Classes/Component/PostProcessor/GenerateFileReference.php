@@ -21,10 +21,10 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
-use CPSIT\ImportExportCore\Messaging\MessageContainerInterface;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -36,7 +36,6 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
-use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 
 /**
  * Class GenerateFileReference

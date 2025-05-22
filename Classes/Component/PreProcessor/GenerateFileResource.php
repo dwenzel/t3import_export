@@ -19,16 +19,16 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
 /**
  * Class GenerateFileResource

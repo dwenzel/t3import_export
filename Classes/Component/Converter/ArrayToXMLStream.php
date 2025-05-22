@@ -28,9 +28,10 @@ namespace CPSIT\T3importExport\Component\Converter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
@@ -38,7 +39,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
-use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use XMLWriter;
 
 /**

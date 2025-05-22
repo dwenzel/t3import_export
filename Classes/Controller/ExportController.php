@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Controller;
 
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use Psr\Http\Message\ResponseInterface;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 
 /***************************************************************
  *  Copyright notice

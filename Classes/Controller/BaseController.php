@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Controller;
 
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;

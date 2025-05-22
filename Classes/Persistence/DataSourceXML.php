@@ -20,9 +20,9 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 
 /**
  * Class DataSourceXML

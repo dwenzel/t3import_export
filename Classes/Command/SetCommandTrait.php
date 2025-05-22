@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Command;
 
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

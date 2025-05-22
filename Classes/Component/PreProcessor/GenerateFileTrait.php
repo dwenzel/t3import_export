@@ -16,8 +16,8 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\ImportExportCore\LoggingTrait;
+use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;

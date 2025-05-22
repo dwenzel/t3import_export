@@ -22,6 +22,7 @@ namespace CPSIT\T3importExport\Persistence;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
+
 /**
  * Dummy data source - always returns an empty array
  */

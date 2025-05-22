@@ -28,8 +28,6 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Domain\Model;
 
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
-
 class DataStream implements DataStreamInterface
 {
     protected string $buffer;

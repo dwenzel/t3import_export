@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\Finisher;
 
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;
-use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
-
 
 /***************************************************************
  *  Copyright notice
