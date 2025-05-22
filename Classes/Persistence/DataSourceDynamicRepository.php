@@ -9,7 +9,6 @@ use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -98,10 +97,12 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         /**
          * Note: We use ObjectManager here in order to simplify DI for Repositories
          * fixme: find a solution with
+         * @todo usage of obsolete ObjectManagerInterface removed, check if GeneralUtility can be used for
+         * instantiation
          */
-        $objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
+        // $objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
 
-        $result = GeneralUtility::makeInstance($entityRepositoryName, $objectManager);
+        $result = GeneralUtility::makeInstance($entityRepositoryName);
 
         if (!$result) {
             throw new MissingClassException('Repository: ' . $entityClassName . 'could not be resolved');
