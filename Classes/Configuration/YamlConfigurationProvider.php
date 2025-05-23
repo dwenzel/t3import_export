@@ -63,12 +63,32 @@ class YamlConfigurationProvider implements SingletonInterface
      */
     public function loadFromDirectory(string $directory, string $extension = 'yaml'): array
     {
-        $files = glob($directory . '/*.' . $extension);
+        if (!is_dir($directory)) {
+            return $this->configurationManager->getFullConfiguration();
+        }
         
-        if (!empty($files)) {
-            foreach ($files as $file) {
-                $this->configurationManager->addConfiguration($this->yamlLoader, $file);
+        $files = scandir($directory);
+        if ($files === false) {
+            return $this->configurationManager->getFullConfiguration();
+        }
+        
+        $yamlFiles = [];
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') {
+                continue;
             }
+            
+            $filePath = $directory . '/' . $file;
+            if (is_file($filePath) && pathinfo($file, PATHINFO_EXTENSION) === $extension) {
+                $yamlFiles[] = $filePath;
+            }
+        }
+        
+        // Sort files to ensure consistent order
+        sort($yamlFiles);
+        
+        foreach ($yamlFiles as $file) {
+            $this->configurationManager->addConfiguration($this->yamlLoader, $file);
         }
         
         return $this->configurationManager->getFullConfiguration();
