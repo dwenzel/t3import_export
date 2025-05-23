@@ -48,16 +48,15 @@
   },
   "autoload": {
     "psr-4": {
-      "CPSIT\\T3importExport\\": "Classes"
+      "CPSIT\\T3importExport\\": "Classes/"
     }
   },
   "autoload-dev": {
     "psr-0": {
-      "CPSIT\\ImportExportCore\\": "../import-export-core",
       "org\\bovigo\\vfs\\": ".Build/vendor/mikey179/vfsstream/src/main/php"
     },
     "psr-4": {
-      "CPSIT\\T3importExport\\Tests\\": "Tests"
+      "CPSIT\\T3importExport\\Tests\\": "Tests/"
     }
   },
   "config": {
@@ -116,14 +115,22 @@
     ],
     "sca:php": "phpstan analyse -c phpstan.neon --memory-limit=1G",
     "test": [
-      "@test:unit"
+      "@test:unit",
+      "@test:functional"
     ],
     "test:coverage": [
-      "XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit.xml"
+      "@test:coverage:functional",
+      "@test:coverage:unit",
+      "@test:coverage:merge"
     ],
-    "test:unit": [
-      ".Build/bin/phpunit -c phpunit.xml Tests/Unit --no-coverage"
-    ]
+    "test:coverage-old": [
+      "XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit.unit.xml"
+    ],
+    "test:coverage:functional": ".Build/bin/phpunit -c phpunit.functional.xml",
+    "test:coverage:merge": "phpcov merge --html .Build/coverage/html/_merged --clover .Build/coverage/clover.xml --text php://stdout .Build/coverage/php",
+    "test:coverage:unit": ".Build/bin/phpunit -c phpunit.unit.xml",
+    "test:functional": "@test:coverage:functional --no-coverage",
+    "test:unit": "@test:coverage:unit --no-coverage"
   },
   "scripts-descriptions": {
     "fix": "Fix all code quality issues reported by the registered linters",

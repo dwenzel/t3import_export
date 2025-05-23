@@ -47,25 +47,27 @@ class ImportProcessorTest extends FunctionalTestCase
      * @var array
      */
     protected array $testExtensionsToLoad = [
-        'cpsit/t3import_export'
+        't3import_export'
     ];
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->importProcessor = new DataTransferProcessor();
         $this->transferTaskFactory = GeneralUtility::makeInstance(TransferTaskFactory::class);
-        
+
         // Import CSV fixture for TYPO3 13 compatibility
         $this->importCSVDataSet(__DIR__ . '/../Fixtures/fe_users.csv');
     }
 
-    #[Test]
-    public function canInstantiateProcessor(): void
+    public function tearDown(): void
     {
-        $this->assertInstanceOf(DataTransferProcessor::class, $this->importProcessor);
+        parent::tearDown();
+
+        restore_error_handler();
+        restore_exception_handler();
     }
 
     #[Test]
@@ -81,7 +83,7 @@ class ImportProcessorTest extends FunctionalTestCase
             )
             ->executeQuery()
             ->fetchOne();
-        
+
         $this->assertEquals(1, $count, 'Fixture data should be loaded');
 
         $taskIdentifier = 'findFeUser';
