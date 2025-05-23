@@ -70,7 +70,7 @@ class StringToTimeTest extends TestCase
             'fields' => 'foo,bar',
         ];
         $record = [
-            'foo' => 'now',
+            'foo' => 'today',
             'baz' => 'boo',
         ];
         $expectedRecord = [
