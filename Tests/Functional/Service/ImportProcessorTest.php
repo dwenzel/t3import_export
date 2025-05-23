@@ -23,6 +23,7 @@ namespace CPSIT\T3importExport\Tests\Functional\Service;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -45,25 +46,44 @@ class ImportProcessorTest extends FunctionalTestCase
     /**
      * @var array
      */
-    protected array $testExtensionsToLoad = ['typo3conf/ext/t3import_export'];
+    protected array $testExtensionsToLoad = [
+        'cpsit/t3import_export'
+    ];
 
     #[\Override]
     protected function setUp(): void
     {
+        parent::setUp();
+        
         $this->importProcessor = new DataTransferProcessor();
-
         $this->transferTaskFactory = GeneralUtility::makeInstance(TransferTaskFactory::class);
-        /**
-         * @todo use method importCSVDataSet, fixture must be migrated
-         */
-        //$this->importDataSet(__DIR__ . '/../Fixtures/importProcessorBuildQueue.xml');
+        
+        // Import CSV fixture for TYPO3 13 compatibility
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/fe_users.csv');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
+    public function canInstantiateProcessor(): void
+    {
+        $this->assertInstanceOf(DataTransferProcessor::class, $this->importProcessor);
+    }
+
+    #[Test]
     public function buildQueueFindsRecords(): void
     {
+        // Check if the fixture was loaded properly
+        $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('fe_users');
+        $count = $queryBuilder
+            ->count('*')
+            ->from('fe_users')
+            ->where(
+                $queryBuilder->expr()->eq('name', $queryBuilder->createNamedParameter('findFeUser'))
+            )
+            ->executeQuery()
+            ->fetchOne();
+        
+        $this->assertEquals(1, $count, 'Fixture data should be loaded');
+
         $taskIdentifier = 'findFeUser';
 
         $settings = [
