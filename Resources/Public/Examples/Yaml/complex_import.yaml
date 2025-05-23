@@ -1,0 +1,98 @@
+# Example of a complex import configuration with multiple components
+# This demonstrates a comprehensive YAML structure for t3import_export
+
+import:
+  tasks:
+    newsImport:
+      label: "Import News Articles"
+      description: |
+        Imports news articles from an XML source.
+        This task demonstrates multiple component types in action.
+      
+      source:
+        class: "CPSIT\\T3importExport\\Persistence\\DataSourceXML"
+        config:
+          file: "fileadmin/imports/news_feed.xml"
+          recordPath: "/feed/item"
+      
+      initializers:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
+          config:
+            tables: "tx_news_domain_model_news"
+            disable: 0
+      
+      preProcessors:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+          config:
+            mapping:
+              title: "title"
+              teaser: "description"
+              bodytext: "content"
+              datetime: "pubDate"
+              author: "author"
+        
+        20:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
+          config:
+            sourceField: "datetime"
+            targetField: "datetime"
+            format: "D, d M Y H:i:s O"
+        
+        30:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+          config:
+            targetField: "pid"
+            value: 42
+        
+        40:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
+          config:
+            table: "sys_category"
+            select:
+              fields: "uid"
+              where: "title = ###category###"
+            sourceField: "category"
+            targetField: "categories"
+      
+      converters:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToDomainObject"
+          config:
+            targetClass: "GeorgRinger\\News\\Domain\\Model\\News"
+      
+      postProcessors:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\PostProcessor\\GenerateFileReference"
+          config:
+            sourceField: "image_url"
+            targetField: "fal_media"
+            targetFolder: "1:/news_import/"
+            
+        20:
+          class: "CPSIT\\T3importExport\\Component\\PostProcessor\\SetL10nParent"
+          config:
+            languageField: "sys_language_uid"
+            disable:
+              if.result.hasMessage: 1508776068
+      
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetRepository"
+        config:
+          repository: "GeorgRinger\\News\\Domain\\Repository\\NewsRepository"
+      
+      finishers:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
+          config:
+            tables:
+              - "tx_news_domain_model_news"
+            pageIds:
+              - 42
+              - 43
+        
+        20:
+          class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+          config:
+            schema: "fileadmin/imports/news_schema.xsd"

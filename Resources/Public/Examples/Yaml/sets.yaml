@@ -1,0 +1,11 @@
+# Example YAML configuration for import sets
+# This is equivalent to the TypoScript example in TypoScript/sets.typoscript
+
+import:
+  sets:
+    testSet:
+      label: "Example Set"
+      description: |
+        An example import set containing the tasks *foo, bar, baz*.
+        Note: This set will fail since none of its task exist!
+      tasks: "foo,bar,baz"
