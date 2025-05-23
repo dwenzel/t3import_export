@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Command;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationManager as YamlConfigurationManager;
+use CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Command\Argument\SetArgument;
+use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
@@ -96,6 +99,13 @@ trait SetCommandTrait
             // @todo this is a workaround for TYPO3 9.5 where the class constant is not defined
             return defined(Command::class . '::INVALID') ? Command::INVALID : 2;
         }
+        
+        // Check if YAML configuration file is provided
+        $yamlConfigFile = $input->getOption(YamlConfigFileOption::NAME);
+        if (!empty($yamlConfigFile)) {
+            $this->loadYamlConfiguration($yamlConfigFile);
+        }
+        
         $this->io->comment(static::MESSAGE_STARTING);
 
         $this->process($identifier);
@@ -103,5 +113,31 @@ trait SetCommandTrait
 
         // @todo this is a workaround for TYPO3 9.5 where the class constant is not defined
         return defined(Command::class . '::SUCCESS') ? Command::SUCCESS : 0;
+    }
+    
+    /**
+     * Load YAML configuration from file
+     * 
+     * @param string $yamlFile Path to YAML configuration file
+     */
+    protected function loadYamlConfiguration(string $yamlFile): void
+    {
+        $yamlLoader = GeneralUtility::makeInstance(YamlConfigurationLoader::class);
+        $configManager = GeneralUtility::makeInstance(YamlConfigurationManager::class);
+        
+        try {
+            $configManager->addConfiguration($yamlLoader, $yamlFile);
+            $config = $configManager->getFullConfiguration();
+            
+            if (isset($config['module']['tx_t3importexport']['settings'][static::SETTINGS_KEY])) {
+                // Merge YAML configuration with existing TypoScript configuration
+                $this->settings = array_merge_recursive(
+                    $this->settings ?? [],
+                    $config['module']['tx_t3importexport']['settings'][static::SETTINGS_KEY]
+                );
+            }
+        } catch (\Exception $e) {
+            $this->io->error('Error loading YAML configuration: ' . $e->getMessage());
+        }
     }
 }

@@ -61,6 +61,7 @@ class ImportSetCommand extends Command implements ArgumentAwareInterface
     final public const string MESSAGE_STARTING = 'Starting import task';
     final public const string WARNING_MISSING_PARAMETER = 'Parameter %s must not be omitted';
     final public const array OPTIONS = [
+        YamlConfigFileOption::class,
     ];
     final public const array ARGUMENTS = [
         SetArgument::class,
