@@ -6,6 +6,13 @@ services:
     CPSIT\T3importExport\:
         resource: '../Classes/*'
         exclude: '../Classes/Persistence/Query/*'
+        
+    # YAML Configuration Provider
+    CPSIT\T3importExport\Configuration\YamlConfigurationProvider:
+        public: true
+        arguments:
+            $configurationManager: '@CPSIT\ImportExportCore\Configuration\ConfigurationManager'
+            $yamlLoader: '@CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader'
     CPSIT\T3importExport\Domain\Factory\TransferTaskFactory:
       public: true
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
