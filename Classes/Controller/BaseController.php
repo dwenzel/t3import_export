@@ -69,6 +69,7 @@ abstract class BaseController extends ActionController
         $this->moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue('module.t3import_export'));
         $this->moduleTemplate->getDocHeaderComponent()->disable();
     }
+
     /**
      * Injects the event import processor
      */
