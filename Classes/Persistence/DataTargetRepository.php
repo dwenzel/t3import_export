@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
@@ -36,26 +40,32 @@ use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataTargetRepository implements DataTargetInterface
+class DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 {
+    use ConfigurableTrait;
+
     public const int MISSING_CLASS_EXCEPTION_CODE = 1_641_374_612;
     public const string MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
+    private string $targetClass = '';
 
     /**
      * Constructor
      */
     public function __construct(
-        protected string $targetClass,
         protected ?RepositoryInterface $repository,
         protected PersistenceManagerInterface $persistenceManager
     ) {}
+
 
     /**
      * Persist both new and updated objects.
      *
      * @param DomainObjectInterface|array $object Record to persist. Either an array or an instance of \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
-     * @param array $configuration Configuration array.
+     * @param array|null $configuration Configuration array.
      * @return mixed
+     * @throws MissingClassException
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException
      */
     public function persist($object, ?array $configuration = null): mixed
     {
@@ -113,5 +123,14 @@ class DataTargetRepository implements DataTargetInterface
     public function getTargetClass()
     {
         return $this->targetClass;
+    }
+
+    public function isConfigurationValid(array $configuration): bool
+    {
+        if(!isset($configuration['targetClass'])) {
+            return false;
+        }
+        $this->targetClass = $configuration['targetClass'];
+        return true;
     }
 }

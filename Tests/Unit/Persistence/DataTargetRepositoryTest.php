@@ -173,7 +173,6 @@ class DataTargetRepositoryTest extends TestCase
             ->getMock();
         $this->mockPersistenceManager();
         $this->subject = new DataTargetRepository(
-            self::TARGET_CLASS,
             $this->objectRepository,
             $this->persistenceManager
         );
@@ -184,7 +183,7 @@ class DataTargetRepositoryTest extends TestCase
     {
         $this->expectException(MissingClassException::class);
         $this->expectExceptionCode(DataTargetRepository::MISSING_CLASS_EXCEPTION_CODE);
-        $this->subject = new DataTargetRepository('targetClass', null, $this->persistenceManager);
+        $this->subject = new DataTargetRepository(null, $this->persistenceManager);
         $this->subject->getRepository();
     }
 
@@ -225,11 +224,12 @@ class DataTargetRepositoryTest extends TestCase
     }
 
     #[Test]
-    public function testConstructorSetsTargetClass(): void
+    public function isConfigurationValidReturnsFalseForMissingTargetClass(): void
     {
-        $this->assertSame(
-            self::TARGET_CLASS,
-            $this->subject->getTargetClass()
+        $invalidConfiguration = [];
+
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($invalidConfiguration)
         );
     }
 

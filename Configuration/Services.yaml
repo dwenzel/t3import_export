@@ -43,6 +43,8 @@ services:
       public: true
     CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference:
       public: true
+    CPSIT\T3importExport\Persistence\DataTargetRepository:
+      public: true
     CPSIT\T3importExport\Persistence\DataSourceDB:
       public: true
     CPSIT\T3importExport\Persistence\DataSourceCSV:
