@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport;
 
-use CPSIT\T3importExport\Configuration\YamlConfigurationProvider;
-use TYPO3\CMS\Core\Core\Bootstrap;
+use CPSIT\ImportExportCore\Configuration\YamlConfigurationProvider;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************

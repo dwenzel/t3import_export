@@ -6,13 +6,20 @@ services:
     CPSIT\T3importExport\:
         resource: '../Classes/*'
         exclude: '../Classes/Persistence/Query/*'
-        
-    # YAML Configuration Provider
-    CPSIT\T3importExport\Configuration\YamlConfigurationProvider:
-        public: true
-        arguments:
-            $configurationManager: '@CPSIT\ImportExportCore\Configuration\ConfigurationManager'
-            $yamlLoader: '@CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader'
+
+    # Register core package services
+    # since cpsit/import-export-core is not a TYPO3 extension, its services
+    # are not available for dependency injection
+    #CPSIT\ImportExportCore\:
+    #  resource: '../../import-export-core/Classes/*'
+    #  exclude:
+    #        - '../../import-export-core/Classes/Exception/*'
+    CPSIT\ImportExportCore\Configuration\YamlConfigurationProvider:
+      public: true
+      arguments:
+        $configurationManager: '@CPSIT\ImportExportCore\Configuration\ConfigurationManager'
+        $yamlLoader: '@CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader'
+
     CPSIT\T3importExport\Domain\Factory\TransferTaskFactory:
       public: true
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:

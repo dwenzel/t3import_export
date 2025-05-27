@@ -29,6 +29,7 @@
     "cpsit/import-export-core": "dev-feature/yamlConfiguration as 0.1.0",
     "ergebnis/composer-normalize": "^2.28",
     "friendsofphp/php-cs-fixer": "^3.57",
+    "helhum/typo3-console": "^8.2",
     "helmich/typo3-typoscript-lint": "^3.0",
     "mikey179/vfsstream": "^1.6",
     "phpstan/extension-installer": "^1.2",
@@ -37,6 +38,7 @@
     "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^2.0",
     "ssch/typo3-rector": "^3.0",
+    "typo3/cms-frontend": "^13.4",
     "typo3/coding-standards": "^0.8.0",
     "typo3/testing-framework": "^9.0"
   },
