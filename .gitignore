@@ -1,3 +1,4 @@
 .scannerwork
 .php-cs-fixer.cache
 .claude/
+var/
