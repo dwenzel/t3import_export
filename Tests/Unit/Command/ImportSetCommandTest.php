@@ -9,10 +9,11 @@ use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Prophecy\ObjectProphecy;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use CPSIT\ImportExportCore\Configuration\ConfigurationManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -48,22 +49,22 @@ class ImportSetCommandTest extends TestCase
 
     protected ImportSetCommand $subject;
     /**
-     * @var ObjectProphecy<ConfigurationManagerInterface>
+     * @var ConfigurationManagerInterface|MockObject
      */
     protected $configurationManager;
 
     /**
-     * @var ObjectProphecy<TaskDemand>&TaskDemand
+     * @var TaskDemand|MockObject
      */
     protected $taskDemand;
 
     /**
-     * @var TransferSetFactory&ObjectProphecy<TransferSetFactory>
+     * @var TransferSetFactory|MockObject
      */
     protected $transferSetFactory;
 
     /**
-     * @var DataTransferProcessor&ObjectProphecy<DataTransferProcessor>
+     * @var DataTransferProcessor|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $dataTransferProcessor;
 
@@ -77,37 +78,31 @@ class ImportSetCommandTest extends TestCase
     {
         $this->markTestIncomplete();
         parent::setUp();
-        $this->transferSet = $this->prophesize(TransferSet::class);
-        $this->transferSetFactory = $this->prophesize(TransferSetFactory::class);
+        $this->transferSet = $this->createMock(TransferSet::class);
+        $this->transferSetFactory = $this->createMock(TransferSetFactory::class);
 
-        $this->transferSetFactory->get($this->settings)
-            ->willReturn($this->transferSet->reveal());
+        $this->transferSetFactory->method('get')
+            ->willReturn($this->transferSet);
 
         /** @var ConfigurationManagerInterface configurationManager */
-        $this->configurationManager = $this->prophesize(ConfigurationManagerInterface::class);
-        $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-            't3importexport'
-        )
+        $this->configurationManager = $this->createMock(ConfigurationManagerInterface::class);
+        $this->configurationManager->method('getFullConfiguration')
             ->willReturn(self::VALID_SETTINGS);
 
-        $this->taskDemand = $this->prophesize(TaskDemand::class);
-        GeneralUtility::addInstance(TaskDemand::class, $this->taskDemand->reveal());
-        $this->dataTransferProcessor = $this->prophesize(DataTransferProcessor::class);
+        $this->taskDemand = $this->createMock(TaskDemand::class);
+        GeneralUtility::addInstance(TaskDemand::class, $this->taskDemand);
+        $this->dataTransferProcessor = $this->createMock(DataTransferProcessor::class);
 
         /** @var DataTransferProcessor $processor */
-        $processor = $this->dataTransferProcessor->reveal();
         $this->subject = new ImportSetCommand(
             'foo',
-            $this->transferSetFactory->reveal(),
+            $this->transferSetFactory,
             $processor,
-            $this->configurationManager->reveal()
+            $this->configurationManager
         );
     }
 
-    /**
-     * @noinspection PhpUndefinedMethodInspection
-     */
+    #[Test]
     public function testMethodProcessOfDataTransferProcessorIsNotCallWithDryRun(): void
     {
         $this->dataTransferProcessor->process($this->taskDemand)
