@@ -23,7 +23,9 @@ namespace CPSIT\T3importExport\Tests\Functional\Service;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -59,15 +61,8 @@ class ImportProcessorTest extends FunctionalTestCase
         $this->transferTaskFactory = GeneralUtility::makeInstance(TransferTaskFactory::class);
 
         // Import CSV fixture for TYPO3 13 compatibility
-        $this->importCSVDataSet(__DIR__ . '/../Fixtures/fe_users.csv');
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-
-        restore_error_handler();
-        restore_exception_handler();
+        //@todo use other table to avoid dependency on fe_users table
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/pages.csv');
     }
 
     #[Test]
@@ -77,26 +72,28 @@ class ImportProcessorTest extends FunctionalTestCase
         $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('fe_users');
         $count = $queryBuilder
             ->count('*')
-            ->from('fe_users')
+            ->from('pages')
             ->where(
-                $queryBuilder->expr()->eq('name', $queryBuilder->createNamedParameter('findFeUser'))
+                $queryBuilder->expr()->eq('title', $queryBuilder->createNamedParameter('Subpage 1', ParameterType::STRING))
             )
             ->executeQuery()
             ->fetchOne();
 
         $this->assertEquals(1, $count, 'Fixture data should be loaded');
 
-        $taskIdentifier = 'findFeUser';
+        $taskIdentifier = 'findSubpage-1';
 
         $settings = [
             'source' => [
                 'config' => [
-                    'table' => 'fe_users',
-                    'where' => 'name="findFeUser"',
+                    'table' => 'pages',
+                    'where' => 'title="Subpage 1"',
                 ],
             ],
             'target' => [
-
+                'config' => [
+                    'targetClass' => PageRepository::class
+                ]
             ],
         ];
         $importTask = $this->transferTaskFactory->get($settings, $taskIdentifier);
@@ -115,8 +112,9 @@ class ImportProcessorTest extends FunctionalTestCase
             is_countable($queue[$taskIdentifier]) ? count($queue[$taskIdentifier]) : 0
         );
         $this->assertEquals(
+            $taskIdentifier,
             $queue[$taskIdentifier][0]['name'],
-            'findFeUser'
+
         );
     }
 }
