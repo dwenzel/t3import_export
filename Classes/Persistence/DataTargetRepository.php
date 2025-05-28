@@ -56,7 +56,6 @@ class DataTargetRepository implements DataTargetInterface, ConfigurableInterface
         protected PersistenceManagerInterface $persistenceManager
     ) {}
 
-
     /**
      * Persist both new and updated objects.
      *
@@ -127,7 +126,7 @@ class DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 
     public function isConfigurationValid(array $configuration): bool
     {
-        if(!isset($configuration['targetClass'])) {
+        if (!isset($configuration['targetClass'])) {
             return false;
         }
         $this->targetClass = $configuration['targetClass'];

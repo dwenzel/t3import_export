@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Command;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
@@ -41,7 +42,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+
 /**
  * Provides import set commands for cli and scheduler tasks
  */
@@ -91,8 +92,8 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      * @param ConfigurationHandlerInterface $configurationHandler
      */
     public function __construct(
-        private readonly TransferTaskFactory           $transferTaskFactory,
-        private readonly DataTransferProcessor         $dataTransferProcessor,
+        private readonly TransferTaskFactory $transferTaskFactory,
+        private readonly DataTransferProcessor $dataTransferProcessor,
         private readonly ConfigurationHandlerInterface $configurationHandler
     ) {
         parent::__construct(self::$defaultName);

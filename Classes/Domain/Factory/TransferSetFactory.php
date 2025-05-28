@@ -22,13 +22,14 @@ namespace CPSIT\T3importExport\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+
 /**
  * Class TransferSetFactory
  * builds import sets from settings
