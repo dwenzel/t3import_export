@@ -22,6 +22,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationManager;
+use CPSIT\ImportExportCore\Configuration\ConfigurationManagerInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
@@ -29,7 +31,6 @@ use CPSIT\T3importExport\Domain\Model\TransferTask;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
 /**
  * Class ImportSetFactoryTest
@@ -54,21 +55,20 @@ class TransferSetFactoryTest extends TestCase
     protected TransferTask $transferTask;
 
     /**
-     * @var ConfigurationManager|MockObject
+     * @var ConfigurationManagerInterface|MockObject
      */
-    protected ConfigurationManager $configurationManager;
+    protected ConfigurationManagerInterface|MockObject $configurationManager;
 
     protected array $settings = [];
 
     /**
      * Set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function mockConfigurationManager(): void
     {
         $this->configurationManager = $this->getMockBuilder(ConfigurationManager::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getConfiguration'])
+            ->onlyMethods(['getFullConfiguration'])
             ->getMock();
     }
 
@@ -101,39 +101,29 @@ class TransferSetFactoryTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['get'])
             ->getMock();
-        $this->transferSet = $this->getMockBuilder(TransferSet::class)
-            ->onlyMethods(
-                [
-                    'setIdentifier',
-                    'setDescription',
-                    'setLabel',
-                    'setTasks',
-                ]
-            )
-            ->getMock();
 
         $this->mockTransferTask();
 
-        $this->configurationManager->method('getConfiguration')
+        $this->configurationManager->method('getFullConfiguration')
             ->willReturn($this->settings);
         $this->transferTaskFactory->method('get')->willReturn($this->transferTask);
         $this->subject = new TransferSetFactory(
             $this->transferTaskFactory,
             $this->configurationManager,
-            $this->transferSet
         );
     }
 
-    public function testGetSetsIdentifier(): void
+    #[Test]
+    public function getSetsIdentifier(): void
     {
         $settings = [];
         $identifier = 'foo';
 
-        $this->transferSet->expects($this->once())
-            ->method('setIdentifier')
-            ->with(...[$identifier]);
-
-        $this->subject->get($settings, $identifier);
+        $transferSet = $this->subject->get($settings, $identifier);
+        $this->assertSame(
+            $identifier,
+            $transferSet->getIdentifier()
+        );
     }
 
     public function testGetSetsDescription(): void
@@ -143,11 +133,11 @@ class TransferSetFactoryTest extends TestCase
             'description' => $description,
         ];
 
-        $this->transferSet->expects($this->once())
-            ->method('setDescription')
-            ->with(...[$description]);
-
-        $this->subject->get($settings);
+        $transferSet = $this->subject->get($settings);
+        $this->assertSame(
+            $description,
+            $transferSet->getDescription()
+        );
     }
 
     public function testGetSetsLabel(): void
@@ -157,11 +147,11 @@ class TransferSetFactoryTest extends TestCase
             'label' => $label,
         ];
 
-        $this->transferSet->expects($this->once())
-            ->method('setLabel')
-            ->with(...[$label]);
-
-        $this->subject->get($settings);
+        $transferSet = $this->subject->get($settings);
+        $this->assertSame(
+            $label,
+            $transferSet->getLabel()
+        );
     }
 
     #[Test]
@@ -193,10 +183,11 @@ class TransferSetFactoryTest extends TestCase
             'foo' => $this->transferTask,
             'bar' => $this->transferTask,
         ];
-        $this->transferSet->expects($this->once())
-            ->method('setTasks')
-            ->with($expectedTasks);
 
-        $this->subject->get($config);
+        $transferSet = $this->subject->get($config);
+        $this->assertSame(
+            $expectedTasks,
+            $transferSet->getTasks()
+        );
     }
 }
