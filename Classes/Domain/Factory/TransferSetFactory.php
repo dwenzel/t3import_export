@@ -24,27 +24,30 @@ namespace CPSIT\T3importExport\Domain\Factory;
 
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-
+use CPSIT\ImportExportCore\Configuration\ConfigurationManagerInterface;
 /**
  * Class TransferSetFactory
  * builds import sets from settings
  */
 class TransferSetFactory extends AbstractFactory
 {
+    protected array $settings = [];
+    /**
+     * @var \CPSIT\T3importExport\Domain\Model\TransferSet|null
+     */
+    private ?TransferSet $transferSet;
+
     public function __construct(
         protected TransferTaskFactory $transferTaskFactory,
-        protected ConfigurationManagerInterface $configurationManager,
-        protected TransferSet $transferSet
+        private readonly ConfigurationManagerInterface $configurationManager
     ) {
-        $extensionConfiguration = $configurationManager->getConfiguration(
-            ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
-            't3importexport'
-        );
+        $this->transferSet = new TransferSet();
+        $extensionConfiguration = $configurationManager->getFullConfiguration();
+        //@todo: check if this is the correct way to get the settings
         $this->settings = $extensionConfiguration['settings'] ?? [];
     }
 
@@ -56,7 +59,7 @@ class TransferSetFactory extends AbstractFactory
      * @return TransferSet
      * @throws InvalidConfigurationException
      * @throws MissingClassException
-     * @throws MissingInterfaceException|\CPSIT\ImportExportCore\Exception\MissingInterfaceException
+     * @throws MissingInterfaceException
      */
     public function get(array $settings = [], ?string $identifier = ''): object
     {
