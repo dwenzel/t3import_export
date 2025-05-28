@@ -41,9 +41,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 /**
  * Provides import set commands for cli and scheduler tasks
  */
@@ -85,25 +83,19 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
      * @var string
      */
     protected static $defaultName = self::DEFAULT_NAME;
-    protected TransferTaskFactory $transferTaskFactory;
-    protected configurationManagerInterface $configurationManager;
 
     /**
      * @param string|null $name
-     * @param TransferTaskFactory|null $transferTaskFactory
-     * @param DataTransferProcessor|null $dataTransferProcessor
-     * @param ConfigurationManagerInterface|null $configurationManager
+     * @param TransferTaskFactory $transferTaskFactory
+     * @param DataTransferProcessor $dataTransferProcessor
+     * @param ConfigurationHandlerInterface $configurationHandler
      */
     public function __construct(
-        ?string $name = null,
-        ?TransferTaskFactory $transferTaskFactory = null,
-        ?DataTransferProcessor $dataTransferProcessor = null,
-        ?ConfigurationManagerInterface $configurationManager = null
+        private readonly TransferTaskFactory           $transferTaskFactory,
+        private readonly DataTransferProcessor         $dataTransferProcessor,
+        private readonly ConfigurationHandlerInterface $configurationHandler
     ) {
-        $this->transferTaskFactory = $transferTaskFactory ?? GeneralUtility::makeInstance(TransferTaskFactory::class);
-        $this->dataTransferProcessor = $dataTransferProcessor ?? GeneralUtility::makeInstance(DataTransferProcessor::class);
-        $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
-        parent::__construct($name);
+        parent::__construct(self::$defaultName);
         $this->initializeObject();
     }
 

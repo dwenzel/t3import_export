@@ -28,7 +28,7 @@ use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\ImportExportCore\Configuration\ConfigurationManagerInterface;
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 /**
  * Class TransferSetFactory
  * builds import sets from settings
@@ -43,10 +43,10 @@ class TransferSetFactory extends AbstractFactory
 
     public function __construct(
         protected TransferTaskFactory $transferTaskFactory,
-        private readonly ConfigurationManagerInterface $configurationManager
+        private readonly ConfigurationHandlerInterface $configurationHandler
     ) {
         $this->transferSet = new TransferSet();
-        $extensionConfiguration = $configurationManager->getFullConfiguration();
+        $extensionConfiguration = $configurationHandler->getFullConfiguration();
         //@todo: check if this is the correct way to get the settings
         $this->settings = $extensionConfiguration['settings'] ?? [];
     }
