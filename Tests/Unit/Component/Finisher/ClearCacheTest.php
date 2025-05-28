@@ -8,7 +8,6 @@ use CPSIT\T3importExport\Component\Finisher\ClearCache;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -41,10 +40,6 @@ class ClearCacheTest extends TestCase
      */
     protected $cacheService;
 
-    /**
-     * Set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     */
     protected function setUp(): void
     {
         $this->subject = new ClearCache();
