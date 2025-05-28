@@ -23,6 +23,7 @@ namespace CPSIT\T3importExport\Command;
  ***************************************************************/
 
 use CPSIT\T3importExport\Command\Argument\SetArgument;
+use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Controller\ExportController;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
