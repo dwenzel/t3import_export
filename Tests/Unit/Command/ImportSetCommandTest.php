@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\ImportExportCore\Configuration\ConfigurationManagerInterface;
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -49,9 +49,9 @@ class ImportSetCommandTest extends TestCase
 
     protected ImportSetCommand $subject;
     /**
-     * @var ConfigurationManagerInterface|MockObject
+     * @var ConfigurationHandlerInterface|MockObject
      */
-    protected $configurationManager;
+    protected $configurationHandler;
 
     /**
      * @var TaskDemand|MockObject
@@ -84,9 +84,9 @@ class ImportSetCommandTest extends TestCase
         $this->transferSetFactory->method('get')
             ->willReturn($this->transferSet);
 
-        /** @var ConfigurationManagerInterface configurationManager */
-        $this->configurationManager = $this->createMock(ConfigurationManagerInterface::class);
-        $this->configurationManager->method('getFullConfiguration')
+        /** @var ConfigurationHandlerInterface configurationHandler */
+        $this->configurationHandler = $this->createMock(ConfigurationHandlerInterface::class);
+        $this->configurationHandler->method('getFullConfiguration')
             ->willReturn(self::VALID_SETTINGS);
 
         $this->taskDemand = $this->createMock(TaskDemand::class);
@@ -98,7 +98,7 @@ class ImportSetCommandTest extends TestCase
             'foo',
             $this->transferSetFactory,
             $processor,
-            $this->configurationManager
+            $this->configurationHandler
         );
     }
 

@@ -22,8 +22,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\ImportExportCore\Configuration\ConfigurationManager;
-use CPSIT\ImportExportCore\Configuration\ConfigurationManagerInterface;
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandler;
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
@@ -55,18 +55,18 @@ class TransferSetFactoryTest extends TestCase
     protected TransferTask $transferTask;
 
     /**
-     * @var ConfigurationManagerInterface|MockObject
+     * @var ConfigurationHandlerInterface|MockObject
      */
-    protected ConfigurationManagerInterface|MockObject $configurationManager;
+    protected ConfigurationHandlerInterface|MockObject $configurationHandler;
 
     protected array $settings = [];
 
     /**
      * Set up
      */
-    protected function mockConfigurationManager(): void
+    protected function mockConfigurationHandler(): void
     {
-        $this->configurationManager = $this->getMockBuilder(ConfigurationManager::class)
+        $this->configurationHandler = $this->getMockBuilder(ConfigurationHandler::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getFullConfiguration'])
             ->getMock();
@@ -96,7 +96,7 @@ class TransferSetFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mockConfigurationManager();
+        $this->mockConfigurationHandler();
         $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['get'])
@@ -104,12 +104,12 @@ class TransferSetFactoryTest extends TestCase
 
         $this->mockTransferTask();
 
-        $this->configurationManager->method('getFullConfiguration')
+        $this->configurationHandler->method('getFullConfiguration')
             ->willReturn($this->settings);
         $this->transferTaskFactory->method('get')->willReturn($this->transferTask);
         $this->subject = new TransferSetFactory(
             $this->transferTaskFactory,
-            $this->configurationManager,
+            $this->configurationHandler,
         );
     }
 

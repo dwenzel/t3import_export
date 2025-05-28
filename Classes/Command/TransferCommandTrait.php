@@ -39,7 +39,7 @@ trait TransferCommandTrait
      */
     public function initializeObject(): void
     {
-        $fullConfiguration = $this->configurationManager->getFullConfiguration(
+        $fullConfiguration = $this->configurationHandler->getFullConfiguration(
         );
 
         //@todo: Check if this is the right path

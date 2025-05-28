@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Command;
 
-use CPSIT\ImportExportCore\Configuration\ConfigurationManager as YamlConfigurationManager;
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandler as YamlConfigurationManager;
 use CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\ImportExportCore\Configuration\ConfigurationManagerInterface;
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -46,8 +46,9 @@ trait SetCommandTrait
     public function __construct(
         private readonly TransferSetFactory    $transferSetFactory,
         private readonly DataTransferProcessor $dataTransferProcessor,
-        private readonly ConfigurationManagerInterface $configurationManager
+        private readonly ConfigurationHandlerInterface $configurationHandler
     ) {
+        parent::__construct(self::DEFAULT_NAME);
         $this->initializeObject();
     }
 

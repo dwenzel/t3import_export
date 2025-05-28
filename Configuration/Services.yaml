@@ -14,16 +14,23 @@ services:
     #  resource: '../../import-export-core/Classes/*'
     #  exclude:
     #        - '../../import-export-core/Classes/Exception/*'
+    CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader:
+      public: true
+      arguments:
+        $parser: '@CPSIT\ImportExportCore\Service\YamlConfigurationParser'
     CPSIT\ImportExportCore\Configuration\YamlConfigurationProvider:
       public: true
       arguments:
-        $configurationManager: '@CPSIT\ImportExportCore\Configuration\ConfigurationManager'
+        $configurationHandler: '@CPSIT\ImportExportCore\Configuration\ConfigurationHandler'
         $yamlLoader: '@CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader'
 
     CPSIT\T3importExport\Domain\Factory\TransferTaskFactory:
       public: true
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true
+      arguments:
+        $transferTaskFactory: '@CPSIT\T3importExport\Domain\Factory\TransferTaskFactory'
+        $configurationHandler: '@CPSIT\ImportExportCore\Configuration\ConfigurationHandler'
     CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter:
         tags:
             - name: extbase.type_converter
