@@ -51,8 +51,6 @@ use XMLWriter;
 #[CoversClass(\CPSIT\T3importExport\Persistence\DataTargetFileStream::class)]
 class DataTargetXMLStreamTest extends TestCase
 {
-    protected const TARGET_CLASS = 'baz';
-
     protected DataTargetXMLStream $subject;
 
     /**
@@ -113,7 +111,6 @@ class DataTargetXMLStreamTest extends TestCase
         $this->mockXmlWriter();
 
         $this->subject = new DataTargetXMLStream(
-            self::TARGET_CLASS,
             null,
             $this->persistenceManager
         );
