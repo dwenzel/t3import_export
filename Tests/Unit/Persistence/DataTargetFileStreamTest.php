@@ -48,7 +48,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  */
 class DataTargetFileStreamTest extends TestCase
 {
-    protected const TARGET_CLASS = 'foo';
 
     protected DataTargetFileStream $subject;
 
@@ -89,7 +88,6 @@ class DataTargetFileStreamTest extends TestCase
     {
         $this->mockPersistenceManager();
         $this->subject = new DataTargetFileStream(
-            self::TARGET_CLASS,
             null,
             $this->persistenceManager
         );
