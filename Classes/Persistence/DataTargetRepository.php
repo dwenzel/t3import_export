@@ -62,9 +62,8 @@ class DataTargetRepository implements DataTargetInterface
      * @param RepositoryInterface|null $repository
      * @param PersistenceManagerInterface|null $persistenceManager
      */
-    public function __construct(string $targetClass, RepositoryInterface $repository = null, PersistenceManagerInterface $persistenceManager = null)
+    public function __construct(RepositoryInterface $repository = null, PersistenceManagerInterface $persistenceManager = null)
     {
-        $this->targetClass = $targetClass;
         $this->repository = $repository;
         if ($persistenceManager === null) {
             $persistenceManager = GeneralUtility::makeInstance(PersistenceManagerInterface::class);
@@ -129,6 +128,15 @@ class DataTargetRepository implements DataTargetInterface
     public function persistAll($result = null, array $configuration = null)
     {
         $this->persistenceManager->persistAll();
+    }
+
+    /**
+     * @param string $targetClass
+     * @return void
+     */
+    public function setTargetClass(string $targetClass)
+    {
+        $this->targetClass = $targetClass;
     }
 
     /**
