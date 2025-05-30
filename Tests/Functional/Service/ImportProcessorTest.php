@@ -117,4 +117,63 @@ class ImportProcessorTest extends FunctionalTestCase
 
         );
     }
+
+    #[Test]
+    public function dataCanBeImportedWithSourceCSVandTargetDB(): void
+    {
+        $taskIdentifier = 'importCSV';
+        $settings = [
+            'source' => [
+                'class' => 'CPSIT\T3importExport\Persistence\DataSourceCSV',
+                'config' => [
+                    'file' => 'EXT:t3import_export/Tests/Functional/Fixtures/importCSVPages.csv',
+                ],
+            ],
+            'target' => [
+                'class' => 'CPSIT\T3importExport\Persistence\DataTargetDB',
+                'config' => [
+                    'table' => 'pages',
+                ]
+            ],
+        ];
+        $pageTitle = 'Imported Subpage 3';
+        $importTask = $this->transferTaskFactory->get($settings, $taskIdentifier);
+        $importDemand = new TaskDemand();
+        $importDemand->setTasks([$importTask]);
+
+        // assert that page does not exist
+        $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('pages');
+        $count = $queryBuilder
+            ->count('*')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()
+                    ->eq('title',
+                        $queryBuilder->createNamedParameter($pageTitle, ParameterType::STRING))
+            )
+            ->executeQuery()
+            ->fetchOne();
+
+        $this->assertEquals(0, $count, 'Page should not exist yet');
+
+        // build queue and process
+        $this->importProcessor->buildQueue($importDemand);
+        $this->importProcessor->process($importDemand);
+
+        // assert that page exists after import
+        $count = $queryBuilder
+            ->count('*')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()
+                    ->eq('title',
+                        $queryBuilder->createNamedParameter($pageTitle, ParameterType::STRING))
+            )
+            ->executeQuery()
+            ->fetchOne();
+
+        $this->assertEquals(1, $count, 'Page should exist now');
+
+
+    }
 }
