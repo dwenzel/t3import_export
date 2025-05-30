@@ -15,7 +15,11 @@ jobs:
       matrix:
         typo3-version: ['^13.4']
         php-version: ['8.3', '8.4']
-
+    env:
+      typo3DatabaseName: typo3
+      typo3DatabaseHost: '127.0.0.1'
+      typo3DatabaseUsername: root
+      typo3DatabasePassword: root
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,6 +31,10 @@ jobs:
           extensions: mbstring, xml, intl, zip, json, iconv, gd
           coverage: xdebug
           tools: composer:v2
+
+      # Start MySQL service
+      - name: Start MySQL
+        run: sudo /etc/init.d/mysql start
 
       - name: Get composer cache directory
         id: composer-cache
