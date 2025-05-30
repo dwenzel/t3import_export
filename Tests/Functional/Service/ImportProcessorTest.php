@@ -82,7 +82,7 @@ class ImportProcessorTest extends FunctionalTestCase
         $this->assertEquals(1, $count, 'Fixture data should be loaded');
 
         $taskIdentifier = 'findSubpage-1';
-
+        $title = "Subpage 1";
         $settings = [
             'source' => [
                 'config' => [
@@ -112,8 +112,8 @@ class ImportProcessorTest extends FunctionalTestCase
             is_countable($queue[$taskIdentifier]) ? count($queue[$taskIdentifier]) : 0
         );
         $this->assertEquals(
-            $taskIdentifier,
-            $queue[$taskIdentifier][0]['name'],
+            $title,
+            $queue[$taskIdentifier][0]['title'],
 
         );
     }
