@@ -86,9 +86,9 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
         $resource = rtrim((string)$this->loadResource($configuration));
 
         if (!empty($resource)) {
-            $delimiter = null;
-            $enclosure = null;
-            $escape = null;
+            $delimiter = ',';
+            $enclosure = '"';
+            $escape = '\\';
 
             if (isset($configuration['delimiter'])) {
                 $delimiter = $configuration['delimiter'];
