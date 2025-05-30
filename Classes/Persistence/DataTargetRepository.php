@@ -5,7 +5,6 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\T3importExport\MissingClassException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
@@ -68,8 +67,7 @@ class DataTargetRepository implements DataTargetInterface
         $this->targetClass = $targetClass;
         $this->repository = $repository;
         if ($persistenceManager === null) {
-            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
-                ->get(PersistenceManagerInterface::class);
+            $persistenceManager = GeneralUtility::makeInstance(PersistenceManagerInterface::class);
         }
         if (null !== $persistenceManager) {
             $this->persistenceManager = $persistenceManager;
