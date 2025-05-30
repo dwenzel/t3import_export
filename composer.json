@@ -34,6 +34,7 @@
     "mikey179/vfsstream": "^1.6",
     "phpstan/extension-installer": "^1.2",
     "phpstan/phpstan": "^2.1",
+    "phpunit/phpcov": "^11.0",
     "phpunit/phpunit": "^11.5 || ^12.1",
     "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^2.0",
