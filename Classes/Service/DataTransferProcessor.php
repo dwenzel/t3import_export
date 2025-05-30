@@ -34,7 +34,6 @@ use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class DataTransferProcessor
@@ -46,20 +45,6 @@ class DataTransferProcessor
      * Records to import
      */
     protected array $queue = [];
-
-    /**
-     * @var PersistenceManager
-     */
-    protected $persistenceManager;
-
-    /**
-     * injects the persistence manager
-     */
-    public function injectPersistenceManager(PersistenceManager $persistenceManager)
-    {
-        $this->persistenceManager = $persistenceManager;
-    }
-
     public function withQueue(array $queue): self
     {
         $this->queue = $queue;

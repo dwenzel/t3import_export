@@ -131,7 +131,6 @@ class DataTransferProcessorTest extends TestCase
         $this->mockConverter();
         $this->mockDataSource();
         $this->mockDataTarget();
-        $this->mockPersistenceManager();
         $this->mockInitializer();
         $this->mockFinisher();
         $this->mockTransferTask();
@@ -179,17 +178,6 @@ class DataTransferProcessorTest extends TestCase
     {
         $this->dataTarget = $this->createMock(DataTargetInterface::class);
     }
-
-    protected function mockPersistenceManager(): void
-    {
-        $this->persistenceManager = $this->getMockBuilder(PersistenceManager::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['persistAll'])
-            ->getMock();
-
-        $this->subject->injectPersistenceManager($this->persistenceManager);
-    }
-
     protected function mockInitializer(): void
     {
         $this->initializer = $this->createMock(InitializerInterface::class);
