@@ -113,8 +113,7 @@ class ImportProcessorTest extends FunctionalTestCase
         );
         $this->assertEquals(
             $title,
-            $queue[$taskIdentifier][0]['title'],
-
+            $queue[$taskIdentifier][0]['title']
         );
     }
 
