@@ -1,0 +1,63 @@
+import:
+  tasks:
+    importPages:
+      source:
+        class: 'CPSIT\T3importExport\Persistence\DataSourceDB'
+        config:
+          table: 'pages'
+          where: 'hidden = 0'
+      target:
+        class: 'CPSIT\T3importExport\Persistence\DataTargetDB'
+        config:
+          table: 'pages_copy'
+      preProcessors:
+        - class: 'CPSIT\T3importExport\Component\PreProcessor\MapFields'
+          config:
+            map:
+              title: 'new_title'
+              subtitle: 'new_subtitle'
+    importContent:
+      source:
+        class: 'CPSIT\T3importExport\Persistence\DataSourceCSV'
+        config:
+          file: 'EXT:t3import_export/Tests/Functional/Fixtures/content.csv'
+          delimiter: ','
+          enclosure: '"'
+      target:
+        class: 'CPSIT\T3importExport\Persistence\DataTargetDB'
+        config:
+          table: 'tt_content'
+      initializers:
+        - class: 'CPSIT\T3importExport\Component\Initializer\TruncateTables'
+          config:
+            tables: 'tt_content'
+  sets:
+    fullImport:
+      tasks: 'importPages,importContent'
+      description: 'Import all pages and content elements'
+
+export:
+  tasks:
+    exportPages:
+      source:
+        class: 'CPSIT\T3importExport\Persistence\DataSourceDB'
+        config:
+          table: 'pages'
+          where: 'hidden = 0'
+      target:
+        class: 'CPSIT\T3importExport\Persistence\DataTargetXML'
+        config:
+          file: '/tmp/pages_export.xml'
+          rootElement: 'pages'
+      postProcessors:
+        - class: 'CPSIT\T3importExport\Component\PostProcessor\RecreateSlug'
+          config:
+            field: 'slug'
+      finishers:
+        - class: 'CPSIT\T3importExport\Component\Finisher\ValidateXML'
+          config:
+            schemaFile: '/path/to/schema.xsd'
+  sets:
+    pageExport:
+      tasks: 'exportPages'
+      description: 'Export pages to XML format'
