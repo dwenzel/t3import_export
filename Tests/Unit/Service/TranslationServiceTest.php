@@ -74,8 +74,7 @@ class TranslationServiceTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['getDataMap'])
             ->getMock();
-        $this->dataMapper->method('getDataMap')
-            ->willReturn($this->dataMap);
+        // Don't set up default behavior here - let individual tests configure it
 
         return $this;
     }
@@ -105,7 +104,8 @@ class TranslationServiceTest extends TestCase
         $translation = new DummyDomainObjectA();
         $this->dataMapper->expects($this->once())
             ->method('getDataMap')
-            ->with(...[$origin::class]);
+            ->with($origin::class)
+            ->willReturn($this->dataMap);
         $this->dataMap->expects($this->once())
             ->method('getTranslationOriginColumnName')
             ->willReturn(null);
@@ -119,14 +119,66 @@ class TranslationServiceTest extends TestCase
     #[Test]
     public function translateSetsLanguageUid(): void
     {
-        // Skip this test as it requires more complex mocking in PHPUnit 12
-        $this->markTestSkipped('Test requires withConsecutive which is not available in PHPUnit 12');
+        $languageUid = 2;
+        $origin = new DummyDomainObjectA();
+        $translation = new DummyDomainObjectA();
+        
+        $this->dataMapper->expects($this->once())
+            ->method('getDataMap')
+            ->with($origin::class)
+            ->willReturn($this->dataMap);
+            
+        $this->dataMap->expects($this->exactly(2))
+            ->method('getTranslationOriginColumnName')
+            ->willReturn('l10n_parent');
+            
+        // Mock the column map that will be created when _setProperty fails
+        $columnMap = $this->createMock(ColumnMap::class);
+        $this->dataMap->expects($this->once())
+            ->method('getColumnMap')
+            ->with('l10nParent')
+            ->willReturn($columnMap);
+            
+        $this->dataMap->expects($this->once())
+            ->method('getTableName')
+            ->willReturn('tx_test_table');
+            
+        $this->subject->translate($origin, $translation, $languageUid);
+        
+        // The translation should have the language UID set
+        $this->assertSame($languageUid, $translation->_getProperty('_languageUid'));
     }
 
     #[Test]
     public function translateSetsTranslationOriginal(): void
     {
-        // Skip this test as it requires more complex mocking in PHPUnit 12
-        $this->markTestSkipped('Test requires multiple features not available in PHPUnit 12');
+        $languageUid = 2;
+        $origin = new DummyDomainObjectA();
+        $translation = new DummyDomainObjectA();
+        
+        $this->dataMapper->expects($this->once())
+            ->method('getDataMap')
+            ->with($origin::class)
+            ->willReturn($this->dataMap);
+            
+        $this->dataMap->expects($this->exactly(2))
+            ->method('getTranslationOriginColumnName')
+            ->willReturn('l10n_parent');
+            
+        // Mock the column map that will be created when _setProperty fails
+        $columnMap = $this->createMock(ColumnMap::class);
+        $this->dataMap->expects($this->once())
+            ->method('getColumnMap')
+            ->with('l10nParent')
+            ->willReturn($columnMap);
+            
+        $this->dataMap->expects($this->once())
+            ->method('getTableName')
+            ->willReturn('tx_test_table');
+            
+        $this->subject->translate($origin, $translation, $languageUid);
+        
+        // The translation should have the origin set as l10nParent
+        $this->assertSame($origin, $translation->_getProperty('l10nParent'));
     }
 }

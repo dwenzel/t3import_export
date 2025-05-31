@@ -24,27 +24,30 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
+ * Concrete class for testing ResourceStorageTrait
+ */
+class ResourceStorageTraitTestClass
+{
+    use ResourceStorageTrait;
+    
+    public function getStorageRepository(): ?StorageRepository
+    {
+        return $this->storageRepository ?? null;
+    }
+}
+
+/**
  * Class ResourceStorageTraitTest
  */
 class ResourceStorageTraitTest extends TestCase
 {
-    /**
-     * @var object Class using ResourceStorageTrait
-     */
-    protected $subject;
+    protected ResourceStorageTraitTestClass $subject;
+    protected StorageRepository $storageRepository;
 
-    /**
-     * @var StorageRepository|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $storageRepository;
-
-    /**
-     * set up subject
-     */
     protected function setUp(): void
     {
-        // Skip this test as it requires getMockForTrait and assertAttributeSame
-        $this->markTestSkipped('Test uses getMockForTrait and assertAttributeSame which are removed in PHPUnit 10+');
+        $this->subject = new ResourceStorageTraitTestClass();
+        $this->storageRepository = $this->createMock(StorageRepository::class);
     }
 
     /**
@@ -57,20 +60,31 @@ class ResourceStorageTraitTest extends TestCase
         ];
     }
 
-    /**
-     * @param string $class Class name of the dependency to inject
-     * @param string $propertyName The property holding the dependency
-     */
     #[Test]
     #[DataProvider('dependenciesDataProvider')]
-    public function dependenciesCanBeInjected($class, $propertyName): void
+    public function dependenciesCanBeInjected(string $class, string $propertyName): void
     {
-        // This test is skipped in setUp()
+        $this->subject->injectStorageRepository($this->storageRepository);
+        $this->assertInstanceOf($class, $this->subject->getStorageRepository());
     }
 
     #[Test]
     public function initializeStorageGetsStorageFromRepository(): void
     {
-        // This test is skipped in setUp()
+        $storageId = 1;
+        $configuration = ['storageId' => $storageId];
+        $mockStorage = $this->createMock(ResourceStorage::class);
+        
+        $this->storageRepository->expects($this->once())
+            ->method('findByUid')
+            ->with($storageId)
+            ->willReturn($mockStorage);
+            
+        $this->subject->injectStorageRepository($this->storageRepository);
+        $this->subject->initializeStorage($configuration);
+        
+        // We can't easily test the internal resourceStorage property 
+        // without exposing it, but we can verify the method was called
+        $this->assertTrue(true); // Test passes if no exception is thrown
     }
 }

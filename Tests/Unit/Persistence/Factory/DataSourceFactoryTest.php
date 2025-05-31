@@ -198,9 +198,6 @@ class DataSourceFactoryTest extends TestCase
     #[Test]
     public function testGetReturnsDefaultDataSource(): void
     {
-        $this->markTestSkipped('Skipped due to constructor dependency issues with DatabaseTrait in PHPUnit 12');
-
-        /** @phpstan-ignore deadCode.unreachable */
         $tableName = 'foo';
         $expectedClass = DataSourceFactory::DEFAULT_DATA_SOURCE_CLASS;
         $settings = [
@@ -209,7 +206,15 @@ class DataSourceFactoryTest extends TestCase
             ],
         ];
 
-        /** @noinspection UnnecessaryAssertionInspection */
+        // Create a mock DataSourceDB instance
+        $mockDataSource = $this->createMock($expectedClass);
+        
+        // Register the mock instance with GeneralUtility
+        \TYPO3\CMS\Core\Utility\GeneralUtility::addInstance(
+            $expectedClass,
+            $mockDataSource
+        );
+
         $this->assertInstanceOf(
             $expectedClass,
             $this->subject->get($settings)
@@ -219,16 +224,13 @@ class DataSourceFactoryTest extends TestCase
     #[Test]
     public function testGetReturnsDataSource(): void
     {
-        $this->markTestSkipped('Skipped due to constructor dependency issues with DatabaseTrait in PHPUnit 12');
-
-        /** @phpstan-ignore deadCode.unreachable */
-        $sourceClass = $this->dataSource::class;
+        $sourceClass = DummySourceClass::class;
         $identifier = 'foo';
         $settings = [
             'class' => $sourceClass,
             'config' => [],
         ];
-        /** @noinspection UnnecessaryAssertionInspection */
+        
         $this->assertInstanceOf(
             $sourceClass,
             $this->subject->get($settings, $identifier)
@@ -238,9 +240,6 @@ class DataSourceFactoryTest extends TestCase
     #[Test]
     public function testGetSetsConfiguration(): void
     {
-        $this->markTestSkipped('Skipped due to constructor dependency issues with DatabaseTrait in PHPUnit 12');
-
-        /** @phpstan-ignore deadCode.unreachable */
         $identifier = 'foo';
         $dataSourceClass = DummySourceClass::class;
         $settings = [
