@@ -39,6 +39,39 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 class MockClassWithRenderContentTrait
 {
     use RenderContentTrait;
+    
+    public function setTestContentObjectRenderer(ContentObjectRenderer $contentObjectRenderer): void
+    {
+        $this->contentObjectRenderer = $contentObjectRenderer;
+    }
+    
+    public function setTestTypoScriptService(TypoScriptService $typoScriptService): void
+    {
+        $this->typoScriptService = $typoScriptService;
+    }
+    
+    public function getContentObjectRenderer(): ContentObjectRenderer
+    {
+        if ($this->contentObjectRenderer !== null) {
+            return $this->contentObjectRenderer;
+        }
+        
+        // Use trait method directly
+        $this->assertTypoScriptFrontendController();
+        $this->contentObjectRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        return $this->contentObjectRenderer;
+    }
+    
+    public function getTypoScriptService(): TypoScriptService
+    {
+        if ($this->typoScriptService !== null) {
+            return $this->typoScriptService;
+        }
+        
+        // Use trait method directly
+        $this->typoScriptService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(TypoScriptService::class);
+        return $this->typoScriptService;
+    }
 }
 class RenderContentTraitTest extends TestCase
 {
@@ -53,18 +86,19 @@ class RenderContentTraitTest extends TestCase
     protected ContentContentObject|MockObject $contentObject;
 
     /**
-     * @var MockClassWithRenderContentTrait|MockObject
+     * @var MockClassWithRenderContentTrait
      */
-    protected MockClassWithRenderContentTrait|MockObject $subject;
+    protected MockClassWithRenderContentTrait $subject;
 
     protected TypoScriptService|MockObject $typoScriptService;
 
     protected function setUp(): void
     {
-        $this->markTestIncomplete('test fails due to dependency injection issues');
-        $this->subject = $this->getMockBuilder(MockClassWithRenderContentTrait::class)
-            ->getMock();
+        // Create a real instance instead of mock to use the trait methods
+        $this->subject = new MockClassWithRenderContentTrait();
+        
         $this->mockTypoScriptService();
+        $this->mockContentObjectRenderer();
 
         // Create TypoScriptFrontendController mock directly
         $typoScriptFrontendController = $this->getMockBuilder(TypoScriptFrontendController::class)
@@ -75,9 +109,9 @@ class RenderContentTraitTest extends TestCase
         // Set backup globals to preserve TSFE state
         $this->setBackupGlobals(true);
 
-        $this->mockContentObjectRenderer();
-
-        $this->subject->method('getTypoScriptFrontendController')->willReturn($GLOBALS['TSFE']);
+        // Inject mocked dependencies into the test subject
+        $this->subject->setTestContentObjectRenderer($this->contentObjectRenderer);
+        $this->subject->setTestTypoScriptService($this->typoScriptService);
     }
 
     /**
@@ -119,7 +153,7 @@ class RenderContentTraitTest extends TestCase
         $this->typoScriptService->expects($this->once())
             ->method('convertPlainArrayToTypoScriptArray')
             ->with($configuration);
-        $this->mockContentObjectRenderer();
+            
         $this->subject->renderContent([], $configuration);
     }
 
