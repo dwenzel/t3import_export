@@ -33,7 +33,7 @@ class DataSourceCSVTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->markTestSkipped('Class "org\bovigo\vfs\vfsStreamWrapper" not found in PHPUnit 12');
+        \org\bovigo\vfs\vfsStreamWrapper::register();
 
         $this->configurationValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
             ->onlyMethods(['isValid'])->getMock();

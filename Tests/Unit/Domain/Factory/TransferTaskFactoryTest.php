@@ -252,8 +252,6 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsSourceAndTargetWithIdentifier(): void
     {
-        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
-
         $identifier = 'foo';
         $settings = [
             'source' => [
@@ -264,23 +262,25 @@ class TransferTaskFactoryTest extends TestCase
             ],
         ];
 
-        $this->factoryFactory->expects($this->atLeastOnce())
+        $this->factoryFactory->expects($this->exactly(2))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class]
-            )
-            ->willReturn($this->factory);
-        $this->factory->expects($this->atLeastOnce())
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class]);
+                return $this->factory;
+            });
+
+        $this->factory->expects($this->exactly(2))
             ->method('get')
-            ->withConsecutive(
-                [$settings['target'], 'targetId'],
-                [$settings['source'], 'sourceId'],
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource
-            );
+            ->willReturnCallback(function ($config, $id) use ($settings) {
+                if ($config === $settings['target'] && $id === 'targetId') {
+                    return $this->dataTarget;
+                }
+                if ($config === $settings['source'] && $id === 'sourceId') {
+                    return $this->dataSource;
+                }
+                $this->fail('Unexpected factory call');
+            });
+
         $task = $this->subject->get($settings, $identifier);
         $this->assertSame(
             $this->dataTarget,
@@ -317,8 +317,6 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsPreProcessors(): void
     {
-        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
-
         $identifier = 'bar';
         $processorClass = PreProcessorInterface::class;
         $singleConfiguration = [
@@ -332,29 +330,33 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
+        
         $this->preProcessor->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
+            
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [PreProcessorInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, PreProcessorInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier]
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->preProcessor
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->preProcessor;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getPreProcessors();
         $this->assertSame(
@@ -366,8 +368,6 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsPostProcessors(): void
     {
-        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
-
         $identifier = 'bar';
         $processorClass = PostProcessorInterface::class;
         $singleConfiguration = [
@@ -381,26 +381,29 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
+        
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [PostProcessorInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, PostProcessorInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier]
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->postProcessor
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->postProcessor;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getPostProcessors();
         $this->assertSame(
@@ -412,8 +415,6 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsConverters(): void
     {
-        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
-
         $identifier = 'bar';
         $processorClass = ConverterInterface::class;
         $singleConfiguration = [
@@ -427,29 +428,33 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
+        
         $this->converter->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
+            
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [ConverterInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, ConverterInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier]
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->converter
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->converter;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getConverters();
         $this->assertSame(
@@ -461,8 +466,6 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsFinishers(): void
     {
-        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
-
         $identifier = 'bar';
         $finisherClass = FinisherInterface::class;
         $singleConfiguration = [
@@ -480,26 +483,29 @@ class TransferTaskFactoryTest extends TestCase
         $this->finisher->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
+            
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [FinisherInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, FinisherInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier]
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->finisher
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->finisher;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getFinishers();
         $this->assertSame(
@@ -511,8 +517,6 @@ class TransferTaskFactoryTest extends TestCase
     #[Test]
     public function testGetSetsInitializers(): void
     {
-        $this->markTestSkipped('withConsecutive() is not available in PHPUnit 12');
-
         $identifier = 'bar';
         $initializerClass = InitializerInterface::class;
         $singleConfiguration = [
@@ -526,26 +530,29 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
+        
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [InitializerInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, InitializerInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier]
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->initializer
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->initializer;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getInitializers();
         $this->assertSame(

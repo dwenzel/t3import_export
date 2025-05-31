@@ -8,24 +8,37 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * Concrete class for testing ResourceTrait
+ */
+class ResourceTraitTestClass
+{
+    use ResourceTrait;
+}
+
+/**
  * Class ResourceTraitTest
  */
 class ResourceTraitTest extends TestCase
 {
-    /**
-     * @var object with ResourceTrait
-     */
-    protected $subject;
+    protected ResourceTraitTestClass $subject;
 
     protected function setUp(): void
     {
-        // Skip this test as it requires getMockForTrait and vfsStream
-        $this->markTestSkipped('This test requires getMockForTrait and vfsStream');
+        $this->subject = new ResourceTraitTestClass();
     }
 
     #[Test]
-    public function loadResourceGetsFileResource(): void
+    public function loadResourceReturnsNullForEmptyConfiguration(): void
     {
-        // This test is skipped in setUp()
+        $result = $this->subject->loadResource([]);
+        $this->assertNull($result);
+    }
+
+    #[Test]
+    public function loadResourceReturnsNullForNonExistentFile(): void
+    {
+        $configuration = ['file' => 'nonexistent/file.txt'];
+        $result = $this->subject->loadResource($configuration);
+        $this->assertNull($result);
     }
 }
