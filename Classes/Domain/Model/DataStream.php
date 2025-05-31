@@ -30,7 +30,7 @@ namespace CPSIT\T3importExport\Domain\Model;
 
 class DataStream implements DataStreamInterface
 {
-    protected string $buffer;
+    protected ?string $buffer;
 
     public function setStreamBuffer(?string $buffer): void
     {
@@ -38,9 +38,9 @@ class DataStream implements DataStreamInterface
     }
 
     /**
-     * @return mixed
+     * @return ?string
      */
-    public function getStreamBuffer(): string
+    public function getStreamBuffer(): ?string
     {
         return $this->buffer;
     }
