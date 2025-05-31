@@ -50,6 +50,7 @@ class SelectQueryTest extends TestCase
             'orderBy',
             'addOrderBy',
             'setMaxResults',
+            'getRestrictions',
             // 'limit' method was removed from QueryBuilder
         ];
 
@@ -57,6 +58,12 @@ class SelectQueryTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods($fluidBuilderMethods)
             ->getMock();
+
+        // Create restrictions mock to handle getRestrictions()->removeAll()
+        $restrictions = $this->createMock(\TYPO3\CMS\Core\Database\Query\Restriction\QueryRestrictionContainerInterface::class);
+        $restrictions->method('removeAll')->willReturnSelf();
+        
+        $this->builder->method('getRestrictions')->willReturn($restrictions);
 
         // Create connection mock
         $this->connection = $this->createMock(Connection::class);
@@ -74,7 +81,9 @@ class SelectQueryTest extends TestCase
         $this->subject = new SelectQuery($this->connectionPool, $this->connectionService);
 
         foreach ($fluidBuilderMethods as $method) {
-            $this->builder->method($method)->willReturn($this->builder);
+            if ($method !== 'getRestrictions') {
+                $this->builder->method($method)->willReturn($this->builder);
+            }
         }
     }
 
@@ -119,11 +128,6 @@ class SelectQueryTest extends TestCase
     #[DataProvider('configurationDataProvider')]
     public function testWithConfigurationConfiguresQueryBuilder(array $config, string $expectedMethod, $expectedValue): void
     {
-        // Skip tests due to issues with QueryBuilder->restrictionContainer initialization in PHPUnit 12
-        $this->markTestSkipped(
-            'Skipping test due to issues with QueryBuilder->restrictionContainer initialization in PHPUnit 12'
-        );
-
         $this->connectionPool->expects($this->once())
             ->method('getConnectionForTable')
             ->with($config[QueryInterface::TABLE])
