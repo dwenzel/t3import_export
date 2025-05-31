@@ -246,31 +246,60 @@ class GenerateFileResourceTest extends TestCase
 
     public function testGetFileCopiesFileToTarget(): void
     {
-        // Skip this test due to file system dependency issues
-        $this->markTestSkipped('Skipping test that requires vfsStream dependency');
-
-        // Commented code to preserve the original test intent:
-        // $mockFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
-        // [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
-        // $this->mockFileGenerationBehavior($configuration['targetDirectoryPath'], $sourceFileName);
-        // $this->resourceStorage->expects($this->once())->method('getFile')->willReturn($mockFile);
-        // $this->assertSame($mockFile, $this->subject->getFile($configuration, $sourceFilePath));
+        // Set up vfsStream
+        vfsStreamWrapper::register();
+        [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
+        
+        // Create the virtual file system
+        vfsStream::setup($rootDirectory, null, $fileStructure);
+        
+        $mockFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
+        
+        // Mock that the file doesn't exist initially - using targetDir/ + basename(sourceFilePath)
+        $expectedFilePath = $targetDirectory . '/' . $sourceFileName;
+        $this->resourceStorage->expects($this->once())
+            ->method('hasFile')
+            ->with($expectedFilePath)
+            ->willReturn(false);
+            
+        $this->mockFileGenerationBehavior($configuration['targetDirectoryPath'], $sourceFileName);
+        
+        // Mock the resource storage to return the file after copying
+        $this->resourceStorage->expects($this->once())
+            ->method('getFile')
+            ->with($expectedFilePath)
+            ->willReturn($mockFile);
+            
+        // Mock the file index repository
+        $this->fileIndexRepository->expects($this->once())
+            ->method('add')
+            ->with($mockFile);
+        
+        $this->assertSame($mockFile, $this->subject->getFile($configuration, $sourceFilePath));
     }
 
     public function testGetFileReturnsNullOnFailure(): void
     {
-        // Skip this test due to file system dependency issues
-        $this->markTestSkipped('Skipping test that requires vfsStream dependency');
-
-        // Commented code to preserve the original test intent:
-        // $rootDirectory = 'root';
-        // $sourceFileContent = 'source file content';
-        // $sourceDirectory = 'sourceDir';
-        // $sourceFileName = 'foo.csv';
-        // $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
-        // $configuration = ['targetDirectoryPath' => 'invalidDirectory'];
-        // $this->mockFileGenerationBehavior($configuration['targetDirectoryPath'], $sourceFileName);
-        // $this->assertNull($this->subject->getFile($configuration, $sourceFilePath));
+        // Set up vfsStream
+        vfsStreamWrapper::register();
+        [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
+        
+        // Create the virtual file system
+        vfsStream::setup($rootDirectory, null, $fileStructure);
+        
+        // Use an invalid target directory to force copy failure
+        $invalidConfiguration = ['targetDirectoryPath' => 'invalidDirectory'];
+        
+        // Mock that the file doesn't exist initially
+        $expectedFilePath = 'invalidDirectory/' . $sourceFileName;
+        $this->resourceStorage->expects($this->once())
+            ->method('hasFile')
+            ->with($expectedFilePath)
+            ->willReturn(false);
+            
+        $this->mockFileGenerationBehavior($invalidConfiguration['targetDirectoryPath'], $sourceFileName);
+        
+        $this->assertNull($this->subject->getFile($invalidConfiguration, $sourceFilePath));
     }
 
     /**
@@ -280,7 +309,7 @@ class GenerateFileResourceTest extends TestCase
     protected function mockFileGenerationBehavior($targetDirectoryPath, string $sourceFileName): void
     {
         $storageConfiguration = [
-            'basePath' => 'root',
+            'basePath' => vfsStream::url('root'),
         ];
 
         $this->resourceStorage->expects($this->once())
@@ -297,7 +326,7 @@ class GenerateFileResourceTest extends TestCase
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
             ->with(...[$expectedFilePath])
-            ->willReturn('/mocked/path/' . $expectedFilePath);
+            ->willReturn($expectedFilePath);
     }
 
     public function testProcessGetsSingleFile(): void
