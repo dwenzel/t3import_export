@@ -170,8 +170,6 @@ class DataTargetFactoryTest extends TestCase
     #[Test]
     public function testGetReturnsDefaultDataTarget(): void
     {
-        $this->markTestSkipped('DataTargetRepository requires constructor arguments in PHPUnit 12');
-
         $identifier = 'foo';
         $objectClass = DummyTargetObjectClass::class;
         $settings = [
@@ -179,6 +177,15 @@ class DataTargetFactoryTest extends TestCase
                 'class' => $objectClass,
             ],
         ];
+
+        // Create a mock DataTargetRepository instance
+        $mockDataTarget = $this->createMock(DataTargetFactory::DEFAULT_DATA_TARGET_CLASS);
+        
+        // Register the mock instance with GeneralUtility
+        \TYPO3\CMS\Core\Utility\GeneralUtility::addInstance(
+            DataTargetFactory::DEFAULT_DATA_TARGET_CLASS,
+            $mockDataTarget
+        );
 
         $dataTarget = $this->subject->get($settings, $identifier);
         self::assertInstanceOf(
