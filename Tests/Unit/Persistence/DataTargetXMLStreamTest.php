@@ -27,17 +27,17 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
 {
     private ?BasicFileUtility $testFileUtility = null;
     private ?FileInfo $testFileInfo = null;
-    
+
     public function setTestFileUtility(BasicFileUtility $fileUtility): void
     {
         $this->testFileUtility = $fileUtility;
     }
-    
+
     public function setTestFileInfo(FileInfo $fileInfo): void
     {
         $this->testFileInfo = $fileInfo;
     }
-    
+
     #[\Override]
     protected function createTempFile($fileName): string
     {
@@ -49,17 +49,17 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
             }
             return $this->testFileUtility->getUniqueName($fileName, $absPath);
         }
-        
+
         return parent::createTempFile($fileName);
     }
-    
+
     #[\Override]
     protected function createAnonymTempFile(): string
     {
         // Fix the type issue by casting time() to string
         return $this->createTempFile(md5(uniqid((string)time(), true)));
     }
-    
+
     #[\Override]
     public function persistAll($result = null, ?array $configuration = null)
     {
@@ -74,7 +74,7 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
                 $result->setInfo($fileInfo);
             }
         }
-        
+
         // Call the XMLStream specific persistAll logic
         if (isset($this->writer)) {
             if ($this->existTemplate($configuration)) {
@@ -191,7 +191,6 @@ class DataTargetXMLStreamTest extends TestCase
     #[Test]
     public function testPersistDataStreamInTaskResultIteratorWithDirectOutput(): void
     {
-        $this->markTestIncomplete('test fails after refactoring');
         $taskResult = new TaskResult();
         $taskResult->setElements(
             [
@@ -229,10 +228,6 @@ class DataTargetXMLStreamTest extends TestCase
     #[Test]
     public function testPersistDataStreamInTaskResultIteratorWithDirectOutputAndCustomConfig(): void
     {
-        /**
-         * @see DataTargetFileStreamTest::testPersistDataSteamInTaskResultIterator()
-         */
-        $this->markTestIncomplete('this test seems to be a duplicate of DataTargetFileStreamTest::testPersistDataSteamInTaskResultIterator()');
         $taskResult = new TaskResult();
         $taskResult->setElements(
             [
@@ -243,29 +238,11 @@ class DataTargetXMLStreamTest extends TestCase
             ]
         );
 
-        $absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY . uniqid('', true));
-        $tmpPath = $absPath . '/' . uniqid('', true);
-        @mkdir($absPath, 0777, true);
-        $this->fileUtility->expects($this->once())
-            ->method('getUniqueName')
-            ->willReturn($tmpPath);
-
         $config = [
             'rootNodeName' => 'test',
             'header' => '<xml myheader="123">',
             'flush' => true,
         ];
-
-        $mockFileInfo = new FileInfo($tmpPath);
-
-        $this->objectManager->expects($this->at(0))
-            ->method('get')
-            ->with(...[BasicFileUtility::class])
-            ->willReturn($this->fileUtility);
-        $this->objectManager->expects($this->at(1))
-            ->method('get')
-            ->with(...[FileInfo::class])
-            ->willReturn($mockFileInfo);
 
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
