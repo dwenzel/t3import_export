@@ -16,6 +16,9 @@ use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
+use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPostProcessor;
+use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingInitializer;
+use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingFinisher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -232,13 +235,6 @@ class DataTransferProcessorTest extends TestCase
     }
 
     #[Test]
-    public function testBuildQueueSetsQueue(): void
-    {
-        // Skip this test as it uses methods not in the interface
-        $this->markTestSkipped('Test uses methods not in the interface');
-    }
-
-    #[Test]
     public function testProcessPreProcesses(): void
     {
         $preProcessorConfig = ['foo'];
@@ -322,28 +318,172 @@ class DataTransferProcessorTest extends TestCase
     #[Test]
     public function testProcessGathersMessagesFromLoggingPreProcessors(): void
     {
-        // Skip this test due to autoloading issues with fixture classes
-        $this->markTestSkipped('Test requires fixture classes with proper autoloading');
+        $messages = ['Test message from preprocessor'];
+        
+        // Create a mock that extends LoggingPreProcessor (which implements LoggingInterface)
+        $preProcessorMock = $this->getMockBuilder(LoggingPreProcessor::class)
+            ->onlyMethods(['getAndPurgeMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
+        
+        $preProcessorMock->method('getAndPurgeMessages')->willReturn($messages);
+        $preProcessorMock->method('isDisabled')->willReturn(false);
+        $preProcessorMock->method('getConfiguration')->willReturn([]);
+        $preProcessorMock->method('process')->willReturn(true);
+        
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+        
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([$preProcessorMock]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([]);
+        $transferTaskMock->method('getInitializers')->willReturn([]);
+        $transferTaskMock->method('getFinishers')->willReturn([]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+        
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+        
+        // Mock TaskResult to verify messages are added
+        $this->taskResult->expects($this->once())
+            ->method('addMessages')
+            ->with($messages);
+        
+        $this->subject->process($taskDemandMock);
     }
 
     #[Test]
     public function testProcessGathersMessagesFromLoggingPostProcessors(): void
     {
-        // Skip this test due to autoloading issues with fixture classes
-        $this->markTestSkipped('Test requires fixture classes with proper autoloading');
+        $messages = ['Test message from postprocessor'];
+        
+        // Create a mock that extends LoggingPostProcessor (which implements LoggingInterface)
+        $postProcessorMock = $this->getMockBuilder(LoggingPostProcessor::class)
+            ->onlyMethods(['getAndPurgeMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
+        
+        $postProcessorMock->method('getAndPurgeMessages')->willReturn($messages);
+        $postProcessorMock->method('isDisabled')->willReturn(false);
+        $postProcessorMock->method('getConfiguration')->willReturn([]);
+        $postProcessorMock->method('process')->willReturn(true);
+        
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+        
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([$postProcessorMock]);
+        $transferTaskMock->method('getInitializers')->willReturn([]);
+        $transferTaskMock->method('getFinishers')->willReturn([]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+        
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+        
+        // Mock TaskResult to verify messages are added
+        $this->taskResult->expects($this->once())
+            ->method('addMessages')
+            ->with($messages);
+        
+        $this->subject->process($taskDemandMock);
     }
 
     #[Test]
     public function testProcessGathersMessagesFromLoggingInitializers(): void
     {
-        // Skip this test due to autoloading issues with fixture classes
-        $this->markTestSkipped('Test requires fixture classes with proper autoloading');
+        $messages = ['Test message from initializer'];
+        
+        // Create a mock that extends LoggingInitializer (which implements LoggingInterface)
+        $initializerMock = $this->getMockBuilder(LoggingInitializer::class)
+            ->onlyMethods(['getAndPurgeMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
+        
+        $initializerMock->method('getAndPurgeMessages')->willReturn($messages);
+        $initializerMock->method('isDisabled')->willReturn(false);
+        $initializerMock->method('getConfiguration')->willReturn([]);
+        $initializerMock->method('process')->willReturn(true);
+        
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+        
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([]);
+        $transferTaskMock->method('getInitializers')->willReturn([$initializerMock]);
+        $transferTaskMock->method('getFinishers')->willReturn([]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+        
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+        
+        // Mock TaskResult to verify messages are added
+        $this->taskResult->expects($this->once())
+            ->method('addMessages')
+            ->with($messages);
+        
+        $this->subject->process($taskDemandMock);
     }
 
     #[Test]
     public function testProcessGathersMessagesFromLoggingFinishers(): void
     {
-        // Skip this test due to autoloading issues with fixture classes
-        $this->markTestSkipped('Test requires fixture classes with proper autoloading');
+        $messages = ['Test message from finisher'];
+        
+        // Create a mock that extends LoggingFinisher (which implements LoggingInterface)
+        $finisherMock = $this->getMockBuilder(LoggingFinisher::class)
+            ->onlyMethods(['getAndPurgeMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
+        
+        $finisherMock->method('getAndPurgeMessages')->willReturn($messages);
+        $finisherMock->method('isDisabled')->willReturn(false);
+        $finisherMock->method('getConfiguration')->willReturn([]);
+        $finisherMock->method('process')->willReturn(true);
+        
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+        
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([]);
+        $transferTaskMock->method('getInitializers')->willReturn([]);
+        $transferTaskMock->method('getFinishers')->willReturn([$finisherMock]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+        
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+        
+        // Mock TaskResult to verify messages are added
+        $this->taskResult->expects($this->once())
+            ->method('addMessages')
+            ->with($messages);
+        
+        $this->subject->process($taskDemandMock);
     }
 }
