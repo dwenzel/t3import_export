@@ -23,7 +23,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
  ***************************************************************/
 
 use CPSIT\ImportExportCore\LoggingInterface;
-use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\Message;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,25 +31,49 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * Concrete class for testing LoggingTrait
+ */
+class LoggingTraitTestClass
+{
+    use LoggingTrait;
+    
+    protected const ERROR_CODES = [
+        123 => ['Test Error', 'Test error description']
+    ];
+}
+
+/**
  * Class LoggingTraitTest
  */
 class LoggingTraitTest extends TestCase
 {
+    protected LoggingTraitTestClass $subject;
+    protected MessageContainer|MockObject $messageContainer;
+
     protected function setUp(): void
     {
-        // Skip this test in PHPUnit 12 as it requires getMockForTrait
-        $this->markTestSkipped('Test requires getMockForTrait which is removed in PHPUnit 12');
+        $this->messageContainer = $this->createMock(MessageContainer::class);
+        $this->subject = new LoggingTraitTestClass($this->messageContainer);
     }
 
     #[Test]
     public function testLogErrorCreatesDefaultMessage(): void
     {
-        // This test is skipped in setUp
+        $errorId = 123;
+        
+        $this->messageContainer->expects($this->once())
+            ->method('addMessage')
+            ->with($this->callback(function (Message $message) {
+                return $message->getTitle() === 'Test Error' 
+                    && $message->getSeverity() === Message::SEVERITY_ERROR;
+            }));
+            
+        $this->subject->logError($errorId);
     }
 
     #[Test]
     public function testGetNoticeCodesInitiallyReturnsEmptyArray(): void
     {
-        // This test is skipped in setUp
+        $this->assertSame([], $this->subject->getNoticeCodes());
     }
 }

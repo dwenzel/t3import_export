@@ -48,35 +48,15 @@ class ImportSetCommandTest extends TestCase
     ];
 
     protected ImportSetCommand $subject;
-    /**
-     * @var ConfigurationHandlerInterface|MockObject
-     */
-    protected $configurationHandler;
-
-    /**
-     * @var TaskDemand|MockObject
-     */
-    protected $taskDemand;
-
-    /**
-     * @var TransferSetFactory|MockObject
-     */
-    protected $transferSetFactory;
-
-    /**
-     * @var DataTransferProcessor|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $dataTransferProcessor;
-
+    protected ConfigurationHandlerInterface|MockObject $configurationHandler;
+    protected TaskDemand|MockObject $taskDemand;
+    protected TransferSetFactory|MockObject $transferSetFactory;
+    protected DataTransferProcessor|MockObject $dataTransferProcessor;
     protected array $settings = [];
-    /**
-     * @var ObjectProphecy<TransferSet>
-     */
-    protected $transferSet;
+    protected TransferSet|MockObject $transferSet;
 
     protected function setUp(): void
     {
-        $this->markTestIncomplete();
         parent::setUp();
         $this->transferSet = $this->createMock(TransferSet::class);
         $this->transferSetFactory = $this->createMock(TransferSetFactory::class);
@@ -93,11 +73,9 @@ class ImportSetCommandTest extends TestCase
         GeneralUtility::addInstance(TaskDemand::class, $this->taskDemand);
         $this->dataTransferProcessor = $this->createMock(DataTransferProcessor::class);
 
-        /** @var DataTransferProcessor $processor */
         $this->subject = new ImportSetCommand(
-            'foo',
             $this->transferSetFactory,
-            $processor,
+            $this->dataTransferProcessor,
             $this->configurationHandler
         );
     }
@@ -105,8 +83,8 @@ class ImportSetCommandTest extends TestCase
     #[Test]
     public function testMethodProcessOfDataTransferProcessorIsNotCallWithDryRun(): void
     {
-        $this->dataTransferProcessor->process($this->taskDemand)
-            ->shouldNotBeCalled();
+        $this->dataTransferProcessor->expects($this->never())
+            ->method('process');
         $this->subject->process(self::SET_IDENTIFIER, true);
     }
 }

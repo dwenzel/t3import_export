@@ -24,10 +24,8 @@ class DataSourceXMLTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->markTestSkipped('Class "org\bovigo\vfs\vfsStreamWrapper" not found in PHPUnit 12');
-
         $this->subject = new DataSourceXML();
-        // vfsStreamWrapper::register();
+        \org\bovigo\vfs\vfsStreamWrapper::register();
     }
 
     protected function mockSubject(): void
