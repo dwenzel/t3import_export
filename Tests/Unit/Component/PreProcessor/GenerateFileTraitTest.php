@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -31,7 +32,12 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 class GenerateFileTraitImplementation
 {
     use GenerateFileTrait;
+    use LoggingTrait;
 
+    public const array ERROR_CODES = [
+        1 => ['fooTitle', 'fooMessage'],
+        2 => ['barTitle', 'barMessage'],
+    ];
     public function getFile($configuration, $sourceFilePath): string
     {
         return '';
@@ -266,20 +272,12 @@ class GenerateFileTraitTest extends TestCase
         // Get the actual error codes from the subject
         $actualCodes = $this->subject->getErrorCodes();
 
-        // Assert that all the required error codes are present
-        $this->assertArrayHasKey(1_499_007_587, $actualCodes);
-        $this->assertArrayHasKey(1_497_427_302, $actualCodes);
-        $this->assertArrayHasKey(1_497_427_320, $actualCodes);
-        $this->assertArrayHasKey(1_497_427_335, $actualCodes);
-        $this->assertArrayHasKey(1_497_427_336, $actualCodes);
-        $this->assertArrayHasKey(1_497_427_346, $actualCodes);
-        $this->assertArrayHasKey(1_497_427_363, $actualCodes);
-
-        // Check specific error messages where needed
-        $this->assertEquals('Missing field name', $actualCodes[1_497_427_335][0]);
-        $this->assertEquals('Missing field name', $actualCodes[1_497_427_336][0]);
-        $this->assertStringContainsString('sourceField', $actualCodes[1_497_427_335][1]);
-        $this->assertStringContainsString('targetField', $actualCodes[1_497_427_336][1]);
+        foreach (GenerateFileTraitImplementation::ERROR_CODES as $code => $value) {
+            $this->assertArrayHasKey($code, $actualCodes);
+            [$title, $message] = $value;
+            $this->assertEquals($title, $actualCodes[$code][0]);
+            $this->assertEquals($message, $actualCodes[$code][1]);
+        }
     }
 
     #[Test]
