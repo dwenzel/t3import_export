@@ -93,20 +93,6 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
     }
 
     /**
-     * Returns error codes for current component.
-     * Must be an array in the form
-     * [
-     *  <id> => ['errorTitle', 'errorDescription']
-     * ]
-     * 'errorDescription' may contain placeholder (%s) for arguments.
-     * @return array
-     */
-    public function getErrorCodes()
-    {
-        return self::ERROR_CODES;
-    }
-
-    /**
      * Returns notice codes for current component.
      * Must be an array in the form
      * [
