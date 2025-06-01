@@ -44,12 +44,14 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  ***************************************************************/
 class MockLoggingPreProcessor implements PreProcessorInterface, LoggingInterface
 {
-    public function getErrorCodes()
+    public function getErrorCodes():array
     {
+        return [];
     }
 
     public function getNoticeCodes(): array
     {
+        return [];
     }
 
     public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
@@ -66,30 +68,37 @@ class MockLoggingPreProcessor implements PreProcessorInterface, LoggingInterface
 
     public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
     {
+        return '';
     }
 
     public function getMessages(): array
     {
+        return [];
     }
 
     public function getAndPurgeMessages(): array
     {
+        return [];
     }
 
     public function hasMessageWithId($id): bool
     {
+        return false;
     }
 
     public function process(array $configuration, array &$record): bool
     {
+        return true;
     }
 
     public function isConfigurationValid(array $configuration): bool
     {
+        return true;
     }
 
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
     {
+        return false;
     }
 
     public function setConfiguration(array $configuration): void
@@ -98,18 +107,21 @@ class MockLoggingPreProcessor implements PreProcessorInterface, LoggingInterface
 
     public function getConfiguration(): array
     {
+        return [];
     }
 }
 
 class MockLoggingPostProcessor implements PostProcessorInterface, LoggingInterface
 {
 
-    public function getErrorCodes()
+    public function getErrorCodes():array
     {
+        return [];
     }
 
     public function getNoticeCodes(): array
     {
+        return [];
     }
 
     public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
@@ -126,30 +138,37 @@ class MockLoggingPostProcessor implements PostProcessorInterface, LoggingInterfa
 
     public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
     {
+        return '';
     }
 
     public function getMessages(): array
     {
+        return [];
     }
 
     public function getAndPurgeMessages(): array
     {
+        return [];
     }
 
     public function hasMessageWithId($id): bool
     {
+        return false;
     }
 
     public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
+        return true;
     }
 
     public function isConfigurationValid(array $configuration): bool
     {
+        return true;
     }
 
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
     {
+        return false;
     }
 
     public function setConfiguration(array $configuration): void
@@ -158,6 +177,7 @@ class MockLoggingPostProcessor implements PostProcessorInterface, LoggingInterfa
 
     public function getConfiguration(): array
     {
+        return [];
     }
 }
 
@@ -165,14 +185,17 @@ class MockLoggingInitializer implements InitializerInterface, LoggingInterface
 {
     public function process(array $configuration, array &$records): bool
     {
+        return true;
     }
 
     public function isConfigurationValid(array $configuration): bool
     {
+        return true;
     }
 
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
     {
+        return false;
     }
 
     public function setConfiguration(array $configuration): void
@@ -181,14 +204,17 @@ class MockLoggingInitializer implements InitializerInterface, LoggingInterface
 
     public function getConfiguration(): array
     {
+        return [];
     }
 
-    public function getErrorCodes()
+    public function getErrorCodes():array
     {
+        return [];
     }
 
     public function getNoticeCodes(): array
     {
+        return [];
     }
 
     public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
@@ -205,18 +231,22 @@ class MockLoggingInitializer implements InitializerInterface, LoggingInterface
 
     public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
     {
+        return '';
     }
 
     public function getMessages(): array
     {
+        return [];
     }
 
     public function getAndPurgeMessages(): array
     {
+        return [];
     }
 
     public function hasMessageWithId($id): bool
     {
+        return false;
     }
 }
 
@@ -225,14 +255,17 @@ class MockLoggingFinisher implements FinisherInterface, LoggingInterface
 
     public function process(array $configuration, array &$records, object|array &$result): bool
     {
+        return true;
     }
 
     public function isConfigurationValid(array $configuration): bool
     {
+        return true;
     }
 
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
     {
+        return false;
     }
 
     public function setConfiguration(array $configuration): void
@@ -241,14 +274,17 @@ class MockLoggingFinisher implements FinisherInterface, LoggingInterface
 
     public function getConfiguration(): array
     {
+        return [];
     }
 
-    public function getErrorCodes()
+    public function getErrorCodes():array
     {
+        return [];
     }
 
     public function getNoticeCodes(): array
     {
+        return [];
     }
 
     public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
@@ -265,18 +301,22 @@ class MockLoggingFinisher implements FinisherInterface, LoggingInterface
 
     public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
     {
+        return '';
     }
 
     public function getMessages(): array
     {
+        return [];
     }
 
     public function getAndPurgeMessages(): array
     {
+        return [];
     }
 
     public function hasMessageWithId($id): bool
     {
+        return false;
     }
 }
 
