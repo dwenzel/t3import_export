@@ -49,6 +49,7 @@ class DataTargetXMLStream extends DataTargetFileStream
 
             // remove writer from memory and remove possible access locks from files
             $this->writer->flush();
+            // @phpstan-ignore unset.possiblyHookedProperty
             unset($this->writer);
         }
 

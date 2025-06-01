@@ -83,6 +83,7 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
                 $this->writer->endElement();
             }
             $this->writer->flush();
+            // @phpstan-ignore unset.possiblyHookedProperty
             unset($this->writer);
         }
     }
