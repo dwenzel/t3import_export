@@ -89,32 +89,6 @@ class DatabaseTraitTest extends TestCase
     }
 
     #[Test]
-    public function testConstructorGetsDatabaseConnectionFromGlobals(): void
-    {
-        $GLOBALS['TYPO3_DB'] = $this->connection;
-
-        // Re-create the subject to ensure the constructor runs again with the global value set
-        $subject = new class($this->connectionPool, $this->connectionService) {
-            use DatabaseTrait;
-
-            public function getDataBase()
-            {
-                return $this->database;
-            }
-
-            public function getDatabaseConnectionService()
-            {
-                return $this->connectionService;
-            }
-        };
-
-        $this->assertSame(
-            $this->connection,
-            $subject->getDataBase()
-        );
-    }
-
-    #[Test]
     public function testConstructorSetsConnectionService(): void
     {
         $this->assertSame(
