@@ -129,29 +129,6 @@ class DeleteFromTableTest extends TestCase
             $this->subject->isConfigurationValid($validConfiguration)
         );
     }
-
-    public function testConstructorSetsDefaultDatabase(): void
-    {
-        // First unset the one created in setUp
-        unset($GLOBALS['TYPO3_DB']);
-
-        // Create a custom connection for this test
-        $connection = $this->createMock(Connection::class);
-        $GLOBALS['TYPO3_DB'] = $connection;
-
-        // Create a new instance without mocks to test the constructor behavior
-        $emptyConnectionPool = $this->createMock(ConnectionPool::class);
-        $emptyConnectionService = $this->createMock(DatabaseConnectionService::class);
-        $localSubject = new DeleteFromTable($emptyConnectionPool, $emptyConnectionService);
-
-        $this->assertSame(
-            $connection,
-            $localSubject->getDataBase()
-        );
-
-        // Note: tearDown will clean up $GLOBALS['TYPO3_DB']
-    }
-
     public function testProcessDeletesRecordsFromTable(): void
     {
         $tableName = 'fooTable';

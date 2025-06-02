@@ -31,7 +31,7 @@ class DataSourceDBTest extends TestCase
         $this->connectionService = $this->createMock(DatabaseConnectionService::class);
         $this->connectionPool = $this->createMock(ConnectionPool::class);
         $this->connection = $this->createMock(Connection::class);
-        
+
         $this->subject = new DataSourceDB($this->connectionPool, $this->connectionService);
     }
 
@@ -91,7 +91,7 @@ class DataSourceDBTest extends TestCase
     {
         $identifier = 'external_db';
         $this->subject->setIdentifier($identifier);
-        
+
         $this->connectionService->expects($this->once())
             ->method('getDatabase')
             ->with($identifier)
@@ -116,7 +116,7 @@ class DataSourceDBTest extends TestCase
     public function getRecordsThrowsExceptionForInvalidConfiguration(): void
     {
         $invalidConfiguration = ['fields' => 'uid,title']; // missing table
-        
+
         $this->expectException(InvalidConfigurationException::class);
         $this->subject->getRecords($invalidConfiguration);
     }

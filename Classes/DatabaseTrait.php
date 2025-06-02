@@ -49,9 +49,8 @@ trait DatabaseTrait
      */
     public function __construct(protected ConnectionPool $connectionPool, protected DatabaseConnectionService $connectionService)
     {
-        if (!$this->database instanceof Connection) {
-            $this->database = $GLOBALS['TYPO3_DB'];
-        }
+        // Database connection is now set via the getDatabase() method when needed
+        // No longer using deprecated $GLOBALS['TYPO3_DB']
     }
 
     /**
