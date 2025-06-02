@@ -63,22 +63,22 @@ class TaskResultTest extends TestCase
         $this->assertEquals(3, $list->count());
         $this->assertTrue($list->removeElement($obj1));
         $this->assertEquals(2, $list->count());
-        $this->assertFalse(in_array($obj1, $list->toArray(), true));
+        $this->assertNotContains($obj1, $list->toArray());
 
         $this->assertTrue($list->removeIndex(0));
         $this->assertEquals(1, $list->count());
-        $this->assertFalse(in_array($obj1, $list->toArray(), true));
+        $this->assertNotContains($obj1, $list->toArray());
 
         $list->setElements([$obj1, $obj2]);
-        $this->assertTrue(in_array($obj1, $list->toArray(), true));
-        $this->assertTrue(in_array($obj2, $list->toArray(), true));
+        $this->assertContains($obj1, $list->toArray());
+        $this->assertContains($obj2, $list->toArray());
         $this->assertEquals(2, $list->count());
     }
 
     public function testIteratorFunctionalityAndInfoGetterSetter(): void
     {
         $expectedValues = ['This is the first item', 'This is the second item', 'And the final item'];
-        
+
         // Test iterator functionality with real TaskResult instance
         $list = new TaskResult();
         $list->setElements($expectedValues);
@@ -89,7 +89,7 @@ class TaskResultTest extends TestCase
             $values[] = $value;
             $counter++;
         }
-        
+
         $this->assertEquals(3, $counter);
         $this->assertEquals($expectedValues, $values);
 
