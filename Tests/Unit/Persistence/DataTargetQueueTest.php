@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Domain\Repository\QueueRepository;
 use CPSIT\T3importExport\Persistence\DataTargetQueue;
@@ -91,17 +92,88 @@ class DataTargetQueueTest extends TestCase
 
     public function testPersistAddsNewObject(): void
     {
-        $this->markTestIncomplete('to be done');
+        $objectData = [
+            'data' => 'test data content',
+            'some_field' => 'value',
+        ];
+        $configuration = [
+            DataTargetQueue::KEY_IDENTIFIER => 'import.test',
+        ];
+        
+        // The repository should check if the object is new
+        $this->repository->expects($this->once())
+            ->method('isNew')
+            ->with($this->callback(function ($item) use ($objectData, $configuration) {
+                // Verify that identifier and checksum are set correctly
+                return $item['identifier'] === $configuration[DataTargetQueue::KEY_IDENTIFIER]
+                    && $item['checksum'] === sha1($objectData['data'] . $configuration[DataTargetQueue::KEY_IDENTIFIER])
+                    && $item['data'] === $objectData['data']
+                    && $item['some_field'] === $objectData['some_field'];
+            }))
+            ->willReturn(true);
+
+        // Repository should call add method for new objects
+        $this->repository->expects($this->once())
+            ->method('add')
+            ->willReturn(true);
+
+        $result = $this->subject->persist($objectData, $configuration);
+        
+        self::assertTrue($result);
     }
 
     public function testPersistUpdatesObjectsIfAllowedByConfiguration(): void
     {
-        $this->markTestIncomplete('to be done');
+        $objectData = [
+            'identifier' => 'import.test',
+            'checksum' => 'existing_checksum',
+            'data' => 'updated data content',
+            'some_field' => 'updated_value',
+        ];
+        $configuration = [
+            DataTargetQueue::KEY_IDENTIFIER => 'import.test',
+            DataTargetQueue::KEY_ALLOW_UPDATE => '1', // Enable updates
+        ];
+        
+        // The repository should check if the object is new (it's not)
+        $this->repository->expects($this->once())
+            ->method('isNew')
+            ->with($objectData)
+            ->willReturn(false);
+
+        // Repository should call update method since allowUpdate is enabled
+        $this->repository->expects($this->once())
+            ->method('update')
+            ->with($objectData)
+            ->willReturn(true);
+
+        $result = $this->subject->persist($objectData, $configuration);
+        
+        self::assertTrue($result);
     }
 
     public function testPersistReturnsFalseIfRepositoryRejectsObject(): void
     {
-        // repository throws InvalidArgumentException
-        $this->markTestIncomplete('to be done');
+        $objectData = [
+            'data' => 'test data content',
+            'some_field' => 'value',
+        ];
+        $configuration = [
+            DataTargetQueue::KEY_IDENTIFIER => 'import.test',
+        ];
+        
+        // The repository should check if the object is new
+        $this->repository->expects($this->once())
+            ->method('isNew')
+            ->willReturn(true);
+
+        // Repository throws InvalidArgumentException when trying to add
+        $this->repository->expects($this->once())
+            ->method('add')
+            ->willThrowException(new InvalidArgumentException('Record is invalid', 1644911541));
+
+        $result = $this->subject->persist($objectData, $configuration);
+        
+        self::assertFalse($result);
     }
 }
