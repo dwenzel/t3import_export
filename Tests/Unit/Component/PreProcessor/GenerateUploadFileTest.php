@@ -111,25 +111,51 @@ class GenerateUploadFileTest extends TestCase
     }
 
     #[Test]
-    public function getFileInitiallyReturnsEmptyString()
+    public function getFileReturnsEmptyStringWhenCopyFails()
     {
-        $this->markTestSkipped('Skipping test that requires file path mocking due to usage of GeneralUtility::getFileAbsName');
-        $sourceFilePath = 'bang';
-        $storageConfiguration = [
-            'basePath' => '',
+        // Set up vfsStream
+        vfsStreamWrapper::register();
+        $rootDirectory = 'root';
+        $targetDirectory = 'targetDir';
+        
+        // Create virtual file system with only target directory (no source file)
+        $fileStructure = [
+            $targetDirectory => [],
         ];
+        vfsStream::setup($rootDirectory, null, $fileStructure);
+        
         $configuration = [
-            'targetDirectoryPath' => 'foo',
+            'targetDirectoryPath' => $targetDirectory,
         ];
-
+        
+        // Non-existent source file path
+        $nonExistentSourceFilePath = vfsStream::url($rootDirectory) . '/nonexistent/file.txt';
+        
+        $storageConfiguration = ['basePath' => vfsStream::url($rootDirectory)];
         $this->resourceStorage->expects($this->once())
             ->method('getConfiguration')
             ->willReturn($storageConfiguration);
+            
+        // Mock the file path factory to return the expected directory path
+        $expectedDirectoryPath = vfsStream::url($rootDirectory) . DIRECTORY_SEPARATOR . $targetDirectory . DIRECTORY_SEPARATOR;
+        $this->filePathFactory->expects($this->once())
+            ->method('createFromParts')
+            ->with([vfsStream::url($rootDirectory), $targetDirectory])
+            ->willReturn($expectedDirectoryPath);
+            
+        // The target path includes the filename as returned by getTargetPath method
+        $expectedTargetPath = $expectedDirectoryPath . 'file.txt';
+        
+        // Mock getAbsoluteFilePath to return the same path for file operations
+        $this->subject->expects($this->once())
+            ->method('getAbsoluteFilePath')
+            ->with($expectedTargetPath)
+            ->willReturn($expectedTargetPath);
 
-        $this->assertSame(
-            '',
-            $this->subject->getFile($configuration, $sourceFilePath)
-        );
+        // Test that when copy fails (source file doesn't exist), empty string is returned
+        $result = $this->subject->getFile($configuration, $nonExistentSourceFilePath);
+        
+        $this->assertSame('', $result);
     }
 
     #[Test]
