@@ -21,7 +21,6 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\ImportExportCore\LoggingInterface;
-use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;

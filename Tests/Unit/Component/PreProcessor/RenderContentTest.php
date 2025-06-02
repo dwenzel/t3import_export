@@ -169,7 +169,6 @@ class RenderContentTest extends TestCase
     #[Test]
     public function testProcessRendersContent(): void
     {
-        $this->markTestSkipped('This test fails due to dependency injection issues');;
         $fieldName = 'fooField';
         $renderObjectType = 'TEXT';
         $record = [];
@@ -187,17 +186,21 @@ class RenderContentTest extends TestCase
 
         $this->typoScriptService->expects($this->once())
             ->method('convertPlainArrayToTypoScriptArray')
-            ->with(...[$expectedConfiguration])
+            ->with($expectedConfiguration)
             ->willReturn($convertedConfiguration);
 
         $this->contentObjectRenderer->expects($this->once())
             ->method('getContentObject')
-            ->with(...[$renderObjectType])
+            ->with($renderObjectType)
             ->willReturn($this->contentObject);
+
+        $this->contentObjectRenderer->expects($this->once())
+            ->method('start')
+            ->with($record);
 
         $this->contentObject->expects($this->once())
             ->method('render')
-            ->with(...[$convertedConfiguration])
+            ->with($convertedConfiguration)
             ->willReturn($expectedContent);
 
         $this->subject->process($configuration, $record);
@@ -213,7 +216,6 @@ class RenderContentTest extends TestCase
     #[Test]
     public function processRendersContentForMultipleRowFields(): void
     {
-        $this->markTestSkipped('This test fails due to dependency injection issues');;
         $record = [
             'fooField' => [
                 [
@@ -236,11 +238,32 @@ class RenderContentTest extends TestCase
         ];
 
         $typoScriptConf = ['foo'];
+        $expectedContent = 'rendered content';
 
         $this->typoScriptService->expects($this->once())
             ->method('convertPlainArrayToTypoScriptArray')
+            ->with($configuration['fields']['fooField']['fields']['barField'])
             ->willReturn($typoScriptConf);
 
-        $this->subject->renderContent($configuration, $record);
+        $this->contentObjectRenderer->expects($this->once())
+            ->method('getContentObject')
+            ->with('TEXT')
+            ->willReturn($this->contentObject);
+
+        $this->contentObjectRenderer->expects($this->once())
+            ->method('start')
+            ->with($record['fooField'][0]);
+
+        $this->contentObject->expects($this->once())
+            ->method('render')
+            ->with($typoScriptConf)
+            ->willReturn($expectedContent);
+
+        $this->subject->process($configuration, $record);
+        
+        $this->assertSame(
+            $expectedContent,
+            $record['fooField'][0]['barField']
+        );
     }
 }

@@ -35,6 +35,46 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
     ) {}
 
     /**
+     * Override trait method to use injected dependencies
+     */
+    public function getContentObjectRenderer(): ContentObjectRenderer
+    {
+        return $this->contentObjectRenderer;
+    }
+
+    /**
+     * Override trait method to use injected dependencies
+     */
+    public function getTypoScriptService(): TypoScriptService
+    {
+        return $this->typoScriptService;
+    }
+
+    /**
+     * Override the trait's renderContent method to use injected dependencies
+     * @param array $record Optional data array
+     * @param array $configuration Plain or TypoScript array
+     * @return mixed|null Returns rendered content for each valid TypoScript object or null.
+     * @throws ContentRenderingException
+     */
+    public function renderContent(array $record, array $configuration): mixed
+    {
+        $typoScriptConf = $this->typoScriptService
+            ->convertPlainArrayToTypoScriptArray($configuration);
+        /** @var \TYPO3\CMS\Frontend\ContentObject\AbstractContentObject $contentObject */
+        $contentObject = $this->contentObjectRenderer
+            ->getContentObject($configuration['_typoScriptNodeValue']);
+
+        if ($contentObject !== null) {
+            $this->contentObjectRenderer->start($record);
+
+            return $contentObject->render($typoScriptConf);
+        }
+
+        return null;
+    }
+
+    /**
      * @param array $configuration
      * @param array $record
      * @return bool
