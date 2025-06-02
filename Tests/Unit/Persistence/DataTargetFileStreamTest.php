@@ -54,12 +54,12 @@ class DataTargetFileStreamTest extends TestCase
     /**
      * @var BasicFileUtility|MockObject
      */
-    protected BasicFileUtility $fileUtility;
+    protected BasicFileUtility|MockObject $fileUtility;
 
     /**
      * @var PersistenceManagerInterface|MockObject
      */
-    protected PersistenceManagerInterface $persistenceManager;
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
     /**
      * Creates a mock basic file utility
