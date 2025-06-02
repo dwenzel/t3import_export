@@ -50,9 +50,9 @@ use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 class ArrayToXMLStreamTest extends TestCase
 {
     /**
-     * @var MockObject|ArrayToXMLStream
+     * @var ArrayToXMLStream
      */
-    protected $subject;
+    protected ArrayToXMLStream $subject;
 
     protected function setUp(): void
     {
@@ -61,24 +61,16 @@ class ArrayToXMLStreamTest extends TestCase
 
     public function testGetMappingConfiguration(): void
     {
-        // test for default configurator
-        $propertyMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
-            ->onlyMethods(['setTypeConverterOptions', 'skipUnknownProperties'])
-            ->getMock();
-        $propertyMappingConfiguration->expects($this->once())
-            ->method('setTypeConverterOptions')
-            ->willReturn($propertyMappingConfiguration);
-        $configurator = $this->subject->getMappingConfiguration();
-        $this->assertEquals(
-            $propertyMappingConfiguration,
-            $configurator
-        );
-        // test storage
-        $configurator = $this->subject->getMappingConfiguration();
-        $this->assertEquals(
-            $propertyMappingConfiguration,
-            $configurator
-        );
+        // Test that getMappingConfiguration returns a PropertyMappingConfiguration instance
+        $configuration = $this->subject->getMappingConfiguration();
+        $this->assertInstanceOf(PropertyMappingConfiguration::class, $configuration);
+
+        // Test that the configuration has skip unknown properties enabled
+        $this->assertTrue($configuration->shouldSkipUnknownProperties());
+
+        // Test caching - second call should return the same instance
+        $secondConfiguration = $this->subject->getMappingConfiguration();
+        $this->assertSame($configuration, $secondConfiguration);
     }
 
     #[Test]
