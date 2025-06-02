@@ -62,9 +62,7 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
     {
         if (
             !$this->database instanceof Connection
-            || (
-                !empty($this->identifier) && $this->database === $GLOBALS['TYPO3_DB']
-            )
+            || !empty($this->identifier)
         ) {
             $this->database = $this->connectionService->getDatabase($this->identifier);
         }
