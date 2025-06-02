@@ -23,13 +23,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\MapFields;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MapFieldsTest
- *
- * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFields
  */
+#[CoversClass(MapFields::class)]
 class MapFieldsTest extends TestCase
 {
     protected MapFields $subject;
@@ -112,7 +113,8 @@ class MapFieldsTest extends TestCase
         );
     }
 
-    public function processMapsFields(): void
+    #[Test]
+    public function testProcessMapsFields(): void
     {
         $config = [
             'fields' => [
