@@ -61,7 +61,6 @@ class ArrayToXMLStreamTest extends TestCase
 
     public function testGetMappingConfiguration(): void
     {
-        $this->markTestSkipped('not sure what is supposed to be tested here');
         // test for default configurator
         $propertyMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
             ->onlyMethods(['setTypeConverterOptions', 'skipUnknownProperties'])
@@ -70,13 +69,13 @@ class ArrayToXMLStreamTest extends TestCase
             ->method('setTypeConverterOptions')
             ->willReturn($propertyMappingConfiguration);
         $configurator = $this->subject->getMappingConfiguration();
-        $this->assertSame(
+        $this->assertEquals(
             $propertyMappingConfiguration,
             $configurator
         );
         // test storage
         $configurator = $this->subject->getMappingConfiguration();
-        $this->assertSame(
+        $this->assertEquals(
             $propertyMappingConfiguration,
             $configurator
         );
