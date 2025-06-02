@@ -6,7 +6,6 @@ namespace CPSIT\T3importExport\Tests\Unit\Domain\Model;
 
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
-use Iterator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -53,9 +52,9 @@ class TaskResultTest extends TestCase
         /** @var TaskResult|MockObject $list */
         $list = new TaskResult();
 
-        $obj1 = new \stdClass();
-        $obj2 = new \stdClass();
-        $obj3 = new \stdClass();
+        $obj1 = new stdClass();
+        $obj2 = new stdClass();
+        $obj3 = new stdClass();
 
         $list->add($obj1);
         $list->add($obj2);
@@ -76,16 +75,13 @@ class TaskResultTest extends TestCase
         $this->assertEquals(2, $list->count());
     }
 
-    public function testWhenMockThreeIterationWithNoKey(): void
+    public function testIteratorFunctionalityAndInfoGetterSetter(): void
     {
-        // fixme: This test is way to complicated and should be replaced
-        $this->markTestSkipped('This test is overly complicated and should be replaced');
-        /** @var TaskResult|\PHPUnit_Framework_MockObject_MockObject $list */
-        $list = $this->getMockBuilder(TaskResult::class)->getMock();
-
         $expectedValues = ['This is the first item', 'This is the second item', 'And the final item'];
-
-        $this->mockIterator($list, $expectedValues);
+        
+        // Test iterator functionality with real TaskResult instance
+        $list = new TaskResult();
+        $list->setElements($expectedValues);
 
         $counter = 0;
         $values = [];
@@ -93,57 +89,16 @@ class TaskResultTest extends TestCase
             $values[] = $value;
             $counter++;
         }
+        
         $this->assertEquals(3, $counter);
-
         $this->assertEquals($expectedValues, $values);
 
+        // Test info getter/setter functionality
         $info = ['someThing'];
-
-        $list->expects($this->once())
-            ->method('setInfo')
-            ->with($info);
-
-        $list->expects($this->once())
-            ->method('getInfo')
-            ->will($this->returnValue($info));
-
         $list->setInfo($info);
         $this->assertEquals($info, $list->getInfo());
     }
 
-    /**
-     * Mock iterator
-     *
-     * This attaches all the required expectations in the right order so that
-     * our iterator will act like an iterator
-     * @param \Iterator|MockObject $iterator
-     */
-    private function mockIterator(
-        Iterator|MockObject $iterator,
-        array $items
-    ): void
-    {
-        $iterator->expects($this->atLeastOnce())
-            ->method('rewind');
-        $counter = 1;
-        // @todo Rewrite mockIterator. Method ::at() doesn't exist anymore
-        /**
-        foreach ($items as $k => $v) {
-            $iterator->expects($this->at($counter++))
-                ->method('valid')
-                ->will($this->returnValue(true));
-            $iterator->expects($this->at($counter++))
-                ->method('current')
-                ->will($this->returnValue($v));
-            $iterator->expects($this->at($counter++))
-                ->method('next');
-        }
-
-        $iterator->expects($this->at($counter))
-            ->method('valid')
-            ->will($this->returnValue(false));
-         */
-    }
 
     public function testRemoveElementsReturnsFalseForNonExistingElement(): void
     {
@@ -163,7 +118,7 @@ class TaskResultTest extends TestCase
 
     public function testKeyReturnsPosition(): void
     {
-        $element = new \stdClass();
+        $element = new stdClass();
         $this->subject->add($element);
         $this->subject->next();
         $this->assertSame(
