@@ -12,8 +12,8 @@ use CPSIT\T3importExport\Persistence\DataTargetFileStream;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
@@ -80,10 +80,6 @@ class DataTargetFileStreamTest extends TestCase
         $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
     }
 
-    /**
-     * Set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     */
     protected function setUp(): void
     {
         $this->mockPersistenceManager();
@@ -95,9 +91,8 @@ class DataTargetFileStreamTest extends TestCase
     }
 
     #[Test]
-    public function testPersistDataSteamInTaskResultIterator(): void
+    public function testPersistDataStreamInTaskResultIterator(): void
     {
-        $this->markTestSkipped('should rewrite it mocking file access');
         $taskResult = new TaskResult();
         $taskResult->setElements(
             [
@@ -108,34 +103,43 @@ class DataTargetFileStreamTest extends TestCase
             ]
         );
 
-        $absPath = GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY . uniqid('', true));
-        $tmpPath = $absPath . '/' . uniqid('', true);
-        @mkdir($absPath, 0777, true);
-        $this->fileUtility->expects($this->once())
-            ->method('getUniqueName')
-            ->willReturn($tmpPath);
-        $mockFileInfo = new FileInfo($tmpPath);
+        // Create a testable version of DataTargetFileStream to mock file operations
+        $subject = $this->getMockBuilder(DataTargetFileStream::class)
+            ->setConstructorArgs([null, $this->persistenceManager])
+            ->onlyMethods(['writeBuffer'])
+            ->getMock();
+
+        $mockTempFile = '/fake/temp/file/path/test.tmp';
+
+        // Track the buffers written to verify concatenation
+        $writtenBuffers = [];
+        $subject->expects($this->exactly(4))
+            ->method('writeBuffer')
+            ->willReturnCallback(function ($buffer) use (&$writtenBuffers, $mockTempFile, $subject) {
+                $writtenBuffers[] = $buffer;
+                // Set the tempFile property using reflection since it's protected
+                $reflection = new ReflectionClass($subject);
+                $tempFileProperty = $reflection->getProperty('tempFile');
+                $tempFileProperty->setAccessible(true);
+                $tempFileProperty->setValue($subject, $mockTempFile);
+            });
 
         /** @var DataStreamInterface $streamObject */
         foreach ($taskResult as $streamObject) {
-            $this->subject->persist($streamObject, ['flush' => true]);
+            $subject->persist($streamObject, ['flush' => true]);
             $this->assertNull($streamObject->getStreamBuffer());
         }
 
-        $this->subject->persistAll($taskResult);
+        $subject->persistAll($taskResult);
 
-        $this->assertSame(
-            $mockFileInfo,
-            $taskResult->getInfo()
-        );
-        $this->assertFileExists($tmpPath);
-
-        $content = file_get_contents($tmpPath);
+        // Verify that all buffers were written in correct order
         /** @noinspection SpellCheckingInspection */
-        $this->assertEquals('aaaaaaabbbbbbbcccccccddddddd', $content);
+        $this->assertEquals(['aaaaaaa', 'bbbbbbb', 'ccccccc', 'ddddddd'], $writtenBuffers);
 
-        unlink($tmpPath);
-        rmdir($absPath);
+        // Verify that TaskResult contains FileInfo with correct path
+        $fileInfo = $taskResult->getInfo();
+        $this->assertInstanceOf(FileInfo::class, $fileInfo);
+        $this->assertEquals($mockTempFile, $fileInfo->getPathname());
     }
 
     public function createDataStreamWithSampleBuffer($buffer): DataStream
