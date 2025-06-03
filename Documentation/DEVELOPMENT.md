@@ -65,7 +65,7 @@ across different environments.
   `Tests/Build/UnitTests.xml`
 - Xdebug mode is explicitly set with `XDEBUG_MODE=coverage` to ensure proper
   coverage reporting
-- Coverage reports are generated in `.Build/log/coverage/`
+- Coverage reports are generated in `.build/log/coverage/`
 
 ## GitHub Workflows
 

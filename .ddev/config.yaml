@@ -1,6 +1,6 @@
 name: typo3-ext-t3importExport
 type: typo3
-docroot: .Build/Web
+docroot: .build/Web
 php_version: "8.3"
 webserver_type: nginx-fpm
 xdebug_enabled: false
