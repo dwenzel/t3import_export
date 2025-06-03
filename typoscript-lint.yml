@@ -3,7 +3,7 @@ paths:
   - Resources/Private/TypoScript/
 
 excludePaths:
-  - .Build/
+  - .build/
 
 filePatterns:
   - "*.typoscript"
