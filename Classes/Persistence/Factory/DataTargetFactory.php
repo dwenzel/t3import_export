@@ -89,6 +89,10 @@ class DataTargetFactory extends AbstractFactory implements FactoryInterface
             $target->setIdentifier($settings['identifier']);
         }
 
+        if ($target instanceof DataTargetRepository) {
+            $target->setTargetClass($objectClass);
+        }
+
         if ($target instanceof ConfigurableInterface && isset($settings['config'])) {
             /** @var ConfigurableInterface $target */
             $target->setConfiguration($settings['config']);

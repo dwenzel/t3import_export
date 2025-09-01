@@ -44,18 +44,17 @@ trait DatabaseTrait
      * @var Connection
      * @deprecated
      */
-    protected $database;
+    protected ?Connection $database = null;
 
     /**
      * Constructor
      * @param ConnectionPool|null $connectionPool
      * @param DatabaseConnectionService|null $connectionService
      */
-    public function __construct(protected ConnectionPool $connectionPool, protected DatabaseConnectionService $connectionService)
-    {
-        if (!$this->database instanceof Connection) {
-            $this->database = $GLOBALS['TYPO3_DB'];
-        }
+    public function __construct(
+        protected ConnectionPool $connectionPool,
+        protected DatabaseConnectionService $connectionService
+    ) {
     }
 
     /**
@@ -65,7 +64,7 @@ trait DatabaseTrait
      */
     public function getDataBase(): Connection
     {
-        return $this->database;
+        return $this->database ??= $this->connectionPool->getConnectionByName('Default');
     }
 
     public function getDatabaseConnectionService(): DatabaseConnectionService
