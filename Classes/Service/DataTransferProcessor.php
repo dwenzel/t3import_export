@@ -120,6 +120,11 @@ class DataTransferProcessor
 
             $recordsArray = [];
             foreach ($records as $record) {
+                if (is_array($record)) {
+                    // plain records, e.g. from DataSourceDB, DataSourceXML or DataSourceCSV
+                    $recordsArray[] = $record;
+                    continue;
+                }
                 if (is_object($record) && method_exists($record, '_getCleanProperties')) {
                     $recordsArray[] = $record->_getCleanProperties();
                 }

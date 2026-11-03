@@ -20,3 +20,17 @@ services:
         command: 't3import-export:import-task'
         description: 'Run import task'
         schedulable: true
+
+  CPSIT\T3importExport\Command\ExportSetCommand:
+    tags:
+      - name: 'console.command'
+        command: 't3import-export:export-set'
+        description: 'Run export set'
+        schedulable: true
+
+  CPSIT\T3importExport\Command\ExportTaskCommand:
+    tags:
+      - name: 'console.command'
+        command: 't3import-export:export-task'
+        description: 'Run export task'
+        schedulable: true
