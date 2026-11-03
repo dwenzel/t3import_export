@@ -111,6 +111,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      * TaskResult object to a configured storage/folder/file name
      * If no storage or folder is configured, the file is written
      * to the default folder in the default storage.
+     * The default folder is only accessed if no directory is configured.
      * If a file with target file name already exists the conflictMode
      * determines the result: cancel, rename, replace are allowed.
      * Default is rename (according to TYPO3 conventions)
@@ -137,14 +138,26 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
         } else {
             $storage = $this->resourceFactory->getDefaultStorage();
         }
-        $folder = $storage->getDefaultFolder();
-        if (isset($configuration['target']['directory'])) {
+        if (!$storage->isOnline()) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Storage %d "%s" is offline, cannot write file "%s". Check the base path of the storage.',
+                    $storage->getUid(),
+                    $storage->getName(),
+                    $configuration['target']['name']
+                ),
+                1762171200
+            );
+        }
+        if (!empty($configuration['target']['directory'])) {
             $targetDirectory = $configuration['target']['directory'];
             if (!$storage->hasFolder($targetDirectory)) {
                 $folder = $storage->createFolder($targetDirectory);
             } else {
                 $folder = $storage->getFolder($targetDirectory);
             }
+        } else {
+            $folder = $storage->getDefaultFolder();
         }
 
         $conflictMode = self::CONFLICT_MODE_CHANGENAME;

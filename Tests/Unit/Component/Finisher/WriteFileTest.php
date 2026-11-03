@@ -62,6 +62,7 @@ class WriteFileTest extends TestCase
         $this->mockResourceStorage()
             ->mockResourceFactory()
             ->mockStorageFolder();
+        $this->resourceStorage->method('isOnline')->willReturn(true);
         $this->subject = new WriteFile(
             $this->resourceFactory
         );
@@ -485,5 +486,65 @@ class WriteFileTest extends TestCase
             $result
         );
 
+    }
+
+    public function testProcessDoesNotAccessDefaultFolderIfDirectoryIsConfigured(): void
+    {
+        $records = [];
+        $directory = 'baz';
+        $configuration = [
+            'target' => [
+                'name' => 'bar.xml',
+                'directory' => $directory
+            ]
+        ];
+        $result = $this->expectAccessOfExistingDirectory($directory);
+        $this->resourceStorage->expects($this->never())
+            ->method('getDefaultFolder');
+
+        $this->subject->process(
+            $configuration,
+            $records,
+            $result
+        );
+    }
+
+    public function testProcessThrowsExceptionIfStorageIsOffline(): void
+    {
+        $records = [];
+        $configuration = [
+            'target' => [
+                'name' => 'bar.xml',
+                'directory' => 'baz'
+            ]
+        ];
+        $storage = $this->getMockBuilder(\TYPO3\CMS\Core\Resource\ResourceStorage::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['isOnline', 'getUid', 'getName', 'getDefaultFolder', 'hasFolder', 'getFolder', 'createFolder', 'addFile'])
+            ->getMock();
+        $storage->method('isOnline')->willReturn(false);
+        $storage->expects($this->never())->method('getDefaultFolder');
+        $storage->expects($this->never())->method('addFile');
+        $resourceFactory = $this->getMockBuilder(\TYPO3\CMS\Core\Resource\ResourceFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getDefaultStorage', 'getStorageObject'])
+            ->getMock();
+        $resourceFactory->method('getDefaultStorage')->willReturn($storage);
+        $subject = new WriteFile($resourceFactory);
+        $fileInfo = $this->getMockBuilder(FileInfo::class)
+            ->disableOriginalConstructor()
+            ->setMethods([])->getMock();
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->setMethods(['getInfo'])->getMock();
+        $result->method('getInfo')->willReturn($fileInfo);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(1762171200);
+
+        $subject->process(
+            $configuration,
+            $records,
+            $result
+        );
     }
 }
