@@ -19,7 +19,6 @@ namespace CPSIT\T3importExport\Command;
  ***************************************************************/
 
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use DWenzel\T3extensionTools\Configuration\ConfigurationManagerTrait;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**
@@ -27,14 +26,19 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  */
 trait TransferCommandTrait
 {
-    use ConfigurationManagerTrait;
-
     /**
      * @var array
      */
     protected array $settings;
 
     protected DataTransferProcessor $dataTransferProcessor;
+
+    /**
+     * Object Manager
+     *
+     * @var ConfigurationManagerInterface
+     */
+    protected $configurationManager;
 
 
     public function withSettings(array $settings): self

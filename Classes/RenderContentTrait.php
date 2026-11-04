@@ -2,17 +2,22 @@
 
 namespace CPSIT\T3importExport;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\UserAspect;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -34,13 +39,14 @@ trait RenderContentTrait
      */
     protected $typoScriptService;
 
+    protected TypoScriptFrontendController $typoScriptFrontendController;
+
     /**
      * Get a ContentObjectRenderer
      */
     public function getContentObjectRenderer(): ContentObjectRenderer
     {
-        if(!$this->contentObjectRenderer instanceof ContentObjectRenderer)
-        {
+        if (!$this->contentObjectRenderer instanceof ContentObjectRenderer) {
             $this->assertTypoScriptFrontendController();
             $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
         }
@@ -51,13 +57,13 @@ trait RenderContentTrait
 
     public function getTypoScriptService(): TypoScriptService
     {
-        if (!$this->typoScriptService instanceof TypoScriptService)
-        {
+        if (!$this->typoScriptService instanceof TypoScriptService) {
             $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
         }
 
         return $this->typoScriptService;
     }
+
     /**
      * Renders content using TypoScript objects
      * @param array $record Optional data array
@@ -86,11 +92,11 @@ trait RenderContentTrait
      * Gets the TypoScriptFrontendController
      * only for testing
      *
-     * @return TypoScriptFrontendController
+     * @return TypoScriptFrontendController|null
      */
     public function getTypoScriptFrontendController()
     {
-        return $GLOBALS['TSFE'];
+        return $GLOBALS['TSFE'] ?? null;
     }
 
     protected function assertTypoScriptFrontendController(): void
@@ -111,7 +117,18 @@ trait RenderContentTrait
                 $fakeUri,
                 []
             );
+
+            $fakeRequest = (GeneralUtility::makeInstance(ServerRequest::class))
+                ->withAttribute('site', $site)
+                ->withAttribute('language', $siteLanguage)
+                ->withAttribute(
+                    'applicationType', SystemEnvironmentBuilder::REQUESTTYPE_CLI
+                )
+                ->withUri($fakeUri);
+            $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
+
             $pageArguments = GeneralUtility::makeInstance(PageArguments::class, 1, 0, []);
+
             $nullFrontend = GeneralUtility::makeInstance(NullFrontend::class, 'pages');
             $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
             try {
@@ -120,18 +137,24 @@ trait RenderContentTrait
                 unset($exception);
             }
 
-            $fakeRequest = new ServerRequest($fakeUri);
-            $originalRequest = $GLOBALS['TYPO3_REQUEST'];
-            $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
-            $GLOBALS['TSFE'] = new TypoScriptFrontendController(
-                GeneralUtility::makeInstance(Context::class),
+            $context = GeneralUtility::makeInstance(Context::class);
+            /** @var FrontendUserAuthentication $feUser */
+            $feUser = GeneralUtility::makeInstance(FrontendUserAuthentication::class);
+            $userGroups = [0, -1];
+            $feUser->user = ['uid' => 0, 'username' => '', 'usergroup' => implode(',', $userGroups)];
+            $feUser->fetchGroupData();
+            $feUser->initializeUserSessionManager();
+            $feUser->fetchUserSession();
+            $context->setAspect('frontend.user', GeneralUtility::makeInstance(UserAspect::class, $feUser, $userGroups));
+
+
+            $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class,
+                $context,
                 $site,
                 $siteLanguage,
-                $pageArguments
+                $pageArguments,
+                $feUser
             );
-
-            $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
-
         }
     }
 }

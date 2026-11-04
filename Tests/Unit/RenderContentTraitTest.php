@@ -51,7 +51,7 @@ class RenderContentTraitTest extends TestCase
      */
     protected $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->markTestIncomplete('test fails due to dependency injection issues');
         $this->subject = $this->getMockBuilder(MockClassWithRenderContentTrait::class)

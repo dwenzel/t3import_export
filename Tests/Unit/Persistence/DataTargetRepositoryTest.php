@@ -139,7 +139,7 @@ class DataTargetRepositoryTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectRepository = $this->getMockBuilder(MockRepositoryObjectRepository::class)
             ->disableOriginalConstructor()

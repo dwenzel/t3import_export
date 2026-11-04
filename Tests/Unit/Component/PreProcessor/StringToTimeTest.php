@@ -33,7 +33,7 @@ class StringToTimeTest extends TestCase
     protected StringToTime $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new StringToTime();
     }

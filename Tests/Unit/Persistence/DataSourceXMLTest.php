@@ -23,7 +23,7 @@ class DataSourceXMLTest extends TestCase
      * @noinspection ReturnTypeCanBeDeclaredInspection
      * @throws vfsStreamException
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new DataSourceXML();
         vfsStreamWrapper::register();

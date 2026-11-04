@@ -43,7 +43,10 @@ trait MockResourceStorageTrait
                 'hasFileInFolder',
                 'getFolder',
                 'createFolder',
-                'moveFile'
+                'moveFile',
+                'isOnline',
+                'getUid',
+                'getName'
             ])
             ->getMock();
 

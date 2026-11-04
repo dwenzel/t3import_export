@@ -39,7 +39,7 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
     protected PropertyMappingConfiguration $propertyMappingConfiguration;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new PropertyMappingConfigurationBuilder();
         $this->propertyMappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)
@@ -55,7 +55,7 @@ class PropertyMappingConfigurationBuilderTest extends TestCase
         GeneralUtility::addInstance(PropertyMappingConfiguration::class, $this->propertyMappingConfiguration);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         GeneralUtility::purgeInstances();
     }

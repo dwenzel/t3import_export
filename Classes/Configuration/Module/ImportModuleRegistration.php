@@ -1,6 +1,7 @@
 <?php
 namespace CPSIT\T3importExport\Configuration\Module;
 
+use CPSIT\T3importExport\Controller\ImportController;
 use DWenzel\T3extensionTools\Configuration\ModuleRegistrationInterface;
 use DWenzel\T3extensionTools\Configuration\ModuleRegistrationTrait;
 use CPSIT\T3importExport\Configuration\Extension;
@@ -15,7 +16,7 @@ class ImportModuleRegistration implements ModuleRegistrationInterface
     static protected string $mainModuleName = 'system';
     static protected string $vendorExtensionName = Extension::VENDOR_NAME . '.' . Extension::NAME;
     static protected array $controllerActions = [
-        'Import' => 'index,importTask,importSet'
+        ImportController::class => 'index,importTask,importSet'
     ];
 
     static protected string $position = 'bottom';

@@ -40,7 +40,7 @@ class MessageContainerTraitTest extends TestCase
     /**
      * set up subject
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockMessageContainer();
         $this->subject = $this->getMockBuilder(MessageContainerTrait::class)

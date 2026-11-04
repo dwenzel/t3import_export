@@ -102,7 +102,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io->comment(self::MESSAGE_STARTING);
+        $this->io->comment(static::MESSAGE_STARTING);
         $errorMessage = 'An error occurred';
         $identifier = (string)$input->getArgument(TaskArgument::NAME);
 
@@ -110,7 +110,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
         if(empty($this->settings['tasks'][$identifier])) {
             $this->io->warning(
-                sprintf(self::WARNING_MISSING_CONFIGURATION, $identifier)
+                sprintf(static::WARNING_MISSING_CONFIGURATION, $identifier)
             );
 
             return Status::invalid();
@@ -123,7 +123,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         }
 
         if ($status === 0) {
-            $this->io->success(self::MESSAGE_SUCCESS);
+            $this->io->success(static::MESSAGE_SUCCESS);
             return Status::success();
         }
 
