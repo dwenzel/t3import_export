@@ -1,0 +1,106 @@
+# Example of a complex import set with multiple tasks
+# This demonstrates grouping multiple import tasks into a single set
+
+import:
+  # Define individual tasks first
+  tasks:
+    clearOldData:
+      label: "Clear Old Data"
+      description: "Cleans up old data before import"
+      
+      source:
+        class: "CPSIT\\T3importExport\\Persistence\\DataSourceDummy"
+        config: {}
+      
+      initializers:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
+          config:
+            tables: "tx_news_domain_model_news,tx_news_domain_model_tag"
+      
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDummy"
+        config: {}
+    
+    importTags:
+      label: "Import Tags"
+      description: "Imports news tags from CSV file"
+      
+      source:
+        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        config:
+          file: "fileadmin/imports/news_tags.csv"
+      
+      preProcessors:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+          config:
+            targetField: "pid"
+            value: 42
+      
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: "tx_news_domain_model_tag"
+    
+    importNews:
+      label: "Import News"
+      description: "Imports news articles from XML feed"
+      
+      source:
+        class: "CPSIT\\T3importExport\\Persistence\\DataSourceXML"
+        config:
+          file: "fileadmin/imports/news_feed.xml"
+          recordPath: "/feed/item"
+      
+      preProcessors:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+          config:
+            mapping:
+              title: "title"
+              teaser: "description"
+              bodytext: "content"
+        
+        20:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+          config:
+            targetField: "pid"
+            value: 42
+      
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: "tx_news_domain_model_news"
+    
+    clearCache:
+      label: "Clear Cache"
+      description: "Clears cache after import is complete"
+      
+      source:
+        class: "CPSIT\\T3importExport\\Persistence\\DataSourceDummy"
+        config: {}
+      
+      finishers:
+        10:
+          class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
+          config:
+            pageIds:
+              - 42
+              - 43
+      
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDummy"
+        config: {}
+  
+  # Define the set that uses these tasks
+  sets:
+    completeNewsImport:
+      label: "Complete News Import"
+      description: |
+        A complete news import process that:
+        1. Clears old data
+        2. Imports tags
+        3. Imports news articles
+        4. Clears the cache
+      tasks: "clearOldData,importTags,importNews,clearCache"

@@ -1,13 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
-use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -35,8 +35,6 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
 
     /**
      * Injects the cache service
-     *
-     * @param CacheService $cacheService
      */
     public function injectCacheService(CacheService $cacheService)
     {
@@ -44,18 +42,18 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
     }
 
     /**
-     * Clears the page class depending on result and configuration
+     *  Clears the page class depending on result and configuration
      *
      * Configuration examples (TypoScript):
-     * 1. clear all if any result
+     * 1. Clear all if any result
      * config {
      *  all = 1
      * }
-     * 2. clear selected pages (if any result)
+     * 2. Clear selected pages (if any result)
      * config {
      *  pages = '1,3,5'
      * }
-     * 3. clear all if any result for given class name
+     * 3. Clear all if any result for a given class name
      * ($result[0] must contain an object of the given class)
      * config {
      *  classes {
@@ -64,7 +62,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      *   }
      *  }
      * }
-     * 4. clear selected pages if any result for given class name
+     * 4. Clear selected pages if any result for a given class name
      * ($result[0] must contain an object of the given class)
      * config {
      *  classes {
@@ -73,12 +71,9 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      *   }
      *  }
      * }
-     * @param array $configuration
-     * @param array $records
-     * @param array $result
-     * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         if (!(bool)$result) {
             // nothing imported - do not clear any cache
@@ -99,7 +94,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
         ) {
             $resultClass = $result[0]::class;
 
-            foreach ($configuration['classes'] as $key=>$localConfig) {
+            foreach ($configuration['classes'] as $key => $localConfig) {
                 if ($key !== $resultClass) {
                     continue;
                 }
@@ -124,7 +119,6 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      * Returns true if $configuration['all'] can be interpreted as
      * 'true'
      *
-     * @param $configuration
      * @return bool
      */
     protected function shouldClearAll($configuration)
@@ -133,10 +127,6 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
         && (bool)$configuration['all'];
     }
 
-    /**
-     * @param $localConfig
-     * @param $pagesToClear
-     */
     protected function addPagesToClear($localConfig, &$pagesToClear)
     {
         if (isset($localConfig['pages'])) {

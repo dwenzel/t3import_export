@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Model;
 
 interface DataStreamInterface
 {
     /**
-     * @param $buffer
      * @return string
      */
-    public function setStreamBuffer($buffer);
+    public function setStreamBuffer(?string $buffer): void;
 
     /**
-     * @return string
+     * @return ?string
      */
-    public function getStreamBuffer();
+    public function getStreamBuffer(): ?string;
 }

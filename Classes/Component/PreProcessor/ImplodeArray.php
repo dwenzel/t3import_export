@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -18,18 +21,17 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 class ImplodeArray extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * @var array
      */
     protected $fields = [];
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -51,9 +53,9 @@ class ImplodeArray extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * @param array $configuration
      * @param array $record
-     * @return TRUE
+     * @return true
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $fieldName => $localConfig) {
@@ -83,5 +85,7 @@ class ImplodeArray extends AbstractPreProcessor implements PreProcessorInterface
                 }
             }
         }
+
+        return true;
     }
 }

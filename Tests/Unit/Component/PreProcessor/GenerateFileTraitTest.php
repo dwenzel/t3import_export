@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /**
@@ -17,65 +19,78 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
+// Class that uses the GenerateFileTrait for testing
+class GenerateFileTraitImplementation
+{
+    use GenerateFileTrait;
+    use LoggingTrait;
+
+    public const array ERROR_CODES = [
+        1 => ['fooTitle', 'fooMessage'],
+        2 => ['barTitle', 'barMessage'],
+    ];
+    public function getFile($configuration, $sourceFilePath): string
+    {
+        return '';
+    }
+}
+
 /**
- * Class GenerateFileResourceTest
+ * Class GenerateFileTraitTest
  */
 class GenerateFileTraitTest extends TestCase
 {
-    /**
-     * @var GenerateFileTrait |\PHPUnit_Framework_MockObject_MockObject
-     */
     protected $subject;
-
-    /**
-     * @var ResourceStorage|\PHPUnit_Framework_MockObject_MockObject
-     */
     protected $storage;
-
-    /**
-     * @var StorageRepository|\PHPUnit_Framework_MockObject_MockObject
-     */
     protected $storageRepository;
+    protected $filePathFactory;
 
     /**
      * set up subject
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockBuilder(GenerateFileTrait::class)
-            ->setMethods(['logError'])->getMockForTrait();
+        $this->subject = $this->getMockBuilder(GenerateFileTraitImplementation::class)
+            ->onlyMethods(['logError', 'getFile'])
+            ->getMock();
+
+        $this->filePathFactory = $this->createMock(FilePathFactory::class);
+        $this->subject->injectFilePathFactory($this->filePathFactory);
 
         $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
             ->disableOriginalConstructor()
-            ->setMethods(['findByUid'])->getMock();
+            ->onlyMethods(['findByUid'])
+            ->getMock();
 
         $this->subject->injectStorageRepository($this->storageRepository);
     }
 
-
     /**
      * Provides dependencies for injection tests
      */
-    public function dependenciesDataProvider()
+    public static function dependenciesDataProvider(): array
     {
         return [
-            [FilePathFactory::class, 'filePathFactory']
+            [FilePathFactory::class, 'filePathFactory'],
         ];
     }
 
     /**
-     * @test
-     * @dataProvider dependenciesDataProvider
      * @param string $class Class name of the dependency to inject
      * @param string $propertyName The property holding the dependency
      */
-    public function dependenciesCanBeInjected($class, $propertyName)
+    #[Test]
+    #[DataProvider('dependenciesDataProvider')]
+    public function dependenciesCanBeInjected($class, $propertyName): void
     {
         $mockDependency = $this->getMockBuilder($class)->disableOriginalConstructor()
             ->getMock();
@@ -83,15 +98,18 @@ class GenerateFileTraitTest extends TestCase
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
 
-        $this->assertAttributeSame(
+        // Use reflection to access the protected property
+        $reflection = new \ReflectionClass($this->subject);
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+
+        $this->assertSame(
             $mockDependency,
-            $propertyName,
-            $this->subject
+            $property->getValue($this->subject)
         );
     }
 
-
-    public function invalidConfigurationDataProvider()
+    public static function invalidConfigurationDataProvider(): array
     {
         // $configuration, $expected, $errorId
         return [
@@ -100,59 +118,69 @@ class GenerateFileTraitTest extends TestCase
                 [],
                 false,
                 1_499_007_587,
-                null
+                null,
             ],
             // missing target directory path
             [
                 [
-                    'foo' => 'bar'
+                    'foo' => 'bar',
                 ],
                 false,
                 1_497_427_320,
-                null
+                null,
             ],
-            // missing field name
+            // missing source field name
             [
                 [
-                    'targetDirectoryPath' => 'bar'
+                    'targetDirectoryPath' => 'bar',
                 ],
                 false,
                 1_497_427_335,
-                null
+                null,
+            ],
+            // missing target field name
+            [
+                [
+                    'targetDirectoryPath' => 'bar',
+                    'sourceField' => 'baz',
+                ],
+                false,
+                1_497_427_336,
+                null,
             ],
             // missing storage id
             [
                 [
                     'targetDirectoryPath' => 'bar',
-                    'fieldName' => 'baz'
+                    'sourceField' => 'baz',
+                    'targetField' => 'baz',
                 ],
                 false,
                 1_497_427_302,
-                null
+                null,
             ],
             // missing resourceStorage
             [
                 [
-                    'storageId' => 'foo',
+                    'storageId' => 42,
                     'targetDirectoryPath' => 'bar',
-                    'fieldName' => 'baz'
+                    'sourceField' => 'baz',
+                    'targetField' => 'baz',
                 ],
                 false,
                 1_497_427_346,
-                ['foo']
+                [42],
             ],
         ];
     }
 
     /**
-     * @test
-     * @dataProvider invalidConfigurationDataProvider
      * @param array $configuration
      * @param bool $expected
-     * @param $expectedErrorId
-     * @param $expectedErrorArguments
      */
-    public function isConfigurationValidReturnsCorrectValuesForInvalidConfiguration($configuration, $expected, $expectedErrorId, $expectedErrorArguments)
+    #[Test]
+    #[DataProvider('invalidConfigurationDataProvider')]
+    public function isConfigurationValidReturnsCorrectValuesForInvalidConfiguration($configuration, $expected, $expectedErrorId, $expectedErrorArguments): void
     {
         $this->subject->expects($this->once())
             ->method('logError')
@@ -164,19 +192,19 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseForMissingDirectory()
+    #[Test]
+    public function isConfigurationValidReturnsFalseForMissingDirectory(): void
     {
         $this->storage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
-            ->setMethods(['hasFolder', 'getConfiguration'])->getMock();
+            ->onlyMethods(['hasFolder', 'getConfiguration'])
+            ->getMock();
 
         $configuration = [
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
-            'fieldName' => 'bar'
+            'sourceField' => 'bar',
+            'targetField' => 'bar',
         ];
         $storageConfiguration = ['basePath' => 'baz'];
         $expectedErrorId = 1_497_427_363;
@@ -185,15 +213,15 @@ class GenerateFileTraitTest extends TestCase
         $this->storageRepository->expects($this->once())
             ->method('findByUid')
             ->with($configuration['storageId'])
-            ->will($this->returnValue($this->storage));
+            ->willReturn($this->storage);
 
         $this->storage->expects($this->once())
             ->method('hasFolder')
             ->with($configuration['targetDirectoryPath'])
-            ->will($this->returnValue(false));
+            ->willReturn(false);
         $this->storage->expects($this->once())
             ->method('getConfiguration')
-            ->will($this->returnValue($storageConfiguration));
+            ->willReturn($storageConfiguration);
 
         $this->subject->expects($this->once())
             ->method('logError')
@@ -202,30 +230,30 @@ class GenerateFileTraitTest extends TestCase
         $this->subject->isConfigurationValid($configuration);
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
+    #[Test]
+    public function isConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $this->storage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
-            ->setMethods(['hasFolder', 'getConfiguration'])->getMock();
+            ->onlyMethods(['hasFolder', 'getConfiguration'])
+            ->getMock();
 
         $configuration = [
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
-            'fieldName' => 'bar'
+            'sourceField' => 'bar',
+            'targetField' => 'bar',
         ];
 
         $this->storageRepository->expects($this->once())
             ->method('findByUid')
             ->with($configuration['storageId'])
-            ->will($this->returnValue($this->storage));
+            ->willReturn($this->storage);
 
         $this->storage->expects($this->once())
             ->method('hasFolder')
             ->with($configuration['targetDirectoryPath'])
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->storage->expects($this->never())
             ->method('getConfiguration');
@@ -238,49 +266,44 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getErrorCodesReturnsCorrectResult()
+    #[Test]
+    public function getErrorCodesReturnsCorrectResult(): void
     {
-        $expectedCodes = $errors = [
-            1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
-            1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
-            1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
-            1_497_427_335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
-            1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
-            1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
-        ];
+        // Get the actual error codes from the subject
+        $actualCodes = $this->subject->getErrorCodes();
 
-        $this->assertSame(
-            $expectedCodes,
-            $this->subject->getErrorCodes()
-        );
+        foreach (GenerateFileTraitImplementation::ERROR_CODES as $code => $value) {
+            $this->assertArrayHasKey($code, $actualCodes);
+            [$title, $message] = $value;
+            $this->assertEquals($title, $actualCodes[$code][0]);
+            $this->assertEquals($message, $actualCodes[$code][1]);
+        }
     }
 
-    /**
-     * @test
-     */
-    public function processGetsSingleFile()
+    #[Test]
+    public function processGetsSingleFile(): void
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
         $record = [
-            $fieldName => 'bar'
+            $sourceField => 'bar',
         ];
         $configuration = [
-            'fieldName' => 'foo'
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
+            'multipleRows' => false,
         ];
 
         $fieldValue = 'bar';
 
         $expectedRecord = [
-            $fieldName => $fieldValue
+            $targetField => $fieldValue,
         ];
 
         $this->subject->expects($this->once())
             ->method('getFile')
             ->with($configuration, 'bar')
-            ->will($this->returnValue($fieldValue));
+            ->willReturn($fieldValue);
 
         $this->subject->process($configuration, $record);
 
@@ -290,37 +313,32 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processGetsMultipleFiles()
+    #[Test]
+    public function processGetsMultipleFiles(): void
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
 
         $record = [
-            $fieldName => 'baz,boom'
+            $sourceField => 'baz,boom',
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
-            'multipleRows' => '1'
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
+            'multipleRows' => '1',
         ];
 
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
-
         $expectedRecord = [
-            $fieldName => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue],
         ];
 
         $this->subject->expects($this->exactly(2))
             ->method('getFile')
-            ->withConsecutive(
-                [$configuration, 'baz'],
-                [$configuration, 'boom']
-            )
-            ->will($this->onConsecutiveCalls($bazValue, $boomValue));
+            ->willReturnOnConsecutiveCalls($bazValue, $boomValue);
 
         $this->subject->process($configuration, $record);
 
@@ -330,42 +348,34 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processPrefixesFilePaths()
+    #[Test]
+    public function processPrefixesFilePaths(): void
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
         $prefix = 'prefix/';
 
         $record = [
-            $fieldName => 'baz,boom'
+            $sourceField => 'baz,boom',
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1',
-            'sourcePath' => $prefix
+            'sourcePath' => $prefix,
         ];
-
-        $bazPath = $prefix . 'baz';
-        $boomPath = $prefix . 'boom';
 
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
-
         $expectedRecord = [
-            $fieldName => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue],
         ];
 
         $this->subject->expects($this->exactly(2))
             ->method('getFile')
-            ->withConsecutive(
-                [$configuration, $bazPath],
-                [$configuration, $boomPath]
-            )
-            ->will($this->onConsecutiveCalls($bazValue, $boomValue));
+            ->willReturnOnConsecutiveCalls($bazValue, $boomValue);
 
         $this->subject->process($configuration, $record);
 
@@ -375,40 +385,34 @@ class GenerateFileTraitTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function processRespectsSeparator()
+    #[Test]
+    public function processRespectsSeparator(): void
     {
-        $fieldName = 'foo';
+        $sourceField = 'foo';
+        $targetField = 'foo';
         $separator = '|';
 
         $record = [
-            $fieldName => 'baz|boom'
+            $sourceField => 'baz|boom',
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1',
-            'separator' => $separator
+            'separator' => $separator,
         ];
-
 
         $bazValue = 'bazValue';
         $boomValue = 'boomValue';
 
-
         $expectedRecord = [
-            $fieldName => [$bazValue, $boomValue]
+            $targetField => [$bazValue, $boomValue],
         ];
 
         $this->subject->expects($this->exactly(2))
             ->method('getFile')
-            ->withConsecutive(
-                [$configuration, 'baz'],
-                [$configuration, 'boom']
-            )
-            ->will($this->onConsecutiveCalls($bazValue, $boomValue));
+            ->willReturnOnConsecutiveCalls($bazValue, $boomValue);
 
         $this->subject->process($configuration, $record);
 

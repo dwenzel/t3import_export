@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Converter;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
@@ -29,20 +32,12 @@ use CPSIT\T3importExport\Component\AbstractComponent;
  ***************************************************************/
 abstract class AbstractConverter extends AbstractComponent
 {
-    /**
-     * @param array $configuration
-     * @param array $record
-     * @return bool
-     */
-    abstract public function convert(array $record, array $configuration);
+    abstract public function convert(array &$record, array $configuration): mixed;
 
     /**
      * Tells whether a given configuration is valid.
-     * Override this method in order to perform validation of
-     * configuration.
-     *
-     * @param array $configuration
-     * @return bool
+     * Override this method to perform validation of
+     * the configuration.
      */
     public function isConfigurationValid(array $configuration): bool
     {

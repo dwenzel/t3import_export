@@ -1,20 +1,8 @@
 <?php
 
-namespace CPSIT\T3importExport\Persistence;
+declare(strict_types=1);
 
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingDatabaseException;
-use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use CPSIT\T3importExport\RenderContentInterface;
-use CPSIT\T3importExport\RenderContentTrait;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+namespace CPSIT\T3importExport\Persistence;
 
 /***************************************************************
  *  Copyright notice
@@ -33,13 +21,13 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 
 /**
  * Dummy data source - always returns an empty array
  */
 class DataSourceDummy implements DataSourceInterface
 {
-
     /**
      * Dummy method to make component compatible wit DataSourceInterface
      *

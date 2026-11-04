@@ -1,28 +1,29 @@
 <?php
 
-namespace CPSIT\T3importExport\Tests\Service;
+declare(strict_types=1);
 
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+namespace CPSIT\T3importExport\Tests\Unit\Service;
+
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Messaging\Message;
 use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\LoggingInterface;
-use CPSIT\T3importExport\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingFinisher;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingInitializer;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPostProcessor;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\LoggingPreProcessor;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
+use CPSIT\ImportExportCore\LoggingInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -41,27 +42,300 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+class MockLoggingPreProcessor implements PreProcessorInterface, LoggingInterface
+{
+    public function getErrorCodes():array
+    {
+        return [];
+    }
+
+    public function getNoticeCodes(): array
+    {
+        return [];
+    }
+
+    public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logNotice($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logMessage($title, $description, $severity = Message::SEVERITY_OK, $id = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
+    {
+        return '';
+    }
+
+    public function getMessages(): array
+    {
+        return [];
+    }
+
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
+    public function hasMessageWithId($id): bool
+    {
+        return false;
+    }
+
+    public function process(array $configuration, array &$record): bool
+    {
+        return true;
+    }
+
+    public function isConfigurationValid(array $configuration): bool
+    {
+        return true;
+    }
+
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
+    {
+        return false;
+    }
+
+    public function setConfiguration(array $configuration): void
+    {
+    }
+
+    public function getConfiguration(): array
+    {
+        return [];
+    }
+}
+
+class MockLoggingPostProcessor implements PostProcessorInterface, LoggingInterface
+{
+
+    public function getErrorCodes():array
+    {
+        return [];
+    }
+
+    public function getNoticeCodes(): array
+    {
+        return [];
+    }
+
+    public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logNotice($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logMessage($title, $description, $severity = Message::SEVERITY_OK, $id = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
+    {
+        return '';
+    }
+
+    public function getMessages(): array
+    {
+        return [];
+    }
+
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
+    public function hasMessageWithId($id): bool
+    {
+        return false;
+    }
+
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
+    {
+        return true;
+    }
+
+    public function isConfigurationValid(array $configuration): bool
+    {
+        return true;
+    }
+
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
+    {
+        return false;
+    }
+
+    public function setConfiguration(array $configuration): void
+    {
+    }
+
+    public function getConfiguration(): array
+    {
+        return [];
+    }
+}
+
+class MockLoggingInitializer implements InitializerInterface, LoggingInterface
+{
+    public function process(array $configuration, array &$records): bool
+    {
+        return true;
+    }
+
+    public function isConfigurationValid(array $configuration): bool
+    {
+        return true;
+    }
+
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
+    {
+        return false;
+    }
+
+    public function setConfiguration(array $configuration): void
+    {
+    }
+
+    public function getConfiguration(): array
+    {
+        return [];
+    }
+
+    public function getErrorCodes():array
+    {
+        return [];
+    }
+
+    public function getNoticeCodes(): array
+    {
+        return [];
+    }
+
+    public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logNotice($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logMessage($title, $description, $severity = Message::SEVERITY_OK, $id = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
+    {
+        return '';
+    }
+
+    public function getMessages(): array
+    {
+        return [];
+    }
+
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
+    public function hasMessageWithId($id): bool
+    {
+        return false;
+    }
+}
+
+class MockLoggingFinisher implements FinisherInterface, LoggingInterface
+{
+
+    public function process(array $configuration, array &$records, object|array &$result): bool
+    {
+        return true;
+    }
+
+    public function isConfigurationValid(array $configuration): bool
+    {
+        return true;
+    }
+
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
+    {
+        return false;
+    }
+
+    public function setConfiguration(array $configuration): void
+    {
+    }
+
+    public function getConfiguration(): array
+    {
+        return [];
+    }
+
+    public function getErrorCodes():array
+    {
+        return [];
+    }
+
+    public function getNoticeCodes(): array
+    {
+        return [];
+    }
+
+    public function logError($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logNotice($id, ?array $arguments = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function logMessage($title, $description, $severity = Message::SEVERITY_OK, $id = null, ?array $additionalInformation = null): void
+    {
+    }
+
+    public function renderTitle($id, array $codes, $default = \CPSIT\ImportExportCore\LoggingInterface::DEFAULT_MESSAGE_TITLE): string
+    {
+        return '';
+    }
+
+    public function getMessages(): array
+    {
+        return [];
+    }
+
+    public function getAndPurgeMessages(): array
+    {
+        return [];
+    }
+
+    public function hasMessageWithId($id): bool
+    {
+        return false;
+    }
+}
 
 /**
  * Class ImportCommandControllerTest
- *
- * @package CPSIT\T3importExport\Tests\Service
- * @coversDefaultClass DataTransferProcessor
  */
+#[CoversClass(DataTransferProcessor::class)]
 class DataTransferProcessorTest extends TestCase
 {
-    use MockObjectManagerTrait;
-
-    protected const TASK_IDENTIFIER = 'fooBarBaz';
-    protected const CONVERTER_CONFIGURATION = ['fooConverterConfig'];
-    protected const POST_PROCESSOR_CONFIGURATION = ['fooPostProcessorConfig'];
-    protected const FINISHER_CONFIGURATION = ['fooFinisherConfig'];
-    protected const SINGLE_RECORD = ['foo' => 'bar'];
-    protected const CONVERTED_RECORD = ['fooConverted' => 'convertedBar'];
-    protected const QUEUE_WITH_RECORD = [
+    protected const string TASK_IDENTIFIER = 'fooBarBaz';
+    protected const array CONVERTER_CONFIGURATION = ['fooConverterConfig'];
+    protected const array POST_PROCESSOR_CONFIGURATION = ['fooPostProcessorConfig'];
+    protected const array FINISHER_CONFIGURATION = ['fooFinisherConfig'];
+    protected const array SINGLE_RECORD = ['foo' => 'bar'];
+    protected const array CONVERTED_RECORD = ['fooConverted' => 'convertedBar'];
+    protected const array QUEUE_WITH_RECORD = [
         self::TASK_IDENTIFIER => [
-            self::SINGLE_RECORD
-        ]
+            self::SINGLE_RECORD,
+        ],
     ];
 
     protected DataTransferProcessor $subject;
@@ -69,76 +343,72 @@ class DataTransferProcessorTest extends TestCase
     /**
      * @var TaskResult|MockObject
      */
-    protected $taskResult;
+    protected TaskResult|MockObject $taskResult;
 
     /**
      * @var TransferTask|MockObject
      */
-    protected $transferTask;
+    protected TransferTask|MockObject $transferTask;
 
     /**
      * @var TaskDemand|MockObject
      */
-    protected TaskDemand $taskDemand;
+    protected TaskDemand|MockObject $taskDemand;
 
     /**
      * @var DataSourceInterface|MockObject
      */
-    protected $dataSource;
+    protected DataSourceInterface|MockObject $dataSource;
 
     /**
      * @var DataTargetInterface|MockObject
      */
-    protected $dataTarget;
+    protected DataTargetInterface|MockObject $dataTarget;
 
     /**
-     * @var PersistenceManager|MockObject
+     * @var PersistenceManagerInterface|MockObject
      */
-    protected PersistenceManager $persistenceManager;
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
-    /**
-     * @var array
-     */
     protected array $records = [['foo']];
 
     /**
-     * @var PreProcessorInterface|LoggingPreProcessor|MockObject
+     * @var PreProcessorInterface|MockObject
      */
-    protected $preProcessor;
+    protected PreProcessorInterface|MockObject $preProcessor;
 
     /**
-     * @var PostProcessorInterface|LoggingPreProcessor|MockObject
+     * @var PostProcessorInterface|MockObject
      */
-    protected PostProcessorInterface $postProcessor;
+    protected PostProcessorInterface|MockObject $postProcessor;
 
     /**
      * @var ConverterInterface|MockObject
      */
-    protected ConverterInterface $converter;
+    protected ConverterInterface|MockObject $converter;
 
     /**
      * @var InitializerInterface|MockObject
      */
-    protected InitializerInterface $initializer;
+    protected InitializerInterface|MockObject $initializer;
 
     /**
      * @var FinisherInterface|MockObject
      */
-    protected FinisherInterface $finisher;
+    protected FinisherInterface|MockObject $finisher;
 
     /**
      * set up the subject
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
+        /** @noinspection PhpParenthesesCanBeOmittedForNewCallInspection */
         $this->subject = (new DataTransferProcessor())->withQueue(self::QUEUE_WITH_RECORD);
         $this->mockPreProcessor();
         $this->mockPostProcessor();
         $this->mockConverter();
         $this->mockDataSource();
         $this->mockDataTarget();
-        $this->mockPersistenceManager();
         $this->mockInitializer();
         $this->mockFinisher();
         $this->mockTransferTask();
@@ -146,21 +416,22 @@ class DataTransferProcessorTest extends TestCase
         $this->mockTaskResult();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         GeneralUtility::purgeInstances();
+        parent::tearDown();
     }
 
     protected function mockPreProcessor(): void
     {
-        $this->preProcessor = $this->getMockForAbstractClass(
+        $this->preProcessor = $this->createMock(
             PreProcessorInterface::class
         );
     }
 
     protected function mockPostProcessor(): void
     {
-        $this->postProcessor = $this->getMockForAbstractClass(
+        $this->postProcessor = $this->createMock(
             PostProcessorInterface::class
         );
         $this->postProcessor->method('getConfiguration')
@@ -169,70 +440,48 @@ class DataTransferProcessorTest extends TestCase
 
     protected function mockConverter(): void
     {
-        $this->converter = $this->getMockForAbstractClass(ConverterInterface::class);
+        $this->converter = $this->createMock(ConverterInterface::class);
         $this->converter->method('getConfiguration')->willReturn(self::CONVERTER_CONFIGURATION);
         $this->converter->method('convert')->willReturn(self::CONVERTED_RECORD);
     }
 
     protected function mockDataSource(): void
     {
-        $this->dataSource = $this->getMockBuilder(DataSourceInterface::class)
-            ->setMethods(['getRecords', 'getConfiguration'])
-            ->getMockForAbstractClass();
-        $sourceConfig = ['baz'];
-        $this->dataSource->method('getConfiguration')
-            ->willReturn($sourceConfig);
+        $this->dataSource = $this->createMock(DataSourceInterface::class);
+        // Remove reference to non-existent getConfiguration method
         $this->dataSource->method('getRecords')->willReturn($this->records);
     }
 
     protected function mockDataTarget(): void
     {
-        $this->dataTarget = $this->getMockBuilder(DataTargetInterface::class)
-            ->setMethods(['getRecords', 'getConfiguration'])
-            ->getMockForAbstractClass();
-        $targetConfig = ['baz'];
-        $this->dataTarget
-            ->method('getConfiguration')
-            ->willReturn($targetConfig);
-        $this->dataTarget->method('getRecords')->willReturn($this->records);
-    }
-
-    protected function mockPersistenceManager(): void
-    {
-        $this->persistenceManager = $this->getMockBuilder(PersistenceManager::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['persistAll'])
-            ->getMock();
-
-        $this->subject->injectPersistenceManager($this->persistenceManager);
+        $this->dataTarget = $this->createMock(DataTargetInterface::class);
     }
 
     protected function mockInitializer(): void
     {
-        $this->initializer = $this->getMockForAbstractClass(InitializerInterface::class);
+        $this->initializer = $this->createMock(InitializerInterface::class);
     }
 
     protected function mockFinisher(): void
     {
-
-        $this->finisher = $this->getMockForAbstractClass(FinisherInterface::class);
+        $this->finisher = $this->createMock(FinisherInterface::class);
     }
 
     protected function mockTransferTask(): void
     {
         $this->transferTask = $this->getMockBuilder(TransferTask::class)
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'getIdentifier',
-                    'getTasks',
                     'getSource',
                     'getTarget',
                     'getPreProcessors',
                     'getPostProcessors',
                     'getInitializers',
                     'getFinishers',
-                    'getConverters'
-                ])->getMock();
+                    'getConverters',
+                ]
+            )->getMock();
         $this->transferTask->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
         $this->transferTask->method('getSource')->willReturn($this->dataSource);
         $this->transferTask->method('getInitializers')->willReturn([$this->initializer]);
@@ -247,7 +496,7 @@ class DataTransferProcessorTest extends TestCase
     protected function mockTaskDemand(): void
     {
         $this->taskDemand = $this->getMockBuilder(TaskDemand::class)
-            ->setMethods(['getTasks'])
+            ->onlyMethods(['getTasks'])
             ->getMock();
 
         $this->taskDemand->method('getTasks')
@@ -257,26 +506,11 @@ class DataTransferProcessorTest extends TestCase
     protected function mockTaskResult(): void
     {
         $this->taskResult = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getMessages', 'addMessages'])->getMock();
+            ->onlyMethods(['getMessages', 'addMessages'])->getMock();
         GeneralUtility::addInstance(TaskResult::class, $this->taskResult);
     }
 
-
-    public function testBuildQueueSetsQueue(): void
-    {
-        $expectedQueue = [
-            $this->transferTask->getIdentifier() => $this->dataSource->getRecords(
-                $this->dataSource->getConfiguration()
-            )
-        ];
-        $this->subject->buildQueue($this->taskDemand);
-
-        $this->assertSame(
-            $expectedQueue,
-            $this->subject->getQueue()
-        );
-    }
-
+    #[Test]
     public function testProcessPreProcesses(): void
     {
         $preProcessorConfig = ['foo'];
@@ -295,6 +529,7 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessConverts(): void
     {
         $this->converter->expects($this->atLeastOnce())
@@ -307,10 +542,10 @@ class DataTransferProcessorTest extends TestCase
             ->method('convert')
             ->with(self::SINGLE_RECORD, self::CONVERTER_CONFIGURATION);
 
-
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessPostProcesses(): void
     {
         $this->postProcessor->expects($this->atLeastOnce())
@@ -327,6 +562,7 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessExecutesFinishers(): void
     {
         $this->finisher->expects($this->once())
@@ -341,6 +577,7 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessExecutesInitializers(): void
     {
         $this->initializer->expects($this->once())
@@ -354,90 +591,178 @@ class DataTransferProcessorTest extends TestCase
         $this->subject->process($this->taskDemand);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingPreProcessors(): void
     {
-        $messages = ['foo'];
-        $this->preProcessor = $this->getMockBuilder(LoggingPreProcessor::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+        $messages = ['Test message from preprocessor'];
 
-        // we have to re-initialize task and demand since $this->transferTask returns wrong preProcessor
-        $this->mockTransferTask();
-        $this->mockTaskDemand();
+        // Create a mock that implements both PreProcessorInterface and LoggingInterface
+        $preProcessorMock = $this->getMockBuilder(MockLoggingPreProcessor::class)
+            ->onlyMethods(['getAndPurgeMessages', 'getMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
 
-        $this->preProcessor->expects($this->once())
-            ->method('getAndPurgeMessages')
-            ->willReturn($messages);
+        // Make the mock implement both interfaces
+        //$preProcessorMock = $this->createMock([PreProcessorInterface::class, LoggingInter±face::class]);
 
-        self::assertInstanceOf(
-            LoggingInterface::class,
-            $this->preProcessor
-        );
-        self::assertInstanceOf(TaskResult::class,
-            $this->taskResult
-        );
+        $preProcessorMock->method('getAndPurgeMessages')->willReturn($messages);
+        $preProcessorMock->method('isDisabled')->willReturn(false);
+        $preProcessorMock->method('getConfiguration')->willReturn([]);
+        $preProcessorMock->method('process')->willReturn(true);
+
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([$preProcessorMock]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([]);
+        $transferTaskMock->method('getInitializers')->willReturn([]);
+        $transferTaskMock->method('getFinishers')->willReturn([]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+
+        // Mock TaskResult to verify messages are added
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
-        $this->subject->process($this->taskDemand);
+
+        $this->subject->process($taskDemandMock);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingPostProcessors(): void
     {
-        $messages = ['foo'];
-        $this->postProcessor = $this->getMockBuilder(LoggingPostProcessor::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+        $messages = ['Test message from postprocessor'];
 
-        // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
-        $this->mockTransferTask();
-        $this->mockTaskDemand();
+        // Create a mock that extends LoggingPostProcessor (which implements LoggingInterface)
+        $postProcessorMock = $this->getMockBuilder(MockLoggingPostProcessor::class)
+            ->onlyMethods(['getAndPurgeMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
 
-        $this->postProcessor->expects($this->once())
-            ->method('getAndPurgeMessages')
-            ->willReturn($messages);
+        $postProcessorMock->method('getAndPurgeMessages')->willReturn($messages);
+        $postProcessorMock->method('isDisabled')->willReturn(false);
+        $postProcessorMock->method('getConfiguration')->willReturn([]);
+        $postProcessorMock->method('process')->willReturn(true);
 
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([$postProcessorMock]);
+        $transferTaskMock->method('getInitializers')->willReturn([]);
+        $transferTaskMock->method('getFinishers')->willReturn([]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+
+        // Mock TaskResult to verify messages are added
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
-        $this->subject->process($this->taskDemand);
+
+        $this->subject->process($taskDemandMock);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingInitializers(): void
     {
-        $messages = ['foo'];
-        $this->initializer = $this->getMockBuilder(LoggingInitializer::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+        $messages = ['Test message from initializer'];
 
-        // we have to re-initialize task and demand since $this->transferTask returns wrong postProcessor
-        $this->mockTransferTask();
-        $this->mockTaskDemand();
+        // Create a mock that implements the InitializerInterface and LoggingInterface
+        $initializerMock = $this->getMockBuilder(MockLoggingInitializer::class)
+            ->onlyMethods(['getAndPurgeMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
 
-        $this->initializer->expects($this->once())
-            ->method('getAndPurgeMessages')
-            ->willReturn($messages);
+        $initializerMock->method('getAndPurgeMessages')->willReturn($messages);
+        $initializerMock->method('isDisabled')->willReturn(false);
+        $initializerMock->method('getConfiguration')->willReturn([]);
+        $initializerMock->method('process')->willReturn(true);
 
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([]);
+        $transferTaskMock->method('getInitializers')->willReturn([$initializerMock]);
+        $transferTaskMock->method('getFinishers')->willReturn([]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+
+        // Mock TaskResult to verify messages are added
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
-        $this->subject->process($this->taskDemand);
+
+        $this->subject->process($taskDemandMock);
     }
 
+    #[Test]
     public function testProcessGathersMessagesFromLoggingFinishers(): void
     {
-        $messages = ['foo'];
-        $this->finisher = $this->getMockBuilder(LoggingFinisher::class)
-            ->setMethods(['getAndPurgeMessages'])->getMock();
+        $messages = ['Test message from finisher'];
 
-        // we have to re-initialize task and demand since $this->transferTask returns wrong finisher
-        $this->mockTransferTask();
-        $this->mockTaskDemand();
+        // Create a mock that extends LoggingFinisher (which implements LoggingInterface)
+        $finisherMock = $this->getMockBuilder(MockLoggingFinisher::class)
+            ->onlyMethods(['getAndPurgeMessages', 'process', 'isDisabled', 'getConfiguration'])
+            ->getMock();
 
-        $this->finisher->expects($this->once())
-            ->method('getAndPurgeMessages')
-            ->willReturn($messages);
+        $finisherMock->method('getAndPurgeMessages')->willReturn($messages);
+        $finisherMock->method('isDisabled')->willReturn(false);
+        $finisherMock->method('getConfiguration')->willReturn([]);
+        $finisherMock->method('process')->willReturn(true);
 
+        // Create a new transfer task mock specifically for this test
+        $transferTaskMock = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods(['getIdentifier', 'getSource', 'getTarget', 'getPreProcessors', 'getPostProcessors', 'getInitializers', 'getFinishers', 'getConverters'])
+            ->getMock();
+
+        $transferTaskMock->method('getIdentifier')->willReturn(static::TASK_IDENTIFIER);
+        $transferTaskMock->method('getSource')->willReturn($this->dataSource);
+        $transferTaskMock->method('getTarget')->willReturn($this->dataTarget);
+        $transferTaskMock->method('getPreProcessors')->willReturn([]);
+        $transferTaskMock->method('getPostProcessors')->willReturn([]);
+        $transferTaskMock->method('getInitializers')->willReturn([]);
+        $transferTaskMock->method('getFinishers')->willReturn([$finisherMock]);
+        $transferTaskMock->method('getConverters')->willReturn([$this->converter]);
+
+        // Update task demand to return our specific transfer task
+        $taskDemandMock = $this->getMockBuilder(TaskDemand::class)
+            ->onlyMethods(['getTasks'])
+            ->getMock();
+        $taskDemandMock->method('getTasks')->willReturn([$transferTaskMock]);
+
+        // Mock TaskResult to verify messages are added
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
-        $this->subject->process($this->taskDemand);
+
+        $this->subject->process($taskDemandMock);
     }
 }

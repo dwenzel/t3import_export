@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -19,52 +21,50 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\LoggingInterface;
-use CPSIT\T3importExport\LoggingTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
+use CPSIT\ImportExportCore\LoggingTrait;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory;
-use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
-use TYPO3\CMS\Core\Database\Connection;
 
 /**
  * Class GenerateFileReference
  */
-class GenerateFileReference extends AbstractPostProcessor
-    implements PostProcessorInterface, LoggingInterface
+class GenerateFileReference extends AbstractPostProcessor implements PostProcessorInterface, LoggingInterface
 {
     use LoggingTrait;
 
-    public const TABLE_SYS_FILE_REFERENCE = 'sys_file_reference';
+    public const string TABLE_SYS_FILE_REFERENCE = 'sys_file_reference';
 
     /**
      * Error by id
      * <unique id> => ['title', ['message']
      */
-    final public const ERROR_CODES = [
+    final public const array ERROR_CODES = [
         1_510_524_677 => ['Missing source field', 'config[\'sourceField\'] must be set'],
         1_510_524_678 => ['Missing target field', 'config[\'targetField\'] must be set'],
         1_510_524_679 => ['Invalid target page', 'Given value %s for config[\'targetPage\'] could not be interpreted as integer'],
     ];
 
-
     public function __construct(
         protected PersistenceManagerInterface $persistenceManager,
-        protected FileReferenceFactory        $fileReferenceFactory,
-        protected FileIndexRepository         $fileIndexRepository,
-        protected MessageContainer            $messageContainer)
-    {
-    }
+        protected FileReferenceFactory $fileReferenceFactory,
+        protected FileIndexRepository $fileIndexRepository,
+        /**
+         * @todo temporarily disabled, because of dependency injection issues
+         */
+        //protected MessageContainer $messageContainer
+    ) {}
 
     /**
      * processes the converted record
@@ -75,22 +75,21 @@ class GenerateFileReference extends AbstractPostProcessor
      * @return bool
      * @throws PropertyNotAccessibleException
      */
-    public function process(array $configuration, &$convertedRecord, array &$record): bool
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
+        $sourceField = $configuration['sourceField'];
+        $targetField = $configuration['targetField'];
+        $identityField = $configuration['identityField'] ?? '__identity';
+        $tableName = $configuration['tableName'] ?? '';
+
+        $fileId = isset($record[$sourceField]) ? $record[$sourceField] : null;
+
         if (is_object($convertedRecord)
             && (!ObjectAccess::isPropertySettable($convertedRecord, $targetField)
             || !MathUtility::canBeInterpretedAsInteger($fileId))
         ) {
             return false;
         }
-
-        $sourceField = $configuration['sourceField'];
-        $targetField = $configuration['targetField'];
-        $identityField = $configuration['identityField'] ?? '__identity';
-        $tableName = $configuration['tableName']?? '';
-
-
-        $fileId = $convertedRecord[$sourceField];
         if ($fileId instanceof File) {
             $fileId = $fileId->getUid();
         }
@@ -101,14 +100,16 @@ class GenerateFileReference extends AbstractPostProcessor
         }
 
         $foreignUid = null;
-        if (isset($convertedRecord[$identityField])) {
+        if (is_array($convertedRecord) && isset($convertedRecord[$identityField])) {
             $foreignUid = (int)$convertedRecord[$identityField];
+        } elseif (is_object($convertedRecord) && isset($convertedRecord->$identityField)) {
+            $foreignUid = (int)$convertedRecord->$identityField;
         }
 
-        if ($this->fileReferenceExists($tableName, $fileId, $foreignUid, $targetField)) {
+        // Only check if file reference exists if we have a foreign UID
+        if ($foreignUid !== null && $this->fileReferenceExists($tableName, $fileId, $foreignUid, $targetField)) {
             return false;
         }
-
 
         if (
             is_object($convertedRecord)
@@ -143,10 +144,8 @@ class GenerateFileReference extends AbstractPostProcessor
 
     /**
      * Tells whether the configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (
@@ -166,7 +165,7 @@ class GenerateFileReference extends AbstractPostProcessor
         if (!empty($configuration['targetPage'])
             && !MathUtility::canBeInterpretedAsInteger($configuration['targetPage'])
         ) {
-            $this->logError(1_510_524_679, (string)$configuration['targetPage']);
+            $this->logError(1_510_524_679, [(string)$configuration['targetPage']]);
             return false;
         }
 
@@ -186,15 +185,13 @@ class GenerateFileReference extends AbstractPostProcessor
         $connection = (GeneralUtility::makeInstance(ConnectionPool::class))
             ->getConnectionForTable(self::TABLE_SYS_FILE_REFERENCE);
         $result = $connection->insert(self::TABLE_SYS_FILE_REFERENCE, $row);
-
     }
     protected function fileReferenceExists(
         string $tableName,
-        int    $localUid,
-        int    $foreignUid,
+        int $localUid,
+        int $foreignUid,
         string $fieldName = ''
-    ): bool
-    {
+    ): bool {
         $connection = (GeneralUtility::makeInstance(ConnectionPool::class))->getConnectionForTable(
             self::TABLE_SYS_FILE_REFERENCE,
         );
@@ -222,6 +219,6 @@ class GenerateFileReference extends AbstractPostProcessor
                 )
             )
             ->executeQuery()->fetchOne();
-        return ($result === 1);
+        return $result === 1;
     }
 }

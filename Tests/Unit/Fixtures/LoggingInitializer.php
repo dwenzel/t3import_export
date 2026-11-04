@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
 /***************************************************************
@@ -19,21 +21,27 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 
 /**
  * Class LoggingInitializer
  * Dummy class for testing: Initializer implementing LoggingInterface
+ * @deprecated Autoloading of fixtures in phpunit does not work correctly.
  */
 class LoggingInitializer extends AbstractInitializer implements InitializerInterface, LoggingInterface
 {
+    use LoggingTrait;
+
+    public const array ERROR_CODES = [];
+
     /**
      * Gets all messages
      * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return [];
     }
@@ -44,14 +52,10 @@ class LoggingInitializer extends AbstractInitializer implements InitializerInter
     }
 
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
-     * @return bool
      */
     public function process(array $configuration, array &$records): bool
     {
         return true;
     }
-
-
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 /***************************************************************
@@ -20,7 +22,6 @@ namespace CPSIT\T3importExport\Validation\Configuration;
  ***************************************************************/
 trait ArrayAccessTrait
 {
-
     protected string $path;
     protected string $delimiter;
 

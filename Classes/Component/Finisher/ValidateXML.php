@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
 /***************************************************************
@@ -18,10 +20,10 @@ namespace CPSIT\T3importExport\Component\Finisher;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
-use CPSIT\T3importExport\LoggingInterface;
-use CPSIT\T3importExport\LoggingTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
+use CPSIT\ImportExportCore\LoggingTrait;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -41,7 +43,7 @@ class ValidateXML extends AbstractFinisher
      * Notice by id
      * <unique id> => ['Title', ['Message']
      */
-    final public const NOTICE_CODES = [
+    final public const array NOTICE_CODES = [
         1_508_776_068 => ['Validation failed', 'XML is invalid. There %1s %d %2s.'],
         1_508_914_030 => ['Validation succeed', 'XML is valid.'],
     ];
@@ -50,7 +52,7 @@ class ValidateXML extends AbstractFinisher
      * Error by id
      * <unique id> => ['Title', ['Message']
      */
-    final public const ERROR_CODES = [
+    final public const array ERROR_CODES = [
         1_508_774_170 => ['Invalid type for target schema', 'config[\'target\'][\'schema\'] must be a string, %s given.'],
         1_508_914_547 => ['Empty resource', 'Could not load resource or resource empty'],
     ];
@@ -62,9 +64,9 @@ class ValidateXML extends AbstractFinisher
      * @param MessageContainer|null $messageContainer
      */
     public function __construct(
-        XMLReader $xmlReader = null,
-        ResourcePathConfigurationValidator $validator = null,
-        MessageContainer $messageContainer = null
+        ?XMLReader $xmlReader = null,
+        ?ResourcePathConfigurationValidator $validator = null,
+        ?MessageContainer $messageContainer = null
     ) {
         $this->xmlReader = $xmlReader ?? GeneralUtility::makeInstance(XMLReader::class);
         $this->pathValidator = $validator ?? GeneralUtility::makeInstance(ResourcePathConfigurationValidator::class);
@@ -85,19 +87,20 @@ class ValidateXML extends AbstractFinisher
      * 'description' may contain placeholder (%s) for arguments.
      * @return array
      */
-    public function getNoticeCodes()
+    public function getNoticeCodes(): array
     {
         return static::NOTICE_CODES;
     }
 
     /**
      * Tells whether a given configuration is valid
-     * Override this method in order to perform validation of
+     * Override this method to perform validation of
      * configuration
      *
      * @param array $configuration
      * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!$this->pathValidator->isValid($configuration)) {
@@ -115,12 +118,12 @@ class ValidateXML extends AbstractFinisher
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
-     * @param array $result Array with result records
+     * @param object|array $result Array with result records
      * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
-
         $resource = $this->loadResource($configuration);
         if (empty($resource)) {
             $this->logError(1_508_914_547, null, [$configuration]);

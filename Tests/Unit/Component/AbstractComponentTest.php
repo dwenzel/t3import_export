@@ -1,10 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *
@@ -32,11 +38,12 @@ use PHPUnit\Framework\TestCase;
  ***************************************************************/
 class AbstractComponentTest extends TestCase
 {
-
     /**
      * @var AbstractComponent
      */
     protected $subject;
+    protected $contentObjectRenderer;
+    protected $typoScriptService;
 
     /**
      * set up
@@ -44,15 +51,14 @@ class AbstractComponentTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(AbstractComponent::class)
-            ->setMethods(['renderContent'])
-            ->getMockForAbstractClass();
+            ->onlyMethods(['renderContent', 'isConfigurationValid'])
+            ->getMock();
     }
 
     /**
      * Data provider for method isDisabled
-     * @return array
      */
-    public function isDisabledDataProvider()
+    public static function isDisabledDataProvider(): array
     {
         /** $configuration, $expectedValue */
         return [
@@ -60,31 +66,30 @@ class AbstractComponentTest extends TestCase
                 [], false,
             ],
             [
-                ['disable' => '1'], true
+                ['disable' => '1'], true,
             ],
             [
-                ['disable' => ['foo']], true
+                ['disable' => ['foo']], false,
             ],
             [
-                ['disable' => 'foo'], false
-            ]
+                ['disable' => 'foo'], false,
+            ],
         ];
     }
 
     /**
-     * @test
-     * @dataProvider isDisabledDataProvider
-     * @param array $configuration
-     * @param bool $expectedResult
+     * @throws ContentRenderingException
      */
-    public function isDisabledReturnsCorrectValue($configuration, $expectedResult)
+    #[DataProvider('isDisabledDataProvider')]
+    #[Test]
+    public function isDisabledReturnsCorrectValue(array $configuration, bool $expectedResult): void
     {
         $record = [];
         if (isset($configuration['disable']) && is_array($configuration['disable'])) {
-            $this->subject->expects($this->any())
+            $this->subject
                 ->method('renderContent')
                 ->with($record, $configuration['disable'])
-                ->will($this->returnValue((string)$expectedResult));
+                ->willReturn($expectedResult);
         }
 
         $this->assertSame(
@@ -93,7 +98,7 @@ class AbstractComponentTest extends TestCase
         );
     }
 
-    public function isDisabledReturnsTrueIfResultContainsMessageWithMatchingIdDataProvider()
+    public static function isDisabledReturnsTrueIfResultContainsMessageWithMatchingIdDataProvider(): array
     {
         return [
             'single message id' => [
@@ -101,10 +106,10 @@ class AbstractComponentTest extends TestCase
                     'disable' => [
                         'if' => [
                             'result' => [
-                                'hasMessage' => '12345'
-                            ]
-                        ]
-                    ]
+                                'hasMessage' => '12345',
+                            ],
+                        ],
+                    ],
                 ],
             ],
             'multiple message ids' => [
@@ -112,24 +117,21 @@ class AbstractComponentTest extends TestCase
                     'disable' => [
                         'if' => [
                             'result' => [
-                                'hasMessage' => '12345,2,7'
-                            ]
-                        ]
-                    ]
+                                'hasMessage' => '12345,2,7',
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
     }
 
-    /**
-     * @test
-     * @param $configuration
-     * @dataProvider isDisabledReturnsTrueIfResultContainsMessageWithMatchingIdDataProvider
-     */
-    public function isDisabledReturnsTrueIfResultContainsMessageWithMatchingId($configuration)
+    #[DataProvider('isDisabledReturnsTrueIfResultContainsMessageWithMatchingIdDataProvider')]
+    #[Test]
+    public function isDisabledReturnsTrueIfResultContainsMessageWithMatchingId($configuration): void
     {
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['hasMessageWithId'])
+            ->onlyMethods(['hasMessageWithId'])
             ->getMock();
         $result->expects($this->once())->method('hasMessageWithId')
             ->willReturn(true);

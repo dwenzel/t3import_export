@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Resource;
 
 /**
@@ -19,13 +21,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait ResourceTrait
 {
-
     /**
      * Wrapper method for testing purposes
      *
-     * @param $path
      * @return string
-     * @codeCoverageIgnore
      */
     protected function getAbsoluteFilePath($path)
     {
@@ -51,7 +50,7 @@ trait ResourceTrait
         }
 
         $absoluteFilePath = $this->getAbsoluteFilePath($resourcePath);
-        if (is_file($absoluteFilePath) === true) {
+        if ($absoluteFilePath && is_file($absoluteFilePath) === true) {
             $resource = file_get_contents($absoluteFilePath);
         } elseif (GeneralUtility::isValidUrl($resourcePath) === true) {
             $resource = GeneralUtility::getURL($resourcePath);

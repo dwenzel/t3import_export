@@ -1,10 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -36,10 +39,8 @@ class FinisherFactory extends AbstractFactory implements FactoryInterface
     /**
      * Builds a Finisher object
      *
-     * @param array $settings
      * @param string $identifier
      * @throws InvalidConfigurationException
-     * @return FinisherInterface
      */
     public function get(array $settings = [], $identifier = null): FinisherInterface
     {

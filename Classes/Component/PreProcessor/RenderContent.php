@@ -1,10 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -23,20 +25,62 @@ use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
+
 class RenderContent extends AbstractPreProcessor implements PreProcessorInterface
 {
     public function __construct(
         protected ContentObjectRenderer $contentObjectRenderer,
-        protected TypoScriptService $typoScriptService)
+        protected TypoScriptService $typoScriptService
+    ) {}
+
+    /**
+     * Override trait method to use injected dependencies
+     */
+    public function getContentObjectRenderer(): ContentObjectRenderer
     {
+        return $this->contentObjectRenderer;
+    }
+
+    /**
+     * Override trait method to use injected dependencies
+     */
+    public function getTypoScriptService(): TypoScriptService
+    {
+        return $this->typoScriptService;
+    }
+
+    /**
+     * Override the trait's renderContent method to use injected dependencies
+     * @param array $record Optional data array
+     * @param array $configuration Plain or TypoScript array
+     * @return mixed|null Returns rendered content for each valid TypoScript object or null.
+     * @throws ContentRenderingException
+     */
+    public function renderContent(array $record, array $configuration): mixed
+    {
+        $typoScriptConf = $this->typoScriptService
+            ->convertPlainArrayToTypoScriptArray($configuration);
+        /** @var \TYPO3\CMS\Frontend\ContentObject\AbstractContentObject $contentObject */
+        $contentObject = $this->contentObjectRenderer
+            ->getContentObject($configuration['_typoScriptNodeValue']);
+
+        if ($contentObject !== null) {
+            $this->contentObjectRenderer->start($record);
+
+            return $contentObject->render($typoScriptConf);
+        }
+
+        return null;
     }
 
     /**
      * @param array $configuration
      * @param array $record
      * @return bool
+     * @throws ContentRenderingException
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $this->renderFields($configuration, $record);
 
@@ -45,10 +89,8 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
 
     /**
      * Tells whether a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -69,9 +111,6 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
     }
 
     /**
-     * @param $configuration
-     * @param $record
-     * @return array
      * @throws ContentRenderingException
      */
     protected function renderFields($configuration, &$record): ?array

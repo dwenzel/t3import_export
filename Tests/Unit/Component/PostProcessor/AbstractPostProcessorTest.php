@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
@@ -36,10 +38,13 @@ class AbstractPostProcessorTest extends TestCase
      */
     protected AbstractPostProcessor $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockForAbstractClass(AbstractPostProcessor::class);
+        $this->subject = $this->createMock(AbstractPostProcessor::class);
+        $this->subject->method('isConfigurationValid')->willReturn(true);
     }
 
     /**

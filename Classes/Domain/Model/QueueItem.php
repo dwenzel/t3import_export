@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Model;
 
-use DateTime;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /***************************************************************
@@ -23,35 +24,34 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  ***************************************************************/
 class QueueItem extends AbstractEntity
 {
-    final public const TABLE = 'tx_t3importexport_domain_model_queueitem';
-    final public const STATUS_NEW = 0;
-    final public const STATUS_PROCESSING = 1;
-    final public const STATUS_FINISHED = 2;
-    final public const STATUS_FAILED = 3;
+    final public const string TABLE = 'tx_t3importexport_domain_model_queueitem';
+    final public const int STATUS_NEW = 0;
+    final public const int STATUS_PROCESSING = 1;
+    final public const int STATUS_FINISHED = 2;
+    final public const int STATUS_FAILED = 3;
 
-    final public const FIELD_IDENTIFIER = 'identifier';
-    final public const FIELD_CREATED = 'created_date';
-    final public const FIELD_STARTED = 'started_date';
-    final public const FIELD_FINISHED = 'finished_date';
-    final public const FIELD_CHECKSUM = 'checksum';
-    final public const FIELD_DATA = 'data';
-    final public const FIELD_STATUS = 'status';
-    final public const FIELD_UID = 'uid';
-
+    final public const string FIELD_IDENTIFIER = 'identifier';
+    final public const string FIELD_CREATED = 'created_date';
+    final public const string FIELD_STARTED = 'started_date';
+    final public const string FIELD_FINISHED = 'finished_date';
+    final public const string FIELD_CHECKSUM = 'checksum';
+    final public const string FIELD_DATA = 'data';
+    final public const string FIELD_STATUS = 'status';
+    final public const string FIELD_UID = 'uid';
 
     /**
      * allowed status values
      */
-    final public const STATUS = [
+    final public const array STATUS = [
         self::STATUS_NEW,
         self::STATUS_PROCESSING,
         self::STATUS_FINISHED,
-        self::STATUS_FAILED
+        self::STATUS_FAILED,
     ];
 
-    protected DateTime $createdDate;
-    protected DateTime $startedDate;
-    protected DateTime $finishedDate;
+    protected \DateTime $createdDate;
+    protected \DateTime $startedDate;
+    protected \DateTime $finishedDate;
     protected string $checksum;
     protected string $data;
     protected int $status;

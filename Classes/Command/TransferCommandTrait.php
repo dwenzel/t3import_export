@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Command;
 
 /***************************************************************
@@ -18,21 +21,12 @@ namespace CPSIT\T3importExport\Command;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\Service\DataTransferProcessor;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-
 /**
  * Class TransferCommandController
  */
 trait TransferCommandTrait
 {
-    /**
-     * @var array
-     */
     protected array $settings;
-
-    protected DataTransferProcessor $dataTransferProcessor;
-
 
     public function withSettings(array $settings): self
     {
@@ -40,19 +34,18 @@ trait TransferCommandTrait
         return $this;
     }
 
-
     /**
      * initialize object
      */
     public function initializeObject(): void
     {
-        $extbaseFrameworkConfiguration = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-            't3importexport'
+        $fullConfiguration = $this->configurationHandler->getFullConfiguration(
         );
 
-        if (isset($extbaseFrameworkConfiguration['settings'][static::SETTINGS_KEY])) {
-            $this->settings = $extbaseFrameworkConfiguration['settings'][static::SETTINGS_KEY];
+        //@todo: Check if this is the right path
+        if (isset($fullConfiguration['settings'][static::SETTINGS_KEY])) {
+            $this->settings = $fullConfiguration['settings'][static::SETTINGS_KEY];
         }
+
     }
 }

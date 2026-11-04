@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
@@ -14,42 +16,30 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Core\Resource\File;
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use CPSIT\T3importExport\LoggingTrait;
+use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 
 /**
  * Trait GenerateFileTrait
  */
 trait GenerateFileTrait
 {
-    use ResourceStorageTrait, LoggingTrait;
+    use ResourceStorageTrait;
+    use LoggingTrait;
 
-    /**
-     * Errors by id
-     *
-     * @var array
-     */
-    protected static $errors = [
-        1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
-        1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
-        1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
-        1_497_427_335 => ['Missing field name', 'config[\'sourceField\'] must be set'],
-        1_497_427_336 => ['Missing field name', 'config[\'targetField\'] must be set'],
-        1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
-        1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
-    ];
+    protected FilePathFactory $filePathFactory;
 
     /**
      * injects the file path factory
-     * @param FilePathFactory $factory
      * @deprecated
      */
-    public function injectFilePathFactory(FilePathFactory $factory){
+    public function injectFilePathFactory(FilePathFactory $factory)
+    {
         $this->filePathFactory = $factory;
     }
 
@@ -64,20 +54,6 @@ trait GenerateFileTrait
     abstract public function getFile($configuration, $sourceFilePath);
 
     /**
-     * Returns error codes for current component.
-     * Must be an array in the form
-     * [
-     *  <id> => ['errorTitle', 'errorDescription']
-     * ]
-     * 'errorDescription' may contain placeholder (%s) for arguments.
-     * @return array
-     */
-    public function getErrorCodes()
-    {
-        return static::$errors;
-    }
-
-    /**
      * Process record
      * Generates one or multiple file objects, adds them to the repository and the record field
      *
@@ -85,7 +61,7 @@ trait GenerateFileTrait
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $separator = ',';
         if (isset($configuration['separator'])) {
@@ -96,9 +72,9 @@ trait GenerateFileTrait
 
         $filePaths = GeneralUtility::trimExplode($separator, $record[$sourceField], true);
 
-        // Prefix all files with source path
+        // Prefix all files with the source path
         if (isset($configuration['sourcePath'])) {
-            $filePaths = preg_filter('/^/', (string) $configuration['sourcePath'], $filePaths);
+            $filePaths = preg_filter('/^/', (string)$configuration['sourcePath'], $filePaths);
         }
 
         if ($configuration['multipleRows']) {
@@ -119,9 +95,6 @@ trait GenerateFileTrait
 
     /**
      * Check configuration
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -157,7 +130,7 @@ trait GenerateFileTrait
 
         if (!$this->resourceStorage->hasFolder($configuration['targetDirectoryPath'])) {
             $storageConfiguration = $this->resourceStorage->getConfiguration();
-            $this->logError(1_497_427_363, [$storageConfiguration['basePath'] . ltrim((string) $configuration['targetDirectoryPath'], '/\\')]);
+            $this->logError(1_497_427_363, [$storageConfiguration['basePath'] . ltrim((string)$configuration['targetDirectoryPath'], '/\\')]);
 
             return false;
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
 /***************************************************************
@@ -19,8 +21,6 @@ namespace CPSIT\T3importExport\Persistence\Factory;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\ObjectManagerTrait;
-use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -30,10 +30,7 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
  */
 class FileReferenceFactory
 {
-
-    public function __construct(protected ResourceFactory $resourceFactory)
-    {
-    }
+    public function __construct(protected ResourceFactory $resourceFactory) {}
     /**
      * Creates a new file reference for a file
      *
@@ -44,7 +41,7 @@ class FileReferenceFactory
     public function createFileReferenceObject($fileId, array $configuration, $foreignUid = null)
     {
         $pageId = 0;
-        if($foreignUid === null) {
+        if ($foreignUid === null) {
             $foreignUid = uniqid('NEW_');
         }
         if (isset($configuration['targetPage'])) {

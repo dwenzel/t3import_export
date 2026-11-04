@@ -1,254 +1,137 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingDatabaseException;
 use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-
-/***************************************************************
- *
- *  Copyright notice
- *
- *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
- *
- *  All rights reserved
- *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * Class DataSourceDBTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence
- * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataSourceDB
+ * Test for DataSourceDB
  */
+#[CoversClass(DataSourceDB::class)]
 class DataSourceDBTest extends TestCase
 {
+    protected DataSourceDB $subject;
+    protected DatabaseConnectionService|MockObject $connectionService;
+    protected ConnectionPool|MockObject $connectionPool;
+    protected Connection|MockObject $connection;
 
-    /**
-     * @var DataSourceDB
-     */
-    protected $subject;
-
-    /**
-     *
-     */
     protected function setUp(): void
     {
-        $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
+        $this->connection = $this->createMock(Connection::class);
 
-        $this->subject = $this->getAccessibleMock(DataSourceDB::class,
-            ['dummy'], [], '', false);
+        $this->subject = new DataSourceDB($this->connectionPool, $this->connectionService);
     }
 
-    /**
-     * @test
-     * @covers ::getRecords
-     */
-    public function getRecordsInitiallyReturnsEmptyArray()
+    #[Test]
+    public function isConfigurationValidReturnsFalseForEmptyConfiguration(): void
     {
-        $configuration = ['table' => 'foo'];
-        $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class
-        );
-        $mockDataBase = $this->getMock(
-            DatabaseConnection::class, [], [], '', false
-        );
-        $this->subject->injectDatabaseConnectionService($mockConnectionService);
-        $mockConnectionService->expects($this->once())
-            ->method('getDatabase')
-            ->will($this->returnValue($mockDataBase));
-        $this->assertSame(
-            [],
-            $this->subject->getRecords($configuration)
-        );
+        $this->assertFalse($this->subject->isConfigurationValid([]));
     }
 
-    /**
-     * @test
-     * @covers ::getRecords
-     */
-    public function getRecordsReturnsResultFromDB()
+    #[Test]
+    public function isConfigurationValidReturnsFalseWhenTableIsMissing(): void
+    {
+        $configuration = ['fields' => 'uid,title'];
+        $this->assertFalse($this->subject->isConfigurationValid($configuration));
+    }
+
+    #[Test]
+    public function isConfigurationValidReturnsFalseWhenTableIsNotString(): void
+    {
+        $configuration = ['table' => 123];
+        $this->assertFalse($this->subject->isConfigurationValid($configuration));
+    }
+
+    #[Test]
+    public function isConfigurationValidReturnsTrueForValidConfiguration(): void
+    {
+        $configuration = ['table' => 'pages'];
+        $this->assertTrue($this->subject->isConfigurationValid($configuration));
+    }
+
+    #[Test]
+    public function isConfigurationValidReturnsTrueForComplexValidConfiguration(): void
     {
         $configuration = [
-            'fields' => 'foo',
-            'table' => 'table',
-            'where' => '',
-            'groupBy' => '',
-            'orderBy' => '',
-            'limit' => '1'
+            'table' => 'pages',
+            'fields' => 'uid,title,hidden',
+            'where' => 'hidden=0',
+            'orderBy' => 'title'
         ];
-        $result = ['baz'];
-        $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class
-        );
-        $mockDataBase = $this->getMock(
-            DatabaseConnection::class, ['exec_SELECTgetRows'], [], '', false
-        );
-        $this->subject->injectDatabaseConnectionService($mockConnectionService);
-        $mockConnectionService->expects($this->once())
-            ->method('getDatabase')
-            ->will($this->returnValue($mockDataBase));
-        $mockDataBase->expects($this->once())
-            ->method('exec_SELECTgetRows')
-            ->with(
-                $configuration['fields'],
-                $configuration['table'],
-                $configuration['where'],
-                $configuration['groupBy'],
-                $configuration['orderBy'],
-                $configuration['limit']
-            )
-            ->will($this->returnValue($result));
-        $this->assertSame(
-            $result,
-            $this->subject->getRecords($configuration)
-        );
+        $this->assertTrue($this->subject->isConfigurationValid($configuration));
     }
 
-    /**
-     * @test
-     */
-    public function getRecordsRendersContentOfConfiguration()
+    #[Test]
+    public function getDatabaseReturnsConnection(): void
     {
-        $this->subject = $this->getAccessibleMock(DataSourceDB::class,
-            ['renderContent'], [], '', false);
-
-        $configuration = [
-            'table' => 'baz',
-            'foo' => ['bar']
-        ];
-        $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class
-        );
-        $mockDataBase = $this->getMock(
-            DatabaseConnection::class, ['exec_SELECTgetRows'], [], '', false
-        );
-        $this->subject->injectDatabaseConnectionService($mockConnectionService);
-        $mockConnectionService->expects($this->once())
+        $this->connectionService->expects($this->once())
             ->method('getDatabase')
-            ->will($this->returnValue($mockDataBase));
-        $this->subject->expects($this->once())
-            ->method('renderContent')
-            ->will($this->returnValue('baz'));
-        $this->subject->getRecords($configuration);
+            ->with(null)
+            ->willReturn($this->connection);
+
+        $result = $this->subject->getDatabase();
+        $this->assertSame($this->connection, $result);
     }
 
-    /**
-     * @test
-     * @covers ::getDatabase
-     */
-    public function getDatabaseReturnsDatabaseFromConnectionService()
+    #[Test]
+    public function getDatabaseUsesIdentifierWhenSet(): void
     {
-        $identifier = 'foo';
+        $identifier = 'external_db';
         $this->subject->setIdentifier($identifier);
-        /** @var DatabaseConnectionService | \PHPUnit_Framework_MockObject_MockObject $mockConnectionService */
-        $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class, ['getDatabase'], [], '', false
-        );
-        $mockDataBase = $this->getMock(
-            DatabaseConnection::class);
-        $this->subject->injectDatabaseConnectionService($mockConnectionService);
-        $mockConnectionService->expects($this->once())
+
+        $this->connectionService->expects($this->once())
             ->method('getDatabase')
             ->with($identifier)
-            ->will($this->returnValue($mockDataBase));
+            ->willReturn($this->connection);
 
-        $this->assertSame(
-            $mockDataBase,
-            $this->subject->getDatabase()
-        );
+        $result = $this->subject->getDatabase();
+        $this->assertSame($this->connection, $result);
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseForMissingTable()
+    #[Test]
+    public function getDatabaseThrowsExceptionWhenConnectionServiceFails(): void
     {
-        $configuration = [];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsFalseForInvalidTable()
-    {
-        $configuration = [
-            'table' => []
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function isConfigurationValidReturnsTrueForValidConfiguration()
-    {
-        $configuration = [
-            'table' => 'foo'
-        ];
-        $this->assertTrue(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function getDatabaseOverwritesDefaultDatabaseConnectionIfIdentifierIsSet()
-    {
-        $identifier = 'bar';
-        $GLOBALS['TYPO3_DB'] = $this->getMock(DatabaseConnection::class);
-        $this->inject(
-            $this->subject,
-            'identifier',
-            $identifier
-        );
-        $mockConnectionService = $this->getMock(
-            DatabaseConnectionService::class,
-            ['getDatabase']
-        );
-        $this->inject(
-            $this->subject,
-            'connectionService',
-            $mockConnectionService
-        );
-        $mockConnectionForIdentifier = $this->getMock(
-            DatabaseConnection::class
-        );
-        $mockConnectionService->expects($this->once())
+        $this->connectionService->expects($this->once())
             ->method('getDatabase')
-            ->with($identifier)
-            ->will($this->returnValue($mockConnectionForIdentifier));
+            ->willThrowException(new MissingDatabaseException('Database not found'));
 
-        $this->assertSame(
-            $mockConnectionForIdentifier,
-            $this->subject->getDatabase()
-        );
+        $this->expectException(MissingDatabaseException::class);
+        $this->subject->getDatabase();
+    }
 
-        $this->assertNotSame(
-            $GLOBALS['TYPO3_DB'],
-            $this->subject->getDatabase()
-        );
+    #[Test]
+    public function getRecordsThrowsExceptionForInvalidConfiguration(): void
+    {
+        $invalidConfiguration = ['fields' => 'uid,title']; // missing table
+
+        $this->expectException(InvalidConfigurationException::class);
+        $this->subject->getRecords($invalidConfiguration);
+    }
+
+    #[Test]
+    public function identifierCanBeSetAndGet(): void
+    {
+        $identifier = 'test_db';
+        $this->subject->setIdentifier($identifier);
+        $this->assertSame($identifier, $this->subject->getIdentifier());
+    }
+
+    #[Test]
+    public function identifierInitiallyReturnsNull(): void
+    {
+        $this->assertNull($this->subject->getIdentifier());
     }
 }

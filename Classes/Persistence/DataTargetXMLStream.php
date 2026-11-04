@@ -1,44 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ObjectManagerTrait;
-use FluidTYPO3\Flux\Form\Field\DateTime;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use XMLWriter;
 
 class DataTargetXMLStream extends DataTargetFileStream
 {
-    final public const DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
-    final public const DEFAULT_ROOT_NODE = 'rows';
+    final public const string DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
+    final public const string DEFAULT_ROOT_NODE = 'rows';
 
-    final public const TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
+    final public const string TEMPLATE_CONTENT_PLACEHOLDER = '{{CONTENT}}';
 
-    protected XMLWriter $writer;
+    protected \XMLWriter $writer;
 
     /**
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
-     * @return void
      * @throws FileOperationErrorException
      */
-    public function persist($object, array $configuration = null)
+    #[\Override]
+    public function persist($object, ?array $configuration = null): mixed
     {
         // init XML
         $this->initFileIfNotExist($configuration);
         // write object data into array
         parent::persist($object, $configuration);
+        return null;
     }
 
     /**
      * @param array|null $result
      * @param array|\Iterator|null $configuration
-     * @return void
      */
-    public function persistAll($result = null, array $configuration = null)
+    #[\Override]
+    public function persistAll($result = null, ?array $configuration = null)
     {
         if (isset($this->writer)) {
             // close file
@@ -49,9 +47,9 @@ class DataTargetXMLStream extends DataTargetFileStream
                 $this->writer->endElement();
             }
 
-
             // remove writer from memory and remove possible access locks from files
             $this->writer->flush();
+            // @phpstan-ignore unset.possiblyHookedProperty
             unset($this->writer);
         }
 
@@ -59,9 +57,9 @@ class DataTargetXMLStream extends DataTargetFileStream
     }
 
     /**
-     * @param $buffer
      * @throws FileOperationErrorException
      */
+    #[\Override]
     protected function writeBuffer($buffer)
     {
         if (isset($this->writer)) {
@@ -72,13 +70,12 @@ class DataTargetXMLStream extends DataTargetFileStream
     }
 
     /**
-     * @param $configuration
      * @throws FileOperationErrorException
      */
     protected function initFileIfNotExist($configuration)
     {
         if (!isset($this->writer)) {
-            $this->writer = new XMLWriter();
+            $this->writer = new \XMLWriter();
 
             if (isset($configuration['output']) && $configuration['output'] === 'file') {
                 $this->tempFile = $this->createAnonymTempFile();
@@ -100,7 +97,6 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     /**
      * @param array $configuration
-     * @return void
      */
     protected function writeXMLTemplateBased($configuration)
     {
@@ -110,7 +106,6 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     /**
      * @param array $configuration
-     * @return void
      */
     protected function writeXMLEndTemplateBased($configuration)
     {
@@ -120,7 +115,6 @@ class DataTargetXMLStream extends DataTargetFileStream
 
     /**
      * @param array $configuration
-     * @return void
      */
     protected function writeXMLDynamically($configuration)
     {
@@ -141,7 +135,7 @@ class DataTargetXMLStream extends DataTargetFileStream
     protected function getAboveContentTemplate($configuration)
     {
         $entireTemplate = $this->loadTemplate($configuration);
-        $subString = substr($entireTemplate, 0, strpos($entireTemplate, (string) static::TEMPLATE_CONTENT_PLACEHOLDER));
+        $subString = substr($entireTemplate, 0, strpos($entireTemplate, (string)static::TEMPLATE_CONTENT_PLACEHOLDER));
         return $this->computePlaceholder($subString, $configuration);
     }
 
@@ -152,7 +146,7 @@ class DataTargetXMLStream extends DataTargetFileStream
     protected function getBelowContentTemplate($configuration)
     {
         $entireTemplate = $this->loadTemplate($configuration);
-        $belowOffset = strpos($entireTemplate, (string) static::TEMPLATE_CONTENT_PLACEHOLDER) + strlen((string) static::TEMPLATE_CONTENT_PLACEHOLDER);
+        $belowOffset = strpos($entireTemplate, (string)static::TEMPLATE_CONTENT_PLACEHOLDER) + strlen((string)static::TEMPLATE_CONTENT_PLACEHOLDER);
         $subString = substr($entireTemplate, $belowOffset);
         return $this->computePlaceholder($subString, $configuration);
     }
@@ -196,7 +190,6 @@ class DataTargetXMLStream extends DataTargetFileStream
     }
 
     /**
-     * @param $replacement
      * @return string
      */
     protected function replaceKeyReplacement($replacement)

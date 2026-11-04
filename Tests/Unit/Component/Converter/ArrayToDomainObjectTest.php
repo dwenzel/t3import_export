@@ -1,4 +1,7 @@
-<?php /** @noinspection PhpParamsInspection */
+<?php
+
+declare(strict_types=1);
+/** @noinspection PhpParamsInspection */
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
@@ -6,6 +9,7 @@ use CPSIT\T3importExport\Component\Converter\ArrayToDomainObject;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
@@ -42,12 +46,10 @@ use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
 /**
  * Class ArrayToDomainObjectTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
  */
 class ArrayToDomainObjectTest extends TestCase
 {
-
     /**
      * @var ArrayToDomainObject
      */
@@ -73,31 +75,20 @@ class ArrayToDomainObjectTest extends TestCase
      */
     protected $mappingConfigurationValidator;
 
-    /**
-     * @var ObjectManager|MockObject
-     */
-    protected $objectManager;
-
-    /**
-     *
-     */
     protected function setUp(): void
     {
-        $this->objectManager = $this->getMockBuilder(ObjectManager::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['get'])
-            ->getMock();
         $this->propertyMapper = $this->getMockBuilder(PropertyMapper::class)
-            ->setMethods(['convert'])
+            ->disableOriginalConstructor()
+            ->onlyMethods(['convert'])
             ->getMock();
         $this->propertyMappingConfigurationBuilder = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)
-            ->setMethods(['build'])
+            ->onlyMethods(['build'])
             ->getMock();
         $this->targetClassConfigurationValidator = $this->getMockBuilder(TargetClassConfigurationValidator::class)
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->mappingConfigurationValidator = $this->getMockBuilder(MappingConfigurationValidator::class)
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->subject = new ArrayToDomainObject(
             $this->propertyMapper,
@@ -107,11 +98,8 @@ class ArrayToDomainObjectTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @noinspection PhpParamsInspection
-     */
-    public function getMappingConfigurationInitiallyReturnsDefaultPropertyMappingConfiguration()
+    #[Test]
+    public function getMappingConfigurationInitiallyReturnsDefaultPropertyMappingConfiguration(): void
     {
         $this->propertyMappingConfigurationBuilder->expects($this->never())
             ->method('build');
@@ -123,11 +111,8 @@ class ArrayToDomainObjectTest extends TestCase
         $this->subject->getMappingConfiguration([]);
     }
 
-
-    /**
-     * @test
-     */
-    public function getMappingConfigurationReturnsMappingConfigurationIfSet()
+    #[Test]
+    public function getMappingConfigurationReturnsMappingConfigurationIfSet(): void
     {
         $mappingConfiguration = $this->getMockBuilder(PropertyMappingConfiguration::class)->getMock();
 
@@ -138,10 +123,8 @@ class ArrayToDomainObjectTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function getMappingConfigurationBuildsAndReturnsConfigurationForType()
+    #[Test]
+    public function getMappingConfigurationBuildsAndReturnsConfigurationForType(): void
     {
         $configuration = ['foo'];
 
@@ -160,16 +143,13 @@ class ArrayToDomainObjectTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function convertReturnsConvertedObject()
+    #[Test]
+    public function convertReturnsConvertedObject(): void
     {
         $record = [];
-        $expectedObject = $this->getMockBuilder(DomainObjectInterface::class)
-            ->getMockForAbstractClass();
+        $expectedObject = $this->createMock(DomainObjectInterface::class);
         $configuration = [
-            'targetClass' => 'FooClassName'
+            'targetClass' => 'FooClassName',
         ];
         $mappingConfiguration = $configuration;
         unset($mappingConfiguration['targetClass']);
@@ -184,7 +164,7 @@ class ArrayToDomainObjectTest extends TestCase
                 $configuration['targetClass'],
                 $mockMappingConfiguration
             )
-            ->will($this->returnValue($expectedObject));
+            ->willReturn($expectedObject);
 
         $this->assertSame(
             $expectedObject,
@@ -192,10 +172,8 @@ class ArrayToDomainObjectTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidValidatesTargetClassAndMappingConfiguration()
+    #[Test]
+    public function isConfigurationValidValidatesTargetClassAndMappingConfiguration(): void
     {
         $config = ['foo'];
         $this->targetClassConfigurationValidator->expects($this->once())

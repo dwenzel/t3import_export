@@ -1,8 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 
 /***************************************************************
  *
@@ -31,8 +34,7 @@ use CPSIT\T3importExport\MissingClassException;
 class TargetClassConfigurationValidator implements ConfigurationValidatorInterface
 {
     /**
-     * @param array $config
-     * @throws \CPSIT\T3importExport\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      * @throws MissingClassException
      */
     public function isValid(array $config): bool

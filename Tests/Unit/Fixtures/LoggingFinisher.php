@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
 
 /***************************************************************
@@ -19,21 +21,25 @@ namespace CPSIT\T3importExport\Tests\Unit\Fixtures;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\LoggingInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
 
 /**
  * Class LoggingFinisher
- * Dummy class for testing: Finisher implementing LoggingInterface
+ * Fake class for testing: Finisher implementing LoggingInterface
+ * @deprecated Autoloading of fixtures in phpunit does not work correctly.
  */
 class LoggingFinisher extends AbstractFinisher implements FinisherInterface, LoggingInterface
 {
+    public const array ERROR_CODES = [];
+    use LoggingTrait;
     /**
      * Gets all messages
      * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return [];
     }
@@ -46,12 +52,12 @@ class LoggingFinisher extends AbstractFinisher implements FinisherInterface, Log
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
-     * @param array $result Array with result records
+     * @param object|array $result Array with result records
      * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         return true;
     }
-
 }

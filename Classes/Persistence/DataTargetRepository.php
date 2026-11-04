@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
@@ -34,56 +40,33 @@ use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataTargetRepository implements DataTargetInterface
+class DataTargetRepository implements DataTargetInterface, ConfigurableInterface
 {
-    public const MISSING_CLASS_EXCEPTION_CODE = 1_641_374_612;
-    public const MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
+    use ConfigurableTrait;
 
-    /**
-     * Fully qualified class name of the object which should be persisted.
-     * The object must extend the \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject class.
-     *
-     * @var string
-     */
-    protected $targetClass;
-
-    /**
-     * @var Repository
-     */
-    protected $repository;
-
-
-    protected PersistenceManagerInterface $persistenceManager;
-
+    public const int MISSING_CLASS_EXCEPTION_CODE = 1_641_374_612;
+    public const string MISSING_CLASS_EXCEPTION_MESSAGE = 'Could not find repository class %s for object of type %s';
+    private string $targetClass = '';
 
     /**
      * Constructor
-     *
-     * @param string $targetClass
-     * @param RepositoryInterface|null $repository
-     * @param PersistenceManagerInterface|null $persistenceManager
      */
-    public function __construct(string $targetClass, RepositoryInterface $repository = null, PersistenceManagerInterface $persistenceManager = null)
-    {
-        $this->targetClass = $targetClass;
-        $this->repository = $repository;
-        if ($persistenceManager === null) {
-            $persistenceManager = (GeneralUtility::makeInstance(ObjectManager::class))
-                ->get(PersistenceManagerInterface::class);
-        }
-        if (null !== $persistenceManager) {
-            $this->persistenceManager = $persistenceManager;
-        }
-    }
+    public function __construct(
+        protected ?RepositoryInterface $repository,
+        protected PersistenceManagerInterface $persistenceManager
+    ) {}
 
     /**
      * Persist both new and updated objects.
      *
      * @param DomainObjectInterface|array $object Record to persist. Either an array or an instance of \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject
-     * @param array $configuration Configuration array.
+     * @param array|null $configuration Configuration array.
      * @return mixed
+     * @throws MissingClassException
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null): mixed
     {
         $repository = $this->getRepository();
         if (!$this->persistenceManager->isNewObject($object)) {
@@ -91,12 +74,13 @@ class DataTargetRepository implements DataTargetInterface
         } else {
             $repository->add($object);
         }
+
+        return null;
     }
 
     /**
      * Gets the repository
      *
-     * @return Repository
      * @throws MissingClassException
      */
     public function getRepository(): Repository
@@ -125,10 +109,9 @@ class DataTargetRepository implements DataTargetInterface
 
     /**
      * @param array|null $result
-     * @param array|null $configuration
      * @return mixed
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
         $this->persistenceManager->persistAll();
     }
@@ -139,5 +122,14 @@ class DataTargetRepository implements DataTargetInterface
     public function getTargetClass()
     {
         return $this->targetClass;
+    }
+
+    public function isConfigurationValid(array $configuration): bool
+    {
+        if (!isset($configuration['targetClass'])) {
+            return false;
+        }
+        $this->targetClass = $configuration['targetClass'];
+        return true;
     }
 }

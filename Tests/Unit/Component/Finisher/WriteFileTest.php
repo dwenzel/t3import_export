@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\WriteFile;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceFactoryTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockResourceStorageFolderTrait;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Folder;
@@ -37,31 +38,47 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
  */
 class WriteFileTest extends TestCase
 {
-    use MockMessageContainerTrait,
-        MockResourceFactoryTrait,
-        MockResourceStorageFolderTrait;
-
     protected WriteFile $subject;
-
     protected TaskResult $result;
     protected FileInfo $fileInfo;
+    protected ResourceFactory|MockObject $resourceFactory;
+    protected ResourceStorage|MockObject $resourceStorage;
+    protected Folder|MockObject $folder;
+    protected MessageContainer|MockObject $messageContainer;
 
     /**
      * Set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
         $this->fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods([])
             ->getMock();
+
         $this->result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])
+            ->onlyMethods(['getInfo'])
             ->getMock();
-        $this->mockResourceStorage()
-            ->mockResourceFactory()
-            ->mockStorageFolder();
+
+        $this->resourceStorage = $this->createMock(ResourceStorage::class);
+
+        $this->folder = $this->createMock(Folder::class);
+        $this->resourceStorage->method('getDefaultFolder')
+            ->willReturn($this->folder);
+
+        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'getStorageObject',
+                'getDefaultStorage',
+                'createFileReferenceObject',
+            ])
+            ->getMock();
+
+        $this->resourceFactory->method('getDefaultStorage')
+            ->willReturn($this->resourceStorage);
+
+        $this->messageContainer = $this->createMock(MessageContainer::class);
+
         $this->subject = new WriteFile(
             $this->resourceFactory
         );
@@ -69,90 +86,86 @@ class WriteFileTest extends TestCase
 
     /**
      * Invalid configuration data provider
-     * @return array
      */
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty configuration' => [
-                []
+                [],
             ],
             'empty target file name' => [
                 [
                     'target' => [
-                        'name' => ''
-                    ]
-                ]
+                        'name' => '',
+                    ],
+                ],
             ],
             'target name must not be array' => [
                 [
                     'target' => [
-                        'name' => ['bar']
-                    ]
-                ]
+                        'name' => ['bar'],
+                    ],
+                ],
             ],
             'target name must not be integer' => [
                 [
                     'target' => [
-                        'name' => 0
-                    ]
-                ]
+                        'name' => 0,
+                    ],
+                ],
             ],
             'target storage string: can not be interpreted as integer' => [
                 [
                     'target' => [
                         'name' => 'foo',
-                        'storage' => 'bar'
-                    ]
-                ]
+                        'storage' => 'bar',
+                    ],
+                ],
             ],
             'target storage array: can not be interpreted as integer' => [
                 [
                     'target' => [
                         'name' => 'foo',
-                        'storage' => ['bar']
-                    ]
-                ]
+                        'storage' => ['bar'],
+                    ],
+                ],
             ],
             'target directory integer: must be string' => [
                 [
                     'target' => [
                         'name' => 'foo',
-                        'directory' => 8
-                    ]
-                ]
+                        'directory' => 8,
+                    ],
+                ],
             ],
             'invalid target conflictMode: foo' => [
                 [
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => 'foo',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'invalid target conflictMode: empty string' => [
                 [
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => '',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'invalid target conflictMode: array' => [
                 [
                     'target' => [
                         'name' => 'foo',
                         'conflictMode' => [],
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }
 
-    /**
-     * @dataProvider invalidConfigurationDataProvider
-     * @param array $configuration
-     */
+    #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationForEmptyConfigurationReturnsReturnsFalse(array $configuration): void
     {
         $this->assertFalse(
@@ -162,65 +175,61 @@ class WriteFileTest extends TestCase
 
     /**
      * Valid configuration data provider
-     * @return array
      */
-    public function validConfigurationDataProvider(): array
+    public static function validConfigurationDataProvider(): array
     {
         return [
             'minimal: only file name' => [
                 [
                     'target' => [
-                        'name' => 'bar'
-                    ]
-                ]
+                        'name' => 'bar',
+                    ],
+                ],
             ],
             'file name and valid conflictMode: cancel' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'conflictMode' => WriteFile::CONFLICT_MODE_CANCEL
-                    ]
-                ]
+                        'conflictMode' => WriteFile::CONFLICT_MODE_CANCEL,
+                    ],
+                ],
             ],
             'file name and valid conflictMode: changeName' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'conflictMode' => WriteFile::CONFLICT_MODE_CHANGENAME
-                    ]
-                ]
+                        'conflictMode' => WriteFile::CONFLICT_MODE_CHANGENAME,
+                    ],
+                ],
             ],
             'file name and valid conflictMode: replace' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'conflictMode' => WriteFile::CONFLICT_MODE_REPLACE
-                    ]
-                ]
+                        'conflictMode' => WriteFile::CONFLICT_MODE_REPLACE,
+                    ],
+                ],
             ],
             'target storage string: can be interpreted as integer' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'storage' => '3'
-                    ]
-                ]
+                        'storage' => '3',
+                    ],
+                ],
             ],
             'target storage integer' => [
                 [
                     'target' => [
                         'name' => 'bar',
-                        'storage' => 5
-                    ]
-                ]
-            ]
+                        'storage' => 5,
+                    ],
+                ],
+            ],
         ];
     }
 
-    /**
-     * @dataProvider validConfigurationDataProvider
-     * @param array $configuration
-     */
+    #[DataProvider('validConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
         $this->assertTrue(
@@ -255,8 +264,8 @@ class WriteFileTest extends TestCase
         $records = [];
         $configurationWithoutStorage = [
             'target' => [
-                'name' => 'bar.xml'
-            ]
+                'name' => 'bar.xml',
+            ],
         ];
         $result = $this->expectDefaultFolderAccess();
 
@@ -265,7 +274,6 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     /**
@@ -275,9 +283,9 @@ class WriteFileTest extends TestCase
     {
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods([])->getMock();
+            ->getMock();
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])->getMock();
+            ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
         $this->resourceFactory->expects($this->once())
@@ -294,14 +302,14 @@ class WriteFileTest extends TestCase
         $configurationWithStorage = [
             'target' => [
                 'name' => 'bar.xml',
-                'storage' => $storageId
-            ]
+                'storage' => $storageId,
+            ],
         ];
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods([])->getMock();
+            ->getMock();
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])->getMock();
+            ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
         $this->resourceFactory->expects($this->once())
@@ -317,7 +325,6 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     public function testProcessAddsFileToFolderInStorage(): void
@@ -326,29 +333,30 @@ class WriteFileTest extends TestCase
         $fileName = 'bar.xml';
         $configuration = [
             'target' => [
-                'name' => $fileName
-            ]
+                'name' => $fileName,
+            ],
         ];
         $realPath = 'foobar';
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getRealPath'])->getMock();
+            ->onlyMethods(['getRealPath'])->getMock();
         $fileInfo->expects($this->once())
             ->method('getRealPath')
             ->willReturn($realPath);
 
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])->getMock();
+            ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
 
         $this->resourceStorage->expects($this->once())
             ->method('addFile')
-            ->with(...
+            ->with(
+                ...
                 [
                     $realPath,
                     $this->folder,
-                    $fileName
+                    $fileName,
                 ]
             );
 
@@ -366,8 +374,8 @@ class WriteFileTest extends TestCase
         $configurationWithStorage = [
             'target' => [
                 'name' => 'bar.xml',
-                'directory' => $directory
-            ]
+                'directory' => $directory,
+            ],
         ];
 
         $result = $this->expectCreationOfMissingDirectory($directory);
@@ -377,20 +385,18 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     /**
-     * @param string $directory
      * @return TaskResult|MockObject
      */
     protected function expectCreationOfMissingDirectory(string $directory)
     {
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods([])->getMock();
+            ->getMock();
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])->getMock();
+            ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
         $this->resourceStorage
@@ -412,8 +418,8 @@ class WriteFileTest extends TestCase
         $configurationWithStorage = [
             'target' => [
                 'name' => 'bar.xml',
-                'directory' => $directory
-            ]
+                'directory' => $directory,
+            ],
         ];
         $result = $this->expectAccessOfExistingDirectory($directory);
 
@@ -422,20 +428,18 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 
     /**
-     * @param string $directory
      * @return TaskResult|MockObject
      */
     protected function expectAccessOfExistingDirectory(string $directory)
     {
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods([])->getMock();
+            ->getMock();
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])->getMock();
+            ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
         $this->resourceStorage
@@ -457,24 +461,25 @@ class WriteFileTest extends TestCase
         $configuration = [
             'target' => [
                 'name' => 'bar.xml',
-                'conflictMode' => $conflictMode
-            ]
+                'conflictMode' => $conflictMode,
+            ],
         ];
         $fileInfo = $this->getMockBuilder(FileInfo::class)
             ->disableOriginalConstructor()
-            ->setMethods([])->getMock();
+            ->getMock();
         $result = $this->getMockBuilder(TaskResult::class)
-            ->setMethods(['getInfo'])->getMock();
+            ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
         $this->resourceStorage
             ->expects($this->once())
             ->method('addFile')
-            ->with(...[
+            ->with(
+                ...[
                     null,
                     $this->folder,
                     $configuration['target']['name'],
-                    $conflictMode
+                    $conflictMode,
                 ]
             )
             ->willReturn(false);
@@ -484,6 +489,5 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
-
     }
 }

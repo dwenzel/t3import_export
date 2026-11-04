@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Repository;
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
-use CPSIT\T3importExport\Exception\InvalidArgumentException;
-use PDO;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
@@ -30,7 +32,7 @@ class QueueItemRepository
 {
     use DatabaseTrait;
 
-    final public const TEMPLATE_QUEUE_ITEM = [
+    final public const array TEMPLATE_QUEUE_ITEM = [
         QueueItem::FIELD_STATUS => QueueItem::STATUS_NEW,
         QueueItem::FIELD_IDENTIFIER => '',
         QueueItem::FIELD_CHECKSUM => '',
@@ -38,25 +40,19 @@ class QueueItemRepository
         QueueItem::FIELD_CREATED => '',
     ];
 
-    final public const INVALID_TYPE_MESSAGE = 'Expected instance of %s got %s.';
-    final public const INVALID_TYPE_CODE = 1_644_582_032;
-
+    final public const string INVALID_TYPE_MESSAGE = 'Expected instance of %s got %s.';
+    final public const int INVALID_TYPE_CODE = 1_644_582_032;
 
     /**
      * Constructor
-     * @param ConnectionPool|null $connectionPool
      */
-    public function __construct(ConnectionPool $connectionPool = null)
+    public function __construct(?ConnectionPool $connectionPool = null)
     {
         $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
     }
 
-
     /**
      * Creates a new queue record from given data
-     *
-     * @param $record
-     * @return array
      */
     public function fromRecord($record): array
     {
@@ -77,8 +73,6 @@ class QueueItemRepository
      * updates an existing queue record.
      * The record will be identified either by uid or by both fields `idendifier` and `checksum`
      *
-     * @param array $item
-     * @return bool
      * @throws InvalidArgumentException
      */
     public function update(array $item): bool
@@ -102,7 +96,6 @@ class QueueItemRepository
     }
 
     /**
-     * @param array $item
      * @throws InvalidArgumentException
      */
     protected function assertExistingRecord(array $item): self
@@ -122,8 +115,6 @@ class QueueItemRepository
      * Tells if a record already exist. This is the case,
      * either if it has a uid or if a record with the same checksum and identifier
      * can be found in the database
-     * @param array $item
-     * @return bool
      */
     public function isNew(array $item): bool
     {
@@ -140,7 +131,6 @@ class QueueItemRepository
             (!empty($identifiers[QueueItem::FIELD_CHECKSUM])
                 && !empty($identifiers[QueueItem::FIELD_IDENTIFIER]))
         ) {
-
             return !(bool)$this->connectionPool->getConnectionForTable(QueueItem::TABLE)
                 ->count(
                     'uid',
@@ -157,16 +147,12 @@ class QueueItemRepository
         return !empty($this->determineIdentifiers($item));
     }
 
-    /**
-     * @param array $item
-     * @return array
-     */
     protected function determineIdentifiers(array $item): array
     {
         $identifiers = [];
         if (!empty($item[QueueItem::FIELD_UID])) {
             $identifiers = [
-                QueueItem::FIELD_UID => $item[QueueItem::FIELD_UID]
+                QueueItem::FIELD_UID => $item[QueueItem::FIELD_UID],
             ];
         }
 
@@ -177,7 +163,7 @@ class QueueItemRepository
         ) {
             $identifiers = [
                 QueueItem::FIELD_IDENTIFIER => $item[QueueItem::FIELD_IDENTIFIER],
-                QueueItem::FIELD_CHECKSUM => $item[QueueItem::FIELD_CHECKSUM]
+                QueueItem::FIELD_CHECKSUM => $item[QueueItem::FIELD_CHECKSUM],
             ];
         }
 
@@ -185,7 +171,6 @@ class QueueItemRepository
     }
 
     /**
-     * @param array $item
      * @throws InvalidArgumentException
      */
     protected function assertIdentifiableRecord(array $item): self
@@ -202,8 +187,6 @@ class QueueItemRepository
     }
 
     /**
-     * @param $item
-     * @return bool
      * @throws InvalidArgumentException
      */
     public function add(array $item): bool
@@ -217,7 +200,6 @@ class QueueItemRepository
     }
 
     /**
-     * @param array $item
      * @throws InvalidArgumentException
      */
     protected function assertValidRecord(array $item): self
@@ -235,14 +217,13 @@ class QueueItemRepository
 
     protected function isValid($queueItem): bool
     {
-        return (
+        return
             !empty($queueItem[QueueItem::FIELD_IDENTIFIER])
             && isset($queueItem[QueueItem::FIELD_DATA])
-        );
+        ;
     }
 
     /**
-     * @param array $item
      * @throws InvalidArgumentException
      */
     protected function assertNewRecord(array $item): self
@@ -262,7 +243,6 @@ class QueueItemRepository
      * Removes an existing record. The record can be identified either by
      * its `uid` or by `identifier` and `checksum`
      *
-     * @param array $item
      * @throws InvalidArgumentException
      */
     public function remove(array $item): bool
@@ -293,10 +273,7 @@ class QueueItemRepository
     }
 
     /**
-     * @param string $identifier
-     * @param int $limit
      * @param string $fields
-     * @return array
      */
     public function findNewByIdentifier(string $identifier, int $limit = 10, array $fields = ['*']): array
     {
@@ -312,14 +289,14 @@ class QueueItemRepository
                 ),
                 $queryBuilder->expr()->eq(
                     QueueItem::FIELD_STATUS,
-                    $queryBuilder->createNamedParameter(QueueItem::STATUS_NEW, PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter(QueueItem::STATUS_NEW, Connection::PARAM_INT)
                 )
             )
             ->setMaxResults($limit);
-            $result = $query->execute()
+        $result = $query->execute()
             ->fetchAllAssociative();
 
-        return is_array($result)? $result : [];
+        return is_array($result) ? $result : [];
     }
 
     public function setDefaultOrderings(array $defaultOrderings)

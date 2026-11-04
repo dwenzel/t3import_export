@@ -1,8 +1,8 @@
 <?php
 
-namespace CPSIT\T3importExport\Factory;
+declare(strict_types=1);
 
-use TYPO3Fluid\Fluid\Component\ComponentInterface;
+namespace CPSIT\T3importExport\Factory;
 
 /***************************************************************
  *  Copyright notice
@@ -25,8 +25,8 @@ interface FactoryInterface
     /**
      * Returns a factory object
      * @param array $settings
-     * @param null $identifier
+     * @param string|null $identifier
      * @return mixed
      */
-    public function get(array $settings = [], $identifier = null);
+    public function get(array $settings = [], ?string $identifier = null): mixed;
 }

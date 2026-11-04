@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Domain\Model\Dto;
 
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
@@ -25,15 +27,14 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class TaskDemandTest
- *
- * @package CPSIT\T3importExport\Tests\Domain\Model\Dto
  */
 class TaskDemandTest extends TestCase
 {
-
     protected TaskDemand $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new TaskDemand();

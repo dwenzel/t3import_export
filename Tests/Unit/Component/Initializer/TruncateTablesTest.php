@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Initializer;
 
 use CPSIT\T3importExport\Component\Initializer\TruncateTables;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /***************************************************************
  *  Copyright notice
@@ -30,27 +34,34 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /**
  * Class TruncateTablesTest
- *
- * @package CPSIT\T3importExport\Tests\Service\Initializer
- * @coversDefaultClass \CPSIT\T3importExport\Component\Initializer\TruncateTables
  */
+#[CoversClass(\CPSIT\T3importExport\Component\Initializer\TruncateTables::class)]
 class TruncateTablesTest extends TestCase
 {
-    use MockDatabaseTrait;
-
     protected TruncateTables $subject;
+    protected ConnectionPool&MockObject $connectionPool;
+    protected Connection&MockObject $connection;
+    protected DatabaseConnectionService&MockObject $connectionService;
 
     protected function setUp(): void
     {
-        $this->mockConnectionPool()
-            ->mockConnection();
-        $this->subject = new TruncateTables($this->connectionPool);
+        // Create connection mock
+        $this->connection = $this->createMock(Connection::class);
+
+        // Create connection pool mock
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+
+        // Create connection service mock
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
+
+        $this->subject = new TruncateTables($this->connectionPool, $this->connectionService);
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     * @dataProvider invalidConfigurationDataProvider
-     */
+    #[Test]
+    #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration($configuration): void
     {
         $this->assertFalse(
@@ -58,30 +69,28 @@ class TruncateTablesTest extends TestCase
         );
     }
 
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty configuration' => [
-                []
+                [],
             ],
             'tables value is integer' => [
-                [TruncateTables::KEY_TABLES => 3]
+                [TruncateTables::KEY_TABLES => 3],
             ],
             'tables is float' => [
-                [TruncateTables::KEY_TABLES => 1.5]
+                [TruncateTables::KEY_TABLES => 1.5],
             ],
             'tables is array' => [
-                [TruncateTables::KEY_TABLES => []]
+                [TruncateTables::KEY_TABLES => []],
             ],
             'tables is empty string' => [
-                [TruncateTables::KEY_TABLES => '']
-            ]
+                [TruncateTables::KEY_TABLES => ''],
+            ],
         ];
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $validConfiguration = [
@@ -93,11 +102,12 @@ class TruncateTablesTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessTruncatesTables(): void
     {
         $tableName = 'fooTable';
         $config = [
-            'tables' => $tableName
+            'tables' => $tableName,
         ];
         $records = [];
         $this->connectionPool->expects($this->once())

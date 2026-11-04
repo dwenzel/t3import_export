@@ -1,15 +1,13 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
-use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\Factory\InitializerFactory;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
-use PHPUnit\Framework\MockObject\MockObject;
+use CPSIT\T3importExport\Component\Initializer\AbstractInitializer;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
 /***************************************************************
  *
@@ -38,8 +36,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 /**
  * Class DummyInvalidInitializer
  * Does not implement InitializerInterface
- *
- * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidInitializer
 {
@@ -47,16 +43,9 @@ class DummyInvalidInitializer
 
 /**
  * Class DummyValidInitializer
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidInitializer extends AbstractInitializer implements InitializerInterface
 {
-    /**
-     * @param array $configuration
-     * @param array $records
-     * @return bool
-     */
     public function process(array $configuration, array &$records): bool
     {
         return true;
@@ -65,21 +54,14 @@ class DummyValidInitializer extends AbstractInitializer implements InitializerIn
 
 /**
  * Class InitializerFactoryTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class InitializerFactoryTest extends TestCase
 {
-    use MockObjectManagerTrait;
-
     /**
      * @var InitializerFactory
      */
     protected $subject;
 
-    /**
-     *
-     */
     protected function setUp(): void
     {
         $this->subject = new InitializerFactory();
@@ -99,7 +81,7 @@ class InitializerFactoryTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_454_588_360);
         $configurationWithNonExistingClass = [
-            'class' => 'NonExistingClass'
+            'class' => 'NonExistingClass',
         ];
         $this->subject->get(
             $configurationWithNonExistingClass
@@ -112,17 +94,14 @@ class InitializerFactoryTest extends TestCase
         $this->expectExceptionCode(1_454_588_370);
 
         $configurationWithExistingClass = [
-            'class' => DummyInvalidInitializer::class
+            'class' => DummyInvalidInitializer::class,
         ];
         $this->subject->get(
             $configurationWithExistingClass
         );
     }
 
-    /**
-     * @test
-     */
-    public function getReturnsInitializer(): void
+    public function testGetReturnsInitializer(): void
     {
         $identifier = 'fooIdentifier';
         $validClass = DummyValidInitializer::class;

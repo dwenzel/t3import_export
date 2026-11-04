@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
@@ -26,15 +28,15 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class GuessSeminarLanguageTest
  *
- * @package CPSIT\T3importExport\Tests\Service\PreProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
  */
 class MapFieldValuesTest extends TestCase
 {
-
     protected MapFieldValues $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new MapFieldValues();
@@ -57,7 +59,7 @@ class MapFieldValuesTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
-            'fields' => 'foo'
+            'fields' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -71,8 +73,8 @@ class MapFieldValuesTest extends TestCase
     {
         $config = [
             'fields' => [
-                'foo' => ['bar']
-            ]
+                'foo' => ['bar'],
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -87,9 +89,9 @@ class MapFieldValuesTest extends TestCase
         $config = [
             'fields' => [
                 'foo' => [
-                    'targetField' => 99
-                ]
-            ]
+                    'targetField' => 99,
+                ],
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -105,8 +107,8 @@ class MapFieldValuesTest extends TestCase
             'fields' => [
                 'foo' => [
                     'targetField' => 'bar',
-                ]
-            ]
+                ],
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -122,9 +124,9 @@ class MapFieldValuesTest extends TestCase
             'fields' => [
                 'foo' => [
                     'targetField' => 'bar',
-                    'values' => 'illegalStringValue'
-                ]
-            ]
+                    'values' => 'illegalStringValue',
+                ],
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -141,10 +143,10 @@ class MapFieldValuesTest extends TestCase
                 'foo' => [
                     'targetField' => 'bar',
                     'values' => [
-                        'baz' => 0
-                    ]
-                ]
-            ]
+                        'baz' => 0,
+                    ],
+                ],
+            ],
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($config)
@@ -153,8 +155,6 @@ class MapFieldValuesTest extends TestCase
 
     /**
      * provides data for testing process
-     *
-     * @return array
      */
     public function processDataProvider(): array
     {
@@ -163,10 +163,10 @@ class MapFieldValuesTest extends TestCase
                 'foo' => [
                     'targetField' => 'foo',
                     'values' => [
-                        'bar' => 'baz'
-                    ]
-                ]
-            ]
+                        'bar' => 'baz',
+                    ],
+                ],
+            ],
         ];
 
         return [
@@ -174,22 +174,19 @@ class MapFieldValuesTest extends TestCase
                 //matching value is replaced
                 $configuration,
                 ['foo' => 'bar'],
-                ['foo' => 'baz']
+                ['foo' => 'baz'],
             ],
             [
                 // non matching value is kept
                 $configuration,
                 ['foo' => 'boom'],
-                ['foo' => 'boom']
-            ]
+                ['foo' => 'boom'],
+            ],
         ];
     }
 
     /**
      * @dataProvider processDataProvider
-     * @param array $configuration
-     * @param array $record
-     * @param array $result
      */
     public function processMapsFieldValues(array $configuration, array $record, array $result): void
     {

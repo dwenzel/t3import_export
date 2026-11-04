@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Factory;
 
-use CPSIT\T3importExport\Component\ComponentInterface;
+use CPSIT\ImportExportCore\Component\ComponentInterface;
 use CPSIT\T3importExport\Component\Factory\NullComponentFactory;
-use CPSIT\T3importExport\Exception\InvalidClassException;
+use CPSIT\ImportExportCore\Exception\InvalidClassException;
 use CPSIT\T3importExport\Factory\ComponentFactoryMap;
-use DummyClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************
@@ -30,13 +33,12 @@ use PHPUnit\Framework\TestCase;
  * Class DummyProduct
  * Does not implement ComponentInterface
  */
-class DummyProduct {
-
+class DummyProduct
+{
 }
 
 class MissingProductImplementingComponentInterface implements ComponentInterface
 {
-
 }
 class ComponentFactoryMapTest extends TestCase
 {
@@ -47,6 +49,7 @@ class ComponentFactoryMapTest extends TestCase
         $this->subject = new ComponentFactoryMap();
     }
 
+    #[Test]
     public function testResolveThrowsErrorForInvalidProductClass(): void
     {
         $this->expectException(InvalidClassException::class);
@@ -56,6 +59,7 @@ class ComponentFactoryMapTest extends TestCase
         $this->subject->resolve($invalidClass);
     }
 
+    #[Test]
     public function testResolveReturnsNullFactoryForMissingClass(): void
     {
         $this->assertSame(
@@ -64,12 +68,8 @@ class ComponentFactoryMapTest extends TestCase
         );
     }
 
-    /**
-     * @param string $productClass
-     * @param string $factoryClass
-     * @throws InvalidClassException
-     * @dataProvider validClassDataProvider
-     */
+    #[DataProvider('validClassDataProvider')]
+    #[Test]
     public function testResolveReturnsValidFactoryClassForValidProductClass(string $productClass, string $factoryClass): void
     {
         $this->assertSame(
@@ -78,7 +78,7 @@ class ComponentFactoryMapTest extends TestCase
         );
     }
 
-    public function validClassDataProvider(): array
+    public static function validClassDataProvider(): array
     {
         $data = [];
         foreach (ComponentFactoryMap::FACTORY_MAP as $product => $factory) {

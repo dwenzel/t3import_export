@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Factory;
 
 /***************************************************************
@@ -20,33 +22,33 @@ namespace CPSIT\T3importExport\Domain\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
-use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class TransferSetFactory
  * builds import sets from settings
- *
- * @package CPSIT\T3importExport\Domain\Repository
  */
 class TransferSetFactory extends AbstractFactory
 {
+    protected array $settings = [];
+    /**
+     * @var \CPSIT\T3importExport\Domain\Model\TransferSet|null
+     */
+    private ?TransferSet $transferSet;
 
     public function __construct(
         protected TransferTaskFactory $transferTaskFactory,
-        protected ConfigurationManagerInterface $configurationManager,
-        protected TransferSet $transferSet)
-    {
-
-        $extensionConfiguration = $configurationManager->getConfiguration(
-            ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
-            't3importexport'
-        );
+        private readonly ConfigurationHandlerInterface $configurationHandler
+    ) {
+        $this->transferSet = new TransferSet();
+        $extensionConfiguration = $configurationHandler->getFullConfiguration();
+        //@todo: check if this is the correct way to get the settings
         $this->settings = $extensionConfiguration['settings'] ?? [];
     }
 
@@ -54,13 +56,15 @@ class TransferSetFactory extends AbstractFactory
      * Builds a set of tasks
      *
      * @param array $settings
-     * @param string $identifier
+     * @param string|null $identifier
      * @return TransferSet
      * @throws InvalidConfigurationException
+     * @throws MissingClassException
+     * @throws MissingInterfaceException
      */
-    public function get(array $settings, $identifier = null)
+    public function get(array $settings = [], ?string $identifier = ''): object
     {
-        // clone object in order to prevent from returning the same object on subsequent calls
+        // clone object to prevent from returning the same object on later calls
         // transferSet must be injected for testing purposes
         $this->transferSet = clone $this->transferSet;
         $this->transferSet->setIdentifier($identifier);
@@ -73,7 +77,8 @@ class TransferSetFactory extends AbstractFactory
             foreach ($taskIdentifiers as $taskIdentifier) {
                 if (isset($this->settings['import']['tasks'][$taskIdentifier])) {
                     $task = $this->transferTaskFactory->get(
-                        $this->settings['import']['tasks'][$taskIdentifier], $taskIdentifier
+                        $this->settings['import']['tasks'][$taskIdentifier],
+                        $taskIdentifier
                     );
                     $tasks[$taskIdentifier] = $task;
                 }

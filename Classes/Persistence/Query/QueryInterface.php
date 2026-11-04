@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence\Query;
 
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -54,7 +56,6 @@ interface QueryInterface
     /**
      * Build a query demand from configuration array
      *
-     * @param array $config
      * @return $this
      */
     public function withConfiguration(array $config): self;

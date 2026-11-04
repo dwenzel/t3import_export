@@ -6,10 +6,31 @@ services:
     CPSIT\T3importExport\:
         resource: '../Classes/*'
         exclude: '../Classes/Persistence/Query/*'
+
+    # Register core package services
+    # since cpsit/import-export-core is not a TYPO3 extension, its services
+    # are not available for dependency injection
+    #CPSIT\ImportExportCore\:
+    #  resource: '../../import-export-core/Classes/*'
+    #  exclude:
+    #        - '../../import-export-core/Classes/Exception/*'
+    CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader:
+      public: true
+      arguments:
+        $parser: '@CPSIT\ImportExportCore\Service\YamlConfigurationParser'
+    CPSIT\ImportExportCore\Configuration\YamlConfigurationProvider:
+      public: true
+      arguments:
+        $configurationHandler: '@CPSIT\ImportExportCore\Configuration\ConfigurationHandler'
+        $yamlLoader: '@CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader'
+
     CPSIT\T3importExport\Domain\Factory\TransferTaskFactory:
       public: true
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true
+      arguments:
+        $transferTaskFactory: '@CPSIT\T3importExport\Domain\Factory\TransferTaskFactory'
+        $configurationHandler: '@CPSIT\ImportExportCore\Configuration\ConfigurationHandler'
     CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter:
         tags:
             - name: extbase.type_converter
@@ -36,9 +57,12 @@ services:
       public: true
     CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference:
       public: true
+    CPSIT\T3importExport\Persistence\DataTargetRepository:
+      public: true
     CPSIT\T3importExport\Persistence\DataSourceDB:
       public: true
     CPSIT\T3importExport\Persistence\DataSourceCSV:
+      public: true
       arguments:
         $configurationValidator: '@CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator'
     CPSIT\T3importExport\Persistence\DataSourceQueue:

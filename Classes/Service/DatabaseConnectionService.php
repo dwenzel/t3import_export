@@ -1,11 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Service;
 
-use CPSIT\T3importExport\MissingDatabaseException;
-use Doctrine\DBAL\DBALException;
+use CPSIT\ImportExportCore\Exception\MissingDatabaseException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -31,28 +32,23 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Class DatabaseConnectionService
  * Registers database connections and makes them
  * available by identifier
- *
- * @package CPSIT\T3importExport\Service
  */
 class DatabaseConnectionService implements SingletonInterface
 {
-
-    /**
-     * @var ConnectionPool
-     */
     protected ConnectionPool $connectionPool;
 
     public function __construct($connectionPool = null)
     {
         $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
     }
+
     /**
      * Gets a registered database instance by
      * its identifier
      *
      * @param string $identifier Identifier for the requested database
-     * @return Connection
-     * @throws MissingDatabaseException|DBALException Thrown
+     * @throws MissingDatabaseException
+     * @throws \Doctrine\DBAL\Exception
      * if the requested database does not exist @see
      * @deprecated
      * Use @see ConnectionPool::getConnectionForTable() instead
@@ -73,7 +69,6 @@ class DatabaseConnectionService implements SingletonInterface
      * the given identifier
      *
      * @param string $identifier
-     * @return bool
      */
     public function isRegistered($identifier): bool
     {

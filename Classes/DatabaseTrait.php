@@ -1,13 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerAwareInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -32,12 +31,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Provides a database connection service and a
  * database. The database property is set to the
  * default TYPO DB on instantiation.
- *
- * @package CPSIT\T3importExport
  */
 trait DatabaseTrait
 {
-
     /**
      * Database
      *
@@ -53,13 +49,11 @@ trait DatabaseTrait
      */
     public function __construct(protected ConnectionPool $connectionPool, protected DatabaseConnectionService $connectionService)
     {
-        if (!$this->database instanceof Connection) {
-            $this->database = $GLOBALS['TYPO3_DB'];
-        }
+        // Database connection is now set via the getDatabase() method when needed
+        // No longer using deprecated $GLOBALS['TYPO3_DB']
     }
 
     /**
-     * @return Connection
      * @deprecated
      * use @see ConnectionPool->getConnectionForTable() instead
      */

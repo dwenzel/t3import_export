@@ -57,4 +57,3 @@ module.tx_t3importexport.settings.export.tasks.exampleTask {
   }
 }
 ```
-

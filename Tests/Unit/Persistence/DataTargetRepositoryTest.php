@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
@@ -42,12 +43,18 @@ use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
  ***************************************************************/
 class MockRepositoryObjectRepository extends Repository
 {
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
+    #[\Override]
     public function add($object)
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
+    #[\Override]
     public function remove($object)
     {
     }
@@ -56,23 +63,29 @@ class MockRepositoryObjectRepository extends Repository
      * @param object $modifiedObject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
+    #[\Override]
     public function update($modifiedObject)
     {
     }
 
+    #[\Override]
     public function findAll()
     {
+        return [];
     }
 
     /**
      * @return int|void
-     * @noinspection PhpMissingReturnTypeInspection
      */
+    #[\Override]
     public function countAll()
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
+    #[\Override]
     public function removeAll()
     {
     }
@@ -80,8 +93,8 @@ class MockRepositoryObjectRepository extends Repository
     /**
      * @param int $uid
      * @return object|void|null
-     * @noinspection PhpMissingReturnTypeInspection
      */
+    #[\Override]
     public function findByUid($uid)
     {
     }
@@ -90,24 +103,31 @@ class MockRepositoryObjectRepository extends Repository
      * @param mixed $identifier
      * @return object|void|null
      */
+    #[\Override]
     public function findByIdentifier($identifier)
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
+    #[\Override]
     public function setDefaultOrderings(array $defaultOrderings)
     {
     }
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
+    #[\Override]
     public function setDefaultQuerySettings(QuerySettingsInterface $defaultQuerySettings)
     {
     }
 
     /**
      * @return QueryInterface|void
-     * @noinspection PhpMissingReturnTypeInspection
      */
+    #[\Override]
     public function createQuery()
     {
     }
@@ -116,14 +136,10 @@ class MockRepositoryObjectRepository extends Repository
 /**
  * Class DataTargetRepositoryTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetRepository
  */
 class DataTargetRepositoryTest extends TestCase
 {
-    use MockObjectManagerTrait,
-        MockPersistenceManagerTrait;
-
     protected const TARGET_CLASS = 'oof';
 
     protected DataTargetRepository $subject;
@@ -131,13 +147,24 @@ class DataTargetRepositoryTest extends TestCase
     /**
      * @var RepositoryInterface|MockObject
      */
-    protected RepositoryInterface $objectRepository;
+    protected RepositoryInterface|MockObject $objectRepository;
 
-    protected PersistenceManagerInterface $persistanceManager;
+    /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
+
+    /**
+     * Creates a mock persistence manager
+     */
+    protected function mockPersistenceManager(): void
+    {
+        $this->persistenceManager = $this->getMockBuilder(PersistenceManagerInterface::class)
+            ->getMock();
+    }
 
     /**
      * Set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
@@ -146,27 +173,21 @@ class DataTargetRepositoryTest extends TestCase
             ->getMock();
         $this->mockPersistenceManager();
         $this->subject = new DataTargetRepository(
-            self::TARGET_CLASS,
             $this->objectRepository,
             $this->persistenceManager
         );
     }
 
-    /**
-     * @covers ::getRepository
-     */
+    #[Test]
     public function testGetRepositoryThrowsExceptionForUnknownClass(): void
     {
         $this->expectException(MissingClassException::class);
         $this->expectExceptionCode(DataTargetRepository::MISSING_CLASS_EXCEPTION_CODE);
-        $this->subject = new DataTargetRepository('targetClass', null, $this->persistenceManager);
+        $this->subject = new DataTargetRepository(null, $this->persistenceManager);
         $this->subject->getRepository();
     }
 
-    /**
-     * @covers ::getRepository
-     * @throws MissingClassException
-     */
+    #[Test]
     public function testGetRepositoryReturnsRepositoryIfSet(): void
     {
         $this->assertSame(
@@ -175,9 +196,10 @@ class DataTargetRepositoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testPersistAddsObject(): void
     {
-        $mockObject = $this->getMockForAbstractClass(DomainObjectInterface::class);
+        $mockObject = $this->createMock(DomainObjectInterface::class);
         $this->persistenceManager->expects($this->once())
             ->method('isNewObject')
             ->with(...[$mockObject])
@@ -189,13 +211,10 @@ class DataTargetRepositoryTest extends TestCase
         $this->subject->persist($mockObject, []);
     }
 
-
-    /**
-     * @covers ::persist
-     */
+    #[Test]
     public function testPersistUpdatesObject(): void
     {
-        $mockObject = $this->getMockForAbstractClass(AbstractDomainObject::class);
+        $mockObject = $this->createMock(AbstractDomainObject::class);
 
         $this->objectRepository->expects($this->once())
             ->method('update')
@@ -204,14 +223,17 @@ class DataTargetRepositoryTest extends TestCase
         $this->subject->persist($mockObject);
     }
 
-    public function testConstructorSetsTargetClass(): void
+    #[Test]
+    public function isConfigurationValidReturnsFalseForMissingTargetClass(): void
     {
-        $this->assertSame(
-            self::TARGET_CLASS,
-            $this->subject->getTargetClass()
+        $invalidConfiguration = [];
+
+        $this->assertFalse(
+            $this->subject->isConfigurationValid($invalidConfiguration)
         );
     }
 
+    #[Test]
     public function testPersistAllPersistsThroughPersistenceManager(): void
     {
         $this->persistenceManager->expects($this->once())

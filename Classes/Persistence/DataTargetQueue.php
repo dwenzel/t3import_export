@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
-use CPSIT\T3importExport\Exception\InvalidArgumentException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
 /***************************************************************
@@ -36,13 +37,11 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 
-    final public const KEY_IDENTIFIER = 'identifier';
-    final public const KEY_ALLOW_UPDATE = 'allowUpdate';
+    final public const string KEY_IDENTIFIER = 'identifier';
+    final public const string KEY_ALLOW_UPDATE = 'allowUpdate';
     protected string $targetClass = QueueItem::class;
 
-    public function __construct(protected QueueItemRepository $repository)
-    {
-    }
+    public function __construct(protected QueueItemRepository $repository) {}
 
     public function isConfigurationValid(array $configuration): bool
     {
@@ -59,13 +58,11 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
         }
 
         if (!empty($configuration[self::KEY_ALLOW_UPDATE])
-            && !is_string($configuration[self::KEY_ALLOW_UPDATE]))
-        {
+            && !is_string($configuration[self::KEY_ALLOW_UPDATE])) {
             return false;
         }
         return true;
     }
-
 
     /**
      * Persist QueueItems
@@ -73,12 +70,10 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
      * Instances of DomainObjectInterface are ignored.
      *
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
      * @return bool|mixed
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
-
         $result = null;
         if (!is_array($object)) {
             // todo log warning
@@ -103,16 +98,12 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
         return $result;
     }
 
-
     /**
      * Method doesn't do anything.
      * Please @see DataTargetQueue::persist
      *
      * @param null $result
-     * @param array|null $configuration
      * @return mixed|void
      */
-    public function persistAll($result = null, array $configuration = null)
-    {
-    }
+    public function persistAll($result = null, ?array $configuration = null) {}
 }

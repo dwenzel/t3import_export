@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -16,40 +18,36 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
 {
     use ConfigurableTrait;
 
-    final public const LOGICAL_AND = 'and';
-    final public const LOGICAL_OR = 'or';
-    final public const LOGICAL_NOT = 'not';
+    final public const string LOGICAL_AND = 'and';
+    final public const string LOGICAL_OR = 'or';
+    final public const string LOGICAL_NOT = 'not';
 
-    final public const GREATER_THAN = 'greaterthan';
-    final public const LESS_THAN = 'lessthan';
+    final public const string GREATER_THAN = 'greaterthan';
+    final public const string LESS_THAN = 'lessthan';
 
-    final public const GREATER_THAN_OR_EQUALS = 'greaterthanorequals';
-    final public const LESS_THAN_OR_EQUALS = 'lessthanorequals';
+    final public const string GREATER_THAN_OR_EQUALS = 'greaterthanorequals';
+    final public const string LESS_THAN_OR_EQUALS = 'lessthanorequals';
 
-    final public const LIKE = 'like';
-    final public const EQUALS = 'equals';
-    final public const CONTAINS = 'contains';
-    final public const IN = 'in';
+    final public const string LIKE = 'like';
+    final public const string EQUALS = 'equals';
+    final public const string CONTAINS = 'contains';
+    final public const string IN = 'in';
 
-    final public const OPERAND_NOW = 'now';
-    final public const OPERAND_YESTERDAY = 'yesterday';
-    final public const OPERAND_TODAY = 'today';
-    final public const OPERAND_TOMORROW = 'tomorrow';
+    final public const string OPERAND_NOW = 'now';
+    final public const string OPERAND_YESTERDAY = 'yesterday';
+    final public const string OPERAND_TODAY = 'today';
+    final public const string OPERAND_TOMORROW = 'tomorrow';
 
     /**
      * temporal operands
      */
-    final public const TEMPORAL_OPERANDS = [
-        self::OPERAND_NOW, self::OPERAND_YESTERDAY, self::OPERAND_TODAY, self::OPERAND_TOMORROW
+    final public const array TEMPORAL_OPERANDS = [
+        self::OPERAND_NOW, self::OPERAND_YESTERDAY, self::OPERAND_TODAY, self::OPERAND_TOMORROW,
     ];
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
-
     public function isConfigurationValid(array $configuration): bool
     {
         if (!empty($configuration['class'])) {
@@ -69,12 +67,10 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         $class = $configuration['class'];
         $repository = $this->getRepositoryFromEntityClass($class);
 
-
         return $this->fetchResultWithRepository($repository, $configuration);
     }
 
     /**
-     * @param $entityClassName
      * @return Repository object
      * @throws MissingClassException
      */
@@ -90,7 +86,6 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
     }
 
     /**
-     * @param $entityClassName
      * @return Repository object
      * @throws MissingClassException
      */
@@ -99,14 +94,15 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         $entityClassName .= 'Repository';
         $entityRepositoryName = str_replace('\\Model\\', '\\Repository\\', $entityClassName);
 
-
         /**
          * Note: We use ObjectManager here in order to simplify DI for Repositories
          * fixme: find a solution with
+         * @todo usage of obsolete ObjectManagerInterface removed, check if GeneralUtility can be used for
+         * instantiation
          */
-        $objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
+        // $objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
 
-        $result = GeneralUtility::makeInstance($entityRepositoryName, $objectManager);
+        $result = GeneralUtility::makeInstance($entityRepositoryName);
 
         if (!$result) {
             throw new MissingClassException('Repository: ' . $entityClassName . 'could not be resolved');
@@ -126,7 +122,6 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         $query = $repository->createQuery();
         $this->configStoragePids($query, $config);
         $this->configLanguageIds($query, $config);
-
 
         $constraints = [];
         if (!empty($config['constraints'])) {
@@ -149,7 +144,6 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                 $constraints = [self::LOGICAL_AND => $constraints];
             }
         }
-
 
         $constrainsObjects = $this->generateConstrainForQuery($query, $constraints);
         if (count($constrainsObjects) > 0) {
@@ -210,7 +204,6 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
 
     /**
      * @param QueryInterface $query
-     * @param $config
      *
      * @return array
      */
@@ -219,17 +212,17 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         $constrains = [];
         foreach ($config as $key => $value) {
             // LOGICAL CONJUNCTION
-            if (strtolower((string) $key) === self::LOGICAL_AND) {
+            if (strtolower((string)$key) === self::LOGICAL_AND) {
                 $subConstrains = $this->generateConstrainForQuery($query, $config[$key], $negative);
                 if (!empty($subConstrains)) {
                     $constrains[] = $query->logicalAnd($subConstrains);
                 }
-            } elseif (strtolower((string) $key) === self::LOGICAL_OR) {
+            } elseif (strtolower((string)$key) === self::LOGICAL_OR) {
                 $subConstrains = $this->generateConstrainForQuery($query, $config[$key], $negative);
                 if (!empty($subConstrains)) {
                     $constrains[] = $query->logicalOr($subConstrains);
                 }
-            } elseif (strtolower((string) $key) === self::LOGICAL_NOT) {
+            } elseif (strtolower((string)$key) === self::LOGICAL_NOT) {
                 $subConstrains = $this->generateConstrainForQuery($query, $config[$key], !$negative);
                 if (!empty($subConstrains)) {
                     $constrains = array_merge($constrains, $subConstrains);
@@ -237,7 +230,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
             }
 
             // LOGICAL CRITERION
-            if (strtolower((string) $key) === self::EQUALS) {
+            if (strtolower((string)$key) === self::EQUALS) {
                 foreach ($value as $propertyName => $operand) {
                     /** @var ComparisonInterface $constrain */
                     $constrain = $query->equals($propertyName, $this->replaceOperandPlaceholder($operand));
@@ -246,7 +239,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                     }
                     $constrains[] = $constrain;
                 }
-            } elseif (strtolower((string) $key) === self::LIKE) {
+            } elseif (strtolower((string)$key) === self::LIKE) {
                 foreach ($value as $propertyName => $operand) {
                     /** @var ComparisonInterface $constrain */
                     $constrain = $query->like($propertyName, $this->replaceOperandPlaceholder($operand));
@@ -255,7 +248,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                     }
                     $constrains[] = $constrain;
                 }
-            } elseif (strtolower((string) $key) === self::CONTAINS) {
+            } elseif (strtolower((string)$key) === self::CONTAINS) {
                 foreach ($value as $propertyName => $operand) {
                     /** @var ComparisonInterface $constrain */
                     $constrain = $query->contains($propertyName, $this->replaceOperandPlaceholder($operand));
@@ -264,7 +257,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                     }
                     $constrains[] = $constrain;
                 }
-            } elseif (strtolower((string) $key) === self::IN) {
+            } elseif (strtolower((string)$key) === self::IN) {
                 foreach ($value as $propertyName => $operand) {
                     $operand = GeneralUtility::intExplode(',', $operand, true);
                     $transformedOperands = [];
@@ -278,7 +271,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                     }
                     $constrains[] = $constrain;
                 }
-            } elseif (strtolower((string) $key) === self::GREATER_THAN) {
+            } elseif (strtolower((string)$key) === self::GREATER_THAN) {
                 foreach ($value as $propertyName => $operand) {
                     /** @var ComparisonInterface $constrain */
                     $constrain = $query->greaterThan($propertyName, $this->replaceOperandPlaceholder($operand));
@@ -287,7 +280,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                     }
                     $constrains[] = $constrain;
                 }
-            } elseif (strtolower((string) $key) === self::LESS_THAN) {
+            } elseif (strtolower((string)$key) === self::LESS_THAN) {
                 foreach ($value as $propertyName => $operand) {
                     /** @var ComparisonInterface $constrain */
                     $constrain = $query->lessThan($propertyName, $this->replaceOperandPlaceholder($operand));
@@ -296,7 +289,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                     }
                     $constrains[] = $constrain;
                 }
-            } elseif (strtolower((string) $key) === self::GREATER_THAN_OR_EQUALS) {
+            } elseif (strtolower((string)$key) === self::GREATER_THAN_OR_EQUALS) {
                 foreach ($value as $propertyName => $operand) {
                     /** @var ComparisonInterface $constrain */
                     $constrain = $query->greaterThanOrEqual($propertyName, $this->replaceOperandPlaceholder($operand));
@@ -305,7 +298,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
                     }
                     $constrains[] = $constrain;
                 }
-            } elseif (strtolower((string) $key) === self::LESS_THAN_OR_EQUALS) {
+            } elseif (strtolower((string)$key) === self::LESS_THAN_OR_EQUALS) {
                 foreach ($value as $propertyName => $operand) {
                     /** @var ComparisonInterface $constrain */
                     $constrain = $query->lessThanOrEqual($propertyName, $this->replaceOperandPlaceholder($operand));

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 /**
@@ -15,13 +17,12 @@ namespace CPSIT\T3importExport\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
-use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -29,7 +30,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
+    use ResourceTrait;
 
     protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
 
@@ -37,16 +40,10 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
      * DataSourceCSV constructor.
      * @param ConfigurationValidatorInterface|null $configurationValidator
      */
-    public function __construct(protected ConfigurationValidatorInterface $configurationValidator)
-    {
-    }
-
+    public function __construct(protected ConfigurationValidatorInterface $configurationValidator) {}
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -86,12 +83,12 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
     {
         $records = [];
 
-        $resource = rtrim((string) $this->loadResource($configuration));
+        $resource = rtrim((string)$this->loadResource($configuration));
 
         if (!empty($resource)) {
-            $delimiter = null;
-            $enclosure = null;
-            $escape = null;
+            $delimiter = ',';
+            $enclosure = '"';
+            $escape = '\\';
 
             if (isset($configuration['delimiter'])) {
                 $delimiter = $configuration['delimiter'];
@@ -103,7 +100,7 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
                 $escape = $configuration['escape'];
             }
 
-            $rows = array_filter(str_getcsv($resource, "\n"));
+            $rows = array_filter(str_getcsv($resource, "\n", escape: '\\'));
 
             $records = array_map(fn($d) => str_getcsv($d, $delimiter, $enclosure, $escape), $rows);
 

@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\DatabaseTrait;
-use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\QueryFacade;
 use CPSIT\T3importExport\Persistence\Query\SelectJoinQuery;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -26,6 +28,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
  * Class LookUpDB
@@ -33,8 +36,6 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  * Children must implement PreProcessorInterface
  *
  * Configuration @see SelectQuery, SelectJoinQuery
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 {
@@ -63,10 +64,8 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['select'])
@@ -90,10 +89,9 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $configuration
      * @param array $record
      *
-     * @return bool
      * @throws InvalidConfigurationException
      */
-    public function process($configuration, &$record): bool
+    public function process(array $configuration, array &$record): bool
     {
         /**
          * todo method cannot be tested because of its complexity and
@@ -148,14 +146,9 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             $record[$targetField] = $mappedRecords;
         }
 
-
         return true;
     }
 
-    /**
-     * @param $configuration
-     * @return array
-     */
     protected function getQueryConfiguration($configuration): array
     {
         $queryConfiguration = SelectQuery::DEFAULT_CONFIGURATION;
@@ -174,9 +167,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * Parses the constraints of a query configuration into a
      * WHERE clause
      *
-     * @param $record
-     * @param $queryConfiguration
-     * @return array | FALSE Parsed query configuration
+     * @return array|false Parsed query configuration
      */
     protected function parseQueryConstraints(array $record, array $queryConfiguration): array
     {
@@ -263,5 +254,4 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             }
         }
     }
-
 }
