@@ -6,8 +6,10 @@ namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\Expression\ExpressionEvaluator;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
@@ -95,6 +97,7 @@ class AbstractComponentTest extends TestCase
      */
     #[DataProvider('isDisabledDataProvider')]
     #[Test]
+    #[IgnoreDeprecations]
     public function isDisabledReturnsCorrectValue(array $configuration, bool $expectedResult): void
     {
         $record = [];
@@ -197,5 +200,17 @@ class AbstractComponentTest extends TestCase
                 $result
             )
         );
+    }
+
+    #[Test]
+    #[IgnoreDeprecations]
+    public function isDisabledTriggersDeprecationForContentObject(): void
+    {
+        DeprecationUtility::reset();
+        $this->subject->method('renderContent')->willReturn('1');
+
+        $this->expectUserDeprecationMessageMatches('/content objects is deprecated/');
+
+        $this->subject->isDisabled(['disable' => ['_typoScriptNodeValue' => 'TEXT', 'value' => '1']]);
     }
 }

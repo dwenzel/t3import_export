@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport;
 
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
@@ -76,13 +77,18 @@ trait RenderContentTrait
      */
     public function getTypoScriptFrontendController()
     {
+        DeprecationUtility::trigger('RenderContentTrait::getTypoScriptFrontendController() is deprecated since 3.0.1 and will be removed in 4.0.');
+
         return $GLOBALS['TSFE'] ?? null;
     }
 
     /**
      * @deprecated since 3.0.1, content rendering does not need a TSFE anymore. Will be removed in 4.0.
      */
-    protected function assertTypoScriptFrontendController(): void {}
+    protected function assertTypoScriptFrontendController(): void
+    {
+        DeprecationUtility::trigger('RenderContentTrait::assertTypoScriptFrontendController() is deprecated since 3.0.1 and will be removed in 4.0.');
+    }
 
     /**
      * Returns the current request with a frontend TypoScript attribute.

@@ -18,7 +18,8 @@
 - [Processing Flow](#processing-flow)
 
 ### 🔧 Configuration
-- [TypoScript Configuration](./CONFIGURATION.md)
+- [TypoScript Configuration](./CONFIGURATION.md) (deprecated, see [Deprecations](./DEPRECATIONS.md))
+- [Deprecations](./DEPRECATIONS.md)
 - [YAML Configuration](#yaml-configuration)
 - [Environment Setup](#environment-setup)
 - [Configuration Examples](#configuration-examples)

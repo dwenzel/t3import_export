@@ -16,6 +16,7 @@ use CPSIT\T3importExport\Exception\MissingDatabaseException;
 use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\RenderContentTrait;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -129,6 +130,9 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
                 continue;
             }
             if (is_array($value) && isset($value['_typoScriptNodeValue'])) {
+                DeprecationUtility::trigger(
+                    'Query values of DataSourceDB rendered as TypoScript content objects are deprecated since 3.1 and will be removed in 4.0. Use {expression: ...} instead.'
+                );
                 $renderedValue = $this->renderContent([], $value);
                 if (!is_null($renderedValue)) {
                     $queryConfiguration[$key] = $renderedValue;

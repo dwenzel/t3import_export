@@ -92,4 +92,20 @@ class ImportControllerTest extends TestCase
 
         self::assertSame($settings, $reflection->getMethod('mergeYamlConfiguration')->invoke($subject, $settings));
     }
+
+    #[Test]
+    public function getTypoScriptIdentifiersReturnsTasksAndSetsOfModule(): void
+    {
+        $settings = [
+            'import' => ['tasks' => ['a' => [], 'b' => []], 'sets' => ['s' => []]],
+            'export' => ['tasks' => ['other' => []]],
+        ];
+        $reflection = new \ReflectionClass(ImportController::class);
+        $subject = $reflection->newInstanceWithoutConstructor();
+
+        self::assertSame(
+            ['a', 'b', 's'],
+            $reflection->getMethod('getTypoScriptIdentifiers')->invoke($subject, $settings)
+        );
+    }
 }
