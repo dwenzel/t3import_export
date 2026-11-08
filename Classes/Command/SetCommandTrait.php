@@ -96,8 +96,8 @@ trait SetCommandTrait
 
         // Check if YAML configuration file is provided
         $yamlConfigFile = $input->getOption(YamlConfigFileOption::NAME);
-        if (!empty($yamlConfigFile)) {
-            $this->loadYamlConfiguration($yamlConfigFile);
+        if (!empty($yamlConfigFile) && !$this->loadYamlConfiguration($yamlConfigFile)) {
+            return Command::FAILURE;
         }
 
         $this->io->comment(static::MESSAGE_STARTING);
@@ -112,8 +112,9 @@ trait SetCommandTrait
      * Load YAML configuration from file
      *
      * @param string $yamlFile Path to YAML configuration file
+     * @return bool false if the file could not be loaded
      */
-    protected function loadYamlConfiguration(string $yamlFile): void
+    protected function loadYamlConfiguration(string $yamlFile): bool
     {
         $yamlLoader = GeneralUtility::makeInstance(YamlConfigurationLoader::class);
 
@@ -130,6 +131,9 @@ trait SetCommandTrait
             }
         } catch (\Exception $e) {
             $this->io->error('Error loading YAML configuration: ' . $e->getMessage());
+            return false;
         }
+
+        return true;
     }
 }
