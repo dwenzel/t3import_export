@@ -36,7 +36,7 @@ trait ResourceStorageTrait
      */
     public function initializeStorage($configuration)
     {
-        $this->resourceStorage = $this->storageRepository->findByUid($configuration['storageId']);
+        $this->resourceStorage = $this->storageRepository->findByUid((int)$configuration['storageId']);
     }
 
     /**
