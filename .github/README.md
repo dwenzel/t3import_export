@@ -1,4 +1,4 @@
-# GitHub Actions for t3import_export
+# GitHub Actions for Import & Export
 
 This directory contains GitHub Actions workflows for automated testing and quality assurance.
 

@@ -1,6 +1,6 @@
 # YAML Configuration Guide
 
-This guide provides comprehensive information about using YAML configuration files with the T3Import_Export extension.
+This guide provides comprehensive information about using YAML configuration files with the Import & Export extension.
 
 ## Overview
 
