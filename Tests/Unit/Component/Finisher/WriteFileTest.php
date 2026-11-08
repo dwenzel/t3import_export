@@ -60,6 +60,7 @@ class WriteFileTest extends TestCase
             ->getMock();
 
         $this->resourceStorage = $this->createMock(ResourceStorage::class);
+        $this->resourceStorage->method('isOnline')->willReturn(true);
 
         $this->folder = $this->createMock(Folder::class);
         $this->resourceStorage->method('getDefaultFolder')
@@ -489,5 +490,71 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
+    }
+
+    public function testProcessDoesNotAccessDefaultFolderIfDirectoryIsConfigured(): void
+    {
+        $records = [];
+        $directory = 'baz';
+        $configuration = [
+            'target' => [
+                'name' => 'bar.xml',
+                'directory' => $directory,
+            ],
+        ];
+        $result = $this->expectAccessOfExistingDirectory($directory);
+        $this->resourceStorage->expects($this->never())
+            ->method('getDefaultFolder');
+
+        $this->subject->process($configuration, $records, $result);
+    }
+
+    public function testProcessUsesDefaultFolderIfDirectoryIsEmpty(): void
+    {
+        $records = [];
+        $configuration = [
+            'target' => [
+                'name' => 'bar.xml',
+                'directory' => '',
+            ],
+        ];
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['getInfo'])->getMock();
+        $result->method('getInfo')->willReturn($this->fileInfo);
+        $this->resourceStorage->expects($this->never())->method('hasFolder');
+        $this->resourceStorage->expects($this->once())
+            ->method('addFile')
+            ->with($this->anything(), $this->folder, 'bar.xml', $this->anything());
+
+        $this->subject->process($configuration, $records, $result);
+    }
+
+    public function testProcessThrowsExceptionIfStorageIsOffline(): void
+    {
+        $records = [];
+        $configuration = [
+            'target' => [
+                'name' => 'bar.xml',
+                'directory' => 'baz',
+            ],
+        ];
+        $storage = $this->createMock(ResourceStorage::class);
+        $storage->method('isOnline')->willReturn(false);
+        $storage->expects($this->never())->method('getDefaultFolder');
+        $storage->expects($this->never())->method('addFile');
+        $resourceFactory = $this->getMockBuilder(ResourceFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getDefaultStorage', 'getStorageObject'])
+            ->getMock();
+        $resourceFactory->method('getDefaultStorage')->willReturn($storage);
+        $subject = new WriteFile($resourceFactory);
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['getInfo'])->getMock();
+        $result->method('getInfo')->willReturn($this->fileInfo);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(1762171200);
+
+        $subject->process($configuration, $records, $result);
     }
 }

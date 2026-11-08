@@ -141,14 +141,28 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
         } else {
             $storage = $this->resourceFactory->getDefaultStorage();
         }
-        $folder = $storage->getDefaultFolder();
-        if (isset($configuration['target']['directory'])) {
+        if (!$storage->isOnline()) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Storage %d "%s" is offline, cannot write file "%s". Check the base path of the storage.',
+                    $storage->getUid(),
+                    $storage->getName(),
+                    $configuration['target']['name']
+                ),
+                1762171200
+            );
+        }
+        // The default folder is only accessed if no directory is configured:
+        // a storage does not need to have one (e.g. no user_upload folder).
+        if (!empty($configuration['target']['directory'])) {
             $targetDirectory = $configuration['target']['directory'];
             if (!$storage->hasFolder($targetDirectory)) {
                 $folder = $storage->createFolder($targetDirectory);
             } else {
                 $folder = $storage->getFolder($targetDirectory);
             }
+        } else {
+            $folder = $storage->getDefaultFolder();
         }
 
         $conflictMode = self::CONFLICT_MODE_CHANGENAME;
