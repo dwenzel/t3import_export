@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
 use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader;
+use CPSIT\ImportExportCore\Exception\ParseException;
 use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
@@ -14,6 +16,8 @@ use CPSIT\T3importExport\Service\DataTransferProcessor;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -96,5 +100,27 @@ class ImportSetCommandTest extends TestCase
 
         self::assertTrue($definition->hasOption(YamlConfigFileOption::NAME));
         self::assertTrue($definition->hasShortcut(YamlConfigFileOption::SHORTCUT));
+    }
+
+    #[Test]
+    public function executeFailsIfYamlConfigurationCannotBeLoaded(): void
+    {
+        GeneralUtility::addInstance(
+            YamlConfigurationLoader::class,
+            $this->createMock(YamlConfigurationLoader::class)
+        );
+        $this->configurationHandler->method('addConfiguration')
+            ->willThrowException(new ParseException('Error parsing YAML file'));
+        $this->dataTransferProcessor->expects(self::never())->method('process');
+
+        $commandTester = new CommandTester($this->subject);
+        $status = $commandTester->execute([
+            'set' => self::SET_IDENTIFIER,
+            '--' . YamlConfigFileOption::NAME => 'invalid.yaml',
+        ]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Error loading YAML configuration', $commandTester->getDisplay());
+        self::assertStringNotContainsString(ImportSetCommand::MESSAGE_SUCCESS, $commandTester->getDisplay());
     }
 }
