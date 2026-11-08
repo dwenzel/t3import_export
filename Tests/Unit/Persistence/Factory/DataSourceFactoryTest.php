@@ -208,7 +208,7 @@ class DataSourceFactoryTest extends TestCase
 
         // Create a mock DataSourceDB instance
         $mockDataSource = $this->createMock($expectedClass);
-        
+
         // Register the mock instance with GeneralUtility
         \TYPO3\CMS\Core\Utility\GeneralUtility::addInstance(
             $expectedClass,
@@ -230,7 +230,7 @@ class DataSourceFactoryTest extends TestCase
             'class' => $sourceClass,
             'config' => [],
         ];
-        
+
         $this->assertInstanceOf(
             $sourceClass,
             $this->subject->get($settings, $identifier)

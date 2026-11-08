@@ -180,7 +180,7 @@ class DataTargetFactoryTest extends TestCase
 
         // Create a mock DataTargetRepository instance
         $mockDataTarget = $this->createMock(DataTargetFactory::DEFAULT_DATA_TARGET_CLASS);
-        
+
         // Register the mock instance with GeneralUtility
         \TYPO3\CMS\Core\Utility\GeneralUtility::addInstance(
             DataTargetFactory::DEFAULT_DATA_TARGET_CLASS,

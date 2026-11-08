@@ -62,7 +62,7 @@ class SelectQueryTest extends TestCase
         // Create restrictions mock to handle getRestrictions()->removeAll()
         $restrictions = $this->createMock(\TYPO3\CMS\Core\Database\Query\Restriction\QueryRestrictionContainerInterface::class);
         $restrictions->method('removeAll')->willReturnSelf();
-        
+
         $this->builder->method('getRestrictions')->willReturn($restrictions);
 
         // Create connection mock

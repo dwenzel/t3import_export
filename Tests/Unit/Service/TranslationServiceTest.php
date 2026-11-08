@@ -122,29 +122,29 @@ class TranslationServiceTest extends TestCase
         $languageUid = 2;
         $origin = new DummyDomainObjectA();
         $translation = new DummyDomainObjectA();
-        
+
         $this->dataMapper->expects($this->once())
             ->method('getDataMap')
             ->with($origin::class)
             ->willReturn($this->dataMap);
-            
+
         $this->dataMap->expects($this->exactly(2))
             ->method('getTranslationOriginColumnName')
             ->willReturn('l10n_parent');
-            
+
         // Mock the column map that will be created when _setProperty fails
         $columnMap = $this->createMock(ColumnMap::class);
         $this->dataMap->expects($this->once())
             ->method('getColumnMap')
             ->with('l10nParent')
             ->willReturn($columnMap);
-            
+
         $this->dataMap->expects($this->once())
             ->method('getTableName')
             ->willReturn('tx_test_table');
-            
+
         $this->subject->translate($origin, $translation, $languageUid);
-        
+
         // The translation should have the language UID set
         $this->assertSame($languageUid, $translation->_getProperty('_languageUid'));
     }
@@ -155,29 +155,29 @@ class TranslationServiceTest extends TestCase
         $languageUid = 2;
         $origin = new DummyDomainObjectA();
         $translation = new DummyDomainObjectA();
-        
+
         $this->dataMapper->expects($this->once())
             ->method('getDataMap')
             ->with($origin::class)
             ->willReturn($this->dataMap);
-            
+
         $this->dataMap->expects($this->exactly(2))
             ->method('getTranslationOriginColumnName')
             ->willReturn('l10n_parent');
-            
+
         // Mock the column map that will be created when _setProperty fails
         $columnMap = $this->createMock(ColumnMap::class);
         $this->dataMap->expects($this->once())
             ->method('getColumnMap')
             ->with('l10nParent')
             ->willReturn($columnMap);
-            
+
         $this->dataMap->expects($this->once())
             ->method('getTableName')
             ->willReturn('tx_test_table');
-            
+
         $this->subject->translate($origin, $translation, $languageUid);
-        
+
         // The translation should have the origin set as l10nParent
         $this->assertSame($origin, $translation->_getProperty('l10nParent'));
     }
