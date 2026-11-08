@@ -56,3 +56,22 @@ jobs:
         run: |
           composer install --dev --no-progress
           composer sca:php
+
+  editorconfig:
+    name: EditorConfig
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+
+      - name: Check editorconfig rules
+        run: |
+          composer install --no-progress
+          composer lint:editorconfig
