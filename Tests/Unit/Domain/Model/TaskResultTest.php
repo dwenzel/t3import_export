@@ -37,7 +37,7 @@ class TaskResultTest extends TestCase
     use MockMessageContainerTrait;
     protected TaskResult $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockMessageContainer();
         $this->subject = new TaskResult($this->messageContainer);

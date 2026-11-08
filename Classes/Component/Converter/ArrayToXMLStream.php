@@ -29,7 +29,6 @@ namespace CPSIT\T3importExport\Component\Converter;
 
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\ObjectManagerTrait;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
@@ -55,75 +54,58 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
     const XML_CONFIG_FIELD_SEPARATE_ROW = '@separateRow';
 
     /**
-     * @var PropertyMapper
+     * @var ?PropertyMapper
      */
-    protected $propertyMapper;
+    protected ?PropertyMapper $propertyMapper = null;
 
     /**
-     * @var PropertyMappingConfiguration
+     * @var ?PropertyMappingConfiguration
      */
-    protected $propertyMappingConfiguration;
+    protected ?PropertyMappingConfiguration $propertyMappingConfiguration = null;
 
     /**
-     * @var PropertyMappingConfigurationBuilder
+     * @var ?PropertyMappingConfigurationBuilder
      */
-    protected $propertyMappingConfigurationBuilder;
-    /**
-     * @var TargetClassConfigurationValidator
-     */
-    protected $targetClassConfigurationValidator;
+    protected ?PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null;
 
     /**
-     * @var MappingConfigurationValidator
+     * @var ?TargetClassConfigurationValidator
      */
-    protected $mappingConfigurationValidator;
+    protected ?TargetClassConfigurationValidator $targetClassConfigurationValidator = null;
 
     /**
-     * injects the property mapper
+     * @var ?MappingConfigurationValidator
+     */
+    protected ?MappingConfigurationValidator $mappingConfigurationValidator = null;
+
+    /**
+     * Dependency injection
      *
-     * @param PropertyMapper $propertyMapper
+     * @param ?PropertyMapper $propertyMapper
+     * @param ?PropertyMappingConfiguration $propertyMappingConfiguration
+     * @param ?PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
+     * @param ?TargetClassConfigurationValidator $targetClassConfigurationValidator
+     * @param ?MappingConfigurationValidator $mappingConfigurationValidator
      */
-    public function injectPropertyMapper(PropertyMapper $propertyMapper)
-    {
-        $this->propertyMapper = $propertyMapper;
-    }
-
-    /**
-     * injects the property mapping configuration builder
-     *
-     * @param PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
-     */
-    public function injectPropertyMappingConfigurationBuilder(
-        PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder
+    public function __construct(
+        PropertyMapper $propertyMapper = null,
+        PropertyMappingConfiguration $propertyMappingConfiguration = null,
+        PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null,
+        TargetClassConfigurationValidator $targetClassConfigurationValidator = null,
+        MappingConfigurationValidator $mappingConfigurationValidator = null
     ) {
-        $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder;
-    }
-
-    /**
-     * injects the TargetClassConfigurationValidator
-     *
-     * @param TargetClassConfigurationValidator $validator
-     */
-    public function injectTargetClassConfigurationValidator(TargetClassConfigurationValidator $validator)
-    {
-        $this->targetClassConfigurationValidator = $validator;
-    }
-
-    /**
-     * injects the MappingConfigurationValidator
-     *
-     * @param MappingConfigurationValidator $validator
-     */
-    public function injectMappingConfigurationValidator(MappingConfigurationValidator $validator)
-    {
-        $this->mappingConfigurationValidator = $validator;
+        $this->propertyMapper = $propertyMapper ?? GeneralUtility::makeInstance(PropertyMapper::class);
+        $this->propertyMappingConfiguration = $propertyMappingConfiguration ?? GeneralUtility::makeInstance(PropertyMappingConfiguration::class);
+        $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder ?? GeneralUtility::makeInstance(PropertyMappingConfigurationBuilder::class);
+        $this->targetClassConfigurationValidator = $targetClassConfigurationValidator ?? GeneralUtility::makeInstance(TargetClassConfigurationValidator::class);
+        $this->mappingConfigurationValidator = $mappingConfigurationValidator ?? GeneralUtility::makeInstance(MappingConfigurationValidator::class);
     }
 
     /**
      * Converts the record
      *
-     * @param array $configuration
      * @param array $record
+     * @param array $configuration
      * @return DomainObjectInterface
      */
     public function convert(array $record, array $configuration)

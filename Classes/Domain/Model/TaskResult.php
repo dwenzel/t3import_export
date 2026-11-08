@@ -1,28 +1,11 @@
 <?php
-/***************************************************************
+/*
+ * This file is part of the iki-bundle project.
  *
- *  Copyright notice
- *
- *  (c) 2016 Dirk Wenzel <dirk.wenzel@cps-it.de>
- *
- *  All rights reserved
- *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ */
 
 namespace CPSIT\T3importExport\Domain\Model;
 
@@ -38,22 +21,22 @@ class TaskResult implements \Iterator
     /**
      * @var int
      */
-    protected $position = 0;
+    protected int $position = 0;
 
     /**
      * @var array
      */
-    protected $list = [];
+    protected array $list = [];
 
     /**
      * @var int
      */
-    protected $size = 0;
+    protected int $size = 0;
 
     /**
      * @var null|mixed
      */
-    protected $info;
+    protected $info = null;
 
     /**
      * TaskResult constructor.
@@ -71,7 +54,7 @@ class TaskResult implements \Iterator
     /**
      * @return mixed
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->list[$this->position];
     }
@@ -79,7 +62,7 @@ class TaskResult implements \Iterator
     /**
      * @return void
      */
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }
@@ -87,7 +70,7 @@ class TaskResult implements \Iterator
     /**
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
@@ -95,7 +78,7 @@ class TaskResult implements \Iterator
     /**
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         return isset($this->list[$this->position]);
     }
@@ -103,16 +86,15 @@ class TaskResult implements \Iterator
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return $this->size;
     }
 
     /**
      * @return void
-     * @return void
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }
@@ -121,7 +103,7 @@ class TaskResult implements \Iterator
      * @param array $elements
      * @return void
      */
-    public function setElements(array $elements)
+    public function setElements(array $elements): void
     {
         $this->list = $elements;
         $this->size = count($elements);
@@ -132,7 +114,7 @@ class TaskResult implements \Iterator
      * @param $newElement
      * @return void
      */
-    public function add($newElement)
+    public function add($newElement): void
     {
         $this->list[] = $newElement;
         ++$this->size;
@@ -142,7 +124,7 @@ class TaskResult implements \Iterator
      * @param $element
      * @return bool
      */
-    public function removeElement($element)
+    public function removeElement($element): bool
     {
         $key = array_search($element, $this->list);
         if ($key !== false) {
@@ -155,7 +137,7 @@ class TaskResult implements \Iterator
      * @param $index
      * @return bool
      */
-    public function removeIndex($index)
+    public function removeIndex($index): bool
     {
         if ($this->size > $index) {
             unset($this->list[$index]);
@@ -174,7 +156,7 @@ class TaskResult implements \Iterator
     /**
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->list;
     }

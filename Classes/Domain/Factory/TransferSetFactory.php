@@ -58,10 +58,12 @@ class TransferSetFactory extends AbstractFactory
             /** @var ConfigurationManager $configurationManager */
             $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
         }
-        $this->settings = $configurationManager->getConfiguration(
+        $frameworkConfiguration = $configurationManager->getConfiguration(
             ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
             't3importexport'
         );
+        // tasks are configured in module.tx_t3importexport.settings.(import|export).tasks
+        $this->settings = $frameworkConfiguration['settings'] ?? [];
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->transferTaskFactory = $transferTaskFactory;
         $this->transferSet = $transferSet ?? GeneralUtility::makeInstance(TransferSet::class);
@@ -88,9 +90,13 @@ class TransferSetFactory extends AbstractFactory
             $taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
             $tasks = [];
             foreach ($taskIdentifiers as $taskIdentifier) {
-                if (isset($this->settings['import']['tasks'][$taskIdentifier])) {
+                // import tasks first, then export tasks (export sets)
+                $taskSettings = $this->settings['import']['tasks'][$taskIdentifier]
+                    ?? $this->settings['export']['tasks'][$taskIdentifier]
+                    ?? null;
+                if (is_array($taskSettings)) {
                     $task = $this->transferTaskFactory->get(
-                        $this->settings['import']['tasks'][$taskIdentifier], $taskIdentifier
+                        $taskSettings, $taskIdentifier
                     );
                     $tasks[$taskIdentifier] = $task;
                 }

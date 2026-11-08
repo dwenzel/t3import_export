@@ -42,7 +42,7 @@ class ComponentFactoryMapTest extends TestCase
 {
     protected ComponentFactoryMap $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new ComponentFactoryMap();
     }

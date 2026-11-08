@@ -28,7 +28,7 @@ class TransferSetTest extends TestCase
     protected TransferSet $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new TransferSet();
     }

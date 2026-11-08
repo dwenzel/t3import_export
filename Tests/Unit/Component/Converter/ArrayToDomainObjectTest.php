@@ -81,13 +81,14 @@ class ArrayToDomainObjectTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()
             ->setMethods(['get'])
             ->getMock();
         $this->propertyMapper = $this->getMockBuilder(PropertyMapper::class)
+            ->disableOriginalConstructor()
             ->setMethods(['convert'])
             ->getMock();
         $this->propertyMappingConfigurationBuilder = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)

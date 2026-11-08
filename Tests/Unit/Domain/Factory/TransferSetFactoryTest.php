@@ -58,7 +58,7 @@ class TransferSetFactoryTest extends TestCase
      * Set up
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->mockConfigurationManager();
         $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
@@ -167,4 +167,66 @@ class TransferSetFactoryTest extends TestCase
         $this->subject->get($config);
     }
 
+    /**
+     * @test
+     */
+    public function constructorReadsTaskSettingsFromFrameworkSettings(): void
+    {
+        $fooTaskConfiguration = ['baz'];
+        $this->mockConfigurationManager();
+        $this->configurationManager->method('getConfiguration')
+            ->willReturn(
+                [
+                    'settings' => [
+                        'import' => [
+                            'tasks' => [
+                                'foo' => $fooTaskConfiguration
+                            ]
+                        ]
+                    ]
+                ]
+            );
+        $this->subject = new TransferSetFactory(
+            $this->transferTaskFactory,
+            $this->configurationManager,
+            $this->transferSet
+        );
+
+        $this->transferTaskFactory->expects($this->once())
+            ->method('get')
+            ->with($fooTaskConfiguration, 'foo')
+            ->willReturn($this->transferTask);
+        $this->transferSet->expects($this->once())
+            ->method('setTasks')
+            ->with(['foo' => $this->transferTask]);
+
+        $this->subject->get(['tasks' => 'foo']);
+    }
+
+    /**
+     * @test
+     */
+    public function getSetsExportTask(): void
+    {
+        $fooTaskConfiguration = ['baz'];
+        $this->subject = $this->subject->withSettings(
+            [
+                'export' => [
+                    'tasks' => [
+                        'foo' => $fooTaskConfiguration
+                    ]
+                ]
+            ]
+        );
+
+        $this->transferTaskFactory->expects($this->once())
+            ->method('get')
+            ->with($fooTaskConfiguration, 'foo')
+            ->willReturn($this->transferTask);
+        $this->transferSet->expects($this->once())
+            ->method('setTasks')
+            ->with(['foo' => $this->transferTask]);
+
+        $this->subject->get(['tasks' => 'foo']);
+    }
 }

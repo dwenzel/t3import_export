@@ -44,7 +44,7 @@ class ExportControllerTest extends TestCase
      */
     protected $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->markTestSkipped('Todo: replace ExtbaseCommandController by Symfony Command');
 

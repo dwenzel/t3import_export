@@ -73,7 +73,7 @@ class PostProcessorFactoryTest extends TestCase
     protected PostProcessorFactory $subject;
 
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new PostProcessorFactory();
     }

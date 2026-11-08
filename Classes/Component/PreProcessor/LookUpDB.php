@@ -135,7 +135,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
 
-        if ($queryConfiguration['singleRow']) {
+        if (isset($queryConfiguration['singleRow'])) {
             // consider only first result
             $this->mapFields($record, $queryResult[0], $configuration);
         } else {

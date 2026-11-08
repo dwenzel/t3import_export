@@ -67,7 +67,7 @@ trait DatabaseTrait
         $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
         $this->connectionService = $connectionService ?? GeneralUtility::makeInstance(DatabaseConnectionService::class);
         if (!$this->database instanceof Connection) {
-            $this->database = $GLOBALS['TYPO3_DB'];
+            #$this->database = $GLOBALS['TYPO3_DB'];
         }
     }
 

@@ -48,7 +48,7 @@ class DataSourceDBTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->markTestIncomplete('Class depends on DataBaseConnectionService, restore test after rewrite of this class');
 
@@ -218,7 +218,7 @@ class DataSourceDBTest extends TestCase
     public function getDatabaseOverwritesDefaultDatabaseConnectionIfIdentifierIsSet()
     {
         $identifier = 'bar';
-        $GLOBALS['TYPO3_DB'] = $this->getMock(DatabaseConnection::class);
+        $databaseConnection = $this->getMock(DatabaseConnection::class);
         $this->inject(
             $this->subject,
             'identifier',
@@ -247,7 +247,7 @@ class DataSourceDBTest extends TestCase
         );
 
         $this->assertNotSame(
-            $GLOBALS['TYPO3_DB'],
+            $databaseConnection,
             $this->subject->getDatabase()
         );
     }

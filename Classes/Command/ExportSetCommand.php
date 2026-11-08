@@ -43,7 +43,7 @@ class ExportSetCommand extends Command implements ArgumentAwareInterface
      */
     const SETTINGS_KEY = ExportController::SETTINGS_KEY;
 
-    public const DEFAULT_NAME = 't3import-export:import-set';
+    public const DEFAULT_NAME = 't3import-export:export-set';
     public const MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined export set.';
     public const MESSAGE_HELP_COMMAND = '@todo: help command';
     public const MESSAGE_SUCCESS = 'Export set successfully processed';

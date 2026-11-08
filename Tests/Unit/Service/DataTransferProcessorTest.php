@@ -130,7 +130,7 @@ class DataTransferProcessorTest extends TestCase
      * set up the subject
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = (new DataTransferProcessor())->withQueue(self::QUEUE_WITH_RECORD);
         $this->mockPreProcessor();
@@ -146,7 +146,7 @@ class DataTransferProcessorTest extends TestCase
         $this->mockTaskResult();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         GeneralUtility::purgeInstances();
     }
@@ -438,6 +438,38 @@ class DataTransferProcessorTest extends TestCase
         $this->taskResult->expects($this->once())
             ->method('addMessages')
             ->with($messages);
+        $this->subject->process($this->taskDemand);
+    }
+
+    public function testProcessPreProcessesPlainArrayRecords(): void
+    {
+        $this->preProcessor->method('getConfiguration')->willReturn([]);
+        $this->preProcessor->method('isDisabled')->willReturn(false);
+        $this->preProcessor->expects($this->once())
+            ->method('process')
+            ->with([], self::SINGLE_RECORD);
+        $this->dataTarget->expects($this->once())
+            ->method('persist')
+            ->with(self::CONVERTED_RECORD);
+
+        $this->subject->process($this->taskDemand);
+    }
+
+    public function testProcessPreProcessesCleanPropertiesOfObjectRecords(): void
+    {
+        $record = new class {
+            public function _getCleanProperties(): array
+            {
+                return ['baz' => 'bam'];
+            }
+        };
+        $this->subject = (new DataTransferProcessor())->withQueue([self::TASK_IDENTIFIER => [$record]]);
+        $this->preProcessor->method('getConfiguration')->willReturn([]);
+        $this->preProcessor->method('isDisabled')->willReturn(false);
+        $this->preProcessor->expects($this->once())
+            ->method('process')
+            ->with([], ['baz' => 'bam']);
+
         $this->subject->process($this->taskDemand);
     }
 }
