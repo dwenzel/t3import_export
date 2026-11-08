@@ -55,8 +55,8 @@ class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
         }
         $parts = explode('.', $configuration[self::KEY_IDENTIFIER]);
 
-        // identifier mus begin with either 'import.' or 'export.'
-        if (!($parts[0] === 'import' || $parts === 'export')) {
+        // identifier must begin with either 'import.' or 'export.'
+        if (!($parts[0] === 'import' || $parts[0] === 'export')) {
             return false;
         }
 
