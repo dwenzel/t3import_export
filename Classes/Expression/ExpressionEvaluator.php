@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Expression;
 
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\ExpressionLanguage\SyntaxError;
 
 /**
  * Evaluates expressions with the Symfony ExpressionLanguage
+ *
+ * Additional functions: upper(), lower() (multibyte), trim(), date(), strtotime()
  *
  * @see https://symfony.com/doc/current/reference/formats/expression_language.html
  */
@@ -22,6 +25,25 @@ class ExpressionEvaluator implements ExpressionEvaluatorInterface
     public function __construct(?ExpressionLanguage $expressionLanguage = null)
     {
         $this->expressionLanguage = $expressionLanguage ?? new ExpressionLanguage();
+        foreach (self::getPhpFunctions() as $name => $phpFunction) {
+            $this->expressionLanguage->addFunction(ExpressionFunction::fromPhp($phpFunction, $name));
+        }
+    }
+
+    /**
+     * Names of the expression functions and the PHP functions behind them
+     *
+     * @return array<string, string>
+     */
+    public static function getPhpFunctions(): array
+    {
+        return [
+            'upper' => 'mb_strtoupper',
+            'lower' => 'mb_strtolower',
+            'trim' => 'trim',
+            'date' => 'date',
+            'strtotime' => 'strtotime',
+        ];
     }
 
     public function evaluate(string $expression, array $variables = []): mixed

@@ -13,6 +13,7 @@ use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\ImportExportCore\RenderContentInterface;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Exception\MissingDatabaseException;
+use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use CPSIT\T3importExport\RenderContentTrait;
 use Doctrine\DBAL\DBALException;
@@ -44,6 +45,7 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
     use IdentifiableTrait;
     use ConfigurableTrait;
     use RenderContentTrait;
+    use ExpressionEvaluatorTrait;
     use DatabaseTrait;
 
     /**
@@ -122,6 +124,10 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
     protected function renderValues(array $queryConfiguration): array
     {
         foreach ($queryConfiguration as $key => $value) {
+            if (is_array($value) && isset($value['expression'])) {
+                $queryConfiguration[$key] = $this->getExpressionEvaluator()->evaluate((string)$value['expression']);
+                continue;
+            }
             if (is_array($value) && isset($value['_typoScriptNodeValue'])) {
                 $renderedValue = $this->renderContent([], $value);
                 if (!is_null($renderedValue)) {

@@ -80,4 +80,28 @@ class ExpressionEvaluatorTest extends TestCase
     {
         self::assertSame($expected, $this->subject->isTrue($expression, ['record' => $record]));
     }
+
+    /**
+     * @return array<string, array{string, array<string, mixed>, mixed}>
+     */
+    public static function functionDataProvider(): array
+    {
+        return [
+            'upper (multibyte)' => ["upper(record['v'])", ['v' => 'straße'], 'STRASSE'],
+            'lower (multibyte)' => ["lower(record['v'])", ['v' => 'ÄRGER'], 'ärger'],
+            'trim' => ["trim(record['v'])", ['v' => ' x '], 'x'],
+            'date' => ["date('Y-m-d', record['v'])", ['v' => mktime(12, 0, 0, 6, 1, 2026)], '2026-06-01'],
+            'strtotime' => ["strtotime(record['v']) == record['ts']", ['v' => '2026-06-01 12:00:00', 'ts' => mktime(12, 0, 0, 6, 1, 2026)], true],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     */
+    #[DataProvider('functionDataProvider')]
+    #[Test]
+    public function evaluateProvidesFunctions(string $expression, array $record, mixed $expected): void
+    {
+        self::assertSame($expected, $this->subject->evaluate($expression, ['record' => $record]));
+    }
 }
