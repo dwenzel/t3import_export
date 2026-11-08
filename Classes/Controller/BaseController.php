@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Controller;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
@@ -58,6 +59,7 @@ abstract class BaseController extends ActionController
      */
     protected TransferSetFactory $transferSetFactory;
     protected ModuleTemplate $moduleTemplate;
+    protected ?ConfigurationHandlerInterface $configurationHandler = null;
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
         protected PageRenderer $pageRenderer
@@ -68,6 +70,42 @@ abstract class BaseController extends ActionController
         $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $this->moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue('module.t3import_export'));
         $this->moduleTemplate->getDocHeaderComponent()->disable();
+        $this->settings = $this->mergeYamlConfiguration($this->settings);
+    }
+
+    public function injectConfigurationHandler(ConfigurationHandlerInterface $configurationHandler): void
+    {
+        $this->configurationHandler = $configurationHandler;
+    }
+
+    /**
+     * Adds tasks and sets from the YAML configuration to the TypoScript
+     * settings of the module. TypoScript takes precedence for identifiers
+     * defined in both.
+     *
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
+     */
+    protected function mergeYamlConfiguration(array $settings): array
+    {
+        if (!$this->configurationHandler instanceof ConfigurationHandlerInterface) {
+            return $settings;
+        }
+        $settingsKey = $this->getSettingsKey();
+        $yamlConfiguration = $this->configurationHandler->getFullConfiguration()[$settingsKey] ?? [];
+        if (!is_array($yamlConfiguration)) {
+            return $settings;
+        }
+        foreach (['tasks', 'sets'] as $type) {
+            $fromYaml = is_array($yamlConfiguration[$type] ?? null) ? $yamlConfiguration[$type] : [];
+            $fromTypoScript = is_array($settings[$settingsKey][$type] ?? null) ? $settings[$settingsKey][$type] : [];
+            if ($fromYaml === [] && $fromTypoScript === []) {
+                continue;
+            }
+            $settings[$settingsKey][$type] = array_replace($fromYaml, $fromTypoScript);
+        }
+
+        return $settings;
     }
 
     /**
