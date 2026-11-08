@@ -86,13 +86,13 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
                     self::MISSING_COLUMN_MAP_EXCEPTION_CODE
                 );
             }
-            $columnMap->setTypeOfRelation(ColumnMap::RELATION_HAS_ONE);
+            $columnMap->setTypeOfRelation(ColumnMap\Relation::HAS_ONE);
             /**
              * fixme we set a default TableColumnType here. This may not be necessary
              * enumeration @see TableColumnType was probably introduced later than
              * the reference implementation we rely on
              */
-            $type = new TableColumnType();
+            $type = TableColumnType::INPUT;
             $columnMap->setType($type);
             $columnMap->setChildTableName($dataMap->getTableName());
 
