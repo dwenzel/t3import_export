@@ -6,7 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Service;
 
 use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use CPSIT\ImportExportCore\Messaging\Message;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;

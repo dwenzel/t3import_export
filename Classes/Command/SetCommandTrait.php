@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Command;
 
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandler as YamlConfigurationManager;
 use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
@@ -18,6 +17,7 @@ use CPSIT\T3importExport\Service\DataTransferProcessor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -116,18 +116,17 @@ trait SetCommandTrait
     protected function loadYamlConfiguration(string $yamlFile): void
     {
         $yamlLoader = GeneralUtility::makeInstance(YamlConfigurationLoader::class);
-        $configManager = GeneralUtility::makeInstance(YamlConfigurationManager::class);
 
         try {
-            $configManager->addConfiguration($yamlLoader, $yamlFile);
-            $config = $configManager->getFullConfiguration();
+            // Add to the shared handler, so that TransferSetFactory finds the tasks of the file
+            $this->configurationHandler->addConfiguration($yamlLoader, $yamlFile);
+            $config = $this->configurationHandler->getFullConfiguration();
 
-            if (isset($config['module']['tx_t3importexport']['settings'][static::SETTINGS_KEY])) {
-                // Merge YAML configuration with existing TypoScript configuration
-                $this->settings = array_merge_recursive(
-                    $this->settings ?? [],
-                    $config['module']['tx_t3importexport']['settings'][static::SETTINGS_KEY]
-                );
+            if (isset($config[static::SETTINGS_KEY])) {
+                // YAML configuration overrides existing settings
+                $settings = $this->settings ?? [];
+                ArrayUtility::mergeRecursiveWithOverrule($settings, $config[static::SETTINGS_KEY]);
+                $this->settings = $settings;
             }
         } catch (\Exception $e) {
             $this->io->error('Error loading YAML configuration: ' . $e->getMessage());

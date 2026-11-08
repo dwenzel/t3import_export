@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\ImportExportCore\Exception\MissingDatabaseException;
+use CPSIT\T3importExport\Exception\MissingDatabaseException;
 use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use PHPUnit\Framework\Attributes\CoversClass;

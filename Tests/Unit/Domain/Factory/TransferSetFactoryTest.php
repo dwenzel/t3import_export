@@ -190,4 +190,44 @@ class TransferSetFactoryTest extends TestCase
             $transferSet->getTasks()
         );
     }
+
+    #[Test]
+    public function getResolvesExportTasks(): void
+    {
+        $this->subject = $this->subject->withSettings([
+            'export' => [
+                'tasks' => [
+                    'foo' => ['baz'],
+                ],
+            ],
+        ]);
+        $this->transferTaskFactory->expects($this->once())
+            ->method('get')
+            ->with(['baz'], 'foo')
+            ->willReturn($this->transferTask);
+
+        $transferSet = $this->subject->get(['tasks' => 'foo']);
+
+        $this->assertSame(['foo' => $this->transferTask], $transferSet->getTasks());
+    }
+
+    #[Test]
+    public function getResolvesTasksFromConfigurationHandler(): void
+    {
+        $configurationHandler = $this->getMockBuilder(ConfigurationHandler::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getFullConfiguration'])
+            ->getMock();
+        $configurationHandler->method('getFullConfiguration')
+            ->willReturn(['import' => ['tasks' => ['foo' => ['baz']]]]);
+        $subject = new TransferSetFactory($this->transferTaskFactory, $configurationHandler);
+        $this->transferTaskFactory->expects($this->once())
+            ->method('get')
+            ->with(['baz'], 'foo')
+            ->willReturn($this->transferTask);
+
+        $transferSet = $subject->get(['tasks' => 'foo']);
+
+        $this->assertSame(['foo' => $this->transferTask], $transferSet->getTasks());
+    }
 }

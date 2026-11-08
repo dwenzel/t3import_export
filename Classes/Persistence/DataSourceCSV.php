@@ -79,7 +79,7 @@ class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
      * @param array $configuration Source query configuration
      * @return array Array of records or empty array
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): iterable
     {
         $records = [];
 

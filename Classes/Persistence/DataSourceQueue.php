@@ -65,7 +65,7 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
         return true;
     }
 
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): iterable
     {
         $identifier = $configuration[self::KEY_IDENTIFIER];
         $limit = static::DEFAULT_BATCH_SIZE;

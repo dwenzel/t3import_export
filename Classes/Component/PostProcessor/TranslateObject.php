@@ -23,9 +23,9 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  ***************************************************************/
 
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\ImportExportCore\Exception\InvalidColumnMapException;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\T3importExport\Exception\InvalidColumnMapException;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
