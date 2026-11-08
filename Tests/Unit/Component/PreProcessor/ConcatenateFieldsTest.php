@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -110,66 +111,77 @@ class ConcatenateFieldsTest extends TestCase
         $this->assertSame($expectedResult, $mockRecord);
     }
 
-    #[Test]
-    public function processWrapsFieldValues(): void
+    /**
+     * Same results as ContentObjectRenderer::wrap() and ::noTrimWrap()
+     *
+     * @return array<string, array{string, string, string}>
+     */
+    public static function wrapDataProvider(): array
     {
-        $originalFieldValue = 'foo';
-        $wrapConfiguration = 'baz-|-boom';
-        $wrappedFieldValue = 'baz-foo-boom';
+        return [
+            'wrap' => ['wrap', 'baz-|-boom', 'baz-foo-boom'],
+            'wrap trims parts' => ['wrap', ' <p> | </p> ', '<p>foo</p>'],
+            'wrap without separator' => ['wrap', '<p>', '<p>foo'],
+            'wrap with more separators' => ['wrap', 'a|b|c', 'afoob'],
+            'noTrimWrap keeps whitespace' => ['noTrimWrap', '| (|) |', ' (foo) '],
+            'noTrimWrap ignores text outside' => ['noTrimWrap', 'x|a|b|y', 'afoob'],
+            'noTrimWrap without separator' => ['noTrimWrap', 'ab', 'foo'],
+            'noTrimWrap with one separator' => ['noTrimWrap', 'baz- | -boom', ' -boomfoo'],
+        ];
+    }
 
+    #[DataProvider('wrapDataProvider')]
+    #[Test]
+    public function processWrapsFieldValues(string $option, string $wrapConfiguration, string $wrappedFieldValue): void
+    {
         $mockRecord = [
-            'fooField' => $originalFieldValue,
+            'fooField' => 'foo',
         ];
         $configuration = [
             'targetField' => 'baz',
             'fields' => [
                 'fooField' => [
-                    'wrap' => $wrapConfiguration,
+                    $option => $wrapConfiguration,
                 ],
             ],
         ];
-        $this->contentObjectRenderer->expects($this->once())
-            ->method('wrap')
-            ->with(...[$originalFieldValue, $wrapConfiguration])
-            ->willReturn($wrappedFieldValue);
-
         $expectedResult = [
             'fooField' => $wrappedFieldValue,
             'baz' => $wrappedFieldValue,
         ];
+
         $this->subject->process($configuration, $mockRecord);
+
         $this->assertSame($expectedResult, $mockRecord);
     }
 
+    #[DataProvider('wrapDataProvider')]
     #[Test]
-    public function processNoTrimWrapsFieldValues(): void
+    public function wrapResultsMatchContentObjectRenderer(string $option, string $wrapConfiguration, string $wrappedFieldValue): void
     {
-        $originalFieldValue = 'foo';
-        $wrapConfiguration = 'baz- | -boom';
-        $wrappedFieldValue = 'baz-foo-boom';
+        $contentObjectRenderer = $this->getMockBuilder(ContentObjectRenderer::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getRequest'])
+            ->getMock();
 
-        $mockRecord = [
-            'fooField' => $originalFieldValue,
-        ];
+        $this->assertSame($wrappedFieldValue, $contentObjectRenderer->$option('foo', $wrapConfiguration));
+    }
+
+    #[Test]
+    public function processDoesNotWrapEmptyValues(): void
+    {
+        $mockRecord = ['fooField' => '', 'barField' => 'bar'];
         $configuration = [
             'targetField' => 'baz',
             'fields' => [
-                'fooField' => [
-                    'noTrimWrap' => $wrapConfiguration,
-                ],
+                'fooField' => ['wrap' => '<p>|</p>'],
+                'barField' => [],
             ],
         ];
-        $this->contentObjectRenderer->expects($this->once())
-            ->method('noTrimWrap')
-            ->with(...[$originalFieldValue, $wrapConfiguration])
-            ->willReturn($wrappedFieldValue);
 
-        $expectedResult = [
-            'fooField' => $wrappedFieldValue,
-            'baz' => $wrappedFieldValue,
-        ];
         $this->subject->process($configuration, $mockRecord);
-        $this->assertSame($expectedResult, $mockRecord);
+
+        $this->assertSame('bar', $mockRecord['baz']);
     }
 
     #[Test]

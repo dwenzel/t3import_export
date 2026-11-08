@@ -6,7 +6,6 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -34,16 +33,15 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
-    protected ContentObjectRenderer $contentObjectRenderer;
-    protected TypoScriptService $typoScriptService;
-
+    /**
+     * @param ContentObjectRenderer|null $contentObjectRenderer not used anymore
+     * @param TypoScriptService|null $typoScriptService not used anymore
+     * @deprecated since 3.1, the arguments are ignored and will be removed in 4.0
+     */
     public function __construct(
         ?ContentObjectRenderer $contentObjectRenderer = null,
         ?TypoScriptService $typoScriptService = null
-    ) {
-        $this->contentObjectRenderer = $contentObjectRenderer ?? $this->getContentObjectRenderer();
-        $this->typoScriptService = $typoScriptService ?? GeneralUtility::makeInstance(TypoScriptService::class);
-    }
+    ) {}
 
     /**
      * @param array $configuration
@@ -52,27 +50,48 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
     public function process(array $configuration, array &$record): bool
     {
         $targetFieldName = $configuration['targetField'];
+        $record[$targetFieldName] ??= '';
         foreach ($configuration['fields'] as $key => $value) {
             if (isset($value['wrap'])
                 && !empty($record[$key])
             ) {
-                $record[$key] = $this->contentObjectRenderer->wrap(
-                    $record[$key],
-                    $value['wrap']
-                );
+                $record[$key] = $this->wrap((string)$record[$key], (string)$value['wrap']);
             }
             if (isset($value['noTrimWrap'])
                 && !empty($record[$key])
             ) {
-                $record[$key] = $this->contentObjectRenderer->noTrimWrap(
-                    $record[$key],
-                    $value['noTrimWrap']
-                );
+                $record[$key] = $this->noTrimWrap((string)$record[$key], (string)$value['noTrimWrap']);
             }
-            $record[$targetFieldName] .= $record[$key];
+            $record[$targetFieldName] .= $record[$key] ?? '';
         }
 
         return true;
+    }
+
+    /**
+     * Wraps the content, as TypoScript `wrap`: `before|after`, parts trimmed
+     */
+    protected function wrap(string $content, string $wrap): string
+    {
+        if ($wrap === '') {
+            return $content;
+        }
+        $parts = explode('|', $wrap);
+
+        return trim($parts[0]) . $content . trim($parts[1] ?? '');
+    }
+
+    /**
+     * Wraps the content, as TypoScript `noTrimWrap`: `|before|after|`, whitespace kept
+     */
+    protected function noTrimWrap(string $content, string $wrap): string
+    {
+        if ($wrap === '') {
+            return $content;
+        }
+        $parts = explode('|', $wrap, 4);
+
+        return ($parts[1] ?? '') . $content . ($parts[2] ?? '');
     }
 
     /**
