@@ -167,7 +167,7 @@ abstract class BaseController extends ActionController
             TaskDemand::class
         );
         if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
-            $set = $this->transferSetFactory->get(
+            $set = $this->getTransferSetFactory()->get(
                 $this->settings[$settingsKey]['sets'][$identifier],
                 $identifier
             );
@@ -212,10 +212,21 @@ abstract class BaseController extends ActionController
 
         if (is_array($settings)) {
             foreach ($settings as $identifier => $setSettings) {
-                $sets[$identifier] = $this->transferSetFactory->get($setSettings, $identifier);
+                $sets[$identifier] = $this->getTransferSetFactory()->get($setSettings, $identifier);
             }
         }
 
         return $sets;
+    }
+
+    /**
+     * Returns the set factory with the TypoScript settings of the module, so that
+     * sets find tasks defined in TypoScript (they take precedence over YAML).
+     */
+    protected function getTransferSetFactory(): TransferSetFactory
+    {
+        $this->transferSetFactory->withSettings($this->settings);
+
+        return $this->transferSetFactory;
     }
 }
