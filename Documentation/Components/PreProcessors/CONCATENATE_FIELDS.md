@@ -19,10 +19,10 @@ not empty the result will be added to its value.
   An array of field names as keys. Each key must hold an array!
 ### optional
 * **config.fields.\<field name\>.wrap** *string*
-  TypoScript wrap expression. The content will be trimmed and wrapped around
-  the field value
+  `before|after`, as TypoScript `wrap`. Both parts are trimmed and wrapped
+  around the field value. Empty field values are not wrapped.
 * **config.fields.\<field name\>.noTrimWrap** *string*
-  TypoScript noTrimWrap expression. Content will be wrapped and whitespace kept.
+  `|before|after|`, as TypoScript `noTrimWrap`. Whitespace is kept.
 
 ### Example
 
