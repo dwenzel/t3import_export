@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
+use CPSIT\T3importExport\Expression\ExpressionEvaluator;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -67,6 +68,18 @@ class AbstractComponentTest extends TestCase
             ],
             [
                 ['disable' => '1'], true,
+            ],
+            'integer 1 (YAML)' => [
+                ['disable' => 1], true,
+            ],
+            'boolean true (YAML)' => [
+                ['disable' => true], true,
+            ],
+            'boolean false (YAML)' => [
+                ['disable' => false], false,
+            ],
+            'integer 0 (YAML)' => [
+                ['disable' => 0], false,
             ],
             [
                 ['disable' => ['foo']], false,
@@ -136,5 +149,53 @@ class AbstractComponentTest extends TestCase
         $result->expects($this->once())->method('hasMessageWithId')
             ->willReturn(true);
         $this->subject->isDisabled($configuration, [], $result);
+    }
+
+    /**
+     * @return array<string, array{string, array<string, mixed>, bool}>
+     */
+    public static function isDisabledEvaluatesExpressionDataProvider(): array
+    {
+        return [
+            'matching record' => ["record['type'] == 'news'", ['type' => 'news'], true],
+            'not matching record' => ["record['type'] == 'news'", ['type' => 'event'], false],
+            'without result' => ['result != null', [], false],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     */
+    #[DataProvider('isDisabledEvaluatesExpressionDataProvider')]
+    #[Test]
+    public function isDisabledEvaluatesExpression(string $expression, array $record, bool $expected): void
+    {
+        $this->subject->injectExpressionEvaluator(new ExpressionEvaluator());
+        $this->subject->expects($this->never())->method('renderContent');
+
+        self::assertSame(
+            $expected,
+            $this->subject->isDisabled(['disable' => ['expression' => $expression]], $record)
+        );
+    }
+
+    #[Test]
+    public function isDisabledPassesResultToExpression(): void
+    {
+        $this->subject->injectExpressionEvaluator(new ExpressionEvaluator());
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['hasMessageWithId'])
+            ->getMock();
+        $result->expects($this->once())->method('hasMessageWithId')
+            ->with(5)
+            ->willReturn(true);
+
+        self::assertTrue(
+            $this->subject->isDisabled(
+                ['disable' => ['expression' => 'result.hasMessageWithId(5)']],
+                [],
+                $result
+            )
+        );
     }
 }
