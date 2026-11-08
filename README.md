@@ -2,7 +2,7 @@
 
 [![TYPO3 13.4](https://img.shields.io/badge/TYPO3-13.4-blue.svg?style=flat-square)](https://get.typo3.org/version/13)
 [![PHP 8.4](https://img.shields.io/badge/PHP-8.4-blue.svg?style=flat-square)](https://www.php.net/)
-[![code coverage](https://codecov.io/gh/dwenzel/t3import_export/branch/main/graph/badge.svg)](https://codecov.io/gh/dwenzel/t3import_export)
+[![Tests](https://github.com/dwenzel/t3import_export/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/dwenzel/t3import_export/actions/workflows/tests.yml)
 
 The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
 

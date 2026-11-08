@@ -16,8 +16,13 @@ This file lives in `.github/workflows/`, not in `.github/`: GitHub shows a
 
 ## Triggers
 
-The workflows still name the former branches `master` and `develop`. Updating
-the triggers and making the jobs required checks for `main` is tracked in
+* pushes to `main`, `feature/**` and `support/**`
+* all pull requests
+
+## Required checks
+
+Pull requests into `main` can only be merged when the jobs of these workflows
+pass (ruleset for `main`). The support branches have their own workflows, see
 [#31](https://github.com/dwenzel/t3import_export/issues/31).
 
 The same checks run locally with `composer lint`, `composer sca` and
