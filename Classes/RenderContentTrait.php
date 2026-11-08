@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport;
 
-use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
-use TYPO3\CMS\Core\Context\Context;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Http\Uri;
-use TYPO3\CMS\Core\Routing\PageArguments;
-use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
-use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
@@ -30,11 +25,15 @@ trait RenderContentTrait
 
     /**
      * Get a ContentObjectRenderer
+     *
+     * The renderer gets a request with an empty frontend TypoScript, so that
+     * content objects can be rendered without a frontend controller (TSFE),
+     * e.g. on the command line.
      */
     public function getContentObjectRenderer(): ContentObjectRenderer
     {
-        $this->assertTypoScriptFrontendController();
         $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $this->contentObjectRenderer->setRequest($this->getContentRenderingRequest());
 
         return $this->contentObjectRenderer;
     }
@@ -71,8 +70,8 @@ trait RenderContentTrait
 
     /**
      * Gets the TypoScriptFrontendController
-     * only for testing
      *
+     * @deprecated since 3.0.1, content rendering does not use the TSFE anymore. Will be removed in 4.0.
      * @return TypoScriptFrontendController|null
      */
     public function getTypoScriptFrontendController()
@@ -80,52 +79,30 @@ trait RenderContentTrait
         return $GLOBALS['TSFE'] ?? null;
     }
 
-    protected function assertTypoScriptFrontendController(): void
+    /**
+     * @deprecated since 3.0.1, content rendering does not need a TSFE anymore. Will be removed in 4.0.
+     */
+    protected function assertTypoScriptFrontendController(): void {}
+
+    /**
+     * Returns the current request with a frontend TypoScript attribute.
+     * Without a current request (command line), a request for the base URL
+     * of the installation is created.
+     */
+    protected function getContentRenderingRequest(): ServerRequestInterface
     {
-        /**
-         * initialize TypoScriptFrontendController (with page and type 0)
-         * This is necessary for PreProcessor\RenderContent if configuration contains COA objects
-         * ContentObjectRenderer fails in method cObjGetSingle since
-         * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
-         */
-        if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
-            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
-            $site = $siteFinder->getSiteByRootPageId(1);
-            $fakeUri = new Uri('https://domain.org/page');
-            $siteLanguage = GeneralUtility::makeInstance(
-                SiteLanguage::class,
-                0,
-                'en-EN',
-                $fakeUri,
-                []
-            );
-            $pageArguments = GeneralUtility::makeInstance(PageArguments::class, 1, '1', []);
-            $nullFrontend = GeneralUtility::makeInstance(NullFrontend::class, 'pages');
-            $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
-            $frontendUser = GeneralUtility::makeInstance(FrontendUserAuthentication::class);
-            try {
-                $cacheManager->registerCache($nullFrontend);
-            } catch (\Exception $exception) {
-                unset($exception);
-            }
-
-            $fakeRequest = new ServerRequest($fakeUri);
-            // not set on the command line
-            $originalRequest = $GLOBALS['TYPO3_REQUEST'] ?? null;
-            $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
-            $GLOBALS['TSFE'] = new TypoScriptFrontendController(
-                GeneralUtility::makeInstance(Context::class),
-                $site,
-                $siteLanguage,
-                $pageArguments,
-                $frontendUser
-            );
-
-            if ($originalRequest === null) {
-                unset($GLOBALS['TYPO3_REQUEST']);
-            } else {
-                $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
-            }
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if (!$request instanceof ServerRequestInterface) {
+            $request = new ServerRequest('http://localhost/', 'GET');
         }
+        if ($request->getAttribute('frontend.typoscript') instanceof FrontendTypoScript) {
+            return $request;
+        }
+
+        $frontendTypoScript = new FrontendTypoScript(new RootNode(), [], [], []);
+        $frontendTypoScript->setSetupArray([]);
+        $frontendTypoScript->setConfigArray([]);
+
+        return $request->withAttribute('frontend.typoscript', $frontendTypoScript);
     }
 }

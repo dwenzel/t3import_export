@@ -61,6 +61,7 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
     {
         $typoScriptConf = $this->typoScriptService
             ->convertPlainArrayToTypoScriptArray($configuration);
+        $this->contentObjectRenderer->setRequest($this->getContentRenderingRequest());
         /** @var \TYPO3\CMS\Frontend\ContentObject\AbstractContentObject $contentObject */
         $contentObject = $this->contentObjectRenderer
             ->getContentObject($configuration['_typoScriptNodeValue']);
