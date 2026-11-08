@@ -13,6 +13,11 @@ This file lives in `.github/workflows/`, not in `.github/`: GitHub shows a
   normalized `composer.json`
 * TYPO3 Compatibility (`typo3-compatibility.yml`): TYPO3 Rector (dry run) with
   TYPO3 13.4 and PHP 8.3 and 8.4
+* Publish to TER (`publish.yml`): on version tags (`X.Y.Z`) or started
+  manually for an existing tag; checks the tag against `ext_emconf.php` and
+  uploads the version with [tailor](https://github.com/TYPO3/tailor). Needs the
+  repository secret `TYPO3_API_TOKEN`; without it, the job only reports that
+  nothing was published.
 
 ## Triggers
 
