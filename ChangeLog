@@ -1,3 +1,18 @@
+2026-11-08         [RELEASE] Release of t3import_export 2.0.2 (Dirk Wenzel)
+2026-11-08 815e45c [TASK] Update ext_emconf for 2.0.2 (Dirk Wenzel)
+2026-11-08 1fe77f4 [CI] Add workflow to publish tags to TER (Dirk Wenzel)
+2026-11-08 22648b2 [CI] Replace Travis CI with GitHub Actions (Dirk Wenzel)
+2026-11-08 28baec9 [TASK] Adapt unit tests to the 2.x code and PHPUnit 9 (Dirk Wenzel)
+2026-11-08 e2eff63 [BUGFIX] Fix file reference post-processor and translation service for TYPO3 12 (Dirk Wenzel)
+2026-11-08 221c25d [TASK] Report PHP warnings in unit tests without failing, as on main (Dirk Wenzel)
+2025-07-07 2b5ac92 remove broken DB global (Benjamin)
+2025-07-07 035099a fix missing types (Benjamin)
+2025-05-30 f14e906 Update DataTargetRepository.php (Benjamin)
+2025-05-30 494227b Update DataTargetFactory.php (Benjamin)
+2025-05-30 a5d9f3a Update DataTargetRepository.php (Benjamin)
+2026-11-08 3832df6 [TASK] Make dev dependencies installable on PHP 8 (Dirk Wenzel)
+2026-11-08 f59a7e8 [BUGFIX] Accept export identifiers in queue source and target (Dirk Wenzel)
+
 2024-09-06         [RELEASE] Release of t3import_export 2.0.1 (Dirk Wenzel)
 2024-09-06 debc378 [BUGFIX] dependency from dwenzel/t3extension-tools corrected (Dirk Wenzel)
 
