@@ -61,7 +61,7 @@ class ImportController extends BaseController implements TransferControllerInter
     public function importSetAction(string $identifier): ResponseInterface
     {
         $this->setAction($identifier);
-        return $this->moduleTemplate->renderResponse('Import/ImportTask');
+        return $this->moduleTemplate->renderResponse('Import/ImportSet');
     }
 
     /**
