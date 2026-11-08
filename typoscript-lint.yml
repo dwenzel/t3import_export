@@ -1,14 +1,10 @@
 paths:
   - Configuration/
-  - Resources/Private/TypoScript/
-
-excludePaths:
-  - .build/
+  - Resources/Public/Examples/TypoScript/
 
 filePatterns:
   - "*.typoscript"
   - "*.tsconfig"
-  - "*.ts"
 
 sniffs:
   - class: Indentation

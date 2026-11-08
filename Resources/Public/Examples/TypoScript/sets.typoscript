@@ -1,12 +1,12 @@
-# sets.ts
+# sets.typoscript
 # import configuration for sets
 module.tx_t3importexport.settings.import.sets {
-  testSet {
-    label = Example Set
+  csv2ttContent {
+    label = Example set: CSV to tt_content
     description (
-          An example import set containing the tasks <i>foo, bar, baz</i>.<br />
-      Note: This set will fail since none of its task exist!
+      Example import set containing the task <i>csv2ttContent</i>.
+      Adapt the target page id in csv2ttContent.typoscript before running it.
     )
-    tasks = foo,bar,baz
+    tasks = csv2ttContent
   }
 }
