@@ -30,7 +30,7 @@ use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Messaging\MessageContainerTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class TaskResult implements \Iterator
+class TaskResult implements \Iterator, \Countable
 {
     use MessageContainerTrait;
 
@@ -38,22 +38,22 @@ class TaskResult implements \Iterator
     /**
      * @var int
      */
-    protected $position = 0;
+    protected int $position = 0;
 
     /**
      * @var array
      */
-    protected $list = [];
+    protected array $list = [];
 
     /**
      * @var int
      */
-    protected $size = 0;
+    protected int $size = 0;
 
     /**
      * @var null|mixed
      */
-    protected $info;
+    protected mixed $info;
 
     /**
      * TaskResult constructor.
@@ -71,7 +71,7 @@ class TaskResult implements \Iterator
     /**
      * @return mixed
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->list[$this->position];
     }
@@ -79,7 +79,7 @@ class TaskResult implements \Iterator
     /**
      * @return void
      */
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }
@@ -87,7 +87,7 @@ class TaskResult implements \Iterator
     /**
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
@@ -95,7 +95,7 @@ class TaskResult implements \Iterator
     /**
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         return isset($this->list[$this->position]);
     }
@@ -103,16 +103,15 @@ class TaskResult implements \Iterator
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return $this->size;
     }
 
     /**
      * @return void
-     * @return void
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }
@@ -121,7 +120,7 @@ class TaskResult implements \Iterator
      * @param array $elements
      * @return void
      */
-    public function setElements(array $elements)
+    public function setElements(array $elements): void
     {
         $this->list = $elements;
         $this->size = count($elements);
@@ -132,7 +131,7 @@ class TaskResult implements \Iterator
      * @param $newElement
      * @return void
      */
-    public function add($newElement)
+    public function add(mixed $newElement): void
     {
         $this->list[] = $newElement;
         ++$this->size;
@@ -142,7 +141,7 @@ class TaskResult implements \Iterator
      * @param $element
      * @return bool
      */
-    public function removeElement($element)
+    public function removeElement(mixed $element): bool
     {
         $key = array_search($element, $this->list);
         if ($key !== false) {
@@ -155,7 +154,7 @@ class TaskResult implements \Iterator
      * @param $index
      * @return bool
      */
-    public function removeIndex($index)
+    public function removeIndex(mixed $index): bool
     {
         if ($this->size > $index) {
             unset($this->list[$index]);
@@ -174,7 +173,7 @@ class TaskResult implements \Iterator
     /**
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->list;
     }
@@ -183,12 +182,12 @@ class TaskResult implements \Iterator
      * @param $mixed
      * @return void
      */
-    public function setInfo($mixed)
+    public function setInfo(mixed $mixed): void
     {
         $this->info = $mixed;
     }
 
-    public function getInfo()
+    public function getInfo(): mixed
     {
         return $this->info;
     }
@@ -199,7 +198,8 @@ class TaskResult implements \Iterator
      *
      * @param array $messages
      */
-    public function addMessages(array $messages) {
+    public function addMessages(array $messages): void
+    {
         $this->messageContainer->addMessages($messages);
     }
 }

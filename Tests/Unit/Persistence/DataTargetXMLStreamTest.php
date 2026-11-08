@@ -69,10 +69,10 @@ class DataTargetXMLStreamTest extends TestCase
             ->mockPersistenceManager()
             ->mockXmlWriter();
         $this->subject = new DataTargetXMLStream(
-            self::TARGET_CLASS,
             null,
             $this->persistenceManager
         );
+        $this->subject->setTargetClass(self::TARGET_CLASS);
     }
 
     /**

@@ -38,6 +38,7 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
  */
 class GenerateFileReferenceTest extends TestCase
 {
+    use \CPSIT\T3importExport\Tests\Unit\Traits\AssertPropertyTrait;
     use MockPersistenceManagerTrait,
         MockMessageContainerTrait,
         MockFileReferenceFactoryTrait,
@@ -270,13 +271,13 @@ class GenerateFileReferenceTest extends TestCase
             'sourceField' => $sourceFieldName
         ];
         $this->fileReferenceFactory->expects($this->once())
-            ->method('create')
-            ->with($fileId, $configuration)
+            ->method('createFileReferenceObject')
+            ->with($fileId, $configuration, null)
             ->willReturn($mockFileReference);
 
         $this->subject->process($configuration, $object, $record);
 
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $mockFileReference,
             $targetFieldName,
             $object
@@ -305,7 +306,7 @@ class GenerateFileReferenceTest extends TestCase
             ->willReturn(false);
 
         $this->fileReferenceFactory->expects($this->never())
-            ->method('create');
+            ->method('createFileReferenceObject');
 
         $this->assertFalse(
             $this->subject->process($configuration, $object, $record)

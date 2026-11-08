@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class ResourceStorageTraitTest extends TestCase
 {
+    use \CPSIT\T3importExport\Tests\Unit\Traits\AssertPropertyTrait;
     /**
      * @var ResourceStorageTrait|\PHPUnit_Framework_MockObject_MockObject
      */
@@ -73,7 +74,7 @@ class ResourceStorageTraitTest extends TestCase
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
 
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $mockDependency,
             $propertyName,
             $this->subject
@@ -97,7 +98,7 @@ class ResourceStorageTraitTest extends TestCase
 
         $this->subject->initializeStorage($configuration);
 
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $mockStorage,
             'resourceStorage',
             $this->subject

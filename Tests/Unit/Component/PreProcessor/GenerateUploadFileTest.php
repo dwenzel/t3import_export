@@ -31,6 +31,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateUploadFileTest extends TestCase
 {
+    use \CPSIT\T3importExport\Tests\Unit\Traits\AssertPropertyTrait;
     use MockFileStructureTrait;
 
     /**
@@ -96,7 +97,7 @@ class GenerateUploadFileTest extends TestCase
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
 
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $mockDependency,
             $propertyName,
             $this->subject

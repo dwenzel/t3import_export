@@ -9,10 +9,12 @@ use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Persistence\DataTargetRepository;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -141,6 +143,12 @@ class DataTargetFactoryTest extends TestCase
         $this->subject = new DataTargetFactory($this->persistenceManager);
     }
 
+    protected function tearDown(): void
+    {
+        GeneralUtility::purgeInstances();
+        parent::tearDown();
+    }
+
     /**
      * @throws MissingClassException
      * @throws InvalidConfigurationException
@@ -205,6 +213,10 @@ class DataTargetFactoryTest extends TestCase
                 'class' => $objectClass
             ]
         ];
+        GeneralUtility::addInstance(
+            DataTargetRepository::class,
+            new DataTargetRepository(null, $this->persistenceManager)
+        );
 
         $dataTarget = $this->subject->get($settings, $identifier);
         self::assertInstanceOf(

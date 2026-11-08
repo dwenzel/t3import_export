@@ -84,6 +84,7 @@ class TranslateObjectTest extends TestCase
             ->setMethods(['getLocalizationParent', 'translate'])
             ->getMock();
         $this->configurationValidator = $this->getMockBuilder(TranslateObjectConfigurationValidator::class)
+            ->disableOriginalConstructor()
             ->setMethods(['isValid'])
             ->getMock();
 

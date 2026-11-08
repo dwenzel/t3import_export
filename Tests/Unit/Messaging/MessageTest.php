@@ -20,6 +20,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Messaging;
 
 use CPSIT\T3importExport\Messaging\Message;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 
 /**
  * Class MessageTest
@@ -50,7 +51,7 @@ class MessageTest extends TestCase
     {
         $message = 'foo';
         $title = 'bar';
-        $severity = Message::ERROR;
+        $severity = ContextualFeedbackSeverity::ERROR;
         $id = 12;
         $additionalInformation = ['baz'];
 
@@ -89,7 +90,7 @@ class MessageTest extends TestCase
     {
         $message = 'foo';
         $defaultTitle = '';
-        $defaultSeverity = Message::OK;
+        $defaultSeverity = ContextualFeedbackSeverity::OK;
         $additionalInformation = [];
 
         $this->subject->__construct($message);

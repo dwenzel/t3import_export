@@ -28,6 +28,7 @@ class DummyDomainObjectB extends AbstractEntity
 
 class TranslationServiceTest extends TestCase
 {
+    use \CPSIT\T3importExport\Tests\Unit\Traits\AssertPropertyTrait;
     use MockPersistenceManagerTrait;
 
     protected TranslationService $subject;
@@ -135,7 +136,8 @@ class TranslationServiceTest extends TestCase
             ->withConsecutive(
                 [$propertyName, $origin],
                 ['_languageUid', $language]
-            );
+            )
+            ->willReturn(true);
         $this->subject->translate($origin, $translation, $language);
     }
 
@@ -146,7 +148,7 @@ class TranslationServiceTest extends TestCase
     {
         $language = 1;
         $tableName = 'bar';
-        $tableColumnType = new TableColumnType();
+        $tableColumnType = TableColumnType::INPUT;
 
         $translationOriginColumnName = 'translation_parent';
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($translationOriginColumnName);
@@ -175,7 +177,7 @@ class TranslationServiceTest extends TestCase
             ->willReturn($tableName);
         $mockColumnMap->expects($this->once())
             ->method('setTypeOfRelation')
-            ->with(...[ColumnMap::RELATION_HAS_ONE]);
+            ->with(...[ColumnMap\Relation::HAS_ONE]);
         $mockColumnMap->expects($this->once())
             ->method('setType')
             ->with(...[$tableColumnType]);
@@ -190,7 +192,7 @@ class TranslationServiceTest extends TestCase
                 ['_languageUid', $language]
             )
             ->will($this->onConsecutiveCalls(
-                false, null
+                false, true
             ));
         $this->subject->translate($origin, $translation, $language);
 
@@ -198,7 +200,7 @@ class TranslationServiceTest extends TestCase
          * setting via $translation->{$propertyName} seems to require property being public!
          * @see DummyDomainObjectA::$translationParent
          */
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $origin,
             $propertyName,
             $translation

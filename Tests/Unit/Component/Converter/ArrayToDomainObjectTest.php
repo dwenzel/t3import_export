@@ -88,6 +88,7 @@ class ArrayToDomainObjectTest extends TestCase
             ->setMethods(['get'])
             ->getMock();
         $this->propertyMapper = $this->getMockBuilder(PropertyMapper::class)
+            ->disableOriginalConstructor()
             ->setMethods(['convert'])
             ->getMock();
         $this->propertyMappingConfigurationBuilder = $this->getMockBuilder(PropertyMappingConfigurationBuilder::class)

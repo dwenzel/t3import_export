@@ -28,6 +28,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateFileTraitTest extends TestCase
 {
+    use \CPSIT\T3importExport\Tests\Unit\Traits\AssertPropertyTrait;
     /**
      * @var GenerateFileTrait |\PHPUnit_Framework_MockObject_MockObject
      */
@@ -83,7 +84,7 @@ class GenerateFileTraitTest extends TestCase
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
 
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $mockDependency,
             $propertyName,
             $this->subject
@@ -120,11 +121,22 @@ class GenerateFileTraitTest extends TestCase
                 1_497_427_335,
                 null
             ],
+            // missing target field
+            [
+                [
+                    'targetDirectoryPath' => 'bar',
+                    'sourceField' => 'baz'
+                ],
+                false,
+                1_497_427_336,
+                null
+            ],
             // missing storage id
             [
                 [
                     'targetDirectoryPath' => 'bar',
-                    'fieldName' => 'baz'
+                    'sourceField' => 'baz',
+                    'targetField' => 'baz'
                 ],
                 false,
                 1_497_427_302,
@@ -133,13 +145,14 @@ class GenerateFileTraitTest extends TestCase
             // missing resourceStorage
             [
                 [
-                    'storageId' => 'foo',
+                    'storageId' => 5,
                     'targetDirectoryPath' => 'bar',
-                    'fieldName' => 'baz'
+                    'sourceField' => 'baz',
+                    'targetField' => 'baz'
                 ],
                 false,
                 1_497_427_346,
-                ['foo']
+                [5]
             ],
         ];
     }
@@ -176,7 +189,8 @@ class GenerateFileTraitTest extends TestCase
         $configuration = [
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
-            'fieldName' => 'bar'
+            'sourceField' => 'bar',
+            'targetField' => 'bar'
         ];
         $storageConfiguration = ['basePath' => 'baz'];
         $expectedErrorId = 1_497_427_363;
@@ -214,7 +228,8 @@ class GenerateFileTraitTest extends TestCase
         $configuration = [
             'storageId' => 3,
             'targetDirectoryPath' => 'foo',
-            'fieldName' => 'bar'
+            'sourceField' => 'bar',
+            'targetField' => 'bar'
         ];
 
         $this->storageRepository->expects($this->once())
@@ -247,7 +262,8 @@ class GenerateFileTraitTest extends TestCase
             1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
             1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
             1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
-            1_497_427_335 => ['Missing field name', 'config[\'fieldName\'] must be set'],
+            1_497_427_335 => ['Missing field name', 'config[\'sourceField\'] must be set'],
+            1_497_427_336 => ['Missing field name', 'config[\'targetField\'] must be set'],
             1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
             1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.']
         ];
@@ -268,7 +284,8 @@ class GenerateFileTraitTest extends TestCase
             $fieldName => 'bar'
         ];
         $configuration = [
-            'fieldName' => 'foo'
+            'sourceField' => 'foo',
+            'targetField' => 'foo'
         ];
 
         $fieldValue = 'bar';
@@ -302,7 +319,8 @@ class GenerateFileTraitTest extends TestCase
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1'
         ];
 
@@ -343,7 +361,8 @@ class GenerateFileTraitTest extends TestCase
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1',
             'sourcePath' => $prefix
         ];
@@ -388,7 +407,8 @@ class GenerateFileTraitTest extends TestCase
         ];
 
         $configuration = [
-            'fieldName' => 'foo',
+            'sourceField' => 'foo',
+            'targetField' => 'foo',
             'multipleRows' => '1',
             'separator' => $separator
         ];

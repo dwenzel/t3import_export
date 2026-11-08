@@ -30,9 +30,8 @@ class UpdateTableTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mockConnectionPool()
-            ->mockConnection();
-        $this->subject = new UpdateTable($this->connectionPool);
+        $this->mockConnectionService();
+        $this->subject = new UpdateTable($this->connectionPool, $this->connectionService);
     }
 
     /**
@@ -96,6 +95,12 @@ class UpdateTableTest extends TestCase
                     UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
                 ]
             ],
+            'where is missing' => [
+                [
+                    UpdateTable::KEY_TABLE => 'foo',
+                    UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
+                ]
+            ],
             'where is float' => [
                 [
                     UpdateTable::KEY_TABLE => 'foo',
@@ -112,6 +117,7 @@ class UpdateTableTest extends TestCase
             'minimal' => [
                 [
                     UpdateTable::KEY_TABLE => 'foo',
+                    UpdateTable::KEY_WHERE => 'bar=1',
                     UpdateTable::KEY_SET_FIELDS => ['baz' => 5]
                 ]
             ]

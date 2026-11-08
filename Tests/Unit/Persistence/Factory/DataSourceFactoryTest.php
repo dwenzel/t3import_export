@@ -9,10 +9,14 @@ use CPSIT\T3importExport\IdentifiableTrait;
 use CPSIT\T3importExport\InvalidConfigurationException;
 use CPSIT\T3importExport\MissingClassException;
 use CPSIT\T3importExport\MissingInterfaceException;
+use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use PHPUnit\Framework\MockObject\MockObject;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *
@@ -160,6 +164,12 @@ class DataSourceFactoryTest extends TestCase
             ->getMock();
     }
 
+    protected function tearDown(): void
+    {
+        GeneralUtility::purgeInstances();
+        parent::tearDown();
+    }
+
     /**
      * @throws InvalidConfigurationException
      * @throws MissingClassException
@@ -254,6 +264,13 @@ class DataSourceFactoryTest extends TestCase
                 'table' => $tableName,
             ]
         ];
+        GeneralUtility::addInstance(
+            DataSourceDB::class,
+            new DataSourceDB(
+                $this->createMock(ConnectionPool::class),
+                $this->createMock(DatabaseConnectionService::class)
+            )
+        );
 
         /** @noinspection UnnecessaryAssertionInspection */
         $this->assertInstanceOf(

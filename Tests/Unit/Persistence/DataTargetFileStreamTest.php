@@ -60,10 +60,10 @@ class DataTargetFileStreamTest extends TestCase
     {
         $this->mockPersistenceManager();
         $this->subject = new DataTargetFileStream(
-            self::TARGET_CLASS,
             null,
             $this->persistenceManager
         );
+        $this->subject->setTargetClass(self::TARGET_CLASS);
         $this->mockBasicFileUtility();
     }
 

@@ -59,7 +59,6 @@ class DatabaseTraitTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getObjectForTrait(DatabaseTrait::class);
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -67,14 +66,21 @@ class DatabaseTraitTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
+            ->disableOriginalConstructor()
             ->getMock();
+        $this->subject = $this->getObjectForTrait(
+            DatabaseTrait::class,
+            [$this->connectionPool, $this->connectionService]
+        );
     }
 
-    public function testConstructorGetsDatabaseConnectionFromGlobals(): void
+    public function testGetDataBaseReturnsDefaultConnectionFromConnectionPool(): void
     {
-        $GLOBALS['TYPO3_DB'] = $this->connection;
+        $this->connectionPool->expects($this->once())
+            ->method('getConnectionByName')
+            ->with('Default')
+            ->willReturn($this->connection);
 
-        $this->subject->__construct();
         $this->assertSame(
             $this->connection,
             $this->subject->getDataBase()
@@ -82,7 +88,6 @@ class DatabaseTraitTest extends TestCase
     }
     public function testConstructorSetsConnectionService(): void
     {
-        $this->subject->__construct(null, $this->connectionService);
         $this->assertSame(
             $this->connectionService,
             $this->subject->getDatabaseConnectionService()
