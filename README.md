@@ -12,7 +12,7 @@ Imports data from different sources into TYPO3 and exports from TYPO3 to differe
 
 | TYPO3 | Branch              | Latest release | Status |
 |-------|---------------------|----------------|--------|
-| 13.4  | `main`              | none yet (3.0.0 planned) | in development |
+| 13.4  | `main`              | 3.0.0          | maintained |
 | 12.4  | `support/typo3-v12` | 2.0.1          | bugfixes |
 | 11.5  | `support/typo3-v11` | none yet       | in development, see [#19](https://github.com/dwenzel/t3import_export/issues/19) |
 | 9.5, 10.4 | none            | 1.0.5          | not maintained |
