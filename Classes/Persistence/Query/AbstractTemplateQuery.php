@@ -189,7 +189,7 @@ abstract class AbstractTemplateQuery implements QueryInterface
 
         if (!empty($sorting)) {
             foreach ($sorting as $orderItem) {
-                [$orderField, $ascDesc] = GeneralUtility::trimExplode(' ', $orderItem, true);
+                [$orderField, $ascDesc] = array_pad(GeneralUtility::trimExplode(' ', $orderItem, true), 2, null);
                 // count == 1 means that no direction is given
                 if ($ascDesc) {
                     $ascDesc = ((strtolower((string)$ascDesc) === 'desc') ?
