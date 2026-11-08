@@ -78,8 +78,26 @@ class DataTransferProcessor
                 $configuration
             );
 
-            $this->queue[$task->getIdentifier()] = $recordsToImport;
+            $this->queue[$task->getIdentifier()] = $this->toRecordArray($recordsToImport);
         }
+    }
+
+    /**
+     * Records are processed by reference, which is not possible for iterators
+     * (e.g. an Extbase QueryResult from DataSourceDynamicRepository). Domain objects
+     * are converted to arrays of their properties; array records are kept.
+     */
+    protected function toRecordArray(iterable $records): array
+    {
+        $recordArray = [];
+        foreach ($records as $key => $record) {
+            if (is_object($record) && method_exists($record, '_getCleanProperties')) {
+                $record = $record->_getCleanProperties();
+            }
+            $recordArray[$key] = $record;
+        }
+
+        return $recordArray;
     }
 
     /**

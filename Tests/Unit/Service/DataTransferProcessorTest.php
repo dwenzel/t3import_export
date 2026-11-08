@@ -10,6 +10,7 @@ use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
@@ -764,5 +765,33 @@ class DataTransferProcessorTest extends TestCase
             ->with($messages);
 
         $this->subject->process($taskDemandMock);
+    }
+
+    #[Test]
+    public function buildQueueConvertsIteratorAndDomainObjectsToRecordArrays(): void
+    {
+        $domainObject = new class () {
+            public function _getCleanProperties(): array
+            {
+                return ['uid' => 2];
+            }
+        };
+        $dataSource = $this->createMock(DataSourceInterface::class);
+        $dataSource->method('getRecords')->willReturn(
+            new \ArrayIterator(['first' => ['uid' => 1], 'second' => $domainObject])
+        );
+        $task = $this->createMock(TransferTask::class);
+        $task->method('getSource')->willReturn($dataSource);
+        $task->method('getIdentifier')->willReturn('foo');
+        $demand = $this->createMock(DemandInterface::class);
+        $demand->method('getTasks')->willReturn([$task]);
+
+        $subject = new DataTransferProcessor();
+        $subject->buildQueue($demand);
+
+        self::assertSame(
+            ['foo' => ['first' => ['uid' => 1], 'second' => ['uid' => 2]]],
+            $subject->getQueue()
+        );
     }
 }
