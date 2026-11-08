@@ -144,7 +144,7 @@ abstract class BaseController extends ActionController
 
         $this->dataTransferProcessor->buildQueue($importDemand);
         $result = $this->dataTransferProcessor->process($importDemand);
-        $this->view->assignMultiple(
+        $this->moduleTemplate->assignMultiple(
             [
                 'task' => $identifier,
                 'result' => $result,
@@ -176,7 +176,7 @@ abstract class BaseController extends ActionController
 
         $this->dataTransferProcessor->buildQueue($importDemand);
         $result = $this->dataTransferProcessor->process($importDemand);
-        $this->view->assignMultiple(
+        $this->moduleTemplate->assignMultiple(
             [
                 'set' => $identifier,
                 'result' => $result,
