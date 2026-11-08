@@ -26,7 +26,6 @@
   },
   "require-dev": {
     "armin/editorconfig-cli": "^2.0",
-    "cpsit/import-export-core": "dev-main as 0.1.0",
     "ergebnis/composer-normalize": "^2.28",
     "friendsofphp/php-cs-fixer": "^3.57",
     "helhum/typo3-console": "^8.2",
@@ -42,12 +41,6 @@
     "typo3/cms-frontend": "^13.4",
     "typo3/coding-standards": "^0.8.0",
     "typo3/testing-framework": "^9.0"
-  },
-  "repositories": {
-    "import-export-core": {
-      "type": "vcs",
-      "url": "git@github.com:CPS-IT/import-export-core.git"
-    }
   },
   "autoload": {
     "psr-4": {
@@ -71,9 +64,6 @@
       "typo3/cms-composer-installers": true
     },
     "bin-dir": ".build/bin",
-    "preferred-install": {
-      "cpsit/import-export-core": "source"
-    },
     "sort-packages": true,
     "vendor-dir": ".build/vendor"
   },
