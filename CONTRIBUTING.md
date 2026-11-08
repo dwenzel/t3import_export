@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for contributing to t3import_export. This document describes how the
+Thank you for contributing to Import & Export. This document describes how the
 repository is organised and how changes get from an idea into a release.
 
 ## Development environment
