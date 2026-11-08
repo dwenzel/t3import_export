@@ -1,4 +1,4 @@
-# T3Import_Export Documentation
+# Import & Export Documentation
 
 [![TYPO3 13.4](https://img.shields.io/badge/TYPO3-13.4-blue.svg?style=flat-square)](https://get.typo3.org/version/13)
 [![PHP 8.4](https://img.shields.io/badge/PHP-8.4-blue.svg?style=flat-square)](https://www.php.net/)
@@ -114,7 +114,7 @@
 
 ## Overview
 
-The **T3Import_Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
+The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
 
 ### Key Features
 

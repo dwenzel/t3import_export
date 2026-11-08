@@ -1,11 +1,11 @@
-# T3Import_Export
+# Import & Export
 
 [![TYPO3 13.4](https://img.shields.io/badge/TYPO3-13.4-blue.svg?style=flat-square)](https://get.typo3.org/version/13)
 [![PHP 8.4](https://img.shields.io/badge/PHP-8.4-blue.svg?style=flat-square)](https://www.php.net/)
 [![code coverage](https://codecov.io/gh/dwenzel/t3import_export/branch/master/graph/badge.svg)](https://codecov.io/gh/dwenzel/t3import_export)
 [![Build Status](https://travis-ci.org/dwenzel/t3import_export.svg?branch=master)](https://travis-ci.org/dwenzel/t3import_export)
 
-The **T3Import_Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
+The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
 
 Imports data from different sources into TYPO3 and exports from TYPO3 to different targets. Possible data sources and targets are databases, and files (XML, CSV...). Import and export tasks are described via TypoScript or modern YAML configuration and can be grouped to sets. Tasks can be executed manually via backend module or command line or automatically as a scheduler task.
 
@@ -94,7 +94,7 @@ Imports data from different sources into TYPO3 and exports from TYPO3 to differe
 
 ## Overview
 
-The **T3Import_Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
+The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
 
 ### Key Features
 

@@ -1,7 +1,7 @@
 # Development Guide
 
 This document provides guidelines and information for developers contributing to the
-t3import_export extension.
+Import & Export extension.
 
 ## Code Quality Tools
 
