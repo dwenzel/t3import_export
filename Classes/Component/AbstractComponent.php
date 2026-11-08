@@ -8,6 +8,8 @@ use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\RenderContentInterface;
+use CPSIT\T3importExport\Expression\ExpressionEvaluator;
+use CPSIT\T3importExport\Expression\ExpressionEvaluatorInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
@@ -38,8 +40,21 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
     use ConfigurableTrait;
     use RenderContentTrait;
 
+    protected ?ExpressionEvaluatorInterface $expressionEvaluator = null;
+
+    public function injectExpressionEvaluator(ExpressionEvaluatorInterface $expressionEvaluator): void
+    {
+        $this->expressionEvaluator = $expressionEvaluator;
+    }
+
     /**
      * Tells if the component is disabled
+     *
+     * `disable` may be
+     * - `1` or `true`
+     * - an array with `if.result.hasMessage` (comma separated message ids)
+     * - an array with `expression`: evaluated with the variables `record` and `result`
+     * - a content object (deprecated, see #75)
      *
      * @throws ContentRenderingException
      */
@@ -49,16 +64,15 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
             return false;
         }
 
-        if ($configuration['disable'] === '1'
-        ) {
+        $disable = $configuration['disable'];
+        if ($disable === true || $disable === 1 || $disable === '1') {
             return true;
         }
-        if (is_array($configuration['disable'])) {
-            $localConfiguration = $configuration['disable'];
-            if (isset($localConfiguration['if']['result']['hasMessage'])) {
+        if (is_array($disable)) {
+            if (isset($disable['if']['result']['hasMessage'])) {
                 $messageIds = GeneralUtility::intExplode(
                     ',',
-                    $localConfiguration['if']['result']['hasMessage'],
+                    (string)$disable['if']['result']['hasMessage'],
                     true
                 );
                 foreach ($messageIds as $id) {
@@ -68,9 +82,21 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
                 }
             }
 
-            return $this->renderContent($record, $localConfiguration) === '1';
+            if (isset($disable['expression'])) {
+                return $this->getExpressionEvaluator()->isTrue(
+                    (string)$disable['expression'],
+                    ['record' => $record, 'result' => $result]
+                );
+            }
+
+            return $this->renderContent($record, $disable) === '1';
         }
 
         return false;
+    }
+
+    protected function getExpressionEvaluator(): ExpressionEvaluatorInterface
+    {
+        return $this->expressionEvaluator ??= GeneralUtility::makeInstance(ExpressionEvaluator::class);
     }
 }
