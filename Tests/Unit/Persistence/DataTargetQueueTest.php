@@ -119,7 +119,7 @@ class DataTargetQueueTest extends TestCase
         $configuration = [
             DataTargetQueue::KEY_IDENTIFIER => 'import.test',
         ];
-        
+
         // The repository should check if the object is new
         $this->repository->expects($this->once())
             ->method('isNew')
@@ -138,7 +138,7 @@ class DataTargetQueueTest extends TestCase
             ->willReturn(true);
 
         $result = $this->subject->persist($objectData, $configuration);
-        
+
         self::assertTrue($result);
     }
 
@@ -154,7 +154,7 @@ class DataTargetQueueTest extends TestCase
             DataTargetQueue::KEY_IDENTIFIER => 'import.test',
             DataTargetQueue::KEY_ALLOW_UPDATE => '1', // Enable updates
         ];
-        
+
         // The repository should check if the object is new (it's not)
         $this->repository->expects($this->once())
             ->method('isNew')
@@ -168,7 +168,7 @@ class DataTargetQueueTest extends TestCase
             ->willReturn(true);
 
         $result = $this->subject->persist($objectData, $configuration);
-        
+
         self::assertTrue($result);
     }
 
@@ -181,7 +181,7 @@ class DataTargetQueueTest extends TestCase
         $configuration = [
             DataTargetQueue::KEY_IDENTIFIER => 'import.test',
         ];
-        
+
         // The repository should check if the object is new
         $this->repository->expects($this->once())
             ->method('isNew')
@@ -193,7 +193,7 @@ class DataTargetQueueTest extends TestCase
             ->willThrowException(new InvalidArgumentException('Record is invalid', 1644911541));
 
         $result = $this->subject->persist($objectData, $configuration);
-        
+
         self::assertFalse($result);
     }
 }

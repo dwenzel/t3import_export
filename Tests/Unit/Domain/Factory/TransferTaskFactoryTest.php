@@ -330,18 +330,18 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
-        
+
         $this->preProcessor->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
-            
+
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($interface) {
                 $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, PreProcessorInterface::class]);
                 return $this->factory;
             });
-            
+
         $this->factory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
@@ -356,7 +356,7 @@ class TransferTaskFactoryTest extends TestCase
                 }
                 $this->fail('Unexpected factory call');
             });
-            
+
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getPreProcessors();
         $this->assertSame(
@@ -381,14 +381,14 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
-        
+
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($interface) {
                 $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, PostProcessorInterface::class]);
                 return $this->factory;
             });
-            
+
         $this->factory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
@@ -403,7 +403,7 @@ class TransferTaskFactoryTest extends TestCase
                 }
                 $this->fail('Unexpected factory call');
             });
-            
+
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getPostProcessors();
         $this->assertSame(
@@ -428,18 +428,18 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
-        
+
         $this->converter->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
-            
+
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($interface) {
                 $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, ConverterInterface::class]);
                 return $this->factory;
             });
-            
+
         $this->factory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
@@ -454,7 +454,7 @@ class TransferTaskFactoryTest extends TestCase
                 }
                 $this->fail('Unexpected factory call');
             });
-            
+
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getConverters();
         $this->assertSame(
@@ -483,14 +483,14 @@ class TransferTaskFactoryTest extends TestCase
         $this->finisher->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
-            
+
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($interface) {
                 $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, FinisherInterface::class]);
                 return $this->factory;
             });
-            
+
         $this->factory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
@@ -505,7 +505,7 @@ class TransferTaskFactoryTest extends TestCase
                 }
                 $this->fail('Unexpected factory call');
             });
-            
+
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getFinishers();
         $this->assertSame(
@@ -530,14 +530,14 @@ class TransferTaskFactoryTest extends TestCase
             'target' => ['bar'],
             'source' => ['baz'],
         ];
-        
+
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($interface) {
                 $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, InitializerInterface::class]);
                 return $this->factory;
             });
-            
+
         $this->factory->expects($this->exactly(3))
             ->method('get')
             ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
@@ -552,7 +552,7 @@ class TransferTaskFactoryTest extends TestCase
                 }
                 $this->fail('Unexpected factory call');
             });
-            
+
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getInitializers();
         $this->assertSame(

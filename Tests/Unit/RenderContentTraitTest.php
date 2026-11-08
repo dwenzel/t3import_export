@@ -39,35 +39,35 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 class MockClassWithRenderContentTrait
 {
     use RenderContentTrait;
-    
+
     public function setTestContentObjectRenderer(ContentObjectRenderer $contentObjectRenderer): void
     {
         $this->contentObjectRenderer = $contentObjectRenderer;
     }
-    
+
     public function setTestTypoScriptService(TypoScriptService $typoScriptService): void
     {
         $this->typoScriptService = $typoScriptService;
     }
-    
+
     public function getContentObjectRenderer(): ContentObjectRenderer
     {
         if ($this->contentObjectRenderer !== null) {
             return $this->contentObjectRenderer;
         }
-        
+
         // Use trait method directly
         $this->assertTypoScriptFrontendController();
         $this->contentObjectRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ContentObjectRenderer::class);
         return $this->contentObjectRenderer;
     }
-    
+
     public function getTypoScriptService(): TypoScriptService
     {
         if ($this->typoScriptService !== null) {
             return $this->typoScriptService;
         }
-        
+
         // Use trait method directly
         $this->typoScriptService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(TypoScriptService::class);
         return $this->typoScriptService;
@@ -96,7 +96,7 @@ class RenderContentTraitTest extends TestCase
     {
         // Create a real instance instead of mock to use the trait methods
         $this->subject = new MockClassWithRenderContentTrait();
-        
+
         $this->mockTypoScriptService();
         $this->mockContentObjectRenderer();
 
@@ -153,7 +153,7 @@ class RenderContentTraitTest extends TestCase
         $this->typoScriptService->expects($this->once())
             ->method('convertPlainArrayToTypoScriptArray')
             ->with($configuration);
-            
+
         $this->subject->renderContent([], $configuration);
     }
 

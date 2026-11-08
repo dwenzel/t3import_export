@@ -29,7 +29,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 class ResourceStorageTraitTestClass
 {
     use ResourceStorageTrait;
-    
+
     public function getStorageRepository(): ?StorageRepository
     {
         return $this->storageRepository ?? null;
@@ -74,16 +74,16 @@ class ResourceStorageTraitTest extends TestCase
         $storageId = 1;
         $configuration = ['storageId' => $storageId];
         $mockStorage = $this->createMock(ResourceStorage::class);
-        
+
         $this->storageRepository->expects($this->once())
             ->method('findByUid')
             ->with($storageId)
             ->willReturn($mockStorage);
-            
+
         $this->subject->injectStorageRepository($this->storageRepository);
         $this->subject->initializeStorage($configuration);
-        
-        // We can't easily test the internal resourceStorage property 
+
+        // We can't easily test the internal resourceStorage property
         // without exposing it, but we can verify the method was called
         $this->assertTrue(true); // Test passes if no exception is thrown
     }

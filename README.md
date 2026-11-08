@@ -141,7 +141,7 @@ Create a simple import task in TypoScript:
 module.tx_t3importexport.settings.import.tasks.newsImport {
     label = News Import
     description = Import news from CSV file
-    
+
     source {
         class = CPSIT\T3importExport\Persistence\DataSourceCSV
         config {
@@ -150,7 +150,7 @@ module.tx_t3importexport.settings.import.tasks.newsImport {
             enclosure = "
         }
     }
-    
+
     preProcessors {
         10 {
             class = CPSIT\T3importExport\Component\PreProcessor\MapFields
@@ -162,7 +162,7 @@ module.tx_t3importexport.settings.import.tasks.newsImport {
             }
         }
     }
-    
+
     target {
         class = CPSIT\T3importExport\Persistence\DataTargetDB
         config {
@@ -214,7 +214,7 @@ vendor/bin/typo3 t3import-export:import-set --yaml-config path/to/config.yaml
 
 - **TYPO3**: 13.4 LTS
 - **PHP**: 8.4+
-- **Dependencies**: 
+- **Dependencies**:
   - symfony/yaml (for YAML configuration)
   - TYPO3 core extensions (extbase, fluid)
 
@@ -234,7 +234,7 @@ Configuration can be done via TypoScript or modern YAML format. Both approaches 
 ### Tasks
 A **Task** is a single import or export operation with:
 - One data source
-- One data target  
+- One data target
 - Optional processing components (Initializers, PreProcessors, Converters, PostProcessors, Finishers)
 
 ### Sets
@@ -409,7 +409,7 @@ module.tx_t3importexport.settings.export.tasks.newsExport {
 ### Common Issues
 
 1. **Memory Limits**: For large datasets, increase PHP memory limit or use queue processing
-2. **File Permissions**: Ensure TYPO3 can read source files and write to target locations  
+2. **File Permissions**: Ensure TYPO3 can read source files and write to target locations
 3. **Database Connections**: Verify database credentials for external sources
 4. **Component Configuration**: Check component configuration syntax and required parameters
 

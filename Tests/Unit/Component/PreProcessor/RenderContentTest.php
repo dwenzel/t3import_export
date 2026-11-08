@@ -260,7 +260,7 @@ class RenderContentTest extends TestCase
             ->willReturn($expectedContent);
 
         $this->subject->process($configuration, $record);
-        
+
         $this->assertSame(
             $expectedContent,
             $record['fooField'][0]['barField']

@@ -21,55 +21,55 @@ import:
     taskIdentifier:
       label: "Human-readable task name"
       description: "Detailed task description"
-      
+
       # Optional: Initialize before processing
       initializers:
         - class: "Initializer\\ClassName"
           config:
             # initializer-specific configuration
-            
+
       # Required: Data source
       source:
         class: "DataSource\\ClassName"
         config:
           # source-specific configuration
-          
+
       # Optional: Transform data before conversion
       preProcessors:
         - class: "PreProcessor\\ClassName"
           config:
             # preprocessor-specific configuration
-            
+
       # Optional: Convert data format
       converters:
         - class: "Converter\\ClassName"
           config:
             # converter-specific configuration
-            
+
       # Required: Data target
       target:
         class: "DataTarget\\ClassName"
         config:
           # target-specific configuration
-          
+
       # Optional: Enhance objects after conversion
       postProcessors:
         - class: "PostProcessor\\ClassName"
           config:
             # postprocessor-specific configuration
-            
+
       # Optional: Finalize after processing
       finishers:
         - class: "Finisher\\ClassName"
           config:
             # finisher-specific configuration
-            
+
   sets:
     setIdentifier:
       label: "Human-readable set name"
       description: "Detailed set description"
       tasks: "task1,task2,task3"
-      
+
 export:
   # Same structure as import
   tasks: {}
@@ -374,19 +374,19 @@ import:
     complexTransform:
       label: "Complex Data Transformation"
       description: "Multi-step data transformation with validation and cleanup"
-      
+
       # Clear target before import
       initializers:
         - class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
           config:
             tables: "target_table"
-            
+
       source:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
         config:
           file: "fileadmin/imports/complex-data.csv"
           skipLines: 1
-          
+
       preProcessors:
         # Step 1: Clean and validate data
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\Clean"
@@ -394,7 +394,7 @@ import:
             fields: "title,description"
             trim: true
             removeEmptyValues: true
-            
+
         # Step 2: Map field names
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
           config:
@@ -402,13 +402,13 @@ import:
               name: "title"
               desc: "description"
               cat: "category_name"
-              
+
         # Step 3: Convert dates
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
           config:
             fields: "publish_date"
             format: "d.m.Y H:i"
-            
+
         # Step 4: Lookup categories
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
           config:
@@ -417,25 +417,25 @@ import:
             table: "sys_category"
             field: "title"
             returnField: "uid"
-            
+
         # Step 5: Set default values
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
           config:
             field: "pid"
             value: "123"
-            
+
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
         config:
           table: "tx_news_domain_model_news"
-          
+
       postProcessors:
         # Generate URL slugs
         - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
           config:
             field: "path_segment"
             sourceFields: "title"
-            
+
       finishers:
         # Clear relevant caches
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
@@ -513,7 +513,7 @@ import:
   tasks:
     importNewsFromExternalAPI:
       label: "Import News from External API"
-      
+
     migrateUserDataFromLegacySystem:
       label: "Migrate User Data from Legacy System"
 
@@ -522,7 +522,7 @@ import:
   tasks:
     task1:
       label: "Import"
-    
+
     import2:
       label: "Another Import"
 ```
@@ -536,18 +536,18 @@ import:
       label: "Complex Data Import"
       description: |
         This task imports data from the external CRM system.
-        
+
         Processing steps:
         1. Clean and validate incoming data
         2. Map legacy field names to new schema
         3. Resolve category references via database lookup
         4. Generate file references for images
         5. Clear relevant caches
-        
+
         Data source: CRM export via SFTP
         Schedule: Daily at 2:00 AM
         Dependencies: Categories must be imported first
-        
+
       # Clear target table to ensure clean state
       initializers:
         - class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
@@ -562,14 +562,14 @@ import:
   tasks:
     robustImport:
       label: "Robust Import with Error Handling"
-      
+
       # Continue processing even if individual records fail
       source:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
         config:
           file: "fileadmin/imports/data.csv"
           continueOnError: true
-          
+
       # Validate data before processing
       preProcessors:
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\ValidateFields"
@@ -577,7 +577,7 @@ import:
             required: "title,email"
             patterns:
               email: "/^[^@]+@[^@]+\.[^@]+$/"
-              
+
       finishers:
         # Log results for monitoring
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\LogResults"

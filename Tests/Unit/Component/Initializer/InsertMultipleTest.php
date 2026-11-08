@@ -195,7 +195,7 @@ class InsertMultipleTest extends TestCase
             'fields' => $fields,
             'rows' => $rows,
         ];
-        
+
         $expectedFields = ['foo', 'bar'];
         $expectedValues = [
             ['baz', 'boom'],

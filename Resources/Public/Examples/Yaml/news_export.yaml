@@ -8,7 +8,7 @@ export:
       description: |
         Exports news articles to an XML file.
         This task demonstrates a typical export workflow.
-      
+
       source:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
         config:
@@ -17,7 +17,7 @@ export:
             fields: "*"
             where: "pid IN (42,43) AND hidden = 0 AND deleted = 0"
             orderBy: "datetime DESC"
-      
+
       preProcessors:
         10:
           class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
@@ -25,13 +25,13 @@ export:
             mapping:
               pubDate: "datetime"
               link: "path_segment"
-        
+
         20:
           class: "CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent"
           config:
             field: "bodytext"
             parseFunc: "< lib.parseFunc_RTE"
-      
+
       converters:
         10:
           class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToXMLStream"
@@ -41,19 +41,19 @@ export:
               xmlns: "http://www.w3.org/2005/Atom"
               version: "2.0"
             recordElement: "item"
-      
+
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetFileStream"
         config:
           filePath: "fileadmin/exports/news_feed.xml"
-      
+
       finishers:
         10:
           class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
           config:
             schema: "fileadmin/schemas/news_schema.xsd"
-            
+
         20:
           class: "CPSIT\\T3importExport\\Component\\Finisher\\DownloadFileStream"
-          config: 
+          config:
             mimeType: "application/xml"

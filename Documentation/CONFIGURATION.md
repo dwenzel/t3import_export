@@ -163,13 +163,13 @@ import:
     newsImport:
       label: "News Import from CSV"
       description: "Import news articles from external CSV file with field mapping and validation"
-      
+
       # Initialize by clearing target table
       initializers:
         - class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
           config:
             tables: "tx_news_domain_model_news"
-      
+
       # Data source configuration
       source:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
@@ -178,7 +178,7 @@ import:
           delimiter: ";"
           enclosure: "\""
           skipLines: 1
-          
+
       # Data transformation
       preProcessors:
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
@@ -192,20 +192,20 @@ import:
           config:
             fields: "datetime"
             format: "Y-m-d H:i:s"
-      
+
       # Target configuration
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
         config:
           table: "tx_news_domain_model_news"
           pid: 123
-          
+
       # Post-processing
       postProcessors:
         - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
           config:
             field: "path_segment"
-            
+
       # Finalize with cache clearing
       finishers:
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
@@ -228,7 +228,7 @@ import:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
         config:
           table: "sys_category"
-          
+
     importNews:
       label: "Import News Articles"
       source:
@@ -239,7 +239,7 @@ import:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
         config:
           table: "tx_news_domain_model_news"
-          
+
   sets:
     fullNewsImport:
       label: "Complete News Import"
@@ -280,7 +280,7 @@ The extension includes comprehensive validation for both TypoScript and YAML con
 ### Common Validation Rules
 
 1. **Required Fields**: `source` and `target` are mandatory for all tasks
-2. **Class Validation**: All component classes must exist and implement proper interfaces  
+2. **Class Validation**: All component classes must exist and implement proper interfaces
 3. **Configuration Structure**: Component configurations must follow expected schema
 4. **Identifier Uniqueness**: Task and set identifiers must be unique within their scope
 
