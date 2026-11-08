@@ -62,7 +62,7 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
      * @param array $configuration Source query configuration
      * @return array Array of records or empty array
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): iterable
     {
         $class = $configuration['class'];
         $repository = $this->getRepositoryFromEntityClass($class);

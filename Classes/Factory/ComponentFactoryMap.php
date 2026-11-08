@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Factory;
 
 use CPSIT\ImportExportCore\Component\ComponentInterface;
 use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
@@ -18,7 +19,6 @@ use CPSIT\T3importExport\Component\Factory\InitializerFactory;
 use CPSIT\T3importExport\Component\Factory\NullComponentFactory;
 use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
 use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 

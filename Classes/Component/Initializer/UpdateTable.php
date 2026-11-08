@@ -34,6 +34,11 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
 {
     use DatabaseTrait;
 
+    public const string KEY_TABLE = 'table';
+    public const string KEY_WHERE = 'where';
+    public const string KEY_SET_FIELDS = 'setFields';
+    public const string KEY_TYPES = 'types';
+
     /**
      * @param array $records Array with prepared records
      * @throws \Exception

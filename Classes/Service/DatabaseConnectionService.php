@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Service;
 
-use CPSIT\ImportExportCore\Exception\MissingDatabaseException;
+use CPSIT\T3importExport\Exception\MissingDatabaseException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;

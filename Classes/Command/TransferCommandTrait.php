@@ -42,9 +42,9 @@ trait TransferCommandTrait
         $fullConfiguration = $this->configurationHandler->getFullConfiguration(
         );
 
-        //@todo: Check if this is the right path
-        if (isset($fullConfiguration['settings'][static::SETTINGS_KEY])) {
-            $this->settings = $fullConfiguration['settings'][static::SETTINGS_KEY];
+        // ['import' => ['tasks' => ..., 'sets' => ...], 'export' => [...]]
+        if (isset($fullConfiguration[static::SETTINGS_KEY])) {
+            $this->settings = $fullConfiguration[static::SETTINGS_KEY];
         }
 
     }

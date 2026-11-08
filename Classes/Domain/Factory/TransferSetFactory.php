@@ -28,6 +28,7 @@ use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Factory\AbstractFactory;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -36,7 +37,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class TransferSetFactory extends AbstractFactory
 {
-    protected array $settings = [];
     /**
      * @var \CPSIT\T3importExport\Domain\Model\TransferSet|null
      */
@@ -47,9 +47,6 @@ class TransferSetFactory extends AbstractFactory
         private readonly ConfigurationHandlerInterface $configurationHandler
     ) {
         $this->transferSet = new TransferSet();
-        $extensionConfiguration = $configurationHandler->getFullConfiguration();
-        //@todo: check if this is the correct way to get the settings
-        $this->settings = $extensionConfiguration['settings'] ?? [];
     }
 
     /**
@@ -73,14 +70,20 @@ class TransferSetFactory extends AbstractFactory
             && is_string($settings['tasks'])
         ) {
             $taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
+            // Read on each call: configuration may be added after construction (e.g. --yaml-config).
+            // Structure: ['import' => ['tasks' => ..., 'sets' => ...], 'export' => [...]]
+            // Settings passed with withSettings() take precedence.
+            $configuration = $this->configurationHandler->getFullConfiguration();
+            if (isset($this->settings)) {
+                ArrayUtility::mergeRecursiveWithOverrule($configuration, $this->settings);
+            }
             $tasks = [];
             foreach ($taskIdentifiers as $taskIdentifier) {
-                if (isset($this->settings['import']['tasks'][$taskIdentifier])) {
-                    $task = $this->transferTaskFactory->get(
-                        $this->settings['import']['tasks'][$taskIdentifier],
-                        $taskIdentifier
-                    );
-                    $tasks[$taskIdentifier] = $task;
+                $taskSettings = $configuration['import']['tasks'][$taskIdentifier]
+                    ?? $configuration['export']['tasks'][$taskIdentifier]
+                    ?? null;
+                if (\is_array($taskSettings)) {
+                    $tasks[$taskIdentifier] = $this->transferTaskFactory->get($taskSettings, $taskIdentifier);
                 }
             }
             $this->transferSet->setTasks($tasks);
