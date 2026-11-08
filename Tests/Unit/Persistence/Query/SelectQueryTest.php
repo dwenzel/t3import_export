@@ -8,6 +8,7 @@ use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Database\Query\Restriction\QueryRestrictionContainerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -52,8 +53,10 @@ class SelectQueryTest extends TestCase
 
         $this->builder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods($fluidBuilderMethods)
+            ->setMethods(array_merge($fluidBuilderMethods, ['getRestrictions']))
             ->getMock();
+        $this->builder->method('getRestrictions')
+            ->willReturn($this->createMock(QueryRestrictionContainerInterface::class));
 
         $this->mockConnectionService();
         $this->connection->method('createQueryBuilder')->willReturn($this->builder);

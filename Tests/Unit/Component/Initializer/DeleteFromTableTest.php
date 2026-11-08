@@ -19,6 +19,7 @@ use CPSIT\T3importExport\Component\Initializer\DeleteFromTable;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class DeleteFromTableTest extends TestCase
@@ -39,7 +40,7 @@ class DeleteFromTableTest extends TestCase
                 [
                     'delete',
                     'where',
-                    'execute'
+                    'executeStatement'
                 ]
             )
             ->getMock();
@@ -128,11 +129,18 @@ class DeleteFromTableTest extends TestCase
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $GLOBALS['TYPO3_DB'] = $connection;
-        $this->subject->__construct();
+        $connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getConnectionByName'])
+            ->getMock();
+        $connectionPool->expects($this->once())
+            ->method('getConnectionByName')
+            ->with('Default')
+            ->willReturn($connection);
+        $this->subject->__construct($connectionPool, $this->connectionService);
 
         $this->assertSame(
-            $GLOBALS['TYPO3_DB'],
+            $connection,
             $this->subject->getDataBase()
         );
     }
@@ -161,7 +169,7 @@ class DeleteFromTableTest extends TestCase
             ->with(...[$config['where']])
             ->willReturn($this->queryBuilder);
         $this->queryBuilder->expects($this->once())
-            ->method('execute');
+            ->method('executeStatement');
 
         $this->subject->process($config, $records);
     }

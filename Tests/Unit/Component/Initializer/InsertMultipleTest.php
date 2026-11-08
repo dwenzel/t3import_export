@@ -41,9 +41,8 @@ class InsertMultipleTest extends TestCase
     /** @noinspection ReturnTypeCanBeDeclaredInspection */
     protected function setUp(): void
     {
-        $this->subject = new InsertMultiple();
         $this->mockConnectionService();
-        $this->mockConnection();
+        $this->subject = new InsertMultiple($this->connectionPool, $this->connectionService);
     }
 
     /**

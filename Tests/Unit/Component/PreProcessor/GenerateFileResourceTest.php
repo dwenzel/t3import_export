@@ -62,12 +62,12 @@ class GenerateFileResourceTest extends TestCase
             ->setConstructorArgs(
                 [
                     $this->fileIndexRepository,
-                    $this->resourceStorage,
                     $this->filePathFactory,
                     $this->messageContainer
                 ]
             )
             ->setMethods(['logError', 'getAbsoluteFilePath'])->getMock();
+        $this->subject->withStorage($this->resourceStorage);
 
         vfsStreamWrapper::register();
     }

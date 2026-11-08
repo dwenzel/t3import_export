@@ -92,7 +92,7 @@ class FileReferenceFactoryTest extends TestCase
         $this->extbaseFileReference->expects($this->once())
             ->method('setOriginalResource')
             ->with(...[$this->coreFileReference]);
-        $this->subject->create($fileId, $configuration);
+        $this->subject->createFileReferenceObject($fileId, $configuration);
     }
 
     public function testCreateSetsInitialPageIdZero(): void
@@ -109,13 +109,13 @@ class FileReferenceFactoryTest extends TestCase
         $this->extbaseFileReference->expects($this->once())->method('setPid')
             ->with(...[$expectedPageId]);
 
-        $this->subject->create($fileId, $configuration);
+        $this->subject->createFileReferenceObject($fileId, $configuration);
     }
 
     public function testCreateSetsPageIdFromConfiguration(): void
     {
         $fileId = 7;
-        $expectedPageId = 0;
+        $expectedPageId = 5;
 
         $configuration = [
             'targetPage' => $expectedPageId
@@ -129,6 +129,6 @@ class FileReferenceFactoryTest extends TestCase
         $this->extbaseFileReference->expects($this->once())->method('setPid')
             ->with(...[$expectedPageId]);
 
-        $this->subject->create($fileId, $configuration);
+        $this->subject->createFileReferenceObject($fileId, $configuration);
     }
 }
