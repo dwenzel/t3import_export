@@ -108,3 +108,7 @@ Example: `[BUGFIX] Write file without accessing default folder of storage`
      branch and merge it through a pull request (commit tag `[RELEASE]`).
   2. Tag the merge commit on `main` or on the support branch.
   3. Update the support matrix in `README.md` on `main`.
+* Tags are published to the TYPO3 Extension Repository (TER) by the workflow
+  `publish.yml`. It checks that the tag matches the version in `ext_emconf.php`
+  and needs the repository secret `TYPO3_API_TOKEN`. An existing tag can be
+  published by starting the workflow manually.
