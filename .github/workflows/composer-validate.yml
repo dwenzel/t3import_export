@@ -2,9 +2,8 @@ name: Composer Validation
 
 on:
   push:
-    branches: [ master, develop, feature/** ]
+    branches: [ main, 'feature/**', 'support/**' ]
   pull_request:
-    branches: [ master, develop ]
 
 jobs:
   composer-validate:
