@@ -73,11 +73,11 @@ trait RenderContentTrait
      * Gets the TypoScriptFrontendController
      * only for testing
      *
-     * @return TypoScriptFrontendController
+     * @return TypoScriptFrontendController|null
      */
     public function getTypoScriptFrontendController()
     {
-        return $GLOBALS['TSFE'];
+        return $GLOBALS['TSFE'] ?? null;
     }
 
     protected function assertTypoScriptFrontendController(): void
@@ -110,7 +110,8 @@ trait RenderContentTrait
             }
 
             $fakeRequest = new ServerRequest($fakeUri);
-            $originalRequest = $GLOBALS['TYPO3_REQUEST'];
+            // not set on the command line
+            $originalRequest = $GLOBALS['TYPO3_REQUEST'] ?? null;
             $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
             $GLOBALS['TSFE'] = new TypoScriptFrontendController(
                 GeneralUtility::makeInstance(Context::class),
@@ -120,7 +121,11 @@ trait RenderContentTrait
                 $frontendUser
             );
 
-            $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
+            if ($originalRequest === null) {
+                unset($GLOBALS['TYPO3_REQUEST']);
+            } else {
+                $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
+            }
         }
     }
 }
