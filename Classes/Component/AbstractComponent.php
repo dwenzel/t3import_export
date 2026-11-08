@@ -8,8 +8,7 @@ use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\RenderContentInterface;
-use CPSIT\T3importExport\Expression\ExpressionEvaluator;
-use CPSIT\T3importExport\Expression\ExpressionEvaluatorInterface;
+use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
@@ -39,13 +38,7 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
 {
     use ConfigurableTrait;
     use RenderContentTrait;
-
-    protected ?ExpressionEvaluatorInterface $expressionEvaluator = null;
-
-    public function injectExpressionEvaluator(ExpressionEvaluatorInterface $expressionEvaluator): void
-    {
-        $this->expressionEvaluator = $expressionEvaluator;
-    }
+    use ExpressionEvaluatorTrait;
 
     /**
      * Tells if the component is disabled
@@ -93,10 +86,5 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
         }
 
         return false;
-    }
-
-    protected function getExpressionEvaluator(): ExpressionEvaluatorInterface
-    {
-        return $this->expressionEvaluator ??= GeneralUtility::makeInstance(ExpressionEvaluator::class);
     }
 }
