@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\T3importExport\Command\ImportSetCommand;
+use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
@@ -13,7 +15,6 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -83,8 +84,17 @@ class ImportSetCommandTest extends TestCase
     #[Test]
     public function testMethodProcessOfDataTransferProcessorIsNotCallWithDryRun(): void
     {
-        $this->dataTransferProcessor->expects($this->never())
+        $this->dataTransferProcessor->expects(self::never())
             ->method('process');
         $this->subject->process(self::SET_IDENTIFIER, true);
+    }
+
+    #[Test]
+    public function yamlConfigOptionIsRegistered(): void
+    {
+        $definition = $this->subject->getDefinition();
+
+        self::assertTrue($definition->hasOption(YamlConfigFileOption::NAME));
+        self::assertTrue($definition->hasShortcut(YamlConfigFileOption::SHORTCUT));
     }
 }

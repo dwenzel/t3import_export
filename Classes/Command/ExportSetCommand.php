@@ -26,9 +26,11 @@ use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Controller\ExportController;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
+use DWenzel\T3extensionTools\Command\OptionAwareInterface;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
+use DWenzel\T3extensionTools\Traits\Command\OptionAwareTrait;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 
@@ -41,11 +43,12 @@ use Symfony\Component\Console\Command\Command;
     description: ExportSetCommand::MESSAGE_DESCRIPTION_COMMAND,
     aliases: ExportSetCommand::COMMAND_ALIASES
 )]
-class ExportSetCommand extends Command implements ArgumentAwareInterface
+class ExportSetCommand extends Command implements ArgumentAwareInterface, OptionAwareInterface
 {
     use ArgumentAwareTrait;
     use ConfigureTrait;
     use InitializeTrait;
+    use OptionAwareTrait;
     use SetCommandTrait;
     /**
      * Key under which configuration are found in

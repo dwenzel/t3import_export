@@ -8,9 +8,11 @@ use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Controller\ImportController;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
+use DWenzel\T3extensionTools\Command\OptionAwareInterface;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
+use DWenzel\T3extensionTools\Traits\Command\OptionAwareTrait;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 
@@ -40,11 +42,12 @@ use Symfony\Component\Console\Command\Command;
     description: ImportSetCommand::MESSAGE_DESCRIPTION_COMMAND,
     aliases: ImportSetCommand::COMMAND_ALIASES,
 )]
-class ImportSetCommand extends Command implements ArgumentAwareInterface
+class ImportSetCommand extends Command implements ArgumentAwareInterface, OptionAwareInterface
 {
     use ArgumentAwareTrait;
     use ConfigureTrait;
     use InitializeTrait;
+    use OptionAwareTrait;
     use SetCommandTrait;
 
     /**
