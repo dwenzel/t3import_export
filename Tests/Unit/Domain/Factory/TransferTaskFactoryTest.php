@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Domain\Factory;
 
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Domain\Model\TransferTask;
 use CPSIT\T3importExport\Factory\FactoryFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockObjectManagerTrait;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockTransferTaskTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -40,15 +42,16 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class ImportTaskFactoryTest
  *
- * @package CPSIT\T3importExport\Tests\Domain\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Domain\Factory\TransferTaskFactory
  */
 class TransferTaskFactoryTest extends TestCase
 {
-    use MockTransferTaskTrait,
-        MockObjectManagerTrait;
-
     protected TransferTaskFactory $subject;
+
+    /**
+     * @var TransferTask|MockObject
+     */
+    protected TransferTask $transferTask;
 
     /**
      * @var DataTargetInterface|MockObject
@@ -59,6 +62,7 @@ class TransferTaskFactoryTest extends TestCase
      * @var DataSourceInterface|MockObject
      */
     protected DataSourceInterface $dataSource;
+
     /**
      * @var DataSourceFactory|MockObject
      */
@@ -73,6 +77,7 @@ class TransferTaskFactoryTest extends TestCase
      * @var PreProcessorInterface|MockObject
      */
     protected PreProcessorInterface $preProcessor;
+
     /**
      * @var ConverterInterface|MockObject
      */
@@ -87,17 +92,49 @@ class TransferTaskFactoryTest extends TestCase
      * @var FinisherInterface|MockObject
      */
     protected FinisherInterface $finisher;
+
+    /**
+     * @var FactoryFactory|MockObject
+     */
     protected FactoryFactory $factoryFactory;
+
+    /**
+     * @var FactoryInterface|MockObject
+     */
     protected FactoryInterface $factory;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * Creates a mock transfer task
+     */
+    protected function mockTransferTask(): void
+    {
+        $this->transferTask = $this->getMockBuilder(TransferTask::class)
+            ->onlyMethods([
+                'setIdentifier',
+                'setDescription',
+                'setTargetClass',
+                'setSource',
+                'setTarget',
+                'setConverters',
+                'setPreProcessors',
+                'setPostProcessors',
+                'setFinishers',
+                'setInitializers',
+                'setLabel',
+            ])
+            ->getMock();
+    }
+
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->factoryFactory = $this->getMockBuilder(FactoryFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->getMock();
-        $this->factory = $this->getMockForAbstractClass(FactoryInterface::class);
+        $this->factory = $this->createMock(FactoryInterface::class);
 
         $this->factoryFactory->method('get')
             ->willReturn($this->factory);
@@ -116,40 +153,40 @@ class TransferTaskFactoryTest extends TestCase
 
     protected function mockDataTarget(): void
     {
-        $this->dataTarget = $this->getMockBuilder(DataTargetInterface::class)
-            ->getMockForAbstractClass();
+        $this->dataTarget = $this->createMock(DataTargetInterface::class);
     }
 
     protected function mockDataSource(): void
     {
-        $this->dataSource = $this->getMockForAbstractClass(DataSourceInterface::class);
+        $this->dataSource = $this->createMock(DataSourceInterface::class);
     }
 
     protected function mockPreProcessor(): void
     {
-        $this->preProcessor = $this->getMockForAbstractClass(PreProcessorInterface::class);
+        $this->preProcessor = $this->createMock(PreProcessorInterface::class);
     }
 
     protected function mockPostProcessor(): void
     {
-        $this->postProcessor = $this->getMockForAbstractClass(PostProcessorInterface::class);
+        $this->postProcessor = $this->createMock(PostProcessorInterface::class);
     }
 
     protected function mockConverter(): void
     {
-        $this->converter = $this->getMockForAbstractClass(ConverterInterface::class);
+        $this->converter = $this->createMock(ConverterInterface::class);
     }
 
     protected function mockFinisher(): void
     {
-        $this->finisher = $this->getMockForAbstractClass(FinisherInterface::class);
+        $this->finisher = $this->createMock(FinisherInterface::class);
     }
 
     protected function mockInitializer(): void
     {
-        $this->initializer = $this->getMockForAbstractClass(InitializerInterface::class);
+        $this->initializer = $this->createMock(InitializerInterface::class);
     }
 
+    #[Test]
     public function testGetSetsIdentifier(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -162,13 +199,14 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsLabel(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $identifier = 'foo';
         $label = 'bar';
         $settings = [
-            'label' => $label
+            'label' => $label,
         ];
         $task = $this->subject->get($settings, $identifier);
         $this->assertSame(
@@ -177,13 +215,14 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsTargetClass(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $identifier = 'foo';
         $targetClass = 'fooClassName';
         $settings = [
-            'class' => $targetClass
+            'class' => $targetClass,
         ];
 
         $task = $this->subject->get($settings, $identifier);
@@ -193,13 +232,14 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsDescription(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $identifier = 'foo';
         $description = 'fooDescription';
         $settings = [
-            'description' => $description
+            'description' => $description,
         ];
 
         $task = $this->subject->get($settings, $identifier);
@@ -209,35 +249,38 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsSourceAndTargetWithIdentifier(): void
     {
         $identifier = 'foo';
         $settings = [
             'source' => [
-                'identifier' => 'sourceId'
+                'identifier' => 'sourceId',
             ],
             'target' => [
-                'identifier' => 'targetId'
-            ]
+                'identifier' => 'targetId',
+            ],
         ];
 
-        $this->factoryFactory->expects($this->atLeastOnce())
+        $this->factoryFactory->expects($this->exactly(2))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class]
-            )
-            ->willReturn($this->factory);
-        $this->factory->expects($this->atLeastOnce())
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class]);
+                return $this->factory;
+            });
+
+        $this->factory->expects($this->exactly(2))
             ->method('get')
-            ->withConsecutive(
-                [$settings['target'], 'targetId'],
-                [$settings['source'], 'sourceId'],
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource
-            );
+            ->willReturnCallback(function ($config, $id) use ($settings) {
+                if ($config === $settings['target'] && $id === 'targetId') {
+                    return $this->dataTarget;
+                }
+                if ($config === $settings['source'] && $id === 'sourceId') {
+                    return $this->dataSource;
+                }
+                $this->fail('Unexpected factory call');
+            });
+
         $task = $this->subject->get($settings, $identifier);
         $this->assertSame(
             $this->dataTarget,
@@ -247,9 +290,9 @@ class TransferTaskFactoryTest extends TestCase
             $this->dataSource,
             $task->getSource()
         );
-
     }
 
+    #[Test]
     public function testGetThrowsExceptionForMissingTarget(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -260,6 +303,7 @@ class TransferTaskFactoryTest extends TestCase
         $this->subject->get($settings, $identifier);
     }
 
+    #[Test]
     public function testGetThrowsExceptionForMissingSource(): void
     {
         $this->expectExceptionCode(TransferTaskFactory::MISSING_SOURCE_EXCEPTION_CODE);
@@ -270,44 +314,49 @@ class TransferTaskFactoryTest extends TestCase
         $this->subject->get($settings, $identifier);
     }
 
-
+    #[Test]
     public function testGetSetsPreProcessors(): void
     {
         $identifier = 'bar';
         $processorClass = PreProcessorInterface::class;
         $singleConfiguration = [
             'class' => $processorClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'preProcessors' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
+        
         $this->preProcessor->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
+            
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [PreProcessorInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, PreProcessorInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->preProcessor
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->preProcessor;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getPreProcessors();
         $this->assertSame(
@@ -316,40 +365,45 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsPostProcessors(): void
     {
         $identifier = 'bar';
         $processorClass = PostProcessorInterface::class;
         $singleConfiguration = [
             'class' => $processorClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'postProcessors' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
+        
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [PostProcessorInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, PostProcessorInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->postProcessor
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->postProcessor;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getPostProcessors();
         $this->assertSame(
@@ -358,43 +412,49 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsConverters(): void
     {
         $identifier = 'bar';
         $processorClass = ConverterInterface::class;
         $singleConfiguration = [
             'class' => $processorClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'converters' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
+        
         $this->converter->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
+            
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [ConverterInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, ConverterInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->converter
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->converter;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getConverters();
         $this->assertSame(
@@ -403,44 +463,49 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsFinishers(): void
     {
         $identifier = 'bar';
         $finisherClass = FinisherInterface::class;
         $singleConfiguration = [
             'class' => $finisherClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'finishers' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
 
         $this->finisher->expects($this->once())
             ->method('setConfiguration')
             ->with($singleConfiguration['config']);
+            
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [FinisherInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, FinisherInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->finisher
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->finisher;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getFinishers();
         $this->assertSame(
@@ -449,40 +514,45 @@ class TransferTaskFactoryTest extends TestCase
         );
     }
 
+    #[Test]
     public function testGetSetsInitializers(): void
     {
         $identifier = 'bar';
         $initializerClass = InitializerInterface::class;
         $singleConfiguration = [
             'class' => $initializerClass,
-            'config' => ['foo']
+            'config' => ['foo'],
         ];
         $configuration = [
             'initializers' => [
-                '1' => $singleConfiguration
+                '1' => $singleConfiguration,
             ],
             'target' => ['bar'],
-            'source' => ['baz']
+            'source' => ['baz'],
         ];
+        
         $this->factoryFactory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [DataTargetInterface::class],
-                [DataSourceInterface::class],
-                [InitializerInterface::class]
-            )
-            ->willReturn($this->factory);
+            ->willReturnCallback(function ($interface) {
+                $this->assertContains($interface, [DataTargetInterface::class, DataSourceInterface::class, InitializerInterface::class]);
+                return $this->factory;
+            });
+            
         $this->factory->expects($this->exactly(3))
             ->method('get')
-            ->withConsecutive(
-                [$configuration['target'], null],
-                [$configuration['source'], null],
-                [$singleConfiguration, $identifier])
-            ->willReturnOnConsecutiveCalls(
-                $this->dataTarget,
-                $this->dataSource,
-                $this->initializer
-            );
+            ->willReturnCallback(function ($config, $id) use ($configuration, $singleConfiguration, $identifier) {
+                if ($config === $configuration['target'] && $id === null) {
+                    return $this->dataTarget;
+                }
+                if ($config === $configuration['source'] && $id === null) {
+                    return $this->dataSource;
+                }
+                if ($config === $singleConfiguration && $id === $identifier) {
+                    return $this->initializer;
+                }
+                $this->fail('Unexpected factory call');
+            });
+            
         $task = $this->subject->get($configuration, $identifier);
         $processors = $task->getInitializers();
         $this->assertSame(

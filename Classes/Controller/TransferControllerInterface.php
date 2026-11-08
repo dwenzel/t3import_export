@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Controller;
 
 /***************************************************************
@@ -21,8 +24,6 @@ namespace CPSIT\T3importExport\Controller;
 
 /**
  * Interface TransferControllerInterface
- *
- * @package CPSIT\T3importExport\Controller
  */
 interface TransferControllerInterface
 {

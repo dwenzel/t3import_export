@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Domain\Model\Dto;
 
 /***************************************************************
@@ -29,8 +32,5 @@ interface DemandInterface
      */
     public function getTasks();
 
-    /**
-     * @param array $tasks
-     */
     public function setTasks(array $tasks);
 }

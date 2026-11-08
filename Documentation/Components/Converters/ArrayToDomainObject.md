@@ -5,7 +5,7 @@ Transforms a (nested) array to an domain object using the (Extbase) PropertyMapp
 the target object class. Non scalar values are mapped recursively.
 
 **Notes**
-* If a record has a key *__identiy*, the property will try and find an object by this id (usually the field *uid*). 
+* If a record has a key *__identiy*, the property will try and find an object by this id (usually the field *uid*).
 If found the object is updated. If *__identity* is not set or no object can be found, a new object is created.
 * There are some properties which **can not** be set via PropertyMapper e.g. *uid*, *_localized_uid*, *_language_uid*, *_versioned_uid*. They must be handled separatly e.g by a finisher.
 * **Important** Currently it is **not possible** to import an object and correctly localize it via PropertyMapper (due to limitations in TYPO3 core). Namely the correct relation between original an translated object can not be established. If necessary you will have to fix it on your own.
@@ -94,7 +94,7 @@ module.tx_t3importexport.settings.import.tasks.events {
 }
 ```
 This example shows how a custom property mapping can be achieved.
- 
+
 ### Options
 
 | option                    | type       | required | description                                                                                    |
@@ -111,5 +111,5 @@ This example shows how a custom property mapping can be achieved.
 | [...].options             | array      | no       | Array of options for the type converter. Available options depend on implementation.           |
 
 ### Signal
-The component emits a signal just after building a property mapping configuration and before passing the record to the property mapper. 
+The component emits a signal just after building a property mapping configuration and before passing the record to the property mapper.
 See *ArrayToDomainObject-\>convert()* for details.

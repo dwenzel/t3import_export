@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -21,20 +23,21 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\MapFields;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MapFieldsTest
- *
- * @package CPSIT\T3importExport\Tests\Service\PreProcessor
- * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFields
  */
+#[CoversClass(MapFields::class)]
 class MapFieldsTest extends TestCase
 {
-
     protected MapFields $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new MapFields();
@@ -57,7 +60,7 @@ class MapFieldsTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
-            'fields' => 'foo'
+            'fields' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -71,8 +74,8 @@ class MapFieldsTest extends TestCase
     {
         $config = [
             'fields' => [
-                'foo' => 0
-            ]
+                'foo' => 0,
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -86,8 +89,8 @@ class MapFieldsTest extends TestCase
     {
         $config = [
             'fields' => [
-                'foo' => ''
-            ]
+                'foo' => '',
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
@@ -102,31 +105,32 @@ class MapFieldsTest extends TestCase
         $config = [
             'fields' => [
                 'foo' => 'bar',
-                'baz' => 'fooBar'
-            ]
+                'baz' => 'fooBar',
+            ],
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($config)
         );
     }
 
-    public function processMapsFields(): void
+    #[Test]
+    public function testProcessMapsFields(): void
     {
         $config = [
             'fields' => [
                 'firstSourceField' => 'firstTargetField',
-                'secondSourceField' => 'secondTargetField'
-            ]
+                'secondSourceField' => 'secondTargetField',
+            ],
         ];
         $record = [
             'firstSourceField' => 'firstValue',
-            'secondSourceField' => 'secondValue'
+            'secondSourceField' => 'secondValue',
         ];
         $expectedResult = [
             'firstSourceField' => 'firstValue',
             'secondSourceField' => 'secondValue',
             'firstTargetField' => 'firstValue',
-            'secondTargetField' => 'secondValue'
+            'secondTargetField' => 'secondValue',
         ];
         $this->subject->process($config, $record);
 

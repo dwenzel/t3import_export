@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
@@ -32,18 +35,16 @@ abstract class AbstractFinisher extends AbstractComponent
     /**
      * @param array $configuration
      * @param array $records Array with prepared records
-     * @param array $result Array with result records
+     * @param object|array $result Array with result records
      * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
-    abstract public function process(array $configuration, array &$records, &$result): bool;
+    abstract public function process(array $configuration, array &$records, array|object &$result): bool;
 
     /**
      * Tells whether a given configuration is valid
-     * Override this method in order to perform validation of
+     * Override this method to perform validation of
      * configuration
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {

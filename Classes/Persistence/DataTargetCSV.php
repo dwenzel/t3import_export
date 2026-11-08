@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 /**
@@ -15,16 +17,13 @@ namespace CPSIT\T3importExport\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
-use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Resource\ResourceTrait;
-use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
-use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
-use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -32,18 +31,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
+    use ResourceTrait;
 
-    final public const TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
+    final public const string TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
     protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
 
-
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -70,19 +67,16 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
     }
 
     /**
-     * @param $result
-     * @param array|null $configuration
      * @return array|array[]|mixed
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
         if (empty($result)) {
             return false;
         }
 
-
         $delimiter = ',';
-        $enclosure = "\"";
+        $enclosure = '"';
         $escape = '\\';
 
         if (isset($configuration['delimiter'])) {
@@ -95,7 +89,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
             $escape = $configuration['escape'];
         }
 
-        /** @var  \CPSIT\T3importExport\Domain\Model\TaskResult $result */
+        /** @var TaskResult $result */
         if ($result instanceof TaskResult) {
             $records = $result->toArray();
         }
@@ -108,12 +102,11 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         touch($absFileName);
 
         $output = fopen($absFileName, 'r+');
-        fputs($output, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+        fwrite($output, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
         if (!$output) {
             throw new FileOperationErrorException(
-                'can\'t create new temp file: \''. $absFileName .'\''
+                'can\'t create new temp file: \'' . $absFileName . '\''
             );
-
         }
         if (isset($configuration['fields'])) {
             $fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
@@ -130,7 +123,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         return $records;
     }
 
-    public function persist($result = null, array $configuration = null)
+    public function persist($result = null, ?array $configuration = null)
     {
         // do nothing
     }

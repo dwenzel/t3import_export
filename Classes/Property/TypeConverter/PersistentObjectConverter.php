@@ -1,13 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Property\TypeConverter;
 
-use TYPO3\CMS\Extbase\Property\Exception\InvalidTargetException;
-use TYPO3\CMS\Extbase\Persistence\QueryInterface;
-use TYPO3\CMS\Extbase\Exception;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
-use TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException;
-use TYPO3\CMS\Extbase\Property\Exception\TargetNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Exception;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Property\Exception\InvalidSourceException;
+use TYPO3\CMS\Extbase\Property\Exception\InvalidTargetException;
+use TYPO3\CMS\Extbase\Property\Exception\TargetNotFoundException;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -31,37 +34,37 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
     /**
      * @var string
      */
-    final public const IGNORE_ENABLE_FIELDS = 'IGNORE_ENABLE_FIELDS';
+    final public const string IGNORE_ENABLE_FIELDS = 'IGNORE_ENABLE_FIELDS';
 
     /**
      * @var string
      */
-    final public const RESPECT_STORAGE_PAGE = 'RESPECT_STORAGE_PAGE';
+    final public const string RESPECT_STORAGE_PAGE = 'RESPECT_STORAGE_PAGE';
 
     /**
      * @var string
      */
-    final public const RESPECT_SYS_LANGUAGE = 'RESPECT_SYS_LANGUAGE';
+    final public const string RESPECT_SYS_LANGUAGE = 'RESPECT_SYS_LANGUAGE';
 
     /**
      * @var string
      */
-    final public const ENABLE_FIELDS_TO_BE_IGNORED = 'ENABLE_FIELDS_TO_BE_IGNORED';
+    final public const string ENABLE_FIELDS_TO_BE_IGNORED = 'ENABLE_FIELDS_TO_BE_IGNORED';
 
     /**
      * @var string
      */
-    final public const INCLUDE_DELETED = 'INCLUDE_DELETED';
+    final public const string INCLUDE_DELETED = 'INCLUDE_DELETED';
 
     /**
      * @var string
      */
-    final public const SYS_LANGUAGE_UID = 'SYS_LANGUAGE_UID';
+    final public const string SYS_LANGUAGE_UID = 'SYS_LANGUAGE_UID';
 
     /**
      * @var string
      */
-    final public const STORAGE_PAGE_IDS = 'STORAGE_PAGE_IDS';
+    final public const string STORAGE_PAGE_IDS = 'STORAGE_PAGE_IDS';
 
     /**
      * @var int
@@ -108,13 +111,12 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      *
      * @param mixed $source
      * @param string $targetType
-     * @param array $convertedChildProperties
-     * @param PropertyMappingConfigurationInterface $configuration
      * @throws \InvalidArgumentException
      * @return object the target type
      * @throws InvalidTargetException
      */
-    public function convertFrom($source, $targetType, array $convertedChildProperties = [], PropertyMappingConfigurationInterface $configuration = null): ?object
+    #[\Override]
+    public function convertFrom($source, $targetType, array $convertedChildProperties = [], ?PropertyMappingConfigurationInterface $configuration = null): ?object
     {
         $this->setConfiguration($configuration);
 
@@ -123,10 +125,8 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
 
     /**
      * set configuration to overload query settings
-     *
-     * @param PropertyMappingConfigurationInterface $configuration
      */
-    protected function setConfiguration(PropertyMappingConfigurationInterface $configuration = null)
+    protected function setConfiguration(?PropertyMappingConfigurationInterface $configuration = null)
     {
         if ($configuration === null) {
             return;
@@ -173,7 +173,6 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
     }
 
     /**
-     * @param $targetType
      * @return QueryInterface
      */
     protected function buildQuery($targetType)
@@ -200,12 +199,12 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
      * @param string $targetType
      * @throws TargetNotFoundException
      * @throws InvalidSourceException
-     * @return object
      */
+    #[\Override]
     protected function fetchObjectFromPersistence($identity, $targetType): object
     {
         $object = null;
-        if (ctype_digit((string) $identity)) {
+        if (ctype_digit((string)$identity)) {
             $object = $this->persistenceManager->getObjectByIdentifier($identity, $targetType);
             try {
                 $object = parent::fetchObjectFromPersistence($identity, $targetType);

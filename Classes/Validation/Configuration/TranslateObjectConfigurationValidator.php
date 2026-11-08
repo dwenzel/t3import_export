@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -26,26 +28,25 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
 {
     protected const KEY_ARGUMENTS = 'arguments';
 
-    final public const VALIDATORS = [
+    final public const array VALIDATORS = [
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_PARENT_FIELD]
+            self::KEY_ARGUMENTS => [self::KEY_PARENT_FIELD],
         ],
         [
             ConfigurationValidatorInterface::KEY_CLASS => IssetValidator::class,
-            self::KEY_ARGUMENTS => [self::KEY_LANGUAGE]
+            self::KEY_ARGUMENTS => [self::KEY_LANGUAGE],
         ],
         [
             ConfigurationValidatorInterface::KEY_CLASS => NotEmptyValidator::class,
-            self::KEY_ARGUMENTS => []
-        ]
+            self::KEY_ARGUMENTS => [],
+        ],
     ];
 
     public function __construct(
         protected TargetClassConfigurationValidator $targetClassConfigurationValidator,
         protected MappingConfigurationValidator $mappingConfigurationValidator
-    )
-    {
+    ) {
         $this->targetClassConfigurationValidator = $targetClassConfigurationValidator ?? GeneralUtility::makeInstance(TargetClassConfigurationValidator::class);
         $this->mappingConfigurationValidator = $mappingConfigurationValidator ?? GeneralUtility::makeInstance(MappingConfigurationValidator::class);
     }
@@ -60,17 +61,12 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
     {
         $validatorSettings = static::VALIDATORS;
 
-        return (
+        return
             $this->isBasicConfigurationValid($validatorSettings, $config)
             && $this->isMappingConfigurationValid($config)
-        );
+        ;
     }
 
-    /**
-     * @param array $validatorSettings
-     * @param array $config
-     * @return bool
-     */
     protected function isBasicConfigurationValid(array $validatorSettings, array $config): bool
     {
         foreach ($validatorSettings as $settings) {
@@ -89,8 +85,6 @@ class TranslateObjectConfigurationValidator implements ConfigurationValidatorInt
     }
 
     /**
-     * @param array $config
-     * @return bool
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      */

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -33,15 +35,10 @@ use PHPUnit\Framework\TestCase;
  ***************************************************************/
 class MappingConfigurationValidatorTest extends TestCase
 {
-
-    /**
-     * @var MappingConfigurationValidator | MockObject
-     */
-    protected MappingConfigurationValidator $subject;
+    protected MappingConfigurationValidator|MockObject $subject;
 
     /**
      * set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
@@ -53,7 +50,7 @@ class MappingConfigurationValidatorTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_451_146_869);
         $configuration = [
-            'allowProperties' => []
+            'allowProperties' => [],
         ];
         $this->subject->isValid($configuration);
     }
@@ -63,7 +60,7 @@ class MappingConfigurationValidatorTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_451_147_517);
         $configuration = [
-            'properties' => 'invalidStringValue'
+            'properties' => 'invalidStringValue',
         ];
         $this->subject->isValid($configuration);
     }
@@ -71,15 +68,15 @@ class MappingConfigurationValidatorTest extends TestCase
     public function testValidateValidatedPropertiesRecursive(): void
     {
         $this->subject = $this->getMockBuilder(MappingConfigurationValidator::class)
-            ->setMethods(['validatePropertyConfigurationRecursive'])
+            ->onlyMethods(['validatePropertyConfigurationRecursive'])
             ->getMock();
 
         $configuration = [
             'properties' => [
                 'propertyA' => [
-                    'allowAllProperties' => 1
-                ]
-            ]
+                    'allowAllProperties' => 1,
+                ],
+            ],
         ];
 
         $this->subject->expects($this->once())
@@ -97,10 +94,10 @@ class MappingConfigurationValidatorTest extends TestCase
             'properties' => [
                 'foo' => [
                     'children' => [
-                        'propertyA' => ['allowAllProperties' => 1]
-                    ]
-                ]
-            ]
+                        'propertyA' => ['allowAllProperties' => 1],
+                    ],
+                ],
+            ],
         ];
         $this->subject->isValid($configuration);
     }
@@ -114,18 +111,17 @@ class MappingConfigurationValidatorTest extends TestCase
                         'maxItems' => 1,
                         'properties' => [
                             'propertyB' => [
-                                'allowAllProperties' => 1
-                            ]
-                        ]
-                    ]
-                ]
+                                'allowAllProperties' => 1,
+                            ],
+                        ],
+                    ],
+                ],
 
-            ]
+            ],
         ];
 
         self::assertTrue(
             $this->subject->isValid($configuration)
         );
     }
-
 }

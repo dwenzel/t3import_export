@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -19,19 +22,15 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
      *  This copyright notice MUST APPEAR in all copies of the script!
      ***************************************************************/
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 /**
  * Class RemoveFields
  * Maps one field of a record to another. Existing fields are overwritten!
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
 {
-
-    /**
-     * @param array $configuration
-     * @return bool
-     */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -50,13 +49,12 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
         return true;
     }
 
-
     /**
      * @param string $field
      * @param array|string $value
      * @return bool
      */
-    protected function validateFieldsList($field, $value)
+    protected function validateFieldsList($field, $value): bool
     {
         if (is_array($value) && isset($value['children'])) {
             foreach ($value['children'] as $subField => $subValue) {
@@ -65,14 +63,16 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
                 }
             }
             return true;
-        } elseif (is_array($value)) {
+        }
+        if (is_array($value)) {
             foreach ($value as $subField => $subValue) {
                 if (!$this->validateFieldsList($subField, $subValue)) {
                     return false;
                 }
             }
             return true;
-        } elseif (
+        }
+        if (
             $value === '@attribute' ||
             $value === '@cdata' ||
             $value === '@value' ||
@@ -82,7 +82,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
 
-        // check for multi single line statements (Recursion)
+        // check for multi/single line statements (Recursion)
         $multiValue = [];
         if (is_string($value)) {
             $multiValue = explode('|', $value);
@@ -105,7 +105,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $fields = $configuration['fields'];
         $record = $this->remapXMLStructure($record, $fields);
@@ -116,8 +116,6 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * remove array nodes with an config
      *
-     * @param $fieldArray
-     * @param $subConfig
      * @return mixed
      */
     protected function remapXMLStructure($fieldArray, $subConfig)
@@ -125,7 +123,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
         foreach ($subConfig as $configKey => $value) {
             if (is_array($value) && !empty($fieldArray[$configKey]) && !is_array($fieldArray[$configKey])) {
                 $fieldArray[$configKey] = [
-                    '@value' => $fieldArray[$configKey]
+                    '@value' => $fieldArray[$configKey],
                 ];
             }
 
@@ -171,8 +169,6 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
     }
 
     /**
-     * @param $array
-     * @param $value
      * @return array
      */
     protected function mapMapToInArray($array, $value)
@@ -183,8 +179,6 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
     }
 
     /**
-     * @param $array
-     * @param $mapKey
      * @return array
      */
     protected function mapSeparateRow($array, $mapKey)
@@ -199,8 +193,6 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
     }
 
     /**
-     * @param $array
-     * @param $mapKey
      * @return array
      */
     protected function mapValueInArray($array, $mapKey)
@@ -212,8 +204,6 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
     }
 
     /**
-     * @param $array
-     * @param $mapKey
      * @return array
      */
     protected function mapCdataInArray($array, $mapKey)
@@ -221,7 +211,7 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
         if (isset($array[$mapKey]) && !is_array($array[$mapKey])) {
             $array[$mapKey] = [
                 '@value' => $array[$mapKey],
-                '@cdata' => true
+                '@cdata' => true,
             ];
         } elseif (isset($array['@value'])) {
             $array['@cdata'] = true;
@@ -231,8 +221,6 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
     }
 
     /**
-     * @param $array
-     * @param $mapKey
      * @return array
      */
     protected function mapAttributeInArray($array, $mapKey)

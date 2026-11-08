@@ -1,14 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
-use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Service\CacheService;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 
 /***************************************************************
  *  Copyright notice
@@ -29,24 +26,19 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  ***************************************************************/
 class DownloadFileStream extends AbstractFinisher implements FinisherInterface
 {
-    /**
-     *
-     * @param array $configuration
-     * @param array $records
-     * @param array $result
-     * @return bool
-     */
-    public function process(array $configuration, array &$records, &$result): bool
+    /** @noinspection ReferencingObjectsInspection */
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
-        if (is_a($result, TaskResult::class)) {
-            /** @var TaskResult $taskResult */
+        if ($result instanceof TaskResult) {
             $taskResult = $result;
             $tempFile = $taskResult->getInfo();
             $this->prepareFileToDownload($tempFile, $configuration);
         }
+        // we expect $this->prepareFileToDownload to exit if the file was downloaded
+        return false;
     }
 
-    protected function prepareFileToDownload($filePath, $configuration)
+    protected function prepareFileToDownload($filePath, $configuration): void
     {
         if (file_exists($filePath)) {
             $cType = 'application/octet-stream';
@@ -70,7 +62,7 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface
 
             header('Content-Description: File Transfer');
             header('Content-Type: ' . $cType);
-            header('Content-Disposition: attachment; filename="'.  $fileName . $fileExt .'"');
+            header('Content-Disposition: attachment; filename="' . $fileName . $fileExt . '"');
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');

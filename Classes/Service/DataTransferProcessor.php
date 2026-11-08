@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Service;
 
 /***************************************************************
@@ -20,24 +22,21 @@ namespace CPSIT\T3importExport\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
 use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
-use CPSIT\T3importExport\ConfigurableInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
-use CPSIT\T3importExport\LoggingInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class DataTransferProcessor
- *
- * @package CPSIT\T3importExport\Service
  */
 class DataTransferProcessor
 {
@@ -46,22 +45,6 @@ class DataTransferProcessor
      * Records to import
      */
     protected array $queue = [];
-
-    /**
-     * @var PersistenceManager
-     */
-    protected $persistenceManager;
-
-    /**
-     * injects the persistence manager
-     *
-     * @param PersistenceManager $persistenceManager
-     */
-    public function injectPersistenceManager(PersistenceManager $persistenceManager)
-    {
-        $this->persistenceManager = $persistenceManager;
-    }
-
     public function withQueue(array $queue): self
     {
         $this->queue = $queue;
@@ -70,8 +53,6 @@ class DataTransferProcessor
 
     /**
      * gets the queue
-     *
-     * @return array
      */
     public function getQueue(): array
     {
@@ -156,7 +137,6 @@ class DataTransferProcessor
      *
      * @param array $records Processed records
      * @param TransferTask $task Import task
-     * @param TaskResult $result
      */
     protected function processInitializers(&$records, TransferTask $task, TaskResult $result)
     {
@@ -192,8 +172,6 @@ class DataTransferProcessor
      * Pre processes a single record if any preprocessor is configured
      *
      * @param array $record
-     * @param TransferTask $task
-     * @param TaskResult $result
      */
     protected function preProcessSingle(&$record, TransferTask $task, TaskResult $result)
     {
@@ -213,7 +191,6 @@ class DataTransferProcessor
      *
      * @param array $record Record which should be converted
      * @param TransferTask $task Import type
-     * @param TaskResult $result
      * @return mixed The converted object
      */
     protected function convertSingle(array $record, TransferTask $task, TaskResult $result)
@@ -235,10 +212,7 @@ class DataTransferProcessor
     /**
      * Post processes a single record if any post processor is configured
      *
-     * @param mixed $convertedRecord
      * @param array $record
-     * @param TransferTask $task
-     * @param TaskResult $result
      */
     protected function postProcessSingle(mixed &$convertedRecord, &$record, TransferTask $task, TaskResult $result)
     {

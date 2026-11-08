@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 /**
@@ -19,7 +22,6 @@ interface ConfigurationValidatorInterface
     public const KEY_PARENT = 'parent';
 
     /**
-     * @param array $config
      * @return bool Returns true for valid configuration
      */
     public function isValid(array $config): bool;

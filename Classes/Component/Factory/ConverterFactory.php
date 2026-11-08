@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3Fluid\Fluid\Component\ComponentInterface;
 
 /***************************************************************
  *
@@ -38,11 +40,11 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
      * Builds a Converter object
      *
      * @param array $settings
-     * @param string $identifier
-     * @throws InvalidConfigurationException
+     * @param string|null $identifier
      * @return ConverterInterface
+     * @throws InvalidConfigurationException
      */
-    public function get(array $settings = [], $identifier = null): ConverterInterface
+    public function get(array $settings = [], ?string $identifier = null): ConverterInterface
     {
         $additionalInformation = '.';
         if (!is_null($identifier)) {
@@ -64,7 +66,7 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        if (!in_array(ConverterInterface::class, class_implements($className))) {
+        if (!in_array(ConverterInterface::class, class_implements($className), true)) {
             throw new InvalidConfigurationException(
                 'Converter class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement ConverterInterface.',
@@ -72,7 +74,7 @@ class ConverterFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        // note: we want an independend instance for each component
+        // note: we want an independent instance for each component
         return clone GeneralUtility::makeInstance($className);
     }
 }

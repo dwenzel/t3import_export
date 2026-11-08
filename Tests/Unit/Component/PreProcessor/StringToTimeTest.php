@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -20,19 +22,21 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-
 use CPSIT\T3importExport\Component\PreProcessor\StringToTime;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class StringToTimeTest
- * @package CPSIT\T3importExport\Tests\Unit\Component\PreProcessor
  */
 class StringToTimeTest extends TestCase
 {
     protected StringToTime $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new StringToTime();
@@ -40,22 +44,17 @@ class StringToTimeTest extends TestCase
 
     /**
      * Data provider for method isConfigurationValid
-     *
-     * @return array
      */
-    public function isConfigurationValidDataProvider(): array
+    public static function isConfigurationValidDataProvider(): array
     {
         return [
             [['foo'], false],
-            [['fields' => 'foo'], true]
+            [['fields' => 'foo'], true],
         ];
     }
 
-    /**
-     * @dataProvider isConfigurationValidDataProvider
-     * @param array $configuration
-     * @param bool $expectedValue
-     */
+    #[Test]
+    #[DataProvider('isConfigurationValidDataProvider')]
     public function testIsConfigurationValidReturnsCorrectValues(array $configuration, bool $expectedValue): void
     {
         $this->assertSame(
@@ -64,19 +63,20 @@ class StringToTimeTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessConvertsFields(): void
     {
         $configuration = [
-            'fields' => 'foo,bar'
+            'fields' => 'foo,bar',
         ];
         $record = [
-            'foo' => 'now',
-            'baz' => 'boo'
+            'foo' => 'today',
+            'baz' => 'boo',
         ];
         $expectedRecord = [
             'foo' => strtotime($record['foo']),
             'baz' => 'boo',
-            'bar' => null
+            'bar' => null,
         ];
         $this->subject->process($configuration, $record);
         $this->assertSame(
@@ -85,23 +85,21 @@ class StringToTimeTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processConvertsMultipleRowFields(): void
     {
         $configuration = [
             'fields' => 'foo',
-            'multipleRowFields' => 'bar'
+            'multipleRowFields' => 'bar',
         ];
         $record = [
             'bar' => [
-                ['foo' => 'now']
-            ]
+                ['foo' => 'now'],
+            ],
         ];
         $expectedRecord = [
             'bar' => [
-                ['foo' => strtotime($record['bar'][0]['foo'])]
+                ['foo' => strtotime($record['bar'][0]['foo'])],
             ],
             'foo' => null,
         ];

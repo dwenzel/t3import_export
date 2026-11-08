@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
@@ -15,6 +17,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * The TYPO3 project - inspiring people to share!
  */
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -24,10 +27,8 @@ class UnsetEmptyFields extends AbstractPreProcessor implements PreProcessorInter
 {
     /**
      * Tells whether a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         return !(empty($configuration)
@@ -37,13 +38,13 @@ class UnsetEmptyFields extends AbstractPreProcessor implements PreProcessorInter
 
     /**
      * Processes the incoming record according to configuration
-     * Unsets any field which is configured in configuration and empty in record
+     * Unsets any field that is configured in configuration and empty in record
      *
      * @param array $configuration
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $fieldNames = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         foreach ($fieldNames as $fieldName) {

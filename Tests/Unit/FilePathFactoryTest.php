@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Factory;
 
 /**
@@ -16,6 +18,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Factory;
  */
 
 use CPSIT\T3importExport\Factory\FilePathFactory;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,9 +26,8 @@ use PHPUnit\Framework\TestCase;
  */
 class FilePathFactoryTest extends TestCase
 {
-
     /**
-     * @var FilePathFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @var FilePathFactory
      */
     protected $subject;
 
@@ -34,17 +36,15 @@ class FilePathFactoryTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockBuilder(FilePathFactory::class)->setMethods(['dummy'])->getMock();
+        $this->subject = new FilePathFactory();
     }
 
-    /**
-     * @test
-     */
-    public function createFromPartsSanitizesTrailingSlashes()
+    #[Test]
+    public function createFromPartsSanitizesTrailingSlashes(): void
     {
         $parts = [
             'foo/',
-            'bar//'
+            'bar//',
         ];
 
         $expectedPath = 'foo/bar/';

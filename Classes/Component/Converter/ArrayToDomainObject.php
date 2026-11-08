@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Converter;
 
 /***************************************************************
@@ -26,14 +28,13 @@ namespace CPSIT\T3importExport\Component\Converter;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\ObjectManagerTrait;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter;
@@ -64,12 +65,12 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
      */
     protected $mappingConfigurationValidator;
 
-    public function __construct(         PropertyMapper $propertyMapper = null,
-    PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null,
-    TargetClassConfigurationValidator $targetClassConfigurationValidator = null,
-    MappingConfigurationValidator $mappingConfigurationValidator = null
-    )
-    {
+    public function __construct(
+        ?PropertyMapper $propertyMapper = null,
+        ?PropertyMappingConfigurationBuilder $propertyMappingConfigurationBuilder = null,
+        ?TargetClassConfigurationValidator $targetClassConfigurationValidator = null,
+        ?MappingConfigurationValidator $mappingConfigurationValidator = null
+    ) {
         $this->propertyMapper = $propertyMapper ?? GeneralUtility::makeInstance(PropertyMapper::class);
         $this->propertyMappingConfigurationBuilder = $propertyMappingConfigurationBuilder ??
             GeneralUtility::makeInstance(PropertyMappingConfigurationBuilder::class);
@@ -81,12 +82,8 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
 
     /**
      * Converts the record
-     *
-     * @param array $configuration
-     * @param array $record
-     * @return DomainObjectInterface
      */
-    public function convert(array $record, array $configuration)
+    public function convert(array &$record, array $configuration): mixed
     {
         $mappingConfiguration = $configuration;
         unset($mappingConfiguration['targetClass']);
@@ -119,9 +116,6 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
         return $propertyMappingConfiguration;
     }
 
-    /**
-     * @param PropertyMappingConfiguration $propertyMappingConfiguration
-     */
     public function setPropertyMappingConfiguration(PropertyMappingConfiguration $propertyMappingConfiguration): void
     {
         $this->propertyMappingConfiguration = $propertyMappingConfiguration;
@@ -140,7 +134,7 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
             PersistentObjectConverter::class,
             [
                 PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED => true,
-                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true
+                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED => true,
             ]
         )->skipUnknownProperties();
 
@@ -148,16 +142,15 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     }
 
     /**
-     * @param array $configuration
      * @throws InvalidConfigurationException
      * @throws MissingClassException
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
-        return (
+        return
             $this->targetClassConfigurationValidator->isValid($configuration)
             && $this->mappingConfigurationValidator->isValid($configuration)
-        );
+        ;
     }
 }

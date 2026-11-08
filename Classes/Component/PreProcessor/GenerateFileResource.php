@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
@@ -17,16 +19,15 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\LoggingInterface;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
-use TYPO3\CMS\Core\Resource\ResourceStorage;
-use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
@@ -45,19 +46,29 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  * the record. Fields with single file references and object
  * storage of file references are handled.
  */
-class GenerateFileResource extends AbstractPreProcessor implements PreProcessorInterface
+class GenerateFileResource extends AbstractPreProcessor implements PreProcessorInterface, LoggingInterface
 {
-    use FileIndexRepositoryTrait, GenerateFileTrait, ResourceTrait;
+    use FileIndexRepositoryTrait;
+    use GenerateFileTrait;
+    use ResourceTrait;
 
-    protected ResourceStorageInterface $resourceStorage;
-
+    public const array ERROR_CODES = [
+        1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
+        1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
+        1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
+        1_497_427_335 => ['Missing field name', 'config[\'sourceField\'] must be set'],
+        1_497_427_336 => ['Missing field name', 'config[\'targetField\'] must be set'],
+        1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
+        1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.'],
+    ];
     public function __construct(
         protected FileIndexRepository $fileIndexRepository,
         protected FilePathFactory $filePathFactory,
-        protected MessageContainer $messageContainer
-    )
-    {
-    }
+        /**
+         * @todo temporarily disabled, because of dependency injection issues
+         */
+        //protected MessageContainer $messageContainer
+    ) {}
 
     /**
      * Get File object

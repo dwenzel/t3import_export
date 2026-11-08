@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Factory;
 
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\ComponentInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Exception\InvalidClassException;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Component\Factory\ConverterFactory;
 use CPSIT\T3importExport\Component\Factory\FinisherFactory;
 use CPSIT\T3importExport\Component\Factory\InitializerFactory;
 use CPSIT\T3importExport\Component\Factory\NullComponentFactory;
 use CPSIT\T3importExport\Component\Factory\PostProcessorFactory;
 use CPSIT\T3importExport\Component\Factory\PreProcessorFactory;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\Component\Initializer\InitializerInterface;
-use CPSIT\T3importExport\Component\PostProcessor\PostProcessorInterface;
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\Exception\InvalidClassException;
-use CPSIT\T3importExport\Component\ComponentInterface;
-use CPSIT\T3importExport\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataSourceFactory;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
 
@@ -44,9 +46,9 @@ use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
  */
 class ComponentFactoryMap implements FactoryMapInterface
 {
-    final public const INVALID_CLASS_MESSAGE = 'Cannot resolve factory for product class "%s". Product must implement "%s"!';
-    final public const INVALID_CLASS_CODE = 1_643_977_630;
-    final public const FACTORY_MAP = [
+    final public const string INVALID_CLASS_MESSAGE = 'Cannot resolve factory for product class "%s". Product must implement "%s"!';
+    final public const int INVALID_CLASS_CODE = 1_643_977_630;
+    final public const array FACTORY_MAP = [
         ConverterInterface::class => ConverterFactory::class,
         DataSourceInterface::class => DataSourceFactory::class,
         DataTargetInterface::class => DataTargetFactory::class,
@@ -62,7 +64,7 @@ class ComponentFactoryMap implements FactoryMapInterface
     public function resolve(string $productClass): string
     {
         $factoryClass = NullComponentFactory::class;
-        if (!in_array(ComponentInterface::class, class_implements($productClass))) {
+        if (!in_array(ComponentInterface::class, class_implements($productClass), true)) {
             $message = sprintf(self::INVALID_CLASS_MESSAGE, $productClass, ComponentInterface::class);
             throw new InvalidClassException(
                 $message,
@@ -70,8 +72,7 @@ class ComponentFactoryMap implements FactoryMapInterface
             );
         }
 
-        if(array_key_exists($productClass, static::FACTORY_MAP))
-        {
+        if (array_key_exists($productClass, static::FACTORY_MAP)) {
             $factoryClass = static::FACTORY_MAP[$productClass];
         }
 

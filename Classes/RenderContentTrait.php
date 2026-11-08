@@ -1,58 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport;
 
-use TYPO3\CMS\Core\Http\ServerRequestFactory;
-use TYPO3\CMS\Core\Site\Entity\NullSite;
-use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
-use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Routing\PageArguments;
-use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\AbstractContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Class RenderContentTrait
- *
- * @package CPSIT\T3importExport
  */
 trait RenderContentTrait
 {
+    private ?ContentObjectRenderer $contentObjectRenderer;
+    private ?TypoScriptService $typoScriptService;
+
     /**
      * Get a ContentObjectRenderer
      */
     public function getContentObjectRenderer(): ContentObjectRenderer
     {
-        if(!$this->contentObjectRenderer instanceof ContentObjectRenderer)
-        {
-            $this->assertTypoScriptFrontendController();
-            $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-        }
+        $this->assertTypoScriptFrontendController();
+        $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
 
         return $this->contentObjectRenderer;
     }
 
-
     public function getTypoScriptService(): TypoScriptService
     {
-        if (!$this->typoScriptService instanceof TypoScriptService)
-        {
-            $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
-        }
-
+        $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
         return $this->typoScriptService;
     }
+
     /**
      * Renders content using TypoScript objects
      * @param array $record Optional data array
@@ -60,7 +52,7 @@ trait RenderContentTrait
      * @return mixed|null Returns rendered content for each valid TypoScript object or null.
      * @throws ContentRenderingException
      */
-    public function renderContent(array $record, array $configuration)
+    public function renderContent(array $record, array $configuration): mixed
     {
         $typoScriptConf = $this->getTypoScriptService()
             ->convertPlainArrayToTypoScriptArray($configuration);
@@ -129,7 +121,6 @@ trait RenderContentTrait
             );
 
             $GLOBALS['TYPO3_REQUEST'] = $originalRequest;
-
         }
     }
 }

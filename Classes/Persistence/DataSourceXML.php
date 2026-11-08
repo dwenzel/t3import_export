@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
 /**
@@ -15,9 +17,10 @@ namespace CPSIT\T3importExport\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\IdentifiableTrait;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -26,13 +29,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class DataSourceXML implements DataSourceInterface, ConfigurableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait, ResourceTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
+    use ResourceTrait;
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -73,7 +75,7 @@ class DataSourceXML implements DataSourceInterface, ConfigurableInterface
      * @param array $configuration Source query configuration
      * @return array Array of records or empty array
      */
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): iterable
     {
         $records = [];
 

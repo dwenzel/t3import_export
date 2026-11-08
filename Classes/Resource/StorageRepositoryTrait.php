@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Resource;
 
 /**
@@ -25,12 +27,10 @@ trait StorageRepositoryTrait
     /**
      * @var StorageRepository
      */
-    protected $storageRepository;
+    protected StorageRepository $storageRepository;
 
     /**
      * Injects the resourceStorage repository
-     *
-     * @param StorageRepository $storageRepository
      */
     public function injectStorageRepository(StorageRepository $storageRepository): void
     {

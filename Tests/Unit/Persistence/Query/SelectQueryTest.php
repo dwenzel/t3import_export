@@ -1,12 +1,18 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Query;
 
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Persistence\Query\QueryInterface;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
+use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 /***************************************************************
@@ -28,14 +34,11 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class SelectQueryTest extends TestCase
 {
-    use MockDatabaseTrait;
-
     protected SelectQuery $subject;
-
-    /**
-     * @var QueryBuilder|MockObject
-     */
-    protected QueryBuilder $builder;
+    protected ConnectionPool|MockObject $connectionPool;
+    protected Connection|MockObject $connection;
+    protected DatabaseConnectionService|MockObject $connectionService;
+    protected QueryBuilder|MockObject $builder;
 
     protected function setUp(): void
     {
@@ -47,22 +50,42 @@ class SelectQueryTest extends TestCase
             'orderBy',
             'addOrderBy',
             'setMaxResults',
-            'limit',
+            'getRestrictions',
+            // 'limit' method was removed from QueryBuilder
         ];
 
         $this->builder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
-            ->setMethods($fluidBuilderMethods)
+            ->onlyMethods($fluidBuilderMethods)
             ->getMock();
 
-        $this->mockConnectionService();
+        // Create restrictions mock to handle getRestrictions()->removeAll()
+        $restrictions = $this->createMock(\TYPO3\CMS\Core\Database\Query\Restriction\QueryRestrictionContainerInterface::class);
+        $restrictions->method('removeAll')->willReturnSelf();
+        
+        $this->builder->method('getRestrictions')->willReturn($restrictions);
+
+        // Create connection mock
+        $this->connection = $this->createMock(Connection::class);
         $this->connection->method('createQueryBuilder')->willReturn($this->builder);
+
+        // Create connection pool mock
+        $this->connectionPool = $this->createMock(ConnectionPool::class);
+        $this->connectionPool->method('getConnectionForTable')
+            ->willReturn($this->connection);
+
+        // Create connection service mock
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
+        $this->connectionService->method('getDatabase')->willReturn($this->connection);
+
         $this->subject = new SelectQuery($this->connectionPool, $this->connectionService);
+
         foreach ($fluidBuilderMethods as $method) {
-            $this->builder->method($method)->willReturn($this->builder);
+            if ($method !== 'getRestrictions') {
+                $this->builder->method($method)->willReturn($this->builder);
+            }
         }
     }
-
 
     /**
      * valid config:
@@ -77,16 +100,17 @@ class SelectQueryTest extends TestCase
      *
      * @return array[]
       */
-    public function configurationDataProvider(): array
+    public static function configurationDataProvider(): array
     {
         return [
             'where' => [['table' => 'foo', 'where' => 'bar'], 'where', 'bar'],
             'limit' => [['table' => 'foo', 'limit' => '2'], 'setMaxResults', 2],
             'orderBy' => [['table' => 'foo', 'orderBy' => 'moo'], 'addOrderBy', 'moo'],
-            'groupBy' => [['table' => 'foo', 'groupBy' => 'foo'], 'groupBy', 'foo']
+            'groupBy' => [['table' => 'foo', 'groupBy' => 'foo'], 'groupBy', 'foo'],
         ];
     }
 
+    #[Test]
     public function testWithConfigurationThrowsExceptionForMissingTable(): void
     {
         $missingFieldName = QueryInterface::TABLE;
@@ -99,13 +123,9 @@ class SelectQueryTest extends TestCase
 
         $this->subject->withConfiguration($config);
     }
-    /**
-     * @param array $config
-     * @param string $expectedMethod
-     * @param $expectedValue
-     * @dataProvider configurationDataProvider
-     * @throws InvalidConfigurationException
-     */
+
+    #[Test]
+    #[DataProvider('configurationDataProvider')]
     public function testWithConfigurationConfiguresQueryBuilder(array $config, string $expectedMethod, $expectedValue): void
     {
         $this->connectionPool->expects($this->once())

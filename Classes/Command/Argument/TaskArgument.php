@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Command\Argument;
 
 use DWenzel\T3extensionTools\Command\Argument\InputArgumentInterface;
@@ -26,10 +28,10 @@ class TaskArgument implements InputArgumentInterface
 {
     use InputArgumentTrait;
 
-    final public const NAME = 'task';
-    final public const HELP = 'identifier of task to process';
-    final public const MODE = InputArgument::REQUIRED;
-    final public const DESCRIPTION = 'task identifier';
-    final public const SHORTCUT = 't';
-    final public const DEFAULT = null;
+    final public const string NAME = 'task';
+    final public const string HELP = 'identifier of task to process';
+    final public const int MODE = InputArgument::REQUIRED;
+    final public const string DESCRIPTION = 'task identifier';
+    final public const string SHORTCUT = 't';
+    final public const null DEFAULT = null;
 }

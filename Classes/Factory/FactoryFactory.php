@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Factory;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -24,7 +26,7 @@ class FactoryFactory
 {
     protected FactoryMapInterface $factoryMap;
 
-    public function __construct(FactoryMapInterface $factoryMap = null)
+    public function __construct(?FactoryMapInterface $factoryMap = null)
     {
         $this->factoryMap = $factoryMap ?? GeneralUtility::makeInstance(ComponentFactoryMap::class);
     }
@@ -33,7 +35,6 @@ class FactoryFactory
      * Returns a factory able to provide an instance of a product
      *
      * @param string $productClass Product
-     * @return FactoryInterface
      */
     public function get(string $productClass): FactoryInterface
     {

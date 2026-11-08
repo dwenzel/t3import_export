@@ -10,18 +10,18 @@ Truncates (empties) database tables.
 * **class** fully qualified class name, i.e. *CPSIT\T3importExport\Component\Initializer\TruncateTables*
 * **config.tables** comma separated list of table names
     All tables will be truncated.
-    
+
 ### optional
 * **config.disable** *boolean*
 
-    If the value is 1, the initializer will not be called. 
+    If the value is 1, the initializer will not be called.
     If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering
-    will be interpreted as boolean. 
-* **identifier** *string* 
+    will be interpreted as boolean.
+* **identifier** *string*
 
-    Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md) 
+    Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md)
     If not set the default TYPO3 database will be used.
-    
+
 ### Example
 ```
 module.tx_t3importexport.settings.import.tasks.exampleTask.initializers {

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
-use CPSIT\T3importExport\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
 use CPSIT\T3importExport\Component\Factory\ConverterFactory;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -37,8 +39,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class DummyInvalidConverter
  * Does not implement ConverterInterface
- *
- * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidConverter
 {
@@ -46,17 +46,10 @@ class DummyInvalidConverter
 
 /**
  * Class DummyValidConverter
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidConverter extends AbstractConverter implements ConverterInterface
 {
-    /**
-     * @param array $configuration
-     * @param array $record
-     * @return bool
-     */
-    public function convert(array $record, array $configuration): bool
+    public function convert(array &$record, array $configuration): mixed
     {
         return true;
     }
@@ -64,21 +57,11 @@ class DummyValidConverter extends AbstractConverter implements ConverterInterfac
 
 /**
  * Class ConverterFactoryTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class ConverterFactoryTest extends TestCase
 {
-
-    /**
-     * @var ConverterFactory
-     */
     protected ConverterFactory $subject;
 
-    /**
-     *
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     */
     protected function setUp(): void
     {
         $this->subject = new ConverterFactory();
@@ -98,7 +81,7 @@ class ConverterFactoryTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_451_566_699);
         $configurationWithNonExistingClass = [
-            'class' => 'NonExistingClass'
+            'class' => 'NonExistingClass',
         ];
         $this->subject->get(
             $configurationWithNonExistingClass
@@ -108,7 +91,7 @@ class ConverterFactoryTest extends TestCase
     public function testGetThrowsExceptionIfClassDoesNotImplementConverterInterface(): void
     {
         $configurationWithExistingClass = [
-            'class' => DummyInvalidConverter::class
+            'class' => DummyInvalidConverter::class,
         ];
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_451_566_706);
@@ -124,7 +107,7 @@ class ConverterFactoryTest extends TestCase
         $settings = [
             'class' => $validClass,
         ];
-        $converter = new $validClass;
+        $converter = new $validClass();
         $this->assertInstanceOf(
             $converter::class,
             $this->subject->get($settings, $identifier)

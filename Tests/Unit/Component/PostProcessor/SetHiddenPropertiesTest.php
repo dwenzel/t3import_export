@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 
 use CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties;
-use CPSIT\T3importExport\Tests\Unit\Fixtures\DummyDomainObject;
+use PHPUnit\Framework\Attributes\Covers;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
@@ -27,15 +30,17 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+class DummyDomainObject extends AbstractDomainObject
+{
+}
+
 /**
  * Class SetHiddenPropertiesTest
  *
- * @package CPSIT\T3importExport\Tests\Service\PostProcessor
  * @coversDefaultClass \CPSIT\T3importExport\Component\PostProcessor\SetHiddenProperties
  */
 class SetHiddenPropertiesTest extends TestCase
 {
-
     protected SetHiddenProperties $subject;
 
     /**
@@ -45,13 +50,13 @@ class SetHiddenPropertiesTest extends TestCase
 
     protected function setUp(): void
     {
+        //$this->markTestSkipped('DummyDomainObject class not found due to autoloading issues in PHPUnit 12');
+
         $this->subject = new SetHiddenProperties();
         $this->domainObject = new DummyDomainObject();
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
@@ -60,120 +65,113 @@ class SetHiddenPropertiesTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
-            'fields' => 'foo'
+            'fields' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfFieldValueIsNotString(): void
     {
         $config = [
             'fields' => [
-                'foo' => 0
-            ]
+                'foo' => 0,
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfFieldValueIsEmpty(): void
     {
         $config = [
             'fields' => [
-                'foo' => ''
-            ]
+                'foo' => '',
+            ],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
             'fields' => [
                 'foo' => 'bar',
                 'baz' => 1,
-                'fooBar' => ['baz']
-            ]
+                'fooBar' => ['baz'],
+            ],
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($config)
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfChildrenIsNotArray(): void
     {
         $config = [
             'fields' => [
                 'foo' => 'bar',
             ],
-            'children' => 'foo'
+            'children' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($config)
         );
     }
 
+    #[Test]
     public function testProcessSetsExistingHiddenField(): void
     {
         $domainObject = new DummyDomainObject();
         $fieldName = 'languageUid';
         $config = [
             'fields' => [
-                'languageUid' => 1
+                'languageUid' => 1,
             ],
         ];
         $record = [
-            $fieldName => 1
+            $fieldName => 1,
         ];
         $this->subject->process($config, $domainObject, $record);
 
         $this->assertSame(
-            $domainObject->_getProperty('_' . $fieldName), $record[$fieldName]
+            $domainObject->_getProperty('_' . $fieldName),
+            $record[$fieldName]
         );
     }
 
+    #[Test]
     public function testProcessSetsPropertiesRecursive(): void
     {
         $domainObject = $this->getMockBuilder(DummyDomainObject::class)
-            ->setMethods(['_hasProperty', '_getProperty'])
+            ->onlyMethods(['_hasProperty', '_getProperty'])
             ->getMock();
         $childObject = $this->getMockBuilder(DummyDomainObject::class)
-            ->setMethods(['_hasProperty', '_getProperty'])
+            ->onlyMethods(['_hasProperty', '_getProperty'])
             ->getMock();
         $fieldName = 'languageUid';
         $config = [
             'fields' => [
-                'languageUid' => 1
+                'languageUid' => 1,
             ],
             'children' => [
-                'fooField' => 1
-            ]
+                'fooField' => 1,
+            ],
         ];
         $record = [
-            $fieldName => 1
+            $fieldName => 1,
         ];
         $domainObject->expects($this->atLeastOnce())
             ->method('_hasProperty')
@@ -189,6 +187,4 @@ class SetHiddenPropertiesTest extends TestCase
 
         $this->subject->process($config, $domainObject, $record);
     }
-
-
 }

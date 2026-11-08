@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -21,6 +23,8 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+
 /**
  * Dummy data target - does not persist anything
  */
@@ -30,23 +34,17 @@ class DataTargetDummy implements DataTargetInterface
      * Dummy method to make component compatible wit DataTargetInterface
      *
      * @param array|DomainObjectInterface $object
-     * @param array|null $configuration
      * @return bool|mixed
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
         return true;
     }
-
 
     /**
      * Dummy method to make component compatible wit DataTargetInterface
      *
      * @param null $result
-     * @param array|null $configuration
-     * @return void
      */
-    public function persistAll($result = null, array $configuration = null)
-    {
-    }
+    public function persistAll($result = null, ?array $configuration = null) {}
 }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -18,22 +21,21 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
      *  GNU General Public License for more details.
      *  This copyright notice MUST APPEAR in all copies of the script!
      ***************************************************************/
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 /**
  * Class MapFieldValues
  * Maps matching values in incoming record to new values from
  * configuration
- *
- * @package CPSIT\T3importExport\Component\PreProcessor
  */
 class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * Tells whether the configuration is valid
      * $configuration['fields'] must be an array with keys indicating
-     * field names in record.
+     * field names in the record.
      * Each field configuration must contain a targetField and
-     * an a field 'values' which holds an array of <oldValue> = <newValue> pairs.
+     * a field 'values' which holds an array of <oldValue> = <newValue> pairs.
      * Example:
      * config {
      *  fields {
@@ -47,10 +49,8 @@ class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterfa
      *  }
      * Value of barField will be set to bazValue if fooField
      * contains bazValue.
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -83,9 +83,9 @@ class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterfa
      *
      * @param array $configuration
      * @param array $record
-     * @return TRUE
+     * @return true
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $fieldName => $localConfig) {

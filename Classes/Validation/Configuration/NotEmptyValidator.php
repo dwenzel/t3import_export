@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -24,8 +26,8 @@ class NotEmptyValidator implements ConfigurationValidatorInterface
 {
     use ArrayAccessTrait;
 
-    final public const DEFAULT_DELIMITER = '/';
-    final public const DEFAULT_PATH = '';
+    final public const string DEFAULT_DELIMITER = '/';
+    final public const string DEFAULT_PATH = '';
 
     /**
      * @inheritDoc
@@ -36,9 +38,11 @@ class NotEmptyValidator implements ConfigurationValidatorInterface
 
         if (!empty($this->path)) {
             $value = ArrayUtility::getValueByPath(
-                $config, $this->path, $this->delimiter
+                $config,
+                $this->path,
+                $this->delimiter
             );
         }
-        return (!empty($value));
+        return !empty($value);
     }
 }

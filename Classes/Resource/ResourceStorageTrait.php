@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Resource;
 
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -26,18 +28,18 @@ trait ResourceStorageTrait
 {
     use StorageRepositoryTrait;
 
+    protected ResourceStorage|ResourceStorageInterface|null $resourceStorage = null;
     /**
      * Initializes the resource resourceStorage
      *
      * @param array $configuration
      */
-    public function initializeStorage($configuration)
+    public function initializeStorage(array $configuration): void
     {
         $this->resourceStorage = $this->storageRepository->findByUid($configuration['storageId']);
     }
 
     /**
-     * @param ResourceStorageInterface $resourceStorage
      * @return $this
      * @deprecated Inject dependency via constructor instead
      */

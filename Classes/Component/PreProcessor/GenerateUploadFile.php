@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /**
@@ -14,6 +16,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 
 /**
@@ -23,7 +26,17 @@ use CPSIT\T3importExport\Resource\ResourceTrait;
  */
 class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInterface
 {
-    use GenerateFileTrait, ResourceTrait;
+    use GenerateFileTrait;
+    use ResourceTrait;
+    public const array ERROR_CODES = [
+        1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
+        1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
+        1_497_427_320 => ['Missing target directory ', 'config[\'targetDirectoryPath\` must be set'],
+        1_497_427_335 => ['Missing field name', 'config[\'sourceField\'] must be set'],
+        1_497_427_336 => ['Missing field name', 'config[\'targetField\'] must be set'],
+        1_497_427_346 => ['Invalid storage', 'Could not find storage with id %s given in $config[\'storageId\']'],
+        1_497_427_363 => ['Missing directory', 'Directory %s given in $config[\'basePath\'] and $config[\'targetDirectory\'] does not exist.'],
+    ];
 
     /**
      * Generates a file path for a TYPO3 upload file field

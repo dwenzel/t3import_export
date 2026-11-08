@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /***************************************************************
  *  Copyright notice
  *  (c) 2015 Dirk Wenzel <dirk.wenzel@cps-it.de>
@@ -20,28 +22,26 @@
 
 namespace CPSIT\T3importExport\Command;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Argument\TaskArgument;
 use CPSIT\T3importExport\Controller\ImportController;
-use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Command\Status;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * Provides import set commands for cli and scheduler tasks
@@ -53,57 +53,50 @@ use Symfony\Component\Console\Attribute\AsCommand;
 )]
 class ImportTaskCommand extends Command implements ArgumentAwareInterface
 {
-    use ConfigureTrait,
-        InitializeTrait,
-        ArgumentAwareTrait,
-        TransferCommandTrait;
+    use ConfigureTrait;
+    use InitializeTrait;
+    use ArgumentAwareTrait;
+    use TransferCommandTrait;
 
     /**
      * Key under which configuration are found in
      * Framework configuration.
      * This should match the key for the ImportController
      */
-    final public const SETTINGS_KEY = ImportController::SETTINGS_KEY;
+    final public const string SETTINGS_KEY = ImportController::SETTINGS_KEY;
 
-    final public const DEFAULT_NAME = 't3import-export:import-task';
-    final public const COMMAND_ALIASES = ['import:task'];
-    final public const MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined import task.';
-    final public const MESSAGE_HELP_COMMAND = '@todo: help command';
-    final public const MESSAGE_SUCCESS = 'Import task successfully processed';
-    final public const MESSAGE_STARTING = 'Starting import task';
-    final public const WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
-    final public const WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
+    final public const string DEFAULT_NAME = 't3import-export:import-task';
+    final public const array COMMAND_ALIASES = ['import:task'];
+    final public const string MESSAGE_DESCRIPTION_COMMAND = 'Performs pre-defined import task.';
+    final public const string MESSAGE_HELP_COMMAND = '@todo: help command';
+    final public const string MESSAGE_SUCCESS = 'Import task successfully processed';
+    final public const string MESSAGE_STARTING = 'Starting import task';
+    final public const string WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
+    final public const string WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
     protected const OPTIONS = [];
     protected const ARGUMENTS = [
-        TaskArgument::class
+        TaskArgument::class,
     ];
 
-    static protected $optionsToConfigure = self::OPTIONS;
-    static protected $argumentsToConfigure = self::ARGUMENTS;
+    protected static $optionsToConfigure = self::OPTIONS;
+    protected static $argumentsToConfigure = self::ARGUMENTS;
     /**
      * @var string
      */
     protected static $defaultName = self::DEFAULT_NAME;
-    protected TransferTaskFactory $transferTaskFactory;
 
     /**
-     * TransferCommandTrait constructor.
      * @param string|null $name
-     * @param TransferTaskFactory|null $transferTaskFactory
-     * @param TransferSetFactory|null $transferSetFactory
-     * @param DataTransferProcessor|null $dataTransferProcessor
+     * @param TransferTaskFactory $transferTaskFactory
+     * @param DataTransferProcessor $dataTransferProcessor
+     * @param ConfigurationHandlerInterface $configurationHandler
      */
     public function __construct(
-        string $name = null,
-        TransferTaskFactory $transferTaskFactory = null,
-        DataTransferProcessor $dataTransferProcessor = null,
-        ConfigurationManagerInterface $configurationManager = null
-    )
-    {
-        $this->transferTaskFactory = $transferTaskFactory ?? GeneralUtility::makeInstance(TransferTaskFactory::class);
-        $this->dataTransferProcessor = $dataTransferProcessor ?? GeneralUtility::makeInstance(DataTransferProcessor::class);
-        $this->configurationManager = $configurationManager ?? GeneralUtility::makeInstance(ConfigurationManager::class);
-        parent::__construct($name);
+        private readonly TransferTaskFactory $transferTaskFactory,
+        private readonly DataTransferProcessor $dataTransferProcessor,
+        private readonly ConfigurationHandlerInterface $configurationHandler
+    ) {
+        parent::__construct(self::$defaultName);
         $this->initializeObject();
     }
 
@@ -115,7 +108,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
         $status = $this->assertValidIdentifier($identifier);
 
-        if(empty($this->settings['tasks'][$identifier])) {
+        if (empty($this->settings['tasks'][$identifier])) {
             $this->io->warning(
                 sprintf(self::WARNING_MISSING_CONFIGURATION, $identifier)
             );
@@ -138,13 +131,11 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         return $status;
     }
 
-
     /**
      * Processes predefined import sets
      *
      * @param string $identifier Identifier of set which should be processed
      * @param bool $dryRun If set nothing will be saved
-     * @return void
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException
@@ -161,7 +152,8 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
             $taskSettings = $this->settings['tasks'][$identifier];
 
             $task = $this->transferTaskFactory->get(
-                $taskSettings, $identifier
+                $taskSettings,
+                $identifier
             );
 
             $taskDemand->setTasks([$task]);
@@ -174,9 +166,6 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
         return $status;
     }
 
-    /**
-     * @param string $identifier
-     */
     protected function assertValidIdentifier(string $identifier): int
     {
         $status = Status::success();
@@ -193,5 +182,4 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
 
         return $status;
     }
-
 }

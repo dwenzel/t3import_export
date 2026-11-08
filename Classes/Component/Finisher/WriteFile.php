@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Finisher;
 
 /***************************************************************
@@ -19,13 +21,14 @@ namespace CPSIT\T3importExport\Component\Finisher;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -40,41 +43,37 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
     /**
      * cancel file operation
      */
-    final public const CONFLICT_MODE_CANCEL = 'cancel';
+    final public const string CONFLICT_MODE_CANCEL = 'cancel';
     /**
-     * change name of new file according to TYPO3 conventions
+     * Change name of a new file according to TYPO3 conventions
      */
-    final public const CONFLICT_MODE_CHANGENAME = 'changeName';
+    final public const string CONFLICT_MODE_CHANGENAME = 'changeName';
     /**
      * replace existing file
      */
-    final public const CONFLICT_MODE_REPLACE = 'replace';
+    final public const string CONFLICT_MODE_REPLACE = 'replace';
     /**
      * Valid values for conflict modes (for file operations)
      */
-    final public const CONFLICT_MODES = [
+    final public const array CONFLICT_MODES = [
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_CHANGENAME,
-        self::CONFLICT_MODE_REPLACE
+        self::CONFLICT_MODE_REPLACE,
     ];
     protected ResourceFactory $resourceFactory;
 
     /**
      * WriteFile constructor.
-     * @param ResourceFactory|null $resourceFactory
      */
-    public function __construct(ResourceFactory $resourceFactory = null)
+    public function __construct(?ResourceFactory $resourceFactory = null)
     {
         $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
     }
 
-
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (
@@ -107,24 +106,29 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
 
     /**
      * Process the result:
-     * write file from fileInfo field of
+     * Write the file from the fileInfo field of
      * TaskResult object to a configured storage/folder/file name
      * If no storage or folder is configured, the file is written
      * to the default folder in the default storage.
-     * If a file with target file name already exists the conflictMode
+     * If a file with this target file name already exists, the conflictMode
      * determines the result: cancel, rename, replace are allowed.
-     * Default is rename (according to TYPO3 conventions)
+     * Default is 'rename' (according to TYPO3 conventions)
+     *
      * @param array $configuration
      * @param array $records
-     * @param array|TaskResult $result
+     * @param object|array $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
+     * @throws ExistingTargetFileNameException
+     * @throws ExistingTargetFolderException
      * @throws InsufficientFolderAccessPermissionsException
-     * @throws ExistingTargetFolderException|ExistingTargetFileNameException
+     * @throws InsufficientFolderWritePermissionsException
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         if (
-        !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)
+            !($result instanceof TaskResult && $result->getInfo() instanceof FileInfo)
         ) {
             return false;
         }
@@ -137,14 +141,28 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
         } else {
             $storage = $this->resourceFactory->getDefaultStorage();
         }
-        $folder = $storage->getDefaultFolder();
-        if (isset($configuration['target']['directory'])) {
+        if (!$storage->isOnline()) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Storage %d "%s" is offline, cannot write file "%s". Check the base path of the storage.',
+                    $storage->getUid(),
+                    $storage->getName(),
+                    $configuration['target']['name']
+                ),
+                1762171200
+            );
+        }
+        // The default folder is only accessed if no directory is configured:
+        // a storage does not need to have one (e.g. no user_upload folder).
+        if (!empty($configuration['target']['directory'])) {
             $targetDirectory = $configuration['target']['directory'];
             if (!$storage->hasFolder($targetDirectory)) {
                 $folder = $storage->createFolder($targetDirectory);
             } else {
                 $folder = $storage->getFolder($targetDirectory);
             }
+        } else {
+            $folder = $storage->getDefaultFolder();
         }
 
         $conflictMode = self::CONFLICT_MODE_CHANGENAME;

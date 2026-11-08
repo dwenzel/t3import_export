@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /***************************************************************
@@ -34,15 +36,12 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
 {
     use ConfigurableTrait;
 
-    final public const KEY_IDENTIFIER = 'identifier';
-    final public const KEY_BATCH_SIZE = 'batchSize';
-    final public const DEFAULT_BATCH_SIZE = 10;
+    final public const string KEY_IDENTIFIER = 'identifier';
+    final public const string KEY_BATCH_SIZE = 'batchSize';
+    final public const int DEFAULT_BATCH_SIZE = 10;
     protected string $targetClass = QueueItem::class;
 
-
-    public function __construct(protected QueueItemRepository $repository)
-    {
-    }
+    public function __construct(protected QueueItemRepository $repository) {}
 
     public function isConfigurationValid(array $configuration): bool
     {
@@ -66,7 +65,7 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
         return true;
     }
 
-    public function getRecords(array $configuration)
+    public function getRecords(array $configuration): iterable
     {
         $identifier = $configuration[self::KEY_IDENTIFIER];
         $limit = static::DEFAULT_BATCH_SIZE;

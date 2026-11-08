@@ -1,11 +1,15 @@
-<?php /** @noinspection PhpComposerExtensionStubsInspection */
+<?php
+
+declare(strict_types=1);
+/** @noinspection PhpComposerExtensionStubsInspection */
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\T3importExport\Component\Finisher\ValidateXML;
-use CPSIT\T3importExport\Messaging\Message;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
+use CPSIT\ImportExportCore\Messaging\Message;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use XMLReader;
@@ -33,8 +37,6 @@ use XMLReader;
  */
 class ValidateXMLTest extends TestCase
 {
-    use MockMessageContainerTrait;
-
     /**
      * @var ValidateXML|MockObject
      */
@@ -46,29 +48,37 @@ class ValidateXMLTest extends TestCase
     protected $pathValidator;
 
     /**
-     * @var XMLReader|MockObject
+     * @var \XMLReader|MockObject
      */
     protected $xmlReader;
 
     /**
+     * @var MessageContainer|MockObject
+     */
+    protected $messageContainer;
+
+    /**
      * Set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
-        $this->mockMessageContainer();
+        $this->messageContainer = $this->createMock(MessageContainer::class);
+
         $this->pathValidator = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->setMethods(['isValid'])->getMock();
-        $this->xmlReader = $this->getMockBuilder(XMLReader::class)
-            ->setMethods(
+            ->onlyMethods(['isValid'])->getMock();
+
+        $this->xmlReader = $this->getMockBuilder(\XMLReader::class)
+            ->onlyMethods(
                 [
                     'setParserProperty',
                     'isValid',
                     'setSchema',
                     'read',
-                    'close'
-                ])
+                    'close',
+                ]
+            )
             ->getMock();
+
         $this->subject = new ValidateXML($this->xmlReader, $this->pathValidator, $this->messageContainer);
     }
 
@@ -90,30 +100,24 @@ class ValidateXMLTest extends TestCase
 
     /**
      * Invalid configuration data provider
-     * @return array
      */
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'schema file: must not be array' => [
                 [
                     'target' => [
                         'file' => 'foo',
-                        'schema' => []
-                    ]
+                        'schema' => [],
+                    ],
                 ],
                 1_508_774_170,
-                ['array']
-            ]
+                ['array'],
+            ],
         ];
     }
 
-    /**
-     * @dataProvider invalidConfigurationDataProvider
-     * @param array $configuration
-     * @param int $error
-     * @param array $arguments
-     */
+    #[DataProvider('invalidConfigurationDataProvider')]
     public function testIsConfigurationForInvalidConfigurationReturnsFalse(array $configuration, int $error, array $arguments): void
     {
         $message = $this->getMockBuilder(Message::class)
@@ -145,9 +149,8 @@ class ValidateXMLTest extends TestCase
 
     /**
      * Valid configuration data provider
-     * @return array
      */
-    public function validConfigurationDataProvider(): array
+    public static function validConfigurationDataProvider(): array
     {
         return [
             // file configuration omitted - is handled by
@@ -155,15 +158,13 @@ class ValidateXMLTest extends TestCase
                 [
                     'schema' => 'http://typo3.org',
 
-                ]
+                ],
             ],
         ];
     }
 
-    /**
-     * @dataProvider validConfigurationDataProvider
-     */
-    public function testIsConfigurationValidReturnsTrueForValidConfiguration($configuration): void
+    #[DataProvider('validConfigurationDataProvider')]
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
         $this->pathValidator->expects($this->once())->method('isValid')
             ->willReturn(true);
@@ -191,7 +192,7 @@ class ValidateXMLTest extends TestCase
 
         $validXML = 'foo';
         $this->subject = $this->getMockBuilder(ValidateXML::class)
-            ->setMethods(['loadResource', 'logNotice'])
+            ->onlyMethods(['loadResource', 'logNotice'])
             ->setConstructorArgs([$this->xmlReader, $this->pathValidator, $this->messageContainer])
             ->getMock();
         $this->subject->expects($this->once())
@@ -199,7 +200,7 @@ class ValidateXMLTest extends TestCase
             ->willReturn($validXML);
         $this->xmlReader->expects($this->once())
             ->method('setParserProperty')
-            ->with(...[XMLReader::VALIDATE, true]);
+            ->with(...[\XMLReader::VALIDATE, true]);
         $this->xmlReader->expects($this->once())
             ->method('isValid');
 
@@ -212,15 +213,16 @@ class ValidateXMLTest extends TestCase
         $validXML = 'bar';
         $configuration = [
             'schema' => [
-                'file' => 'mockSchema'
-            ]
+                'file' => 'mockSchema',
+            ],
         ];
         $records = [];
         $result = [];
 
         $this->subject = $this->getMockBuilder(
-            ValidateXML::class)
-            ->setMethods(['loadResource', 'getAbsoluteFilePath', 'logNotice'])
+            ValidateXML::class
+        )
+            ->onlyMethods(['loadResource', 'getAbsoluteFilePath', 'logNotice'])
             ->setConstructorArgs([$this->xmlReader, $this->pathValidator, $this->messageContainer])
             ->getMock();
         $this->subject->expects($this->once())
@@ -246,7 +248,7 @@ class ValidateXMLTest extends TestCase
 
         $validXML = 'bar';
         $this->subject = $this->getMockBuilder(ValidateXML::class)
-            ->setMethods(['loadResource', 'logNotice'])
+            ->onlyMethods(['loadResource', 'logNotice'])
             ->setConstructorArgs([$this->xmlReader, $this->pathValidator, $this->messageContainer])
             ->getMock();
         $this->subject->expects($this->once())
@@ -258,10 +260,11 @@ class ValidateXMLTest extends TestCase
 
         $this->subject->expects($this->once())
             ->method('logNotice')
-            ->with(...[
+            ->with(
+                ...[
                     1_508_776_068,
                     ['was', 0, 'error'],
-                    []
+                    [],
                 ]
             );
 

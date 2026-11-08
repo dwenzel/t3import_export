@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -19,22 +21,19 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
 /**
  * Class Clean
  */
 class Clean extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * @var array
      */
-    protected $fields = [];
+    protected array $fields = [];
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -57,9 +56,9 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
      *
      * @param array $configuration
      * @param array $record
-     * @return boolean
+     * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $fields = $configuration['fields'];
         foreach ($fields as $fieldName => $localConfig) {
@@ -100,34 +99,33 @@ class Clean extends AbstractPreProcessor implements PreProcessorInterface
                 }
 
                 if (isset($localConfig['trim'])) {
-                    $record[$fieldName] = trim($record[$fieldName]);
+                    $record[$fieldName] = trim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['trim'])) {
-                    $record[$fieldName] = trim($record[$fieldName]);
+                    $record[$fieldName] = trim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['ltrim'])) {
-                    $record[$fieldName] = ltrim($record[$fieldName]);
+                    $record[$fieldName] = ltrim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['rtrim'])) {
-                    $record[$fieldName] = rtrim($record[$fieldName]);
+                    $record[$fieldName] = rtrim((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['strtolower'])) {
-                    $record[$fieldName] = strtolower($record[$fieldName]);
+                    $record[$fieldName] = strtolower((string)$record[$fieldName]);
                 }
 
                 if (isset($localConfig['strtoupper'])) {
-                    $record[$fieldName] = strtoupper($record[$fieldName]);
+                    $record[$fieldName] = strtoupper((string)$record[$fieldName]);
                 }
             }
         }
 
         return true;
     }
-
 
     /**
      * Removes or replaces empty tags

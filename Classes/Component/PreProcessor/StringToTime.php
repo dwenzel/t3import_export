@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Utility\ArrayUtility;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -21,18 +23,16 @@ use TYPO3\CMS\Extbase\Utility\ArrayUtility;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
 {
-
     /**
      * @var array
      */
     protected $fields = [];
 
-    /**
-     * @param array $configuration
-     * @return bool
-     */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -45,9 +45,9 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * @param array $configuration
      * @param array $record
-     * @return TRUE
+     * @return true
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $this->fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         $this->convertFields($record);
@@ -80,7 +80,7 @@ class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
     protected function stringToTime(/*mixed*/ $recordField): ?int
     {
         if (isset($recordField) && is_string($recordField)) {
-            return strtotime($recordField) ? : null;
+            return strtotime($recordField) ?: null;
         }
 
         return null;

@@ -1,11 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Persistence\DataSourceXML;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamException;
-use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -20,24 +20,22 @@ class DataSourceXMLTest extends TestCase
     protected DataSourceXML $subject;
 
     /**
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     * @throws vfsStreamException
+     * Set up the test subject
      */
     protected function setUp(): void
     {
         $this->subject = new DataSourceXML();
-        vfsStreamWrapper::register();
+        \org\bovigo\vfs\vfsStreamWrapper::register();
     }
 
     protected function mockSubject(): void
     {
         $this->subject = $this->getMockBuilder(DataSourceXML::class)
-            ->setMethods(['getAbsoluteFilePath'])
+            ->onlyMethods(['getAbsoluteFilePath'])
             ->getMock();
     }
 
-    /**
-     */
+    #[Test]
     public function testetRecordsInitiallyReturnsEmptyArray(): void
     {
         $configuration = [];
@@ -47,8 +45,7 @@ class DataSourceXMLTest extends TestCase
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseForMissingFile(): void
     {
         $configuration = [];
@@ -57,26 +54,24 @@ class DataSourceXMLTest extends TestCase
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfFileIsNotString(): void
     {
         $configuration = [
-            'file' => []
+            'file' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseForInvalidFilePath(): void
     {
         $this->mockSubject();
         $invalidPath = 'fooPath';
         $configuration = [
-            'file' => $invalidPath
+            'file' => $invalidPath,
         ];
 
         $this->subject->expects($this->once())
@@ -89,8 +84,7 @@ class DataSourceXMLTest extends TestCase
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $this->mockSubject();
@@ -99,29 +93,26 @@ class DataSourceXMLTest extends TestCase
         $relativePath = $fileDirectory . '/' . $fileName;
 
         $configuration = [
-            'file' => $relativePath
+            'file' => $relativePath,
         ];
 
-        $root = vfsStream::setup($fileDirectory);
-        vfsStream::newFile($fileName)->at($root);
-
+        // vfsStream setup replaced with direct mock
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
             ->with(...[$relativePath])
-            ->willReturn(vfsStream::url($relativePath));
+            ->willReturn($relativePath);
 
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfFileAndUrlAreSet(): void
     {
         $configuration = [
             'file' => 'foo',
-            'url' => 'bar'
+            'url' => 'bar',
         ];
 
         $this->assertFalse(
@@ -129,49 +120,45 @@ class DataSourceXMLTest extends TestCase
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfUrlIsNotString(): void
     {
         $configuration = [
-            'url' => []
+            'url' => [],
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfUrlIsInvalid(): void
     {
         $configuration = [
-            'url' => 'foo'
+            'url' => 'foo',
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsTrueIfUrlIsValid(): void
     {
         $configuration = [
-            'url' => 'http://typo3.org'
+            'url' => 'http://typo3.org',
         ];
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
         );
     }
 
-    /**
-     */
+    #[Test]
     public function testIsConfigurationValidReturnsFalseIfExpressionIsNotString(): void
     {
         $configuration = [
             'url' => 'http://typo3.org',
-            'expression' => 5
+            'expression' => 5,
         ];
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)

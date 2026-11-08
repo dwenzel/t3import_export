@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -21,12 +23,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\SetFieldValue;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class SetFieldValueTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\PreProcessor
  */
 class SetFieldValueTest extends TestCase
 {
@@ -43,10 +45,8 @@ class SetFieldValueTest extends TestCase
 
     /**
      * Data provider for configuration validation
-     *
-     * @return array
      */
-    public function validateConfigurationDataProvider(): array
+    public static function validateConfigurationDataProvider(): array
     {
         return [
             // empty targetField
@@ -54,34 +54,31 @@ class SetFieldValueTest extends TestCase
             [
                 // empty value field
                 [
-                    'targetField' => 'foo'
+                    'targetField' => 'foo',
                 ],
-                false
+                false,
             ],
             [
                 // target field is not string
                 [
                     'targetField' => [],
-                    'value' => []
+                    'value' => [],
                 ],
-                false
+                false,
             ],
             [
                 [
                     'targetField' => 'foo',
-                    'value' => 'bar'
+                    'value' => 'bar',
                 ],
-                true
-            ]
+                true,
+            ],
         ];
     }
 
-    /**
-     * @dataProvider validateConfigurationDataProvider
-     * @param array $configuration
-     * @param bool $result
-     */
-    public function testConfigurationIsValidatedCorrectly($configuration, $result): void
+    #[Test]
+    #[DataProvider('validateConfigurationDataProvider')]
+    public function testConfigurationIsValidatedCorrectly(array $configuration, bool $result): void
     {
         $this->assertEquals(
             $result,
@@ -89,19 +86,20 @@ class SetFieldValueTest extends TestCase
         );
     }
 
+    #[Test]
     public function testProcessSetsValue(): void
     {
         $targetFieldName = 'foo';
         $newValue = 'baz';
         $configuration = [
             'targetField' => $targetFieldName,
-            'value' => 'baz'
+            'value' => 'baz',
         ];
         $record = [
-            $targetFieldName => 'bar'
+            $targetFieldName => 'bar',
         ];
         $expectedRecord = [
-            $targetFieldName => $newValue
+            $targetFieldName => $newValue,
         ];
 
         $this->subject->process($configuration, $record);

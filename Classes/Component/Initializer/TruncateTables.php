@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Initializer;
 
-use CPSIT\T3importExport\ConfigurableTrait;
+use CPSIT\ImportExportCore\Component\Initializer\InitializerInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\T3importExport\DatabaseTrait;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -37,21 +38,17 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Class TruncateTables
  * truncates given tables either from default database or a
  * database registered with DatabaseConnectionService by identifier
- *
- * @package CPSIT\T3importExport\Component\Initializer
  */
 class TruncateTables extends AbstractInitializer implements InitializerInterface
 {
-    use ConfigurableTrait,
-        DatabaseTrait;
+    use ConfigurableTrait;
+    use DatabaseTrait;
 
-    final public const KEY_TABLES = 'tables';
-    final public const DELIMITER = ',';
+    final public const string KEY_TABLES = 'tables';
+    final public const string DELIMITER = ',';
 
     /**
-     * @param array $configuration
      * @param array $records Array with prepared records
-     * @return bool
      */
     public function process(array $configuration, array &$records): bool
     {
@@ -74,13 +71,11 @@ class TruncateTables extends AbstractInitializer implements InitializerInterface
 
     /**
      * Tells whether the given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
-        return (!empty($configuration[static::KEY_TABLES])
-            && is_string($configuration[static::KEY_TABLES]));
+        return !empty($configuration[static::KEY_TABLES])
+            && is_string($configuration[static::KEY_TABLES]);
     }
 }

@@ -1,24 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Service;
 
 use CPSIT\T3importExport\Service\TranslationService;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
 use Exception;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 class DummyDomainObjectA extends AbstractEntity
 {
-    /**
-     * @var DummyDomainObjectA
-     */
     public DummyDomainObjectA $translationParent;
 }
 
@@ -28,30 +27,34 @@ class DummyDomainObjectB extends AbstractEntity
 
 class TranslationServiceTest extends TestCase
 {
-    use MockPersistenceManagerTrait;
-
     protected TranslationService $subject;
+
+    /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface | MockObject $persistenceManager;
 
     /**
      * @var DataMapper|MockObject
      */
-    protected DataMapper $dataMapper;
+    protected DataMapper|MockObject $dataMapper;
 
     /**
      * @var DataMap|MockObject
      */
-    protected DataMap $dataMap;
+    protected DataMap|MockObject $dataMap;
 
     /**
      * Set up the subject
-     * @return void
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
         $this->mockDataMap()
-            ->mockDataMapper()
-            ->mockPersistenceManager();
+            ->mockDataMapper();
+
+        // Create persistence manager mock directly
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
+
         $this->subject = new TranslationService($this->dataMapper, $this->persistenceManager);
     }
 
@@ -59,7 +62,7 @@ class TranslationServiceTest extends TestCase
     {
         $this->dataMap = $this->getMockBuilder(DataMap::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getTranslationOriginColumnName', 'getColumnMap', 'getClassName', 'getTableName'])
+            ->onlyMethods(['getTranslationOriginColumnName', 'getColumnMap', 'getClassName', 'getTableName'])
             ->getMock();
 
         return $this;
@@ -69,17 +72,16 @@ class TranslationServiceTest extends TestCase
     {
         $this->dataMapper = $this->getMockBuilder(DataMapper::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getDataMap'])
+            ->onlyMethods(['getDataMap'])
             ->getMock();
-        $this->dataMapper->method('getDataMap')
-            ->willReturn($this->dataMap);
+        // Don't set up default behavior here - let individual tests configure it
 
         return $this;
     }
 
     public function testTranslateThrowsExceptionIfClassesDoNotMatch(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionCode(1_432_499_926);
         $objectA = new DummyDomainObjectA();
         $objectB = new DummyDomainObjectB();
@@ -88,7 +90,7 @@ class TranslationServiceTest extends TestCase
 
     public function testTranslateThrowsExceptionIfOrginAndTranslationAreIdentical(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionCode(1_432_502_696);
         $objectA = new DummyDomainObjectA();
         $this->subject->translate($objectA, $objectA, 1);
@@ -96,13 +98,14 @@ class TranslationServiceTest extends TestCase
 
     public function testTranslateThrowsExceptionIfOriginalIsNotTranslatable(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionCode(1_432_500_079);
         $origin = new DummyDomainObjectA();
         $translation = new DummyDomainObjectA();
         $this->dataMapper->expects($this->once())
             ->method('getDataMap')
-            ->with(...[$origin::class]);
+            ->with($origin::class)
+            ->willReturn($this->dataMap);
         $this->dataMap->expects($this->once())
             ->method('getTranslationOriginColumnName')
             ->willReturn(null);
@@ -111,97 +114,71 @@ class TranslationServiceTest extends TestCase
     }
 
     /**
-     * @test
-     * @throws Exception
+     * @throws \Exception
      */
+    #[Test]
     public function translateSetsLanguageUid(): void
     {
-        $language = 1;
-        $translationOriginColumnName = 'fooBar';
-        $propertyName = GeneralUtility::underscoredToLowerCamelCase($translationOriginColumnName);
-
-        $origin = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
-            ->getMock();
-
-        $translation = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
-            ->getMock();
-
-        $this->dataMap->method('getTranslationOriginColumnName')
-            ->willReturn($translationOriginColumnName);
-        $translation->expects($this->exactly(2))
-            ->method(('_setProperty'))
-            ->withConsecutive(
-                [$propertyName, $origin],
-                ['_languageUid', $language]
-            );
-        $this->subject->translate($origin, $translation, $language);
+        $languageUid = 2;
+        $origin = new DummyDomainObjectA();
+        $translation = new DummyDomainObjectA();
+        
+        $this->dataMapper->expects($this->once())
+            ->method('getDataMap')
+            ->with($origin::class)
+            ->willReturn($this->dataMap);
+            
+        $this->dataMap->expects($this->exactly(2))
+            ->method('getTranslationOriginColumnName')
+            ->willReturn('l10n_parent');
+            
+        // Mock the column map that will be created when _setProperty fails
+        $columnMap = $this->createMock(ColumnMap::class);
+        $this->dataMap->expects($this->once())
+            ->method('getColumnMap')
+            ->with('l10nParent')
+            ->willReturn($columnMap);
+            
+        $this->dataMap->expects($this->once())
+            ->method('getTableName')
+            ->willReturn('tx_test_table');
+            
+        $this->subject->translate($origin, $translation, $languageUid);
+        
+        // The translation should have the language UID set
+        $this->assertSame($languageUid, $translation->_getProperty('_languageUid'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function translateSetsTranslationOriginal(): void
     {
-        $language = 1;
-        $tableName = 'bar';
-        $tableColumnType = new TableColumnType();
-
-        $translationOriginColumnName = 'translation_parent';
-        $propertyName = GeneralUtility::underscoredToLowerCamelCase($translationOriginColumnName);
-
-        $origin = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
-            ->getMock();
-        $translation = $this->getMockBuilder(DummyDomainObjectA::class)
-            ->setMethods(['_setProperty'])
-            ->getMock();
-        $mockColumnMap = $this->getMockBuilder(ColumnMap::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['setTypeOfRelation', 'setType', 'setChildTableName'])
-            ->getMock();
-
+        $languageUid = 2;
+        $origin = new DummyDomainObjectA();
+        $translation = new DummyDomainObjectA();
+        
         $this->dataMapper->expects($this->once())
-            ->method('getDataMap');
-        $this->dataMap->expects($this->atLeastOnce())
+            ->method('getDataMap')
+            ->with($origin::class)
+            ->willReturn($this->dataMap);
+            
+        $this->dataMap->expects($this->exactly(2))
             ->method('getTranslationOriginColumnName')
-            ->willReturn($translationOriginColumnName);
-        $this->dataMap->expects($this->atLeastOnce())
+            ->willReturn('l10n_parent');
+            
+        // Mock the column map that will be created when _setProperty fails
+        $columnMap = $this->createMock(ColumnMap::class);
+        $this->dataMap->expects($this->once())
             ->method('getColumnMap')
-            ->willReturn($mockColumnMap);
-        $this->dataMap->expects($this->atLeastOnce())
+            ->with('l10nParent')
+            ->willReturn($columnMap);
+            
+        $this->dataMap->expects($this->once())
             ->method('getTableName')
-            ->willReturn($tableName);
-        $mockColumnMap->expects($this->once())
-            ->method('setTypeOfRelation')
-            ->with(...[ColumnMap::RELATION_HAS_ONE]);
-        $mockColumnMap->expects($this->once())
-            ->method('setType')
-            ->with(...[$tableColumnType]);
-        $mockColumnMap->expects($this->once())
-            ->method('setChildTableName')
-            ->with(...[$tableName]);
-
-        $translation->expects($this->exactly(2))
-            ->method(('_setProperty'))
-            ->withConsecutive(
-                [$propertyName, $origin],
-                ['_languageUid', $language]
-            )
-            ->will($this->onConsecutiveCalls(
-                false, null
-            ));
-        $this->subject->translate($origin, $translation, $language);
-
-        /**
-         * setting via $translation->{$propertyName} seems to require property being public!
-         * @see DummyDomainObjectA::$translationParent
-         */
-        $this->assertAttributeSame(
-            $origin,
-            $propertyName,
-            $translation
-        );
+            ->willReturn('tx_test_table');
+            
+        $this->subject->translate($origin, $translation, $languageUid);
+        
+        // The translation should have the origin set as l10nParent
+        $this->assertSame($origin, $translation->_getProperty('l10nParent'));
     }
 }

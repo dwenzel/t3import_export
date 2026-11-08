@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component;
 
-use CPSIT\T3importExport\ConfigurableInterface;
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\Domain\Model\TaskResult;
-use CPSIT\T3importExport\RenderContentInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\RenderContentInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
@@ -30,23 +32,18 @@ use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /**
  * Class AbstractComponent
- *
- * @package CPSIT\T3importExport\Component
  */
 abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
 {
-    use ConfigurableTrait, RenderContentTrait;
+    use ConfigurableTrait;
+    use RenderContentTrait;
 
     /**
      * Tells if the component is disabled
      *
-     * @param array $configuration
-     * @param array $record
-     * @param TaskResult|null $result
-     * @return bool
      * @throws ContentRenderingException
      */
-    public function isDisabled(array $configuration, array $record = [], TaskResult $result = null): bool
+    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
     {
         if (!isset($configuration['disable'])) {
             return false;
@@ -57,7 +54,6 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
             return true;
         }
         if (is_array($configuration['disable'])) {
-
             $localConfiguration = $configuration['disable'];
             if (isset($localConfiguration['if']['result']['hasMessage'])) {
                 $messageIds = GeneralUtility::intExplode(
@@ -72,7 +68,7 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
                 }
             }
 
-            return ($this->renderContent($record, $localConfiguration) === '1');
+            return $this->renderContent($record, $localConfiguration) === '1';
         }
 
         return false;

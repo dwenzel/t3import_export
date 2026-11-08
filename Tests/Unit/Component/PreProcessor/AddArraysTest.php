@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -21,6 +23,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  ***************************************************************/
 
 use CPSIT\T3importExport\Component\PreProcessor\AddArrays;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -41,31 +45,28 @@ class AddArraysTest extends TestCase
 
     /**
      * Data provider for configuration validation
-     *
-     * @return array
      */
-    public function isConfigurationValidDataProvider(): array
+    public static function isConfigurationValidDataProvider(): array
     {
         return [
             [
                 // configuration must not be empty
                 [],
-                false
+                false,
             ],
             [
                 // targetField must contain string
                 [
-                    'targetField' => []
+                    'targetField' => [],
                 ],
-                false
+                false,
             ],
             [
                 // fields must not be empty
                 [
-                    'targetField' => 'foo'
-                ]
-                ,
-                false
+                    'targetField' => 'foo',
+                ],
+                false,
             ],
             [
                 // fields must contain string
@@ -73,7 +74,7 @@ class AddArraysTest extends TestCase
                     'targetField' => 'foo',
                     'fields' => [],
                 ],
-                false
+                false,
             ],
             [
                 // valid configuration
@@ -81,18 +82,14 @@ class AddArraysTest extends TestCase
                     'targetField' => 'foo',
                     'fields' => 'bar,baz',
                 ],
-                true
-            ]
+                true,
+            ],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider isConfigurationValidDataProvider
-     * @param array $configuration
-     * @param bool $result
-     */
-    public function configurationIsValidatedCorrectly($configuration, $result): void
+    #[Test]
+    #[DataProvider('isConfigurationValidDataProvider')]
+    public function configurationIsValidatedCorrectly(array $configuration, bool $result): void
     {
         $this->assertEquals(
             $result,
@@ -102,88 +99,83 @@ class AddArraysTest extends TestCase
 
     /**
      * provides data for processing
-     * @return array
      */
-    public function processDataProvider(): array
+    public static function processDataProvider(): array
     {
         return [
             [
                 // empty record
-                [], []
+                [], [],
             ],
             [
                 // no fields
-                ['foo' => 'fooValue'], ['foo' => 'fooValue']
+                ['foo' => 'fooValue'], ['foo' => 'fooValue'],
             ],
             [
                 // field bar is not array - leave target field untouched
                 [
                     'foo' => 'fooValue',
-                    'bar' => 'barValue'
+                    'bar' => 'barValue',
                 ],
                 [
                     'foo' => 'fooValue',
-                    'bar' => 'barValue'
-                ]
+                    'bar' => 'barValue',
+                ],
             ],
             [
                 // single array in bar replaces empty array in foo
                 [
                     'foo' => [],
-                    'bar' => ['firstBarValue']
+                    'bar' => ['firstBarValue'],
                 ],
                 [
                     'foo' => ['firstBarValue'],
-                    'bar' => ['firstBarValue']
-                ]
+                    'bar' => ['firstBarValue'],
+                ],
             ],
             [
                 // multiple values in bar
                 [
                     'foo' => [],
-                    'bar' => ['firstBarValue', 'secondBarValue']
+                    'bar' => ['firstBarValue', 'secondBarValue'],
                 ],
                 [
                     'foo' => ['firstBarValue', 'secondBarValue'],
-                    'bar' => ['firstBarValue', 'secondBarValue']
-                ]
+                    'bar' => ['firstBarValue', 'secondBarValue'],
+                ],
             ],
             [
                 // duplicate values
                 [
                     'foo' => [0],
-                    'bar' => [0, 1]
+                    'bar' => [0, 1],
                 ],
                 [
                     'foo' => [0, 0, 1],
-                    'bar' => [0, 1]
-                ]
+                    'bar' => [0, 1],
+                ],
             ],
             [
                 // duplicate keys arr added!
                 [
                     'foo' => ['key1' => 'valueFoo'],
-                    'bar' => ['key1' => 'valueBar']
+                    'bar' => ['key1' => 'valueBar'],
                 ],
                 [
                     'foo' => ['key1' => 'valueFoo', 'valueBar'],
-                    'bar' => ['key1' => 'valueBar']
-                ]
-            ]
+                    'bar' => ['key1' => 'valueBar'],
+                ],
+            ],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider processDataProvider
-     * @param array $record
-     * $param array $result
-     */
-    public function processAddsArrays($record, $result): void
+    #[Test]
+    #[DataProvider('processDataProvider')]
+    public function processAddsArrays(array $record, array $result): void
     {
         $configuration = [
             'targetField' => 'foo',
-            'fields' => 'bar,baz'
+            'fields' => 'bar,baz',
         ];
 
         $this->subject->process($configuration, $record);

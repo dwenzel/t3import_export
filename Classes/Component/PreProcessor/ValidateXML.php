@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\Finisher;
-use CPSIT\T3importExport\Exception\MissingResourceException;
-use CPSIT\T3importExport\LoggingInterface;
-use CPSIT\T3importExport\LoggingTrait;
-use CPSIT\T3importExport\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
+use CPSIT\ImportExportCore\LoggingInterface;
+use CPSIT\ImportExportCore\LoggingTrait;
+use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;
@@ -29,6 +31,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 /**
  * Class ValidateXML
  *
@@ -40,58 +44,58 @@ class ValidateXML extends AbstractPreProcessor implements
     PreProcessorInterface,
     LoggingInterface
 {
-    use ResourceTrait,
-        LoggingTrait;
+    use ResourceTrait;
+    use LoggingTrait;
 
-    final public const KEY_FIELDS = 'fields';
-    final public const KEY_IDENTIFIER = 'identifier';
-    final public const KEY_SCHEMA = 'schema';
-    final public const KEY_VALIDATION_FAILED = 'xmlValidationFailed';
-    final public const DEFAULT_IDENTIFIER_FIELD = 'uid';
+    final public const string KEY_FIELDS = 'fields';
+    final public const string KEY_IDENTIFIER = 'identifier';
+    final public const string KEY_SCHEMA = 'schema';
+    final public const string KEY_VALIDATION_FAILED = 'xmlValidationFailed';
+    final public const string DEFAULT_IDENTIFIER_FIELD = 'uid';
 
     /**
      * [
      *  <id> => ['errorTitle', 'errorDescription']
      * ]
      */
-    final public const ERROR_CODES = [
-        1_646_304_431 => ['Validation Error', 'XML ist invalid']
+    final public const array ERROR_CODES = [
+        1_646_304_431 => ['Validation Error', 'XML ist invalid'],
     ];
-    final public const SEPARATOR = ',';
-    final public const DEFAULT_XML_VERSION = '1.0';
-    final public const DEFAULT_XML_ENCODING = 'utf-8';
-    final public const MISSING_RESOURCE_MESSAGE = 'Resource for %s i empty or can not be loaded from file or url.';
-    final public const MISSING_RESOURCE_CODE = 1_646_301_113;
-    final public const TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
+    final public const string SEPARATOR = ',';
+    final public const string DEFAULT_XML_VERSION = '1.0';
+    final public const string DEFAULT_XML_ENCODING = 'utf-8';
+    final public const string MISSING_RESOURCE_MESSAGE = 'Resource for %s i empty or can not be loaded from file or url.';
+    final public const int MISSING_RESOURCE_CODE = 1_646_301_113;
+    final public const string TEMPLATE_ERROR_MESSAGE = 'Error validating content of field %s:
     Record ID %s
     Error Code (lib xml): %s
-    Level: %s 
-    Message: %s 
-    Line: %s 
+    Level: %s
+    Message: %s
+    Line: %s
     Column: %s';
     protected DOMDocument $document;
     protected ResourcePathConfigurationValidator $pathConfigurationValidator;
     protected string $schema = '';
 
     public function __construct(
-        DOMDocument $document = null,
-        ResourcePathConfigurationValidator $pathConfigurationValidator = null,
-        MessageContainer $messageContainer = null
-    )
-    {
+        ?DOMDocument                        $document = null,
+        ?ResourcePathConfigurationValidator $pathConfigurationValidator = null,
+        ?MessageContainer                   $messageContainer = null
+    ) {
         $this->document = $document ?? new DOMDocument(
-                self::DEFAULT_XML_VERSION,
-                self::DEFAULT_XML_ENCODING
-            );
+            self::DEFAULT_XML_VERSION,
+            self::DEFAULT_XML_ENCODING
+        );
 
         $this->pathConfigurationValidator = $pathConfigurationValidator ?? GeneralUtility::makeInstance(
-                ResourcePathConfigurationValidator::class
-            );
+            ResourcePathConfigurationValidator::class
+        );
         $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(
-                MessageContainer::class
-            );
+            MessageContainer::class
+        );
     }
 
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (
@@ -112,7 +116,7 @@ class ValidateXML extends AbstractPreProcessor implements
     /**
      * @inheritDoc
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $fields = GeneralUtility::trimExplode(
             self::SEPARATOR,
@@ -197,5 +201,4 @@ class ValidateXML extends AbstractPreProcessor implements
 
         return empty($errors);
     }
-
 }

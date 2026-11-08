@@ -1,19 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
-use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
+use CPSIT\ImportExportCore\IdentifiableInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\MissingInterfaceException;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\DataTargetRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
@@ -35,17 +35,13 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  ***************************************************************/
 class DataTargetFactory extends AbstractFactory implements FactoryInterface
 {
-    final public const DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
+    final public const string DEFAULT_DATA_TARGET_CLASS = DataTargetRepository::class;
 
-    public function __construct(protected PersistenceManagerInterface $persistenceManager) {
-
-    }
+    public function __construct(protected PersistenceManagerInterface $persistenceManager) {}
     /**
      * Builds a factory object
      *
-     * @param array $settings
      * @param string $identifier
-     * @return DataTargetInterface
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException

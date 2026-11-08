@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\Factory;
 
 use CPSIT\T3importExport\Component\Factory\FinisherFactory;
 use CPSIT\T3importExport\Component\Finisher\AbstractFinisher;
-use CPSIT\T3importExport\Component\Finisher\FinisherInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /***************************************************************
  *
@@ -37,8 +38,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 /**
  * Class DummyInvalidFinisher
  * Does not implement FinisherInterface
- *
- * @package CPSIT\T3importExport\Tests\Component\Factory
  */
 class DummyInvalidFinisher
 {
@@ -46,18 +45,17 @@ class DummyInvalidFinisher
 
 /**
  * Class DummyValidFinisher
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
 {
     /**
      * @param array $configuration
      * @param array $records
-     * @param array $result
+     * @param object|array $result
      * @return bool
+     * @noinspection ReferencingObjectsInspection
      */
-    public function process(array $configuration, array &$records, &$result): bool
+    public function process(array $configuration, array &$records, array|object &$result): bool
     {
         return true;
     }
@@ -65,18 +63,14 @@ class DummyValidFinisher extends AbstractFinisher implements FinisherInterface
 
 /**
  * Class FinisherFactoryTest
- *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Factory
  */
 class FinisherFactoryTest extends TestCase
 {
-
-    /**
-     * @var FinisherFactory
-     */
     protected FinisherFactory $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new FinisherFactory();
@@ -93,7 +87,7 @@ class FinisherFactoryTest extends TestCase
     public function testGetThrowsInvalidConfigurationExceptionIfClassDoesNotExist(): void
     {
         $configurationWithNonExistingClass = [
-            'class' => 'NonExistingClass'
+            'class' => 'NonExistingClass',
         ];
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_454_187_903);
@@ -105,7 +99,7 @@ class FinisherFactoryTest extends TestCase
     public function testGetThrowsExceptionIfClassDoesNotImplementFinisherInterface(): void
     {
         $configurationWithExistingClass = [
-            'class' => DummyInvalidFinisher::class
+            'class' => DummyInvalidFinisher::class,
         ];
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionCode(1_454_187_910);

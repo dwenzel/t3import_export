@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Persistence\Factory;
 
-use CPSIT\T3importExport\ConfigurableInterface;
+use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
+use CPSIT\ImportExportCore\IdentifiableInterface;
+use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\MissingInterfaceException;
 use CPSIT\T3importExport\Persistence\DataSourceDB;
-use CPSIT\T3importExport\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -42,14 +44,13 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
 {
     use RenderContentTrait;
 
-    final public const DEFAULT_DATA_SOURCE_CLASS = DataSourceDB::class;
+    final public const string DEFAULT_DATA_SOURCE_CLASS = DataSourceDB::class;
 
     /**
      * Builds a DataSource object
      *
      * @param array $settings Configuration for the data source
      * @param string $identifier Identifier
-     * @return DataSourceInterface
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      * @throws MissingInterfaceException
@@ -66,7 +67,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
                 1_451_060_913
             );
         }
-        if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass))) {
+        if (!in_array(DataSourceInterface::class, class_implements($dataSourceClass), true)) {
             throw new MissingInterfaceException(
                 'Missing interface in configuration for source. Class ' . $dataSourceClass .
                 ' must implement interface ' . DataSourceInterface::class . '.',
@@ -84,7 +85,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        // note: we want an independend instance for each component
+        // note: we want an independent instance for each component
         /** @var DataSourceInterface $dataSource */
         $dataSource = clone GeneralUtility::makeInstance($dataSourceClass);
         if (
@@ -97,8 +98,7 @@ class DataSourceFactory extends AbstractFactory implements FactoryInterface
 
         if (
             in_array(ConfigurableInterface::class, class_implements($dataSourceClass))
-        )
-        {
+        ) {
             $dataSource->setConfiguration(
                 $settings['config']
             );

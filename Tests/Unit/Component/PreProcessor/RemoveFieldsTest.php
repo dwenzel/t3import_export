@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /***************************************************************
@@ -32,7 +34,9 @@ class RemoveFieldsTest extends TestCase
 {
     protected RemoveFields $subject;
 
-    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    /**
+     * @noinspection ReturnTypeCanBeDeclaredInspection
+     */
     protected function setUp(): void
     {
         $this->subject = new RemoveFields();
@@ -44,8 +48,8 @@ class RemoveFieldsTest extends TestCase
             'fields' => [
                 'myStuff' => 'fooBar',
                 'children' => [],
-                'otherStuff' => 2
-            ]
+                'otherStuff' => 2,
+            ],
         ];
 
         $this->assertFalse(
@@ -61,10 +65,10 @@ class RemoveFieldsTest extends TestCase
                 'children' => [
                     'fieldB' => true,
                     'children' => [
-                        'fieldA' => true
-                    ]
-                ]
-            ]
+                        'fieldA' => true,
+                    ],
+                ],
+            ],
         ];
 
         $this->assertTrue(
@@ -84,7 +88,7 @@ class RemoveFieldsTest extends TestCase
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $invalidConfig = [
-            'fields' => 'foo'
+            'fields' => 'foo',
         ];
 
         $this->assertFalse(
@@ -100,33 +104,33 @@ class RemoveFieldsTest extends TestCase
                 'otherFields' => true,
                 'notExistingField' => true,
                 'staticArray' => [
-                    'subField' => true
+                    'subField' => true,
                 ],
                 'multiChildrenField' => [
                     'children' => [
                         'foo' => true,
                         'subMultiChildrenField' => [
                             'children' => [
-                                'foo' => true
-                            ]
+                                'foo' => true,
+                            ],
                         ],
                         'staticField' => [
-                            'foo' => true
-                        ]
-                    ]
-                ]
-            ]
+                            'foo' => true,
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $testData = [
             'constField' => 'Dur',
             'foo' => 'bar',
             'otherFields' => [
-                'subField' => 123
+                'subField' => 123,
             ],
             'staticArray' => [
                 'subField' => 'a',
-                'keepField' => 'a'
+                'keepField' => 'a',
             ],
             'multiChildrenField' => [
                 [
@@ -134,34 +138,34 @@ class RemoveFieldsTest extends TestCase
                     'keepField' => 'a',
                     'staticField' => [
                         'keepField' => 'a',
-                        'foo' => 'bar'
+                        'foo' => 'bar',
                     ],
                     'subMultiChildrenField' => [
                         [
                             'foo' => 'bar',
-                            'keepField' => 'a'
+                            'keepField' => 'a',
                         ],
                         [
                             'foo' => 'bar',
-                            'keepField' => 'a'
-                        ]
-                    ]
+                            'keepField' => 'a',
+                        ],
+                    ],
                 ],
                 [
                     'foo' => 'bar',
                     'keepField' => 'a',
                     'staticField' => [
                         'keepField' => 'a',
-                        'foo' => 'bar'
-                    ]
-                ]
-            ]
+                        'foo' => 'bar',
+                    ],
+                ],
+            ],
         ];
 
         $expectedResult = [
             'constField' => 'Dur',
             'staticArray' => [
-                'keepField' => 'a'
+                'keepField' => 'a',
             ],
             'multiChildrenField' => [
                 [
@@ -171,20 +175,20 @@ class RemoveFieldsTest extends TestCase
                     ],
                     'subMultiChildrenField' => [
                         [
-                            'keepField' => 'a'
+                            'keepField' => 'a',
                         ],
                         [
-                            'keepField' => 'a'
-                        ]
-                    ]
+                            'keepField' => 'a',
+                        ],
+                    ],
                 ],
                 [
                     'keepField' => 'a',
                     'staticField' => [
                         'keepField' => 'a',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $this->assertTrue(

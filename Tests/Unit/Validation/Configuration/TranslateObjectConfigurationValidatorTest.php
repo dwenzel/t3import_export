@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Validation\Configuration;
 
+use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /***************************************************************
  *  Copyright notice
@@ -23,32 +29,32 @@ use PHPUnit\Framework\MockObject\MockObject;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestCase
+class TranslateObjectConfigurationValidatorTest extends TestCase
 {
     protected TranslateObjectConfigurationValidator $subject;
 
-    protected const MINIMAL_VALID_CONFIG = [
-        TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'oof',
-        TranslateObjectConfigurationValidator::KEY_LANGUAGE => 0
+    protected const array MINIMAL_VALID_CONFIG = [
+        ConfigurationValidatorInterface::KEY_PARENT_FIELD => 'oof',
+        ConfigurationValidatorInterface::KEY_LANGUAGE => 0,
     ];
 
     /**
-     * @var TargetClassConfigurationValidator|MockObject
+     * @var MockObject|TargetClassConfigurationValidator
      */
-    protected TargetClassConfigurationValidator $targetClassConfigurationValidator;
-    protected MappingConfigurationValidator $mappingConfigurationValidator;
+    protected TargetClassConfigurationValidator|MockObject $targetClassConfigurationValidator;
+    protected MappingConfigurationValidator|MockObject $mappingConfigurationValidator;
 
     protected function setUp(): void
     {
         $this->targetClassConfigurationValidator = $this->getMockBuilder(
             TargetClassConfigurationValidator::class
         )
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->mappingConfigurationValidator = $this->getMockBuilder(
             MappingConfigurationValidator::class
         )
-            ->setMethods(['isValid'])
+            ->onlyMethods(['isValid'])
             ->getMock();
         $this->subject = new TranslateObjectConfigurationValidator(
             $this->targetClassConfigurationValidator,
@@ -56,10 +62,8 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         );
     }
 
-    /**
-     * @param array $configuration
-     * @dataProvider validConfigurationDataProvider
-     */
+    #[Test]
+    #[DataProvider('validConfigurationDataProvider')]
     public function testValidateReturnsTrueForValidConfiguration(array $configuration): void
     {
         self::assertTrue(
@@ -67,60 +71,58 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         );
     }
 
-    public function validConfigurationDataProvider(): array
+    public static function validConfigurationDataProvider(): array
     {
         return [
             'minimal - w/o mapping' => [
-                self::MINIMAL_VALID_CONFIG
+                self::MINIMAL_VALID_CONFIG,
             ],
             'mapping set, empty mapping config' => [
                 [
                     TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'bar',
                     TranslateObjectConfigurationValidator::KEY_LANGUAGE => 9,
-                    TranslateObjectConfigurationValidator::KEY_MAPPING => []
-                ]
-            ]
+                    TranslateObjectConfigurationValidator::KEY_MAPPING => [],
+                ],
+            ],
         ];
     }
 
-    /**
-     * @param array $configuration
-     * @dataProvider invalidConfigurationDataProvider
-     */
-    public function testValidateReturnsFalseForValidConfiguration(array $configuration): void
+    #[Test]
+    #[DataProvider('invalidConfigurationDataProvider')]
+    public function testValidateReturnsFalseForInvalidConfiguration(array $configuration): void
     {
         self::assertFalse(
             $this->subject->isValid($configuration)
         );
     }
 
-
-    public function invalidConfigurationDataProvider(): array
+    public static function invalidConfigurationDataProvider(): array
     {
         return [
             'empty config' => [
-                []
+                [],
             ],
 
             'language missing' => [
-                [TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'bar']
+                [TranslateObjectConfigurationValidator::KEY_PARENT_FIELD => 'bar'],
             ],
             'parentField missing' => [
                 [
-                    TranslateObjectConfigurationValidator::KEY_LANGUAGE => 8
-                ]
-            ]
+                    TranslateObjectConfigurationValidator::KEY_LANGUAGE => 8,
+                ],
+            ],
         ];
     }
 
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidTargetClassConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
         $validClass = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass
+            ConfigurationValidatorInterface::KEY_TARGET_CLASS => $validClass,
         ];
-        $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
+        $config[ConfigurationValidatorInterface::KEY_MAPPING] = $mappingConfiguration;
         $this->targetClassConfigurationValidator->expects($this->once())
             ->method('isValid')
             ->with(...[$mappingConfiguration])
@@ -129,12 +131,13 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         $this->subject->isValid($config);
     }
 
+    #[Test]
     public function testIsConfigurationValidReturnsFalseForInvalidTargetClassConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
         $validClass = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass
+            TranslateObjectConfigurationValidator::KEY_TARGET_CLASS => $validClass,
         ];
         $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
         $this->targetClassConfigurationValidator->expects($this->once())
@@ -144,14 +147,15 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
 
         $this->subject->isValid($config);
     }
+    #[Test]
     public function testIsConfigurationValidReturnsTrueForValidMappingConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
         $valid = 'FooBar';
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_CONFIG => $valid
+            ConfigurationValidatorInterface::KEY_CONFIG => $valid,
         ];
-        $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
+        $config[ConfigurationValidatorInterface::KEY_MAPPING] = $mappingConfiguration;
         $this->mappingConfigurationValidator->expects($this->once())
             ->method('isValid')
             ->with(...[$mappingConfiguration])
@@ -160,12 +164,13 @@ class TranslateObjectConfigurationValidatorTest extends \PHPUnit\Framework\TestC
         $this->subject->isValid($config);
     }
 
+    #[Test]
     public function testIsConfigurationValidReturnsFalseForInvalidMappingConfiguration(): void
     {
         $config = self::MINIMAL_VALID_CONFIG;
         $validConfig = ['FooBar'];
         $mappingConfiguration = [
-            TranslateObjectConfigurationValidator::KEY_CONFIG => $validConfig
+            TranslateObjectConfigurationValidator::KEY_CONFIG => $validConfig,
         ];
         $config[TranslateObjectConfigurationValidator::KEY_MAPPING] = $mappingConfiguration;
         $this->mappingConfigurationValidator->expects($this->once())

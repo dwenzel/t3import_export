@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Persistence\Factory;
 
-use CPSIT\T3importExport\ConfigurableTrait;
-use CPSIT\T3importExport\IdentifiableInterface;
-use CPSIT\T3importExport\IdentifiableTrait;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
-use CPSIT\T3importExport\MissingInterfaceException;
-use CPSIT\T3importExport\Persistence\DataTargetInterface;
+use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\IdentifiableInterface;
+use CPSIT\ImportExportCore\IdentifiableTrait;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
+use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Persistence\Factory\DataTargetFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockPersistenceManagerTrait;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
  *
@@ -41,8 +43,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class DummyMissingTargetInterfaceClass
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyMissingTargetInterfaceClass
 {
@@ -50,8 +50,6 @@ class DummyMissingTargetInterfaceClass
 
 /**
  * Class DummyTargetObjectClass
- *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  */
 class DummyTargetObjectClass
 {
@@ -62,13 +60,11 @@ class DummyTargetObjectClass
  */
 class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, IdentifiableInterface
 {
-    use IdentifiableTrait, ConfigurableTrait;
+    use IdentifiableTrait;
+    use ConfigurableTrait;
 
     /**
      * Fake method matches DataTargetInterface
-     *
-     * @param array $configuration
-     * @return array
      */
     public function testGetRecords(array $configuration): array
     {
@@ -77,9 +73,6 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
 
     /**
      * Fake method matches abstract method in DataTargetInterface
-     *
-     * @param array $configuration
-     * @return bool
      */
     public function isConfigurationValid(array $configuration): bool
     {
@@ -88,15 +81,8 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
 
     /**
      * Fake method matches abstract method in ConfigurableInterface
-     *
-     * @param $object
-     * @param array|null $configuration
-     * @return bool
-     * @noinspection PhpMissingReturnTypeInspection
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     * @noinspection PhpInconsistentReturnPointsInspection
      */
-    public function persist($object, array $configuration = null)
+    public function persist($object, ?array $configuration = null)
     {
     }
 
@@ -105,11 +91,10 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
      * Doesn't do anything
      *
      * @param null $result
-     * @param array|null $configuration
      * @return void
      * @noinspection ReturnTypeCanBeDeclaredInspection
      */
-    public function persistAll($result = null, array $configuration = null)
+    public function persistAll($result = null, ?array $configuration = null)
     {
     }
 }
@@ -117,67 +102,58 @@ class DummyIdentifiableTargetInterfaceClass implements DataTargetInterface, Iden
 /**
  * Class DataTargetFactoryTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Persistence\Factory
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\Factory\DataTargetFactory
  */
 class DataTargetFactoryTest extends TestCase
 {
-    use MockPersistenceManagerTrait;
-
     protected DataTargetFactory $subject;
+
+    /**
+     * @var PersistenceManagerInterface|MockObject
+     */
+    protected PersistenceManagerInterface|MockObject $persistenceManager;
 
     /**
      * @var DataTargetInterface|MockObject
      */
-    protected DataTargetInterface $dataTarget;
+    protected DataTargetInterface|MockObject $dataTarget;
 
     /**
      * set up
-     * @noinspection ReturnTypeCanBeDeclaredInspection
      */
     protected function setUp(): void
     {
-        $this->mockPersistenceManager();
+        // Create persistence manager mock directly
+        $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
+
         $this->subject = new DataTargetFactory($this->persistenceManager);
     }
 
-    /**
-     * @throws MissingClassException
-     * @throws InvalidConfigurationException
-     * @throws MissingInterfaceException
-     */
+    #[Test]
     public function testGetThrowsExceptionForMissingTargetClass(): void
     {
         $this->expectExceptionCode(1_451_043_513);
         $this->expectException(MissingClassException::class);
         $identifier = 'foo';
         $settings = [
-            'class' => 'NonExistingTargetClass'
+            'class' => 'NonExistingTargetClass',
         ];
         $this->subject->get($settings, $identifier);
     }
 
-    /**
-     * @throws MissingClassException
-     * @throws InvalidConfigurationException
-     * @throws MissingInterfaceException
-     */
+    #[Test]
     public function testGetThrowsExceptionForMissingInterface(): void
     {
         $this->expectExceptionCode(1_451_045_997);
         $this->expectException(MissingInterfaceException::class);
         $identifier = 'foo';
         $settings = [
-            'class' => DummyMissingTargetInterfaceClass::class
+            'class' => DummyMissingTargetInterfaceClass::class,
         ];
         $this->subject->get($settings, $identifier);
     }
 
-    /**
-     * @throws MissingClassException
-     * @throws InvalidConfigurationException
-     * @throws MissingInterfaceException
-     */
+    #[Test]
     public function testGetThrowsExceptionForMissingObjectClass(): void
     {
         $this->expectException(MissingClassException::class);
@@ -185,26 +161,31 @@ class DataTargetFactoryTest extends TestCase
         $identifier = 'foo';
         $settings = [
             'object' => [
-                'class' => 'NonExistingObjectClass'
-            ]
+                'class' => 'NonExistingObjectClass',
+            ],
         ];
         $this->subject->get($settings, $identifier);
     }
 
-    /**
-     * @throws MissingClassException
-     * @throws InvalidConfigurationException
-     * @throws MissingInterfaceException
-     */
+    #[Test]
     public function testGetReturnsDefaultDataTarget(): void
     {
         $identifier = 'foo';
         $objectClass = DummyTargetObjectClass::class;
         $settings = [
             'object' => [
-                'class' => $objectClass
-            ]
+                'class' => $objectClass,
+            ],
         ];
+
+        // Create a mock DataTargetRepository instance
+        $mockDataTarget = $this->createMock(DataTargetFactory::DEFAULT_DATA_TARGET_CLASS);
+        
+        // Register the mock instance with GeneralUtility
+        \TYPO3\CMS\Core\Utility\GeneralUtility::addInstance(
+            DataTargetFactory::DEFAULT_DATA_TARGET_CLASS,
+            $mockDataTarget
+        );
 
         $dataTarget = $this->subject->get($settings, $identifier);
         self::assertInstanceOf(
@@ -213,11 +194,7 @@ class DataTargetFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @throws MissingClassException
-     * @throws InvalidConfigurationException
-     * @throws MissingInterfaceException
-     */
+    #[Test]
     public function testGetSetsIdentifierForIdentifiableTarget(): void
     {
         $identifier = 'foo';
@@ -225,7 +202,7 @@ class DataTargetFactoryTest extends TestCase
         $settings = [
             'class' => $dataTargetClass,
             'identifier' => 'barSourceIdentifier',
-            'config' => []
+            'config' => [],
         ];
 
         $dataTarget = $this->subject->get($settings, $identifier);

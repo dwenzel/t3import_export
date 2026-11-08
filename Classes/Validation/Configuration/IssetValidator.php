@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Validation\Configuration;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -24,8 +26,8 @@ class IssetValidator implements \CPSIT\T3importExport\Validation\Configuration\C
 {
     use ArrayAccessTrait;
 
-    final public const DEFAULT_DELIMITER = '/';
-    final public const DEFAULT_PATH = '';
+    final public const string DEFAULT_DELIMITER = '/';
+    final public const string DEFAULT_PATH = '';
 
     /**
      * @inheritDoc

@@ -1,7 +1,10 @@
 <?php
+
+declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
 use CPSIT\T3importExport\Component\Converter\AbstractConverter;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************
@@ -32,12 +35,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AbstractConverterTest
  *
- * @package CPSIT\T3importExport\Tests\Unit\Component\Converter
  * @coversDefaultClass \CPSIT\T3importExport\Component\Converter\AbstractConverter
  */
 class AbstractConverterTest extends TestCase
 {
-
     /**
      * @var AbstractConverter
      */
@@ -48,15 +49,16 @@ class AbstractConverterTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->subject = $this->getMockForAbstractClass(
-            AbstractConverter::class
-        );
+        $this->subject = new class() extends AbstractConverter{
+            public function convert(array &$record, array $configuration): array
+            {
+                return $record;
+            }
+        };
     }
 
-    /**
-     * @test
-     */
-    public function isConfigurationValidInitiallyReturnsTrue()
+    #[Test]
+    public function isConfigurationValidInitiallyReturnsTrue(): void
     {
         $this->assertTrue(
             $this->subject->isConfigurationValid([])

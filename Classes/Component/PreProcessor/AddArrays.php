@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -18,12 +21,12 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+
 class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
 {
-    /**
-     * @param array $configuration
-     * @return bool
-     */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (empty($configuration['targetField'])
@@ -46,9 +49,9 @@ class AddArrays extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
-        $fields = explode(',', (string) $configuration['fields']);
+        $fields = explode(',', (string)$configuration['fields']);
         $targetField = $configuration['targetField'];
 
         foreach ($fields as $field) {

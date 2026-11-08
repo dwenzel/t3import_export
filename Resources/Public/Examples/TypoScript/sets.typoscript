@@ -1,0 +1,12 @@
+# sets.typoscript
+# import configuration for sets
+module.tx_t3importexport.settings.import.sets {
+  csv2ttContent {
+    label = Example set: CSV to tt_content
+    description (
+      Example import set containing the task <i>csv2ttContent</i>.
+      Adapt the target page id in csv2ttContent.typoscript before running it.
+    )
+    tasks = csv2ttContent
+  }
+}

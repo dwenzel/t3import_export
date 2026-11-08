@@ -1,17 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Command;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader;
+use CPSIT\ImportExportCore\Exception\ParseException;
 use CPSIT\T3importExport\Command\ImportSetCommand;
-use CPSIT\T3importExport\Configuration\Extension;
+use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Prophecy\ObjectProphecy;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -33,82 +40,87 @@ class ImportSetCommandTest extends TestCase
 {
     protected const SET_IDENTIFIER = 'bar';
     protected const VALID_SET_CONFIGURATION = [
-        'foo'
+        'foo',
     ];
     protected const VALID_SETTINGS = [
         'settings' => [
             ImportSetCommand::SETTINGS_KEY => [
                 'sets' => [
-                    self::SET_IDENTIFIER => self::VALID_SET_CONFIGURATION
-                ]
-            ]
-        ]
+                    self::SET_IDENTIFIER => self::VALID_SET_CONFIGURATION,
+                ],
+            ],
+        ],
     ];
 
     protected ImportSetCommand $subject;
-    /**
-     * @var ObjectProphecy<ConfigurationManagerInterface>
-     */
-    protected $configurationManager;
-
-    /**
-     * @var ObjectProphecy<TaskDemand>&TaskDemand
-     */
-    protected $taskDemand;
-
-    /** @var TransferSetFactory&ObjectProphecy<TransferSetFactory>  */
-    protected $transferSetFactory;
-
-    /**
-     * @var DataTransferProcessor&ObjectProphecy<DataTransferProcessor>
-     */
-    protected $dataTransferProcessor;
-
+    protected ConfigurationHandlerInterface|MockObject $configurationHandler;
+    protected TaskDemand|MockObject $taskDemand;
+    protected TransferSetFactory|MockObject $transferSetFactory;
+    protected DataTransferProcessor|MockObject $dataTransferProcessor;
     protected array $settings = [];
-    /**
-     * @var ObjectProphecy<TransferSet>
-     */
-    protected $transferSet;
+    protected TransferSet|MockObject $transferSet;
 
     protected function setUp(): void
     {
-        $this->markTestIncomplete();
         parent::setUp();
-        $this->transferSet = $this->prophesize(TransferSet::class);
-        $this->transferSetFactory = $this->prophesize(TransferSetFactory::class);
+        $this->transferSet = $this->createMock(TransferSet::class);
+        $this->transferSetFactory = $this->createMock(TransferSetFactory::class);
 
-        $this->transferSetFactory->get($this->settings)
-            ->willReturn($this->transferSet->reveal());
+        $this->transferSetFactory->method('get')
+            ->willReturn($this->transferSet);
 
-        /** @var ConfigurationManagerInterface configurationManager */
-        $this->configurationManager = $this->prophesize(ConfigurationManagerInterface::class);
-        $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-            't3importexport'
-        )
+        /** @var ConfigurationHandlerInterface configurationHandler */
+        $this->configurationHandler = $this->createMock(ConfigurationHandlerInterface::class);
+        $this->configurationHandler->method('getFullConfiguration')
             ->willReturn(self::VALID_SETTINGS);
 
-        $this->taskDemand = $this->prophesize(TaskDemand::class);
-        GeneralUtility::addInstance(TaskDemand::class, $this->taskDemand->reveal());
-        $this->dataTransferProcessor = $this->prophesize(DataTransferProcessor::class);
+        $this->taskDemand = $this->createMock(TaskDemand::class);
+        GeneralUtility::addInstance(TaskDemand::class, $this->taskDemand);
+        $this->dataTransferProcessor = $this->createMock(DataTransferProcessor::class);
 
-        /** @var DataTransferProcessor $processor */
-        $processor = $this->dataTransferProcessor->reveal();
         $this->subject = new ImportSetCommand(
-            'foo',
-            $this->transferSetFactory->reveal(),
-            $processor,
-            $this->configurationManager->reveal()
+            $this->transferSetFactory,
+            $this->dataTransferProcessor,
+            $this->configurationHandler
         );
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
+    #[Test]
     public function testMethodProcessOfDataTransferProcessorIsNotCallWithDryRun(): void
     {
-        $this->dataTransferProcessor->process($this->taskDemand)
-            ->shouldNotBeCalled();
+        $this->dataTransferProcessor->expects(self::never())
+            ->method('process');
         $this->subject->process(self::SET_IDENTIFIER, true);
     }
 
+    #[Test]
+    public function yamlConfigOptionIsRegistered(): void
+    {
+        $definition = $this->subject->getDefinition();
 
+        self::assertTrue($definition->hasOption(YamlConfigFileOption::NAME));
+        self::assertTrue($definition->hasShortcut(YamlConfigFileOption::SHORTCUT));
+    }
+
+    #[Test]
+    public function executeFailsIfYamlConfigurationCannotBeLoaded(): void
+    {
+        GeneralUtility::addInstance(
+            YamlConfigurationLoader::class,
+            $this->createMock(YamlConfigurationLoader::class)
+        );
+        $this->configurationHandler->method('addConfiguration')
+            ->willThrowException(new ParseException('Error parsing YAML file'));
+        $this->dataTransferProcessor->expects(self::never())->method('process');
+
+        $commandTester = new CommandTester($this->subject);
+        $status = $commandTester->execute([
+            'set' => self::SET_IDENTIFIER,
+            '--' . YamlConfigFileOption::NAME => 'invalid.yaml',
+        ]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Error loading YAML configuration', $commandTester->getDisplay());
+        self::assertStringNotContainsString(ImportSetCommand::MESSAGE_SUCCESS, $commandTester->getDisplay());
+    }
 }

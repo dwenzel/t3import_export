@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Factory;
 
 /***************************************************************
@@ -19,20 +22,13 @@ namespace CPSIT\T3importExport\Factory;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\ObjectManagerTrait;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-
 /**
  * Class AbstractFactory
  *
- * @package CPSIT\T3importExport\Domain\Factory
  * @deprecated
  */
 abstract class AbstractFactory
 {
-    /**
-     * @var array
-     */
     protected array $settings;
 
     public function withSettings(array $settings): self
@@ -45,8 +41,8 @@ abstract class AbstractFactory
      * Builds a factory object
      *
      * @param array $settings
-     * @param string $identifier
+     * @param string|null $identifier
      * @return object
      */
-    abstract public function get(array $settings, $identifier = null);
+    abstract public function get(array $settings = [], ?string $identifier = null): object;
 }

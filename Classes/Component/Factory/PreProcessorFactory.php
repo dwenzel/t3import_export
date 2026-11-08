@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\Factory;
 
-use CPSIT\T3importExport\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
-use CPSIT\T3importExport\InvalidConfigurationException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -37,9 +39,7 @@ class PreProcessorFactory extends AbstractFactory implements FactoryInterface
     /**
      * Builds a PreProcessor object
      *
-     * @param array $settings
      * @param string $identifier
-     * @return PreProcessorInterface
      * @throws InvalidConfigurationException
      */
     public function get(array $settings = [], $identifier = null): PreProcessorInterface
@@ -64,7 +64,7 @@ class PreProcessorFactory extends AbstractFactory implements FactoryInterface
             );
         }
 
-        if (!in_array(PreProcessorInterface::class, class_implements($className))) {
+        if (!in_array(PreProcessorInterface::class, class_implements($className), true)) {
             throw new InvalidConfigurationException(
                 'Pre-processor class ' . $className . ' in configuration for' . $additionalInformation
                 . ' must implement PreProcessorInterface.',

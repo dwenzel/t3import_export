@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 /**
@@ -19,9 +21,11 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
 use CPSIT\T3importExport\Factory\FilePathFactory;
-use CPSIT\T3importExport\Tests\Unit\Traits\MockFileStructureTrait;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -31,10 +35,8 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateUploadFileTest extends TestCase
 {
-    use MockFileStructureTrait;
-
     /**
-     * @var GenerateUploadFile |MockObject
+     * @var GenerateUploadFile|MockObject
      */
     protected $subject;
 
@@ -59,35 +61,36 @@ class GenerateUploadFileTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
-            ->setMethods(['getAbsoluteFilePath'])->getMock();
+            ->onlyMethods(['getAbsoluteFilePath'])->getMock();
 
         $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getConfiguration'])->getMock();
+            ->onlyMethods(['getConfiguration'])->getMock();
 
         $this->subject->withStorage($this->resourceStorage);
 
-        $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)->setMethods(['createFromParts'])->getMock();
+        $this->filePathFactory = $this->getMockBuilder(FilePathFactory::class)
+            ->onlyMethods(['createFromParts'])->getMock();
+
         $this->subject->injectFilePathFactory($this->filePathFactory);
-        vfsStreamWrapper::register();
     }
 
     /**
      * Provides dependencies for injection tests
      */
-    public function dependenciesDataProvider()
+    public static function dependenciesDataProvider()
     {
         return [
-            [StorageRepository::class, 'storageRepository']
+            [StorageRepository::class, 'storageRepository'],
         ];
     }
 
     /**
-     * @test
-     * @dataProvider dependenciesDataProvider
      * @param string $class Class name of the dependency to inject
      * @param string $propertyName The property holding the dependency
      */
+    #[Test]
+    #[DataProvider('dependenciesDataProvider')]
     public function dependenciesCanBeInjected($class, $propertyName)
     {
         $mockDependency = $this->getMockBuilder($class)->disableOriginalConstructor()
@@ -96,69 +99,128 @@ class GenerateUploadFileTest extends TestCase
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
 
-        $this->assertAttributeSame(
-            $mockDependency,
-            $propertyName,
-            $this->subject
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function getFileInitiallyReturnsEmptyString()
-    {
-        $sourceFilePath = 'bang';
-        $storageConfiguration = [
-            'basePath' => ''
-        ];
-        $configuration = [
-            'targetDirectoryPath' => 'foo'
-        ];
-
-        $this->resourceStorage->expects($this->once())
-            ->method('getConfiguration')
-            ->will($this->returnValue($storageConfiguration));
+        // Use reflection to access the protected property
+        $reflection = new \ReflectionClass($this->subject);
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
 
         $this->assertSame(
-            '',
-            $this->subject->getFile($configuration, $sourceFilePath)
+            $mockDependency,
+            $property->getValue($this->subject)
         );
     }
 
-    /**
-     * @test
-     */
-    public function getFileCopiesFileToTarget()
+    #[Test]
+    public function getFileReturnsEmptyStringWhenCopyFails()
     {
-        [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
-
-        vfsStream::setup($rootDirectory, null, $fileStructure);
-
-        $storageConfiguration = [
-            'basePath' => $rootDirectory
+        // Set up vfsStream
+        vfsStreamWrapper::register();
+        $rootDirectory = 'root';
+        $targetDirectory = 'targetDir';
+        
+        // Create virtual file system with only target directory (no source file)
+        $fileStructure = [
+            $targetDirectory => [],
         ];
-
-
+        vfsStream::setup($rootDirectory, null, $fileStructure);
+        
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectory,
+        ];
+        
+        // Non-existent source file path
+        $nonExistentSourceFilePath = vfsStream::url($rootDirectory) . '/nonexistent/file.txt';
+        
+        $storageConfiguration = ['basePath' => vfsStream::url($rootDirectory)];
         $this->resourceStorage->expects($this->once())
             ->method('getConfiguration')
-            ->will($this->returnValue($storageConfiguration));
-
-        $expectedFilePath = $storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $configuration['targetDirectoryPath'] . DIRECTORY_SEPARATOR . $sourceFileName;
-
+            ->willReturn($storageConfiguration);
+            
+        // Mock the file path factory to return the expected directory path
+        $expectedDirectoryPath = vfsStream::url($rootDirectory) . DIRECTORY_SEPARATOR . $targetDirectory . DIRECTORY_SEPARATOR;
         $this->filePathFactory->expects($this->once())
             ->method('createFromParts')
-            ->with([$storageConfiguration['basePath'], $configuration['targetDirectoryPath']])
-            ->will($this->returnValue($storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $configuration['targetDirectoryPath'] . DIRECTORY_SEPARATOR));
-
+            ->with([vfsStream::url($rootDirectory), $targetDirectory])
+            ->willReturn($expectedDirectoryPath);
+            
+        // The target path includes the filename as returned by getTargetPath method
+        $expectedTargetPath = $expectedDirectoryPath . 'file.txt';
+        
+        // Mock getAbsoluteFilePath to return the same path for file operations
         $this->subject->expects($this->once())
             ->method('getAbsoluteFilePath')
-            ->with($expectedFilePath)
-            ->will($this->returnValue(vfsStream::url($expectedFilePath)));
+            ->with($expectedTargetPath)
+            ->willReturn($expectedTargetPath);
 
-        $this->assertSame(
-            $expectedFilePath,
-            $this->subject->getFile($configuration, $sourceFilePath)
-        );
+        // Test that when copy fails (source file doesn't exist), empty string is returned
+        $result = $this->subject->getFile($configuration, $nonExistentSourceFilePath);
+        
+        $this->assertSame('', $result);
+    }
+
+    #[Test]
+    public function getFileCopiesFileToTarget()
+    {
+        // Set up vfsStream
+        vfsStreamWrapper::register();
+        [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure] = $this->mockFileStructure();
+        
+        // Create the virtual file system
+        vfsStream::setup($rootDirectory, null, $fileStructure);
+        
+        $storageConfiguration = ['basePath' => vfsStream::url($rootDirectory)];
+        $this->resourceStorage->expects($this->once())
+            ->method('getConfiguration')
+            ->willReturn($storageConfiguration);
+            
+        // Mock the file path factory to return the expected directory path
+        $expectedDirectoryPath = vfsStream::url($rootDirectory) . DIRECTORY_SEPARATOR . $targetDirectory . DIRECTORY_SEPARATOR;
+        $this->filePathFactory->expects($this->once())
+            ->method('createFromParts')
+            ->with([vfsStream::url($rootDirectory), $targetDirectory])
+            ->willReturn($expectedDirectoryPath);
+            
+        // The target path includes the filename as returned by getTargetPath method
+        $expectedTargetPath = $expectedDirectoryPath . $sourceFileName;
+        
+        // Mock getAbsoluteFilePath to return the same path for file operations
+        $this->subject->expects($this->once())
+            ->method('getAbsoluteFilePath')
+            ->with($expectedTargetPath)
+            ->willReturn($expectedTargetPath);
+            
+        $result = $this->subject->getFile($configuration, $sourceFilePath);
+        
+        // Assert that the method returns the expected path
+        $this->assertSame($expectedTargetPath, $result);
+        
+        // Assert that the file was actually copied
+        $this->assertFileExists($expectedTargetPath);
+    }
+
+    /**
+     * Creates a mock file structure for testing
+     *
+     * @return array Array containing [rootDirectory, sourceFileName, sourceFilePath, targetDirectory, configuration, fileStructure]
+     */
+    protected function mockFileStructure(): array
+    {
+        $rootDirectory = 'root';
+        $sourceFileContent = 'source file content';
+        $sourceDirectory = 'sourceDir';
+        $sourceFileName = 'foo.csv';
+        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $targetDirectory = 'targetDir';
+        $configuration = [
+            'targetDirectoryPath' => $targetDirectory,
+        ];
+
+        $fileStructure = [
+            $sourceDirectory => [
+                $sourceFileName => $sourceFileContent,
+            ],
+            $targetDirectory => [],
+        ];
+        return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
     }
 }

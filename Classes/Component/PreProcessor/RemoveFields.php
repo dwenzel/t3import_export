@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 /***************************************************************
@@ -18,20 +21,15 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
 /**
  * Class RemoveFields
  * Removes fields from an incoming array (recursively)
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
 {
-
-    /**
-     * @param array $configuration
-     * @return bool
-     */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['fields'])) {
@@ -52,10 +50,9 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * validate config array recursively
      *
-     * @param $fieldListConfig
      * @return bool
      */
-    protected function validateFieldsList($fieldListConfig)
+    protected function validateFieldsList($fieldListConfig): bool
     {
         if (is_array($fieldListConfig) && isset($fieldListConfig['children'])) {
             foreach ($fieldListConfig['children'] as $field => $value) {
@@ -64,7 +61,8 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
                 }
             }
             return true;
-        } elseif (is_array($fieldListConfig)) {
+        }
+        if (is_array($fieldListConfig)) {
             foreach ($fieldListConfig as $field => $value) {
                 if (!$this->validateFieldsList($value)) {
                     return false;
@@ -73,7 +71,7 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
 
-        return ((is_bool($fieldListConfig) && $fieldListConfig) || $fieldListConfig == 'true');
+        return (is_bool($fieldListConfig) && $fieldListConfig) || $fieldListConfig == 'true';
     }
 
     /**
@@ -81,7 +79,7 @@ class RemoveFields extends AbstractPreProcessor implements PreProcessorInterface
      * @param array $record
      * @return bool
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $fields = $configuration['fields'];
         $this->removeFieldInArray($record, $fields);

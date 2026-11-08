@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -23,22 +25,22 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Class ConcatenateFields
  * Concatenates fields of a given record and sets the result
  * into a new or existing field of this record
- *
- * @package CPSIT\T3importExport\PreProcessor
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
+    protected ContentObjectRenderer $contentObjectRenderer;
+    protected TypoScriptService $typoScriptService;
 
     public function __construct(
-        ContentObjectRenderer $contentObjectRenderer = null,
-        TypoScriptService $typoScriptService = null
-    )
-    {
+        ?ContentObjectRenderer $contentObjectRenderer = null,
+        ?TypoScriptService $typoScriptService = null
+    ) {
         $this->contentObjectRenderer = $contentObjectRenderer ?? $this->getContentObjectRenderer();
         $this->typoScriptService = $typoScriptService ?? GeneralUtility::makeInstance(TypoScriptService::class);
     }
@@ -46,9 +48,8 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
     /**
      * @param array $configuration
      * @param array $record
-     * @return void
      */
-    public function process($configuration, &$record)
+    public function process(array $configuration, array &$record): bool
     {
         $targetFieldName = $configuration['targetField'];
         foreach ($configuration['fields'] as $key => $value) {
@@ -70,14 +71,14 @@ class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInte
             }
             $record[$targetFieldName] .= $record[$key];
         }
+
+        return true;
     }
 
     /**
      * Tells if a given configuration is valid
-     *
-     * @param array $configuration
-     * @return bool
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         if (!isset($configuration['targetField'])

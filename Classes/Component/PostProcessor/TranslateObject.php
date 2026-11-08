@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Component\PostProcessor;
 
 /***************************************************************
@@ -20,40 +22,34 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use CPSIT\T3importExport\InvalidColumnMapException;
-use CPSIT\T3importExport\InvalidConfigurationException;
-use CPSIT\T3importExport\MissingClassException;
+use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingClassException;
+use CPSIT\T3importExport\Exception\InvalidColumnMapException;
 use CPSIT\T3importExport\Service\TranslationService;
 use CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Class TranslateObject
  * Translates
- *
- * @package CPSIT\T3importExport\Component\PostProcessor
  */
 class TranslateObject extends AbstractPostProcessor implements PostProcessorInterface
 {
-
     public function __construct(
         protected PersistenceManagerInterface $persistenceManager,
         protected TranslationService $translationService,
         protected TranslateObjectConfigurationValidator $configurationValidator
-    )
-    {
-    }
+    ) {}
 
     /**
      * Tells whether a given configuration is valid
      *
-     * @param array $configuration
      * @throws InvalidConfigurationException
      * @throws MissingClassException
      */
+    #[\Override]
     public function isConfigurationValid(array $configuration): bool
     {
         return $this->configurationValidator->isValid($configuration);
@@ -63,13 +59,9 @@ class TranslateObject extends AbstractPostProcessor implements PostProcessorInte
      * Finds the localization parent of the converted record
      * and translates it (adding the converted record as translation)
      *
-     * @param array $configuration
-     * @param DomainObjectInterface $convertedRecord
-     * @param array $record
-     * @return bool
      * @throws InvalidColumnMapException
      */
-    public function process(array $configuration, &$convertedRecord, array &$record): bool
+    public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
         $targetType = $convertedRecord::class;
 

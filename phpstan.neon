@@ -1,0 +1,21 @@
+#includes:
+#		- .build/vendor/phpstan/phpstan/conf/bleedingEdge.neon
+
+parameters:
+		level: 0
+		treatPhpDocTypesAsCertain: false
+		reportUnmatchedIgnoredErrors: false
+		paths:
+				- Classes
+				- Configuration
+				- Tests
+
+		ignoreErrors:
+				# Common TYPO3 patterns that can't be easily fixed
+				- '#Method .+::.+\(\) has parameter \$.+ with no value type specified in iterable type array.#'
+				- '#Property .+::\$.+ type has no value type specified in iterable type array.#'
+				- '#PHPDoc tag @var for variable \$.+ contains unresolvable type.#'
+
+				# Ignore warnings for test classes
+				- message: '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject(.*?)#'
+				  path: Tests/

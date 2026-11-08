@@ -1,14 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CPSIT\T3importExport\Configuration;
 
-use CPSIT\T3importExport\Command\ImportCommandController;
 use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Command\ImportTaskCommand;
-use CPSIT\T3importExport\Configuration\Module\ExportModuleRegistration;
-use CPSIT\T3importExport\Configuration\Module\ImportModuleRegistration;
 use DWenzel\T3extensionTools\Configuration\ExtensionConfiguration;
-use DWenzel\T3extensionTools\Configuration\ModuleRegistrationInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -31,16 +29,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  ***************************************************************/
 class Extension extends ExtensionConfiguration
 {
-    final public const KEY = 't3import_export';
-    final public const NAME = 'T3importExport';
-    final public const VENDOR_NAME = 'CPSIT';
+    final public const string KEY = 't3import_export';
+    final public const string NAME = 'T3importExport';
+    final public const string VENDOR_NAME = 'CPSIT';
 
-    final public const MODULES_TO_REGISTER = [
-        ImportModuleRegistration::class,
-        ExportModuleRegistration::class
-    ];
-
-    final public const COMMANDS_TO_REGISTER = [
+    final public const array COMMANDS_TO_REGISTER = [
         ImportSetCommand::DEFAULT_NAME => [
             'class' => ImportSetCommand::class,
         ],
@@ -49,12 +42,16 @@ class Extension extends ExtensionConfiguration
         ],
     ];
 
-    final public const SVG_ICON_IDENTIFIER_JOBS = 'jobs';
+    final public const string SVG_ICON_IDENTIFIER_JOBS = 'jobs';
+    final public const string SVG_ICON_IDENTIFIER_MODULE_IMPORT = 't3import_export-module-import';
+    final public const string SVG_ICON_IDENTIFIER_MODULE_EXPORT = 't3import_export-module-export';
     /**
      * SVG icons to register
      */
     protected const SVG_ICONS_TO_REGISTER = [
         self::SVG_ICON_IDENTIFIER_JOBS => 'EXT:t3import_export/Resources/Public/Icons/tx_t3importexport_domain_model_job.svg',
+        self::SVG_ICON_IDENTIFIER_MODULE_IMPORT => 'EXT:t3import_export/Resources/Public/Icons/module_import.svg',
+        self::SVG_ICON_IDENTIFIER_MODULE_EXPORT => 'EXT:t3import_export/Resources/Public/Icons/module_export.svg',
     ];
 
     public function getCommandsToRegister(): array
@@ -75,45 +72,5 @@ class Extension extends ExtensionConfiguration
         }
 
         return [];
-    }
-
-    /**
-     * Register legacy command controllers for cli environment in TYPO3 9
-     */
-    public static function registerLegacyCommands(): void
-    {
-        $version = GeneralUtility::makeInstance(Typo3Version::class);
-        /** @var Environment $environment */
-        $environment = GeneralUtility::makeInstance(Environment::class);
-
-        if ($version->getMajorVersion() === 9) {
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportImport'] = \CPSIT\T3importExport\Legacy\Command\ImportCommandController::class;
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['t3importExportExport'] = \CPSIT\T3importExport\Legacy\Command\ExportCommandController::class;
-        }
-
-    }
-
-    public static function getModuleConfiguration():array
-    {
-        $configuration = [];
-        foreach (self::MODULES_TO_REGISTER as $registrationClass) {
-            if(!in_array(ModuleRegistrationInterface::class, class_implements($registrationClass), true)) {
-                continue;
-            }
-            $moduleConfiguration = $registrationClass::getModuleConfiguration();
-            $configuration[$registrationClass::getSubModuleName()] = [
-                'parent' => $registrationClass::getMainModuleName(),
-                'position' => [$registrationClass::getPosition()],
-                'access' => $moduleConfiguration['access'],
-                'workspaces' => 'live',
-                'path' => '/module/' . $registrationClass::getMainModuleName() . '/' . $registrationClass::getMainModuleName() . $registrationClass::getSubModuleName(),
-                'labels' => $moduleConfiguration['labels'],
-                'extensionName' => \CPSIT\T3importExport\Configuration\Extension::NAME,
-                'icon' => $moduleConfiguration['icon'],
-                'controllerActions' => $registrationClass::getControllerActions(),
-                'inheritNavigationComponentFromMainModule' => false,
-            ];
-        }
-        return $configuration;
     }
 }
