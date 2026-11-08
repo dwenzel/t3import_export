@@ -1,0 +1,23 @@
+module.tx_t3importexport.settings.import.tasks.event {
+  label = Events
+  source {
+    class = CPSIT\T3importExport\Persistence\DataSourceCSV
+    config.file = EXT:example/Resources/Private/events.csv
+  }
+  preProcessors {
+    10 {
+      class = CPSIT\T3importExport\Component\PreProcessor\RenderContent
+      config.fields.teaser = TEXT
+      config.fields.teaser {
+        field = teaser // abstract
+      }
+    }
+    20 {
+      class = CPSIT\T3importExport\Component\PreProcessor\SetFieldValue
+      config {
+        targetField = pid
+        value = 12
+      }
+    }
+  }
+}

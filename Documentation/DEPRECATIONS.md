@@ -26,9 +26,36 @@ Presets > Debug, or `$GLOBALS['TYPO3_CONF_VARS']['LOG']['TYPO3']['CMS']['depreca
 ## Migration
 
 1. Move the tasks and sets from TypoScript to a YAML file in one of the
-   configured directories. A command to convert the TypoScript settings is
-   planned ([#82](https://github.com/dwenzel/t3import_export/issues/82)).
+   configured directories (`yamlConfigurationDirectories`). The command
+   `t3import-export:convert-typoscript` converts them, see below.
 2. Replace content objects by expressions (`RenderContent` ->
    `EvaluateExpressions`, `disable = TEXT` -> `disable.expression`,
    `DataSourceDB` values -> `{expression: ...}`).
 3. Check the deprecation log after running the tasks.
+
+## Converting TypoScript settings to YAML
+
+```bash
+vendor/bin/typo3 t3import-export:convert-typoscript \
+    EXT:my_sitepackage/Configuration/TypoScript/setup.typoscript \
+    --constants=EXT:my_sitepackage/Configuration/TypoScript/constants.typoscript \
+    --constants=config/sites/main/settings.yaml \
+    --output=packages/my_sitepackage/Configuration/ImportExport/tasks.yaml
+```
+
+* **files** (arguments): TypoScript files, read in the given order. `@import`
+  with `EXT:` paths (also with wildcards) is resolved; relative imports are not.
+  Only `module.tx_t3importexport.settings` (tasks and sets of `import` and
+  `export`) is converted; everything else is ignored.
+* **--constants** (`-c`, repeatable): files with constants. TypoScript files,
+  or YAML files such as site settings (a top-level `settings` key is used if
+  present). `{$...}` in the settings is replaced by these values; TypoScript
+  constants take precedence over YAML values.
+* **--output** (`-o`): YAML file to write. Without it, the YAML is written to
+  the standard output.
+
+The command lists content objects (e.g. `TEXT`) and constants without a value.
+Content objects are copied as they are (they still work in 3.x) and have to be
+replaced by expressions before version 4.0. TypoScript conditions (`[...]`)
+are not supported; check settings inside conditions by hand. Check the result
+before removing the TypoScript configuration.
