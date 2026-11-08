@@ -70,11 +70,14 @@ class DatabaseTraitTest extends TestCase
             ->getMock();
     }
 
-    public function testConstructorGetsDatabaseConnectionFromGlobals(): void
+    public function testGetDataBaseReturnsDefaultConnectionFromConnectionPool(): void
     {
-        $GLOBALS['TYPO3_DB'] = $this->connection;
+        $this->connectionPool->expects($this->once())
+            ->method('getConnectionByName')
+            ->with(ConnectionPool::DEFAULT_CONNECTION_NAME)
+            ->willReturn($this->connection);
 
-        $this->subject->__construct();
+        $this->subject->__construct($this->connectionPool, $this->connectionService);
         $this->assertSame(
             $this->connection,
             $this->subject->getDataBase()

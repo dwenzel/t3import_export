@@ -19,6 +19,7 @@ use CPSIT\T3importExport\Component\Initializer\DeleteFromTable;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class DeleteFromTableTest extends TestCase
@@ -128,8 +129,11 @@ class DeleteFromTableTest extends TestCase
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $this->connectionPool->method('getConnectionByName')
+            ->with(ConnectionPool::DEFAULT_CONNECTION_NAME)
+            ->willReturn($connection);
 
-        $this->subject->__construct();
+        $this->subject->__construct($this->connectionPool, $this->connectionService);
 
         $this->assertSame(
             $connection,
