@@ -17,11 +17,11 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'dirk.wenzel@cps-it.de',
     'author_company' => '',
     'state' => 'stable',
-    'version' => '1.0.5',
+    'version' => '2.0.2',
     'constraints' => [
         'depends' => [
             'typo3' => '12.4.0-12.4.99',
-            'php' => '8.2.0-0.0.0'
+            'php' => '8.2.0-8.3.99',
         ],
         'conflicts' => [],
         'suggests' => []
