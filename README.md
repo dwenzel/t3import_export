@@ -2,12 +2,24 @@
 
 [![TYPO3 13.4](https://img.shields.io/badge/TYPO3-13.4-blue.svg?style=flat-square)](https://get.typo3.org/version/13)
 [![PHP 8.4](https://img.shields.io/badge/PHP-8.4-blue.svg?style=flat-square)](https://www.php.net/)
-[![code coverage](https://codecov.io/gh/dwenzel/t3import_export/branch/master/graph/badge.svg)](https://codecov.io/gh/dwenzel/t3import_export)
-[![Build Status](https://travis-ci.org/dwenzel/t3import_export.svg?branch=master)](https://travis-ci.org/dwenzel/t3import_export)
+[![code coverage](https://codecov.io/gh/dwenzel/t3import_export/branch/main/graph/badge.svg)](https://codecov.io/gh/dwenzel/t3import_export)
 
 The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
 
 Imports data from different sources into TYPO3 and exports from TYPO3 to different targets. Possible data sources and targets are databases, and files (XML, CSV...). Import and export tasks are described via TypoScript or modern YAML configuration and can be grouped to sets. Tasks can be executed manually via backend module or command line or automatically as a scheduler task.
+
+## Support matrix
+
+| TYPO3 | Branch              | Latest release | Status |
+|-------|---------------------|----------------|--------|
+| 13.4  | `main`              | none yet (3.0.0 planned) | in development |
+| 12.4  | `support/typo3-v12` | 2.0.1          | bugfixes |
+| 11.5  | `support/typo3-v11` | none yet       | in development, see [#19](https://github.com/dwenzel/t3import_export/issues/19) |
+| 9.5, 10.4 | none            | 1.0.5          | not maintained |
+| 6.2 - 8.7 | none            | 0.14.0         | not maintained |
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the branching model and the release
+process.
 
 ## Table of Contents
 
