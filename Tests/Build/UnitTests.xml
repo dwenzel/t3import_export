@@ -1,17 +1,30 @@
 <?xml version="1.0"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="true" backupStaticAttributes="false" bootstrap="../../.Build/vendor/nimut/testing-framework/res/Configuration/UnitTestsBootstrap.php" colors="true" convertErrorsToExceptions="true" convertWarningsToExceptions="true" forceCoversAnnotation="false" processIsolation="false" stopOnError="false" stopOnFailure="false" stopOnIncomplete="false" stopOnSkipped="false" verbose="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage processUncoveredFiles="false">
-    <include>
-      <directory suffix=".php">../../Classes/</directory>
-    </include>
-    <report>
-      <text outputFile="php://stdout" showUncoveredFiles="true"/>
-    </report>
-  </coverage>
-  <testsuites>
-    <testsuite name="EXT:t3import_export tests">
-      <directory>../Unit/</directory>
-    </testsuite>
-  </testsuites>
-  <logging/>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../.Build/vendor/phpunit/phpunit/phpunit.xsd"
+    backupGlobals="true"
+    bootstrap="../../.Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php"
+    cacheResult="false"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertWarningsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertDeprecationsToExceptions="false"
+    failOnRisky="false"
+    failOnWarning="false"
+>
+    <testsuites>
+        <testsuite name="EXT:t3import_export unit tests">
+            <directory>../Unit/</directory>
+        </testsuite>
+    </testsuites>
+    <coverage includeUncoveredFiles="false">
+        <include>
+            <directory suffix=".php">../../Classes/</directory>
+        </include>
+    </coverage>
+    <php>
+        <ini name="display_errors" value="1"/>
+        <env name="TYPO3_CONTEXT" value="Testing"/>
+    </php>
 </phpunit>
