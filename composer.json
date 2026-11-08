@@ -24,10 +24,9 @@
     "ext-xmlreader": "*"
   },
   "require-dev": {
-    "roave/security-advisories": "dev-latest"   ,
-    "mikey179/vfsstream": "~1.6.0",
-    "nimut/testing-framework": "^6.0",
-    "phpunit/phpunit": "^8"
+    "mikey179/vfsstream": "^1.6.11",
+    "phpunit/phpunit": "^9.6",
+    "typo3/testing-framework": "^7.1"
   },
   "autoload": {
     "psr-4": {
@@ -46,6 +45,9 @@
       "typo3/class-alias-loader": true,
       "typo3/cms-composer-installers": true,
       "composer/installers": true
+    },
+    "audit": {
+      "block-insecure": false
     }
   },
   "scripts": {

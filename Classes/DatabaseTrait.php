@@ -66,9 +66,6 @@ trait DatabaseTrait
     {
         $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
         $this->connectionService = $connectionService ?? GeneralUtility::makeInstance(DatabaseConnectionService::class);
-        if (!$this->database instanceof Connection) {
-            #$this->database = $GLOBALS['TYPO3_DB'];
-        }
     }
 
     /**
@@ -78,7 +75,8 @@ trait DatabaseTrait
      */
     public function getDataBase(): Connection
     {
-        return $this->database;
+        // $GLOBALS['TYPO3_DB'] does not exist since TYPO3 9; use the default connection
+        return $this->database ??= $this->connectionPool->getConnectionByName(ConnectionPool::DEFAULT_CONNECTION_NAME);
     }
 
     public function getDatabaseConnectionService(): DatabaseConnectionService

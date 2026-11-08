@@ -28,6 +28,7 @@ class DummyDomainObjectB extends AbstractEntity
 
 class TranslationServiceTest extends TestCase
 {
+    use \CPSIT\T3importExport\Tests\Unit\Traits\AssertPropertyTrait;
     use MockPersistenceManagerTrait;
 
     protected TranslationService $subject;
@@ -198,7 +199,7 @@ class TranslationServiceTest extends TestCase
          * setting via $translation->{$propertyName} seems to require property being public!
          * @see DummyDomainObjectA::$translationParent
          */
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $origin,
             $propertyName,
             $translation

@@ -96,7 +96,7 @@ trait MockDatabaseTrait
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
             ->setMethods([
                 'getConnectionForTable',
-
+                'getConnectionByName',
             ])
             ->getMock();
 

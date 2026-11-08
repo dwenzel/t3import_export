@@ -28,6 +28,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateFileTraitTest extends TestCase
 {
+    use \CPSIT\T3importExport\Tests\Unit\Traits\AssertPropertyTrait;
     /**
      * @var GenerateFileTrait |\PHPUnit_Framework_MockObject_MockObject
      */
@@ -83,7 +84,7 @@ class GenerateFileTraitTest extends TestCase
         $methodName = 'inject' . ucfirst($propertyName);
         $this->subject->{$methodName}($mockDependency);
 
-        $this->assertAttributeSame(
+        $this->assertPropertySame(
             $mockDependency,
             $propertyName,
             $this->subject
