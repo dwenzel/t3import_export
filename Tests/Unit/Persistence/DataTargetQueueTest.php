@@ -73,6 +73,26 @@ class DataTargetQueueTest extends TestCase
         ];
     }
 
+    public static function validConfigurationDataProvider(): array
+    {
+        return [
+            'import identifier' => [
+                [DataTargetQueue::KEY_IDENTIFIER => 'import.foo'],
+            ],
+            'export identifier' => [
+                [DataTargetQueue::KEY_IDENTIFIER => 'export.foo'],
+            ],
+        ];
+    }
+
+    #[DataProvider('validConfigurationDataProvider')]
+    public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
+    {
+        self::assertTrue(
+            $this->subject->isConfigurationValid($configuration)
+        );
+    }
+
     #[DataProvider('inValidConfigurationDataProvider')]
     public function testIsConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
     {
