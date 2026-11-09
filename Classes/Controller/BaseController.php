@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Controller;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
@@ -11,10 +12,13 @@ use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
@@ -58,6 +62,14 @@ abstract class BaseController extends ActionController
      */
     protected TransferSetFactory $transferSetFactory;
     protected ModuleTemplate $moduleTemplate;
+    protected ?ConfigurationHandlerInterface $configurationHandler = null;
+
+    /**
+     * Identifiers of tasks and sets defined in TypoScript
+     *
+     * @var string[]
+     */
+    protected array $typoScriptIdentifiers = [];
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
         protected PageRenderer $pageRenderer
@@ -68,6 +80,65 @@ abstract class BaseController extends ActionController
         $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $this->moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue('module.t3import_export'));
         $this->moduleTemplate->getDocHeaderComponent()->disable();
+        $this->typoScriptIdentifiers = $this->getTypoScriptIdentifiers($this->settings);
+        if ($this->typoScriptIdentifiers !== []) {
+            DeprecationUtility::trigger(
+                'Tasks and sets in TypoScript (module.tx_t3importexport.settings) are deprecated since 3.1 and will be removed in 4.0. Move them to YAML files.'
+            );
+        }
+        $this->settings = $this->mergeYamlConfiguration($this->settings);
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     * @return string[]
+     */
+    protected function getTypoScriptIdentifiers(array $settings): array
+    {
+        $identifiers = [];
+        foreach (['tasks', 'sets'] as $type) {
+            $definitions = $settings[$this->getSettingsKey()][$type] ?? null;
+            if (is_array($definitions)) {
+                $identifiers = [...$identifiers, ...array_map('strval', array_keys($definitions))];
+            }
+        }
+
+        return $identifiers;
+    }
+
+    public function injectConfigurationHandler(ConfigurationHandlerInterface $configurationHandler): void
+    {
+        $this->configurationHandler = $configurationHandler;
+    }
+
+    /**
+     * Adds tasks and sets from the YAML configuration to the TypoScript
+     * settings of the module. TypoScript takes precedence for identifiers
+     * defined in both.
+     *
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
+     */
+    protected function mergeYamlConfiguration(array $settings): array
+    {
+        if (!$this->configurationHandler instanceof ConfigurationHandlerInterface) {
+            return $settings;
+        }
+        $settingsKey = $this->getSettingsKey();
+        $yamlConfiguration = $this->configurationHandler->getFullConfiguration()[$settingsKey] ?? [];
+        if (!is_array($yamlConfiguration)) {
+            return $settings;
+        }
+        foreach (['tasks', 'sets'] as $type) {
+            $fromYaml = is_array($yamlConfiguration[$type] ?? null) ? $yamlConfiguration[$type] : [];
+            $fromTypoScript = is_array($settings[$settingsKey][$type] ?? null) ? $settings[$settingsKey][$type] : [];
+            if ($fromYaml === [] && $fromTypoScript === []) {
+                continue;
+            }
+            $settings[$settingsKey][$type] = array_replace($fromYaml, $fromTypoScript);
+        }
+
+        return $settings;
     }
 
     /**
@@ -102,6 +173,20 @@ abstract class BaseController extends ActionController
      */
     public function indexAction(): ResponseInterface
     {
+        if ($this->typoScriptIdentifiers !== []) {
+            $this->getFlashMessageQueue('module.t3import_export')->enqueue(
+                GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    sprintf(
+                        'Defined in TypoScript: %s. TypoScript configuration is deprecated and will be removed in version 4.0. Please move these tasks and sets to YAML files.',
+                        implode(', ', $this->typoScriptIdentifiers)
+                    ),
+                    'Deprecated configuration',
+                    ContextualFeedbackSeverity::WARNING,
+                    false
+                )
+            );
+        }
         $settingsKey = $this->getSettingsKey();
         $tasks = [];
         $sets = [];

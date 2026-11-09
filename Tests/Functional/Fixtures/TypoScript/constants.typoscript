@@ -1,0 +1,3 @@
+plugin.example {
+  table = tx_example_table
+}

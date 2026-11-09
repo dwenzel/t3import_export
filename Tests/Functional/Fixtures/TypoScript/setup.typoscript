@@ -1,0 +1,16 @@
+page = PAGE
+page.10 = TEXT
+page.10.value = not part of the conversion
+
+@import 'EXT:t3import_export/Tests/Functional/Fixtures/TypoScript/Tasks/*.typoscript'
+
+module.tx_t3importexport.settings {
+  import.sets.all {
+    label = All
+    tasks = event
+  }
+  export.tasks.dump {
+    source.class = CPSIT\T3importExport\Persistence\DataSourceDB
+    source.config.table = {$plugin.example.table}
+  }
+}

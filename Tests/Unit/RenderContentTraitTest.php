@@ -56,8 +56,6 @@ class MockClassWithRenderContentTrait
             return $this->contentObjectRenderer;
         }
 
-        // Use trait method directly
-        $this->assertTypoScriptFrontendController();
         $this->contentObjectRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ContentObjectRenderer::class);
         return $this->contentObjectRenderer;
     }

@@ -11,6 +11,13 @@ YAML configuration provides a modern, structured alternative to TypoScript confi
 - **Validation Support**: Built-in schema validation
 - **Environment Management**: Easy environment-specific configurations
 
+Tasks and sets from YAML files in the configured directories
+(`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDirectories']`)
+are available on the command line and in the backend modules (Import, Export).
+If a task or set with the same identifier is also defined in TypoScript, the
+TypoScript definition is used. TypoScript configuration is deprecated, see
+[#75](https://github.com/dwenzel/t3import_export/issues/75).
+
 ## YAML Structure Reference
 
 ### Complete Configuration Schema

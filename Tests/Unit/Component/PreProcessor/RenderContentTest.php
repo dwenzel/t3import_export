@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\RenderContent;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -37,6 +38,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  * Class RenderContentTest
  */
 #[CoversClass(RenderContent::class)]
+#[IgnoreDeprecations]
 class RenderContentTest extends TestCase
 {
     /**

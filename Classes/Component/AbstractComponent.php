@@ -10,6 +10,7 @@ use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\RenderContentInterface;
 use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
 use CPSIT\T3importExport\RenderContentTrait;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
@@ -81,6 +82,10 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
                     ['record' => $record, 'result' => $result]
                 );
             }
+
+            DeprecationUtility::trigger(
+                'Disabling components with TypoScript content objects is deprecated since 3.1 and will be removed in 4.0. Use disable.expression instead.'
+            );
 
             return $this->renderContent($record, $disable) === '1';
         }

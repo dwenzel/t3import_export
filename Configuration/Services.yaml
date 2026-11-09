@@ -79,3 +79,8 @@ services:
       public: true
     CPSIT\T3importExport\Validation\Configuration\TranslateObjectConfigurationValidator:
       public: true
+
+    CPSIT\T3importExport\Configuration\TypoScriptConverter:
+      public: true
+    CPSIT\T3importExport\Command\ConvertTypoScriptCommand:
+      public: true

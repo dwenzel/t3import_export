@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /***************************************************************
  *  Copyright notice
@@ -25,6 +25,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 class RenderContent extends AbstractPreProcessor implements PreProcessorInterface
@@ -83,6 +84,9 @@ class RenderContent extends AbstractPreProcessor implements PreProcessorInterfac
      */
     public function process(array $configuration, array &$record): bool
     {
+        DeprecationUtility::trigger(
+            'The pre-processor RenderContent is deprecated since 3.1 and will be removed in 4.0. Use EvaluateExpressions instead.'
+        );
         $this->renderFields($configuration, $record);
 
         return true;

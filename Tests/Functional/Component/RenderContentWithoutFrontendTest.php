@@ -7,6 +7,7 @@ namespace CPSIT\T3importExport\Tests\Functional\Component;
 use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
 use CPSIT\T3importExport\Component\PreProcessor\RenderContent;
 use CPSIT\T3importExport\Component\PreProcessor\SetFieldValue;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -14,6 +15,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 /**
  * Content rendering as on the command line: no request, no TSFE (#64)
  */
+#[IgnoreDeprecations]
 class RenderContentWithoutFrontendTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [

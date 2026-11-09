@@ -1,0 +1,4 @@
+plugin:
+  example:
+    table: from_settings
+    pids: [12, 13]
