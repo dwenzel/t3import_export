@@ -1,0 +1,12 @@
+import:
+  tasks:
+    taskFromConfiguredDirectory:
+      label: 'Task from a configured YAML directory'
+      source:
+        class: 'CPSIT\T3importExport\Persistence\DataSourceDB'
+        config:
+          table: 'pages'
+      target:
+        class: 'CPSIT\T3importExport\Persistence\DataTargetDB'
+        config:
+          table: 'pages'
