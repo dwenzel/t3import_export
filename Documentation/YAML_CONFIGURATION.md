@@ -18,6 +18,24 @@ If a task or set with the same identifier is also defined in TypoScript, the
 TypoScript definition is used. TypoScript configuration is deprecated, see
 [#75](https://github.com/dwenzel/t3import_export/issues/75).
 
+### Configuring the directories
+
+Set the directories in the system configuration, e.g. in
+`config/system/additional.php`:
+
+```php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDirectories'] = [
+    'EXT:my_sitepackage/Configuration/ImportExport',
+];
+```
+
+- The configured list replaces the default
+  (`EXT:t3import_export/Configuration/ImportExport`).
+- All `*.yaml` files in each directory are loaded while the extension boots
+  (`ext_localconf.php` of t3import_export). Directories added later, e.g. in the
+  `ext_localconf.php` of an extension that depends on t3import_export and is
+  therefore loaded after it, are not read.
+
 ## YAML Structure Reference
 
 ### Complete Configuration Schema

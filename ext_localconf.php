@@ -6,10 +6,7 @@ defined('TYPO3') or die();
 // register custom implementation of PersistentObjectConverter
 \CPSIT\T3importExport\Configuration\Extension::registerIcons();
 
-// Configure YAML configuration directories
-$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDirectories'] = [
-    'EXT:t3import_export/Configuration/ImportExport',
-];
-
-// Bootstrap extension
+// Bootstrap extension: loads YAML configuration from
+// $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDirectories']
+// (default EXT:t3import_export/Configuration/ImportExport, set in Extension::boot() if not configured)
 (new \CPSIT\T3importExport\Extension())->boot();
