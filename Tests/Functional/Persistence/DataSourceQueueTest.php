@@ -18,6 +18,7 @@ class DataSourceQueueTest extends FunctionalTestCase
     protected const array CONFIGURATION = ['identifier' => 'import.foo', 'batchSize' => 2];
 
     protected array $testExtensionsToLoad = [
+        't3extension_tools',
         't3import_export',
     ];
 

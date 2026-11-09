@@ -20,6 +20,7 @@ class TypoScriptConverterTest extends FunctionalTestCase
     protected const FIXTURE = 'EXT:t3import_export/Tests/Functional/Fixtures/TypoScript/setup.typoscript';
 
     protected array $testExtensionsToLoad = [
+        't3extension_tools',
         't3import_export',
     ];
 

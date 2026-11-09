@@ -49,6 +49,7 @@ class ImportProcessorTest extends FunctionalTestCase
      * @var array
      */
     protected array $testExtensionsToLoad = [
+        't3extension_tools',
         't3import_export'
     ];
 
