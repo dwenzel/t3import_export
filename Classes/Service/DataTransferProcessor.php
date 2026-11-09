@@ -33,6 +33,7 @@ use CPSIT\T3importExport\Component\PostProcessor\AbstractPostProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\AbstractPreProcessor;
 use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
+use CPSIT\T3importExport\Persistence\CompletableSourceInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -116,38 +117,55 @@ class DataTransferProcessor
             if (!isset($this->queue[$task->getIdentifier()])) {
                 continue;
             }
-            $records = $this->queue[$task->getIdentifier()];
-            $this->processInitializers($records, $task, $result);
-
-            if ((bool)$records) {
-                $target = $task->getTarget();
-                $targetConfig = null;
-                if ($target instanceof ConfigurableInterface) {
-                    $targetConfig = $target->getConfiguration();
+            $source = $task->getSource();
+            $sourceConfig = $source instanceof ConfigurableInterface ? $source->getConfiguration() : [];
+            try {
+                $this->processTask($task, $result);
+            } catch (\Throwable $exception) {
+                if ($source instanceof CompletableSourceInterface) {
+                    $source->fail($sourceConfig);
                 }
-
-                foreach ($records as &$record) {
-                    $this->preProcessSingle($record, $task, $result);
-                    $convertedRecord = $this->convertSingle($record, $task, $result);
-                    $this->postProcessSingle($convertedRecord, $record, $task, $result);
-                    if (
-                        $target instanceof AbstractComponent
-                        && $target->isDisabled($targetConfig, $record, $result)
-                    ) {
-                        continue;
-                    }
-                    $target->persist($convertedRecord, $targetConfig);
-                    $result->add($convertedRecord);
-                }
-                unset($record);
-
-                $target->persistAll($result, $targetConfig);
+                throw $exception;
             }
-
-            $this->processFinishers($records, $task, $result);
+            if ($source instanceof CompletableSourceInterface) {
+                $source->complete($sourceConfig);
+            }
         }
 
         return $result->toArray();
+    }
+
+    protected function processTask(TransferTask $task, TaskResult $result): void
+    {
+        $records = $this->queue[$task->getIdentifier()];
+        $this->processInitializers($records, $task, $result);
+
+        if ((bool)$records) {
+            $target = $task->getTarget();
+            $targetConfig = null;
+            if ($target instanceof ConfigurableInterface) {
+                $targetConfig = $target->getConfiguration();
+            }
+
+            foreach ($records as &$record) {
+                $this->preProcessSingle($record, $task, $result);
+                $convertedRecord = $this->convertSingle($record, $task, $result);
+                $this->postProcessSingle($convertedRecord, $record, $task, $result);
+                if (
+                    $target instanceof AbstractComponent
+                    && $target->isDisabled($targetConfig, $record, $result)
+                ) {
+                    continue;
+                }
+                $target->persist($convertedRecord, $targetConfig);
+                $result->add($convertedRecord);
+            }
+            unset($record);
+
+            $target->persistAll($result, $targetConfig);
+        }
+
+        $this->processFinishers($records, $task, $result);
     }
 
     /**

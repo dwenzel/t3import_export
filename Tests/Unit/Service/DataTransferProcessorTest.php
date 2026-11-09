@@ -14,6 +14,7 @@ use CPSIT\T3importExport\Domain\Model\Dto\DemandInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\TransferTask;
+use CPSIT\T3importExport\Persistence\CompletableSourceInterface;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
 use CPSIT\T3importExport\Service\DataTransferProcessor;
@@ -793,5 +794,39 @@ class DataTransferProcessorTest extends TestCase
             ['foo' => ['first' => ['uid' => 1], 'second' => ['uid' => 2]]],
             $subject->getQueue()
         );
+    }
+
+    #[Test]
+    public function processCompletesCompletableSourceAfterTask(): void
+    {
+        $source = $this->createMockForIntersectionOfInterfaces(
+            [DataSourceInterface::class, CompletableSourceInterface::class]
+        );
+        $source->expects($this->once())->method('complete')->with([]);
+        $source->expects($this->never())->method('fail');
+        $this->dataSource = $source;
+        $this->mockTransferTask();
+        $this->mockTaskDemand();
+
+        $this->subject->process($this->taskDemand);
+    }
+
+    #[Test]
+    public function processFailsCompletableSourceAndRethrowsWhenTaskThrows(): void
+    {
+        $source = $this->createMockForIntersectionOfInterfaces(
+            [DataSourceInterface::class, CompletableSourceInterface::class]
+        );
+        $source->expects($this->once())->method('fail')->with([]);
+        $source->expects($this->never())->method('complete');
+        $this->dataSource = $source;
+        $this->dataTarget->method('persist')
+            ->willThrowException(new \RuntimeException('target failed', 1_794_208_102));
+        $this->mockTransferTask();
+        $this->mockTaskDemand();
+
+        $this->expectExceptionCode(1_794_208_102);
+
+        $this->subject->process($this->taskDemand);
     }
 }

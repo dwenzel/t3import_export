@@ -292,11 +292,51 @@ class QueueItemRepository
                     $queryBuilder->createNamedParameter(QueueItem::STATUS_NEW, Connection::PARAM_INT)
                 )
             )
+            ->orderBy(QueueItem::FIELD_UID)
             ->setMaxResults($limit);
-        $result = $query->execute()
-            ->fetchAllAssociative();
 
-        return is_array($result) ? $result : [];
+        return $query->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    /**
+     * Sets the status of the given queue items. Processing sets the start date,
+     * finished and failed set the finish date.
+     *
+     * @param int[] $uids
+     */
+    public function updateStatus(array $uids, int $status): void
+    {
+        if ($uids === []) {
+            return;
+        }
+        if (!in_array($status, QueueItem::STATUS, true)) {
+            throw new InvalidArgumentException(
+                sprintf('Invalid queue item status %d.', $status),
+                1_794_208_101
+            );
+        }
+
+        $data = [QueueItem::FIELD_STATUS => $status];
+        if ($status === QueueItem::STATUS_PROCESSING) {
+            $data[QueueItem::FIELD_STARTED] = time();
+        }
+        if ($status === QueueItem::STATUS_FINISHED || $status === QueueItem::STATUS_FAILED) {
+            $data[QueueItem::FIELD_FINISHED] = time();
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(QueueItem::TABLE);
+        $queryBuilder->update(QueueItem::TABLE)
+            ->where(
+                $queryBuilder->expr()->in(
+                    QueueItem::FIELD_UID,
+                    $queryBuilder->createNamedParameter(array_map('intval', $uids), Connection::PARAM_INT_ARRAY)
+                )
+            );
+        foreach ($data as $field => $value) {
+            $queryBuilder->set($field, $value, true, Connection::PARAM_INT);
+        }
+        $queryBuilder->executeStatement();
     }
 
     public function setDefaultOrderings(array $defaultOrderings)

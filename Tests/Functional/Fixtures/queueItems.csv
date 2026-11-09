@@ -1,0 +1,7 @@
+"tx_t3importexport_domain_model_queueitem",,,,,,
+,"uid","pid","identifier","checksum","data","status"
+,1,0,"import.foo","c1","a",0
+,2,0,"import.foo","c2","b",0
+,3,0,"import.foo","c3","c",0
+,4,0,"import.bar","c4","d",0
+,5,0,"import.foo","c5","e",2
