@@ -19,6 +19,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 class RenderContentWithoutFrontendTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [
+        't3extension_tools',
         't3import_export',
     ];
 
