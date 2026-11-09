@@ -29,10 +29,11 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  ***************************************************************/
 
 /**
- * Class DataTargetQueue
- * Creates and persists queue items
+ * Class DataSourceQueue
+ * Reads new queue items and marks them as processing. After the task
+ * they are marked as finished or failed (see CompletableSourceInterface).
  */
-class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
+class DataSourceQueue implements DataSourceInterface, ConfigurableInterface, CompletableSourceInterface
 {
     use ConfigurableTrait;
 
@@ -40,6 +41,13 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
     final public const string KEY_BATCH_SIZE = 'batchSize';
     final public const int DEFAULT_BATCH_SIZE = 10;
     protected string $targetClass = QueueItem::class;
+
+    /**
+     * uids of the items claimed by getRecords()
+     *
+     * @var int[]
+     */
+    protected array $claimedUids = [];
 
     public function __construct(protected QueueItemRepository $repository) {}
 
@@ -74,6 +82,31 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface
         }
 
         $fields = [QueueItem::FIELD_UID, QueueItem::FIELD_DATA];
-        return $this->repository->findNewByIdentifier($identifier, $limit, $fields);
+        $records = $this->repository->findNewByIdentifier($identifier, $limit, $fields);
+
+        $uids = array_map(
+            static fn(array $record): int => (int)$record[QueueItem::FIELD_UID],
+            $records
+        );
+        $this->repository->updateStatus($uids, QueueItem::STATUS_PROCESSING);
+        $this->claimedUids = array_merge($this->claimedUids, $uids);
+
+        return $records;
+    }
+
+    public function complete(array $configuration): void
+    {
+        $this->release(QueueItem::STATUS_FINISHED);
+    }
+
+    public function fail(array $configuration): void
+    {
+        $this->release(QueueItem::STATUS_FAILED);
+    }
+
+    protected function release(int $status): void
+    {
+        $this->repository->updateStatus($this->claimedUids, $status);
+        $this->claimedUids = [];
     }
 }
