@@ -1,3 +1,8 @@
+2026-11-10         [RELEASE] Release of t3import_export 3.1.1 (Dirk Wenzel)
+2026-11-10 595dd1a [TASK] Update ext_emconf and support matrix for 3.1.1 (Dirk Wenzel)
+2026-11-10 f857389 [BUGFIX] Allow t3extension_tools 6.x (Dirk Wenzel)
+2026-11-09 973bad3 [DOC] Add missing commits to ChangeLog of 3.1.0 (Dirk Wenzel)
+
 2026-11-09         [RELEASE] Release of t3import_export 3.1.0 (Dirk Wenzel)
 2026-11-09 d6160f4 [TASK] Update ext_emconf and support matrix for 3.1.0 (Dirk Wenzel)
 2026-11-09 246b0e5 [TASK] Load t3extension_tools in functional tests (Dirk Wenzel)
