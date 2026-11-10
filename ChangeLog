@@ -1,3 +1,7 @@
+2026-11-10         [RELEASE] Release of t3import_export 1.1.1 (Dirk Wenzel)
+2026-11-10 79bc7e9 [TASK] Update ext_emconf for 1.1.1 (Dirk Wenzel)
+2026-11-10 659959d [BUGFIX] Declare dependency on t3extension_tools in ext_emconf (Dirk Wenzel)
+
 2026-11-08         [RELEASE] Release of t3import_export 1.1.0 (Dirk Wenzel)
 2026-11-08 096ddc7 [TASK] Update ext_emconf for 1.1.0 (Dirk Wenzel)
 2026-11-08 db33137 [CI] Add workflow to publish tags to TER (Dirk Wenzel)
