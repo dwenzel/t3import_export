@@ -45,14 +45,7 @@ class Extension extends ExtensionConfiguration
     final public const string SVG_ICON_IDENTIFIER_JOBS = 'jobs';
     final public const string SVG_ICON_IDENTIFIER_MODULE_IMPORT = 't3import_export-module-import';
     final public const string SVG_ICON_IDENTIFIER_MODULE_EXPORT = 't3import_export-module-export';
-    /**
-     * SVG icons to register
-     */
-    protected const SVG_ICONS_TO_REGISTER = [
-        self::SVG_ICON_IDENTIFIER_JOBS => 'EXT:t3import_export/Resources/Public/Icons/tx_t3importexport_domain_model_job.svg',
-        self::SVG_ICON_IDENTIFIER_MODULE_IMPORT => 'EXT:t3import_export/Resources/Public/Icons/module_import.svg',
-        self::SVG_ICON_IDENTIFIER_MODULE_EXPORT => 'EXT:t3import_export/Resources/Public/Icons/module_export.svg',
-    ];
+    // Icons are registered in Configuration/Icons.php
 
     public function getCommandsToRegister(): array
     {
