@@ -1,5 +1,7 @@
 2026-11-09         [RELEASE] Release of t3import_export 3.1.0 (Dirk Wenzel)
 2026-11-09 d6160f4 [TASK] Update ext_emconf and support matrix for 3.1.0 (Dirk Wenzel)
+2026-11-09 246b0e5 [TASK] Load t3extension_tools in functional tests (Dirk Wenzel)
+2026-11-09 0c34de7 [BUGFIX] Declare dependency on t3extension_tools in ext_emconf (Dirk Wenzel)
 2026-11-09 e7a7c00 [BUGFIX] Keep configured YAML configuration directories (Dirk Wenzel)
 2026-11-09 a05539d [BUGFIX] Mark queue items as processed (Dirk Wenzel)
 2026-11-08 53c43ff [FEATURE] Add command to convert TypoScript settings to YAML (Dirk Wenzel)
