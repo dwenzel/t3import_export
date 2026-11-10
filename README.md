@@ -13,8 +13,8 @@ Imports data from different sources into TYPO3 and exports from TYPO3 to differe
 | TYPO3 | Branch              | Latest release | Status |
 |-------|---------------------|----------------|--------|
 | 13.4  | `main`              | 3.1.1          | maintained |
-| 12.4  | `support/typo3-v12` | 2.0.2          | bugfixes |
-| 11.5  | `support/typo3-v11` | 1.1.0          | bugfixes |
+| 12.4  | `support/typo3-v12` | 2.0.3          | bugfixes |
+| 11.5  | `support/typo3-v11` | 1.1.1          | bugfixes |
 | 9.5, 10.4 | none            | 1.0.5          | not maintained |
 | 6.2 - 8.7 | none            | 0.14.0         | not maintained |
 
