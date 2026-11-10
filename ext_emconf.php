@@ -22,7 +22,7 @@ $EM_CONF[$_EXTKEY] = [
         'depends' => [
             'typo3' => '13.4.0-13.4.99',
             'php' => '8.3.0-8.4.99',
-            't3extension_tools' => '4.0.0-5.99.99',
+            't3extension_tools' => '5.0.0-6.99.99',
         ],
         'conflicts' => [],
         'suggests' => []
