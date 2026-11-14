@@ -18,12 +18,12 @@
     }
   ],
   "require": {
-    "php": ">=8.3",
+    "php": ">=8.5",
     "ext-xmlreader": "*",
     "cpsit/import-export-core": "^0.1",
-    "dwenzel/t3extension-tools": "^5.0 || ^6.1",
-    "symfony/expression-language": "^7.1",
-    "typo3/cms-core": "^13.4"
+    "dwenzel/t3extension-tools": "^6.2",
+    "symfony/expression-language": "^8.1",
+    "typo3/cms-core": "^15.0"
   },
   "require-dev": {
     "armin/editorconfig-cli": "^2.0",
@@ -39,7 +39,7 @@
     "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^2.0",
     "ssch/typo3-rector": "^3.0",
-    "typo3/cms-frontend": "^13.4",
+    "typo3/cms-frontend": "^15.0",
     "typo3/coding-standards": "^0.8.0",
     "typo3/testing-framework": "^9.0"
   },
