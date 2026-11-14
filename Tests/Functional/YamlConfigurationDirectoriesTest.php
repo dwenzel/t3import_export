@@ -16,6 +16,9 @@ class YamlConfigurationDirectoriesTest extends FunctionalTestCase
 {
     protected const string DIRECTORY = 'EXT:t3import_export/Tests/Functional/Fixtures/YamlDirectory';
 
+    // typo3/cms-install is required by t3extension_tools
+    protected array $coreExtensionsToLoad = ['install'];
+
     protected array $testExtensionsToLoad = [
         't3extension_tools',
         't3import_export',
