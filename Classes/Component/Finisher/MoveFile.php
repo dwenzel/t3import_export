@@ -27,7 +27,8 @@ use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -64,6 +65,15 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
     ];
 
     /**
+     * Conflict modes of this finisher mapped to the duplication behavior of the core
+     */
+    final public const array DUPLICATION_BEHAVIORS = [
+        self::CONFLICT_MODE_CANCEL => DuplicationBehavior::CANCEL,
+        self::CONFLICT_MODE_RENAME_NEW_FILE => DuplicationBehavior::RENAME,
+        self::CONFLICT_MODE_OVERRIDE_EXISTING_FILE => DuplicationBehavior::REPLACE,
+    ];
+
+    /**
      * Error by id
      * <unique id> => ['title', ['message']
      */
@@ -82,13 +92,13 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
         1_509_024_162 => ['File moved', 'File %1s has been moved succesfully to %2s.'],
     ];
 
-    protected ResourceFactory $resourceFactory;
+    protected StorageRepository $storageRepository;
 
     public function __construct(
-        ?ResourceFactory $resourceFactory = null,
+        ?StorageRepository $storageRepository = null,
         ?MessageContainer $messageContainer = null
     ) {
-        $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
+        $this->storageRepository = $storageRepository ?? GeneralUtility::makeInstance(StorageRepository::class);
         $this->messageContainer = $messageContainer ?? GeneralUtility::makeInstance(MessageContainer::class);
     }
 
@@ -175,13 +185,13 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
         array &$records,
         object|array &$result
     ): bool {
-        $defaultStorage = $this->resourceFactory->getDefaultStorage();
+        $defaultStorage = $this->storageRepository->getDefaultStorage();
         $targetStorage = $defaultStorage;
         $sourceStorage = $defaultStorage;
         $sourceFileName = $configuration['source']['name'];
 
         if (!empty($configuration['source']['storage'])) {
-            $sourceStorage = $this->resourceFactory->getStorageObject((int)$configuration['source']['storage']);
+            $sourceStorage = $this->storageRepository->getStorageObject((int)$configuration['source']['storage']);
         }
 
         $sourceFolder = $sourceStorage->getDefaultFolder();
@@ -203,7 +213,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
         $sourceFile = $filesInSourceFolder[$sourceFileName];
 
         if (!empty($configuration['target']['storage'])) {
-            $targetStorage = $this->resourceFactory->getStorageObject((int)$configuration['target']['storage']);
+            $targetStorage = $this->storageRepository->getStorageObject((int)$configuration['target']['storage']);
         }
 
         $targetFolder = $targetStorage->getDefaultFolder();
@@ -226,7 +236,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
             $sourceFile,
             $targetFolder,
             $targetFileName,
-            $conflictMode
+            self::DUPLICATION_BEHAVIORS[$conflictMode] ?? DuplicationBehavior::RENAME
         );
         $this->logNotice(1_509_024_162, [$sourceFileName, $targetFileName], $configuration);
 
