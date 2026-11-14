@@ -16,6 +16,9 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  */
 class IconRegistrationTest extends FunctionalTestCase
 {
+    // typo3/cms-install is required by t3extension_tools
+    protected array $coreExtensionsToLoad = ['install'];
+
     protected array $testExtensionsToLoad = [
         't3extension_tools',
         't3import_export',
