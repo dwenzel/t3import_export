@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Property\TypeConverter;
 
+use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Exception;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
@@ -184,7 +185,13 @@ class PersistentObjectConverter extends \TYPO3\CMS\Extbase\Property\TypeConverte
         $querySettings->setEnableFieldsToBeIgnored($this->enableFieldsToBeIgnored);
         $querySettings->setRespectStoragePage($this->respectStoragePage);
         $querySettings->setRespectSysLanguage($this->respectSysLanguage);
-        $querySettings->setLanguageUid($this->sysLanguageUid);
+        $languageAspect = $querySettings->getLanguageAspect();
+        $querySettings->setLanguageAspect(new LanguageAspect(
+            $this->sysLanguageUid,
+            $this->sysLanguageUid,
+            $languageAspect->getOverlayType(),
+            $languageAspect->getFallbackChain()
+        ));
         $querySettings->setIncludeDeleted($this->includeDeleted);
         $querySettings->setStoragePageIds($this->storagePageIds);
         $query->setQuerySettings($querySettings);

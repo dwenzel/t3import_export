@@ -8,6 +8,7 @@ use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
+use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ComparisonInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
@@ -193,8 +194,15 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
             // remove all space char's and explode the pid string (comma separated)
             $langUid = (int)$config['languageId'];
             if (!empty($langUid)) {
-                $query->getQuerySettings()->setRespectSysLanguage(false);
-                $query->getQuerySettings()->setLanguageUid($langUid);
+                $querySettings = $query->getQuerySettings();
+                $querySettings->setRespectSysLanguage(false);
+                $languageAspect = $querySettings->getLanguageAspect();
+                $querySettings->setLanguageAspect(new LanguageAspect(
+                    $langUid,
+                    $langUid,
+                    $languageAspect->getOverlayType(),
+                    $languageAspect->getFallbackChain()
+                ));
 
                 return;
             }

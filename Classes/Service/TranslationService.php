@@ -26,6 +26,7 @@ namespace CPSIT\T3importExport\Service;
 
 use CPSIT\T3importExport\Exception\InvalidColumnMapException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -114,7 +115,13 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
 
         $querySettings->setIgnoreEnableFields(true);
         $querySettings->setRespectStoragePage(false);
-        $querySettings->setLanguageUid(0);
+        $languageAspect = $querySettings->getLanguageAspect();
+        $querySettings->setLanguageAspect(new LanguageAspect(
+            0,
+            0,
+            $languageAspect->getOverlayType(),
+            $languageAspect->getFallbackChain()
+        ));
         $query->setQuerySettings($querySettings);
         $parentObject = $query->matching($query->equals('uid', $identity))->execute()->getFirst();
 
