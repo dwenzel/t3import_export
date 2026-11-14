@@ -26,7 +26,7 @@ return [
     'import' => [
         'parent' => 'system',
         'position' => ['bottom'],
-        'access' => 'user,group',
+        'access' => 'user',
         //'path' => '/module/path/...'
         'labels' => 'LLL:EXT:t3import_export/Resources/Private/Language/locallang_import.xlf',
         'iconIdentifier' => Extension::SVG_ICON_IDENTIFIER_MODULE_IMPORT,
@@ -38,7 +38,7 @@ return [
     'export' => [
         'parent' => 'system',
         'position' => ['bottom'],
-        'access' => 'user,group',
+        'access' => 'user',
         //'path' => '/module/path/...'
         'labels' => 'LLL:EXT:t3import_export/Resources/Private/Language/locallang_export.xlf',
         'iconIdentifier' => Extension::SVG_ICON_IDENTIFIER_MODULE_EXPORT,
