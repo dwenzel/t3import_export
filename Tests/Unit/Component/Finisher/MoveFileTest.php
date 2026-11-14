@@ -10,13 +10,13 @@ use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Folder;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 class MoveFileTest extends TestCase
 {
     protected MoveFile $subject;
-    protected ResourceFactory|MockObject $resourceFactory;
+    protected StorageRepository|MockObject $storageRepository;
     protected ResourceStorage|MockObject $resourceStorage;
     protected Folder|MockObject $folder;
     protected MessageContainer|MockObject $messageContainer;
@@ -29,13 +29,13 @@ class MoveFileTest extends TestCase
         $this->resourceStorage->method('getDefaultFolder')
             ->willReturn($this->folder);
 
-        $this->resourceFactory = $this->createMock(ResourceFactory::class);
-        $this->resourceFactory->method('getDefaultStorage')
+        $this->storageRepository = $this->createMock(StorageRepository::class);
+        $this->storageRepository->method('getDefaultStorage')
             ->willReturn($this->resourceStorage);
 
         $this->messageContainer = $this->createMock(MessageContainer::class);
 
-        $this->subject = new MoveFile($this->resourceFactory, $this->messageContainer);
+        $this->subject = new MoveFile($this->storageRepository, $this->messageContainer);
     }
 
     public function testInstanceImplementsLoggingInterface(): void

@@ -25,11 +25,12 @@ use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -60,14 +61,23 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
         self::CONFLICT_MODE_CHANGENAME,
         self::CONFLICT_MODE_REPLACE,
     ];
-    protected ResourceFactory $resourceFactory;
+
+    /**
+     * Conflict modes of this finisher mapped to the duplication behavior of the core
+     */
+    final public const array DUPLICATION_BEHAVIORS = [
+        self::CONFLICT_MODE_CANCEL => DuplicationBehavior::CANCEL,
+        self::CONFLICT_MODE_CHANGENAME => DuplicationBehavior::RENAME,
+        self::CONFLICT_MODE_REPLACE => DuplicationBehavior::REPLACE,
+    ];
+    protected StorageRepository $storageRepository;
 
     /**
      * WriteFile constructor.
      */
-    public function __construct(?ResourceFactory $resourceFactory = null)
+    public function __construct(?StorageRepository $storageRepository = null)
     {
-        $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
+        $this->storageRepository = $storageRepository ?? GeneralUtility::makeInstance(StorageRepository::class);
     }
 
     /**
@@ -137,9 +147,9 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
         $fileInfo = $result->getInfo();
 
         if (!empty($configuration['target']['storage'])) {
-            $storage = $this->resourceFactory->getStorageObject((int)$configuration['target']['storage']);
+            $storage = $this->storageRepository->getStorageObject((int)$configuration['target']['storage']);
         } else {
-            $storage = $this->resourceFactory->getDefaultStorage();
+            $storage = $this->storageRepository->getDefaultStorage();
         }
         if (!$storage->isOnline()) {
             throw new \RuntimeException(
@@ -170,11 +180,19 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
             $conflictMode = $configuration['target']['conflictMode'];
         }
 
+        $realPath = $fileInfo->getRealPath();
+        if ($realPath === false) {
+            throw new \RuntimeException(
+                sprintf('File "%s" to write does not exist.', $fileInfo->getPathname()),
+                1763130000
+            );
+        }
+
         $storage->addFile(
-            $fileInfo->getRealPath(),
+            $realPath,
             $folder,
             $configuration['target']['name'],
-            $conflictMode
+            self::DUPLICATION_BEHAVIORS[$conflictMode] ?? DuplicationBehavior::RENAME
         );
 
         return true;

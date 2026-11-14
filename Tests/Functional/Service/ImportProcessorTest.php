@@ -48,6 +48,9 @@ class ImportProcessorTest extends FunctionalTestCase
     /**
      * @var array
      */
+    // typo3/cms-install is required by t3extension_tools
+    protected array $coreExtensionsToLoad = ['install'];
+
     protected array $testExtensionsToLoad = [
         't3extension_tools',
         't3import_export'
