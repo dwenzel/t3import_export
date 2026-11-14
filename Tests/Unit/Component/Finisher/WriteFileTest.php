@@ -12,7 +12,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Resource\Folder;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 /***************************************************************
@@ -38,10 +39,12 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
  */
 class WriteFileTest extends TestCase
 {
+    private const string REAL_PATH = '/tmp/t3import_export_write_file_test.xml';
+
     protected WriteFile $subject;
     protected TaskResult $result;
     protected FileInfo $fileInfo;
-    protected ResourceFactory|MockObject $resourceFactory;
+    protected StorageRepository|MockObject $storageRepository;
     protected ResourceStorage|MockObject $resourceStorage;
     protected Folder|MockObject $folder;
     protected MessageContainer|MockObject $messageContainer;
@@ -51,9 +54,7 @@ class WriteFileTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->fileInfo = $this->getMockBuilder(FileInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->fileInfo = $this->createFileInfo();
 
         $this->result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])
@@ -66,22 +67,21 @@ class WriteFileTest extends TestCase
         $this->resourceStorage->method('getDefaultFolder')
             ->willReturn($this->folder);
 
-        $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
+        $this->storageRepository = $this->getMockBuilder(StorageRepository::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
                 'getStorageObject',
                 'getDefaultStorage',
-                'createFileReferenceObject',
             ])
             ->getMock();
 
-        $this->resourceFactory->method('getDefaultStorage')
+        $this->storageRepository->method('getDefaultStorage')
             ->willReturn($this->resourceStorage);
 
         $this->messageContainer = $this->createMock(MessageContainer::class);
 
         $this->subject = new WriteFile(
-            $this->resourceFactory
+            $this->storageRepository
         );
     }
 
@@ -282,14 +282,12 @@ class WriteFileTest extends TestCase
      */
     protected function expectDefaultFolderAccess()
     {
-        $fileInfo = $this->getMockBuilder(FileInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $fileInfo = $this->createFileInfo();
         $result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
-        $this->resourceFactory->expects($this->once())
+        $this->storageRepository->expects($this->once())
             ->method('getDefaultStorage');
         $this->resourceStorage->expects($this->once())
             ->method('getDefaultFolder');
@@ -306,14 +304,12 @@ class WriteFileTest extends TestCase
                 'storage' => $storageId,
             ],
         ];
-        $fileInfo = $this->getMockBuilder(FileInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $fileInfo = $this->createFileInfo();
         $result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
             ->willReturn($fileInfo);
-        $this->resourceFactory->expects($this->once())
+        $this->storageRepository->expects($this->once())
             ->method('getStorageObject')
             ->with(...[(int)$storageId])
             ->willReturn($this->resourceStorage);
@@ -393,9 +389,7 @@ class WriteFileTest extends TestCase
      */
     protected function expectCreationOfMissingDirectory(string $directory)
     {
-        $fileInfo = $this->getMockBuilder(FileInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $fileInfo = $this->createFileInfo();
         $result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
@@ -436,9 +430,7 @@ class WriteFileTest extends TestCase
      */
     protected function expectAccessOfExistingDirectory(string $directory)
     {
-        $fileInfo = $this->getMockBuilder(FileInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $fileInfo = $this->createFileInfo();
         $result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
@@ -465,9 +457,7 @@ class WriteFileTest extends TestCase
                 'conflictMode' => $conflictMode,
             ],
         ];
-        $fileInfo = $this->getMockBuilder(FileInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $fileInfo = $this->createFileInfo();
         $result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])->getMock();
         $result->expects($this->atLeast(1))->method('getInfo')
@@ -477,19 +467,70 @@ class WriteFileTest extends TestCase
             ->method('addFile')
             ->with(
                 ...[
-                    null,
+                    self::REAL_PATH,
                     $this->folder,
                     $configuration['target']['name'],
-                    $conflictMode,
+                    DuplicationBehavior::REPLACE,
                 ]
-            )
-            ->willReturn(false);
+            );
 
         $this->subject->process(
             $configuration,
             $records,
             $result
         );
+    }
+
+    /**
+     * @return array<string, array{string|null, DuplicationBehavior}>
+     */
+    public static function conflictModeDataProvider(): array
+    {
+        return [
+            'not configured' => [null, DuplicationBehavior::RENAME],
+            WriteFile::CONFLICT_MODE_CANCEL => [WriteFile::CONFLICT_MODE_CANCEL, DuplicationBehavior::CANCEL],
+            WriteFile::CONFLICT_MODE_CHANGENAME => [WriteFile::CONFLICT_MODE_CHANGENAME, DuplicationBehavior::RENAME],
+            WriteFile::CONFLICT_MODE_REPLACE => [WriteFile::CONFLICT_MODE_REPLACE, DuplicationBehavior::REPLACE],
+        ];
+    }
+
+    #[DataProvider('conflictModeDataProvider')]
+    public function testProcessMapsConflictModeToDuplicationBehavior(?string $conflictMode, DuplicationBehavior $expected): void
+    {
+        $records = [];
+        $configuration = ['target' => ['name' => 'bar.xml']];
+        if ($conflictMode !== null) {
+            $configuration['target']['conflictMode'] = $conflictMode;
+        }
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['getInfo'])->getMock();
+        $result->method('getInfo')->willReturn($this->fileInfo);
+        $this->resourceStorage->expects($this->once())
+            ->method('addFile')
+            ->with($this->anything(), $this->anything(), $this->anything(), $expected);
+
+        $this->subject->process($configuration, $records, $result);
+    }
+
+    public function testProcessThrowsExceptionIfFileToWriteDoesNotExist(): void
+    {
+        $records = [];
+        $configuration = ['target' => ['name' => 'bar.xml']];
+        $fileInfo = $this->getMockBuilder(FileInfo::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getRealPath', 'getPathname'])
+            ->getMock();
+        $fileInfo->method('getRealPath')->willReturn(false);
+        $fileInfo->method('getPathname')->willReturn('missing.xml');
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['getInfo'])->getMock();
+        $result->method('getInfo')->willReturn($fileInfo);
+        $this->resourceStorage->expects($this->never())->method('addFile');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(1763130000);
+
+        $this->subject->process($configuration, $records, $result);
     }
 
     public function testProcessDoesNotAccessDefaultFolderIfDirectoryIsConfigured(): void
@@ -542,12 +583,12 @@ class WriteFileTest extends TestCase
         $storage->method('isOnline')->willReturn(false);
         $storage->expects($this->never())->method('getDefaultFolder');
         $storage->expects($this->never())->method('addFile');
-        $resourceFactory = $this->getMockBuilder(ResourceFactory::class)
+        $storageRepository = $this->getMockBuilder(StorageRepository::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getDefaultStorage', 'getStorageObject'])
             ->getMock();
-        $resourceFactory->method('getDefaultStorage')->willReturn($storage);
-        $subject = new WriteFile($resourceFactory);
+        $storageRepository->method('getDefaultStorage')->willReturn($storage);
+        $subject = new WriteFile($storageRepository);
         $result = $this->getMockBuilder(TaskResult::class)
             ->onlyMethods(['getInfo'])->getMock();
         $result->method('getInfo')->willReturn($this->fileInfo);
@@ -556,5 +597,19 @@ class WriteFileTest extends TestCase
         $this->expectExceptionCode(1762171200);
 
         $subject->process($configuration, $records, $result);
+    }
+
+    /**
+     * FileInfo double with a real path, as addFile() requires a string
+     */
+    protected function createFileInfo(): FileInfo|MockObject
+    {
+        $fileInfo = $this->getMockBuilder(FileInfo::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getRealPath'])
+            ->getMock();
+        $fileInfo->method('getRealPath')->willReturn(self::REAL_PATH);
+
+        return $fileInfo;
     }
 }
