@@ -9,12 +9,18 @@ use Exception;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
+use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
 class DummyDomainObjectA extends AbstractEntity
 {
@@ -180,5 +186,30 @@ class TranslationServiceTest extends TestCase
 
         // The translation should have the origin set as l10nParent
         $this->assertSame($origin, $translation->_getProperty('l10nParent'));
+    }
+
+    #[Test]
+    public function getLocalizationParentQueriesDefaultLanguageAndKeepsOverlaySettings(): void
+    {
+        $context = new Context();
+        $context->setAspect('language', new LanguageAspect(2, 2, LanguageAspect::OVERLAYS_MIXED, ['0']));
+        $querySettings = new Typo3QuerySettings($context, $this->createStub(ConfigurationManagerInterface::class));
+        $parent = new DummyDomainObjectB();
+
+        $queryResult = $this->createStub(QueryResultInterface::class);
+        $queryResult->method('getFirst')->willReturn($parent);
+        $query = $this->createStub(QueryInterface::class);
+        $query->method('getQuerySettings')->willReturn($querySettings);
+        $query->method('matching')->willReturnSelf();
+        $query->method('execute')->willReturn($queryResult);
+        $this->persistenceManager->method('createQueryForType')->willReturn($query);
+
+        self::assertSame($parent, $this->subject->getLocalizationParent(5, DummyDomainObjectB::class));
+
+        $languageAspect = $querySettings->getLanguageAspect();
+        self::assertSame(0, $languageAspect->getId());
+        self::assertSame(0, $languageAspect->getContentId());
+        self::assertSame(LanguageAspect::OVERLAYS_MIXED, $languageAspect->getOverlayType());
+        self::assertSame(['0'], $languageAspect->getFallbackChain());
     }
 }
