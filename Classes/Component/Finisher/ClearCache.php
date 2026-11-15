@@ -6,8 +6,8 @@ namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\ConfigurableInterface;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Service\CacheService;
 
 /***************************************************************
  *  Copyright notice
@@ -28,17 +28,11 @@ use TYPO3\CMS\Extbase\Service\CacheService;
  ***************************************************************/
 class ClearCache extends AbstractFinisher implements FinisherInterface, ConfigurableInterface
 {
-    /**
-     * @var CacheService
-     */
-    protected $cacheService;
+    protected CacheManager $cacheManager;
 
-    /**
-     * Injects the cache service
-     */
-    public function injectCacheService(CacheService $cacheService)
+    public function injectCacheManager(CacheManager $cacheManager): void
     {
-        $this->cacheService = $cacheService;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -81,7 +75,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
         }
 
         if ($this->shouldClearAll($configuration)) {
-            $this->cacheService->clearPageCache();
+            $this->clearPageCache();
             return true;
         }
 
@@ -99,7 +93,7 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
                     continue;
                 }
                 if ($this->shouldClearAll($localConfig)) {
-                    $this->cacheService->clearPageCache();
+                    $this->clearPageCache();
                     return true;
                 }
 
@@ -108,10 +102,27 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
         }
 
         if ((bool)$pagesToClear) {
-            $this->cacheService->clearPageCache($pagesToClear);
+            $this->clearPageCache($pagesToClear);
         }
 
         return true;
+    }
+
+    /**
+     * Flushes the page caches, of the given pages only if any.
+     * Uses the cache tags "pageId_<uid>" like the core (Extbase CacheService
+     * up to TYPO3 14, CacheFlusher since TYPO3 15).
+     *
+     * @param int[] $pageIds
+     */
+    protected function clearPageCache(array $pageIds = []): void
+    {
+        if ($pageIds === []) {
+            $this->cacheManager->flushCachesInGroup('pages');
+            return;
+        }
+        $tags = array_map(static fn(int $pageId): string => 'pageId_' . $pageId, $pageIds);
+        $this->cacheManager->flushCachesInGroupByTags('pages', $tags);
     }
 
     /**

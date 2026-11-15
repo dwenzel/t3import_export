@@ -9,10 +9,6 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Service\CacheService;
 
 /***************************************************************
  *  Copyright notice
@@ -35,30 +31,35 @@ class ClearCacheTest extends TestCase
 {
     protected ClearCache $subject;
 
-    /**
-     * @var CacheService|MockObject
-     */
-    protected $cacheService;
+    protected CacheManager&MockObject $cacheManager;
 
     protected function setUp(): void
     {
         $this->subject = new ClearCache();
-        $this->mockCacheService();
+        $this->cacheManager = $this->createMock(CacheManager::class);
+        $this->subject->injectCacheManager($this->cacheManager);
     }
 
-    protected function mockCacheService(): void
+    protected function expectNoCacheFlush(): void
     {
-        // Mock dependencies for CacheService
-        $configurationManager = $this->createMock(ConfigurationManagerInterface::class);
-        $cacheManager = $this->createMock(CacheManager::class);
-        $connectionPool = $this->createMock(ConnectionPool::class);
+        $this->cacheManager->expects($this->never())->method('flushCachesInGroup');
+        $this->cacheManager->expects($this->never())->method('flushCachesInGroupByTags');
+    }
 
-        $this->cacheService = $this->getMockBuilder(CacheService::class)
-            ->setConstructorArgs([$configurationManager, $cacheManager, $connectionPool])
-            ->onlyMethods(['clearPageCache'])
-            ->getMock();
+    protected function expectAllPageCachesFlushed(): void
+    {
+        $this->cacheManager->expects($this->once())
+            ->method('flushCachesInGroup')
+            ->with('pages');
+        $this->cacheManager->expects($this->never())->method('flushCachesInGroupByTags');
+    }
 
-        $this->subject->injectCacheService($this->cacheService);
+    protected function expectPageCachesFlushed(array $tags): void
+    {
+        $this->cacheManager->expects($this->never())->method('flushCachesInGroup');
+        $this->cacheManager->expects($this->once())
+            ->method('flushCachesInGroupByTags')
+            ->with('pages', $tags);
     }
 
     #[Test]
@@ -68,8 +69,7 @@ class ClearCacheTest extends TestCase
         $records = ['foo'];
         $result = [];
 
-        $this->cacheService->expects($this->never())
-            ->method('clearPageCache');
+        $this->expectNoCacheFlush();
 
         $this->subject->process($configuration, $records, $result);
     }
@@ -83,9 +83,7 @@ class ClearCacheTest extends TestCase
         $records = ['foo'];
         $nonEmptyResult = ['bar'];
 
-        $this->cacheService->expects($this->once())
-            ->method('clearPageCache')
-            ->with(null);
+        $this->expectAllPageCachesFlushed();
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
@@ -98,14 +96,7 @@ class ClearCacheTest extends TestCase
         ];
         $records = ['foo'];
         $nonEmptyResult = ['bar'];
-        $expectedPagesToClear = GeneralUtility::intExplode(
-            ',',
-            $configuration['pages'],
-            true
-        );
-        $this->cacheService->expects($this->once())
-            ->method('clearPageCache')
-            ->with($expectedPagesToClear);
+        $this->expectPageCachesFlushed(['pageId_1', 'pageId_5', 'pageId_7']);
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
@@ -125,9 +116,7 @@ class ClearCacheTest extends TestCase
             new \stdClass(),
         ];
 
-        $this->cacheService->expects($this->once())
-            ->method('clearPageCache')
-            ->with(null);
+        $this->expectAllPageCachesFlushed();
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
@@ -142,20 +131,12 @@ class ClearCacheTest extends TestCase
                 ],
             ],
         ];
-        $expectedPagesToClear = GeneralUtility::intExplode(
-            ',',
-            $configuration['classes']['stdClass']['pages'],
-            true
-        );
-
         $records = ['foo'];
         $nonEmptyResult = [
             new \stdClass(),
         ];
 
-        $this->cacheService->expects($this->once())
-            ->method('clearPageCache')
-            ->with($expectedPagesToClear);
+        $this->expectPageCachesFlushed(['pageId_1', 'pageId_5', 'pageId_7']);
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
@@ -185,8 +166,7 @@ class ClearCacheTest extends TestCase
             new \stdClass(),
         ];
 
-        $this->cacheService->expects($this->never())
-            ->method('clearPageCache');
+        $this->expectNoCacheFlush();
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
     }
