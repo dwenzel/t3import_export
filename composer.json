@@ -18,18 +18,17 @@
     }
   ],
   "require": {
-    "php": ">=8.5",
+    "php": ">=8.3",
     "ext-xmlreader": "*",
-    "cpsit/import-export-core": "^0.1",
-    "dwenzel/t3extension-tools": "^6.2",
-    "symfony/expression-language": "^8.1",
-    "typo3/cms-core": "^15.0"
+    "cpsit/import-export-core": "dev-feature/60-symfony-8-v0.1 as 0.1.x-dev",
+    "dwenzel/t3extension-tools": "dev-feature/22-typo3-v15 as 7.0.x-dev",
+    "symfony/expression-language": "^7.1 || ^8.1",
+    "typo3/cms-core": "^14.3 || ^15.0"
   },
   "require-dev": {
     "armin/editorconfig-cli": "^2.0",
     "ergebnis/composer-normalize": "^2.28",
     "friendsofphp/php-cs-fixer": "^3.57",
-    "helhum/typo3-console": "^8.2 || ^9.0",
     "helmich/typo3-typoscript-lint": "^3.0",
     "mikey179/vfsstream": "^1.6",
     "phpstan/extension-installer": "^1.2",
@@ -37,12 +36,14 @@
     "phpunit/phpcov": "^11.0",
     "phpunit/phpunit": "^11.5 || ^12.1",
     "roave/security-advisories": "dev-latest",
-    "saschaegerer/phpstan-typo3": "^2.0",
+    "saschaegerer/phpstan-typo3": "^3.1",
     "ssch/typo3-rector": "^3.0",
-    "typo3/cms-frontend": "^15.0",
-    "typo3/coding-standards": "^0.8.0",
-    "typo3/testing-framework": "^9.0"
+    "typo3/cms-frontend": "^14.3 || ^15.0",
+    "typo3/coding-standards": "^0.8.0 || dev-main",
+    "typo3/testing-framework": "^9.7 || dev-main"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "autoload": {
     "psr-4": {
       "CPSIT\\T3importExport\\": "Classes/"
@@ -70,8 +71,12 @@
   },
   "extra": {
     "typo3/cms": {
+      "Package": {
+        "providesPackages": {}
+      },
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
       "extension-key": "t3import_export",
+      "version": "3.1.1",
       "web-dir": ".build/Web"
     }
   },
