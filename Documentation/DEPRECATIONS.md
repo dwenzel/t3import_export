@@ -10,6 +10,23 @@ Deprecated features write a message to the TYPO3 deprecation log (each message
 once per request). Enable the log in the Install Tool (Settings > Configuration
 Presets > Debug, or `$GLOBALS['TYPO3_CONF_VARS']['LOG']['TYPO3']['CMS']['deprecations']`).
 
+## Removed in 4.0
+
+Rendering content with TypoScript needs the TypoScriptFrontendController,
+which TYPO3 14 removed. These features are removed:
+
+| Removed | Replacement |
+|---|---|
+| Pre-processor `RenderContent` | Pre-processor [EvaluateExpressions](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) (contains a migration table) |
+| `disable` rendered as content object (`disable = TEXT`) | `disable.expression`, see [Components](./COMPONENT.md#by-expression). A content object throws an `InvalidConfigurationException` (code 1794781862). |
+| `DataSourceDB` query values rendered as content objects | `{expression: ...}`, see [DataSourceDB](./Persistence/DataSourceDB.md). A content object throws an `InvalidConfigurationException` (code 1794781881). |
+| `ConcatenateFields` constructor arguments (`ContentObjectRenderer`, `TypoScriptService`) | none |
+| `RenderContentTrait`; `AbstractComponent` and `DataSourceDB` do not implement `RenderContentInterface` any more | none |
+
+Features of content objects such as `parseFunc`, `typolink`, `crop` or data
+from a frontend page (`TSFE:`, `page:`) have no replacement. Use your own
+pre-processor if you need them.
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |
@@ -140,7 +157,7 @@ vendor/bin/typo3 t3import-export:convert-typoscript \
   the standard output.
 
 The command lists content objects (e.g. `TEXT`) and constants without a value.
-Content objects are copied as they are (they still work in 3.x) and have to be
-replaced by expressions before version 4.0. TypoScript conditions (`[...]`)
+Content objects are copied as they are; they work in 3.x only and have to be
+replaced by expressions for version 4.0. TypoScript conditions (`[...]`)
 are not supported; check settings inside conditions by hand. Check the result
 before removing the TypoScript configuration.

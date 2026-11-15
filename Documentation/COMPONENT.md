@@ -69,28 +69,8 @@ The component is disabled if the result is true. Variables:
 
 An invalid expression throws an `InvalidConfigurationException`.
 
-### By Rendering Content (deprecated)
-If the value is an array and can be interpreted as a content object, it will be
-rendered. The result of the rendering will be interpreted as boolean.
-
-Rendering content with TypoScript will be removed in version 4.0 (see
-[#75](https://github.com/dwenzel/t3import_export/issues/75)). Use an
-expression instead.
-
-```typo3_typoscript
-module.tx_t3importexport.settings.import.tasks.exampleTask.preProcessors {
-  10 {
-    class = FooPreProcessor
-    config {
-        disable = TEXT
-        disable {
-            // any TypoScript valid for TEXT object
-        }
-    }
-  }
-}
-```
-If content of `disable` renders to `1`, the component is disabled. The content
-object renderer receives the current record. Data that needs a frontend page
-(`getData` with `TSFE:` or `page:`, references like `< lib.foo`) is not
-available.
+### Content objects (removed)
+Content objects (`disable = TEXT`) are not supported any more since version
+4.0 ([#75](https://github.com/dwenzel/t3import_export/issues/75)). A component
+with such a configuration throws an `InvalidConfigurationException` (code
+1794781862). Use an expression instead.

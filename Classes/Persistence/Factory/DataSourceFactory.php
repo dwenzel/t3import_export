@@ -13,7 +13,6 @@ use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Factory\AbstractFactory;
 use CPSIT\T3importExport\Factory\FactoryInterface;
 use CPSIT\T3importExport\Persistence\DataSourceDB;
-use CPSIT\T3importExport\RenderContentTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
@@ -42,8 +41,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  ***************************************************************/
 class DataSourceFactory extends AbstractFactory implements FactoryInterface
 {
-    use RenderContentTrait;
-
     final public const string DEFAULT_DATA_SOURCE_CLASS = DataSourceDB::class;
 
     /**

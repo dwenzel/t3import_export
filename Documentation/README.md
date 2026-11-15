@@ -47,7 +47,6 @@
   - [AddArrays](./Components/PreProcessors/ADD_ARRAYS.md)
   - [Clean](./Components/PreProcessors/CLEAN.md)
   - [XMLMapper](./Components/PreProcessors/XML_MAPPER.md)
-  - [RenderContent](./Components/PreProcessors/RENDER_CONTENT.md) (deprecated)
   - [RemoveFields](./Components/PreProcessors/REMOVE_FIELDS.md)
   - [UnsetEmptyFields](./Components/PreProcessors/UnsetEmptyFields.md)
   - [ImplodeArray](./Components/PreProcessors/IMPLODE_ARRAY.md)

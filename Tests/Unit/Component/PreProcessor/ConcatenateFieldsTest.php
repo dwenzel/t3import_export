@@ -8,11 +8,8 @@ use CPSIT\T3importExport\Component\PreProcessor\ConcatenateFields;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Frontend\ContentObject\ContentContentObject;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /***************************************************************
  *  Copyright notice
@@ -38,53 +35,11 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 #[CoversClass(ConcatenateFields::class)]
 class ConcatenateFieldsTest extends TestCase
 {
-    /**
-     * @var ContentObjectRenderer|MockObject
-     */
-    protected ContentObjectRenderer $contentObjectRenderer;
-
-    /**
-     * @var ContentContentObject|MockObject
-     */
-    protected ContentContentObject $contentObject;
-
     protected ConcatenateFields $subject;
 
-    /**
-     * @noinspection ReturnTypeCanBeDeclaredInspection
-     */
     protected function setUp(): void
     {
-        // Create TypoScriptFrontendController mock directly
-        $typoScriptFrontendController = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $GLOBALS['TSFE'] = $typoScriptFrontendController;
-
-        // Set backup globals to preserve TSFE state
-        $this->setBackupGlobals(true);
-
-        $this->mockContentObjectRenderer();
-        $this->subject = new ConcatenateFields($this->contentObjectRenderer);
-    }
-
-    /**
-     * Mock content object renderer
-     */
-    protected function mockContentObjectRenderer(): void
-    {
-        $this->contentObject = $this->getMockBuilder(ContentContentObject::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['render'])
-            ->getMock();
-
-        $this->contentObjectRenderer = $this->getMockBuilder(ContentObjectRenderer::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getContentObject', 'wrap', 'noTrimWrap', 'start'])
-            ->getMock();
-
-        $this->contentObjectRenderer->method('getContentObject')
-            ->willReturn($this->contentObject);
+        $this->subject = new ConcatenateFields();
     }
 
     #[Test]

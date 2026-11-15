@@ -6,14 +6,11 @@ namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
 use CPSIT\T3importExport\Expression\ExpressionEvaluator;
-use CPSIT\T3importExport\Utility\DeprecationUtility;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *
@@ -45,8 +42,6 @@ class AbstractComponentTest extends TestCase
      * @var AbstractComponent
      */
     protected $subject;
-    protected $contentObjectRenderer;
-    protected $typoScriptService;
 
     /**
      * set up
@@ -54,7 +49,7 @@ class AbstractComponentTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(AbstractComponent::class)
-            ->onlyMethods(['renderContent', 'isConfigurationValid'])
+            ->onlyMethods(['isConfigurationValid'])
             ->getMock();
     }
 
@@ -92,22 +87,10 @@ class AbstractComponentTest extends TestCase
         ];
     }
 
-    /**
-     * @throws ContentRenderingException
-     */
     #[DataProvider('isDisabledDataProvider')]
     #[Test]
-    #[IgnoreDeprecations]
     public function isDisabledReturnsCorrectValue(array $configuration, bool $expectedResult): void
     {
-        $record = [];
-        if (isset($configuration['disable']) && is_array($configuration['disable'])) {
-            $this->subject
-                ->method('renderContent')
-                ->with($record, $configuration['disable'])
-                ->willReturn($expectedResult);
-        }
-
         $this->assertSame(
             $expectedResult,
             $this->subject->isDisabled($configuration, [], null)
@@ -174,7 +157,6 @@ class AbstractComponentTest extends TestCase
     public function isDisabledEvaluatesExpression(string $expression, array $record, bool $expected): void
     {
         $this->subject->injectExpressionEvaluator(new ExpressionEvaluator());
-        $this->subject->expects($this->never())->method('renderContent');
 
         self::assertSame(
             $expected,
@@ -203,14 +185,24 @@ class AbstractComponentTest extends TestCase
     }
 
     #[Test]
-    #[IgnoreDeprecations]
-    public function isDisabledTriggersDeprecationForContentObject(): void
+    public function isDisabledThrowsExceptionForContentObject(): void
     {
-        DeprecationUtility::reset();
-        $this->subject->method('renderContent')->willReturn('1');
-
-        $this->expectUserDeprecationMessageMatches('/content objects is deprecated/');
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(AbstractComponent::CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE);
 
         $this->subject->isDisabled(['disable' => ['_typoScriptNodeValue' => 'TEXT', 'value' => '1']]);
+    }
+
+    #[Test]
+    public function isDisabledReturnsFalseIfNoMessageMatches(): void
+    {
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['hasMessageWithId'])
+            ->getMock();
+        $result->method('hasMessageWithId')->willReturn(false);
+
+        self::assertFalse(
+            $this->subject->isDisabled(['disable' => ['if' => ['result' => ['hasMessage' => '3']]]], [], $result)
+        );
     }
 }

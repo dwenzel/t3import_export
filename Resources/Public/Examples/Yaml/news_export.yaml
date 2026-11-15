@@ -26,12 +26,6 @@ export:
               pubDate: "datetime"
               link: "path_segment"
 
-        20:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\RenderContent"
-          config:
-            field: "bodytext"
-            parseFunc: "< lib.parseFunc_RTE"
-
       converters:
         10:
           class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToXMLStream"

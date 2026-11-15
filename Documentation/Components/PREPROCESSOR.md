@@ -16,7 +16,6 @@ Available PreProcessors:
 * [MapFields](./PreProcessors/MAP_FIELDS.md) (deprecated)
 * [MapFieldValues](./PreProcessors/MAP_FIELD_VALUES.md) (deprecated)
 * [RemoveFields](./PreProcessors/REMOVE_FIELDS.md) (deprecated)
-* [RenderContent](./PreProcessors/RENDER_CONTENT.md) (deprecated)
 * [SetFieldValue](./PreProcessors/SET_FIELD_VALUE.md) (deprecated)
 * [StringToTime](./PreProcessors/STRING_TO_TIME.md) (deprecated)
 * [UnsetEmptyFields](./PreProcessors/UnsetEmptyFields.md) (deprecated)

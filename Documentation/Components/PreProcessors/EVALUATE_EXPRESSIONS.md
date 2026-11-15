@@ -48,8 +48,8 @@ preProcessors:
 ```
 
 ## Migration from RenderContent
-[RenderContent](./RENDER_CONTENT.md) renders TypoScript content objects. It is
-deprecated and will be removed in version 4.0
+The pre-processor RenderContent rendered TypoScript content objects. It was
+removed in version 4.0
 ([#75](https://github.com/dwenzel/t3import_export/issues/75)).
 
 | TypoScript (`TEXT`) | Expression |
