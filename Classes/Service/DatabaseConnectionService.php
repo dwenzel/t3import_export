@@ -37,7 +37,7 @@ class DatabaseConnectionService implements SingletonInterface
 {
     protected ConnectionPool $connectionPool;
 
-    public function __construct($connectionPool = null)
+    public function __construct(?ConnectionPool $connectionPool = null)
     {
         $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
     }
