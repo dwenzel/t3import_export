@@ -222,7 +222,6 @@ class LookUpDBTest extends TestCase
         // Use reflection to access protected method
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('getQueryConfiguration');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->subject, $inputConfiguration);
 
@@ -251,7 +250,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('getQueryConfiguration');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->subject, $inputConfiguration);
 
@@ -270,7 +268,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('mapFields');
-        $method->setAccessible(true);
 
         $method->invoke($this->subject, $record, $source, $config);
 
@@ -289,7 +286,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('mapFields');
-        $method->setAccessible(true);
 
         $method->invoke($this->subject, $record, $source, $config);
 
@@ -318,7 +314,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('mapFields');
-        $method->setAccessible(true);
 
         $method->invokeArgs($this->subject, [&$record, $source, $config]);
 
@@ -343,7 +338,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('mapFields');
-        $method->setAccessible(true);
 
         $method->invokeArgs($this->subject, [&$record, $source, $config]);
 
@@ -368,7 +362,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('mapFields');
-        $method->setAccessible(true);
 
         $method->invokeArgs($this->subject, [&$record, $source, $config]);
 
@@ -390,7 +383,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('parseQueryConstraints');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->subject, $record, $queryConfiguration);
 
@@ -410,7 +402,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('parseQueryConstraints');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->subject, $record, $queryConfiguration);
 
@@ -441,7 +432,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('parseQueryConstraints');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->subject, $record, $queryConfiguration);
 
@@ -472,7 +462,6 @@ class LookUpDBTest extends TestCase
 
         $reflection = new \ReflectionClass($this->subject);
         $method = $reflection->getMethod('parseQueryConstraints');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->subject, $record, $queryConfiguration);
 

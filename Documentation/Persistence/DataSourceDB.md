@@ -43,5 +43,6 @@ source:
 ```
 
 Values rendered as TypoScript content objects (`where = TEXT`, `where { ... }`)
-are deprecated and will be removed in version 4.0
-([#75](https://github.com/dwenzel/t3import_export/issues/75)).
+are not supported any more since version 4.0
+([#75](https://github.com/dwenzel/t3import_export/issues/75)). They throw an
+`InvalidConfigurationException` (code 1794781881).

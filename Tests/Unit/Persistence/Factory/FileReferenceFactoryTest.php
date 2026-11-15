@@ -114,14 +114,8 @@ class FileReferenceFactoryTest extends TestCase
     {
         $this->resourceFactory = $this->getMockBuilder(ResourceFactory::class)
             ->disableOriginalConstructor()
-            ->onlyMethods([
-                'getStorageObject',
-                'getDefaultStorage',
-                'createFileReferenceObject',
-            ])
+            ->onlyMethods(['createFileReferenceObject'])
             ->getMock();
-        $this->resourceFactory->method('getDefaultStorage')
-            ->willReturn($this->resourceStorage);
     }
 
     /**

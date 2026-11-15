@@ -68,8 +68,7 @@ class DatabaseTraitTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->connectionService = $this->getMockBuilder(DatabaseConnectionService::class)
-            ->getMock();
+        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
 
         // In PHPUnit 12, getObjectForTrait is removed
         // Create an anonymous class that uses the trait instead

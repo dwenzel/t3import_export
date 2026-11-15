@@ -106,7 +106,7 @@ class ConvertTypoScriptCommand extends Command
         }
 
         foreach ($result['contentObjects'] as $path => $type) {
-            $messages->writeln(sprintf('<comment>Content object %s at %s: migrate by hand (deprecated)</comment>', $type, $path));
+            $messages->writeln(sprintf('<comment>Content object %s at %s: migrate by hand (not supported since 4.0)</comment>', $type, $path));
         }
         foreach ($result['constants'] as $path => $value) {
             $messages->writeln(sprintf('<comment>Constant at %s not substituted: %s</comment>', $path, $value));

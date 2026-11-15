@@ -7,12 +7,9 @@ namespace CPSIT\T3importExport\Component;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\ImportExportCore\RenderContentInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
-use CPSIT\T3importExport\RenderContentTrait;
-use CPSIT\T3importExport\Utility\DeprecationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -35,11 +32,12 @@ use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 /**
  * Class AbstractComponent
  */
-abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
+abstract class AbstractComponent implements ConfigurableInterface
 {
     use ConfigurableTrait;
-    use RenderContentTrait;
     use ExpressionEvaluatorTrait;
+
+    final public const int CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE = 1_794_781_862;
 
     /**
      * Tells if the component is disabled
@@ -48,9 +46,10 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
      * - `1` or `true`
      * - an array with `if.result.hasMessage` (comma separated message ids)
      * - an array with `expression`: evaluated with the variables `record` and `result`
-     * - a content object (deprecated, see #75)
      *
-     * @throws ContentRenderingException
+     * Content objects (`disable = TEXT`) are not supported any more since 4.0.
+     *
+     * @throws InvalidConfigurationException if `disable` is a content object
      */
     public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
     {
@@ -63,6 +62,12 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
             return true;
         }
         if (is_array($disable)) {
+            if (isset($disable['_typoScriptNodeValue'])) {
+                throw new InvalidConfigurationException(
+                    'Disabling components with TypoScript content objects is not supported any more. Use disable.expression instead.',
+                    self::CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE
+                );
+            }
             if (isset($disable['if']['result']['hasMessage'])) {
                 $messageIds = GeneralUtility::intExplode(
                     ',',
@@ -82,12 +87,6 @@ abstract class AbstractComponent implements ConfigurableInterface, RenderContent
                     ['record' => $record, 'result' => $result]
                 );
             }
-
-            DeprecationUtility::trigger(
-                'Disabling components with TypoScript content objects is deprecated since 3.1 and will be removed in 4.0. Use disable.expression instead.'
-            );
-
-            return $this->renderContent($record, $disable) === '1';
         }
 
         return false;

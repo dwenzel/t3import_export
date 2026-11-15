@@ -63,6 +63,7 @@ class QueueItemRepositoryTest extends TestCase
     protected function mockConnectionPool(): void
     {
         $this->connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->disableOriginalConstructor()
             ->onlyMethods([
                 'getConnectionForTable',
             ])

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 /***************************************************************
  *  Copyright notice
@@ -24,7 +23,6 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Class ConcatenateFields
@@ -33,16 +31,6 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
-    /**
-     * @param ContentObjectRenderer|null $contentObjectRenderer not used anymore
-     * @param TypoScriptService|null $typoScriptService not used anymore
-     * @deprecated since 3.1, the arguments are ignored and will be removed in 4.0
-     */
-    public function __construct(
-        ?ContentObjectRenderer $contentObjectRenderer = null,
-        ?TypoScriptService $typoScriptService = null
-    ) {}
-
     /**
      * @param array $configuration
      * @param array $record
