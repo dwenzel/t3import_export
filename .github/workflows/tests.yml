@@ -14,6 +14,9 @@ jobs:
       matrix:
         typo3-version: ['^14.3']
         php-version: ['8.3', '8.4']
+        include:
+          - typo3-version: '^15.0'
+            php-version: '8.5'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,10 +40,15 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      # These dev tools have no version for TYPO3 15 yet; PHPStan and Rector run with TYPO3 14
+      - name: Remove dev tools without TYPO3 15 support
+        if: matrix.typo3-version == '^15.0'
+        run: composer remove --dev --no-update saschaegerer/phpstan-typo3 ssch/typo3-rector helmich/typo3-typoscript-lint
+
       - name: Install dependencies with TYPO3 ${{ matrix.typo3-version }}
         run: |
           composer require typo3/cms-core:${{ matrix.typo3-version }} --no-progress --prefer-dist --optimize-autoloader
-          git checkout composer.json
+          if [ '${{ matrix.typo3-version }}' != '^15.0' ]; then git checkout composer.json; fi
 
       - name: Run unit tests
         run: |
@@ -59,6 +67,9 @@ jobs:
       matrix:
         typo3-version: ['^14.3']
         php-version: ['8.3', '8.4']
+        include:
+          - typo3-version: '^15.0'
+            php-version: '8.5'
     env:
       typo3DatabaseName: typo3
       typo3DatabaseHost: '127.0.0.1'
@@ -99,10 +110,15 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      # These dev tools have no version for TYPO3 15 yet; PHPStan and Rector run with TYPO3 14
+      - name: Remove dev tools without TYPO3 15 support
+        if: matrix.typo3-version == '^15.0'
+        run: composer remove --dev --no-update saschaegerer/phpstan-typo3 ssch/typo3-rector helmich/typo3-typoscript-lint
+
       - name: Install dependencies with TYPO3 ${{ matrix.typo3-version }}
         run: |
           composer require typo3/cms-core:${{ matrix.typo3-version }} --no-progress --prefer-dist --optimize-autoloader
-          git checkout composer.json
+          if [ '${{ matrix.typo3-version }}' != '^15.0' ]; then git checkout composer.json; fi
           composer install --no-progress --dev
 
       - name: Run functional tests

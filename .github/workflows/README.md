@@ -8,8 +8,11 @@ This file lives in `.github/workflows/`, not in `.github/`: GitHub shows a
 
 * Tests (`tests.yml`): unit tests with coverage report (no database) and
   functional tests (MySQL service container), each with TYPO3 14.3 and PHP 8.3
-  and 8.4
-* Code Quality (`code-quality.yml`): PHP-CS-Fixer, PHPStan
+  and 8.4, and with TYPO3 15 (development version) and PHP 8.5. The TYPO3 15
+  jobs remove `saschaegerer/phpstan-typo3`, `ssch/typo3-rector` and
+  `helmich/typo3-typoscript-lint` before installing, as these have no version
+  for TYPO3 15 yet.
+* Code Quality (`code-quality.yml`): PHP-CS-Fixer, PHPStan (TYPO3 14.3)
 * Composer Validation (`composer-validate.yml`): `composer validate`,
   normalized `composer.json`
 * TYPO3 Compatibility (`typo3-compatibility.yml`): TYPO3 Rector (dry run) with
