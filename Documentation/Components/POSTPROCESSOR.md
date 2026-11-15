@@ -9,7 +9,7 @@ PostProcessors are optional. You may configure as many as you need.
 Available PreProcessors:
 * [GenerateFileReference](./PostProcessors/GenerateFileReferenc.md)
 * SetHiddenProperties
-* TranslateObject
+* [TranslateObject](./PostProcessors/TranslateObject.md)
 
 You may add your own PostProcessors. They **must** implement the PostProcessorInterface and **may** inherit from AbstractPostProcessor.
 

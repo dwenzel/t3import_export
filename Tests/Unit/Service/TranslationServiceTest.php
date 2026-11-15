@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Service;
 
+use CPSIT\T3importExport\Exception\InvalidColumnMapException;
 use CPSIT\T3importExport\Service\TranslationService;
 use Exception;
 use PHPUnit\Framework\Attributes\Test;
@@ -14,7 +15,6 @@ use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
@@ -120,6 +120,21 @@ class TranslationServiceTest extends TestCase
     }
 
     /**
+     * Lets the data map return the given translation origin column
+     */
+    protected function expectTranslationOriginColumn(DummyDomainObjectA $origin, string $columnName): void
+    {
+        $this->dataMapper->expects($this->once())
+            ->method('getDataMap')
+            ->with($origin::class)
+            ->willReturn($this->dataMap);
+        $this->dataMap->method('getTranslationOriginColumnName')
+            ->willReturn($columnName);
+        $this->dataMap->expects($this->never())
+            ->method('getColumnMap');
+    }
+
+    /**
      * @throws \Exception
      */
     #[Test]
@@ -128,64 +143,47 @@ class TranslationServiceTest extends TestCase
         $languageUid = 2;
         $origin = new DummyDomainObjectA();
         $translation = new DummyDomainObjectA();
-
-        $this->dataMapper->expects($this->once())
-            ->method('getDataMap')
-            ->with($origin::class)
-            ->willReturn($this->dataMap);
-
-        $this->dataMap->expects($this->exactly(2))
-            ->method('getTranslationOriginColumnName')
-            ->willReturn('l10n_parent');
-
-        // Mock the column map that will be created when _setProperty fails
-        $columnMap = $this->createMock(ColumnMap::class);
-        $this->dataMap->expects($this->once())
-            ->method('getColumnMap')
-            ->with('l10nParent')
-            ->willReturn($columnMap);
-
-        $this->dataMap->expects($this->once())
-            ->method('getTableName')
-            ->willReturn('tx_test_table');
+        $this->expectTranslationOriginColumn($origin, 'translation_parent');
 
         $this->subject->translate($origin, $translation, $languageUid);
 
-        // The translation should have the language UID set
-        $this->assertSame($languageUid, $translation->_getProperty('_languageUid'));
+        self::assertSame($languageUid, $translation->_getProperty('_languageUid'));
     }
 
+    /**
+     * @throws \Exception
+     */
     #[Test]
     public function translateSetsTranslationOriginal(): void
     {
-        $languageUid = 2;
         $origin = new DummyDomainObjectA();
         $translation = new DummyDomainObjectA();
+        $this->expectTranslationOriginColumn($origin, 'translation_parent');
 
-        $this->dataMapper->expects($this->once())
-            ->method('getDataMap')
-            ->with($origin::class)
-            ->willReturn($this->dataMap);
+        $this->subject->translate($origin, $translation, 2);
 
-        $this->dataMap->expects($this->exactly(2))
-            ->method('getTranslationOriginColumnName')
-            ->willReturn('l10n_parent');
+        self::assertSame($origin, $translation->translationParent);
+    }
 
-        // Mock the column map that will be created when _setProperty fails
-        $columnMap = $this->createMock(ColumnMap::class);
-        $this->dataMap->expects($this->once())
-            ->method('getColumnMap')
-            ->with('l10nParent')
-            ->willReturn($columnMap);
+    /**
+     * @throws \Exception
+     */
+    #[Test]
+    public function translateThrowsExceptionIfTranslationOriginPropertyIsMissing(): void
+    {
+        $origin = new DummyDomainObjectA();
+        $translation = new DummyDomainObjectA();
+        $this->expectTranslationOriginColumn($origin, 'l10n_parent');
 
-        $this->dataMap->expects($this->once())
-            ->method('getTableName')
-            ->willReturn('tx_test_table');
+        $this->expectException(InvalidColumnMapException::class);
+        $this->expectExceptionCode(TranslationService::MISSING_TRANSLATION_ORIGIN_PROPERTY_EXCEPTION_CODE);
+        $this->expectExceptionMessage('has no property "l10nParent" for the translation origin field "l10n_parent"');
 
-        $this->subject->translate($origin, $translation, $languageUid);
-
-        // The translation should have the origin set as l10nParent
-        $this->assertSame($origin, $translation->_getProperty('l10nParent'));
+        try {
+            $this->subject->translate($origin, $translation, 2);
+        } finally {
+            self::assertNull($translation->_getProperty('_languageUid'));
+        }
     }
 
     #[Test]
