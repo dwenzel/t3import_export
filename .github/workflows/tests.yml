@@ -14,23 +14,6 @@ jobs:
       matrix:
         typo3-version: ['^13.4']
         php-version: ['8.3', '8.4']
-    env:
-      typo3DatabaseName: typo3
-      typo3DatabaseHost: '127.0.0.1'
-      typo3DatabaseUsername: root
-      typo3DatabasePassword: root
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,7 +49,63 @@ jobs:
           composer test:unit
 
       - name: Run unit tests with coverage
+        run: composer test:coverage:unit
+
+  functional-tests:
+    name: "Functional Tests with TYPO3 ${{ matrix.typo3-version }} and PHP ${{ matrix.php-version }}"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        typo3-version: ['^13.4']
+        php-version: ['8.3', '8.4']
+    env:
+      typo3DatabaseName: typo3
+      typo3DatabaseHost: '127.0.0.1'
+      typo3DatabaseUsername: root
+      typo3DatabasePassword: root
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP version ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, intl, zip, json, iconv, gd, mysqli, pdo_mysql
+          coverage: none
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies with TYPO3 ${{ matrix.typo3-version }}
+        run: |
+          composer require typo3/cms-core:${{ matrix.typo3-version }} --no-progress --prefer-dist --optimize-autoloader
+          git checkout composer.json
+          composer install --no-progress --dev
+
+      - name: Run functional tests
         run: |
           php --version
-          composer install --no-progress --dev
-          composer test:coverage
+          composer test:functional
