@@ -27,11 +27,9 @@ namespace CPSIT\T3importExport\Service;
 use CPSIT\T3importExport\Exception\InvalidColumnMapException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Context\LanguageAspect;
-use TYPO3\CMS\Core\DataHandling\TableColumnType;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
@@ -40,8 +38,17 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  */
 class TranslationService implements DomainObjectTranslatorInterface, SingletonInterface
 {
+    /**
+     * @deprecated Not thrown any more, use MISSING_TRANSLATION_ORIGIN_PROPERTY_EXCEPTION_CODE
+     */
     final public const int MISSING_COLUMN_MAP_EXCEPTION_CODE = 1_641_229_990;
+    /**
+     * @deprecated Not used any more, use MISSING_TRANSLATION_ORIGIN_PROPERTY_MESSAGE
+     */
     final public const string MISSING_COLUMN_MAP_MESSAGE = 'Missing column map for property %s';
+    final public const int MISSING_TRANSLATION_ORIGIN_PROPERTY_EXCEPTION_CODE = 1_794_749_385;
+    final public const string MISSING_TRANSLATION_ORIGIN_PROPERTY_MESSAGE
+        = 'Class %s has no property "%s" for the translation origin field "%s". Add this property to translate objects of this class.';
 
     public function __construct(
         protected DataMapper $dataMapper,
@@ -73,27 +80,17 @@ class TranslationService implements DomainObjectTranslatorInterface, SingletonIn
 
         $propertyName = GeneralUtility::underscoredToLowerCamelCase($dataMap->getTranslationOriginColumnName());
 
+        // Extbase only persists declared properties, so the model needs one for the translation origin field.
         if ($translation->_setProperty($propertyName, $origin) === false) {
-            $columnMap = $dataMap->getColumnMap($propertyName);
-            if ($columnMap === null) {
-                $message = sprintf(self::MISSING_COLUMN_MAP_MESSAGE, $propertyName);
-                throw new InvalidColumnMapException(
-                    $message,
-                    self::MISSING_COLUMN_MAP_EXCEPTION_CODE
-                );
-            }
-            $columnMap->setTypeOfRelation(ColumnMap\Relation::HAS_ONE);
-            /**
-             * fixme we set a default TableColumnType here. This may not be necessary
-             * enumeration @see TableColumnType was probably introduced later than
-             * the reference implementation we rely on.
-             * @todo check if this is still necessary. @see TYPO3\CMS\Extbase\Persistence\Generic\Mapper\ColumnMap
-             */
-            //$type = TableColumnType::INPUT;
-            //$columnMap->setType($type);
-            $columnMap->setChildTableName($dataMap->getTableName());
-
-            $translation->{$propertyName} = $origin;
+            throw new InvalidColumnMapException(
+                sprintf(
+                    self::MISSING_TRANSLATION_ORIGIN_PROPERTY_MESSAGE,
+                    $translation::class,
+                    $propertyName,
+                    $dataMap->getTranslationOriginColumnName()
+                ),
+                self::MISSING_TRANSLATION_ORIGIN_PROPERTY_EXCEPTION_CODE
+            );
         }
 
         //fixme This magic method is marked internal. We should not use it.
