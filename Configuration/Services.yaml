@@ -49,8 +49,6 @@ services:
       public: true
     CPSIT\T3importExport\Component\PreProcessor\LookUpDB:
       public: true
-    CPSIT\T3importExport\Component\PreProcessor\RenderContent:
-      public: true
     CPSIT\T3importExport\Component\PostProcessor\TranslateObject:
       public: true
     CPSIT\T3importExport\Component\PostProcessor\SetL10nParent:

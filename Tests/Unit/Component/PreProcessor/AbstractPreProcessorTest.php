@@ -42,7 +42,7 @@ class AbstractPreProcessorTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(AbstractPreProcessor::class)
-            ->onlyMethods(['process', 'renderContent'])
+            ->onlyMethods(['process'])
             ->getMock();
     }
 
@@ -73,25 +73,5 @@ class AbstractPreProcessorTest extends TestCase
         $this->assertTrue(
             $this->subject->isDisabled($configuration, [])
         );
-    }
-
-    #[Test]
-    public function isDisabledRendersContent(): void
-    {
-        $configuration = [
-            'disable' => [
-                'value' => '1',
-                'if' => [
-                    'isTrue' => '1',
-                ],
-                '_typoScriptNodeValue' => 'TEXT',
-            ],
-        ];
-
-        $this->subject->expects($this->once())
-            ->method('renderContent')
-            ->with([], $configuration['disable']);
-
-        $this->subject->isDisabled($configuration);
     }
 }

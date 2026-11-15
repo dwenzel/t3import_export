@@ -61,7 +61,6 @@ process.
   - [AddArrays](./Documentation/Components/PreProcessors/ADD_ARRAYS.md)
   - [Clean](./Documentation/Components/PreProcessors/CLEAN.md)
   - [XMLMapper](./Documentation/Components/PreProcessors/XML_MAPPER.md)
-  - [RenderContent](./Documentation/Components/PreProcessors/RENDER_CONTENT.md)
   - [RemoveFields](./Documentation/Components/PreProcessors/REMOVE_FIELDS.md)
   - [UnsetEmptyFields](./Documentation/Components/PreProcessors/UnsetEmptyFields.md)
   - [ImplodeArray](./Documentation/Components/PreProcessors/IMPLODE_ARRAY.md)

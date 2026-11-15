@@ -27,8 +27,7 @@ Use this initializer if you have to delete records determined by *where* clause 
 * **config.disable** *boolean*
 
     If the value is 1, the initializer will not be called.
-    If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering
-    will be interpreted as boolean.
+    See [Components](../../COMPONENT.md#disable-components) for `if.result.hasMessage` and `expression`.
 
 * **config.identifier** *string*
 

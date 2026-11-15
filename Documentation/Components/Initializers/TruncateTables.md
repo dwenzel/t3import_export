@@ -15,8 +15,7 @@ Truncates (empties) database tables.
 * **config.disable** *boolean*
 
     If the value is 1, the initializer will not be called.
-    If the value is an array and can be interpreted as content object it will be rendered. The result of the rendering
-    will be interpreted as boolean.
+    See [Components](../../COMPONENT.md#disable-components) for `if.result.hasMessage` and `expression`.
 * **identifier** *string*
 
     Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md)
