@@ -98,12 +98,10 @@ class GenerateFileResourceTest extends TestCase
         // Set protected properties via reflection
         $reflection = new \ReflectionClass($this->subject);
         $property = $reflection->getProperty('resourceStorage');
-        $property->setAccessible(true);
         $property->setValue($this->subject, $this->resourceStorage);
 
         // Inject the storage repository
         $injectMethod = $reflection->getMethod('injectStorageRepository');
-        $injectMethod->setAccessible(true);
         $injectMethod->invoke($this->subject, $this->storageRepository);
 
         // Skip vfsStream in this test as it's not available
@@ -176,12 +174,10 @@ class GenerateFileResourceTest extends TestCase
         // Set protected properties via reflection
         $reflection = new \ReflectionClass($subject);
         $property = $reflection->getProperty('resourceStorage');
-        $property->setAccessible(true);
         $property->setValue($subject, $this->resourceStorage);
 
         // Inject the storage repository
         $injectMethod = $reflection->getMethod('injectStorageRepository');
-        $injectMethod->setAccessible(true);
         $injectMethod->invoke($subject, $this->storageRepository);
 
         return $subject;

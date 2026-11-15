@@ -120,7 +120,6 @@ class DataTargetFileStreamTest extends TestCase
                 // Set the tempFile property using reflection since it's protected
                 $reflection = new ReflectionClass($subject);
                 $tempFileProperty = $reflection->getProperty('tempFile');
-                $tempFileProperty->setAccessible(true);
                 $tempFileProperty->setValue($subject, $mockTempFile);
             });
 

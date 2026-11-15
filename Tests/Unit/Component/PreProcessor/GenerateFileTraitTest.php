@@ -101,7 +101,6 @@ class GenerateFileTraitTest extends TestCase
         // Use reflection to access the protected property
         $reflection = new \ReflectionClass($this->subject);
         $property = $reflection->getProperty($propertyName);
-        $property->setAccessible(true);
 
         $this->assertSame(
             $mockDependency,
