@@ -9,11 +9,13 @@ use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***************************************************************
@@ -46,6 +48,7 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  *
  * @coversDefaultClass \CPSIT\T3importExport\Persistence\DataTargetFileStream
  */
+#[CoversClass(DataTargetFileStream::class)]
 class DataTargetFileStreamTest extends TestCase
 {
 
@@ -140,6 +143,78 @@ class DataTargetFileStreamTest extends TestCase
         $fileInfo = $taskResult->getInfo();
         $this->assertInstanceOf(FileInfo::class, $fileInfo);
         $this->assertEquals($mockTempFile, $fileInfo->getPathname());
+    }
+
+    #[Test]
+    public function persistAppendsBuffersToTemporaryFileAndPersistAllSetsFileInfo(): void
+    {
+        $taskResult = new TaskResult();
+        $taskResult->setElements(
+            [
+                $this->createDataStreamWithSampleBuffer('<a>1</a>'),
+                $this->createDataStreamWithSampleBuffer('<a>2</a>'),
+            ]
+        );
+
+        foreach ($taskResult as $streamObject) {
+            $this->subject->persist($streamObject, ['flush' => true]);
+            self::assertNull($streamObject->getStreamBuffer());
+        }
+        $this->subject->persistAll($taskResult);
+
+        $fileInfo = $taskResult->getInfo();
+        self::assertInstanceOf(FileInfo::class, $fileInfo);
+        $fileName = $fileInfo->getPathname();
+        self::assertStringStartsWith(
+            GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY),
+            $fileName
+        );
+        self::assertSame('<a>1</a><a>2</a>', file_get_contents($fileName));
+        unlink($fileName);
+    }
+
+    #[Test]
+    public function persistKeepsBufferWithoutFlush(): void
+    {
+        $stream = $this->createDataStreamWithSampleBuffer('<a>1</a>');
+        $taskResult = new TaskResult();
+        $taskResult->setElements([$stream]);
+
+        $this->subject->persist($stream, []);
+        $this->subject->persistAll($taskResult);
+
+        self::assertSame('<a>1</a>', $stream->getStreamBuffer());
+        unlink($taskResult->getInfo()->getPathname());
+    }
+
+    #[Test]
+    public function persistIgnoresObjectsWithoutStream(): void
+    {
+        self::assertNull($this->subject->persist(['uid' => 1], ['flush' => true]));
+
+        $taskResult = new TaskResult();
+        $taskResult->setElements([['uid' => 1]]);
+        $this->subject->persistAll($taskResult);
+
+        // no file was written
+        self::assertNull($taskResult->getInfo());
+    }
+
+    #[Test]
+    public function persistAllDoesNotSetInfoForEmptyResult(): void
+    {
+        $taskResult = new TaskResult();
+
+        $this->subject->persistAll($taskResult);
+        $this->subject->persistAll(null);
+
+        self::assertNull($taskResult->getInfo());
+    }
+
+    #[Test]
+    public function isConfigurationValidReturnsTrue(): void
+    {
+        self::assertTrue($this->subject->isConfigurationValid([]));
     }
 
     public function createDataStreamWithSampleBuffer($buffer): DataStream

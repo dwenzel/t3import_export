@@ -54,13 +54,6 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
     }
 
     #[\Override]
-    protected function createAnonymTempFile(): string
-    {
-        // Fix the type issue by casting time() to string
-        return $this->createTempFile(md5(uniqid((string)time(), true)));
-    }
-
-    #[\Override]
     public function persistAll($result = null, ?array $configuration = null)
     {
         if (
@@ -117,7 +110,7 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
 /**
  * Class DataTargetRepositoryTest
  */
-#[CoversClass(\CPSIT\T3importExport\Persistence\DataTargetFileStream::class)]
+#[CoversClass(DataTargetXMLStream::class)]
 class DataTargetXMLStreamTest extends TestCase
 {
     protected DataTargetXMLStream $subject;

@@ -62,7 +62,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
             && $result instanceof TaskResult
         ) {
             $result->rewind();
-            if ($result->valid()) {
+            if ($result->valid() && !empty($this->tempFile)) {
                 $fileInfo = GeneralUtility::makeInstance(FileInfo::class, $this->tempFile);
 
                 $result->setInfo($fileInfo);
@@ -93,7 +93,7 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
      */
     protected function createAnonymTempFile()
     {
-        return $this->createTempFile(md5(uniqid(time(), true)));
+        return $this->createTempFile(md5(uniqid((string)time(), true)));
     }
 
     /**
