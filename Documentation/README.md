@@ -96,6 +96,7 @@
 
 ### 🛠️ Development
 - [Development Guide](./DEVELOPMENT.md)
+- [Components and the core library](./CORE_MIGRATION.md)
 - [Creating Custom Components](#creating-custom-components)
 - [Testing](#testing)
 - [Contributing](#contributing)
