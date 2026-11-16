@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 
 use CPSIT\T3importExport\Component\PreProcessor\MapFieldValues;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /***************************************************************
@@ -25,11 +28,7 @@ use PHPUnit\Framework\TestCase;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-/**
- * Class GuessSeminarLanguageTest
- *
- * @coversDefaultClass \CPSIT\T3importExport\Component\PreProcessor\MapFieldValues
- */
+#[CoversClass(MapFieldValues::class)]
 class MapFieldValuesTest extends TestCase
 {
     protected MapFieldValues $subject;
@@ -42,9 +41,6 @@ class MapFieldValuesTest extends TestCase
         $this->subject = new MapFieldValues();
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsInitiallyFalse(): void
     {
         $mockConfiguration = ['foo'];
@@ -53,9 +49,6 @@ class MapFieldValuesTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsFalseIfFieldsIsNotArray(): void
     {
         $config = [
@@ -66,9 +59,6 @@ class MapFieldValuesTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsFalseIfTargetFieldIsNotSet(): void
     {
         $config = [
@@ -81,9 +71,6 @@ class MapFieldValuesTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsFalseIfTargetFieldIsNotString(): void
     {
         $config = [
@@ -98,9 +85,6 @@ class MapFieldValuesTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsFalseIfValuesIsNotSet(): void
     {
         $config = [
@@ -115,9 +99,6 @@ class MapFieldValuesTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsFalseIfValuesIsNotArray(): void
     {
         $config = [
@@ -133,9 +114,6 @@ class MapFieldValuesTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::isConfigurationValid
-     */
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $config = [
@@ -154,9 +132,9 @@ class MapFieldValuesTest extends TestCase
     }
 
     /**
-     * provides data for testing process
+     * Values are compared loosely (`==`); if several values match, the last one wins
      */
-    public function processDataProvider(): array
+    public static function processDataProvider(): iterable
     {
         $configuration = [
             'fields' => [
@@ -169,31 +147,63 @@ class MapFieldValuesTest extends TestCase
             ],
         ];
 
-        return [
+        yield 'matching value is replaced' => [
+            $configuration,
+            ['foo' => 'bar'],
+            ['foo' => 'baz'],
+        ];
+        yield 'non matching value is kept' => [
+            $configuration,
+            ['foo' => 'boom'],
+            ['foo' => 'boom'],
+        ];
+        yield 'value is written to target field' => [
+            ['fields' => ['type' => ['targetField' => 'label', 'values' => ['1' => 'Course', '2' => 'Event']]]],
+            ['type' => '2'],
+            ['type' => '2', 'label' => 'Event'],
+        ];
+        yield 'target field is not set if no value matches' => [
+            ['fields' => ['type' => ['targetField' => 'label', 'values' => ['1' => 'Course']]]],
+            ['type' => '3'],
+            ['type' => '3'],
+        ];
+        yield 'integer matches numeric string key' => [
+            ['fields' => ['type' => ['targetField' => 'label', 'values' => ['1' => 'Course']]]],
+            ['type' => 1],
+            ['type' => 1, 'label' => 'Course'],
+        ];
+        yield 'numeric strings are compared as numbers, last match wins' => [
+            ['fields' => ['type' => ['targetField' => 'label', 'values' => ['1' => 'first', '01' => 'second']]]],
+            ['type' => '1'],
+            ['type' => '1', 'label' => 'second'],
+        ];
+        yield 'null matches empty string key' => [
+            ['fields' => ['type' => ['targetField' => 'label', 'values' => ['' => 'none']]]],
+            ['type' => null],
+            ['type' => null, 'label' => 'none'],
+        ];
+        yield 'mapped value may be of any type' => [
+            ['fields' => ['hidden' => ['targetField' => 'hidden', 'values' => ['yes' => 1, 'no' => 0]]]],
+            ['hidden' => 'no'],
+            ['hidden' => 0],
+        ];
+        yield 'several fields' => [
             [
-                //matching value is replaced
-                $configuration,
-                ['foo' => 'bar'],
-                ['foo' => 'baz'],
+                'fields' => [
+                    'a' => ['targetField' => 'a', 'values' => ['x' => 'X']],
+                    'b' => ['targetField' => 'c', 'values' => ['y' => 'Y']],
+                ],
             ],
-            [
-                // non matching value is kept
-                $configuration,
-                ['foo' => 'boom'],
-                ['foo' => 'boom'],
-            ],
+            ['a' => 'x', 'b' => 'y'],
+            ['a' => 'X', 'b' => 'y', 'c' => 'Y'],
         ];
     }
 
-    /**
-     * @dataProvider processDataProvider
-     */
+    #[Test]
+    #[DataProvider('processDataProvider')]
     public function processMapsFieldValues(array $configuration, array $record, array $result): void
     {
-        $this->subject->process($configuration, $record);
-        $this->assertEquals(
-            $result,
-            $record
-        );
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertSame($result, $record);
     }
 }
