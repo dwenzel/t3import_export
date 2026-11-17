@@ -7,7 +7,7 @@ PreProcessors prepare the incoming record array for either the following compone
 PreProcessors are optional. You may configure as many as you need.
 
 Available PreProcessors:
-* [EvaluateExpressions](./PreProcessors/EVALUATE_EXPRESSIONS.md)
+* [EvaluateExpressionsPreProcessor](./PreProcessors/EVALUATE_EXPRESSIONS.md) (core)
 * [LookUpDB](./PreProcessors/LOOK_UP_DB.md)
 * [XMLMapper](./PreProcessors/XML_MAPPER.md)
 

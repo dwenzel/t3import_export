@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component;
 
 use CPSIT\ImportExportCore\Component\DisableableInterface;
+use CPSIT\ImportExportCore\Condition\ConditionEvaluator;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -43,14 +43,14 @@ abstract class AbstractComponent implements ConfigurableInterface, DisableableIn
     /**
      * Tells if the component is disabled
      *
-     * `disable` may be
+     * `disable` is evaluated by the condition evaluator of the core. It may be
      * - `1` or `true`
      * - an array with `if.result.hasMessage` (comma separated message ids)
      * - an array with `expression`: evaluated with the variables `record` and `result`
      *
      * Content objects (`disable = TEXT`) are not supported any more since 4.0.
      *
-     * @throws InvalidConfigurationException if `disable` is a content object
+     * @throws InvalidConfigurationException if `disable` is a content object or an invalid expression
      */
     public function isDisabled(array $configuration, array $record = [], ?ResultInterface $result = null): bool
     {
@@ -59,37 +59,13 @@ abstract class AbstractComponent implements ConfigurableInterface, DisableableIn
         }
 
         $disable = $configuration['disable'];
-        if ($disable === true || $disable === 1 || $disable === '1') {
-            return true;
-        }
-        if (is_array($disable)) {
-            if (isset($disable['_typoScriptNodeValue'])) {
-                throw new InvalidConfigurationException(
-                    'Disabling components with TypoScript content objects is not supported any more. Use disable.expression instead.',
-                    self::CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE
-                );
-            }
-            if (isset($disable['if']['result']['hasMessage'])) {
-                $messageIds = GeneralUtility::intExplode(
-                    ',',
-                    (string)$disable['if']['result']['hasMessage'],
-                    true
-                );
-                foreach ($messageIds as $id) {
-                    if ($result instanceof ResultInterface && $result->hasMessageWithId($id)) {
-                        return true;
-                    }
-                }
-            }
-
-            if (isset($disable['expression'])) {
-                return $this->getExpressionEvaluator()->isTrue(
-                    (string)$disable['expression'],
-                    ['record' => $record, 'result' => $result]
-                );
-            }
+        if (is_array($disable) && isset($disable['_typoScriptNodeValue'])) {
+            throw new InvalidConfigurationException(
+                'Disabling components with TypoScript content objects is not supported any more. Use disable.expression instead.',
+                self::CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE
+            );
         }
 
-        return false;
+        return (new ConditionEvaluator($this->getExpressionEvaluator()))->isMet($disable, $record, $result);
     }
 }

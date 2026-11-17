@@ -33,7 +33,7 @@ Generic components without TYPO3 dependencies (apart from
 | `PreProcessor\XMLMapper` | 99 % | – | [core#68] |
 | `PreProcessor\Clean` | 0 % | tests, [#130] | [core#68] |
 | `PreProcessor\ImplodeArray` | 0 % | tests, [#130] | [core#68] |
-| `PreProcessor\EvaluateExpressions`, `Expression\ExpressionEvaluator` | 100 % | condition evaluator | [core#24] |
+| `PreProcessor\EvaluateExpressions`, `Expression\ExpressionEvaluator` | 100 % | moved in 4.0 | [core#24] |
 | `PreProcessor\ValidateXML` | 0 % | tests, [#130]; path abstraction | [core#25] |
 | `Finisher\ValidateXML` | 97 % | path abstraction | [core#25] |
 | `Converter\ArrayToXMLStream` | 81 % | Extbase property mapper for `targetClass` separated | [core#25] |

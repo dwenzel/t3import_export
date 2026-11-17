@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component;
 
 use CPSIT\T3importExport\Component\AbstractComponent;
-use CPSIT\T3importExport\Expression\ExpressionEvaluator;
+use CPSIT\ImportExportCore\Expression\ExpressionEvaluator;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use PHPUnit\Framework\Attributes\DataProvider;

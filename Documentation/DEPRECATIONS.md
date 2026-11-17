@@ -17,7 +17,7 @@ which TYPO3 14 removed. These features are removed:
 
 | Removed | Replacement |
 |---|---|
-| Pre-processor `RenderContent` | Pre-processor [EvaluateExpressions](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) (contains a migration table) |
+| Pre-processor `RenderContent` | Pre-processor [EvaluateExpressionsPreProcessor](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) of the core (contains a migration table) |
 | `disable` rendered as content object (`disable = TEXT`) | `disable.expression`, see [Components](./COMPONENT.md#by-expression). A content object throws an `InvalidConfigurationException` (code 1794781862). |
 | `DataSourceDB` query values rendered as content objects | `{expression: ...}`, see [DataSourceDB](./Persistence/DataSourceDB.md). A content object throws an `InvalidConfigurationException` (code 1794781881). |
 | `ConcatenateFields` constructor arguments (`ContentObjectRenderer`, `TypoScriptService`) | none |
@@ -36,30 +36,8 @@ and `UnsetEmptyFields` are removed
 replacements, their differences and a migration example are listed in
 [Deprecated in 3.2](#deprecated-in-32).
 
-The pre-processors of the core do not support `disable` yet (conditions are
-planned in core [#24](https://github.com/CPS-IT/import-export-core/issues/24)).
-Use the condition `when` of the rules of `ValueRulesPreProcessor` instead:
-
-```yaml
-# before
-- class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
-  config:
-    targetField: pid
-    value: 12
-    disable:
-      expression: "record['type'] == 'news'"
-
-# after
-- class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
-  config:
-    rules:
-      - {rule: default, field: pid, value: 12, when: {field: type, in: [event, page]}}
-```
-
-A condition cannot be negated: list the values for which the rule applies.
-`default` only sets empty fields; to replace a value, combine `remove` and
-`default` with the same condition. In TypoScript, the entries of lists such as
-`rules` must be numbered from 0 without gaps.
+The pre-processors of the core support `disable` like the components of the
+extension (core [#24](https://github.com/CPS-IT/import-export-core/issues/24)).
 
 ### Processor and factories of the core
 
@@ -98,12 +76,26 @@ Changes for configurations and custom components:
 * `DataSourceDynamicRepository` returns arrays of the properties of the domain
   objects (before, the processor converted them).
 
+### Expressions and conditions of the core
+
+Expressions and the option `disable` are evaluated by
+`cpsit/import-export-core` (core [#24](https://github.com/CPS-IT/import-export-core/issues/24)).
+The configuration does not change.
+
+| Removed | Replacement |
+|---|---|
+| Pre-processor `EvaluateExpressions` | `CPSIT\ImportExportCore\Processor\EvaluateExpressionsPreProcessor`, same configuration |
+| `Expression\ExpressionEvaluator`, `Expression\ExpressionEvaluatorInterface` | the classes with the same names in `CPSIT\ImportExportCore\Expression\` |
+
+`AbstractComponent::isDisabled()` uses `CPSIT\ImportExportCore\Condition\ConditionEvaluator`.
+Message IDs in `disable.if.result.hasMessage` may now also be a single integer.
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |
 |---|---|
 | Tasks and sets in TypoScript (`module.tx_t3importexport.settings`) | YAML files, see [YAML configuration](./YAML_CONFIGURATION.md). The backend modules list tasks and sets from YAML since 3.1 and show a notice for tasks and sets from TypoScript. |
-| Pre-processor `RenderContent` | Pre-processor [EvaluateExpressions](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) (contains a migration table) |
+| Pre-processor `RenderContent` | Pre-processor [EvaluateExpressions](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) (contains a migration table; in 4.0 `EvaluateExpressionsPreProcessor` of the core) |
 | `disable` rendered as content object (`disable = TEXT`) | `disable.expression`, see [Components](./COMPONENT.md#by-expression) |
 | `DataSourceDB` query values rendered as content objects | `{expression: ...}`, see [DataSourceDB](./Persistence/DataSourceDB.md) |
 | `ConcatenateFields` constructor arguments (`ContentObjectRenderer`, `TypoScriptService`) | none, the arguments are ignored |

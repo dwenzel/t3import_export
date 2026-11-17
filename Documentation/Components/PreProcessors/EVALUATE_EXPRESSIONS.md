@@ -1,6 +1,8 @@
-EvaluateExpressions
-===================
-Sets fields of the record from expressions. The expressions are evaluated with
+EvaluateExpressionsPreProcessor
+===============================
+Sets fields of the record from expressions. The pre-processor is part of
+`cpsit/import-export-core`; it replaces `EvaluateExpressions` of this extension
+since version 4.0. The expressions are evaluated with
 the [Symfony ExpressionLanguage](https://symfony.com/doc/current/reference/formats/expression_language.html).
 
 The fields are evaluated in the configured order. Each expression gets the
@@ -12,7 +14,7 @@ expressions of the same pre-processor.
 ### Required
 * **class** *string*
   fully qualified class name
-  *CPSIT\T3importExport\Component\PreProcessor\EvaluateExpressions*
+  *CPSIT\ImportExportCore\Processor\EvaluateExpressionsPreProcessor*
 
 * **config.fields** *array*
   field name => expression. The result of the expression is written to the
@@ -37,7 +39,7 @@ functions are available:
 ```yaml
 preProcessors:
   10:
-    class: 'CPSIT\T3importExport\Component\PreProcessor\EvaluateExpressions'
+    class: 'CPSIT\ImportExportCore\Processor\EvaluateExpressionsPreProcessor'
     config:
       fields:
         teaser: "record['teaser'] ?: record['abstract']"

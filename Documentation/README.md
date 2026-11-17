@@ -39,7 +39,7 @@
 - **[PreProcessors](./Components/PREPROCESSOR.md)** - Data transformation
   - Pre-processors of `cpsit/import-export-core`, e.g. `ValueRulesPreProcessor`, `SetValuesPreProcessor`, `CleanPreProcessor`: see [Deprecations](./DEPRECATIONS.md#deprecated-in-32)
   - [LookUpDB](./Components/PreProcessors/LOOK_UP_DB.md)
-  - [EvaluateExpressions](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md)
+  - [EvaluateExpressionsPreProcessor](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) (core)
   - [XMLMapper](./Components/PreProcessors/XML_MAPPER.md)
 
 - **[Converters](./Components/CONVERTER.md)** - Format transformation

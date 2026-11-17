@@ -36,9 +36,14 @@ services:
     CPSIT\ImportExportCore\Factory\TransferTaskFactory:
       public: true
     CPSIT\ImportExportCore\Factory\TransferSetFactory: ~
+    CPSIT\ImportExportCore\Expression\ExpressionEvaluator: ~
+    CPSIT\ImportExportCore\Expression\ExpressionEvaluatorInterface: '@CPSIT\ImportExportCore\Expression\ExpressionEvaluator'
+    CPSIT\ImportExportCore\Condition\ConditionEvaluator: ~
+    CPSIT\ImportExportCore\Condition\ConditionEvaluatorInterface: '@CPSIT\ImportExportCore\Condition\ConditionEvaluator'
     CPSIT\ImportExportCore\Service\DataTransferProcessor:
       arguments:
         $eventDispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
+        $conditionEvaluator: '@CPSIT\ImportExportCore\Condition\ConditionEvaluatorInterface'
 
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true

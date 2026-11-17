@@ -25,7 +25,8 @@ A more in-depth description of components can be found in the correspondent
 sections linked above. There are references for single components too.
 
 ## Disable Components
-Any component can be disabled with the option `disable` in its `config`.
+Any component can be disabled with the option `disable` in its `config`,
+including the components of `cpsit/import-export-core`.
 
 ### Manually
 ```yaml
