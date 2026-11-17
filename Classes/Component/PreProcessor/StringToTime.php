@@ -25,6 +25,9 @@ use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
  ***************************************************************/
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * @deprecated since 3.2, will be removed in 4.0. Use \CPSIT\ImportExportCore\Processor\StringToTimePreProcessor of cpsit/import-export-core 0.2, see Documentation/DEPRECATIONS.md
+ */
 class StringToTime extends AbstractPreProcessor implements PreProcessorInterface
 {
     /**

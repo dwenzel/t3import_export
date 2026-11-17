@@ -22,6 +22,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class UnsetEmptyFields
+ *
+ * @deprecated since 3.2, will be removed in 4.0. Use \CPSIT\ImportExportCore\Processor\UnsetEmptyFieldsPreProcessor of cpsit/import-export-core 0.2, see Documentation/DEPRECATIONS.md
  */
 class UnsetEmptyFields extends AbstractPreProcessor implements PreProcessorInterface
 {

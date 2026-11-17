@@ -24,6 +24,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
+/**
+ * @deprecated since 3.2, will be removed in 4.0. Use \CPSIT\ImportExportCore\Processor\ImplodeArrayPreProcessor of cpsit/import-export-core 0.2, see Documentation/DEPRECATIONS.md
+ */
 class ImplodeArray extends AbstractPreProcessor implements PreProcessorInterface
 {
     /**

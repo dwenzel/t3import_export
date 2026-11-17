@@ -1,5 +1,7 @@
 RemoveFields
 ============
+
+> Deprecated since 3.2, removed in 4.0. See [Deprecations](../../DEPRECATIONS.md#deprecated-in-32) for the replacement in `cpsit/import-export-core`.
 Removes attributes from the record. This is useful for cleaning up e.g. import
 data or after the usage of [PreProcessor MapFields](MAP_FIELDS.md).
 

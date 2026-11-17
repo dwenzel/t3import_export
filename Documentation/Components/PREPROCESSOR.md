@@ -7,19 +7,19 @@ PreProcessors prepare the incoming record array for either the following compone
 PreProcessors are optional. You may configure as many as you need.
 
 Available PreProcessors:
-* [AddArrays](./PreProcessors/ADD_ARRAYS.md)
-* [Clean](./PreProcessors/CLEAN.md)
-* [ConcatenateFields](./PreProcessors/CONCATENATE_FIELDS.md)
+* [AddArrays](./PreProcessors/ADD_ARRAYS.md) (deprecated)
+* [Clean](./PreProcessors/CLEAN.md) (deprecated)
+* [ConcatenateFields](./PreProcessors/CONCATENATE_FIELDS.md) (deprecated)
 * [EvaluateExpressions](./PreProcessors/EVALUATE_EXPRESSIONS.md)
-* [ImplodeArray](./PreProcessors/IMPLODE_ARRAY.md)
+* [ImplodeArray](./PreProcessors/IMPLODE_ARRAY.md) (deprecated)
 * [LookUpDB](./PreProcessors/LOOK_UP_DB.md)
-* [MapFields](./PreProcessors/MAP_FIELDS.md)
-* [MapFieldValues](./PreProcessors/MAP_FIELD_VALUES.md)
-* [RemoveFields](./PreProcessors/REMOVE_FIELDS.md)
+* [MapFields](./PreProcessors/MAP_FIELDS.md) (deprecated)
+* [MapFieldValues](./PreProcessors/MAP_FIELD_VALUES.md) (deprecated)
+* [RemoveFields](./PreProcessors/REMOVE_FIELDS.md) (deprecated)
 * [RenderContent](./PreProcessors/RENDER_CONTENT.md) (deprecated)
-* [SetFieldValue](./PreProcessors/SET_FIELD_VALUE.md)
-* [StringToTime](./PreProcessors/STRING_TO_TIME.md)
-* [UnsetEmptyFields](./PreProcessors/UnsetEmptyFields.md)
+* [SetFieldValue](./PreProcessors/SET_FIELD_VALUE.md) (deprecated)
+* [StringToTime](./PreProcessors/STRING_TO_TIME.md) (deprecated)
+* [UnsetEmptyFields](./PreProcessors/UnsetEmptyFields.md) (deprecated)
 * [XMLMapper](./PreProcessors/XML_MAPPER.md)
 
 You may add your own PreProcessors. They **must** implement the PreProcessorInterface and **may** inherit from AbstractInitializer.

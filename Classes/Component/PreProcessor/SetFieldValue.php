@@ -26,6 +26,8 @@ use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 /**
  * Class SetFieldValue
  * Sets the value of a field to a new value from configuration
+ *
+ * @deprecated since 3.2, will be removed in 4.0. Use \CPSIT\ImportExportCore\Processor\SetValuesPreProcessor of cpsit/import-export-core 0.2, see Documentation/DEPRECATIONS.md
  */
 class SetFieldValue extends AbstractPreProcessor implements PreProcessorInterface
 {

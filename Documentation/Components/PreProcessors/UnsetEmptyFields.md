@@ -1,6 +1,8 @@
 Pre Processor UnsetEmptyFields
 ==============================
 
+> Deprecated since 3.2, removed in 4.0. See [Deprecations](../../DEPRECATIONS.md#deprecated-in-32) for the replacement in `cpsit/import-export-core`.
+
 This is a pre processor for import and export tasks.
 It un-sets any field which is configured in the configuration and empty in the
 incoming record.

@@ -1,6 +1,8 @@
 StringToTime
 ============
 
+> Deprecated since 3.2, removed in 4.0. See [Deprecations](../../DEPRECATIONS.md#deprecated-in-32) for the replacement in `cpsit/import-export-core`.
+
 Processes attributes with the PHP function
 [strtotime()](https://secure.php.net/manual/de/function.strtotime.php) to create
 timestamps from text based date fields.

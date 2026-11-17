@@ -1,6 +1,8 @@
 ConcatenateFields
 =================
 
+> Deprecated since 3.2, removed in 4.0. See [Deprecations](../../DEPRECATIONS.md#deprecated-in-32) for the replacement in `cpsit/import-export-core`.
+
 Concatenates fields of a given record and adds the result to a new or existing
 field of this record. All fields **must** contain strings. If targetField is
 not empty the result will be added to its value.
