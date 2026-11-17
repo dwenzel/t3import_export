@@ -27,6 +27,43 @@ Features of content objects such as `parseFunc`, `typolink`, `crop` or data
 from a frontend page (`TSFE:`, `page:`) have no replacement. Use your own
 pre-processor if you need them.
 
+### Processor and factories of the core
+
+4.0 requires `cpsit/import-export-core` 0.2, which contains the processor, the
+task and set models and the factories
+([#71](https://github.com/dwenzel/t3import_export/issues/71), core
+[UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md)).
+
+| Removed | Replacement |
+|---|---|
+| `Service\DataTransferProcessor` | `Service\TransferService::run($tasks)` (extension), which uses `DataTransferProcessor` and `DemandProcessor` of the core |
+| `Domain\Model\TransferTask`, `TransferSet`, `Dto\TaskDemand`, `Dto\DemandInterface` | the classes with the same names in `CPSIT\ImportExportCore\Domain\Model\` |
+| `Domain\Factory\TransferTaskFactory` | `CPSIT\ImportExportCore\Factory\TransferTaskFactory::create($identifier, $settings)` |
+| `Factory\FactoryFactory`, `ComponentFactoryMap`, `AbstractFactory`, `FactoryInterface`, `FactoryMapInterface`, the component factories (`PreProcessorFactory` etc.), `DataSourceFactory`, `DataTargetFactory` | `CPSIT\ImportExportCore\Factory\ComponentFactory` with the defaults `DataSourceDB` (source) and `DataTargetRepository` (target) |
+
+`Domain\Factory\TransferSetFactory` stays; `get($settings, $identifier)`
+returns the set of the core.
+
+Changes for configurations and custom components:
+
+* `isDisabled()` takes `?ResultInterface` instead of `?TaskResult` as third
+  parameter. `AbstractComponent` implements `DisableableInterface`.
+* A component configured without `config` receives an empty configuration
+  when it is created. Components whose `isConfigurationValid([])` is false
+  throw an `InvalidConfigurationException`; add the configuration.
+* A set that refers to an undefined task throws an
+  `InvalidConfigurationException`; before, the task was skipped.
+* Pre-processors, converters, post-processors, initializers and finishers of
+  the extension keep working: the core wraps them in adapters. Initializers
+  and finishers receive an empty list of records (none of the extension uses
+  it). Changes of post-processors to the source record are discarded.
+* Core components such as `CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor`
+  can be used in tasks.
+* `Persistence\CompletableSourceInterface`: `complete(ResultInterface $result)`
+  (called by the core processor) and `fail()` without arguments.
+* `DataSourceDynamicRepository` returns arrays of the properties of the domain
+  objects (before, the processor converted them).
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |

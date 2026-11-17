@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component;
 
+use CPSIT\ImportExportCore\Component\DisableableInterface;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -32,7 +33,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class AbstractComponent
  */
-abstract class AbstractComponent implements ConfigurableInterface
+abstract class AbstractComponent implements ConfigurableInterface, DisableableInterface
 {
     use ConfigurableTrait;
     use ExpressionEvaluatorTrait;
@@ -51,7 +52,7 @@ abstract class AbstractComponent implements ConfigurableInterface
      *
      * @throws InvalidConfigurationException if `disable` is a content object
      */
-    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
+    public function isDisabled(array $configuration, array $record = [], ?ResultInterface $result = null): bool
     {
         if (!isset($configuration['disable'])) {
             return false;
@@ -75,7 +76,7 @@ abstract class AbstractComponent implements ConfigurableInterface
                     true
                 );
                 foreach ($messageIds as $id) {
-                    if ($result instanceof TaskResult && $result->hasMessageWithId($id)) {
+                    if ($result instanceof ResultInterface && $result->hasMessageWithId($id)) {
                         return true;
                     }
                 }

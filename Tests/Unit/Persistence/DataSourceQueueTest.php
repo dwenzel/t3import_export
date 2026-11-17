@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
 use CPSIT\T3importExport\Persistence\DataSourceQueue;
@@ -105,8 +106,8 @@ class DataSourceQueueTest extends TestCase
         $this->subject->getRecords(self::CONFIGURATION);
         $this->statusUpdates = [];
 
-        $this->subject->complete(self::CONFIGURATION);
-        $this->subject->complete(self::CONFIGURATION);
+        $this->subject->complete(new TaskResult());
+        $this->subject->complete(new TaskResult());
 
         self::assertSame(
             [[[3, 5], QueueItem::STATUS_FINISHED], [[], QueueItem::STATUS_FINISHED]],
@@ -121,7 +122,7 @@ class DataSourceQueueTest extends TestCase
         $this->subject->getRecords(self::CONFIGURATION);
         $this->statusUpdates = [];
 
-        $this->subject->fail(self::CONFIGURATION);
+        $this->subject->fail();
 
         self::assertSame([[[3, 5], QueueItem::STATUS_FAILED]], $this->statusUpdates);
     }

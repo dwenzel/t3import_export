@@ -4,230 +4,97 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Domain\Factory;
 
-/***************************************************************
- *  Copyright notice
- *  (c) 2016 Dirk Wenzel <dirk.wenzel@cps-it.de>
- *  All rights reserved
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
-
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandler;
 use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Factory\ComponentFactory;
+use CPSIT\ImportExportCore\Factory\ComponentRegistry;
+use CPSIT\ImportExportCore\Factory\TransferSetFactory as CoreTransferSetFactory;
+use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
-use CPSIT\T3importExport\Domain\Model\TransferSet;
-use CPSIT\T3importExport\Domain\Model\TransferTask;
+use CPSIT\T3importExport\Persistence\DataSourceDummy;
+use CPSIT\T3importExport\Persistence\DataTargetDummy;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class ImportSetFactoryTest
- */
+#[CoversClass(TransferSetFactory::class)]
 class TransferSetFactoryTest extends TestCase
 {
-    protected TransferSetFactory $subject;
+    protected const array TASK = [
+        'source' => ['class' => DataSourceDummy::class],
+        'target' => ['class' => DataTargetDummy::class],
+    ];
 
-    /**
-     * @var TransferTaskFactory|MockObject
-     */
-    protected TransferTaskFactory $transferTaskFactory;
+    protected array $configuration = [];
 
-    /**
-     * @var TransferSet|MockObject
-     */
-    protected TransferSet $transferSet;
-
-    /**
-     * @var TransferTask|MockObject
-     */
-    protected TransferTask $transferTask;
-
-    /**
-     * @var ConfigurationHandlerInterface|MockObject
-     */
-    protected ConfigurationHandlerInterface|MockObject $configurationHandler;
-
-    protected array $settings = [];
-
-    /**
-     * Set up
-     */
-    protected function mockConfigurationHandler(): void
+    protected function createSubject(): TransferSetFactory
     {
-        $this->configurationHandler = $this->getMockBuilder(ConfigurationHandler::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getFullConfiguration'])
-            ->getMock();
-    }
-
-    /**
-     * Creates mock transfer task
-     */
-    protected function mockTransferTask(): void
-    {
-        $this->transferTask = $this->getMockBuilder(TransferTask::class)
-            ->onlyMethods([
-                'setIdentifier',
-                'setDescription',
-                'setTargetClass',
-                'setSource',
-                'setTarget',
-                'setConverters',
-                'setPreProcessors',
-                'setPostProcessors',
-                'setFinishers',
-                'setInitializers',
-                'setLabel',
-            ])
-            ->getMock();
-    }
-
-    protected function setUp(): void
-    {
-        $this->mockConfigurationHandler();
-        $this->transferTaskFactory = $this->getMockBuilder(TransferTaskFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['get'])
-            ->getMock();
-
-        $this->mockTransferTask();
-
-        $this->configurationHandler->method('getFullConfiguration')
-            ->willReturn($this->settings);
-        $this->transferTaskFactory->method('get')->willReturn($this->transferTask);
-        $this->subject = new TransferSetFactory(
-            $this->transferTaskFactory,
-            $this->configurationHandler,
-        );
-    }
-
-    #[Test]
-    public function getSetsIdentifier(): void
-    {
-        $settings = [];
-        $identifier = 'foo';
-
-        $transferSet = $this->subject->get($settings, $identifier);
-        $this->assertSame(
-            $identifier,
-            $transferSet->getIdentifier()
-        );
-    }
-
-    public function testGetSetsDescription(): void
-    {
-        $description = 'foo';
-        $settings = [
-            'description' => $description,
-        ];
-
-        $transferSet = $this->subject->get($settings);
-        $this->assertSame(
-            $description,
-            $transferSet->getDescription()
-        );
-    }
-
-    public function testGetSetsLabel(): void
-    {
-        $label = 'foo';
-        $settings = [
-            'label' => $label,
-        ];
-
-        $transferSet = $this->subject->get($settings);
-        $this->assertSame(
-            $label,
-            $transferSet->getLabel()
-        );
-    }
-
-    #[Test]
-    public function getSetsTask(): void
-    {
-        $fooTaskConfiguration = ['baz'];
-        $barTaskConfiguration = ['bam'];
-        $frameworkSettings = [
-            'import' => [
-                'tasks' => [
-                    'foo' => $fooTaskConfiguration,
-                    'bar' => $barTaskConfiguration,
-                ],
-            ],
-        ];
-        $this->subject = $this->subject->withSettings($frameworkSettings);
-
-        $config = [
-            'tasks' => 'foo,bar',
-        ];
-
-        // Since withConsecutive is removed in PHPUnit 12, we'll simplify the test
-        // and just verify the correct number of calls and the final result
-        $this->transferTaskFactory->expects($this->exactly(2))
-            ->method('get')
-            ->willReturn($this->transferTask);
-
-        $expectedTasks = [
-            'foo' => $this->transferTask,
-            'bar' => $this->transferTask,
-        ];
-
-        $transferSet = $this->subject->get($config);
-        $this->assertSame(
-            $expectedTasks,
-            $transferSet->getTasks()
-        );
-    }
-
-    #[Test]
-    public function getResolvesExportTasks(): void
-    {
-        $this->subject = $this->subject->withSettings([
-            'export' => [
-                'tasks' => [
-                    'foo' => ['baz'],
-                ],
-            ],
-        ]);
-        $this->transferTaskFactory->expects($this->once())
-            ->method('get')
-            ->with(['baz'], 'foo')
-            ->willReturn($this->transferTask);
-
-        $transferSet = $this->subject->get(['tasks' => 'foo']);
-
-        $this->assertSame(['foo' => $this->transferTask], $transferSet->getTasks());
-    }
-
-    #[Test]
-    public function getResolvesTasksFromConfigurationHandler(): void
-    {
-        $configurationHandler = $this->getMockBuilder(ConfigurationHandler::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getFullConfiguration'])
-            ->getMock();
+        $configurationHandler = $this->createStub(ConfigurationHandlerInterface::class);
         $configurationHandler->method('getFullConfiguration')
-            ->willReturn(['import' => ['tasks' => ['foo' => ['baz']]]]);
-        $subject = new TransferSetFactory($this->transferTaskFactory, $configurationHandler);
-        $this->transferTaskFactory->expects($this->once())
-            ->method('get')
-            ->with(['baz'], 'foo')
-            ->willReturn($this->transferTask);
+            ->willReturnCallback(fn(): array => $this->configuration);
 
-        $transferSet = $subject->get(['tasks' => 'foo']);
+        return new TransferSetFactory(
+            new CoreTransferSetFactory(new TransferTaskFactory(new ComponentFactory(new ComponentRegistry()))),
+            $configurationHandler
+        );
+    }
 
-        $this->assertSame(['foo' => $this->transferTask], $transferSet->getTasks());
+    #[Test]
+    public function getSetsIdentifierLabelAndDescription(): void
+    {
+        $set = $this->createSubject()->get(['label' => 'Foo', 'description' => 'Bar'], 'fooSet');
+
+        self::assertSame('fooSet', $set->getIdentifier());
+        self::assertSame('Foo', $set->getLabel());
+        self::assertSame('Bar', $set->getDescription());
+        self::assertSame([], $set->getTasks());
+    }
+
+    #[Test]
+    public function getResolvesImportAndExportTasksFromConfigurationHandler(): void
+    {
+        $this->configuration = [
+            'import' => ['tasks' => ['foo' => self::TASK]],
+            'export' => ['tasks' => ['bar' => self::TASK]],
+        ];
+
+        $tasks = $this->createSubject()->get(['tasks' => 'foo, bar'], 'set')->getTasks();
+
+        self::assertSame(['foo', 'bar'], array_keys($tasks));
+        self::assertSame('foo', $tasks['foo']->getIdentifier());
+        self::assertInstanceOf(DataSourceDummy::class, $tasks['foo']->getSource());
+    }
+
+    #[Test]
+    public function getPrefersImportTasksAndSettingsOverConfigurationHandler(): void
+    {
+        $this->configuration = [
+            'import' => ['tasks' => ['foo' => self::TASK + ['label' => 'yaml import']]],
+            'export' => ['tasks' => ['foo' => self::TASK + ['label' => 'yaml export']]],
+        ];
+        $subject = $this->createSubject();
+
+        self::assertSame('yaml import', $subject->get(['tasks' => 'foo'], 'set')->getTasks()['foo']->getLabel());
+
+        $subject->withSettings(['import' => ['tasks' => ['foo' => ['label' => 'typoscript']]]]);
+        self::assertSame('typoscript', $subject->get(['tasks' => 'foo'], 'set')->getTasks()['foo']->getLabel());
+    }
+
+    #[Test]
+    public function getReadsConfigurationOnEachCall(): void
+    {
+        $subject = $this->createSubject();
+        $this->configuration = ['import' => ['tasks' => ['foo' => self::TASK]]];
+
+        self::assertCount(1, $subject->get(['tasks' => 'foo'], 'set')->getTasks());
+    }
+
+    #[Test]
+    public function getThrowsExceptionForUndefinedTask(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(1794230031);
+
+        $this->createSubject()->get(['tasks' => 'missing'], 'set');
     }
 }

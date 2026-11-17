@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
@@ -94,12 +95,12 @@ class DataSourceQueue implements DataSourceInterface, ConfigurableInterface, Com
         return $records;
     }
 
-    public function complete(array $configuration): void
+    public function complete(ResultInterface $result): void
     {
         $this->release(QueueItem::STATUS_FINISHED);
     }
 
-    public function fail(array $configuration): void
+    public function fail(): void
     {
         $this->release(QueueItem::STATUS_FAILED);
     }

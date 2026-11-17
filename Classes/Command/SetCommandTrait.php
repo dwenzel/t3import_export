@@ -12,8 +12,7 @@ use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Service\TransferService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -45,7 +44,7 @@ trait SetCommandTrait
      */
     public function __construct(
         private readonly TransferSetFactory $transferSetFactory,
-        private readonly DataTransferProcessor $dataTransferProcessor,
+        private readonly TransferService $transferService,
         private readonly ConfigurationHandlerInterface $configurationHandler
     ) {
         parent::__construct(self::DEFAULT_NAME);
@@ -64,19 +63,12 @@ trait SetCommandTrait
      */
     public function process(string $identifier, bool $dryRun = false): void
     {
-        /** @var TaskDemand $demand */
-        $demand = GeneralUtility::makeInstance(TaskDemand::class);
-
         if (isset($this->settings['sets'][$identifier])) {
             $set = $this->transferSetFactory->get(
                 $this->settings['sets'][$identifier],
                 $identifier
             );
-            $demand->setTasks($set->getTasks());
-            $this->dataTransferProcessor->buildQueue($demand);
-            if (!$dryRun) {
-                $this->dataTransferProcessor->process($demand);
-            }
+            $this->transferService->run($set->getTasks(), $dryRun);
         }
     }
 

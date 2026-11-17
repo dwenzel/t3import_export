@@ -20,9 +20,10 @@ namespace CPSIT\T3importExport\Tests\Functional\Service;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\ImportExportCore\Domain\Model\Dto\TaskDemand;
+use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
+use CPSIT\ImportExportCore\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Service\TransferService;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
@@ -100,7 +101,7 @@ class ImportProcessorTest extends FunctionalTestCase
                 ]
             ],
         ];
-        $importTask = $this->transferTaskFactory->get($settings, $taskIdentifier);
+        $importTask = $this->transferTaskFactory->create($taskIdentifier, $settings);
         $importDemand = new TaskDemand();
         $importDemand->setTasks([$importTask]);
 
@@ -140,9 +141,7 @@ class ImportProcessorTest extends FunctionalTestCase
             ],
         ];
         $pageTitle = 'Imported Subpage 3';
-        $importTask = $this->transferTaskFactory->get($settings, $taskIdentifier);
-        $importDemand = new TaskDemand();
-        $importDemand->setTasks([$importTask]);
+        $importTask = $this->transferTaskFactory->create($taskIdentifier, $settings);
 
         // assert that page does not exist
         $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('pages');
@@ -160,8 +159,7 @@ class ImportProcessorTest extends FunctionalTestCase
         $this->assertEquals(0, $count, 'Page should not exist yet');
 
         // build queue and process
-        $this->importProcessor->buildQueue($importDemand);
-        $this->importProcessor->process($importDemand);
+        GeneralUtility::makeInstance(TransferService::class)->run([$importTask]);
 
         // assert that page exists after import
         $count = $queryBuilder

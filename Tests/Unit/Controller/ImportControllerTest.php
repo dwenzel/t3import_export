@@ -6,7 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Controller;
 
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Domain\Model\TransferSet;
+use CPSIT\ImportExportCore\Domain\Model\TransferSet;
 use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

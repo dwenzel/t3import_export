@@ -68,7 +68,24 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
         $class = $configuration['class'];
         $repository = $this->getRepositoryFromEntityClass($class);
 
-        return $this->fetchResultWithRepository($repository, $configuration);
+        return $this->toRecordArray($this->fetchResultWithRepository($repository, $configuration));
+    }
+
+    /**
+     * Converts domain objects to arrays of their properties. The processor of the
+     * core does not know Extbase and processes records as arrays.
+     */
+    protected function toRecordArray(iterable $records): array
+    {
+        $recordArray = [];
+        foreach ($records as $key => $record) {
+            if (is_object($record) && method_exists($record, '_getCleanProperties')) {
+                $record = $record->_getCleanProperties();
+            }
+            $recordArray[$key] = $record;
+        }
+
+        return $recordArray;
     }
 
     /**

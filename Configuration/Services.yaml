@@ -24,21 +24,34 @@ services:
         $configurationHandler: '@CPSIT\ImportExportCore\Configuration\ConfigurationHandler'
         $yamlLoader: '@CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader'
 
-    CPSIT\T3importExport\Domain\Factory\TransferTaskFactory:
+    # Factories and processor of the core
+    CPSIT\ImportExportCore\Factory\ComponentRegistry:
+      calls:
+        - setDefault: ['CPSIT\ImportExportCore\Persistence\DataSourceInterface', 'CPSIT\T3importExport\Persistence\DataSourceDB']
+        - setDefault: ['CPSIT\ImportExportCore\Persistence\DataTargetInterface', 'CPSIT\T3importExport\Persistence\DataTargetRepository']
+    CPSIT\ImportExportCore\Factory\ComponentRegistryInterface: '@CPSIT\ImportExportCore\Factory\ComponentRegistry'
+    CPSIT\ImportExportCore\Factory\InstantiatorInterface: '@CPSIT\T3importExport\Factory\Typo3Instantiator'
+    CPSIT\ImportExportCore\Factory\ComponentFactory: ~
+    CPSIT\ImportExportCore\Factory\ComponentFactoryInterface: '@CPSIT\ImportExportCore\Factory\ComponentFactory'
+    CPSIT\ImportExportCore\Factory\TransferTaskFactory:
       public: true
+    CPSIT\ImportExportCore\Factory\TransferSetFactory: ~
+    CPSIT\ImportExportCore\Service\DataTransferProcessor:
+      arguments:
+        $eventDispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
+
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true
       arguments:
-        $transferTaskFactory: '@CPSIT\T3importExport\Domain\Factory\TransferTaskFactory'
         $configurationHandler: '@CPSIT\ImportExportCore\Configuration\ConfigurationHandler'
+    CPSIT\T3importExport\Service\TransferService:
+      public: true
     CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter:
         tags:
             - name: extbase.type_converter
               priority: 2
               target: object
               sources: array,string,int
-    CPSIT\T3importExport\Persistence\Factory\DataTargetFactory:
-      public: true
     CPSIT\T3importExport\Persistence\Factory\FileReferenceFactory:
       public: true
     CPSIT\T3importExport\Component\Initializer\TruncateTables:

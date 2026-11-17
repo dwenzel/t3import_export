@@ -10,9 +10,8 @@ use CPSIT\ImportExportCore\Exception\ParseException;
 use CPSIT\T3importExport\Command\ImportSetCommand;
 use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Domain\Model\TransferSet;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\ImportExportCore\Domain\Model\TransferSet;
+use CPSIT\T3importExport\Service\TransferService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -43,27 +42,24 @@ class ImportSetCommandTest extends TestCase
         'foo',
     ];
     protected const VALID_SETTINGS = [
-        'settings' => [
-            ImportSetCommand::SETTINGS_KEY => [
-                'sets' => [
-                    self::SET_IDENTIFIER => self::VALID_SET_CONFIGURATION,
-                ],
+        ImportSetCommand::SETTINGS_KEY => [
+            'sets' => [
+                self::SET_IDENTIFIER => self::VALID_SET_CONFIGURATION,
             ],
         ],
     ];
 
     protected ImportSetCommand $subject;
     protected ConfigurationHandlerInterface|MockObject $configurationHandler;
-    protected TaskDemand|MockObject $taskDemand;
     protected TransferSetFactory|MockObject $transferSetFactory;
-    protected DataTransferProcessor|MockObject $dataTransferProcessor;
+    protected TransferService|MockObject $transferService;
     protected array $settings = [];
-    protected TransferSet|MockObject $transferSet;
+    protected TransferSet $transferSet;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->transferSet = $this->createMock(TransferSet::class);
+        $this->transferSet = new TransferSet();
         $this->transferSetFactory = $this->createMock(TransferSetFactory::class);
 
         $this->transferSetFactory->method('get')
@@ -74,22 +70,21 @@ class ImportSetCommandTest extends TestCase
         $this->configurationHandler->method('getFullConfiguration')
             ->willReturn(self::VALID_SETTINGS);
 
-        $this->taskDemand = $this->createMock(TaskDemand::class);
-        GeneralUtility::addInstance(TaskDemand::class, $this->taskDemand);
-        $this->dataTransferProcessor = $this->createMock(DataTransferProcessor::class);
+        $this->transferService = $this->createMock(TransferService::class);
 
         $this->subject = new ImportSetCommand(
             $this->transferSetFactory,
-            $this->dataTransferProcessor,
+            $this->transferService,
             $this->configurationHandler
         );
     }
 
     #[Test]
-    public function testMethodProcessOfDataTransferProcessorIsNotCallWithDryRun(): void
+    public function processPassesDryRunToTransferService(): void
     {
-        $this->dataTransferProcessor->expects(self::never())
-            ->method('process');
+        $this->transferService->expects(self::once())
+            ->method('run')
+            ->with([], true);
         $this->subject->process(self::SET_IDENTIFIER, true);
     }
 
@@ -111,7 +106,7 @@ class ImportSetCommandTest extends TestCase
         );
         $this->configurationHandler->method('addConfiguration')
             ->willThrowException(new ParseException('Error parsing YAML file'));
-        $this->dataTransferProcessor->expects(self::never())->method('process');
+        $this->transferService->expects(self::never())->method('run');
 
         $commandTester = new CommandTester($this->subject);
         $status = $commandTester->execute([

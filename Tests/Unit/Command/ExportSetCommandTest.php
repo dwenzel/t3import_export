@@ -8,7 +8,7 @@ use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\T3importExport\Command\ExportSetCommand;
 use CPSIT\T3importExport\Command\Option\YamlConfigFileOption;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Service\TransferService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -35,7 +35,7 @@ class ExportSetCommandTest extends TestCase
     {
         $subject = new ExportSetCommand(
             $this->createMock(TransferSetFactory::class),
-            $this->createMock(DataTransferProcessor::class),
+            $this->createMock(TransferService::class),
             $this->createMock(ConfigurationHandlerInterface::class)
         );
 

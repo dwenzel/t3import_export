@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Functional\Persistence;
 
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\QueueItem;
 use CPSIT\T3importExport\Persistence\DataSourceQueue;
 use PHPUnit\Framework\Attributes\Test;
@@ -53,7 +54,7 @@ class DataSourceQueueTest extends FunctionalTestCase
         $subject = $this->get(DataSourceQueue::class);
         $subject->getRecords(self::CONFIGURATION);
 
-        $subject->complete(self::CONFIGURATION);
+        $subject->complete(new TaskResult());
 
         self::assertSame(QueueItem::STATUS_FINISHED, $this->getStatusByUid()[1]);
         self::assertSame(QueueItem::STATUS_FINISHED, $this->getStatusByUid()[2]);
@@ -67,7 +68,7 @@ class DataSourceQueueTest extends FunctionalTestCase
         $subject = $this->get(DataSourceQueue::class);
         $subject->getRecords(self::CONFIGURATION);
 
-        $subject->fail(self::CONFIGURATION);
+        $subject->fail();
 
         self::assertSame(QueueItem::STATUS_FAILED, $this->getStatusByUid()[1]);
         self::assertSame(QueueItem::STATUS_FAILED, $this->getStatusByUid()[2]);
