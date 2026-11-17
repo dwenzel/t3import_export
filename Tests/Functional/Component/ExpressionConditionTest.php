@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Functional\Component;
 
-use CPSIT\T3importExport\Component\PreProcessor\SetFieldValue;
+use CPSIT\T3importExport\Component\PreProcessor\EvaluateExpressions;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -25,7 +25,7 @@ class ExpressionConditionTest extends FunctionalTestCase
     #[Test]
     public function componentIsDisabledByExpression(): void
     {
-        $subject = GeneralUtility::makeInstance(SetFieldValue::class);
+        $subject = GeneralUtility::makeInstance(EvaluateExpressions::class);
         $configuration = [
             'disable' => [
                 'expression' => "record['type'] == 'news'",

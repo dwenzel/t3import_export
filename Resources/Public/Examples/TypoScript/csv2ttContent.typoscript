@@ -16,11 +16,12 @@ module.tx_t3importexport.settings.import.tasks.csv2ttContent {
 
   preProcessors {
     1 {
-      class = CPSIT\T3importExport\Component\PreProcessor\SetFieldValue
+      class = CPSIT\ImportExportCore\Processor\SetValuesPreProcessor
       config {
-        targetField = pid
-        # target page id
-        value = 1
+        values {
+          # target page id
+          pid = 1
+        }
       }
     }
   }

@@ -223,30 +223,18 @@ initializers:
 
 ### PreProcessors
 
-#### Map Fields
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
+#### Copy, Rename and Map Values
+Pre-processors of `cpsit/import-export-core`, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32)
+for the replacements of the pre-processors removed in 4.0.
 ```yaml
 preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+  - class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
     config:
-      fields:                                   # source field: target field
-        old_field_name: "new_field_name"
-        another_old: "another_new"
-        source_title: "title"
-```
-
-#### Map Field Values
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
-```yaml
-preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFieldValues"
-    config:
-      fields:
-        status:                                 # source field
-          targetField: "hidden"
-          values:
-            "active": "0"
-            "inactive": "1"
+      rules:
+        - {rule: copy, field: new_title, from: source_title}
+        - {rule: rename, field: new_field_name, from: old_field_name}
+        - {rule: map, field: hidden, values: {active: 0, inactive: 1}, otherwise: 1}
+        - {rule: remove, fields: [internal_note]}
 ```
 
 #### Database Lookup
@@ -262,23 +250,21 @@ preProcessors:
 ```
 
 #### String to Time Conversion
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
 ```yaml
 preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
+  - class: "CPSIT\\ImportExportCore\\Processor\\StringToTimePreProcessor"
     config:
       fields: "publish_date,update_date"        # Comma-separated field names, parsed with strtotime()
       multipleRowFields: "dates"                # Optional: fields with a list of values
 ```
 
-#### Set Field Value
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
+#### Set Field Values
 ```yaml
 preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+  - class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
     config:
-      targetField: "pid"
-      value: "123"                              # existing values are replaced
+      values:                                   # existing values are replaced
+        pid: 123
 ```
 
 ### PostProcessors

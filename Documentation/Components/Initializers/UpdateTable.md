@@ -58,10 +58,11 @@ While importing data, all received records can be set/reset to hidden=0.
 ```
 preProcessors {
   10 {
-      class = CPSIT\T3importExport\Component\PreProcessor\SetFieldValue
+      class = CPSIT\ImportExportCore\Processor\SetValuesPreProcessor
       config {
-          targetField = hidden
-          value = 0
+          values {
+              hidden = 0
+          }
       }
   }
 }

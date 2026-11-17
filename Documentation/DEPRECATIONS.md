@@ -27,6 +27,40 @@ Features of content objects such as `parseFunc`, `typolink`, `crop` or data
 from a frontend page (`TSFE:`, `page:`) have no replacement. Use your own
 pre-processor if you need them.
 
+### Pre-processors replaced by the core
+
+The pre-processors `AddArrays`, `Clean`, `ConcatenateFields`, `ImplodeArray`,
+`MapFields`, `MapFieldValues`, `RemoveFields`, `SetFieldValue`, `StringToTime`
+and `UnsetEmptyFields` are removed
+([#132](https://github.com/dwenzel/t3import_export/issues/132)). The
+replacements, their differences and a migration example are listed in
+[Deprecated in 3.2](#deprecated-in-32).
+
+The pre-processors of the core do not support `disable` yet (conditions are
+planned in core [#24](https://github.com/CPS-IT/import-export-core/issues/24)).
+Use the condition `when` of the rules of `ValueRulesPreProcessor` instead:
+
+```yaml
+# before
+- class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+  config:
+    targetField: pid
+    value: 12
+    disable:
+      expression: "record['type'] == 'news'"
+
+# after
+- class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
+  config:
+    rules:
+      - {rule: default, field: pid, value: 12, when: {field: type, in: [event, page]}}
+```
+
+A condition cannot be negated: list the values for which the rule applies.
+`default` only sets empty fields; to replace a value, combine `remove` and
+`default` with the same condition. In TypoScript, the entries of lists such as
+`rules` must be numbered from 0 without gaps.
+
 ### Processor and factories of the core
 
 4.0 requires `cpsit/import-export-core` 0.2, which contains the processor, the
