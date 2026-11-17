@@ -48,7 +48,7 @@ class UnsetEmptyFields extends AbstractPreProcessor implements PreProcessorInter
     {
         $fieldNames = GeneralUtility::trimExplode(',', $configuration['fields'], true);
         foreach ($fieldNames as $fieldName) {
-            if (isset($record[$fieldName]) && empty($record[$fieldName]) || is_null($record[$fieldName])) {
+            if (array_key_exists($fieldName, $record) && empty($record[$fieldName])) {
                 unset($record[$fieldName]);
             }
         }

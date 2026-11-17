@@ -54,13 +54,6 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
     }
 
     #[\Override]
-    protected function createAnonymTempFile(): string
-    {
-        // Fix the type issue by casting time() to string
-        return $this->createTempFile(md5(uniqid((string)time(), true)));
-    }
-
-    #[\Override]
     public function persistAll($result = null, ?array $configuration = null)
     {
         if (
@@ -117,10 +110,15 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
 /**
  * Class DataTargetRepositoryTest
  */
-#[CoversClass(\CPSIT\T3importExport\Persistence\DataTargetFileStream::class)]
+#[CoversClass(DataTargetXMLStream::class)]
 class DataTargetXMLStreamTest extends TestCase
 {
     protected DataTargetXMLStream $subject;
+
+    /**
+     * @var list<string>
+     */
+    protected array $templateFiles = [];
 
     /**
      * @var BasicFileUtility|MockObject
@@ -314,5 +312,110 @@ class DataTargetXMLStreamTest extends TestCase
 
         unlink($tmpPath);
         rmdir($absPath);
+    }
+
+    /**
+     * Persists the buffers with the given configuration and returns the written file
+     */
+    protected function persistToFile(array $configuration, array $buffers): string
+    {
+        $taskResult = new TaskResult();
+        $taskResult->setElements(array_map(fn(string $buffer): DataStream => $this->createDataStreamWithSampleBuffer($buffer), $buffers));
+        $configuration['output'] = 'file';
+
+        foreach ($taskResult as $streamObject) {
+            $this->subject->persist($streamObject, $configuration);
+        }
+        $this->subject->persistAll($taskResult, $configuration);
+
+        $fileInfo = $taskResult->getInfo();
+        self::assertInstanceOf(FileInfo::class, $fileInfo);
+        $content = (string)file_get_contents($fileInfo->getPathname());
+        unlink($fileInfo->getPathname());
+
+        return $content;
+    }
+
+    /**
+     * Writes a template below the public path and returns its relative path
+     */
+    protected function createTemplate(string $content): string
+    {
+        $path = 'typo3temp/var/tests/xml-template-' . uniqid('', true) . '.xml';
+        $absolutePath = GeneralUtility::getFileAbsFileName($path);
+        GeneralUtility::mkdir_deep(dirname($absolutePath));
+        file_put_contents($absolutePath, $content);
+        $this->templateFiles[] = $absolutePath;
+
+        return $path;
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->templateFiles as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+    }
+
+    #[Test]
+    public function persistAllWritesFileWithDefaultHeaderAndRootNode(): void
+    {
+        self::assertSame(
+            '<?xml version="1.0" encoding="UTF-8"?><rows><a>1</a><a>2</a></rows>',
+            $this->persistToFile([], ['<a>1</a>', '<a>2</a>'])
+        );
+    }
+
+    #[Test]
+    public function persistAllWritesRootAttributes(): void
+    {
+        self::assertSame(
+            '<?xml version="1.0" encoding="UTF-8"?><items version="2" lang="de"><a>1</a></items>',
+            $this->persistToFile(
+                ['rootNodeName' => 'items', 'rootAttributes' => ['version' => '2', 'lang' => 'de']],
+                ['<a>1</a>']
+            )
+        );
+    }
+
+    #[Test]
+    public function persistAllWritesRecordsIntoTemplate(): void
+    {
+        $template = $this->createTemplate('<?xml version="1.0"?><export source="{{source}}">{{CONTENT}}</export><!-- {{source}} {{unknown}} -->');
+
+        self::assertSame(
+            '<?xml version="1.0"?><export source="crm"><a>1</a><a>2</a></export><!-- crm {{unknown}} -->',
+            $this->persistToFile(
+                ['template' => $template, 'templateReplace' => ['source' => 'crm']],
+                ['<a>1</a>', '<a>2</a>']
+            )
+        );
+    }
+
+    #[Test]
+    public function persistAllReplacesNowWithCurrentDate(): void
+    {
+        $template = $this->createTemplate('<export date="{{date}}">{{CONTENT}}</export>');
+
+        $content = $this->persistToFile(
+            ['template' => $template, 'templateReplace' => ['date' => 'NOW']],
+            ['<a>1</a>']
+        );
+
+        self::assertMatchesRegularExpression(
+            '/^<export date="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}"><a>1<\/a><\/export>$/',
+            $content
+        );
+    }
+
+    #[Test]
+    public function persistAllIgnoresMissingTemplate(): void
+    {
+        self::assertSame(
+            '<?xml version="1.0" encoding="UTF-8"?><rows><a>1</a></rows>',
+            $this->persistToFile(['template' => 'typo3temp/var/tests/missing.xml'], ['<a>1</a>'])
+        );
     }
 }

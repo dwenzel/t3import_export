@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
 use CPSIT\T3importExport\Persistence\DataSourceXML;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class DataSourceXMLTest
- */
+#[CoversClass(DataSourceXML::class)]
 class DataSourceXMLTest extends TestCase
 {
     /**
      * @var DataSourceXML|MockObject
      */
     protected DataSourceXML $subject;
+    protected string $xmlFile = '';
 
     /**
      * Set up the test subject
@@ -26,6 +27,32 @@ class DataSourceXMLTest extends TestCase
     {
         $this->subject = new DataSourceXML();
         \org\bovigo\vfs\vfsStreamWrapper::register();
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->xmlFile !== '' && is_file($this->xmlFile)) {
+            unlink($this->xmlFile);
+        }
+    }
+
+    /**
+     * Lets the subject read the given XML from a temporary file
+     */
+    protected function useXml(string $xml): void
+    {
+        $this->xmlFile = (string)tempnam(sys_get_temp_dir(), 'xml');
+        file_put_contents($this->xmlFile, $xml);
+        $file = $this->xmlFile;
+        $this->subject = new class () extends DataSourceXML {
+            public string $file = '';
+
+            protected function getAbsoluteFilePath($path)
+            {
+                return $this->file;
+            }
+        };
+        $this->subject->file = $file;
     }
 
     protected function mockSubject(): void
@@ -163,5 +190,89 @@ class DataSourceXMLTest extends TestCase
         $this->assertFalse(
             $this->subject->isConfigurationValid($configuration)
         );
+    }
+
+    protected const string XML = <<<'XML'
+        <?xml version="1.0" encoding="utf-8"?>
+        <courses>
+          <course id="1">
+            <title>First</title>
+            <description><![CDATA[<p>Text</p>]]></description>
+            <tags><tag>a</tag><tag>b</tag></tags>
+          </course>
+          <course id="2">
+            <title>Second</title>
+            <description/>
+            <tags><tag>c</tag></tags>
+          </course>
+        </courses>
+        XML;
+
+    #[Test]
+    public function getRecordsConvertsMatchingElementsToArrays(): void
+    {
+        $this->useXml(self::XML);
+
+        $records = $this->subject->getRecords(['file' => 'EXT:foo/courses.xml', 'expression' => '//course']);
+
+        self::assertSame(
+            [
+                0 => [
+                    '@attributes' => ['id' => '1'],
+                    'title' => 'First',
+                    'description' => '<p>Text</p>',
+                    'tags' => ['tag' => ['a', 'b']],
+                ],
+                1 => [
+                    '@attributes' => ['id' => '2'],
+                    'title' => 'Second',
+                    'description' => [],
+                    'tags' => ['tag' => 'c'],
+                ],
+            ],
+            $records
+        );
+    }
+
+    #[Test]
+    public function getRecordsUsesXpathExpression(): void
+    {
+        $this->useXml(self::XML);
+
+        $records = $this->subject->getRecords(['file' => 'EXT:foo/courses.xml', 'expression' => '//course[@id="2"]/title']);
+
+        self::assertSame([0 => [0 => 'Second']], $records);
+    }
+
+    public static function noRecordsDataProvider(): iterable
+    {
+        yield 'no expression' => [self::XML, []];
+        yield 'expression without match' => [self::XML, ['expression' => '//event']];
+        yield 'empty file' => ['', ['expression' => '//course']];
+    }
+
+    #[Test]
+    #[DataProvider('noRecordsDataProvider')]
+    public function getRecordsReturnsEmptyArray(string $xml, array $configuration): void
+    {
+        $this->useXml($xml);
+
+        self::assertSame([], $this->subject->getRecords($configuration + ['file' => 'EXT:foo/courses.xml']));
+    }
+
+    #[Test]
+    public function getRecordsThrowsExceptionForMalformedXml(): void
+    {
+        $this->useXml('<courses><course></courses>');
+
+        $this->expectException(\Exception::class);
+
+        $useInternalErrors = libxml_use_internal_errors(true);
+        try {
+            $this->subject->getRecords(['file' => 'EXT:foo/courses.xml', 'expression' => '//course']);
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($useInternalErrors);
+        }
     }
 }
