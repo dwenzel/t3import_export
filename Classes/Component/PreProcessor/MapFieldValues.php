@@ -27,6 +27,8 @@ use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
  * Class MapFieldValues
  * Maps matching values in incoming record to new values from
  * configuration
+ *
+ * @deprecated since 3.2, will be removed in 4.0. Use \CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor of cpsit/import-export-core 0.2, see Documentation/DEPRECATIONS.md
  */
 class MapFieldValues extends AbstractPreProcessor implements PreProcessorInterface
 {

@@ -27,6 +27,8 @@ use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 /**
  * Class MapFields
  * Maps one field of a record to another. Existing fields are overwritten!
+ *
+ * @deprecated since 3.2, will be removed in 4.0. Use \CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor of cpsit/import-export-core 0.2, see Documentation/DEPRECATIONS.md
  */
 class MapFields extends AbstractPreProcessor implements PreProcessorInterface
 {

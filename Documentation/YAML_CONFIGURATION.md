@@ -224,26 +224,29 @@ initializers:
 ### PreProcessors
 
 #### Map Fields
+Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
 ```yaml
 preProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
     config:
-      map:
+      fields:                                   # source field: target field
         old_field_name: "new_field_name"
         another_old: "another_new"
         source_title: "title"
 ```
 
 #### Map Field Values
+Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
 ```yaml
 preProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFieldValues"
     config:
-      field: "status"
-      map:
-        "active": "1"
-        "inactive": "0"
-        "draft": "2"
+      fields:
+        status:                                 # source field
+          targetField: "hidden"
+          values:
+            "active": "0"
+            "inactive": "1"
 ```
 
 #### Database Lookup
@@ -259,23 +262,23 @@ preProcessors:
 ```
 
 #### String to Time Conversion
+Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
 ```yaml
 preProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
     config:
-      fields: "publish_date,update_date"        # Comma-separated field names
-      format: "Y-m-d H:i:s"                     # PHP date format
-      timezone: "Europe/Berlin"                 # Optional: Timezone
+      fields: "publish_date,update_date"        # Comma-separated field names, parsed with strtotime()
+      multipleRowFields: "dates"                # Optional: fields with a list of values
 ```
 
 #### Set Field Value
+Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
 ```yaml
 preProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
     config:
-      field: "pid"
-      value: "123"
-      overwrite: false                          # Optional: Overwrite existing values
+      targetField: "pid"
+      value: "123"                              # existing values are replaced
 ```
 
 ### PostProcessors

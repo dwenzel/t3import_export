@@ -30,6 +30,8 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * Class ConcatenateFields
  * Concatenates fields of a given record and sets the result
  * into a new or existing field of this record
+ *
+ * @deprecated since 3.2, will be removed in 4.0. Use \CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor of cpsit/import-export-core 0.2, see Documentation/DEPRECATIONS.md
  */
 class ConcatenateFields extends AbstractPreProcessor implements PreProcessorInterface
 {
