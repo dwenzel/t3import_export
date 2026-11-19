@@ -11,6 +11,7 @@ use CPSIT\ImportExportCore\Resource\DelegatingResourceLoader;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\ImportExportCore\Resource\PathResolverInterface;
 use CPSIT\ImportExportCore\Resource\ResourceLoaderInterface;
+use CPSIT\T3importExport\Persistence\DataSourceCSV as LegacyDataSourceCSV;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Core\Environment;
@@ -50,6 +51,16 @@ class FileComponentsTest extends FunctionalTestCase
         $records = iterator_to_array($source->getRecords(['file' => self::FIXTURES . 'courses.csv']), false);
 
         self::assertSame([['id' => '1', 'title' => 'First'], ['id' => '2', 'title' => 'Second']], $records);
+    }
+
+    #[Test]
+    public function deprecatedCsvSourceReadsExtensionPath(): void
+    {
+        $source = GeneralUtility::makeInstance(LegacyDataSourceCSV::class);
+
+        $records = @iterator_to_array($source->getRecords(['file' => self::FIXTURES . 'courses.csv']), false);
+
+        self::assertCount(2, $records);
     }
 
     #[Test]

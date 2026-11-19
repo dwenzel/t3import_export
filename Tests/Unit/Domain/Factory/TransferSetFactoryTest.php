@@ -10,9 +10,9 @@ use CPSIT\ImportExportCore\Factory\ComponentFactory;
 use CPSIT\ImportExportCore\Factory\ComponentRegistry;
 use CPSIT\ImportExportCore\Factory\TransferSetFactory as CoreTransferSetFactory;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
+use CPSIT\ImportExportCore\Persistence\NullDataSource;
+use CPSIT\ImportExportCore\Persistence\NullDataTarget;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\T3importExport\Persistence\DataSourceDummy;
-use CPSIT\T3importExport\Persistence\DataTargetDummy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -21,15 +21,15 @@ use PHPUnit\Framework\TestCase;
 class TransferSetFactoryTest extends TestCase
 {
     protected const array TASK = [
-        'source' => ['class' => DataSourceDummy::class],
-        'target' => ['class' => DataTargetDummy::class],
+        'source' => ['class' => NullDataSource::class],
+        'target' => ['class' => NullDataTarget::class],
     ];
 
     protected array $configuration = [];
 
     protected function createSubject(): TransferSetFactory
     {
-        $configurationHandler = $this->createStub(ConfigurationHandlerInterface::class);
+        $configurationHandler = self::createStub(ConfigurationHandlerInterface::class);
         $configurationHandler->method('getFullConfiguration')
             ->willReturnCallback(fn(): array => $this->configuration);
 
@@ -62,7 +62,7 @@ class TransferSetFactoryTest extends TestCase
 
         self::assertSame(['foo', 'bar'], array_keys($tasks));
         self::assertSame('foo', $tasks['foo']->getIdentifier());
-        self::assertInstanceOf(DataSourceDummy::class, $tasks['foo']->getSource());
+        self::assertInstanceOf(NullDataSource::class, $tasks['foo']->getSource());
     }
 
     #[Test]

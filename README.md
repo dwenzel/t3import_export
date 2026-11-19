@@ -133,7 +133,7 @@ module.tx_t3importexport.settings.import.tasks.newsImport {
     description = Import news from CSV file
 
     source {
-        class = CPSIT\T3importExport\Persistence\DataSourceCSV
+        class = CPSIT\ImportExportCore\File\DataSourceCSV
         config {
             file = fileadmin/imports/news.csv
             delimiter = ,
@@ -179,7 +179,7 @@ import:
       label: "News Import"
       description: "Import news from CSV file"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/news.csv"
           delimiter: ","
@@ -326,7 +326,7 @@ The extension integrates with TYPO3 Scheduler for automated execution:
 ```typoscript
 module.tx_t3importexport.settings.import.tasks.productImport {
     source {
-        class = CPSIT\T3importExport\Persistence\DataSourceCSV
+        class = CPSIT\ImportExportCore\File\DataSourceCSV
         config {
             file = fileadmin/imports/products.csv
             skipLines = 1

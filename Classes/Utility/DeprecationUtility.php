@@ -11,20 +11,21 @@ namespace CPSIT\T3importExport\Utility;
 final class DeprecationUtility
 {
     public const ISSUE_URL = 'https://github.com/dwenzel/t3import_export/issues/75';
+    public const FILE_COMPONENTS_ISSUE_URL = 'https://github.com/dwenzel/t3import_export/issues/144';
 
     /**
      * @var array<string, true>
      */
     private static array $triggered = [];
 
-    public static function trigger(string $message): void
+    public static function trigger(string $message, string $issueUrl = self::ISSUE_URL): void
     {
         if (isset(self::$triggered[$message])) {
             return;
         }
         self::$triggered[$message] = true;
         trigger_error(
-            't3import_export: ' . $message . ' See ' . self::ISSUE_URL,
+            't3import_export: ' . $message . ' See ' . $issueUrl,
             E_USER_DEPRECATED
         );
     }

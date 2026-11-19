@@ -107,7 +107,7 @@ export:
 
 ```yaml
 source:
-  class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+  class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
   config:
     file: "fileadmin/imports/data.csv"          # Required: File path
     delimiter: ","                              # Optional: Field delimiter (default: ,)
@@ -121,7 +121,7 @@ source:
 
 ```yaml
 source:
-  class: "CPSIT\\T3importExport\\Persistence\\DataSourceXML"
+  class: "CPSIT\\ImportExportCore\\File\\DataSourceXML"
   config:
     file: "fileadmin/imports/data.xml"          # Required: File path
     xpath: "//record"                           # Optional: XPath expression for records
@@ -177,7 +177,7 @@ target:
 
 ```yaml
 target:
-  class: "CPSIT\\T3importExport\\Persistence\\DataTargetCSV"
+  class: "CPSIT\\ImportExportCore\\File\\DataTargetCSV"
   config:
     file: "fileadmin/exports/data.csv"          # Required: Output file path
     delimiter: ","                              # Optional: Field delimiter
@@ -342,7 +342,7 @@ import:
     baseTask:
       label: "Base Import Task"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           delimiter: ","
           enclosure: "\""
@@ -396,7 +396,7 @@ import:
             tables: "target_table"
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/complex-data.csv"
           skipLines: 1
@@ -485,7 +485,7 @@ import:
   tasks:
     invalidTask:
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: ""                              # ERROR: Empty file path
 ```
@@ -579,7 +579,7 @@ import:
 
       # Continue processing even if individual records fail
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/data.csv"
           continueOnError: true

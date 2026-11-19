@@ -71,6 +71,7 @@
   - [XML Streams](./Persistence/DataTargetXMLStream.md)
   - [Repository](./Persistence/DataTargetRepository.md)
   - [File Streams](./Persistence/DataTargetFileStream.md)
+- [Files: paths and URLs](./Persistence/Files.md)
 
 ### 🔌 Services & Utilities
 - [Database Connection Service](./Service/DatabaseConnectionService.md)
@@ -140,7 +141,7 @@ module.tx_t3importexport.settings.import.tasks.newsImport {
     description = Import news from CSV file
 
     source {
-        class = CPSIT\T3importExport\Persistence\DataSourceCSV
+        class = CPSIT\ImportExportCore\File\DataSourceCSV
         config {
             file = fileadmin/imports/news.csv
             delimiter = ,
@@ -186,7 +187,7 @@ import:
       label: "News Import"
       description: "Import news from CSV file"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/news.csv"
           delimiter: ","
@@ -362,7 +363,7 @@ Options:
 ```typoscript
 module.tx_t3importexport.settings.import.tasks.productImport {
     source {
-        class = CPSIT\T3importExport\Persistence\DataSourceCSV
+        class = CPSIT\ImportExportCore\File\DataSourceCSV
         config {
             file = fileadmin/imports/products.csv
             skipLines = 1

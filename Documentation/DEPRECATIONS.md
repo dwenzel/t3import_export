@@ -90,6 +90,56 @@ The configuration does not change.
 `AbstractComponent::isDisabled()` uses `CPSIT\ImportExportCore\Condition\ConditionEvaluator`.
 Message IDs in `disable.if.result.hasMessage` may now also be a single integer.
 
+## Deprecated in 4.0
+
+### Files
+
+The file sources and targets moved into `cpsit/import-export-core` 0.3
+([#144](https://github.com/dwenzel/t3import_export/issues/144), core
+[#25](https://github.com/CPS-IT/import-export-core/issues/25)). The classes of
+the extension extend them and will be removed in 5.0.
+
+| Deprecated | Replacement |
+|---|---|
+| `Persistence\DataSourceCSV` | `CPSIT\ImportExportCore\File\DataSourceCSV` |
+| `Persistence\DataSourceXML` | `CPSIT\ImportExportCore\File\DataSourceXML` |
+| `Persistence\DataTargetCSV` | `CPSIT\ImportExportCore\File\DataTargetCSV` |
+| `Persistence\DataSourceDummy` | `CPSIT\ImportExportCore\Persistence\NullDataSource` |
+| `Persistence\DataTargetDummy` | `CPSIT\ImportExportCore\Persistence\NullDataTarget` |
+
+Paths are resolved as before (`EXT:`, relative to the public directory,
+absolute inside the project), see [Files](./Persistence/Files.md). Changes
+that also apply to the deprecated classes:
+
+* `DataSourceCSV`: a row with more or fewer values than fields is skipped and
+  reported as error 1795200501 (before: PHP error). The constructor takes a
+  `ResourceLoaderInterface` instead of a `ConfigurationValidatorInterface`.
+  The file is no longer checked when the configuration is validated, but when
+  it is read.
+* `DataSourceXML`:
+  * an empty element becomes `''` instead of `[]`
+  * text next to attributes or child elements is kept in `@value` (before:
+    lost); a record element with only text becomes `['@value' => 'text']`
+    (before: `[0 => 'text']`)
+  * child elements in other namespaces are included
+  * an empty or invalid file throws a `ParseException` (before: no records,
+    or a PHP exception)
+  * `expression` or `element` is required; `element` reads large files
+    element by element
+* `DataTargetCSV`: writes each record when it is persisted, instead of all
+  records in `persistAll()`. With `fields`, a file with only the header row is
+  written if there are no records (before: no file).
+
+Changes when replacing the deprecated classes with those of the core:
+
+* `DataSourceXML` of the core evaluates a relative `expression` relative to
+  the document; the deprecated class relative to the root element. Use an
+  absolute expression, e.g. `//item` or `/rss/channel/item`.
+* `DataTargetCSV` of the core writes no byte order mark (`bom: false`) and
+  always a header row (`header: true`); the deprecated class writes a byte
+  order mark, and the header only with `fields`. Set `bom` and `header` to keep
+  the file as it is.
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |

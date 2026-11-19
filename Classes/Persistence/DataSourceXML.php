@@ -17,85 +17,47 @@ namespace CPSIT\T3importExport\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\ImportExportCore\ConfigurableInterface;
-use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\ImportExportCore\IdentifiableTrait;
-use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Resource\ResourceTrait;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 
 /**
- * Class DataSourceXML
+ * Reads records from an XML file.
+ *
+ * A relative `expression` is evaluated relative to the root element, as in
+ * versions before 4.0: `channel/item` selects the `item` elements of the
+ * `channel` elements below the root element.
+ *
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\File\DataSourceXML`, which evaluates relative
+ * expressions relative to the document.
  */
-class DataSourceXML implements DataSourceInterface, ConfigurableInterface
+class DataSourceXML extends \CPSIT\ImportExportCore\File\DataSourceXML
 {
-    use IdentifiableTrait;
-    use ConfigurableTrait;
-    use ResourceTrait;
-
-    /**
-     * Tells if a given configuration is valid
-     */
     public function isConfigurationValid(array $configuration): bool
     {
-        if (empty($configuration)) {
-            return false;
-        }
+        return parent::isConfigurationValid(self::withAbsoluteExpression($configuration));
+    }
 
-        if (isset($configuration['file']) && isset($configuration['url'])) {
-            return false;
-        }
+    public function getRecords(array $configuration): iterable
+    {
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . parent::class . '.',
+            DeprecationUtility::FILE_COMPONENTS_ISSUE_URL
+        );
 
-        if (isset($configuration['url']) && !is_string($configuration['url'])) {
-            return false;
-        }
-
-        if (isset($configuration['file']) && !is_string($configuration['file'])) {
-            return false;
-        }
-
-        if (isset($configuration['file']) && empty($this->getAbsoluteFilePath($configuration['file']))) {
-            return false;
-        }
-
-        if (isset($configuration['url']) && !GeneralUtility::isValidUrl($configuration['url'])) {
-            return false;
-        }
-
-        if (isset($configuration['expression']) && !is_string($configuration['expression'])) {
-            return false;
-        }
-
-        return true;
+        return parent::getRecords(self::withAbsoluteExpression($configuration));
     }
 
     /**
-     * Reads an XML source and translates items into an array of records
-     *
-     * @param array $configuration Source query configuration
-     * @return array Array of records or empty array
+     * @param array<string, mixed> $configuration
+     * @return array<string, mixed>
      */
-    public function getRecords(array $configuration): iterable
+    private static function withAbsoluteExpression(array $configuration): array
     {
-        $records = [];
-
-        $resource = $this->loadResource($configuration);
-
-        if (!empty($resource)) {
-            $xml = new \SimpleXMLElement($resource, LIBXML_NOCDATA);
-
-            if (isset($configuration['expression'])) {
-                $queryResult = $xml->xpath($configuration['expression']);
-                if (is_array($queryResult) && count($queryResult) > 0) {
-                    foreach ($queryResult as $key => $value) {
-                        // convert to real PHP array; idea from soloman at http://www.php.net/manual/en/book.simplexml.php
-                        $json = json_encode($value, JSON_THROW_ON_ERROR);
-                        $records[$key] = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-                    }
-                }
-            }
+        $expression = $configuration[self::KEY_EXPRESSION] ?? null;
+        if (\is_string($expression) && trim($expression) !== '' && !preg_match('#^\s*[/(]#', $expression)) {
+            $configuration[self::KEY_EXPRESSION] = '/*/' . ltrim($expression);
         }
 
-        return $records;
+        return $configuration;
     }
 }

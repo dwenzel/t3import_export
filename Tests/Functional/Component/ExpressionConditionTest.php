@@ -6,11 +6,11 @@ namespace CPSIT\T3importExport\Tests\Functional\Component;
 
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
+use CPSIT\ImportExportCore\Persistence\NullDataSource;
+use CPSIT\ImportExportCore\Persistence\NullDataTarget;
 use CPSIT\ImportExportCore\Processor\SetValuesPreProcessor;
 use CPSIT\ImportExportCore\Service\DataTransferProcessor;
 use CPSIT\T3importExport\Component\PreProcessor\LookUpDB;
-use CPSIT\T3importExport\Persistence\DataSourceDummy;
-use CPSIT\T3importExport\Persistence\DataTargetDummy;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -46,8 +46,8 @@ class ExpressionConditionTest extends FunctionalTestCase
     public function corePreProcessorIsDisabledByExpression(): void
     {
         $task = $this->get(TransferTaskFactory::class)->create('task', [
-            'source' => ['class' => DataSourceDummy::class],
-            'target' => ['class' => DataTargetDummy::class],
+            'source' => ['class' => NullDataSource::class],
+            'target' => ['class' => NullDataTarget::class],
             'preProcessors' => [
                 10 => [
                     'class' => SetValuesPreProcessor::class,

@@ -10,10 +10,10 @@ import:
         This task demonstrates multiple component types in action.
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceXML"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceXML"
         config:
           file: "fileadmin/imports/news_feed.xml"
-          recordPath: "/feed/item"
+          element: "item"
 
       initializers:
         10:

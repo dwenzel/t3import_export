@@ -17,114 +17,50 @@ namespace CPSIT\T3importExport\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\ImportExportCore\ConfigurableInterface;
-use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\ImportExportCore\IdentifiableTrait;
-use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
-use CPSIT\T3importExport\Resource\ResourceTrait;
-use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 
 /**
- * Class DataSourceCSV
+ * Writes records into a CSV file.
+ *
+ * Keeps the defaults of versions before 4.0: the file starts with a byte
+ * order mark (`bom: true`), and the first row holds the field names only if
+ * `fields` is set (`header`).
+ *
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\File\DataTargetCSV`. Its defaults are `bom: false`
+ * and `header: true`.
  */
-class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
+class DataTargetCSV extends \CPSIT\ImportExportCore\File\DataTargetCSV
 {
-    use IdentifiableTrait;
-    use ConfigurableTrait;
-    use ResourceTrait;
-
-    final public const string TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
-
-    protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
-
-    /**
-     * Tells if a given configuration is valid
-     */
-    public function isConfigurationValid(array $configuration): bool
+    public function setConfiguration(array $configuration): void
     {
-        if (isset($configuration['fields'])) {
-            if (!is_string($configuration['fields']) || empty($configuration['fields'])) {
-                return false;
-            }
-        }
+        parent::setConfiguration(self::withLegacyDefaults($configuration));
+    }
 
-        foreach (self::$characterProperties as $property) {
-            if (isset($configuration[$property])) {
-                $value = $configuration[$property];
-                if (
-                    !is_string($value)
-                    || empty($value)
-                    || strlen($value) != 1
-                ) {
-                    return false;
-                }
-            }
-        }
+    public function persist(array|object $object, ?array $configuration = null): bool
+    {
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . parent::class . '.',
+            DeprecationUtility::FILE_COMPONENTS_ISSUE_URL
+        );
 
-        return true;
+        return parent::persist($object, $configuration === null ? null : self::withLegacyDefaults($configuration));
+    }
+
+    public function persistAll(mixed $result = null, ?array $configuration = null): void
+    {
+        parent::persistAll($result, $configuration === null ? null : self::withLegacyDefaults($configuration));
     }
 
     /**
-     * @return array|array[]|mixed
+     * @param array<string, mixed> $configuration
+     * @return array<string, mixed>
      */
-    public function persistAll($result = null, ?array $configuration = null)
+    private static function withLegacyDefaults(array $configuration): array
     {
-        if (empty($result)) {
-            return false;
-        }
-
-        $delimiter = ',';
-        $enclosure = '"';
-        $escape = '\\';
-
-        if (isset($configuration['delimiter'])) {
-            $delimiter = $configuration['delimiter'];
-        }
-        if (isset($configuration['enclosure'])) {
-            $enclosure = $configuration['enclosure'];
-        }
-        if (isset($configuration['escape'])) {
-            $escape = $configuration['escape'];
-        }
-
-        /** @var TaskResult $result */
-        if ($result instanceof TaskResult) {
-            $records = $result->toArray();
-        }
-
-        $result->rewind();
-        $fields = array_keys($result->current());
-
-        $fileName = $configuration['file'];
-        $absFileName = GeneralUtility::getFileAbsFileName($fileName);
-        touch($absFileName);
-
-        $output = fopen($absFileName, 'r+');
-        fwrite($output, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
-        if (!$output) {
-            throw new FileOperationErrorException(
-                'can\'t create new temp file: \'' . $absFileName . '\''
-            );
-        }
-        if (isset($configuration['fields'])) {
-            $fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
-            fputcsv($output, $fields, $delimiter, $enclosure, $escape);
-        }
-
-        foreach ($result as $record) {
-            $row = array_intersect_key($record, array_flip($fields));
-            fputcsv($output, $row, $delimiter, $enclosure, $escape);
-        }
-
-        fclose($output);
-
-        return $records;
-    }
-
-    public function persist($result = null, ?array $configuration = null)
-    {
-        // do nothing
+        return $configuration + [
+            self::KEY_BOM => true,
+            self::KEY_HEADER => isset($configuration['fields']),
+        ];
     }
 }

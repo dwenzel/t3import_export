@@ -17,105 +17,23 @@ namespace CPSIT\T3importExport\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use CPSIT\ImportExportCore\ConfigurableInterface;
-use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\ImportExportCore\IdentifiableTrait;
-use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Resource\ResourceTrait;
-use CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 
 /**
- * Class DataSourceCSV
+ * Reads records from a CSV file.
+ *
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\File\DataSourceCSV`, which has the same options.
  */
-class DataSourceCSV implements DataSourceInterface, ConfigurableInterface
+class DataSourceCSV extends \CPSIT\ImportExportCore\File\DataSourceCSV
 {
-    use IdentifiableTrait;
-    use ConfigurableTrait;
-    use ResourceTrait;
-
-    protected static $characterProperties = ['delimiter', 'enclosure', 'escape'];
-
-    /**
-     * DataSourceCSV constructor.
-     * @param ConfigurationValidatorInterface|null $configurationValidator
-     */
-    public function __construct(protected ConfigurationValidatorInterface $configurationValidator) {}
-
-    /**
-     * Tells if a given configuration is valid
-     */
-    public function isConfigurationValid(array $configuration): bool
-    {
-        if (!$this->configurationValidator->isValid($configuration)) {
-            return false;
-        }
-
-        if (isset($configuration['fields'])) {
-            if (!is_string($configuration['fields']) || empty($configuration['fields'])) {
-                return false;
-            }
-        }
-
-        foreach (self::$characterProperties as $property) {
-            if (isset($configuration[$property])) {
-                $value = $configuration[$property];
-                if (
-                    !is_string($value)
-                    || empty($value)
-                    || strlen($value) != 1
-                ) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Reads an CSV source and translates items into an array of records
-     *
-     * @param array $configuration Source query configuration
-     * @return array Array of records or empty array
-     */
     public function getRecords(array $configuration): iterable
     {
-        $records = [];
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . parent::class . '.',
+            DeprecationUtility::FILE_COMPONENTS_ISSUE_URL
+        );
 
-        $resource = rtrim((string)$this->loadResource($configuration));
-
-        if (!empty($resource)) {
-            $delimiter = ',';
-            $enclosure = '"';
-            $escape = '\\';
-
-            if (isset($configuration['delimiter'])) {
-                $delimiter = $configuration['delimiter'];
-            }
-            if (isset($configuration['enclosure'])) {
-                $enclosure = $configuration['enclosure'];
-            }
-            if (isset($configuration['escape'])) {
-                $escape = $configuration['escape'];
-            }
-
-            $rows = array_filter(str_getcsv($resource, "\n", escape: '\\'));
-
-            $records = array_map(fn($d) => str_getcsv($d, $delimiter, $enclosure, $escape), $rows);
-
-            $headers = $records[0];
-            if (isset($configuration['fields'])) {
-                $headers = GeneralUtility::trimExplode(',', $configuration['fields'], true);
-            } else {
-                array_shift($records); // remove column header
-            }
-
-            array_walk($records, function (&$a) use ($records, $headers) {
-                $a = array_combine($headers, $a);
-            });
-        }
-
-        return $records;
+        return parent::getRecords($configuration);
     }
 }

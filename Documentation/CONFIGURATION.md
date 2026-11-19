@@ -172,7 +172,7 @@ import:
 
       # Data source configuration
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/news.csv"
           delimiter: ";"
@@ -221,7 +221,7 @@ import:
     importCategories:
       label: "Import News Categories"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/categories.csv"
       target:
@@ -232,7 +232,7 @@ import:
     importNews:
       label: "Import News Articles"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/news.csv"
       target:
@@ -310,13 +310,11 @@ import:
     debugTask:
       label: "Debug Import Task"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/dev/test-data.csv"
       target:
-        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDummy"
-        config:
-          debug: true
+        class: "CPSIT\\ImportExportCore\\Persistence\\NullDataTarget"
 ```
 
 ### Production Configuration
@@ -333,7 +331,7 @@ import:
             tables: "target_table"
             confirmDeletion: true
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "/secure/imports/production-data.csv"
       target:
