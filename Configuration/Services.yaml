@@ -45,14 +45,24 @@ services:
         $eventDispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
         $conditionEvaluator: '@CPSIT\ImportExportCore\Condition\ConditionEvaluatorInterface'
 
-    # Files: paths are resolved like TYPO3 file names (EXT:, relative to the
-    # public directory); URLs are loaded with the HTTP client of TYPO3
+    # Files: paths are resolved like TYPO3 file names, inside the allowed
+    # directories; EXT: paths only for reading. URLs are loaded with the HTTP
+    # client of TYPO3, only from the allowed hosts. See Documentation/Persistence/Files.md
+    CPSIT\T3importExport\Resource\Typo3PathResolver:
+      arguments:
+        $allowExtensionPaths: true
+    t3import_export.target_path_resolver:
+      class: CPSIT\T3importExport\Resource\Typo3PathResolver
+      arguments:
+        $allowExtensionPaths: false
     CPSIT\ImportExportCore\Resource\PathResolverInterface: '@CPSIT\T3importExport\Resource\Typo3PathResolver'
     CPSIT\ImportExportCore\Resource\FileResourceLoader: ~
-    CPSIT\ImportExportCore\Resource\HttpResourceLoader:
+    CPSIT\T3importExport\Resource\ResourceLoaderFactory:
       arguments:
         $client: '@Psr\Http\Client\ClientInterface'
         $requestFactory: '@TYPO3\CMS\Core\Http\RequestFactory'
+    CPSIT\ImportExportCore\Resource\HttpResourceLoader:
+      factory: ['@CPSIT\T3importExport\Resource\ResourceLoaderFactory', 'createHttpResourceLoader']
     CPSIT\ImportExportCore\Resource\DelegatingResourceLoader:
       arguments:
         - '@CPSIT\ImportExportCore\Resource\FileResourceLoader'
@@ -64,6 +74,8 @@ services:
       public: true
     CPSIT\ImportExportCore\File\DataTargetCSV:
       public: true
+      arguments:
+        $pathResolver: '@t3import_export.target_path_resolver'
 
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true
@@ -103,6 +115,8 @@ services:
       public: true
     CPSIT\T3importExport\Persistence\DataTargetCSV:
       public: true
+      arguments:
+        $pathResolver: '@t3import_export.target_path_resolver'
     CPSIT\T3importExport\Persistence\DataSourceQueue:
       public: true
     CPSIT\T3importExport\Persistence\DataTargetQueue:

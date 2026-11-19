@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Functional\Persistence;
 
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
+use CPSIT\ImportExportCore\Exception\PersistenceException;
 use CPSIT\ImportExportCore\File\DataSourceCSV;
 use CPSIT\ImportExportCore\File\DataSourceXML;
 use CPSIT\ImportExportCore\File\DataTargetCSV;
@@ -83,17 +85,49 @@ class FileComponentsTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function csvTargetWritesFileRelativeToThePublicDirectory(): void
+    public function csvTargetWritesFileInTheImportDirectory(): void
     {
         $target = GeneralUtility::makeInstance(DataTargetCSV::class);
-        $configuration = ['file' => 'typo3temp/var/tests/courses.csv'];
+        $file = Environment::getVarPath() . '/import/tests/courses.csv';
+        $configuration = ['file' => $file];
 
         $target->persist(['id' => 1, 'title' => 'First'], $configuration);
         $target->persistAll(null, $configuration);
 
-        $file = Environment::getPublicPath() . '/typo3temp/var/tests/courses.csv';
         self::assertSame("id,title\n1,First\n", file_get_contents($file));
         unlink($file);
+    }
+
+    #[Test]
+    public function csvTargetDoesNotWriteIntoExtensions(): void
+    {
+        $target = GeneralUtility::makeInstance(DataTargetCSV::class);
+
+        $this->expectException(PersistenceException::class);
+        $this->expectExceptionCode(DataTargetCSV::ERROR_WRITE_FAILED);
+
+        $target->persist(['id' => 1], ['file' => self::FIXTURES . 'written.csv']);
+    }
+
+    #[Test]
+    public function csvTargetDoesNotWriteIntoThePublicDirectory(): void
+    {
+        $target = GeneralUtility::makeInstance(DataTargetCSV::class);
+
+        $this->expectException(PersistenceException::class);
+
+        $target->persist(['id' => 1], ['file' => 'typo3temp/courses.csv']);
+    }
+
+    #[Test]
+    public function urlsAreNotLoadedWithoutAllowedHosts(): void
+    {
+        $source = GeneralUtility::makeInstance(DataSourceCSV::class);
+
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED);
+
+        iterator_to_array($source->getRecords(['url' => 'https://example.org/courses.csv']));
     }
 
     #[Test]
@@ -101,8 +135,9 @@ class FileComponentsTest extends FunctionalTestCase
     {
         $source = GeneralUtility::makeInstance(DataSourceCSV::class);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
 
-        iterator_to_array($source->getRecords(['file' => '/etc/hosts']));
+        iterator_to_array($source->getRecords(['file' => '/etc/hosts.csv']));
     }
 }

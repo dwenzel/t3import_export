@@ -130,6 +130,21 @@ that also apply to the deprecated classes:
   records in `persistAll()`. With `fields`, a file with only the header row is
   written if there are no records (before: no file).
 
+Rules for files and URLs (see [Files](./Persistence/Files.md)); they apply
+to the classes of the core and the deprecated ones:
+
+* Files must be in an allowed directory, by default `fileadmin/` and
+  `var/import/` (before: the whole project). Configure others in
+  `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileDirectories']`.
+* `EXT:` paths can only be read.
+* TYPO3's `fileDenyPattern` and, if enabled, `enforceAllowedFileExtensions`
+  apply.
+* The CSV components accept only `csv`, `tsv` and `txt` files, the XML source
+  only `xml` files.
+* URLs are loaded only from the hosts in
+  `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts']`;
+  by default from none (before: all hosts).
+
 Changes when replacing the deprecated classes with those of the core:
 
 * `DataSourceXML` of the core evaluates a relative `expression` relative to
