@@ -10,19 +10,15 @@ use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\IdentifiableInterface;
 use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
-use CPSIT\ImportExportCore\RenderContentInterface;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Exception\MissingDatabaseException;
 use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
-use CPSIT\T3importExport\RenderContentTrait;
-use CPSIT\T3importExport\Utility\DeprecationUtility;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -41,13 +37,14 @@ use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class DataSourceDB implements DataSourceInterface, ConfigurableInterface, IdentifiableInterface, RenderContentInterface
+class DataSourceDB implements DataSourceInterface, ConfigurableInterface, IdentifiableInterface
 {
     use IdentifiableTrait;
     use ConfigurableTrait;
-    use RenderContentTrait;
     use ExpressionEvaluatorTrait;
     use DatabaseTrait;
+
+    final public const int CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE = 1_794_781_881;
 
     /**
      * Unique identifier of the database connection to use.
@@ -79,7 +76,6 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
      * @param array $configuration source query configuration
      * @return array Array of records from database or empty array
      * @throws InvalidConfigurationException
-     * @throws ContentRenderingException
      */
     public function getRecords(array $configuration): array
     {
@@ -120,7 +116,9 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
     }
 
     /**
-     * @throws ContentRenderingException
+     * Evaluates `{expression: ...}` values
+     *
+     * @throws InvalidConfigurationException for content objects, which are not supported any more
      */
     protected function renderValues(array $queryConfiguration): array
     {
@@ -130,13 +128,13 @@ class DataSourceDB implements DataSourceInterface, ConfigurableInterface, Identi
                 continue;
             }
             if (is_array($value) && isset($value['_typoScriptNodeValue'])) {
-                DeprecationUtility::trigger(
-                    'Query values of DataSourceDB rendered as TypoScript content objects are deprecated since 3.1 and will be removed in 4.0. Use {expression: ...} instead.'
+                throw new InvalidConfigurationException(
+                    sprintf(
+                        'Query value "%s" of DataSourceDB is a TypoScript content object, which is not supported any more. Use {expression: ...} instead.',
+                        $key
+                    ),
+                    self::CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE
                 );
-                $renderedValue = $this->renderContent([], $value);
-                if (!is_null($renderedValue)) {
-                    $queryConfiguration[$key] = $renderedValue;
-                }
             }
         }
         return $queryConfiguration;

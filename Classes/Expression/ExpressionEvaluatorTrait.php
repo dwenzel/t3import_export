@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Expression;
 
+use CPSIT\ImportExportCore\Expression\ExpressionEvaluator;
+use CPSIT\ImportExportCore\Expression\ExpressionEvaluatorInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**

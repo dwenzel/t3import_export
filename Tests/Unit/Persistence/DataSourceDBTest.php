@@ -122,6 +122,20 @@ class DataSourceDBTest extends TestCase
     }
 
     #[Test]
+    public function getRecordsThrowsExceptionForContentObjectValue(): void
+    {
+        $configuration = [
+            'table' => 'tx_foo',
+            'where' => ['_typoScriptNodeValue' => 'TEXT', 'value' => 'pid = 1'],
+        ];
+
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(DataSourceDB::CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE);
+        $this->expectExceptionMessage('Query value "where"');
+        $this->subject->getRecords($configuration);
+    }
+
+    #[Test]
     public function identifierCanBeSetAndGet(): void
     {
         $identifier = 'test_db';

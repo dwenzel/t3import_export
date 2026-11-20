@@ -33,13 +33,13 @@ Generic components without TYPO3 dependencies (apart from
 | `PreProcessor\XMLMapper` | 99 % | – | [core#68] |
 | `PreProcessor\Clean` | 0 % | tests, [#130] | [core#68] |
 | `PreProcessor\ImplodeArray` | 0 % | tests, [#130] | [core#68] |
-| `PreProcessor\EvaluateExpressions`, `Expression\ExpressionEvaluator` | 100 % | condition evaluator | [core#24] |
+| `PreProcessor\EvaluateExpressions`, `Expression\ExpressionEvaluator` | 100 % | moved in 4.0 | [core#24] |
 | `PreProcessor\ValidateXML` | 0 % | tests, [#130]; path abstraction | [core#25] |
 | `Finisher\ValidateXML` | 97 % | path abstraction | [core#25] |
 | `Converter\ArrayToXMLStream` | 81 % | Extbase property mapper for `targetClass` separated | [core#25] |
-| `Persistence\DataSourceCSV` | 100 % | path abstraction | [core#25] |
-| `Persistence\DataSourceXML` | 73 % | tests, [#130]; path abstraction | [core#25] |
-| `Persistence\DataTargetCSV` | 0 % | tests, [#130]; path abstraction | [core#25] |
+| `Persistence\DataSourceCSV` | 100 % | moved in 4.0 (core 0.3), deprecated subclass | [core#25] |
+| `Persistence\DataSourceXML` | 73 % | moved in 4.0 (core 0.3), deprecated subclass | [core#25] |
+| `Persistence\DataTargetCSV` | 0 % | moved in 4.0 (core 0.3), deprecated subclass | [core#25] |
 | `Persistence\DataTargetFileStream` | 34 % | tests, [#130]; path abstraction | [core#25] |
 | `Persistence\DataTargetXMLStream` | 0 % | test covers the wrong class, [#130] | [core#25] |
 | `Validation\Configuration\MappingConfigurationValidator`, `IssetValidator`, `NotEmptyValidator` | 100 / 100 / 38 % | tests for `NotEmptyValidator`, [#130] | [core#24] |
@@ -60,7 +60,7 @@ Tracked in [#132].
 | `Persistence\DataSourceDB` | 94 % | `DataSourceDBAL` | `{expression: ...}` query values |
 | `Persistence\DataTargetDB` | 70 % | `DataTargetDBAL`, upsert by ID map | – |
 | `Persistence\DataSourceQueue`, `DataTargetQueue`, `Domain\Repository\QueueItemRepository` | 100 / 92 / 74 % | core queue, `DbalQueueRepository` | table, migration of queue items |
-| `Persistence\DataSourceDummy`, `DataTargetDummy` | no tests | `NullComponent` | – |
+| `Persistence\DataSourceDummy`, `DataTargetDummy` | no tests | `NullDataSource`, `NullDataTarget` (4.0, deprecated) | – |
 | `PreProcessor\LookUpDB` | 47 % | partly `ResolveReferencePreProcessor` | general lookups by query |
 | `Service\DataTransferProcessor`, `Domain\Model\TransferTask`, `TransferSet`, `DataStream`, `Dto\TaskDemand`, task and set factories, component factories, `Factory\FactoryFactory`, `ComponentFactoryMap` | 97–100 % | core processor, models, factory and registry | [#71] |
 

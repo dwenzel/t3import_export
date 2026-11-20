@@ -9,7 +9,7 @@ import:
       description: "Cleans up old data before import"
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceDummy"
+        class: "CPSIT\\ImportExportCore\\Persistence\\NullDataSource"
         config: {}
 
       initializers:
@@ -19,7 +19,7 @@ import:
             tables: "tx_news_domain_model_news,tx_news_domain_model_tag"
 
       target:
-        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDummy"
+        class: "CPSIT\\ImportExportCore\\Persistence\\NullDataTarget"
         config: {}
 
     importTags:
@@ -27,7 +27,7 @@ import:
       description: "Imports news tags from CSV file"
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/news_tags.csv"
 
@@ -48,10 +48,10 @@ import:
       description: "Imports news articles from XML feed"
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceXML"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceXML"
         config:
           file: "fileadmin/imports/news_feed.xml"
-          recordPath: "/feed/item"
+          element: "item"
 
       preProcessors:
         10:
@@ -78,7 +78,7 @@ import:
       description: "Clears cache after import is complete"
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceDummy"
+        class: "CPSIT\\ImportExportCore\\Persistence\\NullDataSource"
         config: {}
 
       finishers:
@@ -90,7 +90,7 @@ import:
               - 43
 
       target:
-        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDummy"
+        class: "CPSIT\\ImportExportCore\\Persistence\\NullDataTarget"
         config: {}
 
   # Define the set that uses these tasks

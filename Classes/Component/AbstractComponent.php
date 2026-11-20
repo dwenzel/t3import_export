@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component;
 
+use CPSIT\ImportExportCore\Component\DisableableInterface;
+use CPSIT\ImportExportCore\Condition\ConditionEvaluator;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\ImportExportCore\RenderContentInterface;
+use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
-use CPSIT\T3importExport\RenderContentTrait;
-use CPSIT\T3importExport\Utility\DeprecationUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 
 /***************************************************************
  *  Copyright notice
@@ -35,61 +33,39 @@ use TYPO3\CMS\Frontend\ContentObject\Exception\ContentRenderingException;
 /**
  * Class AbstractComponent
  */
-abstract class AbstractComponent implements ConfigurableInterface, RenderContentInterface
+abstract class AbstractComponent implements ConfigurableInterface, DisableableInterface
 {
     use ConfigurableTrait;
-    use RenderContentTrait;
     use ExpressionEvaluatorTrait;
+
+    final public const int CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE = 1_794_781_862;
 
     /**
      * Tells if the component is disabled
      *
-     * `disable` may be
+     * `disable` is evaluated by the condition evaluator of the core. It may be
      * - `1` or `true`
      * - an array with `if.result.hasMessage` (comma separated message ids)
      * - an array with `expression`: evaluated with the variables `record` and `result`
-     * - a content object (deprecated, see #75)
      *
-     * @throws ContentRenderingException
+     * Content objects (`disable = TEXT`) are not supported any more since 4.0.
+     *
+     * @throws InvalidConfigurationException if `disable` is a content object or an invalid expression
      */
-    public function isDisabled(array $configuration, array $record = [], ?TaskResult $result = null): bool
+    public function isDisabled(array $configuration, array $record = [], ?ResultInterface $result = null): bool
     {
         if (!isset($configuration['disable'])) {
             return false;
         }
 
         $disable = $configuration['disable'];
-        if ($disable === true || $disable === 1 || $disable === '1') {
-            return true;
-        }
-        if (is_array($disable)) {
-            if (isset($disable['if']['result']['hasMessage'])) {
-                $messageIds = GeneralUtility::intExplode(
-                    ',',
-                    (string)$disable['if']['result']['hasMessage'],
-                    true
-                );
-                foreach ($messageIds as $id) {
-                    if ($result instanceof TaskResult && $result->hasMessageWithId($id)) {
-                        return true;
-                    }
-                }
-            }
-
-            if (isset($disable['expression'])) {
-                return $this->getExpressionEvaluator()->isTrue(
-                    (string)$disable['expression'],
-                    ['record' => $record, 'result' => $result]
-                );
-            }
-
-            DeprecationUtility::trigger(
-                'Disabling components with TypoScript content objects is deprecated since 3.1 and will be removed in 4.0. Use disable.expression instead.'
+        if (is_array($disable) && isset($disable['_typoScriptNodeValue'])) {
+            throw new InvalidConfigurationException(
+                'Disabling components with TypoScript content objects is not supported any more. Use disable.expression instead.',
+                self::CONTENT_OBJECT_NOT_SUPPORTED_EXCEPTION_CODE
             );
-
-            return $this->renderContent($record, $disable) === '1';
         }
 
-        return false;
+        return (new ConditionEvaluator($this->getExpressionEvaluator()))->isMet($disable, $record, $result);
     }
 }

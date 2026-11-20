@@ -21,17 +21,13 @@ namespace CPSIT\T3importExport\Persistence;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-/**
- * A data source that has to be told when the records it returned
- * have been processed, e.g. to mark queue items as finished.
- *
- * The DataTransferProcessor calls complete() after the task has been
- * persisted and its finishers have run, and fail() when the task throws.
- * Both receive the configuration getRecords() was called with.
- */
-interface CompletableSourceInterface
-{
-    public function complete(array $configuration): void;
+use CPSIT\ImportExportCore\Persistence\CompletableSourceInterface as CoreCompletableSourceInterface;
 
-    public function fail(array $configuration): void;
+/**
+ * A source whose records are marked when the task finished (complete(), called by
+ * the processor of the core) or failed (fail(), called by TransferService).
+ */
+interface CompletableSourceInterface extends CoreCompletableSourceInterface
+{
+    public function fail(): void;
 }

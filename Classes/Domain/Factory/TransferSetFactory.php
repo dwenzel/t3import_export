@@ -23,82 +23,46 @@ namespace CPSIT\T3importExport\Domain\Factory;
  ***************************************************************/
 
 use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Domain\Model\TransferSet;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\ImportExportCore\Exception\MissingClassException;
-use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
-use CPSIT\T3importExport\Domain\Model\TransferSet;
-use CPSIT\T3importExport\Factory\AbstractFactory;
+use CPSIT\ImportExportCore\Factory\TransferSetFactory as CoreTransferSetFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class TransferSetFactory
- * builds import sets from settings
+ * Builds sets with the factory of the core. The tasks of a set are looked up
+ * in the import and export tasks of the configuration handler (YAML) and of
+ * the settings passed with withSettings() (TypoScript), which take precedence.
  */
-class TransferSetFactory extends AbstractFactory
+class TransferSetFactory
 {
-    /**
-     * @var \CPSIT\T3importExport\Domain\Model\TransferSet|null
-     */
-    private ?TransferSet $transferSet;
+    protected array $settings = [];
 
     public function __construct(
-        protected TransferTaskFactory $transferTaskFactory,
+        private readonly CoreTransferSetFactory $transferSetFactory,
         private readonly ConfigurationHandlerInterface $configurationHandler
-    ) {
-        $this->transferSet = new TransferSet();
+    ) {}
+
+    public function withSettings(array $settings): self
+    {
+        $this->settings = $settings;
+
+        return $this;
     }
 
     /**
-     * Builds a set of tasks
-     *
-     * @param array $settings
-     * @param string|null $identifier
-     * @return TransferSet
-     * @throws InvalidConfigurationException
-     * @throws MissingClassException
-     * @throws MissingInterfaceException
+     * @throws InvalidConfigurationException if a task of the set is not defined or its configuration is invalid
      */
-    public function get(array $settings = [], ?string $identifier = ''): object
+    public function get(array $settings, string $identifier): TransferSet
     {
-        // clone object to prevent from returning the same object on later calls
-        // transferSet must be injected for testing purposes
-        $this->transferSet = clone $this->transferSet;
-        $this->transferSet->setIdentifier($identifier);
+        // Read on each call: configuration may be added after construction (e.g. --yaml-config).
+        // Structure: ['import' => ['tasks' => ..., 'sets' => ...], 'export' => [...]]
+        $configuration = $this->configurationHandler->getFullConfiguration();
+        ArrayUtility::mergeRecursiveWithOverrule($configuration, $this->settings);
+        $taskDefinitions = array_replace(
+            is_array($configuration['export']['tasks'] ?? null) ? $configuration['export']['tasks'] : [],
+            is_array($configuration['import']['tasks'] ?? null) ? $configuration['import']['tasks'] : []
+        );
 
-        if (isset($settings['tasks'])
-            && is_string($settings['tasks'])
-        ) {
-            $taskIdentifiers = GeneralUtility::trimExplode(',', $settings['tasks'], true);
-            // Read on each call: configuration may be added after construction (e.g. --yaml-config).
-            // Structure: ['import' => ['tasks' => ..., 'sets' => ...], 'export' => [...]]
-            // Settings passed with withSettings() take precedence.
-            $configuration = $this->configurationHandler->getFullConfiguration();
-            if (isset($this->settings)) {
-                ArrayUtility::mergeRecursiveWithOverrule($configuration, $this->settings);
-            }
-            $tasks = [];
-            foreach ($taskIdentifiers as $taskIdentifier) {
-                $taskSettings = $configuration['import']['tasks'][$taskIdentifier]
-                    ?? $configuration['export']['tasks'][$taskIdentifier]
-                    ?? null;
-                if (\is_array($taskSettings)) {
-                    $tasks[$taskIdentifier] = $this->transferTaskFactory->get($taskSettings, $taskIdentifier);
-                }
-            }
-            $this->transferSet->setTasks($tasks);
-        }
-
-        if (isset($settings['description'])
-            && is_string($settings['description'])
-        ) {
-            $this->transferSet->setDescription($settings['description']);
-        }
-
-        if (isset($settings['label'])) {
-            $this->transferSet->setLabel($settings['label']);
-        }
-
-        return $this->transferSet;
+        return $this->transferSetFactory->create($identifier, $settings, $taskDefinitions);
     }
 }

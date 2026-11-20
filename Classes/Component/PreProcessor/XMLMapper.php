@@ -25,7 +25,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 
 /**
- * Class RemoveFields
+ * Class XMLMapper
  * Maps one field of a record to another. Existing fields are overwritten!
  */
 class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface

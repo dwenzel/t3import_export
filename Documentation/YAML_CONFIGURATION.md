@@ -107,7 +107,7 @@ export:
 
 ```yaml
 source:
-  class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+  class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
   config:
     file: "fileadmin/imports/data.csv"          # Required: File path
     delimiter: ","                              # Optional: Field delimiter (default: ,)
@@ -121,7 +121,7 @@ source:
 
 ```yaml
 source:
-  class: "CPSIT\\T3importExport\\Persistence\\DataSourceXML"
+  class: "CPSIT\\ImportExportCore\\File\\DataSourceXML"
   config:
     file: "fileadmin/imports/data.xml"          # Required: File path
     xpath: "//record"                           # Optional: XPath expression for records
@@ -177,7 +177,7 @@ target:
 
 ```yaml
 target:
-  class: "CPSIT\\T3importExport\\Persistence\\DataTargetCSV"
+  class: "CPSIT\\ImportExportCore\\File\\DataTargetCSV"
   config:
     file: "fileadmin/exports/data.csv"          # Required: Output file path
     delimiter: ","                              # Optional: Field delimiter
@@ -223,30 +223,18 @@ initializers:
 
 ### PreProcessors
 
-#### Map Fields
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
+#### Copy, Rename and Map Values
+Pre-processors of `cpsit/import-export-core`, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32)
+for the replacements of the pre-processors removed in 4.0.
 ```yaml
 preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+  - class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
     config:
-      fields:                                   # source field: target field
-        old_field_name: "new_field_name"
-        another_old: "another_new"
-        source_title: "title"
-```
-
-#### Map Field Values
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
-```yaml
-preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFieldValues"
-    config:
-      fields:
-        status:                                 # source field
-          targetField: "hidden"
-          values:
-            "active": "0"
-            "inactive": "1"
+      rules:
+        - {rule: copy, field: new_title, from: source_title}
+        - {rule: rename, field: new_field_name, from: old_field_name}
+        - {rule: map, field: hidden, values: {active: 0, inactive: 1}, otherwise: 1}
+        - {rule: remove, fields: [internal_note]}
 ```
 
 #### Database Lookup
@@ -262,23 +250,21 @@ preProcessors:
 ```
 
 #### String to Time Conversion
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
 ```yaml
 preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
+  - class: "CPSIT\\ImportExportCore\\Processor\\StringToTimePreProcessor"
     config:
       fields: "publish_date,update_date"        # Comma-separated field names, parsed with strtotime()
       multipleRowFields: "dates"                # Optional: fields with a list of values
 ```
 
-#### Set Field Value
-Deprecated since 3.2, see [Deprecations](./DEPRECATIONS.md#deprecated-in-32).
+#### Set Field Values
 ```yaml
 preProcessors:
-  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+  - class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
     config:
-      targetField: "pid"
-      value: "123"                              # existing values are replaced
+      values:                                   # existing values are replaced
+        pid: 123
 ```
 
 ### PostProcessors
@@ -356,7 +342,7 @@ import:
     baseTask:
       label: "Base Import Task"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           delimiter: ","
           enclosure: "\""
@@ -410,7 +396,7 @@ import:
             tables: "target_table"
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/complex-data.csv"
           skipLines: 1
@@ -499,7 +485,7 @@ import:
   tasks:
     invalidTask:
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: ""                              # ERROR: Empty file path
 ```
@@ -593,7 +579,7 @@ import:
 
       # Continue processing even if individual records fail
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/data.csv"
           continueOnError: true

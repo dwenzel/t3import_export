@@ -49,4 +49,15 @@ class DeprecationUtilityTest extends TestCase
             $this->messages
         );
     }
+
+    #[Test]
+    public function triggerLinksTheGivenIssue(): void
+    {
+        DeprecationUtility::trigger('Third is deprecated.', 'https://example.org/issues/1');
+
+        self::assertSame(
+            ['t3import_export: Third is deprecated. See https://example.org/issues/1'],
+            $this->messages
+        );
+    }
 }

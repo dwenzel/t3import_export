@@ -11,11 +11,11 @@ import:
         config:
           table: 'pages_copy'
       preProcessors:
-        - class: 'CPSIT\T3importExport\Component\PreProcessor\MapFields'
+        - class: 'CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor'
           config:
-            map:
-              title: 'new_title'
-              subtitle: 'new_subtitle'
+            rules:
+              - {rule: copy, field: new_title, from: title}
+              - {rule: copy, field: new_subtitle, from: subtitle}
     importContent:
       source:
         class: 'CPSIT\T3importExport\Persistence\DataSourceCSV'

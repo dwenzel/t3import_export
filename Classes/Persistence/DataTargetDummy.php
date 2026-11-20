@@ -4,47 +4,40 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
+/**
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
+
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
-
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2022 Dirk Wenzel <wenzel@cps-it.de>
- *  All rights reserved
- *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- * A copy is found in the text file GPL.txt and important notices to the license
- * from the author is found in LICENSE.txt distributed with these scripts.
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
-
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use CPSIT\ImportExportCore\Persistence\NullDataTarget;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 
 /**
- * Dummy data target - does not persist anything
+ * Writes nothing.
+ *
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\Persistence\NullDataTarget`.
  */
 class DataTargetDummy implements DataTargetInterface
 {
-    /**
-     * Dummy method to make component compatible wit DataTargetInterface
-     *
-     * @param array|DomainObjectInterface $object
-     * @return bool|mixed
-     */
-    public function persist($object, ?array $configuration = null)
+    public function persist(array|object $object, ?array $configuration = null): bool
     {
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . NullDataTarget::class . '.',
+            DeprecationUtility::FILE_COMPONENTS_ISSUE_URL
+        );
+
         return true;
     }
 
-    /**
-     * Dummy method to make component compatible wit DataTargetInterface
-     *
-     * @param null $result
-     */
-    public function persistAll($result = null, ?array $configuration = null) {}
+    public function persistAll(mixed $result = null, ?array $configuration = null): void {}
 }

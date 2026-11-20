@@ -28,7 +28,7 @@ the key `expression`. The
 expression is evaluated with the
 [Symfony ExpressionLanguage](https://symfony.com/doc/current/reference/formats/expression_language.html)
 before the query is built; the functions of
-[EvaluateExpressions](../Components/PreProcessors/EVALUATE_EXPRESSIONS.md)
+[EvaluateExpressionsPreProcessor](../Components/PreProcessors/EVALUATE_EXPRESSIONS.md)
 (`date()`, `strtotime()`, ...) are available. The result is used as SQL, as if
 it was written in the configuration.
 
@@ -43,5 +43,6 @@ source:
 ```
 
 Values rendered as TypoScript content objects (`where = TEXT`, `where { ... }`)
-are deprecated and will be removed in version 4.0
-([#75](https://github.com/dwenzel/t3import_export/issues/75)).
+are not supported any more since version 4.0
+([#75](https://github.com/dwenzel/t3import_export/issues/75)). They throw an
+`InvalidConfigurationException` (code 1794781881).

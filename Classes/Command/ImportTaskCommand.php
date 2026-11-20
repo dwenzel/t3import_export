@@ -26,12 +26,11 @@ use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
+use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Argument\TaskArgument;
 use CPSIT\T3importExport\Controller\ImportController;
-use CPSIT\T3importExport\Domain\Factory\TransferTaskFactory;
-use CPSIT\T3importExport\Domain\Model\Dto\TaskDemand;
-use CPSIT\T3importExport\Service\DataTransferProcessor;
+use CPSIT\T3importExport\Service\TransferService;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
 use DWenzel\T3extensionTools\Command\Status;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
@@ -41,7 +40,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Provides import set commands for cli and scheduler tasks
@@ -88,12 +86,12 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     /**
      * @param string|null $name
      * @param TransferTaskFactory $transferTaskFactory
-     * @param DataTransferProcessor $dataTransferProcessor
+     * @param TransferService $transferService
      * @param ConfigurationHandlerInterface $configurationHandler
      */
     public function __construct(
         private readonly TransferTaskFactory $transferTaskFactory,
-        private readonly DataTransferProcessor $dataTransferProcessor,
+        private readonly TransferService $transferService,
         private readonly ConfigurationHandlerInterface $configurationHandler
     ) {
         parent::__construct(self::$defaultName);
@@ -145,20 +143,13 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     public function process(string $identifier, $dryRun = false): int
     {
         $status = Status::invalid();
-        /** @var TaskDemand $taskDemand */
-        $taskDemand = GeneralUtility::makeInstance(TaskDemand::class);
-
         if (isset($this->settings['tasks'][$identifier])) {
-            $taskSettings = $this->settings['tasks'][$identifier];
-
-            $task = $this->transferTaskFactory->get(
-                $taskSettings,
-                $identifier
+            $task = $this->transferTaskFactory->create(
+                $identifier,
+                $this->settings['tasks'][$identifier]
             );
 
-            $taskDemand->setTasks([$task]);
-            $this->dataTransferProcessor->buildQueue($taskDemand);
-            $result = $this->dataTransferProcessor->process($taskDemand);
+            $this->transferService->run([$task], (bool)$dryRun);
             $status = Status::success();
             // todo check result for error and set exit code accordingly
         }

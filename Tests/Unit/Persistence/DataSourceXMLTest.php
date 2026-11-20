@@ -8,271 +8,79 @@ use CPSIT\T3importExport\Persistence\DataSourceXML;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(DataSourceXML::class)]
 class DataSourceXMLTest extends TestCase
 {
-    /**
-     * @var DataSourceXML|MockObject
-     */
-    protected DataSourceXML $subject;
-    protected string $xmlFile = '';
+    use LegacyFileComponentTestTrait;
 
-    /**
-     * Set up the test subject
-     */
+    private const string XML = <<<XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <courses>
+          <course id="1"><title>First</title></course>
+          <course id="2"><title>Second</title></course>
+        </courses>
+        XML;
+
     protected function setUp(): void
     {
-        $this->subject = new DataSourceXML();
-        \org\bovigo\vfs\vfsStreamWrapper::register();
+        $this->setUpFilesAndDeprecations();
+        $this->writeFile('courses.xml', self::XML);
     }
 
     protected function tearDown(): void
     {
-        if ($this->xmlFile !== '' && is_file($this->xmlFile)) {
-            unlink($this->xmlFile);
-        }
+        $this->tearDownFilesAndDeprecations();
     }
 
-    /**
-     * Lets the subject read the given XML from a temporary file
-     */
-    protected function useXml(string $xml): void
+    public static function expressionDataProvider(): iterable
     {
-        $this->xmlFile = (string)tempnam(sys_get_temp_dir(), 'xml');
-        file_put_contents($this->xmlFile, $xml);
-        $file = $this->xmlFile;
-        $this->subject = new class () extends DataSourceXML {
-            public string $file = '';
-
-            protected function getAbsoluteFilePath($path)
-            {
-                return $this->file;
-            }
-        };
-        $this->subject->file = $file;
-    }
-
-    protected function mockSubject(): void
-    {
-        $this->subject = $this->getMockBuilder(DataSourceXML::class)
-            ->onlyMethods(['getAbsoluteFilePath'])
-            ->getMock();
+        yield 'absolute' => ['//course'];
+        yield 'relative to the root element' => ['course'];
+        yield 'relative with leading space' => [' course'];
     }
 
     #[Test]
-    public function testetRecordsInitiallyReturnsEmptyArray(): void
+    #[DataProvider('expressionDataProvider')]
+    public function getRecordsSelectsElementsLikeBefore(string $expression): void
     {
-        $configuration = [];
-        $this->assertSame(
-            [],
-            $this->subject->getRecords($configuration)
-        );
-    }
+        $subject = new DataSourceXML($this->resourceLoader());
+        $configuration = ['file' => 'courses.xml', 'expression' => $expression];
 
-    #[Test]
-    public function testIsConfigurationValidReturnsFalseForMissingFile(): void
-    {
-        $configuration = [];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsFalseIfFileIsNotString(): void
-    {
-        $configuration = [
-            'file' => [],
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsFalseForInvalidFilePath(): void
-    {
-        $this->mockSubject();
-        $invalidPath = 'fooPath';
-        $configuration = [
-            'file' => $invalidPath,
-        ];
-
-        $this->subject->expects($this->once())
-            ->method('getAbsoluteFilePath')
-            ->with(...[$invalidPath])
-            ->willReturn('');
-
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsTrueForValidConfiguration(): void
-    {
-        $this->mockSubject();
-        $fileDirectory = 'typo3temp';
-        $fileName = 'foo.xml';
-        $relativePath = $fileDirectory . '/' . $fileName;
-
-        $configuration = [
-            'file' => $relativePath,
-        ];
-
-        // vfsStream setup replaced with direct mock
-        $this->subject->expects($this->once())
-            ->method('getAbsoluteFilePath')
-            ->with(...[$relativePath])
-            ->willReturn($relativePath);
-
-        $this->assertTrue(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsFalseIfFileAndUrlAreSet(): void
-    {
-        $configuration = [
-            'file' => 'foo',
-            'url' => 'bar',
-        ];
-
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsFalseIfUrlIsNotString(): void
-    {
-        $configuration = [
-            'url' => [],
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsFalseIfUrlIsInvalid(): void
-    {
-        $configuration = [
-            'url' => 'foo',
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsTrueIfUrlIsValid(): void
-    {
-        $configuration = [
-            'url' => 'http://typo3.org',
-        ];
-        $this->assertTrue(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    #[Test]
-    public function testIsConfigurationValidReturnsFalseIfExpressionIsNotString(): void
-    {
-        $configuration = [
-            'url' => 'http://typo3.org',
-            'expression' => 5,
-        ];
-        $this->assertFalse(
-            $this->subject->isConfigurationValid($configuration)
-        );
-    }
-
-    protected const string XML = <<<'XML'
-        <?xml version="1.0" encoding="utf-8"?>
-        <courses>
-          <course id="1">
-            <title>First</title>
-            <description><![CDATA[<p>Text</p>]]></description>
-            <tags><tag>a</tag><tag>b</tag></tags>
-          </course>
-          <course id="2">
-            <title>Second</title>
-            <description/>
-            <tags><tag>c</tag></tags>
-          </course>
-        </courses>
-        XML;
-
-    #[Test]
-    public function getRecordsConvertsMatchingElementsToArrays(): void
-    {
-        $this->useXml(self::XML);
-
-        $records = $this->subject->getRecords(['file' => 'EXT:foo/courses.xml', 'expression' => '//course']);
+        self::assertTrue($subject->isConfigurationValid($configuration));
+        $records = iterator_to_array($subject->getRecords($configuration), false);
 
         self::assertSame(
             [
-                0 => [
-                    '@attributes' => ['id' => '1'],
-                    'title' => 'First',
-                    'description' => '<p>Text</p>',
-                    'tags' => ['tag' => ['a', 'b']],
-                ],
-                1 => [
-                    '@attributes' => ['id' => '2'],
-                    'title' => 'Second',
-                    'description' => [],
-                    'tags' => ['tag' => 'c'],
-                ],
+                ['@attributes' => ['id' => '1'], 'title' => 'First'],
+                ['@attributes' => ['id' => '2'], 'title' => 'Second'],
             ],
             $records
         );
+        self::assertDeprecationOf(DataSourceXML::class, $this->deprecations);
     }
 
     #[Test]
-    public function getRecordsUsesXpathExpression(): void
+    public function getRecordsKeepsExpressionsStartingWithParenthesis(): void
     {
-        $this->useXml(self::XML);
+        $subject = new DataSourceXML($this->resourceLoader());
 
-        $records = $this->subject->getRecords(['file' => 'EXT:foo/courses.xml', 'expression' => '//course[@id="2"]/title']);
+        $records = iterator_to_array(
+            $subject->getRecords(['file' => 'courses.xml', 'expression' => '(//course)[2]']),
+            false
+        );
 
-        self::assertSame([0 => [0 => 'Second']], $records);
-    }
-
-    public static function noRecordsDataProvider(): iterable
-    {
-        yield 'no expression' => [self::XML, []];
-        yield 'expression without match' => [self::XML, ['expression' => '//event']];
-        yield 'empty file' => ['', ['expression' => '//course']];
+        self::assertSame([['@attributes' => ['id' => '2'], 'title' => 'Second']], $records);
     }
 
     #[Test]
-    #[DataProvider('noRecordsDataProvider')]
-    public function getRecordsReturnsEmptyArray(string $xml, array $configuration): void
+    public function isConfigurationValidRequiresAnExpressionOrAnElement(): void
     {
-        $this->useXml($xml);
+        $subject = new DataSourceXML($this->resourceLoader());
 
-        self::assertSame([], $this->subject->getRecords($configuration + ['file' => 'EXT:foo/courses.xml']));
-    }
-
-    #[Test]
-    public function getRecordsThrowsExceptionForMalformedXml(): void
-    {
-        $this->useXml('<courses><course></courses>');
-
-        $this->expectException(\Exception::class);
-
-        $useInternalErrors = libxml_use_internal_errors(true);
-        try {
-            $this->subject->getRecords(['file' => 'EXT:foo/courses.xml', 'expression' => '//course']);
-        } finally {
-            libxml_clear_errors();
-            libxml_use_internal_errors($useInternalErrors);
-        }
+        self::assertFalse($subject->isConfigurationValid(['file' => 'courses.xml']));
+        self::assertFalse($subject->isConfigurationValid(['file' => 'courses.xml', 'expression' => ' ']));
+        self::assertTrue($subject->isConfigurationValid(['file' => 'courses.xml', 'element' => 'course']));
     }
 }

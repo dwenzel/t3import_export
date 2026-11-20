@@ -201,6 +201,7 @@ class GenerateFileReferenceTest extends TestCase
     public function testProcessReturnsFalseIfContentOfTargetFieldIsAReferenceToAFileWithSameIdAsSourceField(): void
     {
         $fileId = 3;
+        $this->fileIndexRepository->method('findOneByUid')->willReturn(['uid' => $fileId]);
         $sourceFieldName = 'foo';
         $sourceFieldValue = $fileId;
         $targetFieldName = 'bar';
@@ -239,6 +240,7 @@ class GenerateFileReferenceTest extends TestCase
     public function testProcessRemovesExistingReferenceIfFileIdIsNotTheSameAsTargetField(): void
     {
         $fileId = 3;
+        $this->fileIndexRepository->method('findOneByUid')->willReturn(['uid' => $fileId]);
         $existingFileId = 5;
         $sourceFieldName = 'foo';
         $sourceFieldValue = $fileId;
@@ -276,6 +278,7 @@ class GenerateFileReferenceTest extends TestCase
     public function testProcessCreatesFileReferenceAndAddsItToTargetField(): void
     {
         $fileId = 3;
+        $this->fileIndexRepository->method('findOneByUid')->willReturn(['uid' => $fileId]);
         $sourceFieldName = 'foo';
         $targetFieldName = 'bar';
         $mockFileReference = $this->getMockBuilder(FileReference::class)

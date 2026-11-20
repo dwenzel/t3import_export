@@ -1,28 +1,47 @@
 DataSourceXML
 =============
 
-Reads data from XML sources into an array of records.
-**Note:** Current implementation handles only small to medium data sizes (since it uses PHPs \SimpleXMLElement class). Depending on your environment large imports may hit memory or time limits.
+Reads records from an XML file, one record per element. Since 4.0 the source
+of `cpsit/import-export-core` is used:
 
-## Configuration
-## required
-* **class** fully qualified class name, i.e. *CPSIT\T3importExport\Persistence\DataSourceXML*
-* **config.url** or **config.file** One of them must be set (see below)
-* **config.expression** *string* A valid xpath expression. Nodes selected by this expression are be converted to records for import
-* **config.url** *string* URL where to fetch XML from. Protocol must be present.
-* **config.file** *string* Path to XML file. Allowed are absolute and relative path which can be reached by the script.
-`EXT:extension_name/path` expressions are evaluated.
+* **class**: `CPSIT\ImportExportCore\File\DataSourceXML`
+* Options: [core reference](https://github.com/CPS-IT/import-export-core/blob/main/Documentation/Configuration/Components.md#datasourcexml)
 
-### Example
-Fetch all items of the RSS feed as records:
+With `element`, the file is read element by element, so large files are not
+held in memory. With `expression`, the whole document is loaded and the
+records are selected with XPath. See [Files](./Files.md).
+
+Each record element becomes an array: attributes in `@attributes`, child
+elements as fields named by their local name (lists for repeated elements,
+strings for elements with only text), and text next to attributes or child
+elements in `@value`.
+
+## Options
+
+| Option | Type | Description |
+|---|---|---|
+| `file` | string | Path of the file, see [Files](./Files.md#paths). Either `file` or `url`. |
+| `url` | string | URL of the file (http or https) |
+| `element` | string | Name of the record elements, e.g. `item`. Either `element` or `expression`. |
+| `expression` | string | XPath expression selecting the record elements, e.g. `//channel/item` |
+| `namespaces` | map | Prefixes and URIs of namespaces used in `element` or `expression` |
+| `lists` | list | Child elements that are always lists, also with one or no element |
+| `recordNumberField` | string | Adds the number of the record as this field |
+
+## Example
+
+```yaml
+source:
+  class: 'CPSIT\ImportExportCore\File\DataSourceXML'
+  config:
+    url: 'https://typo3.org/rss.xml'
+    element: 'item'
+    lists: ['category']
 ```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  source {
-    class = CPSIT\T3importExport\Persistence\DataSourceXML
-    config {
-      url = https://typo3.org/xml-feeds/rss.xml
-      expression = //item
-    }
-  }
-}
-```
+
+## Deprecated class
+
+`CPSIT\T3importExport\Persistence\DataSourceXML` is deprecated since 4.0
+and extends the class of the core. It evaluates a relative `expression`
+relative to the root element, as before. Differences to the class before 4.0:
+see [Deprecations](../DEPRECATIONS.md#files).

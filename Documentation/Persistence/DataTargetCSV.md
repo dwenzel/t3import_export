@@ -1,59 +1,43 @@
 DataTargetCSV
 =============
 
-Writes data to a CSV file.
+Writes records into a CSV file, one row per record. Since 4.0 the target of
+`cpsit/import-export-core` is used:
 
-**Note:** Current implementation handles only small to medium data sizes. Depending on your environment large imports may hit memory or time limits.
+* **class**: `CPSIT\ImportExportCore\File\DataTargetCSV`
+* Options: [core reference](https://github.com/CPS-IT/import-export-core/blob/main/Documentation/Configuration/Components.md#datatargetcsv)
 
+The file is created, or replaced, when the first record is written. Missing
+directories are created.
 
-## Configuration
-In order to keep the configuration lean a few defaults are assumed.
-* First line contains field names
-* fields are separated by comma `,`
-* fields are enclosed by quotation marks `"`
-* special characters are escaped by a backslash `\ `
+## Options
 
-## required
-* **class** fully qualified class name, i.e. *CPSIT\T3importExport\Persistence\DataSourceCSV*
-* **config.url** or **config.file** One of them must be set (see below)
-* **config.url** *string* URL where to fetch CSV file from. Protocol must be present.
-* **config.file** *string* Path to CSV file. Allowed are absolute and relative paths which can be reached by the script.
-`EXT:extension_name/path` expressions are evaluated.
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `file` | string | – | Path of the file, see [Files](./Files.md#paths) |
+| `fields` | list or comma-separated string | fields of the first record | Fields to write, in this order |
+| `header` | bool | true | Writes the field names in the first row |
+| `delimiter` | char | `,` | |
+| `enclosure` | char | `"` | |
+| `escape` | char | `\` | `''` for none |
+| `bom` | bool | false | Starts the file with a UTF-8 byte order mark, e.g. for spreadsheet applications |
 
-## optional
-| property               | type   | default | description       |
-| -----------------------|:------:|---------|-------------------|
-| **config.fields**      | string | all     | A comma separated list of field names. |
-| **config.delimiter**   | char   | `,`     | Field delimiter character |
-| **config.enclosure**   | char   | `"`     | Field enclosure character |
-| **config.escape**      | char   | `\ `    | Escape character |
+## Example
 
-### Example
-
-#### Simple
-Read items from local file:
+```yaml
+target:
+  class: 'CPSIT\ImportExportCore\File\DataTargetCSV'
+  config:
+    file: 'fileadmin/export/news.csv'
+    fields: 'uid,title,datetime'
+    delimiter: ';'
+    bom: true
 ```
-module.tx_t3importexport.settings.export.tasks.exampleTask {
-  target {
-    class = CPSIT\T3importExport\Persistence\DataTargetCSV
-    config {
-      file = local/file/path.csv
-    }
-  }
-}
-```
-#### Extended
-```
-module.tx_t3importexport.settings.export.tasks.exampleTask {
-  target {
-    class = CPSIT\T3importExport\Persistence\DataSourceCSV
-    config {
-      file = local/file/path.csv
-      fields = foo,bar,baz
-      delimiter = ;
-      enclosure = $
-      escape = %
-    }
-  }
-}
-```
+
+## Deprecated class
+
+`CPSIT\T3importExport\Persistence\DataTargetCSV` is deprecated since 4.0
+and extends the class of the core. It keeps the defaults of the class before
+4.0: `bom: true`, and `header` only with `fields`. When replacing the
+class, set these options if the file must not change. See
+[Deprecations](../DEPRECATIONS.md#files).

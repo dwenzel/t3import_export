@@ -46,17 +46,11 @@ class TranslationServiceTest extends TestCase
     protected DataMapper|MockObject $dataMapper;
 
     /**
-     * @var DataMap|MockObject
-     */
-    protected DataMap|MockObject $dataMap;
-
-    /**
      * Set up the subject
      */
     protected function setUp(): void
     {
-        $this->mockDataMap()
-            ->mockDataMapper();
+        $this->mockDataMapper();
 
         // Create persistence manager mock directly
         $this->persistenceManager = $this->createMock(PersistenceManagerInterface::class);
@@ -64,14 +58,16 @@ class TranslationServiceTest extends TestCase
         $this->subject = new TranslationService($this->dataMapper, $this->persistenceManager);
     }
 
-    protected function mockDataMap(): self
+    /**
+     * DataMap is final and readonly since TYPO3 14, so the tests use real instances
+     */
+    protected function createDataMap(?string $translationOriginColumnName): DataMap
     {
-        $this->dataMap = $this->getMockBuilder(DataMap::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getTranslationOriginColumnName', 'getColumnMap', 'getClassName', 'getTableName'])
-            ->getMock();
-
-        return $this;
+        return new DataMap(
+            className: DummyDomainObjectA::class,
+            tableName: 'tx_dummy_domain_object_a',
+            translationOriginColumnName: $translationOriginColumnName,
+        );
     }
 
     protected function mockDataMapper(): self
@@ -111,10 +107,7 @@ class TranslationServiceTest extends TestCase
         $this->dataMapper->expects($this->once())
             ->method('getDataMap')
             ->with($origin::class)
-            ->willReturn($this->dataMap);
-        $this->dataMap->expects($this->once())
-            ->method('getTranslationOriginColumnName')
-            ->willReturn(null);
+            ->willReturn($this->createDataMap(null));
 
         $this->subject->translate($origin, $translation, 1);
     }
@@ -127,11 +120,7 @@ class TranslationServiceTest extends TestCase
         $this->dataMapper->expects($this->once())
             ->method('getDataMap')
             ->with($origin::class)
-            ->willReturn($this->dataMap);
-        $this->dataMap->method('getTranslationOriginColumnName')
-            ->willReturn($columnName);
-        $this->dataMap->expects($this->never())
-            ->method('getColumnMap');
+            ->willReturn($this->createDataMap($columnName));
     }
 
     /**

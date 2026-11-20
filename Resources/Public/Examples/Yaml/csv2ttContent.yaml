@@ -11,7 +11,7 @@ import:
         In order to validate the import please adapt the target page id to an existing value.
 
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "EXT:t3import_export/Resources/Public/Examples/CSV/csv2ttContent.csv"
 

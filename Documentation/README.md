@@ -37,20 +37,10 @@
   - [UpdateTable](./Components/Initializers/UpdateTable.md)
 
 - **[PreProcessors](./Components/PREPROCESSOR.md)** - Data transformation
-  - [MapFields](./Components/PreProcessors/MAP_FIELDS.md)
-  - [MapFieldValues](./Components/PreProcessors/MAP_FIELD_VALUES.md)
+  - Pre-processors of `cpsit/import-export-core`, e.g. `ValueRulesPreProcessor`, `SetValuesPreProcessor`, `CleanPreProcessor`: see [Deprecations](./DEPRECATIONS.md#deprecated-in-32)
   - [LookUpDB](./Components/PreProcessors/LOOK_UP_DB.md)
-  - [StringToTime](./Components/PreProcessors/STRING_TO_TIME.md)
-  - [SetFieldValue](./Components/PreProcessors/SET_FIELD_VALUE.md)
-  - [ConcatenateFields](./Components/PreProcessors/CONCATENATE_FIELDS.md)
-  - [EvaluateExpressions](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md)
-  - [AddArrays](./Components/PreProcessors/ADD_ARRAYS.md)
-  - [Clean](./Components/PreProcessors/CLEAN.md)
+  - [EvaluateExpressionsPreProcessor](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) (core)
   - [XMLMapper](./Components/PreProcessors/XML_MAPPER.md)
-  - [RenderContent](./Components/PreProcessors/RENDER_CONTENT.md) (deprecated)
-  - [RemoveFields](./Components/PreProcessors/REMOVE_FIELDS.md)
-  - [UnsetEmptyFields](./Components/PreProcessors/UnsetEmptyFields.md)
-  - [ImplodeArray](./Components/PreProcessors/IMPLODE_ARRAY.md)
 
 - **[Converters](./Components/CONVERTER.md)** - Format transformation
   - [ArrayToDomainObject](./Components/Converters/ArrayToDomainObject.md)
@@ -81,6 +71,7 @@
   - [XML Streams](./Persistence/DataTargetXMLStream.md)
   - [Repository](./Persistence/DataTargetRepository.md)
   - [File Streams](./Persistence/DataTargetFileStream.md)
+- [Files: paths and URLs](./Persistence/Files.md)
 
 ### 🔌 Services & Utilities
 - [Database Connection Service](./Service/DatabaseConnectionService.md)
@@ -150,7 +141,7 @@ module.tx_t3importexport.settings.import.tasks.newsImport {
     description = Import news from CSV file
 
     source {
-        class = CPSIT\T3importExport\Persistence\DataSourceCSV
+        class = CPSIT\ImportExportCore\File\DataSourceCSV
         config {
             file = fileadmin/imports/news.csv
             delimiter = ,
@@ -160,11 +151,19 @@ module.tx_t3importexport.settings.import.tasks.newsImport {
 
     preProcessors {
         10 {
-            class = CPSIT\T3importExport\Component\PreProcessor\MapFields
+            class = CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor
             config {
-                map {
-                    title = headline
-                    bodytext = content
+                rules {
+                    0 {
+                        rule = copy
+                        field = headline
+                        from = title
+                    }
+                    1 {
+                        rule = copy
+                        field = content
+                        from = bodytext
+                    }
                 }
             }
         }
@@ -188,17 +187,17 @@ import:
       label: "News Import"
       description: "Import news from CSV file"
       source:
-        class: "CPSIT\\T3importExport\\Persistence\\DataSourceCSV"
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/news.csv"
           delimiter: ","
           enclosure: "\""
       preProcessors:
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+        - class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            map:
-              title: "headline"
-              bodytext: "content"
+            rules:
+              - {rule: copy, field: headline, from: title}
+              - {rule: copy, field: content, from: bodytext}
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
         config:
@@ -364,7 +363,7 @@ Options:
 ```typoscript
 module.tx_t3importexport.settings.import.tasks.productImport {
     source {
-        class = CPSIT\T3importExport\Persistence\DataSourceCSV
+        class = CPSIT\ImportExportCore\File\DataSourceCSV
         config {
             file = fileadmin/imports/products.csv
             skipLines = 1
@@ -373,12 +372,24 @@ module.tx_t3importexport.settings.import.tasks.productImport {
     }
     preProcessors {
         10 {
-            class = CPSIT\T3importExport\Component\PreProcessor\MapFields
+            class = CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor
             config {
-                map {
-                    name = product_name
-                    price = product_price
-                    description = product_desc
+                rules {
+                    0 {
+                        rule = copy
+                        field = product_name
+                        from = name
+                    }
+                    1 {
+                        rule = copy
+                        field = product_price
+                        from = price
+                    }
+                    2 {
+                        rule = copy
+                        field = product_desc
+                        from = description
+                    }
                 }
             }
         }
