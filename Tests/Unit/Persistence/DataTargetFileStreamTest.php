@@ -15,6 +15,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
@@ -166,9 +167,10 @@ class DataTargetFileStreamTest extends TestCase
         self::assertInstanceOf(FileInfo::class, $fileInfo);
         $fileName = $fileInfo->getPathname();
         self::assertStringStartsWith(
-            GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY),
+            Environment::getVarPath() . '/transient/t3import_export/',
             $fileName
         );
+        self::assertStringStartsNotWith(Environment::getPublicPath() . '/', $fileName);
         self::assertSame('<a>1</a><a>2</a>', file_get_contents($fileName));
         unlink($fileName);
     }

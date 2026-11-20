@@ -46,7 +46,7 @@ class TestableDataTargetXMLStream extends DataTargetXMLStream
     {
         if ($this->testFileUtility !== null) {
             // Use injected file utility for testing
-            $absPath = GeneralUtility::getFileAbsFileName(static::TEMP_DIRECTORY);
+            $absPath = $this->getTemporaryDirectory();
             if (!file_exists($absPath)) {
                 @mkdir($absPath, 0777, true);
             }
