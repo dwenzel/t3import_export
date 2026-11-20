@@ -1,7 +1,7 @@
 # Import & Export Documentation
 
-[![TYPO3 13.4](https://img.shields.io/badge/TYPO3-13.4-blue.svg?style=flat-square)](https://get.typo3.org/version/13)
-[![PHP 8.4](https://img.shields.io/badge/PHP-8.4-blue.svg?style=flat-square)](https://www.php.net/)
+[![TYPO3 14.3](https://img.shields.io/badge/TYPO3-14.3-blue.svg?style=flat-square)](https://get.typo3.org/version/14)
+[![PHP 8.3 | 8.4](https://img.shields.io/badge/PHP-8.3%20%7C%208.4-blue.svg?style=flat-square)](https://www.php.net/)
 
 ## Table of Contents
 
@@ -108,13 +108,13 @@
 
 ## Overview
 
-The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 13.4. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
+The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 14.3. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
 
 ### Key Features
 
 - **Multiple Data Formats**: CSV, XML, Database, Repository objects
 - **Flexible Architecture**: Modular component system for data transformation
-- **TYPO3 13.4 Ready**: Full compatibility with latest TYPO3 LTS
+- **TYPO3 14.3**: Compatible with TYPO3 14.3 LTS
 - **Command Line Support**: CLI execution for automation and scheduling
 - **Backend Integration**: User-friendly backend module interface
 - **YAML Configuration**: Modern configuration format alongside TypoScript
@@ -218,8 +218,8 @@ vendor/bin/typo3 t3import-export:import-set --yaml-config path/to/config.yaml
 
 ## System Requirements
 
-- **TYPO3**: 13.4 LTS
-- **PHP**: 8.4+
+- **TYPO3**: 14.3 LTS
+- **PHP**: 8.3 or 8.4
 - **Dependencies**:
   - symfony/yaml (for YAML configuration)
   - TYPO3 core extensions (extbase, fluid)

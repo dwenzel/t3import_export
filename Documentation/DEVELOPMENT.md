@@ -81,7 +81,7 @@ consistent behavior between local development and CI environments.
 ## PHP and TYPO3 Requirements
 
 - PHP 8.3 or 8.4
-- TYPO3 13.4
+- TYPO3 14.3
 
 The extension is designed to work with the latest PHP and TYPO3 versions for optimal
 security and performance.
