@@ -4,8 +4,8 @@ Installation
 ## System Requirements
 
 ### Minimum Requirements
-* **PHP**: 8.4 or higher
-* **TYPO3**: 13.4 LTS
+* **PHP**: 8.3 or 8.4
+* **TYPO3**: 14.3 LTS
 * **Memory**: 256 MB (512 MB recommended for large datasets)
 * **Disk Space**: Adequate space for temporary files during processing
 
