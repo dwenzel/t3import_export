@@ -69,6 +69,29 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = [
 `MissingResourceException` (code 1795200302) before a request is sent. The
 URL is not checked for its file type, since it often has no file extension.
 
+## Other components
+
+The same rules apply to the components of the extension that read or write
+files themselves:
+
+| Component | Path | Rules |
+|---|---|---|
+| `PreProcessor\ValidateXML`, `Finisher\ValidateXML` | `file` or `url` of the document, `schema.file` / `schema.url` | allowed directories and file types, allowed hosts |
+| `Persistence\DataTargetXMLStream` | `template` | allowed directories and file types |
+| `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | source file (`sourcePath` and the record field) | allowed directories and file types, allowed hosts for URLs |
+| `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | target file in the storage (`storageId`, `targetDirectoryPath`) | file types only (`fileDenyPattern`, allowed file extensions); the storage is not limited to the allowed directories |
+| `Validation\Configuration\ResourcePathConfigurationValidator` | `file`, `url` | a path or host that is not allowed makes the configuration invalid |
+
+A path or URL that is not allowed throws the exception described above, a
+file that does not exist is handled as before. Relative source paths of
+`GenerateFileResource` and `GenerateUploadFile` are relative to the public
+directory (before: to the working directory of the PHP process).
+
+Not covered: the temporary files of `DataTargetFileStream` (fixed directory
+`typo3temp/`), the YAML configuration directories
+(`yamlConfigurationDirectories`, set by the administrator) and the file
+arguments of the console commands.
+
 ## Large files
 
 The sources read the file while the records are processed, so the file is not

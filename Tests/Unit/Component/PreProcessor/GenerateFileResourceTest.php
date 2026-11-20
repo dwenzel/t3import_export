@@ -92,8 +92,9 @@ class GenerateFileResourceTest extends TestCase
                     $this->messageContainer,
                 ]
             )
-            ->onlyMethods(['logError', 'getAbsoluteFilePath'])
+            ->onlyMethods(['logError', 'getAbsoluteTargetPath', 'resolveSourceFile'])
             ->getMock();
+        $this->subject->method('resolveSourceFile')->willReturnArgument(0);
 
         // Set protected properties via reflection
         $reflection = new \ReflectionClass($this->subject);
@@ -324,7 +325,7 @@ class GenerateFileResourceTest extends TestCase
             ->willReturn($storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $targetDirectoryPath . DIRECTORY_SEPARATOR);
 
         $this->subject->expects($this->once())
-            ->method('getAbsoluteFilePath')
+            ->method('getAbsoluteTargetPath')
             ->with(...[$expectedFilePath])
             ->willReturn($expectedFilePath);
     }

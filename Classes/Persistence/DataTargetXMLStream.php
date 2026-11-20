@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
+use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 
 class DataTargetXMLStream extends DataTargetFileStream
 {
+    use ResourceTrait;
+
     final public const string DEFAULT_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
     final public const string DEFAULT_ROOT_NODE = 'rows';
 
@@ -211,7 +213,7 @@ class DataTargetXMLStream extends DataTargetFileStream
     {
         $path = '';
         if (!empty($configuration['template'])) {
-            $path = GeneralUtility::getFileAbsFileName($configuration['template']);
+            $path = $this->getResourceAccess()->resolveFile((string)$configuration['template']);
         }
 
         return $path;

@@ -124,11 +124,23 @@ final readonly class Typo3PathResolver implements PathResolverInterface
                 self::ERROR_DIRECTORY_NOT_ALLOWED
             );
         }
-        if (!$this->isFileTypeAllowed(basename($absolutePath))) {
-            throw $this->notAllowed($path, 'the file type is not allowed in TYPO3 (fileDenyPattern, allowed file extensions).', self::ERROR_FILE_TYPE_NOT_ALLOWED);
-        }
+        $this->assertFileTypeAllowed($absolutePath);
 
         return $absolutePath;
+    }
+
+    /**
+     * Applies only the file type rules of TYPO3 (fileDenyPattern, allowed
+     * file extensions) to the file name of `$path`, e.g. for files in a FAL
+     * storage, whose directory is not in the allowed directories.
+     *
+     * @throws InvalidArgumentException
+     */
+    public function assertFileTypeAllowed(string $path): void
+    {
+        if (!$this->isFileTypeAllowed(basename($path))) {
+            throw $this->notAllowed($path, 'the file type is not allowed in TYPO3 (fileDenyPattern, allowed file extensions).', self::ERROR_FILE_TYPE_NOT_ALLOWED);
+        }
     }
 
     private function isInAllowedDirectory(string $absolutePath): bool

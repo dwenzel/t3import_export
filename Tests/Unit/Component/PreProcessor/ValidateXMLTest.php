@@ -7,12 +7,16 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Component\PreProcessor\ValidateXML;
+use CPSIT\T3importExport\Resource\ResourceAccess;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Describes the behaviour of the ValidateXML pre-processor before it moves to the core
@@ -44,27 +48,17 @@ class ValidateXMLTest extends TestCase
         $this->subject = $this->createSubject($this->createStub(ResourcePathConfigurationValidator::class));
     }
 
-    /**
-     * Resolves every resource path to the temporary schema file
-     */
     protected function createSubject(ResourcePathConfigurationValidator $pathValidator): ValidateXML
     {
-        $test = $this;
-        return new class (null, $pathValidator, $this->messageContainer, $test) extends ValidateXML {
-            public function __construct(
-                ?DOMDocument $document,
-                ?ResourcePathConfigurationValidator $pathConfigurationValidator,
-                ?MessageContainer $messageContainer,
-                private readonly ValidateXMLTest $test
-            ) {
-                parent::__construct($document, $pathConfigurationValidator, $messageContainer);
-            }
+        $subject = new ValidateXML(null, $pathValidator, $this->messageContainer);
+        $subject->setResourceAccess(new ResourceAccess(new Typo3PathResolver(directories: [self::schemaDirectory()])));
 
-            protected function getAbsoluteFilePath($path)
-            {
-                return $this->test->schemaFile;
-            }
-        };
+        return $subject;
+    }
+
+    protected static function schemaDirectory(): string
+    {
+        return Environment::getVarPath() . '/import/tests';
     }
 
     protected function tearDown(): void
@@ -76,10 +70,11 @@ class ValidateXMLTest extends TestCase
 
     protected function useSchemaFile(string $content): array
     {
-        $this->schemaFile = (string)tempnam(sys_get_temp_dir(), 'xsd');
+        GeneralUtility::mkdir_deep(self::schemaDirectory());
+        $this->schemaFile = self::schemaDirectory() . '/' . uniqid('schema', true) . '.xsd';
         file_put_contents($this->schemaFile, $content);
 
-        return ['file' => 'EXT:foo/schema.xsd'];
+        return ['file' => $this->schemaFile];
     }
 
     public static function invalidConfigurationDataProvider(): iterable
@@ -233,6 +228,18 @@ class ValidateXMLTest extends TestCase
 
         $this->expectException(MissingResourceException::class);
         $this->expectExceptionCode(ValidateXML::MISSING_RESOURCE_CODE);
+
+        $this->subject->process($configuration, $record);
+    }
+
+    #[Test]
+    public function processThrowsExceptionIfSchemaFileIsNotAllowed(): void
+    {
+        $configuration = ['fields' => 'foo', 'schema' => ['file' => Environment::getPublicPath() . '/index.php']];
+        $record = ['uid' => 1, 'foo' => '<item/>'];
+
+        $this->expectException(\CPSIT\ImportExportCore\Exception\InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
 
         $this->subject->process($configuration, $record);
     }

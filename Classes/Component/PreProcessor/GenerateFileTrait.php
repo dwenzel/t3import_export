@@ -18,7 +18,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
+use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -30,6 +32,7 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 trait GenerateFileTrait
 {
     use ResourceStorageTrait;
+    use ResourceTrait;
     use LoggingTrait;
 
     protected FilePathFactory $filePathFactory;
@@ -52,6 +55,52 @@ trait GenerateFileTrait
      * @return File|string|null
      */
     abstract public function getFile($configuration, $sourceFilePath);
+
+    /**
+     * Copies a source file or URL to a target path in the storage.
+     *
+     * The source must be an allowed file (see `Typo3PathResolver`) or a URL
+     * of an allowed host. The target file name must have an allowed file type.
+     *
+     * @throws \CPSIT\ImportExportCore\Exception\InvalidArgumentException if the source file or the target file type is not allowed
+     * @throws \CPSIT\ImportExportCore\Exception\MissingResourceException if the source URL is not allowed
+     */
+    protected function copyFile(string $sourceFilePath, string $targetPath): bool
+    {
+        $absoluteTargetPath = $this->getAbsoluteTargetPath($targetPath);
+        if ($absoluteTargetPath === '') {
+            return false;
+        }
+
+        return @copy($this->resolveSourceFile($sourceFilePath), $absoluteTargetPath);
+    }
+
+    /**
+     * @return string absolute path of an allowed file, or an allowed URL
+     */
+    protected function resolveSourceFile(string $sourceFilePath): string
+    {
+        if (ResourceAccess::isUrl($sourceFilePath)) {
+            $this->getResourceAccess()->assertUrlAllowed($sourceFilePath);
+
+            return $sourceFilePath;
+        }
+
+        return $this->getResourceAccess()->resolveFile($sourceFilePath);
+    }
+
+    /**
+     * @return string absolute path in the storage, '' if it cannot be resolved
+     */
+    protected function getAbsoluteTargetPath(string $targetPath): string
+    {
+        $absolutePath = GeneralUtility::getFileAbsFileName($targetPath);
+        if ($absolutePath !== '') {
+            $this->getResourceAccess()->assertFileTypeAllowed($absolutePath);
+        }
+
+        return $absolutePath;
+    }
 
     /**
      * Process record

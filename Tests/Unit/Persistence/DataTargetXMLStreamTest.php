@@ -14,6 +14,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -337,12 +340,12 @@ class DataTargetXMLStreamTest extends TestCase
     }
 
     /**
-     * Writes a template below the public path and returns its relative path
+     * Writes a template into an allowed directory (var/import/) and returns its path
      */
     protected function createTemplate(string $content): string
     {
-        $path = 'typo3temp/var/tests/xml-template-' . uniqid('', true) . '.xml';
-        $absolutePath = GeneralUtility::getFileAbsFileName($path);
+        $path = Environment::getVarPath() . '/import/tests/xml-template-' . uniqid('', true) . '.xml';
+        $absolutePath = $path;
         GeneralUtility::mkdir_deep(dirname($absolutePath));
         file_put_contents($absolutePath, $content);
         $this->templateFiles[] = $absolutePath;
@@ -415,7 +418,16 @@ class DataTargetXMLStreamTest extends TestCase
     {
         self::assertSame(
             '<?xml version="1.0" encoding="UTF-8"?><rows><a>1</a></rows>',
-            $this->persistToFile(['template' => 'typo3temp/var/tests/missing.xml'], ['<a>1</a>'])
+            $this->persistToFile(['template' => Environment::getVarPath() . '/import/tests/missing.xml'], ['<a>1</a>'])
         );
+    }
+
+    #[Test]
+    public function persistAllRejectsTemplateOutsideOfTheAllowedDirectories(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $this->persistToFile(['template' => 'typo3temp/var/tests/template.xml'], ['<a>1</a>']);
     }
 }
