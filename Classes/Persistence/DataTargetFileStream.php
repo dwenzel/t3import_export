@@ -9,6 +9,7 @@ use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -17,6 +18,11 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
 class DataTargetFileStream extends DataTargetRepository implements ConfigurableInterface
 {
     use ConfigurableTrait;
+
+    /**
+     * @deprecated since 4.0, will be removed in 5.0. Temporary files are
+     * written into `getTemporaryDirectory()` below the var directory.
+     */
     final public const string TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
     /**
@@ -106,12 +112,16 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     {
         /** @var BasicFileUtility $basicFileUtility */
         $basicFileUtility = GeneralUtility::makeInstance(BasicFileUtility::class);
-        $absPath = GeneralUtility::getFileAbsFileName(static::TEMP_DIRECTORY);
+        $absPath = $this->getTemporaryDirectory();
 
         if (!file_exists($absPath)) {
-            if (!GeneralUtility::mkdir($absPath)) {
+            try {
+                GeneralUtility::mkdir_deep($absPath);
+            } catch (\RuntimeException $exception) {
                 throw new FileOperationErrorException(
-                    'can\'t create temp folder: \'' . static::TEMP_DIRECTORY . '\''
+                    'can\'t create temp folder: \'' . $absPath . '\'',
+                    1795300401,
+                    $exception
                 );
             }
         }
@@ -123,6 +133,17 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
             );
         }
         return $absFileName;
+    }
+
+    /**
+     * Directory of the temporary files: `transient/t3import_export/` of the var
+     * directory, outside of the public directory in Composer installations
+     *
+     * @return string absolute path with trailing slash
+     */
+    protected function getTemporaryDirectory(): string
+    {
+        return Environment::getVarPath() . '/transient/t3import_export/';
     }
 
     public function isConfigurationValid(array $configuration): bool
