@@ -15,7 +15,7 @@ The file is read row by row, so large files are not held in memory, see
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `file` | string | – | Path of the file, see [Files](./Files.md#paths). Either `file` or `url`. |
-| `url` | string | – | URL of the file (http or https) |
+| `url` | string | – | URL of the file (http or https), from an [allowed host](./Files.md#urls) |
 | `fields` | list or comma-separated string | – | Field names, in the order of the columns. Without `fields`, the first row holds the field names. |
 | `header` | bool | true without `fields`, false with `fields` | Whether the first row holds field names |
 | `delimiter` | char | `,` | |

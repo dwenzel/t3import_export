@@ -9,32 +9,65 @@ themselves. The extension registers the services they use in
 ## Paths
 
 `file` is resolved by `CPSIT\T3importExport\Resource\Typo3PathResolver`,
-like other file names in TYPO3:
+like other file names in TYPO3, and must be in one of the allowed
+directories:
 
 | Path | Resolved to |
 |---|---|
-| `EXT:my_extension/Resources/Private/Import/news.csv` | the file in the extension |
 | `fileadmin/import/news.csv` | relative to the public directory |
-| `/var/www/project/var/import/news.csv` | absolute paths only inside the project directory, or in `$GLOBALS['TYPO3_CONF_VARS']['BE']['lockRootPath']` |
+| `/var/www/project/var/import/news.csv` | absolute path |
+| `EXT:my_extension/Resources/Private/Import/news.csv` | the file in the extension; only for reading |
 
-Paths with `..`, stream wrappers (`php://`, `phar://` and others) and
-absolute paths outside of the allowed directories are rejected.
+Allowed directories, by default `fileadmin/` of the public directory and
+`import/` of the var directory (`var/import/` in Composer installations):
+
+```php
+// config/system/additional.php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileDirectories'] = [
+    'fileadmin/import/',                                        // relative to the public directory
+    \TYPO3\CMS\Core\Core\Environment::getVarPath() . '/import', // absolute
+];
+```
+
+Rejected, with an exception before the file is opened or created:
+
+* paths outside of the allowed directories, e.g. `config/system/settings.php`
+  or other files of the public directory
+* `EXT:` paths in targets
+* paths with `..`, and stream wrappers (`php://`, `phar://` and others)
+* file names matching `$GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern']`,
+  by default executable files such as `.php` or `.phar`, also as `a.php.csv`
+* with the feature `security.system.enforceAllowedFileExtensions`: file
+  extensions that are not in `textfile_ext`, `mediafile_ext` or
+  `miscfile_ext` of `$GLOBALS['TYPO3_CONF_VARS']['SYS']`
+* file types the component does not read or write: `DataSourceCSV` and
+  `DataTargetCSV` accept `csv`, `tsv` and `txt`, `DataSourceXML` accepts
+  `xml` (core `FileTypePolicy`)
+
+The rules apply when the task runs, in the backend module, the command and
+the scheduler. They do not depend on the backend user: file mounts and
+permissions of backend users do not apply to tasks.
+
+Symbolic links inside an allowed directory are followed, e.g. a `fileadmin`
+that links to a shared directory.
 
 ## URLs
 
 `url` is loaded with the HTTP client of TYPO3 (`$GLOBALS['TYPO3_CONF_VARS']['HTTP']`,
-e.g. proxy and timeout). Only `http` and `https` are supported.
+e.g. proxy, timeout and redirects), only from the allowed hosts. No host is
+allowed by default:
 
-A configuration with `url` makes the server request this address. Tasks are
-configured by administrators and integrators; if your configuration files
-come from elsewhere, restrict the outgoing requests of the server, or replace
-`CPSIT\ImportExportCore\Resource\ResourceLoaderInterface` in your
-`Services.yaml` with a loader without `HttpResourceLoader`:
-
-```yaml
-services:
-  CPSIT\ImportExportCore\Resource\ResourceLoaderInterface: '@CPSIT\ImportExportCore\Resource\FileResourceLoader'
+```php
+// config/system/additional.php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = [
+    'data.example.org',
+    '*.example.com', // subdomains of example.com
+];
 ```
+
+`['*']` allows all hosts. A URL with another host throws a
+`MissingResourceException` (code 1795200302) before a request is sent. The
+URL is not checked for its file type, since it often has no file extension.
 
 ## Large files
 

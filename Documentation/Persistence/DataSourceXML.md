@@ -21,7 +21,7 @@ elements in `@value`.
 | Option | Type | Description |
 |---|---|---|
 | `file` | string | Path of the file, see [Files](./Files.md#paths). Either `file` or `url`. |
-| `url` | string | URL of the file (http or https) |
+| `url` | string | URL of the file (http or https), from an [allowed host](./Files.md#urls) |
 | `element` | string | Name of the record elements, e.g. `item`. Either `element` or `expression`. |
 | `expression` | string | XPath expression selecting the record elements, e.g. `//channel/item` |
 | `namespaces` | map | Prefixes and URIs of namespaces used in `element` or `expression` |
