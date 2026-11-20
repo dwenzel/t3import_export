@@ -144,6 +144,12 @@ to the classes of the core and the deprecated ones:
 * URLs are loaded only from the hosts in
   `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts']`;
   by default from none (before: all hosts).
+* The rules also apply to `ValidateXML` (pre-processor and finisher),
+  `DataTargetXMLStream` (`template`), `GenerateFileResource` and
+  `GenerateUploadFile` (source file; the target file only for its file type)
+  and `ResourcePathConfigurationValidator`. Relative source paths of
+  `GenerateFileResource` and `GenerateUploadFile` are relative to the public
+  directory. See [Files](./Persistence/Files.md#other-components).
 
 Changes when replacing the deprecated classes with those of the core:
 

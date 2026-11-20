@@ -137,4 +137,16 @@ class Typo3PathResolverTest extends TestCase
         $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
         $subject->resolve('fileadmin/news.xml');
     }
+
+    #[Test]
+    public function checksOnlyTheFileTypeOfPathsOutsideOfTheAllowedDirectories(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = '\\.php$';
+        $subject = new Typo3PathResolver(directories: ['fileadmin']);
+
+        $subject->assertFileTypeAllowed('/srv/storage/images/photo.jpg');
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
+        $subject->assertFileTypeAllowed('/srv/storage/images/photo.php');
+    }
 }

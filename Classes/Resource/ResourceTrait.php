@@ -17,45 +17,54 @@ namespace CPSIT\T3importExport\Resource;
  * The TYPO3 project - inspiring people to share!
  */
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Loads files and URLs with the file rules of the extension (see
+ * `ResourceAccess`): files only from the allowed directories and with an
+ * allowed file type, URLs only from the allowed hosts.
+ */
 trait ResourceTrait
 {
+    protected ?ResourceAccess $resourceAccess = null;
+
+    public function setResourceAccess(ResourceAccess $resourceAccess): void
+    {
+        $this->resourceAccess = $resourceAccess;
+    }
+
+    protected function getResourceAccess(): ResourceAccess
+    {
+        return $this->resourceAccess ??= GeneralUtility::makeInstance(ResourceAccess::class);
+    }
+
     /**
-     * Wrapper method for testing purposes
+     * Absolute path of a file that may be read
      *
-     * @return string
+     * @throws InvalidArgumentException if the path is not allowed
      */
     protected function getAbsoluteFilePath($path)
     {
-        return GeneralUtility::getFileAbsFileName($path);
+        return $this->getResourceAccess()->resolveFile((string)$path);
     }
 
     /**
      * Loads a resource from file or URL
      *
      * @param array $configuration Must contain a file or url key as resource path
-     * @return mixed|null Loaded resource
+     * @return string|null Loaded resource, null if the file does not exist
+     * @throws InvalidArgumentException if the file is not allowed
+     * @throws MissingResourceException if the URL is not allowed or cannot be loaded
      */
     public function loadResource(array $configuration)
     {
-        $resource = null;
-        $resourcePath = '';
-        if (isset($configuration['file'])) {
-            $resourcePath = $configuration['file'];
+        $location = $configuration['url'] ?? $configuration['file'] ?? null;
+        if (!\is_string($location) || trim($location) === '') {
+            return null;
         }
 
-        if (isset($configuration['url'])) {
-            $resourcePath = $configuration['url'];
-        }
-
-        $absoluteFilePath = $this->getAbsoluteFilePath($resourcePath);
-        if ($absoluteFilePath && is_file($absoluteFilePath) === true) {
-            $resource = file_get_contents($absoluteFilePath);
-        } elseif (GeneralUtility::isValidUrl($resourcePath) === true) {
-            $resource = GeneralUtility::getURL($resourcePath);
-        }
-
-        return $resource;
+        return $this->getResourceAccess()->load($location);
     }
 }

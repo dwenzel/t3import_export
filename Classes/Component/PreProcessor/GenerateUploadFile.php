@@ -17,7 +17,6 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  * The TYPO3 project - inspiring people to share!
  */
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
-use CPSIT\T3importExport\Resource\ResourceTrait;
 
 /**
  * Class GenerateUploadFile
@@ -27,7 +26,6 @@ use CPSIT\T3importExport\Resource\ResourceTrait;
 class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInterface
 {
     use GenerateFileTrait;
-    use ResourceTrait;
     public const array ERROR_CODES = [
         1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
         1_497_427_302 => ['Missing storage id', 'config[\'storageId\'] must be set'],
@@ -50,7 +48,7 @@ class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInt
     {
         $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
-        if (!@copy($sourceFilePath, $this->getAbsoluteFilePath($targetPath))) {
+        if (!$this->copyFile((string)$sourceFilePath, $targetPath)) {
             $targetPath = '';
         }
 

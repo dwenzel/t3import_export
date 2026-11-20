@@ -19,7 +19,12 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
+use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
+use CPSIT\T3importExport\Resource\ResourceAccess;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
@@ -27,6 +32,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
@@ -61,7 +69,8 @@ class GenerateUploadFileTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
-            ->onlyMethods(['getAbsoluteFilePath'])->getMock();
+            ->onlyMethods(['getAbsoluteTargetPath', 'resolveSourceFile'])->getMock();
+        $this->subject->method('resolveSourceFile')->willReturnArgument(0);
 
         $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
@@ -146,9 +155,9 @@ class GenerateUploadFileTest extends TestCase
         // The target path includes the filename as returned by getTargetPath method
         $expectedTargetPath = $expectedDirectoryPath . 'file.txt';
 
-        // Mock getAbsoluteFilePath to return the same path for file operations
+        // Mock getAbsoluteTargetPath to return the same path for file operations
         $this->subject->expects($this->once())
-            ->method('getAbsoluteFilePath')
+            ->method('getAbsoluteTargetPath')
             ->with($expectedTargetPath)
             ->willReturn($expectedTargetPath);
 
@@ -183,9 +192,9 @@ class GenerateUploadFileTest extends TestCase
         // The target path includes the filename as returned by getTargetPath method
         $expectedTargetPath = $expectedDirectoryPath . $sourceFileName;
 
-        // Mock getAbsoluteFilePath to return the same path for file operations
+        // Mock getAbsoluteTargetPath to return the same path for file operations
         $this->subject->expects($this->once())
-            ->method('getAbsoluteFilePath')
+            ->method('getAbsoluteTargetPath')
             ->with($expectedTargetPath)
             ->willReturn($expectedTargetPath);
 
@@ -196,6 +205,54 @@ class GenerateUploadFileTest extends TestCase
 
         // Assert that the file was actually copied
         $this->assertFileExists($expectedTargetPath);
+    }
+
+    /**
+     * A subject that applies the file rules: sources only from var/import/tests,
+     * URLs only from data.example.org
+     */
+    protected function createSubjectWithFileRules(): GenerateUploadFile
+    {
+        $subject = new GenerateUploadFile();
+        $subject->withStorage($this->resourceStorage);
+        $subject->injectFilePathFactory($this->filePathFactory);
+        $client = $this->createMock(ClientInterface::class);
+        $client->expects(self::never())->method('sendRequest');
+        $subject->setResourceAccess(new ResourceAccess(
+            new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
+            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org'])
+        ));
+        $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
+
+        return $subject;
+    }
+
+    #[Test]
+    public function getFileRejectsSourceFileOutsideOfTheAllowedDirectories(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'typo3conf/secret.txt');
+    }
+
+    #[Test]
+    public function getFileRejectsSourceUrlOfHostThatIsNotAllowed(): void
+    {
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'https://other.example.org/image.jpg');
+    }
+
+    #[Test]
+    public function getFileRejectsTargetFileTypeThatIsNotAllowed(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/image.php');
     }
 
     /**

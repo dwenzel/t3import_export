@@ -24,7 +24,6 @@ use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\FileIndexRepositoryTrait;
-use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
@@ -50,7 +49,6 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
 {
     use FileIndexRepositoryTrait;
     use GenerateFileTrait;
-    use ResourceTrait;
 
     public const array ERROR_CODES = [
         1_499_007_587 => ['Empty configuration', 'Configuration must not be empty'],
@@ -88,7 +86,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
 
         $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
-        if (!@copy($sourceFilePath, $this->getAbsoluteFilePath($targetPath))) {
+        if (!$this->copyFile((string)$sourceFilePath, $targetPath)) {
             return null;
         }
 

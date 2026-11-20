@@ -40,7 +40,7 @@ class ResourcePathConfigurationValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->subject = $this->getMockBuilder(ResourcePathConfigurationValidator::class)
-            ->onlyMethods(['getAbsoluteFilePath'])
+            ->onlyMethods(['getAbsoluteFilePath', 'isUrlAllowed'])
             ->getMock();
         vfsStreamWrapper::register();
     }
@@ -147,8 +147,19 @@ class ResourcePathConfigurationValidatorTest extends TestCase
         $configuration = [
             'url' => "https://typo3.org",
         ];
+        $this->subject->method('isUrlAllowed')->with('https://typo3.org')->willReturn(true);
         $this->assertTrue(
             $this->subject->isValid($configuration)
+        );
+    }
+
+    #[Test]
+    public function validateReturnsFalseIfHostOfUrlIsNotAllowed(): void
+    {
+        $this->subject->method('isUrlAllowed')->with('https://typo3.org')->willReturn(false);
+
+        $this->assertFalse(
+            $this->subject->isValid(['url' => 'https://typo3.org'])
         );
     }
 }

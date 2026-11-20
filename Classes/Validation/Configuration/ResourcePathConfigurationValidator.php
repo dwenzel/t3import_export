@@ -17,6 +17,8 @@ namespace CPSIT\T3importExport\Validation\Configuration;
  * The TYPO3 project - inspiring people to share!
  */
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
+use CPSIT\T3importExport\Resource\ResourceAccess;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -24,6 +26,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class ResourcePathConfigurationValidator implements ConfigurationValidatorInterface
 {
+    public function __construct(
+        private ?ResourceAccess $resourceAccess = null,
+    ) {}
+
     /**
      * Tells if the configuration is valid
      *
@@ -51,7 +57,7 @@ class ResourcePathConfigurationValidator implements ConfigurationValidatorInterf
             return false;
         }
 
-        if (isset($config['url']) && !GeneralUtility::isValidUrl($config['url'])) {
+        if (isset($config['url']) && (!GeneralUtility::isValidUrl($config['url']) || !$this->isUrlAllowed($config['url']))) {
             return false;
         }
 
@@ -65,6 +71,23 @@ class ResourcePathConfigurationValidator implements ConfigurationValidatorInterf
      */
     protected function getAbsoluteFilePath($path)
     {
-        return GeneralUtility::getFileAbsFileName($path);
+        try {
+            return $this->getResourceAccess()->resolveFile((string)$path);
+        } catch (InvalidArgumentException) {
+            return '';
+        }
+    }
+
+    /**
+     * Wrapper method for testing purposes
+     */
+    protected function isUrlAllowed(string $url): bool
+    {
+        return $this->getResourceAccess()->isUrlAllowed($url);
+    }
+
+    protected function getResourceAccess(): ResourceAccess
+    {
+        return $this->resourceAccess ??= GeneralUtility::makeInstance(ResourceAccess::class);
     }
 }
