@@ -60,15 +60,28 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface
                 }
             }
 
-            header('Content-Description: File Transfer');
-            header('Content-Type: ' . $cType);
-            header('Content-Disposition: attachment; filename="' . $fileName . $fileExt . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($filePath));
+            $this->sendHeader('Content-Description: File Transfer');
+            $this->sendHeader('Content-Type: ' . $cType);
+            $this->sendHeader('Content-Disposition: attachment; filename="' . $fileName . $fileExt . '"');
+            $this->sendHeader('Expires: 0');
+            $this->sendHeader('Cache-Control: must-revalidate');
+            $this->sendHeader('Pragma: public');
+            $this->sendHeader('Content-Length: ' . filesize($filePath));
             readfile($filePath);
-            exit;
+            $this->terminate();
         }
+    }
+
+    protected function sendHeader(string $header): void
+    {
+        header($header);
+    }
+
+    /**
+     * Ends the request after the file has been sent
+     */
+    protected function terminate(): never
+    {
+        exit;
     }
 }

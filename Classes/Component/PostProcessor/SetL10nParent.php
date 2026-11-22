@@ -110,7 +110,6 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
         if (empty($result)) {
             return false;
         }
-        $parentIdentityField = $configuration['parent']['identityField'];
 
         $convertedRecord['l10n_parent'] = $result[$parentIdentityField];
 

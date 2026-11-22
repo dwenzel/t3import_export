@@ -85,6 +85,13 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `LookUpDB` failed on TYPO3 14 because `Persistence\Query\QueryFacade`
   called the removed `QueryBuilder::execute()`
   ([#165](https://github.com/dwenzel/t3import_export/issues/165))
+* `SetL10nParent` uses `uid` when `parent.identityField` is not set
+  ([#133](https://github.com/dwenzel/t3import_export/issues/133))
+* `UpdateTable` applies the configured `types` and accepts fields without a
+  type ([#133](https://github.com/dwenzel/t3import_export/issues/133))
+* `GenerateFileReference` does not create duplicate reference records for
+  array records and skips records without identity
+  ([#133](https://github.com/dwenzel/t3import_export/issues/133))
 
 ### Security
 

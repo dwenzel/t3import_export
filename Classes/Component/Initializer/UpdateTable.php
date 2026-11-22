@@ -45,34 +45,28 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
      */
     public function process(array $configuration, array &$records): bool
     {
+        if (empty($configuration[static::KEY_WHERE])) {
+            // isConfigurationValid() requires a condition
+            return false;
+        }
         $table = $configuration[static::KEY_TABLE];
-        $where = !empty($configuration[static::KEY_WHERE]) ? $configuration[static::KEY_WHERE] : ['1=1'];
+        $where = $configuration[static::KEY_WHERE];
         $data = $configuration[static::KEY_SET_FIELDS];
         $types = !empty($configuration[static::KEY_TYPES]) ? $configuration[static::KEY_TYPES] : [];
-        $quoteTypes = [];
-
-        foreach ($data as $key => $value) {
-            // default is string
-            $type = Connection::PARAM_STR;
-
-            if ($types[$key] === 'int') {
-                $type = Connection::PARAM_INT;
-            }
-            if ($types[$key] === 'bool') {
-                $type = Connection::PARAM_BOOL;
-            }
-            if ($types[$key] === 'null') {
-                $type = Connection::PARAM_NULL;
-            }
-            $quoteTypes[] = $type;
-        }
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()->removeAll();
         $queryBuilder->update($table);
         $queryBuilder->where($where);
         foreach ($data as $field => $value) {
-            $queryBuilder->set($field, $value);
+            // default is string
+            $type = match ($types[$field] ?? null) {
+                'int' => Connection::PARAM_INT,
+                'bool' => Connection::PARAM_BOOL,
+                'null' => Connection::PARAM_NULL,
+                default => Connection::PARAM_STR,
+            };
+            $queryBuilder->set($field, $value, true, $type);
         }
         $queryBuilder->executeStatement();
 

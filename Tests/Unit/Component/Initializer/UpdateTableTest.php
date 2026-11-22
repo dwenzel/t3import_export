@@ -11,6 +11,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Database\Query\Restriction\QueryRestrictionContainerInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -129,5 +131,62 @@ class UpdateTableTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    public static function typesDataProvider(): array
+    {
+        return [
+            'int' => ['int', Connection::PARAM_INT],
+            'bool' => ['bool', Connection::PARAM_BOOL],
+            'null' => ['null', Connection::PARAM_NULL],
+            'unknown' => ['foo', Connection::PARAM_STR],
+        ];
+    }
+
+    #[DataProvider('typesDataProvider')]
+    public function testProcessSetsFieldsWithConfiguredTypes(string $type, mixed $expectedType): void
+    {
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('getRestrictions')
+            ->willReturn($this->createStub(QueryRestrictionContainerInterface::class));
+        $this->connectionPool->method('getQueryBuilderForTable')->with('pages')->willReturn($queryBuilder);
+
+        $calls = [];
+        $queryBuilder->expects($this->exactly(2))->method('set')
+            ->willReturnCallback(function (...$arguments) use (&$calls, $queryBuilder) {
+                $calls[] = $arguments;
+                return $queryBuilder;
+            });
+        $queryBuilder->expects($this->once())->method('where')->with('uid = 3');
+        $queryBuilder->expects($this->once())->method('executeStatement');
+
+        $records = [];
+        $configuration = [
+            UpdateTable::KEY_TABLE => 'pages',
+            UpdateTable::KEY_WHERE => 'uid = 3',
+            UpdateTable::KEY_SET_FIELDS => ['hidden' => '1', 'title' => 'Hidden'],
+            UpdateTable::KEY_TYPES => ['hidden' => $type],
+        ];
+
+        $this->assertTrue($this->subject->process($configuration, $records));
+        $this->assertSame(
+            [
+                ['hidden', '1', true, $expectedType],
+                ['title', 'Hidden', true, Connection::PARAM_STR],
+            ],
+            $calls
+        );
+    }
+
+    public function testProcessReturnsFalseWithoutCondition(): void
+    {
+        $this->connectionPool->expects($this->never())->method('getQueryBuilderForTable');
+        $records = [];
+        $configuration = [
+            UpdateTable::KEY_TABLE => 'pages',
+            UpdateTable::KEY_SET_FIELDS => ['hidden' => 1],
+        ];
+
+        $this->assertFalse($this->subject->process($configuration, $records));
     }
 }
