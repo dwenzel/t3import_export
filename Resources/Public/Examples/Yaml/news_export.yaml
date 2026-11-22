@@ -20,11 +20,11 @@ export:
 
       preProcessors:
         10:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+          class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            mapping:
-              pubDate: "datetime"
-              link: "path_segment"
+            rules:
+              - {rule: copy, field: pubDate, from: datetime}
+              - {rule: copy, field: link, from: path_segment}
 
       converters:
         10:

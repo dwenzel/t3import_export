@@ -14,7 +14,10 @@ use CPSIT\T3importExport\Service\TransferService;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Http\PropagateResponseException;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /***************************************************************
@@ -154,6 +157,7 @@ abstract class BaseController extends ActionController
      */
     protected function taskAction($identifier): void
     {
+        $this->redirectToIndexIfNotConfigured('tasks', (string)$identifier);
         $task = $this->transferTaskFactory->create(
             (string)$identifier,
             $this->configuration['tasks'][$identifier]
@@ -175,22 +179,42 @@ abstract class BaseController extends ActionController
      */
     protected function setAction($identifier): void
     {
-        $tasks = [];
-        if (isset($this->configuration['sets'][$identifier])) {
-            $set = $this->transferSetFactory->get(
-                $this->configuration['sets'][$identifier],
-                (string)$identifier
-            );
-            $tasks = $set->getTasks();
-        }
+        $this->redirectToIndexIfNotConfigured('sets', (string)$identifier);
+        $set = $this->transferSetFactory->get(
+            $this->configuration['sets'][$identifier],
+            (string)$identifier
+        );
 
-        $result = $this->transferService->run($tasks);
+        $result = $this->transferService->run($set->getTasks());
         $this->moduleTemplate->assignMultiple(
             [
                 'set' => $identifier,
                 'result' => $result,
             ]
         );
+    }
+
+    /**
+     * Redirects to the index action with an error message if no task or set
+     * with the identifier is configured.
+     *
+     * @param string $type 'tasks' or 'sets'
+     * @throws PropagateResponseException
+     */
+    protected function redirectToIndexIfNotConfigured(string $type, string $identifier): void
+    {
+        if (isset($this->configuration[$type][$identifier])) {
+            return;
+        }
+        $this->getFlashMessageQueue('module.t3import_export')->enqueue(
+            new FlashMessage(
+                sprintf('No %s with the identifier "%s" is configured.', $type === 'sets' ? 'set' : 'task', $identifier),
+                'Not configured',
+                ContextualFeedbackSeverity::ERROR
+            )
+        );
+
+        throw new PropagateResponseException($this->redirect('index'), 1795300481);
     }
 
     /**

@@ -24,27 +24,24 @@ import:
 
       preProcessors:
         10:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+          class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            mapping:
-              title: "title"
-              teaser: "description"
-              bodytext: "content"
-              datetime: "pubDate"
-              author: "author"
+            rules:
+              - {rule: copy, field: teaser, from: description}
+              - {rule: copy, field: bodytext, from: content}
+              - {rule: copy, field: datetime, from: pubDate}
 
         20:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
+          # parses the date with strtotime()
+          class: "CPSIT\\ImportExportCore\\Processor\\StringToTimePreProcessor"
           config:
-            sourceField: "datetime"
-            targetField: "datetime"
-            format: "D, d M Y H:i:s O"
+            fields: "datetime"
 
         30:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+          class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
           config:
-            targetField: "pid"
-            value: 42
+            values:
+              pid: 42
 
         40:
           class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"

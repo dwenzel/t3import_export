@@ -26,7 +26,13 @@ Tasks and sets are read from YAML files only. The TypoScript configuration
 | `ext_typoscript_setup.typoscript` (template paths of the backend modules) | none, the default paths of the extension are used |
 | Static template "Import Export: Examples" and the TypoScript examples in `Resources/Public/Examples/TypoScript/` | the YAML examples in `Resources/Public/Examples/Yaml/` |
 | `Domain\Factory\TransferSetFactory::withSettings()` | none; the tasks of a set are looked up in the YAML configuration |
-| `BaseController::mergeYamlConfiguration()`, `getTypoScriptIdentifiers()`, `getTransferSetFactory()` | `BaseController::getConfiguration()` returns the tasks and sets of the module from YAML |
+| `BaseController::mergeYamlConfiguration()`, `getTypoScriptIdentifiers()`, `getTransferSetFactory()` and the property `$typoScriptIdentifiers` | `BaseController::getConfiguration()` returns the tasks and sets of the module from YAML |
+| Tasks and sets in `$this->settings` of the controllers | the property `$configuration` (tasks and sets of the module from YAML); `$this->settings` holds only what Extbase reads from TypoScript and no tasks or sets |
+| Template variable `{settings}` in the index templates of the backend modules (not assigned any more) | `{tasks}` and `{sets}` |
+
+The task and set actions of the backend modules redirect to the list with an
+error message if the identifier is not configured (before: a PHP warning for
+tasks, an empty run for sets).
 
 The command `t3import-export:convert-typoscript` stays: it reads TypoScript
 files, not the configuration of the site, and helps with the migration.

@@ -113,7 +113,7 @@ source:
     delimiter: ","                              # Optional: Field delimiter (default: ,)
     enclosure: "\""                             # Optional: Field enclosure (default: ")
     escape: "\\"                                # Optional: Escape character (default: \)
-    skipLines: 1                                # Optional: Skip header lines (default: 0)
+    header: true                                # Optional: First row holds the field names (default: true without fields)
     encoding: "UTF-8"                           # Optional: File encoding (default: UTF-8)
 ```
 
@@ -399,7 +399,6 @@ import:
         class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/complex-data.csv"
-          skipLines: 1
 
       preProcessors:
         # Step 1: Clean and validate data

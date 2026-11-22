@@ -8,8 +8,14 @@ use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Http\PropagateResponseException;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 
 class ImportControllerTest extends TestCase
 {
@@ -80,5 +86,63 @@ class ImportControllerTest extends TestCase
         $subject = $reflection->newInstanceWithoutConstructor();
 
         self::assertSame([], $reflection->getMethod('getConfiguration')->invoke($subject));
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function actionsForUnknownIdentifiersDataProvider(): array
+    {
+        return [
+            'task' => ['taskAction', 'No task with the identifier "missing" is configured.'],
+            'set' => ['setAction', 'No set with the identifier "missing" is configured.'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('actionsForUnknownIdentifiersDataProvider')]
+    public function actionsRedirectToIndexForUnknownIdentifier(string $action, string $message): void
+    {
+        $response = $this->createStub(ResponseInterface::class);
+        $flashMessageQueue = $this->createMock(FlashMessageQueue::class);
+        $flashMessageQueue->expects(self::once())
+            ->method('enqueue')
+            ->with(self::callback(
+                static fn(FlashMessage $flashMessage): bool => $flashMessage->getMessage() === $message
+                    && $flashMessage->getSeverity() === ContextualFeedbackSeverity::ERROR
+            ));
+        $subject = $this->getMockBuilder(ImportController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['redirect', 'getFlashMessageQueue'])
+            ->getMock();
+        $subject->expects(self::once())->method('getFlashMessageQueue')
+            ->with('module.t3import_export')
+            ->willReturn($flashMessageQueue);
+        $subject->expects(self::once())->method('redirect')->with('index')->willReturn($response);
+        $reflection = new \ReflectionClass(ImportController::class);
+        $reflection->getProperty('configuration')->setValue($subject, ['tasks' => ['foo' => []], 'sets' => ['bar' => []]]);
+
+        try {
+            $reflection->getMethod($action)->invoke($subject, 'missing');
+            self::fail('No PropagateResponseException was thrown');
+        } catch (PropagateResponseException $exception) {
+            self::assertSame(1795300481, $exception->getCode());
+            self::assertSame($response, $exception->getResponse());
+        }
+    }
+
+    #[Test]
+    public function redirectToIndexIfNotConfiguredDoesNothingForConfiguredIdentifier(): void
+    {
+        $subject = $this->getMockBuilder(ImportController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['redirect', 'getFlashMessageQueue'])
+            ->getMock();
+        $subject->expects(self::never())->method('redirect');
+        $subject->expects(self::never())->method('getFlashMessageQueue');
+        $reflection = new \ReflectionClass(ImportController::class);
+        $reflection->getProperty('configuration')->setValue($subject, ['tasks' => ['foo' => []]]);
+
+        $reflection->getMethod('redirectToIndexIfNotConfigured')->invoke($subject, 'tasks', 'foo');
     }
 }

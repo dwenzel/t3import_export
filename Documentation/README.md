@@ -321,7 +321,6 @@ import:
         class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/products.csv"
-          skipLines: 1
           delimiter: ";"
       preProcessors:
         - class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
@@ -349,12 +348,21 @@ export:
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetXMLStream"
         config:
-          file: "fileadmin/exports/news.xml"
-          rootElement: "news"
+          output: file            # write to a temporary file
+          rootNodeName: "news"
       finishers:
+        # store the temporary file as fileadmin/exports/news.xml
+        - class: "CPSIT\\T3importExport\\Component\\Finisher\\WriteFile"
+          config:
+            target:
+              name: "news.xml"
+              directory: "exports"
+              conflictMode: replace
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
           config:
-            schemaFile: "fileadmin/schemas/news.xsd"
+            file: "fileadmin/exports/news.xml"
+            schema:
+              file: "fileadmin/schemas/news.xsd"
 ```
 
 ## Troubleshooting

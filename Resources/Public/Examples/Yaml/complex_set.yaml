@@ -33,10 +33,10 @@ import:
 
       preProcessors:
         10:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+          class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
           config:
-            targetField: "pid"
-            value: 42
+            values:
+              pid: 42
 
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
@@ -55,18 +55,17 @@ import:
 
       preProcessors:
         10:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+          class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            mapping:
-              title: "title"
-              teaser: "description"
-              bodytext: "content"
+            rules:
+              - {rule: copy, field: teaser, from: description}
+              - {rule: copy, field: bodytext, from: content}
 
         20:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+          class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
           config:
-            targetField: "pid"
-            value: 42
+            values:
+              pid: 42
 
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"

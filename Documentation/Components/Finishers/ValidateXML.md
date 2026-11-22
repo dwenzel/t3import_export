@@ -11,7 +11,7 @@ Note: This finisher will **not** stop the execution of the current task, if vali
 import:
   tasks:
     exampleTask:
-      preProcessors:
+      finishers:
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
           config:
             file: fileadmin/foo/bar/Export.xml
@@ -22,7 +22,7 @@ import:
 import:
   tasks:
     exampleTask:
-      preProcessors:
+      finishers:
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
           config:
             url: https://typo3.org/xml-feeds/rss.xml

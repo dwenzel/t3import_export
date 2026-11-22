@@ -42,7 +42,7 @@ import:
           config:
             classes:
               NameSpaced\ClassName\OfResult:
-                pages: 4
+                pages: '4'
 ```
 Clear cache for page 4 (The first entry in result must be an object of the given class)
 

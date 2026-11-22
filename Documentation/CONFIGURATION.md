@@ -162,21 +162,20 @@ import:
           file: "fileadmin/imports/news.csv"
           delimiter: ";"
           enclosure: "\""
-          skipLines: 1
 
       # Data transformation
       preProcessors:
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+        - class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            map:
-              headline: "title"
-              content: "bodytext"
-              author_name: "author"
-              publish_date: "datetime"
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
+            rules:
+              - {rule: copy, field: title, from: headline}
+              - {rule: copy, field: bodytext, from: content}
+              - {rule: copy, field: author, from: author_name}
+              - {rule: copy, field: datetime, from: publish_date}
+        # parses the date with strtotime()
+        - class: "CPSIT\\ImportExportCore\\Processor\\StringToTimePreProcessor"
           config:
             fields: "datetime"
-            format: "Y-m-d H:i:s"
 
       # Target configuration
       target:
