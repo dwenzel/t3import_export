@@ -126,6 +126,20 @@ class DataSourceDBTest extends TestCase
     }
 
     #[Test]
+    public function isConfigurationValidReturnsFalseWhenTableIsEmpty(): void
+    {
+        $this->assertFalse($this->subject->isConfigurationValid(['table' => '']));
+    }
+
+    #[Test]
+    public function getRecordsThrowsExceptionWhenTableIsEmpty(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(DataSourceDB::INVALID_CONFIGURATION_EXCEPTION_CODE);
+        $this->subject->getRecords(['table' => '', 'where' => 'pid = 1']);
+    }
+
+    #[Test]
     public function isConfigurationValidReturnsTrueForValidConfiguration(): void
     {
         $configuration = ['table' => 'pages'];
@@ -340,7 +354,8 @@ class DataSourceDBTest extends TestCase
         $records = $this->subject->getRecords(['table' => 'pages', 'fields' => 'title', 'limit' => 1, 'connection' => 'default']);
 
         self::assertSame([['title' => 'Default 1']], $records);
-        self::assertSame([], $this->deprecations);
+        self::assertCount(1, $this->deprecations);
+        self::assertStringContainsString('"identifier" is ignored', $this->deprecations[0]);
     }
 
     #[Test]

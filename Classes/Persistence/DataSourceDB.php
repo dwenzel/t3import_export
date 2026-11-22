@@ -85,7 +85,7 @@ class DataSourceDB extends DataSourceDBAL implements IdentifiableInterface
      */
     public function isConfigurationValid(array $configuration): bool
     {
-        if (!isset($configuration[self::KEY_TABLE]) || !\is_string($configuration[self::KEY_TABLE])) {
+        if (!self::hasTable($configuration)) {
             return false;
         }
         try {
@@ -110,9 +110,9 @@ class DataSourceDB extends DataSourceDBAL implements IdentifiableInterface
      */
     public function getRecords(array $configuration): iterable
     {
-        if (!isset($configuration[self::KEY_TABLE]) || !\is_string($configuration[self::KEY_TABLE])) {
+        if (!self::hasTable($configuration)) {
             throw new InvalidConfigurationException(
-                'Option "table" of DataSourceDB must be a string.',
+                'Option "table" of DataSourceDB must be a non-empty string.',
                 self::INVALID_CONFIGURATION_EXCEPTION_CODE
             );
         }
@@ -153,11 +153,19 @@ class DataSourceDB extends DataSourceDBAL implements IdentifiableInterface
     protected function getConnectionName(array $configuration): string
     {
         $connection = $configuration[self::KEY_CONNECTION] ?? null;
+        $identifier = $this->identifier;
+        $selectsConnection = $identifier !== null && $identifier !== '' && $identifier !== ConnectionPool::DEFAULT_CONNECTION_NAME;
         if (\is_string($connection) && $connection !== '') {
+            if ($selectsConnection) {
+                DeprecationUtility::trigger(
+                    'Selecting the database connection of DataSourceDB with "identifier" is deprecated since 4.0 and will be removed in 5.0. The "identifier" is ignored, since the option "connection" is set.',
+                    DeprecationUtility::DATABASE_ISSUE_URL
+                );
+            }
+
             return $connection;
         }
-        $identifier = $this->identifier;
-        if ($identifier !== null && $identifier !== '' && $identifier !== ConnectionPool::DEFAULT_CONNECTION_NAME) {
+        if ($selectsConnection) {
             DeprecationUtility::trigger(
                 'Selecting the database connection of DataSourceDB with "identifier" is deprecated since 4.0 and will be removed in 5.0. Use the option "connection".',
                 DeprecationUtility::DATABASE_ISSUE_URL
@@ -293,6 +301,16 @@ class DataSourceDB extends DataSourceDBAL implements IdentifiableInterface
         $connection = $configuration[self::KEY_CONNECTION] ?? null;
 
         return $connection === null || (\is_string($connection) && $connection !== '');
+    }
+
+    /**
+     * @param array<array-key, mixed> $configuration
+     */
+    private static function hasTable(array $configuration): bool
+    {
+        return isset($configuration[self::KEY_TABLE])
+            && \is_string($configuration[self::KEY_TABLE])
+            && $configuration[self::KEY_TABLE] !== '';
     }
 
     /**

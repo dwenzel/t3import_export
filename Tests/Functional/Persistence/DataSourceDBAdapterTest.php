@@ -303,6 +303,21 @@ class DataSourceDBAdapterTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function failingQueryOfTheFallbackReturnsNoRecordsAsBefore40(): void
+    {
+        $configurations = [
+            ['table' => 'pages', 'where' => 'no_such_field = 1'],
+            ['table' => 'pages', 'groupBy' => 'pid', 'where' => 'pid IN ('],
+            ['table' => 'tx_no_such_table', 'where' => 'uid = 1'],
+        ];
+        foreach ($configurations as $configuration) {
+            self::assertSame($this->readAsBefore40($configuration), $this->get(DataSourceDB::class)->getRecords($configuration));
+            self::assertSame([], $this->get(DataSourceDB::class)->getRecords($configuration));
+        }
+        self::assertNotSame([], $this->deprecations);
+    }
+
+    #[Test]
     public function dataSourceDBIsTheDefaultSource(): void
     {
         self::assertSame(

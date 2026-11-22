@@ -92,6 +92,7 @@ class DataSourceDBConfigurationTest extends TestCase
             'limit with offset' => [['table' => 'pages', 'limit' => '10, 20'], ['limit']],
             'negative limit' => [['table' => 'pages', 'limit' => -1], ['limit']],
             'table with quotes' => [['table' => '`pages`'], ['table']],
+            'table with three parts' => [['table' => 'a.b.c'], ['table']],
             'several options' => [
                 ['table' => 'pages', 'alias' => 'p', 'fields' => 'p.uid', 'where' => 'p.pid = 1', 'groupBy' => 'p.uid'],
                 ['alias', 'where', 'groupBy', 'fields'],
@@ -121,6 +122,8 @@ class DataSourceDBConfigurationTest extends TestCase
     {
         self::assertFalse(DataSourceDBConfiguration::hasJoin(['table' => 'pages', 'join' => ['alias' => 'p']]));
         self::assertFalse(DataSourceDBConfiguration::hasJoin(['table' => 'pages', 'join' => 'pages']));
+        self::assertFalse(DataSourceDBConfiguration::hasJoin(['table' => 'pages', 'join' => ['table' => '']]));
+        self::assertSame([], DataSourceDBConfiguration::fallbackOptions(['table' => 'pages', 'join' => ['table' => '', 'condition' => 'x = y']]));
         self::assertTrue(DataSourceDBConfiguration::hasJoin(['table' => 'pages', 'join' => ['table' => 'pages']]));
     }
 }
