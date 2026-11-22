@@ -52,6 +52,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   (`connection`, `fields` as list, `where` as map, `filter`, `orderBy` as
   map, `cursorField`, `pageSize`, `timezone`)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* `DataTargetDB` accepts the options `connection`, `key` and `idField` of
+  `DataTargetDBAL` of the core
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* `Component\DisableableTrait` implements `disable` for components that do
+  not extend `AbstractComponent`
 
 ### Changed
 
@@ -111,6 +116,26 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   code 1796500001. See
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#datasourcedb)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* `DataTargetDB` is an adapter on `DataTargetDBAL` of the core.
+  Configurations and records of earlier versions write the same rows; a
+  record with `__identity` updates the row with this `uid`. The rows of a
+  batch are written in one transaction and rolled back if the task fails;
+  before, each row was committed at once. Values are converted to the
+  column types, as before. Values must be scalar or `null` (arrays in JSON
+  columns and `DateTime` objects in date and time columns (as the Doctrine type of
+  the column expects) are
+  converted as before),
+  field names plain names, and records not empty (`PersistenceException`
+  1647701464). The class extends `DataTargetDBAL` instead of
+  `AbstractComponent`; its constructor takes `Dbal\Typo3ConnectionProvider`,
+  `getDatabase()` is removed, and invalid configurations throw the code
+  1796600001. With an ID map, a record skipped by `skip` fails the task
+  (1796600002) after its batch was committed; use `disable`. See
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#datatargetdb)
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* `DataSourceQueue::fail()` marks the items of a failed run again when it is
+  called again, so that `TransferService` marks them as failed after a
+  target on the same connection rolled back its batch
 
 ### Deprecated
 
@@ -128,6 +153,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `groupBy`, SQL in `fields` and `orderBy`) and the connection selected by
   `identifier`; use the options of the core, see
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#sql-in-the-options-of-datasourcedb)
+* `DataTargetDB`: a record with `__identity` and another `uid` (changes
+  the `uid` of the row) and the option `identifier`, which has no effect;
+  see [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#records-of-datatargetdb)
 
 ### Removed
 

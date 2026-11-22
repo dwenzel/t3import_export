@@ -10,7 +10,11 @@ The example code below should be placed e.g. in a `AdditionalConfiguration.php` 
 
 The database connection can be used via identifier. Since 4.0 this is
 deprecated for `DataSourceDB`; use `config.connection` (see
-[DataSourceDB](../Persistence/DataSourceDB.md#database-connection)):
+[DataSourceDB](../Persistence/DataSourceDB.md#database-connection)).
+`DataTargetDB` never used `identifier`; since 4.0 `config.identifier`
+writes a message to the deprecation log, and `config.connection` selects
+the connection (see
+[DataTargetDB](../Persistence/DataTargetDB.md#database-connection)):
 ```yaml
 import:
   tasks:

@@ -22,19 +22,33 @@ namespace CPSIT\T3importExport\Tests\Unit\Persistence;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use CPSIT\ImportExportCore\Component\DisableableInterface;
+use CPSIT\ImportExportCore\Dbal\DataTargetDBAL;
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
+use CPSIT\ImportExportCore\Exception\PersistenceException;
+use CPSIT\ImportExportCore\Persistence\BatchAwareInterface;
+use CPSIT\ImportExportCore\Persistence\FailureAwareInterface;
+use CPSIT\T3importExport\Dbal\Typo3ConnectionProvider;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
-use CPSIT\T3importExport\Service\DatabaseConnectionService;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
+use Doctrine\DBAL\DriverManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * Class DataTargetDBTest
+ * Test for DataTargetDB
+ *
+ * The rows written by the adapter are compared with the rows written before
+ * 4.0 in Tests/Functional/Persistence/DataTargetDBAdapterTest, which also
+ * covers the fallback (it uses the connection of TYPO3 with its caches).
  */
+#[CoversClass(DataTargetDB::class)]
 class DataTargetDBTest extends TestCase
 {
     final public const array VALID_CONFIG_EMPTY_FIELD = [
@@ -55,44 +69,98 @@ class DataTargetDBTest extends TestCase
         ],
     ];
 
-    /**
-     * @var DataTargetDB
-     */
-    protected $subject;
+    protected DataTargetDB $subject;
 
     /**
-     * @var ConnectionPool&MockObject
+     * @var array<string, Connection>
      */
-    protected ConnectionPool $connectionPool;
+    private array $connections = [];
 
     /**
-     * @var Connection&MockObject
+     * @var list<string>
      */
-    protected Connection $connection;
+    private array $deprecations = [];
 
-    /**
-     * @var DatabaseConnectionService&MockObject
-     */
-    protected DatabaseConnectionService $connectionService;
-
-    /**
-     * set up subject
-     */
     protected function setUp(): void
     {
-        // Create connection mock
-        $this->connection = $this->createMock(Connection::class);
+        DeprecationUtility::reset();
+        $GLOBALS['TYPO3_CONF_VARS']['DB'] = [
+            'Connections' => [
+                'Default' => ['driver' => 'pdo_sqlite'],
+                'Legacy' => ['driver' => 'pdo_sqlite'],
+            ],
+            'TableMapping' => [
+                'tx_legacy_record' => 'Legacy',
+            ],
+        ];
+        $this->connections = [
+            'Default' => $this->createConnection(),
+            'Legacy' => $this->createConnection(),
+        ];
+        $connectionPool = $this->createStub(ConnectionPool::class);
+        $connectionPool->method('getConnectionByName')
+            ->willReturnCallback(fn(string $name): Connection => $this->connections[$name]);
+        $this->subject = new DataTargetDB(new Typo3ConnectionProvider($connectionPool));
+        set_error_handler(function (int $errno, string $message): bool {
+            $this->deprecations[] = $message;
+            return true;
+        }, E_USER_DEPRECATED);
+    }
 
-        // Create connection pool mock
-        $this->connectionPool = $this->createMock(ConnectionPool::class);
-        $this->connectionPool->method('getConnectionForTable')
-            ->willReturn($this->connection);
+    protected function tearDown(): void
+    {
+        restore_error_handler();
+        DeprecationUtility::reset();
+        unset($GLOBALS['TYPO3_CONF_VARS']['DB']);
+    }
 
-        // Create connection service mock
-        $this->connectionService = $this->createMock(DatabaseConnectionService::class);
-        $this->connectionService->method('getDatabase')->willReturn($this->connection);
+    /**
+     * Creates a connection to a database in memory with the tables `foo` and
+     * `tx_legacy_record`, each with one row (uid 1).
+     */
+    private function createConnection(): Connection
+    {
+        /** @var Connection $connection */
+        $connection = DriverManager::getConnection([
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
+            'wrapperClass' => Connection::class,
+        ]);
+        foreach (['foo', 'tx_legacy_record'] as $table) {
+            $connection->executeStatement(
+                'CREATE TABLE ' . $table . ' (uid INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER NOT NULL DEFAULT 0, title VARCHAR(255) NOT NULL DEFAULT \'\', bar VARCHAR(255) NOT NULL DEFAULT \'\', baz VARCHAR(255) NOT NULL DEFAULT \'\', tstamp INTEGER NOT NULL DEFAULT 0, crdate INTEGER NOT NULL DEFAULT 0)'
+            );
+            $connection->executeStatement('INSERT INTO ' . $table . ' (uid, pid, title) VALUES (1, 1, \'first\')');
+        }
 
-        $this->subject = new DataTargetDB($this->connectionPool, $this->connectionService);
+        return $connection;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function rows(string $connection = 'Default', string $table = 'foo'): array
+    {
+        return $this->connections[$connection]
+            ->executeQuery('SELECT uid, pid, title, bar, baz, tstamp, crdate FROM ' . $table . ' ORDER BY uid')
+            ->fetchAllAssociative();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function titles(string $connection = 'Default', string $table = 'foo'): array
+    {
+        return array_column($this->rows($connection, $table), 'title');
+    }
+
+    #[Test]
+    public function isDataTargetOfTheCoreAndDisableable(): void
+    {
+        self::assertInstanceOf(DataTargetDBAL::class, $this->subject);
+        self::assertInstanceOf(DisableableInterface::class, $this->subject);
+        self::assertInstanceOf(BatchAwareInterface::class, $this->subject);
+        self::assertInstanceOf(FailureAwareInterface::class, $this->subject);
     }
 
     public static function invalidConfigurationDataProvider(): array
@@ -100,6 +168,21 @@ class DataTargetDBTest extends TestCase
         return [
             'missing field table' => [
                 [],
+            ],
+            'table is not a plain name' => [
+                [DataTargetDB::FIELD_TABLE => 'foo-bar'],
+            ],
+            'table is not a string' => [
+                [DataTargetDB::FIELD_TABLE => ['foo']],
+            ],
+            'connection is empty' => [
+                [DataTargetDB::FIELD_TABLE => 'foo', 'connection' => ''],
+            ],
+            'key is not a list of fields' => [
+                [DataTargetDB::FIELD_TABLE => 'foo', 'key' => 'import_id'],
+            ],
+            'idField is not a plain name' => [
+                [DataTargetDB::FIELD_TABLE => 'foo', 'idField' => 'u id'],
             ],
             'field `unsetKeys` is not string' => [
                 [
@@ -195,12 +278,21 @@ class DataTargetDBTest extends TestCase
         ];
     }
 
+    #[Test]
     #[DataProvider('invalidConfigurationDataProvider')]
-    public function testIsConfigurationValidReturnsFalseForInvalidConfig(array $invalidConfig): void
+    public function isConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
     {
-        self::assertFalse(
-            $this->subject->isConfigurationValid($invalidConfig)
-        );
+        self::assertFalse($this->subject->isConfigurationValid($configuration));
+    }
+
+    #[Test]
+    #[DataProvider('invalidConfigurationDataProvider')]
+    public function persistThrowsExceptionForInvalidConfiguration(array $configuration): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionCode(DataTargetDB::INVALID_CONFIGURATION_EXCEPTION_CODE);
+
+        $this->subject->persist(['title' => 'new'], $configuration);
     }
 
     public static function validConfigurationDataProvider(): array
@@ -223,78 +315,181 @@ class DataTargetDBTest extends TestCase
             'skip if field `bar` is not empty' => [
                 self::VALID_CONFIG_NOT_EMPTY_FIELD,
             ],
+            'options of the core' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    'connection' => 'Legacy',
+                    'key' => ['import_id'],
+                    'idField' => 'uid',
+                ],
+            ],
+            'options that had no effect before 4.0' => [
+                [
+                    DataTargetDB::FIELD_TABLE => 'foo',
+                    'identifier' => 'bar',
+                    'pid' => 123,
+                    'mode' => 'insert',
+                ],
+            ],
         ];
     }
 
+    #[Test]
     #[DataProvider('validConfigurationDataProvider')]
-    public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
+    public function isConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
-        $this->assertTrue(
-            $this->subject->isConfigurationValid($configuration)
+        self::assertTrue($this->subject->isConfigurationValid($configuration));
+    }
+
+    #[Test]
+    public function persistInsertsRecordWithoutIdentity(): void
+    {
+        $result = $this->subject->persist(['pid' => 2, 'title' => 'new'], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        self::assertTrue($result);
+        self::assertSame(
+            [
+                ['uid' => 1, 'pid' => 1, 'title' => 'first', 'bar' => '', 'baz' => '', 'tstamp' => 0, 'crdate' => 0],
+                ['uid' => 2, 'pid' => 2, 'title' => 'new', 'bar' => '', 'baz' => '', 'tstamp' => 0, 'crdate' => 0],
+            ],
+            $this->rows()
+        );
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function emptyIdentityDataProvider(): array
+    {
+        return [
+            'empty string' => [''],
+            'zero' => [0],
+            'zero as string' => ['0'],
+            'null' => [null],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('emptyIdentityDataProvider')]
+    public function persistInsertsRecordWithEmptyIdentityWithoutIt(mixed $identity): void
+    {
+        $result = $this->subject->persist(['__identity' => $identity, 'title' => 'new'], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        self::assertTrue($result);
+        self::assertSame(['first', 'new'], $this->titles());
+    }
+
+    #[Test]
+    public function persistUpdatesRowWithUidOfIdentity(): void
+    {
+        $result = $this->subject->persist(['__identity' => 1, 'title' => 'updated'], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        self::assertTrue($result);
+        self::assertSame(
+            [['uid' => 1, 'pid' => 1, 'title' => 'updated', 'bar' => '', 'baz' => '', 'tstamp' => 0, 'crdate' => 0]],
+            $this->rows()
         );
     }
 
     #[Test]
-    public function persistUnSetsConfiguredKeys()
+    public function persistUpdatesRowWithIdentityAsString(): void
     {
-        $tableName = 'baz';
-        $keyToUnset = 'foo';
-        $configuration = [
-            DataTargetDB::FIELD_TABLE => $tableName,
-            DataTargetDB::FIELD_UNSET_KEYS => $keyToUnset,
-        ];
+        $this->subject->persist(['__identity' => '1', 'title' => 'updated'], ['table' => 'foo']);
+        $this->subject->persistAll();
 
-        $record = [
-            $keyToUnset => 'bar',
-        ];
-        $expectedRecord = [];
-        $this->connection->expects($this->once())
-            ->method('insert')
-            ->with(
-                ...[
-                    $tableName,
-                    $expectedRecord,
-                ]
-            );
-
-        $this->subject->persist(
-            $record,
-            $configuration
-        );
+        self::assertSame(['updated'], $this->titles());
     }
 
     #[Test]
-    public function persistUpdatesRecordsWithIdentityKey()
+    public function persistWritesNothingForIdentityWithoutRow(): void
     {
-        $tableName = 'baz';
+        $result = $this->subject->persist(['__identity' => 99, 'title' => 'missing'], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        self::assertTrue($result);
+        self::assertSame(['first'], $this->titles());
+    }
+
+    #[Test]
+    public function persistUpdatesRowWithIdentityAndSameUid(): void
+    {
+        $this->subject->persist(['__identity' => 1, 'uid' => '1', 'title' => 'updated'], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        self::assertSame([1], array_column($this->rows(), 'uid'));
+        self::assertSame(['updated'], $this->titles());
+        self::assertSame([], $this->deprecations);
+    }
+
+    /**
+     * Before 4.0, the update without fields failed with an SQL error.
+     */
+    #[Test]
+    public function persistAcceptsRecordWithIdentityOnly(): void
+    {
+        self::assertTrue($this->subject->persist(['__identity' => 1], ['table' => 'foo']));
+        $this->subject->persistAll();
+
+        self::assertSame(['first'], $this->titles());
+    }
+
+    /**
+     * Before 4.0, false was written as empty string, which MySQL rejects for
+     * an integer column.
+     */
+    #[Test]
+    public function persistWritesBooleansAsIntegers(): void
+    {
+        $this->subject->persist(['pid' => false, 'title' => 'new'], ['table' => 'foo']);
+        $this->subject->persist(['__identity' => 1, 'pid' => true], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        self::assertSame([1, 0], array_column($this->rows(), 'pid'));
+    }
+
+    #[Test]
+    public function persistDoesNotSetSystemFields(): void
+    {
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo']);
+        $this->subject->persist(['__identity' => 1, 'title' => 'updated'], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        foreach ($this->rows() as $row) {
+            self::assertSame(0, $row['tstamp']);
+            self::assertSame(0, $row['crdate']);
+        }
+        self::assertSame(0, $this->rows()[1]['pid']);
+    }
+
+    #[Test]
+    public function persistUnsetsConfiguredKeys(): void
+    {
         $configuration = [
-            DataTargetDB::FIELD_TABLE => $tableName,
+            DataTargetDB::FIELD_TABLE => 'foo',
+            DataTargetDB::FIELD_UNSET_KEYS => 'unknown, other',
         ];
 
-        $identity = 'foo';
-        $record = [
-            DataTargetDB::DEFAULT_IDENTITY_FIELD => $identity,
-            'barField' => 'boom',
+        $this->subject->persist(['title' => 'new', 'unknown' => 'x', 'other' => 'y'], $configuration);
+        $this->subject->persistAll();
+
+        self::assertSame(['first', 'new'], $this->titles());
+    }
+
+    #[Test]
+    public function persistCanUnsetIdentity(): void
+    {
+        $configuration = [
+            DataTargetDB::FIELD_TABLE => 'foo',
+            DataTargetDB::FIELD_UNSET_KEYS => '__identity',
         ];
 
-        $expectedIdentifiers = ['uid' => $identity];
-        $expectedRecord = [
-            'barField' => 'boom',
-        ];
-        $this->connection->expects($this->once())
-            ->method('update')
-            ->with(
-                ...[
-                $tableName,
-                $expectedRecord,
-                $expectedIdentifiers,
-            ]
-            );
+        $this->subject->persist(['__identity' => 1, 'title' => 'new'], $configuration);
+        $this->subject->persistAll();
 
-        $this->subject->persist(
-            $record,
-            $configuration
-        );
+        self::assertSame(['first', 'new'], $this->titles());
     }
 
     public static function skipIfDataProvider(): array
@@ -327,14 +522,327 @@ class DataTargetDBTest extends TestCase
     /**
      * @throws InvalidConfigurationException
      */
+    #[Test]
     #[DataProvider('skipIfDataProvider')]
-    public function testPersistSkipsIfRecordMatchesCondition(array $configuration, array $record): void
+    public function persistSkipsRecordMatchingCondition(array $configuration, array $record): void
     {
-        self::assertFalse(
-            $this->subject->persist($record, $configuration)
-        );
+        self::assertFalse($this->subject->persist($record, $configuration));
+        self::assertFalse($this->connections['Default']->isTransactionActive());
+    }
 
-        $this->connectionPool->expects(self::never())
-            ->method('getConnectionForTable');
+    #[Test]
+    public function persistUsesConfigurationOfComponentWithoutConfiguration(): void
+    {
+        $this->subject->setConfiguration(['table' => 'foo']);
+
+        $this->subject->persist(['title' => 'new']);
+        $this->subject->persistAll();
+
+        self::assertSame(['first', 'new'], $this->titles());
+    }
+
+    #[Test]
+    public function persistUsesConnectionOfTableMapping(): void
+    {
+        $this->subject->persist(['title' => 'legacy'], ['table' => 'tx_legacy_record']);
+        $this->subject->persistAll();
+
+        self::assertSame(['first', 'legacy'], $this->titles('Legacy', 'tx_legacy_record'));
+        self::assertSame(['first'], $this->titles('Default', 'tx_legacy_record'));
+    }
+
+    #[Test]
+    public function persistUsesConfiguredConnection(): void
+    {
+        $this->subject->persist(['title' => 'legacy'], ['table' => 'foo', 'connection' => 'Legacy']);
+        $this->subject->persistAll();
+
+        self::assertSame(['first', 'legacy'], $this->titles('Legacy'));
+        self::assertSame(['first'], $this->titles('Default'));
+    }
+
+    #[Test]
+    public function persistThrowsExceptionForConnectionThatIsNotConfigured(): void
+    {
+        $this->expectException(MissingResourceException::class);
+
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo', 'connection' => 'Missing']);
+    }
+
+    #[Test]
+    public function identifierHasNoEffectAndIsDeprecated(): void
+    {
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo', 'identifier' => 'Legacy']);
+        $this->subject->persistAll();
+
+        self::assertSame(['first', 'new'], $this->titles('Default'));
+        self::assertSame(['first'], $this->titles('Legacy'));
+        self::assertCount(1, $this->deprecations);
+        self::assertStringContainsString('"identifier" of DataTargetDB has no effect', $this->deprecations[0]);
+    }
+
+    #[Test]
+    public function keyOfTheCoreUpdatesRowsWithoutIdentity(): void
+    {
+        $configuration = ['table' => 'foo', 'key' => ['title']];
+
+        $this->subject->persist(['title' => 'first', 'bar' => 'updated'], $configuration);
+        $this->subject->persist(['title' => 'other', 'bar' => 'inserted'], $configuration);
+        $this->subject->persistAll();
+
+        self::assertSame(['updated', 'inserted'], array_column($this->rows(), 'bar'));
+    }
+
+    /**
+     * @return array<string, array{array<array-key, mixed>}>
+     */
+    public static function invalidRecordDataProvider(): array
+    {
+        return [
+            'unknown column' => [['title' => 'new', 'unknown' => 'x']],
+            'column that is not a plain name' => [['title' => 'new', 'foo-bar' => 'x']],
+            'numeric key' => [['title' => 'new', 0 => 'x']],
+            'array value' => [['title' => ['new']]],
+            'object value' => [['title' => new \DateTimeImmutable()]],
+            'empty record' => [[]],
+            'update of unknown column' => [['__identity' => 1, 'unknown' => 'x']],
+            '__identity that is not scalar' => [['__identity' => [1], 'title' => 'x']],
+            'uid that is not scalar' => [['__identity' => 1, 'uid' => [1], 'title' => 'x']],
+        ];
+    }
+
+    /**
+     * @param array<array-key, mixed> $record
+     */
+    #[Test]
+    #[DataProvider('invalidRecordDataProvider')]
+    public function persistThrowsPersistenceExceptionForRecordThatCannotBeWritten(array $record): void
+    {
+        try {
+            $this->subject->persist($record, ['table' => 'foo']);
+            self::fail('An exception should be thrown.');
+        } catch (PersistenceException $exception) {
+            self::assertSame(DataTargetDB::PERSISTENCE_EXCEPTION_CODE, $exception->getCode());
+            self::assertNotNull($exception->getPrevious());
+        }
+    }
+
+    /**
+     * @return array<string, array{array<array-key, mixed>}>
+     */
+    public static function invalidRecordWithUidChangeDataProvider(): array
+    {
+        return [
+            'array value' => [['__identity' => 1, 'uid' => 5, 'title' => ['x']]],
+            'column that is not a plain name' => [['__identity' => 1, 'uid' => 5, 'foo-bar' => 'x']],
+        ];
+    }
+
+    /**
+     * The fallback checks the record like the core.
+     *
+     * @param array<array-key, mixed> $record
+     */
+    #[Test]
+    #[DataProvider('invalidRecordWithUidChangeDataProvider')]
+    public function fallbackRejectsRecordsLikeTheCore(array $record): void
+    {
+        try {
+            $this->subject->persist($record, ['table' => 'foo']);
+            self::fail('An exception should be thrown.');
+        } catch (PersistenceException $exception) {
+            self::assertSame(DataTargetDB::PERSISTENCE_EXCEPTION_CODE, $exception->getCode());
+            self::assertInstanceOf(\UnexpectedValueException::class, $exception->getPrevious());
+        }
+    }
+
+    #[Test]
+    public function persistRejectsObjects(): void
+    {
+        $this->expectException(\UnexpectedValueException::class);
+
+        $this->subject->persist(new \stdClass(), ['table' => 'foo']);
+    }
+
+    #[Test]
+    public function rowsOfABatchAreWrittenInATransaction(): void
+    {
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo']);
+
+        self::assertTrue($this->connections['Default']->isTransactionActive());
+
+        $this->subject->flushBatch(new TaskResult());
+
+        self::assertFalse($this->connections['Default']->isTransactionActive());
+        self::assertSame(['first', 'new'], $this->titles());
+    }
+
+    #[Test]
+    public function failRollsBackTheRowsOfTheCurrentBatch(): void
+    {
+        $this->subject->persist(['title' => 'committed'], ['table' => 'foo']);
+        $this->subject->flushBatch(new TaskResult());
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo']);
+        $this->subject->persist(['__identity' => 1, 'title' => 'updated'], ['table' => 'foo']);
+
+        $this->subject->fail(new \RuntimeException('failed'));
+
+        self::assertFalse($this->connections['Default']->isTransactionActive());
+        self::assertSame(['first', 'committed'], $this->titles());
+    }
+
+    #[Test]
+    public function secondFailAndPersistAllAfterFailDoNothing(): void
+    {
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo']);
+        $this->subject->fail(new \RuntimeException('failed'));
+
+        $this->subject->fail(new \RuntimeException('failed again'));
+        $this->subject->persistAll();
+        $this->subject->flushBatch(new TaskResult());
+
+        self::assertFalse($this->connections['Default']->isTransactionActive());
+        self::assertSame(['first'], $this->titles());
+    }
+
+    #[Test]
+    public function secondPersistAllDoesNothing(): void
+    {
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo']);
+        $this->subject->persistAll();
+
+        $this->subject->persistAll();
+        $this->subject->fail(new \RuntimeException('failed'));
+
+        self::assertSame(['first', 'new'], $this->titles());
+    }
+
+    #[Test]
+    public function failRollsBackTheTransactionsOfAllConnections(): void
+    {
+        $this->subject->persist(['title' => 'new'], ['table' => 'foo']);
+        $this->subject->persist(['title' => 'new'], ['table' => 'tx_legacy_record']);
+
+        $this->subject->fail(new \RuntimeException('failed'));
+
+        self::assertSame(['first'], $this->titles('Default'));
+        self::assertSame(['first'], $this->titles('Legacy', 'tx_legacy_record'));
+    }
+
+    #[Test]
+    public function getTargetIdReturnsUidOfInsertedAndUpdatedRecords(): void
+    {
+        $inserted = ['title' => 'new'];
+        $updated = ['__identity' => 1, 'title' => 'updated'];
+
+        $this->subject->persist($inserted, ['table' => 'foo']);
+        $this->subject->persist($updated, ['table' => 'foo']);
+
+        self::assertSame('2', $this->subject->getTargetId($inserted));
+        self::assertSame('1', $this->subject->getTargetId($updated));
+    }
+
+    #[Test]
+    public function isDisabledEvaluatesDisable(): void
+    {
+        self::assertTrue($this->subject->isDisabled(['disable' => 1]));
+        self::assertFalse($this->subject->isDisabled(['table' => 'foo']));
+    }
+
+    /**
+     * The processor asks for the ID with the record it gave to persist(),
+     * before `unsetKeys` was applied.
+     */
+    #[Test]
+    public function getTargetIdAcceptsTheRecordBeforeUnsetKeys(): void
+    {
+        $configuration = ['table' => 'foo', 'unsetKeys' => 'other,__identity'];
+        $inserted = ['title' => 'new', 'other' => 'x'];
+        $identity = ['__identity' => 1, 'title' => 'inserted too'];
+
+        $this->subject->persist($inserted, $configuration);
+        $this->subject->persist($identity, $configuration);
+
+        self::assertSame('2', $this->subject->getTargetId($inserted));
+        self::assertSame('3', $this->subject->getTargetId($identity));
+        $this->subject->persistAll();
+    }
+
+    #[Test]
+    public function getTargetIdOfASkippedRecordThrowsException(): void
+    {
+        $record = ['title' => 'skipped', 'bar' => ''];
+        $this->subject->persist($record, self::VALID_CONFIG_EMPTY_FIELD);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionCode(DataTargetDB::SKIPPED_RECORD_HAS_NO_ID_EXCEPTION_CODE);
+
+        $this->subject->getTargetId($record);
+    }
+
+    #[Test]
+    public function getTargetIdOfAnUnknownRecordThrowsTheExceptionOfTheCore(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionCode(1794700024);
+
+        $this->subject->getTargetId(['title' => 'unknown']);
+    }
+
+    /**
+     * The `uid` of a record with `__identity` must not be used for the next
+     * record: a record with a `key` that matches no row is inserted.
+     */
+    #[Test]
+    public function identityOfARecordIsNotUsedForTheNextRecord(): void
+    {
+        $this->subject->persist(['__identity' => 1, 'title' => 'updated'], ['table' => 'foo']);
+        try {
+            $this->subject->persist(['__identity' => 1, 'unknown' => 'x'], ['table' => 'foo']);
+        } catch (PersistenceException) {
+        }
+        $this->subject->persist(['title' => 'new', 'bar' => 'x'], ['table' => 'foo', 'key' => ['title']]);
+        $this->subject->persistAll();
+
+        self::assertSame(['updated', 'new'], $this->titles());
+    }
+
+    /**
+     * The processor asks for the IDs of a batch after flushBatch(); the
+     * skipped records of the batch are known until the next batch starts.
+     */
+    #[Test]
+    public function skippedRecordsOfABatchAreKnownAfterFlushBatch(): void
+    {
+        $first = ['title' => 'first skipped', 'bar' => ''];
+        $second = ['title' => 'second skipped', 'bar' => ''];
+        $this->subject->persist(['title' => 'written', 'bar' => 'x'], self::VALID_CONFIG_EMPTY_FIELD);
+        $this->subject->flushBatch(new TaskResult());
+        $this->subject->persist($first, self::VALID_CONFIG_EMPTY_FIELD);
+        $this->subject->persist($second, self::VALID_CONFIG_EMPTY_FIELD);
+        $this->subject->flushBatch(new TaskResult());
+
+        foreach ([$first, $second] as $record) {
+            try {
+                $this->subject->getTargetId($record);
+                self::fail('An exception should be thrown.');
+            } catch (\LogicException $exception) {
+                self::assertSame(DataTargetDB::SKIPPED_RECORD_HAS_NO_ID_EXCEPTION_CODE, $exception->getCode());
+            }
+        }
+    }
+
+    #[Test]
+    public function dateTimeValuesAreConvertedForDateTimeColumns(): void
+    {
+        $this->connections['Default']->executeStatement('CREATE TABLE typed (uid INTEGER PRIMARY KEY AUTOINCREMENT, dt DATETIME)');
+
+        $this->subject->persist(['dt' => new \DateTime('2024-01-02 03:04:05')], ['table' => 'typed']);
+        $this->subject->persistAll();
+
+        self::assertSame(
+            '2024-01-02 03:04:05',
+            $this->connections['Default']->executeQuery('SELECT dt FROM typed')->fetchOne()
+        );
     }
 }
