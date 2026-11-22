@@ -64,3 +64,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `FactoryMapInterface`, the component factories, `DataSourceFactory` and
   `DataTargetFactory`; use the factories of the core
 * `ext_tables.php`
+
+### Fixed
+
+* `LookUpDB` failed on TYPO3 14 because `Persistence\Query\QueryFacade`
+  called the removed `QueryBuilder::execute()`
+  ([#165](https://github.com/dwenzel/t3import_export/issues/165))
