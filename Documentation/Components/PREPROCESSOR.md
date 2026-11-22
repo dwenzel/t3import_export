@@ -16,17 +16,18 @@ The pre-processors `AddArrays`, `Clean`, `ConcatenateFields`, `ImplodeArray`,
 and `UnsetEmptyFields` were removed in 4.0. Use the pre-processors of
 `cpsit/import-export-core` (namespace `CPSIT\ImportExportCore\Processor\`)
 instead, see [Deprecations](../DEPRECATIONS.md#deprecated-in-32). Lists in
-their configuration (e.g. `rules` of `ValueRulesPreProcessor`) must be lists:
-in TypoScript, number the entries from 0 without gaps.
+their configuration (e.g. `rules` of `ValueRulesPreProcessor`) must be lists.
 
 You may add your own PreProcessors. They **must** implement the PreProcessorInterface and **may** inherit from AbstractInitializer.
 
-PreProcessors for import tasks are configured at the TypoScript path:
+PreProcessors are configured as a list below `preProcessors` of a task (`import.tasks.<task identifier>.preProcessors` or `export.tasks.<task identifier>.preProcessors`):
 
-```
-module.tx_t3importexport.settings.import.tasks.\<task identifier\>.preProcessors
-```
-The path for export tasks is:
-```
-module.tx_t3importexport.settings.export.tasks.\<task identifier\>.preProcessors
+```yaml
+import:
+  tasks:
+    exampleTask:
+      preProcessors:
+        - class: "Vendor\\Extension\\Component\\MyComponent"
+          config:
+            # configuration of the component
 ```

@@ -79,8 +79,12 @@ under `archive/` (for example `archive/develop`).
 
 1. Create or pick a GitHub issue.
 2. Create a feature branch from the target branch.
-3. Make the change, including tests.
-4. Run tests and linters locally.
+3. Make the change, including tests. Add an entry to the section `Unreleased`
+   of `CHANGELOG.md`. For a breaking change or a deprecation, also describe in
+   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md) who is affected and how to
+   migrate, and prefix the commit message with `[!!!]`.
+4. Run tests and linters locally (see
+   [DEVELOPMENT.md](Documentation/DEVELOPMENT.md)).
 5. Open a pull request into the target branch and reference the issue
    (`Closes #12`).
 6. The pull request is merged after the checks have passed and it has been reviewed.
@@ -94,6 +98,9 @@ Commit messages are short and start with one of these tags:
 
 Example: `[BUGFIX] Write file without accessing default folder of storage`
 
+Breaking changes are prefixed with `[!!!]`, e.g.
+`[!!!][TASK] Remove rendering content with TypoScript`.
+
 `[WIP]` and `[DRAFT]` commits are not merged into `main` or a support branch.
 
 ## Releases
@@ -103,12 +110,43 @@ Example: `[BUGFIX] Write file without accessing default folder of storage`
 * Support for a new TYPO3 major version always results in a new major version
   of the extension. Before that, a support branch is created for the previous
   TYPO3 version from its last tag.
-* Release steps:
-  1. Update the version in `ext_emconf.php` and the `ChangeLog` in a feature
-     branch and merge it through a pull request (commit tag `[RELEASE]`).
-  2. Tag the merge commit on `main` or on the support branch.
-  3. Update the support matrix in `README.md` on `main`.
-* Tags are published to the TYPO3 Extension Repository (TER) by the workflow
-  `publish.yml`. It checks that the tag matches the version in `ext_emconf.php`
-  and needs the repository secret `TYPO3_API_TOKEN`. An existing tag can be
-  published by starting the workflow manually.
+* The version that `main` is working towards is the branch alias in
+  `composer.json` (e.g. `"dev-main": "4.0.x-dev"`), so that a project can
+  require the development state as `4.0.x-dev`. Support branches have no
+  branch alias.
+
+### Release steps
+
+1. Open a pull request into `main` or the support branch (commit tag
+   `[RELEASE]`, e.g. `[RELEASE] Prepare 4.0.0`) that
+   * replaces `## Unreleased` in `CHANGELOG.md` with the version and the
+     date, e.g. `## 4.0.0 - 2026-12-01`, and adds an empty `## Unreleased`
+     section above it,
+   * sets the version in `ext_emconf.php`,
+   * after a major or minor release from `main`, sets the branch alias in
+     `composer.json` to the next minor version (e.g. `4.1.x-dev`),
+   * updates the support matrix in `README.md` (on `main`; for a release from
+     a support branch in a separate pull request into `main`).
+2. After the pull request has been merged and the checks on the branch have
+   passed, tag the merge commit:
+   ```bash
+   git tag 4.0.0 <merge-commit> && git push origin 4.0.0
+   ```
+3. Create a GitHub release for the tag with the section of `CHANGELOG.md` as
+   description.
+4. Check that the version is available on
+   [Packagist](https://packagist.org/packages/cpsit/t3import_export) and in the
+   [TYPO3 Extension Repository](https://extensions.typo3.org/extension/t3import_export).
+
+Tags are published to the TYPO3 Extension Repository (TER) by the workflow
+`publish.yml`. It checks that the tag matches the version in `ext_emconf.php`
+and needs the repository secret `TYPO3_API_TOKEN`. An existing tag can be
+published by starting the workflow manually. Packagist picks up new tags
+automatically.
+
+### Fixes for several branches
+
+A fix that affects `main` and support branches is merged into `main` first.
+It is then cherry-picked into one pull request per support branch, each with
+its own entry in the `CHANGELOG.md` of that branch. Releases of the branches
+are independent of each other.

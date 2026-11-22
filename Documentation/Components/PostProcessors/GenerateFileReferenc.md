@@ -5,19 +5,16 @@ Generates and updates file references.
 
 ### Example
 
-```typo3_typoscript
-module.tx_t3importexport.settings.import.tasks.example {
-  postProcessors {
-    10 {
-      class = CPSIT\T3importExport\Component\PostProcessor\GenerateFileReference
-      config {
-        sourceField = image
-        targetField = importedImage
-        targetPage = 52
-      }
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    example:
+      postProcessors:
+        - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\GenerateFileReference"
+          config:
+            sourceField: image
+            targetField: importedImage
+            targetPage: 52
 ```
 
 Generates a file reference in `targetField` for the file id found in

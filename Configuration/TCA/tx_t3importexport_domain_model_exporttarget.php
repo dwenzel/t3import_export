@@ -24,7 +24,6 @@ return [
             'starttime' => 'starttime',
             'endtime' => 'endtime',
         ],
-        'searchFields' => 'title,description',
         'iconfile' => 'EXT:t3import_export/Resources/Public/Icons/tx_t3events_domain_model_event.gif',
     ],
     'types' => [

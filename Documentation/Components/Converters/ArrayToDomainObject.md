@@ -12,86 +12,67 @@ If found the object is updated. If *__identity* is not set or no object can be f
 
 ### Examples
 **Minimal Configuration**
-```TypoScript
-module.tx_t3importexport.settings.import.tasks.events {
-  [...]
-  converters.10 {
-    class = CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
-    config {
-      targetClass = DWenzel\T3events\Domain\Model\Event
-    }
-  }
-  [...]
-}
+```yaml
+import:
+  tasks:
+    events:
+      # [...]
+      converters:
+        - class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToDomainObject"
+          config:
+            targetClass: "DWenzel\\T3events\\Domain\\Model\\Event"
 ```
 Convert array to Event. All properties are allowed, no custom configuration for mapping.
 
 
 **Advanced Configuration**
-```TypoScript
-module.tx_t3importexport.settings.import.tasks.events {
-  [...]
-  converters.10 {
-    class = CPSIT\T3importExport\Component\Converter\ArrayToDomainObject
-    config {
-      targetClass = Webfox\T3events\Domain\Model\Event
-      allowProperties = headline,subtitle,description,performances,eventType,eventLocation,genre,tags
-      properties {
-        eventType {
-          allowProperties = externalId
-        }
-        performances {
-          allowAllProperties = 1
-          # configuration for all children in object storage field
-          children {
-            maxItems = 5
-            allowProperties = date,endDate,priceNotice,eventLocation,event,statusInfo,zewId
-            properties {
-              date {
-                typeConverter {
-                  # use a type converter different from default PersistentObjectConverter
-                  class = TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter
-                  options {
-                      dateFormat = U
-                  }
-                }
-              }
-              endDate {
-                typeConverter {
-                  class = TYPO3\CMS\Extbase\Property\TypeConverter\DateTimeConverter
-                  options {
-                      dateFormat = U
-                  }
-                }
-              }
-            }
-          }
-        }
-        genre {
-          allowAllProperties = 1
-        }
-        tags {
-          allowAllProperties = 1
-        }
-      }
-      typeConverter {
-        # use custom implementation of PersistentObjectConverter
-        class = CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter
-        options {
-            # options apply when PropertyMapper retrieves existing object from storage
-            IGNORE_ENABLE_FIELDS = 1
-            ENABLE_FIELDS_TO_BE_IGNORED = hidden
-            SYS_LANGUAGE_UID = 0
-            #RESPECT_SYS_LANGUAGE = 1
-            #INCLUDE_DELETED = true
-            #RESPECT_STORAGE_PAGE = 0
-            STORAGE_PAGE_IDS = 3,5,9
-        }
-      }
-    }
-  }
-  [...]
-}
+```yaml
+import:
+  tasks:
+    events:
+      # [...]
+      converters:
+        - class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToDomainObject"
+          config:
+            targetClass: "Webfox\\T3events\\Domain\\Model\\Event"
+            allowProperties: headline,subtitle,description,performances,eventType,eventLocation,genre,tags
+            properties:
+              eventType:
+                allowProperties: externalId
+              performances:
+                allowAllProperties: 1
+                # configuration for all children in object storage field
+                children:
+                  maxItems: 5
+                  allowProperties: date,endDate,priceNotice,eventLocation,event,statusInfo,zewId
+                  properties:
+                    date:
+                      typeConverter:
+                        # use a type converter different from default PersistentObjectConverter
+                        class: "TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\DateTimeConverter"
+                        options:
+                          dateFormat: U
+                    endDate:
+                      typeConverter:
+                        class: "TYPO3\\CMS\\Extbase\\Property\\TypeConverter\\DateTimeConverter"
+                        options:
+                          dateFormat: U
+              genre:
+                allowAllProperties: 1
+              tags:
+                allowAllProperties: 1
+            typeConverter:
+              # use custom implementation of PersistentObjectConverter
+              class: "CPSIT\\T3importExport\\Property\\TypeConverter\\PersistentObjectConverter"
+              options:
+                # options apply when PropertyMapper retrieves existing object from storage
+                IGNORE_ENABLE_FIELDS: 1
+                ENABLE_FIELDS_TO_BE_IGNORED: hidden
+                SYS_LANGUAGE_UID: 0
+                #RESPECT_SYS_LANGUAGE: 1
+                #INCLUDE_DELETED: true
+                #RESPECT_STORAGE_PAGE: 0
+                STORAGE_PAGE_IDS: 3,5,9
 ```
 This example shows how a custom property mapping can be achieved.
 

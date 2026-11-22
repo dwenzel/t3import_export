@@ -6,40 +6,38 @@ Moves an existing file.
 ### Examples
 
 **Minimal Configuration**
-```typo3_typoscript
-module.tx_t3importexport.settings.import.tasks.example {
-  finishers.30 {
-    class = CPSIT\T3importExport\Component\Finisher\MoveFile
-    config {
-      source.name = foo.xml
-      target.name = bar.xml
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    example:
+      finishers:
+        - class: "CPSIT\\T3importExport\\Component\\Finisher\\MoveFile"
+          config:
+            source:
+              name: foo.xml
+            target:
+              name: bar.xml
 ```
 Renames the file `foo.xml` into `bar.xml`. It is assumed that the source file exists in the root directory of the storage with ID 1 (default storage).
 The file must be readable and the directory writable for the current user. Note: The rights for scripts run by scheduler task or at the command line might differ.
 
 **Extended Configuration**
-```typo3_typoscript
-module.tx_t3importexport.settings.import.tasks.example {
-  finishers.30 {
-    class = CPSIT\T3importExport\Component\Finisher\MoveFile
-    config {
-      source {
-        name = foo.xml
-        storage = 2
-        directory = foo/bar
-      }
-      target {
-        name = bar.xml
-        storage = 7
-        conflictMode = replace
-        directory = boom
-      }
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    example:
+      finishers:
+        - class: "CPSIT\\T3importExport\\Component\\Finisher\\MoveFile"
+          config:
+            source:
+              name: foo.xml
+              storage: 2
+              directory: foo/bar
+            target:
+              name: bar.xml
+              storage: 7
+              conflictMode: replace
+              directory: boom
 ```
 Renames (moves) the file `foo.xml` from directory `foo/bar` of the storage with ID
 `2` to the file `bar.xml` in the directory `boom` of the storage with ID `7`.

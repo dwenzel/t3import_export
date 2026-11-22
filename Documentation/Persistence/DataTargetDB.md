@@ -31,57 +31,57 @@ config.identifier**  | string | none    | Identifier of a database connection re
 
 Persist records into table _tt_content_ of TYPO3 DB
 
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  target {
-    class = CPSIT\T3importExport\Persistence\DataTargetDB
-    config {
-      table = tt_content
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: tt_content
 ```
 
 ### Extended
 
 1. unset keys _foo_ and _bar_ of each record before persisting
 
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  target {
-    class = CPSIT\T3importExport\Persistence\DataTargetDB
-    config {
-      table = tt_content
-      unsetKeys = foo,bar
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: tt_content
+          unsetKeys: foo,bar
 ```
 
 2. skip if field `foo` is not empty
 
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  target {
-    class = CPSIT\T3importExport\Persistence\DataTargetDB
-    config {
-      table = tt_content
-      skip.ifNotEmpty.field = foo
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: tt_content
+          skip:
+            ifNotEmpty:
+              field: foo
 ```
 
 3. skip if field `foo` is empty
 
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  target {
-    class = CPSIT\T3importExport\Persistence\DataTargetDB
-    config {
-      table = tt_content
-      skip.ifEmpty.field = foo
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: tt_content
+          skip:
+            ifEmpty:
+              field: foo
 ```

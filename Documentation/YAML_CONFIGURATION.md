@@ -4,7 +4,7 @@ This guide provides comprehensive information about using YAML configuration fil
 
 ## Overview
 
-YAML configuration provides a modern, structured alternative to TypoScript configuration. It offers:
+YAML is the only configuration format for tasks and sets since version 4.0. It offers:
 
 - **Better Readability**: Clear hierarchical structure
 - **Easier Maintenance**: Version control friendly
@@ -14,9 +14,9 @@ YAML configuration provides a modern, structured alternative to TypoScript confi
 Tasks and sets from YAML files in the configured directories
 (`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDirectories']`)
 are available on the command line and in the backend modules (Import, Export).
-If a task or set with the same identifier is also defined in TypoScript, the
-TypoScript definition is used. TypoScript configuration is deprecated, see
-[#75](https://github.com/dwenzel/t3import_export/issues/75).
+Tasks and sets in TypoScript (`module.tx_t3importexport.settings`) are not
+read any more since version 4.0; convert them with
+`t3import-export:convert-typoscript`, see [Deprecations](./DEPRECATIONS.md#typoscript-configuration).
 
 ### Configuring the directories
 
@@ -113,7 +113,7 @@ source:
     delimiter: ","                              # Optional: Field delimiter (default: ,)
     enclosure: "\""                             # Optional: Field enclosure (default: ")
     escape: "\\"                                # Optional: Escape character (default: \)
-    skipLines: 1                                # Optional: Skip header lines (default: 0)
+    header: true                                # Optional: First row holds the field names (default: true without fields)
     encoding: "UTF-8"                           # Optional: File encoding (default: UTF-8)
 ```
 
@@ -399,7 +399,6 @@ import:
         class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/complex-data.csv"
-          skipLines: 1
 
       preProcessors:
         # Step 1: Clean and validate data

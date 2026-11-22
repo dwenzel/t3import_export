@@ -13,41 +13,55 @@ export:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
         config:
           table: "tx_news_domain_model_news"
-          select:
-            fields: "*"
-            where: "pid IN (42,43) AND hidden = 0 AND deleted = 0"
-            orderBy: "datetime DESC"
+          fields: "*"
+          where: "pid IN (42,43) AND hidden = 0 AND deleted = 0"
+          orderBy: "datetime DESC"
 
       preProcessors:
         10:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+          class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            mapping:
-              pubDate: "datetime"
-              link: "path_segment"
+            rules:
+              - {rule: copy, field: pubDate, from: datetime}
+              - {rule: copy, field: link, from: path_segment}
 
       converters:
         10:
+          # converts each record into an XML element <item>
           class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToXMLStream"
           config:
-            rootElement: "feed"
-            rootAttributes:
-              xmlns: "http://www.w3.org/2005/Atom"
-              version: "2.0"
-            recordElement: "item"
+            targetClass: "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
+            nodeName: "item"
 
       target:
-        class: "CPSIT\\T3importExport\\Persistence\\DataTargetFileStream"
+        # writes the elements into a temporary file with the root element <feed>
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetXMLStream"
         config:
-          filePath: "fileadmin/exports/news_feed.xml"
+          output: "file"
+          rootNodeName: "feed"
 
       finishers:
+        # stores the temporary file as fileadmin/exports/news_feed.xml (storage 1)
         10:
-          class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+          class: "CPSIT\\T3importExport\\Component\\Finisher\\WriteFile"
           config:
-            schema: "fileadmin/schemas/news_schema.xsd"
+            target:
+              name: "news_feed.xml"
+              directory: "exports"
+              conflictMode: "replace"
 
         20:
-          class: "CPSIT\\T3importExport\\Component\\Finisher\\DownloadFileStream"
+          class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
           config:
-            mimeType: "application/xml"
+            file: "fileadmin/exports/news_feed.xml"
+            schema:
+              file: "fileadmin/schemas/news_schema.xsd"
+
+        # In the backend module, the finisher DownloadFileStream can send the
+        # temporary file to the browser instead of WriteFile:
+        # 10:
+        #   class: "CPSIT\\T3importExport\\Component\\Finisher\\DownloadFileStream"
+        #   config:
+        #     type: "application/xml"
+        #     filename: "news_feed"
+        #     fileExt: "xml"

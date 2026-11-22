@@ -15,7 +15,7 @@ Currently the following types of components are implemented:
 * [Finishers](./Components/Finisher.md)
 
 A set of standard components is included. You may write your own components and
-include them by configuration (YAML or TypoScript).
+include them by configuration (YAML).
 
 There exist interfaces for each type of component. Your custom class **must**
 implement one of them.

@@ -36,24 +36,17 @@ Use this initializer if you have to delete records determined by *where* clause 
 
 
 ### Example
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask.initializers {
-  1 {
-    class = CPSIT\T3importExport\Component\Initializer\DeleteFromTable
-    config {
-      # initializer is disabled if condition is true
-      disable = TEXT
-      disable {
-        value = 1
-        if {
-          # your TypoScript condition
-        }
-      }
-      # identifier = fooDatabaseConnection
-
-      table = sys_category
-      where = title LIKE "%foo%"
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      initializers:
+        - class: "CPSIT\\T3importExport\\Component\\Initializer\\DeleteFromTable"
+          config:
+            # initializer is disabled if the expression is true
+            disable:
+              expression: "false"  # your condition
+            # identifier: fooDatabaseConnection
+            table: sys_category
+            where: 'title LIKE "%foo%"'
 ```

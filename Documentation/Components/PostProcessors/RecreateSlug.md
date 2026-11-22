@@ -5,19 +5,16 @@ Generates and updates slugs.
 
 ### Configuration Example
 
-```typo3_typoscript
-module.tx_t3importexport.settings.import.tasks.example {
-    postProcessors {
-        10 {
-            class = CPSIT\T3importExport\Component\PostProcessor\RecreateSlug
-            config {
-                tableName = foo_table   # default: pages
-                slugField = bar     # default: slug
-                siteId = 2            # default: 1
-            }
-        }
-    }
-}
+```yaml
+import:
+  tasks:
+    example:
+      postProcessors:
+        - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
+          config:
+            tableName: foo_table  # default: pages
+            slugField: bar        # default: slug
+            siteId: 2             # default: 1
 ```
 
 Recreates the slug for table `tableName` for field `slug` with `siteId`.
