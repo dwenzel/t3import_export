@@ -1,0 +1,6 @@
+"sys_category_record_mm",,,,,,
+,"uid_local","uid_foreign","tablenames","fieldname","sorting","sorting_foreign"
+,5,2,"pages","categories",0,2
+,4,2,"pages","categories",0,1
+,6,2,"tt_content","categories",0,3
+,7,3,"pages","categories",0,1

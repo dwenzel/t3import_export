@@ -26,12 +26,20 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * Command `t3import-export:export-task` (alias `export:task`) runs a single
   export task; it accepts the option `--yaml-config`
   ([#63](https://github.com/dwenzel/t3import_export/issues/63))
+* `Dbal\Typo3ConnectionProvider` provides the connections of TYPO3 to the
+  DBAL components of the core (`DataSourceDBAL`, `DataTargetDBAL`,
+  `RelationListPreProcessor`), which can be used in tasks; `default` is the
+  TYPO3 connection `Default`
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Changed
 
 * `t3import-export:import-task` returns 1 instead of 0 for an invalid task
   configuration and 2 right away for an empty task identifier
-* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.5
+* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.6. Components of a
+  task run in the order of their integer keys (core
+  [#81](https://github.com/CPS-IT/import-export-core/issues/81)); see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#changes-of-cpsitimport-export-core-06)
 * Tasks are run by the processor of the core; tasks, sets and components are
   created by the factories of the core
   ([#71](https://github.com/dwenzel/t3import_export/issues/71))

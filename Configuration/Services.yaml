@@ -77,6 +77,18 @@ services:
       arguments:
         $pathResolver: '@t3import_export.target_path_resolver'
 
+    # Database: the DBAL components of the core use the connections of
+    # TYPO3; the connection `default` is the TYPO3 connection `Default`
+    CPSIT\T3importExport\Dbal\Typo3ConnectionProvider:
+      public: true
+    CPSIT\ImportExportCore\Dbal\ConnectionProviderInterface: '@CPSIT\T3importExport\Dbal\Typo3ConnectionProvider'
+    CPSIT\ImportExportCore\Dbal\DataSourceDBAL:
+      public: true
+    CPSIT\ImportExportCore\Dbal\DataTargetDBAL:
+      public: true
+    CPSIT\ImportExportCore\Dbal\RelationListPreProcessor:
+      public: true
+
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true
       arguments:

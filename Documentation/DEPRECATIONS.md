@@ -68,8 +68,8 @@ extension (core [#24](https://github.com/CPS-IT/import-export-core/issues/24)).
 
 ### Processor and factories of the core
 
-4.0 requires `cpsit/import-export-core` 0.2, which contains the processor, the
-task and set models and the factories
+The processor, the task and set models and the factories moved into
+`cpsit/import-export-core` 0.2
 ([#71](https://github.com/dwenzel/t3import_export/issues/71), core
 [UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md)).
 
@@ -116,6 +116,29 @@ The configuration does not change.
 
 `AbstractComponent::isDisabled()` uses `CPSIT\ImportExportCore\Condition\ConditionEvaluator`.
 Message IDs in `disable.if.result.hasMessage` may now also be a single integer.
+
+### Changes of `cpsit/import-export-core` 0.6
+
+4.0 requires `cpsit/import-export-core` ^0.6 (core
+[UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md#060)).
+Changes that concern tasks of the extension:
+
+* The components of a task (`initializers`, `preProcessors`, `converters`,
+  `postProcessors`, `finishers`, `filters`) run in the order of their integer
+  keys; string keys follow in the order of the configuration
+  ([core #81](https://github.com/CPS-IT/import-export-core/issues/81)).
+  Before, they ran in the order of the merged configuration, and a component
+  added by a later file under a new key ran last. Check lists whose integer
+  keys are not in ascending order. Use keys such as `10`, `20`, so that later
+  files can add components in between.
+* If a task fails, the processor calls `fail()` on the source and the target
+  of the core (`Persistence\FailureAwareInterface`) before it passes the
+  exception on: `DataTargetDBAL` rolls back the rows of the current batch
+  ([core #102](https://github.com/CPS-IT/import-export-core/issues/102)).
+  The sources and targets of the extension are not affected.
+* `Dbal\DataTargetDBAL` has no methods `quoteColumns()` and `types()` any
+  more ([core #98](https://github.com/CPS-IT/import-export-core/issues/98));
+  subclasses that call or override them must drop or copy them.
 
 ## Deprecated in 4.0
 
