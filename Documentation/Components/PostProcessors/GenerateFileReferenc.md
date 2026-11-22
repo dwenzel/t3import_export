@@ -33,11 +33,11 @@ is set to `1`.
 postProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\GenerateFileReference"
     config:
-      sourceField: "imageId"
-      targetField: "image"
-      identityField: "uid"
-      tableName: "tt_content"
-      fieldName: "image"
+      sourceField: imageId
+      targetField: image
+      identityField: uid
+      tableName: tt_content
+      fieldName: image
       targetPage: 52
 ```
 
