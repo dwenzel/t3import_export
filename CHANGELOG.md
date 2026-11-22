@@ -23,9 +23,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   components that read or write files themselves
 * `Service\TransferService::run($tasks)` runs tasks with the processor of
   the core; it replaces `Service\DataTransferProcessor`
+* Command `t3import-export:export-task` (alias `export:task`) runs a single
+  export task; it accepts the option `--yaml-config`
+  ([#63](https://github.com/dwenzel/t3import_export/issues/63))
 
 ### Changed
 
+* `t3import-export:import-task` returns 1 instead of 0 for an invalid task
+  configuration and 2 right away for an empty task identifier
 * Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.5
 * Tasks are run by the processor of the core; tasks, sets and components are
   created by the factories of the core

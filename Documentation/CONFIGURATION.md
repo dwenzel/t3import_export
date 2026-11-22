@@ -10,7 +10,9 @@ configuration to YAML.
 YAML files in the configured directories
 (`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDirectories']`)
 are loaded automatically, see [YAML configuration](./YAML_CONFIGURATION.md#configuring-the-directories).
-Commands also accept a file with `--yaml-config`.
+Commands also accept a file with `--yaml-config`. The path is relative to the
+working directory; it is read as is and is not restricted to the allowed
+directories (command line only).
 
 ## Tasks
 Import tasks are described below `import.tasks`, export tasks below
@@ -241,6 +243,9 @@ vendor/bin/typo3 t3import-export:import-set fullNewsImport --yaml-config fileadm
 
 # Execute export set from YAML
 vendor/bin/typo3 t3import-export:export-set newsExport --yaml-config fileadmin/config/news-export.yaml
+
+# Execute a single export task from YAML
+vendor/bin/typo3 t3import-export:export-task exportNews --yaml-config fileadmin/config/news-export.yaml
 ```
 
 #### Programmatic Loading

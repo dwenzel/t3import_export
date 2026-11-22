@@ -22,27 +22,17 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Command;
 
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
-use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
-use CPSIT\ImportExportCore\Exception\MissingClassException;
-use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
-use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
-use CPSIT\T3importExport\Command\Argument\SetArgument;
 use CPSIT\T3importExport\Command\Argument\TaskArgument;
 use CPSIT\T3importExport\Controller\ImportController;
-use CPSIT\T3importExport\Service\TransferService;
 use DWenzel\T3extensionTools\Command\ArgumentAwareInterface;
-use DWenzel\T3extensionTools\Command\Status;
 use DWenzel\T3extensionTools\Traits\Command\ArgumentAwareTrait;
 use DWenzel\T3extensionTools\Traits\Command\ConfigureTrait;
 use DWenzel\T3extensionTools\Traits\Command\InitializeTrait;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Provides import set commands for cli and scheduler tasks
+ * Provides the import task command for cli and scheduler tasks
  */
 #[AsCommand(
     name: ImportTaskCommand::DEFAULT_NAME,
@@ -54,7 +44,7 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     use ConfigureTrait;
     use InitializeTrait;
     use ArgumentAwareTrait;
-    use TransferCommandTrait;
+    use TaskCommandTrait;
 
     /**
      * Key under which configuration are found in
@@ -71,106 +61,14 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     final public const string MESSAGE_STARTING = 'Starting import task';
     final public const string WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
     final public const string WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
-    protected const OPTIONS = [];
-    protected const ARGUMENTS = [
+    final public const array OPTIONS = [];
+    final public const array ARGUMENTS = [
         TaskArgument::class,
     ];
 
-    protected static $optionsToConfigure = self::OPTIONS;
-    protected static $argumentsToConfigure = self::ARGUMENTS;
     /**
-     * @var string
+     * @var array|string[]
      */
-    protected static $defaultName = self::DEFAULT_NAME;
-
-    /**
-     * @param string|null $name
-     * @param TransferTaskFactory $transferTaskFactory
-     * @param TransferService $transferService
-     * @param ConfigurationHandlerInterface $configurationHandler
-     */
-    public function __construct(
-        private readonly TransferTaskFactory $transferTaskFactory,
-        private readonly TransferService $transferService,
-        private readonly ConfigurationHandlerInterface $configurationHandler
-    ) {
-        parent::__construct(self::$defaultName);
-        $this->initializeObject();
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $this->io->comment(self::MESSAGE_STARTING);
-        $errorMessage = 'An error occurred';
-        $identifier = (string)$input->getArgument(TaskArgument::NAME);
-
-        $status = $this->assertValidIdentifier($identifier);
-
-        if (empty($this->settings['tasks'][$identifier])) {
-            $this->io->warning(
-                sprintf(self::WARNING_MISSING_CONFIGURATION, $identifier)
-            );
-
-            return Status::invalid();
-        }
-
-        try {
-            $status = $this->process($identifier);
-        } catch (InvalidConfigurationException | MissingInterfaceException | MissingClassException $exception) {
-            $errorMessage .= $exception->getMessage() . ' code: ' . $exception->getCode();
-        }
-
-        if ($status === 0) {
-            $this->io->success(self::MESSAGE_SUCCESS);
-            return Status::success();
-        }
-
-        $this->io->error($errorMessage);
-        return $status;
-    }
-
-    /**
-     * Processes predefined import sets
-     *
-     * @param string $identifier Identifier of set which should be processed
-     * @param bool $dryRun If set nothing will be saved
-     * @throws InvalidConfigurationException
-     * @throws MissingClassException
-     * @throws MissingInterfaceException
-     * @return int Returns an exit code
-     * @see Command exit codes
-     */
-    public function process(string $identifier, $dryRun = false): int
-    {
-        $status = Status::invalid();
-        if (isset($this->settings['tasks'][$identifier])) {
-            $task = $this->transferTaskFactory->create(
-                $identifier,
-                $this->settings['tasks'][$identifier]
-            );
-
-            $this->transferService->run([$task], (bool)$dryRun);
-            $status = Status::success();
-            // todo check result for error and set exit code accordingly
-        }
-
-        return $status;
-    }
-
-    protected function assertValidIdentifier(string $identifier): int
-    {
-        $status = Status::success();
-        if (empty($identifier)) {
-            $this->io->warning(
-                sprintf(
-                    static::WARNING_MISSING_PARAMETER,
-                    SetArgument::NAME
-                )
-            );
-
-            $status = Status::invalid();
-        }
-
-        return $status;
-    }
+    protected static array $optionsToConfigure = self::OPTIONS;
+    protected static array $argumentsToConfigure = self::ARGUMENTS;
 }

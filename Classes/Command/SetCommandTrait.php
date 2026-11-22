@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Command;
 
 use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
-use CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
 use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
@@ -16,8 +15,6 @@ use CPSIT\T3importExport\Service\TransferService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -98,34 +95,5 @@ trait SetCommandTrait
         $this->io->success(static::MESSAGE_SUCCESS);
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * Load YAML configuration from file
-     *
-     * @param string $yamlFile Path to YAML configuration file
-     * @return bool false if the file could not be loaded
-     */
-    protected function loadYamlConfiguration(string $yamlFile): bool
-    {
-        $yamlLoader = GeneralUtility::makeInstance(YamlConfigurationLoader::class);
-
-        try {
-            // Add to the shared handler, so that TransferSetFactory finds the tasks of the file
-            $this->configurationHandler->addConfiguration($yamlLoader, $yamlFile);
-            $config = $this->configurationHandler->getFullConfiguration();
-
-            if (isset($config[static::SETTINGS_KEY])) {
-                // YAML configuration overrides existing settings
-                $settings = $this->settings ?? [];
-                ArrayUtility::mergeRecursiveWithOverrule($settings, $config[static::SETTINGS_KEY]);
-                $this->settings = $settings;
-            }
-        } catch (\Exception $e) {
-            $this->io->error('Error loading YAML configuration: ' . $e->getMessage());
-            return false;
-        }
-
-        return true;
     }
 }
