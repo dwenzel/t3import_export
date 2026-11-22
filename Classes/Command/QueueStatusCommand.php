@@ -136,7 +136,7 @@ class QueueStatusCommand extends Command
     }
 
     /**
-     * @param list<array{id: int, queue: string, status: QueueItemStatus, createdAt: string, updatedAt: string}> $items
+     * @param list<array{id: int, queue: string, status: QueueItemStatus|null, statusValue: int, createdAt: string, updatedAt: string}> $items
      */
     protected function renderItems(OutputInterface $output, array $items, int $limit): void
     {
@@ -147,7 +147,8 @@ class QueueStatusCommand extends Command
         $table = new Table($output);
         $table->setHeaders(['ID', 'Queue', 'Status', 'Created', 'Updated']);
         foreach ($items as $item) {
-            $table->addRow([$item['id'], $item['queue'], self::label($item['status']), $item['createdAt'], $item['updatedAt']]);
+            $status = $item['status'] !== null ? self::label($item['status']) : sprintf('unknown (%d)', $item['statusValue']);
+            $table->addRow([$item['id'], $item['queue'], $status, $item['createdAt'], $item['updatedAt']]);
         }
         $table->render();
         if (count($items) >= $limit) {
