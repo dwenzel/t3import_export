@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
         ->setQuery()
         ->build()
         //switch to TYPO3\CMS\Core\Database\Query\QueryBuilder
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
  *
  * @see AbstractTemplateQuery
@@ -41,7 +41,7 @@ class QueryFacade implements QueryFacadeInterface
         )->withConfiguration($queryConfiguration)
             ->setQuery()
             ->build()
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
     }
 

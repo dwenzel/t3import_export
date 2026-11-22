@@ -48,8 +48,10 @@ The rules apply when the task runs, in the backend module, the command and
 the scheduler. They do not depend on the backend user: file mounts and
 permissions of backend users do not apply to tasks.
 
-Symbolic links inside an allowed directory are followed, e.g. a `fileadmin`
-that links to a shared directory.
+Symbolic links are resolved before the check: the real path of the file, or
+of its nearest existing parent directory, must be inside the real path of an
+allowed directory, so an allowed directory may be a link (e.g. a `fileadmin`
+on a shared volume), but a link inside it must not lead out of it.
 
 ## URLs
 
@@ -86,6 +88,15 @@ A path or URL that is not allowed throws the exception described above, a
 file that does not exist is handled as before. Relative source paths of
 `GenerateFileResource` and `GenerateUploadFile` are relative to the public
 directory (before: to the working directory of the PHP process).
+
+Schemas that the schema of `ValidateXML` names in `xs:include`, `xs:import`,
+`xs:redefine` or `xs:override` are loaded with the same rules, relative to
+the location of the schema that names them: files from the allowed
+directories (or `EXT:` paths) with the file type `xsd`, URLs from the allowed
+hosts. A schema location that is not allowed throws a
+`MissingResourceException` (code 1795300201). libxml loads no other files or
+URLs while validating, so external entities and external DTDs of the
+validated documents are not loaded.
 
 Not covered: the temporary files of `DataTargetFileStream` and
 `DataTargetXMLStream` (fixed directory `transient/t3import_export/` of the var

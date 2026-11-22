@@ -82,6 +82,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Fixed
 
+* `LookUpDB` failed on TYPO3 14 because `Persistence\Query\QueryFacade`
+  called the removed `QueryBuilder::execute()`
+  ([#165](https://github.com/dwenzel/t3import_export/issues/165))
 * `SetL10nParent` uses `uid` when `parent.identityField` is not set
   ([#133](https://github.com/dwenzel/t3import_export/issues/133))
 * `UpdateTable` applies the configured `types` and accepts fields without a
@@ -93,3 +96,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 ### Security
 
 * `LookUpDB`: values from records are quoted in the `IN` constraint
+* Symbolic links are resolved before the allowed directories are checked; a
+  link inside an allowed directory that points outside of it is rejected
+  (`Resource\Typo3PathResolver`)
+* ValidateXML: schemas cannot include files or URLs outside the allowed
+  locations
