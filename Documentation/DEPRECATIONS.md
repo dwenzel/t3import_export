@@ -150,6 +150,11 @@ to the classes of the core and the deprecated ones:
   and `ResourcePathConfigurationValidator`. Relative source paths of
   `GenerateFileResource` and `GenerateUploadFile` are relative to the public
   directory. See [Files](./Persistence/Files.md#other-components).
+* `DataTargetFileStream` and `DataTargetXMLStream` write their temporary file
+  into `transient/t3import_export/` of the var directory (before:
+  `typo3temp/tx_importexport_/` of the public directory, which the web server
+  may deliver). The constant `DataTargetFileStream::TEMP_DIRECTORY` is no longer
+  used and deprecated; subclasses can override `getTemporaryDirectory()`.
 
 Changes when replacing the deprecated classes with those of the core:
 
