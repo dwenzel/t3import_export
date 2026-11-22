@@ -12,6 +12,7 @@ use CPSIT\T3importExport\Upgrades\QueueItemMigration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Output\BufferedOutput;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Upgrades\UpgradeWizardRegistry;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -41,9 +42,14 @@ class QueueItemMigrationTest extends FunctionalTestCase
 
     private bool $legacyTableRenamed = false;
 
+    private ?string $timeZone = null;
+
     #[\Override]
     protected function tearDown(): void
     {
+        if ($this->timeZone !== null) {
+            date_default_timezone_set($this->timeZone);
+        }
         if ($this->legacyTableRenamed) {
             // the database is kept between the tests on MySQL
             $this->renameTable(self::RENAMED_LEGACY_TABLE, QueueItemMigration::LEGACY_TABLE);
@@ -111,11 +117,14 @@ class QueueItemMigrationTest extends FunctionalTestCase
         );
     }
 
-    private static function dateTime(int $timestamp): string
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function addLegacyRow(array $row): void
     {
-        return (new \DateTimeImmutable('@' . $timestamp))
-            ->setTimezone(new \DateTimeZone(date_default_timezone_get()))
-            ->format('Y-m-d H:i:s');
+        $this->get(ConnectionPool::class)
+            ->getConnectionForTable(QueueItemMigration::LEGACY_TABLE)
+            ->insert(QueueItemMigration::LEGACY_TABLE, $row);
     }
 
     #[Test]
@@ -147,11 +156,13 @@ class QueueItemMigrationTest extends FunctionalTestCase
         $this->renameTable(QueueItemMigration::LEGACY_TABLE, self::RENAMED_LEGACY_TABLE);
         $this->legacyTableRenamed = true;
 
-        $subject = $this->createSubject();
+        $output = new BufferedOutput();
+        $subject = $this->createSubject($output);
 
         self::assertFalse($subject->updateNecessary());
         self::assertTrue($subject->executeUpdate());
         self::assertSame([], $this->fetchRows());
+        self::assertStringContainsString('not found, nothing to migrate', $output->fetch());
     }
 
     #[Test]
@@ -203,13 +214,16 @@ class QueueItemMigrationTest extends FunctionalTestCase
     public function timestampsAreMigrated(): void
     {
         $this->importCSVDataSet(self::FIXTURE);
+        $this->timeZone = date_default_timezone_get();
+        date_default_timezone_set('Europe/Berlin');
 
         $this->createSubject()->executeUpdate();
 
         $rows = $this->fetchRows();
-        self::assertSame(self::dateTime(1700000000), $rows[0]['created_at']);
-        self::assertSame(self::dateTime(1700000000), $rows[0]['updated_at']);
-        self::assertSame(self::dateTime(1700000300), $rows[3]['updated_at']);
+        // 1700000000 is 2023-11-14 22:13:20 UTC
+        self::assertSame('2023-11-14 23:13:20', $rows[0]['created_at']);
+        self::assertSame('2023-11-14 23:13:20', $rows[0]['updated_at']);
+        self::assertSame('2023-11-14 23:18:20', $rows[3]['updated_at']);
         self::assertNull($rows[5]['created_at']);
         self::assertNull($rows[5]['updated_at']);
     }
@@ -222,7 +236,7 @@ class QueueItemMigrationTest extends FunctionalTestCase
 
         $this->createSubject($output)->executeUpdate();
 
-        // uid 6 has the queue and data of uid 1: the first item is kept
+        // uid 6 has the queue and data of uid 1
         $rows = array_values(array_filter(
             $this->fetchItems(),
             static fn (array $item): bool => $item[0] === 'import.foo' && $item[1] === 'a'
@@ -230,7 +244,118 @@ class QueueItemMigrationTest extends FunctionalTestCase
         self::assertSame([['import.foo', 'a', QueueItemStatus::New->value]], $rows);
         $text = $output->fetch();
         self::assertStringContainsString('6 items migrated', $text);
+        self::assertStringContainsString('0 items already in the queue', $text);
+        self::assertStringContainsString('1 duplicate items of the legacy table', $text);
+    }
+
+    #[Test]
+    public function pendingItemIsPreferredAmongDuplicates(): void
+    {
+        // x: same batch, y: different batches (batch size 2)
+        $this->addLegacyRow(['uid' => 1, 'identifier' => 'import.foo', 'data' => 'x', 'status' => 2]);
+        $this->addLegacyRow(['uid' => 2, 'identifier' => 'import.foo', 'data' => 'x', 'status' => 0]);
+        $this->addLegacyRow(['uid' => 3, 'identifier' => 'import.foo', 'data' => 'y', 'status' => 3]);
+        $this->addLegacyRow(['uid' => 4, 'identifier' => 'import.foo', 'data' => 'z', 'status' => 2]);
+        $this->addLegacyRow(['uid' => 5, 'identifier' => 'import.foo', 'data' => 'y', 'status' => 1]);
+        $output = new BufferedOutput();
+
+        $this->createSubject($output)->executeUpdate();
+
+        self::assertSame(
+            [
+                ['import.foo', 'x', QueueItemStatus::New->value],
+                ['import.foo', 'y', QueueItemStatus::New->value],
+                ['import.foo', 'z', QueueItemStatus::Finished->value],
+            ],
+            $this->fetchItems()
+        );
+        $text = $output->fetch();
+        self::assertStringContainsString('3 items migrated', $text);
+        self::assertStringContainsString('0 items already in the queue', $text);
+        self::assertStringContainsString('2 duplicate items of the legacy table', $text);
+    }
+
+    #[Test]
+    public function duplicatesInTheSameBatchAreMigratedOnce(): void
+    {
+        $this->addLegacyRow(['uid' => 1, 'identifier' => 'import.foo', 'data' => 'x', 'status' => 0]);
+        $this->addLegacyRow(['uid' => 2, 'identifier' => 'import.foo', 'data' => 'x', 'status' => 1]);
+        $output = new BufferedOutput();
+
+        $this->createSubject($output)->executeUpdate();
+
+        self::assertSame([['import.foo', 'x', QueueItemStatus::New->value]], $this->fetchItems());
+        $text = $output->fetch();
+        self::assertStringContainsString('1 items migrated', $text);
+        self::assertStringContainsString('0 items already in the queue', $text);
+        self::assertStringContainsString('1 duplicate items of the legacy table', $text);
+    }
+
+    #[Test]
+    public function itemAddedToTheCoreQueueDuringTheMigrationIsNotChanged(): void
+    {
+        $this->addLegacyRow(['uid' => 1, 'identifier' => 'import.foo', 'data' => 'x', 'status' => 0]);
+        $this->addLegacyRow(['uid' => 2, 'identifier' => 'import.foo', 'data' => 'y', 'status' => 0]);
+        // adds `y` after the wizard looked up the existing items (first
+        // connection of the queue table, for the query builder), before it
+        // inserts the chunk (second one): the bulk insert fails on the unique key
+        $connectionPool = new class () extends ConnectionPool {
+            public int $calls = 0;
+
+            #[\Override]
+            public function getConnectionForTable(string $tableName): Connection
+            {
+                $connection = parent::getConnectionForTable($tableName);
+                if ($tableName === QueueRepositoryFactory::TABLE && ++$this->calls === 2) {
+                    $connection->insert($tableName, [
+                        'queue' => 'import.foo',
+                        'checksum' => QueueItem::checksum('import.foo', ['data' => 'y']),
+                        'data' => QueueItem::encode(['data' => 'y']),
+                        'status' => QueueItemStatus::Failed->value,
+                    ]);
+                }
+
+                return $connection;
+            }
+        };
+        $output = new BufferedOutput();
+        $subject = new QueueItemMigration($connectionPool, new LegacyQueueItemConverter(), 2);
+        $subject->setOutput($output);
+
+        self::assertTrue($subject->executeUpdate());
+
+        self::assertGreaterThanOrEqual(2, $connectionPool->calls);
+        self::assertSame(
+            [
+                ['import.foo', 'y', QueueItemStatus::Failed->value],
+                ['import.foo', 'x', QueueItemStatus::New->value],
+            ],
+            $this->fetchItems()
+        );
+        $text = $output->fetch();
+        self::assertStringContainsString('1 items migrated', $text);
         self::assertStringContainsString('1 items already in the queue', $text);
+    }
+
+    #[Test]
+    public function manyItemsAreInsertedInChunks(): void
+    {
+        $rows = [];
+        for ($uid = 1; $uid <= 250; $uid++) {
+            $rows[] = [$uid, 'import.foo', 'item ' . $uid, 0];
+        }
+        $this->get(ConnectionPool::class)
+            ->getConnectionForTable(QueueItemMigration::LEGACY_TABLE)
+            ->bulkInsert(QueueItemMigration::LEGACY_TABLE, $rows, ['uid', 'identifier', 'data', 'status']);
+        $output = new BufferedOutput();
+        $subject = new QueueItemMigration($this->get(ConnectionPool::class), new LegacyQueueItemConverter());
+        $subject->setOutput($output);
+
+        $subject->executeUpdate();
+
+        self::assertCount(250, $this->fetchRows());
+        self::assertStringContainsString('250 items migrated', $output->fetch());
+        self::assertFalse($subject->updateNecessary());
     }
 
     #[Test]
@@ -289,6 +414,7 @@ class QueueItemMigrationTest extends FunctionalTestCase
         $text = $output->fetch();
         self::assertStringContainsString('0 items migrated', $text);
         self::assertStringContainsString('7 items already in the queue', $text);
+        self::assertStringContainsString('0 duplicate items', $text);
     }
 
     #[Test]

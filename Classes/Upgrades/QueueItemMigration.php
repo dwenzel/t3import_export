@@ -39,13 +39,15 @@ use TYPO3\CMS\Core\Upgrades\UpgradeWizardInterface;
  *
  * Items of all statuses are copied, so that records that were processed
  * before are recognised as duplicates by the core queue. Items that are
- * already in the queue of the core (same queue and checksum) are not changed;
- * of several legacy items with the same queue and data, the first one (lowest
- * `uid`) is copied. Running the wizard again therefore adds only the items
- * that are missing. The legacy table is read but not changed.
+ * already in the queue of the core (same queue and checksum) are not changed.
+ * Of several legacy items with the same queue and data, a pending one (new or
+ * processing) is preferred, then the lowest `uid`: pending items are copied
+ * in a first pass, the others in a second one. Running the wizard again
+ * therefore adds only the items that are missing. The legacy table is read
+ * but not changed.
  *
- * The tables are read and written in batches on the connections TYPO3 assigns
- * to them (table mapping), which may differ.
+ * The tables are read in batches and written in chunks on the connections
+ * TYPO3 assigns to them (table mapping), which may differ.
  */
 #[UpgradeWizard(QueueItemMigration::IDENTIFIER)]
 final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterface
@@ -60,7 +62,7 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
         . 'into the queue table tx_t3importexport_queue_item of cpsit/import-export-core. Items of all statuses are '
         . 'copied, so that records processed before are recognised as duplicates; items in processing become new. '
         . 'Items already in the new table are not changed, so the wizard can be run again. The old table is not '
-        . 'changed.';
+        . 'changed. Run it before running tasks with version 4.';
 
     /**
      * @var string[]
@@ -72,6 +74,22 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
     public const string LEGACY_TABLE = 'tx_t3importexport_domain_model_queueitem';
 
     public const int DEFAULT_BATCH_SIZE = 500;
+
+    /**
+     * Rows per insert statement
+     */
+    public const int INSERT_CHUNK_SIZE = 100;
+
+    /**
+     * Bytes of data per insert statement (approximate), below the
+     * `max_allowed_packet` of MySQL and MariaDB
+     */
+    public const int INSERT_CHUNK_BYTES = 1048576;
+
+    /**
+     * Status values of the legacy table that are pending (new, processing)
+     */
+    private const array PENDING_STATUSES = [0, 1];
 
     private const array LEGACY_FIELDS = [
         'uid',
@@ -119,9 +137,15 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
      */
     public function updateNecessary(): bool
     {
-        foreach ($this->readBatches() as $batch) {
-            if ($this->findMissing($batch['items']) !== []) {
-                return true;
+        if (!$this->legacyTableExists()) {
+            return false;
+        }
+        foreach ($this->readBatches(null) as $batch) {
+            $existing = $this->findExisting($batch['items']);
+            foreach ($batch['items'] as $item) {
+                if (!isset($existing[self::key($item['queue'], $item['checksum'])])) {
+                    return true;
+                }
             }
         }
 
@@ -130,19 +154,46 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
 
     public function executeUpdate(): bool
     {
+        if (!$this->legacyTableExists()) {
+            $this->output->writeln(\sprintf('Legacy table %s not found, nothing to migrate.', self::LEGACY_TABLE));
+
+            return true;
+        }
         $migrated = 0;
         $existing = 0;
+        $duplicates = 0;
         $skipped = [];
-        foreach ($this->readBatches() as $batch) {
-            $skipped = [...$skipped, ...$batch['skipped']];
-            $missing = $this->findMissing($batch['items']);
-            $existing += \count($batch['items']) - \count($missing);
-            $migrated += $this->insert($missing);
+        // checksums (binary) of the items inserted by this run; the checksum
+        // of the core covers queue and data
+        $inserted = [];
+        foreach ([true, false] as $pending) {
+            foreach ($this->readBatches($pending) as $batch) {
+                $skipped = [...$skipped, ...$batch['skipped']];
+                $known = $this->findExisting($batch['items']);
+                $missing = [];
+                foreach ($batch['items'] as $item) {
+                    $checksum = (string)hex2bin($item['checksum']);
+                    if (isset($inserted[$checksum])) {
+                        $duplicates++;
+                    } elseif (isset($known[self::key($item['queue'], $item['checksum'])])) {
+                        $existing++;
+                    } else {
+                        $inserted[$checksum] = true;
+                        $missing[] = $item;
+                    }
+                }
+                $count = $this->insert($missing);
+                $migrated += $count;
+                // rows added in the meantime by a running task
+                $existing += \count($missing) - $count;
+            }
         }
 
         $this->output->writeln(\sprintf('%d items migrated.', $migrated));
         $this->output->writeln(\sprintf('%d items already in the queue of the core.', $existing));
+        $this->output->writeln(\sprintf('%d duplicate items of the legacy table not migrated (same identifier and data).', $duplicates));
         if ($skipped !== []) {
+            sort($skipped);
             $this->output->writeln(\sprintf(
                 '%d items skipped (no identifier or data not in UTF-8), uid: %s.',
                 \count($skipped),
@@ -156,25 +207,29 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
     /**
      * Reads the legacy table in batches ordered by uid and converts the rows.
      *
+     * @param bool|null $pending true: new and processing items only, false:
+     *   the other items, null: all items
      * @return \Generator<array{items: list<array{queue: string, checksum: string, data: string, status: int, createdAt: ?int, updatedAt: ?int}>, skipped: list<int>}>
      */
-    private function readBatches(): \Generator
+    private function readBatches(?bool $pending): \Generator
     {
-        if (!$this->legacyTableExists()) {
-            return;
-        }
         $lastUid = 0;
         do {
             $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::LEGACY_TABLE);
             $queryBuilder->getRestrictions()->removeAll();
-            $rows = $queryBuilder
+            $queryBuilder
                 ->select(...self::LEGACY_FIELDS)
                 ->from(self::LEGACY_TABLE)
                 ->where($queryBuilder->expr()->gt('uid', $queryBuilder->createNamedParameter($lastUid, Connection::PARAM_INT)))
                 ->orderBy('uid')
-                ->setMaxResults($this->batchSize)
-                ->executeQuery()
-                ->fetchAllAssociative();
+                ->setMaxResults($this->batchSize);
+            if ($pending !== null) {
+                $statuses = $queryBuilder->createNamedParameter(self::PENDING_STATUSES, ArrayParameterType::INTEGER);
+                $queryBuilder->andWhere(
+                    $pending ? $queryBuilder->expr()->in('status', $statuses) : $queryBuilder->expr()->notIn('status', $statuses)
+                );
+            }
+            $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
 
             $items = [];
             $skipped = [];
@@ -201,50 +256,48 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
     }
 
     /**
-     * Returns the items that are not in the queue of the core yet, each queue
-     * and checksum once (the first item).
+     * Returns the keys of the items that are in the queue of the core
+     * already. Queries each queue separately, so that the unique index on
+     * queue and checksum is used.
      *
      * @param list<array{queue: string, checksum: string, data: string, status: int, createdAt: ?int, updatedAt: ?int}> $items
-     * @return list<array{queue: string, checksum: string, data: string, status: int, createdAt: ?int, updatedAt: ?int}>
+     * @return array<string, true>
      */
-    private function findMissing(array $items): array
+    private function findExisting(array $items): array
     {
-        if ($items === []) {
-            return [];
-        }
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(QueueRepositoryFactory::TABLE);
-        $queryBuilder->getRestrictions()->removeAll();
-        $rows = $queryBuilder
-            ->select('queue', 'checksum')
-            ->from(QueueRepositoryFactory::TABLE)
-            ->where($queryBuilder->expr()->in(
-                'checksum',
-                $queryBuilder->createNamedParameter(
-                    array_values(array_unique(array_column($items, 'checksum'))),
-                    ArrayParameterType::STRING
-                )
-            ))
-            ->executeQuery()
-            ->fetchAllAssociative();
-        $known = [];
-        foreach ($rows as $row) {
-            $known[self::key((string)$row['queue'], (string)$row['checksum'])] = true;
-        }
-
-        $missing = [];
+        $checksums = [];
         foreach ($items as $item) {
-            $key = self::key($item['queue'], $item['checksum']);
-            if (isset($known[$key])) {
-                continue;
+            $checksums[$item['queue']][$item['checksum']] = true;
+        }
+        $existing = [];
+        foreach ($checksums as $queue => $queueChecksums) {
+            $queue = (string)$queue;
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable(QueueRepositoryFactory::TABLE);
+            $queryBuilder->getRestrictions()->removeAll();
+            $rows = $queryBuilder
+                ->select('checksum')
+                ->from(QueueRepositoryFactory::TABLE)
+                ->where(
+                    $queryBuilder->expr()->eq('queue', $queryBuilder->createNamedParameter($queue)),
+                    $queryBuilder->expr()->in(
+                        'checksum',
+                        $queryBuilder->createNamedParameter(array_map('strval', array_keys($queueChecksums)), ArrayParameterType::STRING)
+                    )
+                )
+                ->executeQuery()
+                ->fetchFirstColumn();
+            foreach ($rows as $checksum) {
+                $existing[self::key($queue, (string)$checksum)] = true;
             }
-            $known[$key] = true;
-            $missing[] = $item;
         }
 
-        return $missing;
+        return $existing;
     }
 
     /**
+     * Inserts the items in chunks of at most INSERT_CHUNK_SIZE rows and about
+     * INSERT_CHUNK_BYTES of data.
+     *
      * @param list<array{queue: string, checksum: string, data: string, status: int, createdAt: ?int, updatedAt: ?int}> $items
      * @return int number of inserted rows
      */
@@ -255,8 +308,11 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
         }
         $connection = $this->connectionPool->getConnectionForTable(QueueRepositoryFactory::TABLE);
         $format = $connection->getDatabasePlatform()->getDateTimeFormatString();
-        $rows = array_map(
-            static fn(array $item): array => [
+        $inserted = 0;
+        $chunk = [];
+        $bytes = 0;
+        foreach ($items as $item) {
+            $chunk[] = [
                 $item['queue'],
                 $item['checksum'],
                 $item['data'],
@@ -264,10 +320,26 @@ final class QueueItemMigration implements UpgradeWizardInterface, ChattyInterfac
                 '',
                 self::formatDateTime($item['createdAt'], $format),
                 self::formatDateTime($item['updatedAt'], $format),
-            ],
-            $items
-        );
+            ];
+            $bytes += \strlen($item['data']);
+            if (\count($chunk) >= self::INSERT_CHUNK_SIZE || $bytes >= self::INSERT_CHUNK_BYTES) {
+                $inserted += $this->insertChunk($connection, $chunk);
+                $chunk = [];
+                $bytes = 0;
+            }
+        }
+        if ($chunk !== []) {
+            $inserted += $this->insertChunk($connection, $chunk);
+        }
 
+        return $inserted;
+    }
+
+    /**
+     * @param list<list<int|string|null>> $rows
+     */
+    private function insertChunk(Connection $connection, array $rows): int
+    {
         try {
             return $connection->bulkInsert(QueueRepositoryFactory::TABLE, $rows, self::COLUMNS, self::COLUMN_TYPES);
         } catch (UniqueConstraintViolationException) {
