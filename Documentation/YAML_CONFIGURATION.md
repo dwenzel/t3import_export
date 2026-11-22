@@ -175,11 +175,13 @@ target:
   class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
   config:
     table: "target_table"                       # Required: Target table name
-    pid: 123                                    # Optional: Page ID for new records
-    mode: "insert"                              # Optional: insert|update|replace (default: insert)
-    updateField: "uid"                          # Optional: Field for update mode
-    connection: "Default"                       # Optional: Database connection name
+    unsetKeys: "foo,bar"                        # Optional: Fields removed before writing
+    connection: "Default"                       # Optional: Database connection name (default: table mapping)
+    key: ["import_id"]                          # Optional: Fields that identify a row to update
 ```
+
+A record with `__identity` updates the row with this `uid`. Fields such as
+`pid` must be set in the record. See [DataTargetDB](Persistence/DataTargetDB.md).
 
 ### CSV Data Target
 

@@ -198,8 +198,9 @@ Changes that concern tasks of the extension:
   of the core (`Persistence\FailureAwareInterface`) before it passes the
   exception on: `DataTargetDBAL` rolls back the rows of the current batch
   ([core #102](https://github.com/CPS-IT/import-export-core/issues/102)).
-  Of the sources and targets of the extension, only `DataSourceQueue` is
-  concerned: it marks the claimed items as failed, as it did before.
+  Of the sources and targets of the extension, `DataSourceQueue` marks the
+  claimed items as failed, as it did before, and `DataTargetDB` rolls back
+  the rows of the current batch (see [DataTargetDB](#datatargetdb)).
 * `Dbal\DataTargetDBAL` has no methods `quoteColumns()` and `types()` any
   more ([core #98](https://github.com/CPS-IT/import-export-core/issues/98));
   subclasses that call or override them must drop or copy them.
@@ -246,6 +247,68 @@ Breaking changes for code that uses the class:
 * `config.connection` selects the connection. It had no effect before, but
   was shown in an example of the documentation; remove it or check that it
   names the connection of the table.
+
+### DataTargetDB
+
+`DataTargetDB` is an adapter on `DataTargetDBAL` of the core
+([#132](https://github.com/dwenzel/t3import_export/issues/132)).
+Configurations and records of earlier versions write the same rows: a
+record with `__identity` updates the row with this `uid` (nothing is
+written if there is no such row), other records are inserted; `unsetKeys`
+and `skip` work as before. As before, the DataHandler is not used (no
+system fields, no reference index, no cache clearing), and the connection
+of the table mapping is used. A functional test compares the rows with
+those of the class of earlier versions.
+
+Changed behaviour:
+
+* The rows of a batch are written in one transaction, which is committed
+  after the batch. If a task fails, the rows of the current batch are rolled
+  back; rows of earlier batches stay. Before, each row was committed when it
+  was written, so the rows written before the error stayed in the table.
+  Code that calls `persist()` itself must call `persistAll()` or
+  `flushBatch()` afterwards, otherwise the rows are not committed.
+* Values must be scalar or `null`; field names must be plain names (letters,
+  digits, underscore); a record must not be empty. Such records throw a
+  `PersistenceException` (code 1647701464, as other write errors before).
+  Before, an array was written as the string `Array`, a field with another
+  name was written if the column existed, and an empty record inserted an
+  empty row on MySQL (an SQL error on other platforms). Remove or convert
+  such fields before the target, e.g. with `unsetKeys` or a pre-processor.
+* `false` is written as `0` (before: an empty string, which MySQL rejects
+  for integer columns). A record with only `__identity` does not change the
+  row (before: an SQL error).
+* The configuration is checked like the one of `DataTargetDBAL`: `table`
+  must be a plain name, `connection` must not be empty, `key` must be a list
+  of field names and `idField` a plain name. An invalid configuration makes
+  `isConfigurationValid()` return false and `persist()` throw an
+  `InvalidConfigurationException` with the code 1796600001.
+* `config.connection` selects the connection. It had no effect before, but
+  was shown in an example of the documentation; remove it or check that it
+  names the connection of the table. The options `pid`, `mode` and
+  `updateField` of that example still have no effect.
+
+Breaking changes for code that uses the class:
+
+* `DataTargetDB` extends `CPSIT\ImportExportCore\Dbal\DataTargetDBAL`
+  instead of `Component\AbstractComponent`; it implements
+  `DisableableInterface` with `Component\DisableableTrait`, so `disable`
+  works as before. It is `BatchAwareInterface`, `FailureAwareInterface` and
+  `IdentifyingTargetInterface` of the core.
+* The constructor takes `Dbal\Typo3ConnectionProvider` instead of
+  `ConnectionPool` and `DatabaseConnectionService`. The methods
+  `getDatabase()`, `getDataBase()` and `getDatabaseConnectionService()` and
+  the properties of `DatabaseTrait` are removed.
+* `persist()` is declared as `persist(array|object $object, ?array
+  $configuration = null): bool`. It returns `false` for a skipped record and
+  `true` otherwise, as before (the core returns whether a row was
+  inserted). Without configuration, the configuration of the component is
+  used. Objects throw an `UnexpectedValueException` (before: a `TypeError`).
+* `persistAll()` and `flushBatch()` commit the rows; `fail()` rolls them
+  back.
+* The constants `MISSING_CONNECTION_MESSAGE` and `MISSING_CONNECTION_CODE`
+  are not used any more. A connection that is not configured throws a
+  `MissingResourceException` (code 1795351767).
 
 ## Deprecated in 4.0
 
@@ -464,6 +527,26 @@ parameters. Keep SQL in configurations of the fallback free of values from
 records or user input; the configuration must come from trusted sources, as
 before.
 
+### Records of DataTargetDB
+
+A record for `DataTargetDB` with `__identity` and another `uid` changes the
+`uid` of the row `__identity`. The core cannot change the field that
+identifies a row, so a fallback writes the row with the connection of TYPO3,
+as before 4.0, in the transaction of the batch, and writes a message to the
+deprecation log
+([#132](https://github.com/dwenzel/t3import_export/issues/132)). The
+fallback will be removed in 5.0. Change such `uid` values in the database
+directly, or remove `uid` from the record (e.g. with `unsetKeys: uid`).
+
+The option `identifier` in the configuration of `DataTargetDB` never had an
+effect. It writes a message to the deprecation log and will not be accepted
+in 5.0; use `connection` to select a connection.
+
+| Deprecated | Replacement |
+|---|---|
+| `__identity: 12` with `uid: 34` in a record | update `uid` in the database directly; remove `uid` from the record |
+| `config.identifier: Legacy` | `config.connection: Legacy` |
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |
@@ -585,7 +668,10 @@ preProcessors:
    options of the core, see
    [SQL in the options of DataSourceDB](#sql-in-the-options-of-datasourcedb).
    Until 5.0 the configurations of earlier versions work unchanged.
-5. Check the deprecation log after running the tasks.
+5. Check tasks with `DataTargetDB` for records with arrays or field names
+   that are not plain names, and for code that calls `persist()` without
+   `persistAll()`, see [DataTargetDB](#datatargetdb).
+6. Check the deprecation log after running the tasks.
 
 ## Converting TypoScript settings to YAML
 

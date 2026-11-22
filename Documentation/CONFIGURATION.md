@@ -184,7 +184,6 @@ import:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
         config:
           table: "tx_news_domain_model_news"
-          pid: 123
 
       # Post-processing
       postProcessors:

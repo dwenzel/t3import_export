@@ -52,6 +52,11 @@ documentation. They get their connections from
   records in `where` or `filter`, and set system fields in the records
   yourself.
 
+`DataSourceDB` and `DataTargetDB` are adapters on `DataSourceDBAL` and
+`DataTargetDBAL`. They accept the options of earlier versions and use the
+connection of the table mapping if `connection` is not set. The notes above
+apply to them as well, as they did before 4.0.
+
 ```yaml
 source:
   class: CPSIT\ImportExportCore\Dbal\DataSourceDBAL
