@@ -44,7 +44,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
         ->setQuery()
         ->build()
         //switch to TYPO3\CMS\Core\Database\Query\QueryBuilder
-        ->execute()
+        ->executeQuery()
         ->fetchAllAssociative();
  *
  * @see QueryFacade
