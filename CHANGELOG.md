@@ -79,3 +79,7 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   examples; use YAML. The command `t3import-export:convert-typoscript`
   converts existing configurations
   ([#75](https://github.com/dwenzel/t3import_export/issues/75))
+
+### Security
+
+* `LookUpDB`: values from records are quoted in the `IN` constraint
