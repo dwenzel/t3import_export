@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Functional\Persistence;
 
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
+use CPSIT\ImportExportCore\Persistence\NullDataTarget;
 use CPSIT\ImportExportCore\Queue\QueueItemStatus;
 use CPSIT\ImportExportCore\Queue\QueueRepositoryInterface;
 use CPSIT\T3importExport\Dbal\QueueRepositoryFactory;
 use CPSIT\T3importExport\Persistence\DataSourceQueue;
+use CPSIT\T3importExport\Persistence\DataTargetDB;
+use CPSIT\T3importExport\Service\TransferService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -115,6 +119,59 @@ class DataSourceQueueTest extends FunctionalTestCase
 
         self::assertSame(
             ['a' => QueueItemStatus::Failed->value, 'b' => QueueItemStatus::Failed->value, 'c' => QueueItemStatus::New->value],
+            $this->getStatusByData()
+        );
+    }
+
+    /**
+     * TransferService reads the records of all tasks (buildQueue) before it
+     * processes them, so the items are claimed before the target writes.
+     * If the task fails, the claimed items are marked as failed.
+     */
+    #[Test]
+    public function itemsOfAFailingTaskRunByTheTransferServiceAreMarkedAsFailed(): void
+    {
+        $task = $this->get(TransferTaskFactory::class)->create('queueToMissingTable', [
+            'source' => [
+                'class' => DataSourceQueue::class,
+                'config' => self::CONFIGURATION,
+            ],
+            'target' => [
+                'class' => DataTargetDB::class,
+                'config' => ['table' => 'tx_t3importexport_missing_table'],
+            ],
+        ]);
+
+        try {
+            $this->get(TransferService::class)->run([$task]);
+            self::fail('The task should fail.');
+        } catch (\Throwable $exception) {
+            self::assertNotSame('The task should fail.', $exception->getMessage());
+        }
+
+        self::assertSame(
+            ['a' => QueueItemStatus::Failed->value, 'b' => QueueItemStatus::Failed->value, 'c' => QueueItemStatus::New->value],
+            $this->getStatusByData()
+        );
+    }
+
+    #[Test]
+    public function itemsOfATaskRunByTheTransferServiceAreFinished(): void
+    {
+        $task = $this->get(TransferTaskFactory::class)->create('queueToNull', [
+            'source' => [
+                'class' => DataSourceQueue::class,
+                'config' => self::CONFIGURATION,
+            ],
+            'target' => [
+                'class' => NullDataTarget::class,
+            ],
+        ]);
+
+        $this->get(TransferService::class)->run([$task]);
+
+        self::assertSame(
+            ['a' => QueueItemStatus::Finished->value, 'b' => QueueItemStatus::Finished->value, 'c' => QueueItemStatus::New->value],
             $this->getStatusByData()
         );
     }
