@@ -19,8 +19,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * Migration of the items of the legacy queue table into the queue table of
- * the core. The new table is read directly: the core repository returns the
- * timestamps as 1970-01-01 in a TYPO3 process (core 0.6.0).
+ * the core. The new table is read directly to check the stored values.
  */
 #[CoversClass(QueueItemMigration::class)]
 #[CoversClass(LegacyQueueItemConverter::class)]

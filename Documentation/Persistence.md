@@ -86,12 +86,6 @@ the connection the table is mapped to in
 mapping). The repository is registered as `QueueRepositoryInterface` of the
 core.
 
-With `cpsit/import-export-core` 0.6.0, `createdAt` and `updatedAt` of the
-queue items read in a TYPO3 process are 1970-01-01 (the values stored in the
-table are correct), until the core accepts `\DateTimeInterface` for these
-values; TYPO3 replaces the Doctrine type `datetime_immutable` with a mutable
-type.
-
 `DataSourceQueue` and `DataTargetQueue` of the extension use this queue, see
 [Queue](./Persistence/Queue.md). The commands `t3import-export:queue:status`
 and `t3import-export:queue:release` show and release the items.
