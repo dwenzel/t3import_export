@@ -38,6 +38,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `GenerateFileResource` and `GenerateUploadFile`
 * The backend modules use the module access `user`
 * The file finishers use the resource API of TYPO3 14
+* The export module lists export sets with label and description, like the
+  import module ([#62](https://github.com/dwenzel/t3import_export/issues/62))
 
 ### Deprecated
 

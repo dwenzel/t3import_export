@@ -31,17 +31,11 @@
             <div class="typo3-message message-information">
                 <div class="message-body">{f:translate(key: 'message.chooseExportSet')}</div>
             </div>
-            <f:form
-                action="exportSet"
-                name="exportSet">
-                <f:form.select
-                    name="identifier"
-                    options="{sets}"
-                    optionValueField="identifier"
-                    optionLabelField="identifier"
-                />
-                <f:form.submit name="submit" value="{f:translate(key: 'button.execute')}"/>
-            </f:form>
+            <ul>
+                <f:for each="{sets}" as="set">
+                    <f:render partial="Set/ListItem" arguments="{set: set, action: 'exportSet'}"/>
+                </f:for>
+            </ul>
         </f:then>
         <f:else>
             <div class="typo3-message message-notice">
