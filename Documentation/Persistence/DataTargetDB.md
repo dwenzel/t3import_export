@@ -24,16 +24,24 @@ versions and writes the same rows
   set, the reference index and caches are not updated, and no hooks are
   called, as before 4.0. Set the fields you need in the record, e.g. with a
   pre-processor.
-* Values must be scalar or `null`. Field names must be plain names (letters,
-  digits, underscore). Values are passed to the database as parameters.
+* Values must be scalar or `null`, except arrays in JSON columns and
+  `DateTime` objects in date and time columns (as the Doctrine type of
+  the column expects), which are converted
+  and written as before 4.0. Other arrays and objects are rejected. Field
+  names must be plain names (letters, digits, underscore). Values are
+  passed to the database as parameters.
 * Values are converted to the types of their columns, as the connection of
   TYPO3 did before 4.0: e.g. `''` and `'2.5'` become `0` and `2` in an
-  integer column, `false` becomes `''` in a string column.
+  integer column, `false` becomes `''` in a string column. Field names are
+  matched with the columns in their case, as before; the `uid` taken from
+  `__identity` is not converted.
 * With an ID map (`idMap` of the task), the processor asks for the `uid` of
   each written record; it gets it for inserted and updated records, also
   with `unsetKeys`. A record skipped by `skip` has no `uid`, and the task
-  fails (`LogicException`, code 1796600002). Use `disable` instead of `skip`
-  in tasks with an ID map.
+  fails (`LogicException`, code 1796600002). The processor asks for the IDs
+  after `flushBatch()`, so the batch with the skipped record is already
+  committed when the task fails. Use `disable` instead of `skip` in tasks
+  with an ID map.
 
 ## Configuration
 

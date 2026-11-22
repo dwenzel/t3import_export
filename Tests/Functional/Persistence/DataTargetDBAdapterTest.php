@@ -189,6 +189,14 @@ class DataTargetDBAdapterTest extends FunctionalTestCase
                     ['__identity' => 1, 'colPos' => '', 'sorting' => ' 7 '],
                 ],
             ],
+            '__identity that is not a number' => [
+                $table,
+                [['__identity' => '2abc', 'header' => 'Garbage'], ['__identity' => 'abc', 'header' => 'Garbage']],
+            ],
+            'field name in another case than the column' => [
+                $table,
+                [['header' => 'Lower case', 'colpos' => ''], ['header' => 'Lower case', 'colpos' => '3x']],
+            ],
             'numbers in string columns' => [
                 $table,
                 [['header' => 12, 'bodytext' => 1.25]],

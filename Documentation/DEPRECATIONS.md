@@ -268,8 +268,12 @@ Changed behaviour:
   was written, so the rows written before the error stayed in the table.
   Code that calls `persist()` itself must call `persistAll()` or
   `flushBatch()` afterwards, otherwise the rows are not committed.
-* Values must be scalar or `null`; field names must be plain names (letters,
-  digits, underscore); a record must not be empty. Such records throw a
+* Values must be scalar or `null` (arrays in JSON columns and
+  `DateTime` objects in date and time columns (as the Doctrine type of
+  the column expects) are converted and
+  written as before; other arrays and objects are rejected); field names
+  must be plain names (letters, digits, underscore); a record must not be
+  empty. Such records throw a
   `PersistenceException` (code 1647701464, as other write errors before).
   Before, an array was written as the string `Array`, a field with another
   name was written if the column existed, and an empty record inserted an
@@ -281,8 +285,10 @@ Changed behaviour:
   not change the row (before: an SQL error).
 * With an ID map (`idMap` of the task, core), the processor asks the target
   for the `uid` of each record. A record skipped by `skip` has none: the task
-  fails with a `LogicException` (code 1796600002). Use `disable` instead of
-  `skip` in tasks with an ID map. Before 4.0, an ID map could not be used
+  fails with a `LogicException` (code 1796600002). The processor asks for
+  the IDs after `flushBatch()`, so the batch with the skipped record is
+  already committed when the task fails. Use `disable` instead of `skip` in
+  tasks with an ID map. Before 4.0, an ID map could not be used
   with `DataTargetDB`.
 * The configuration is checked like the one of `DataTargetDBAL`: `table`
   must be a plain name, `connection` must not be empty, `key` must be a list

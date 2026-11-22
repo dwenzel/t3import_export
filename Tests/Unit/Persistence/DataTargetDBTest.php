@@ -831,4 +831,18 @@ class DataTargetDBTest extends TestCase
             }
         }
     }
+
+    #[Test]
+    public function dateTimeValuesAreConvertedForDateTimeColumns(): void
+    {
+        $this->connections['Default']->executeStatement('CREATE TABLE typed (uid INTEGER PRIMARY KEY AUTOINCREMENT, dt DATETIME)');
+
+        $this->subject->persist(['dt' => new \DateTime('2024-01-02 03:04:05')], ['table' => 'typed']);
+        $this->subject->persistAll();
+
+        self::assertSame(
+            '2024-01-02 03:04:05',
+            $this->connections['Default']->executeQuery('SELECT dt FROM typed')->fetchOne()
+        );
+    }
 }

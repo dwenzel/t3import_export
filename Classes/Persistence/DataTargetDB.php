@@ -101,7 +101,7 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
     private bool $skippedOfLastBatch = false;
 
     /**
-     * Types of the columns by lower case name, by connection and table
+     * Types of the columns by name, by connection and table
      *
      * @var array<string, array<string, Type>>
      */
@@ -213,11 +213,13 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
                 $record = $this->convertValues($connection, $table, $record);
                 $this->changeUidWithFallback($record, $identity, $configuration);
             } else {
-                // values that are not scalar are rejected by the core
-                if (!\array_key_exists(self::UID_FIELD, $record)) {
-                    $record[self::UID_FIELD] = $identity;
-                }
+                // the uid identifies the row and is not converted, as before
+                // 4.0 (`WHERE uid = __identity`); values that are not scalar
+                // are rejected by the core
+                $uid = $record[self::UID_FIELD] ?? $identity;
+                unset($record[self::UID_FIELD]);
                 $record = $this->convertValues($connection, $table, $record);
+                $record[self::UID_FIELD] = $uid;
                 $configuration[self::KEY_KEY] = [self::UID_FIELD];
                 $this->identity = \is_scalar($identity) ? (string)$identity : null;
                 parent::persist($record, $configuration);
@@ -297,7 +299,8 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
         $types = $this->getColumnTypes($connection, $table);
         $platform = $connection->getDatabasePlatform();
         foreach ($record as $column => $value) {
-            $type = $types[strtolower((string)$column)] ?? null;
+            // field names are looked up in their case, as TYPO3 does
+            $type = $types[(string)$column] ?? null;
             if ($type === null || $value === null) {
                 continue;
             }
@@ -319,7 +322,7 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
     }
 
     /**
-     * @return array<string, Type> by lower case column name
+     * @return array<string, Type> by column name
      */
     protected function getColumnTypes(Connection $connection, string $table): array
     {
@@ -332,7 +335,7 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
             $this->columnTypes[$key] = [];
             foreach ($columns as $column) {
                 $name = $column->getObjectName()->getIdentifier()->getValue();
-                $this->columnTypes[$key][strtolower($name)] = $column->getType();
+                $this->columnTypes[$key][$name] = $column->getType();
             }
         }
 
