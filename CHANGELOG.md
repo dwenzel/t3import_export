@@ -234,5 +234,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * Symbolic links are resolved before the allowed directories are checked; a
   link inside an allowed directory that points outside of it is rejected
   (`Resource\Typo3PathResolver`)
+* The real path of an `EXT:` path must be inside the directory of the
+  extension or of an allowed directory; a symbolic link that points outside
+  of them is rejected (`Resource\Typo3PathResolver`)
 * ValidateXML: schemas cannot include files or URLs outside the allowed
   locations
