@@ -21,8 +21,10 @@ use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Resource\PathResolverInterface;
 use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
+use TYPO3\CMS\Core\Package\Exception\UnknownPackagePathException;
+use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Resource\Security\FileNameValidator;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -48,7 +50,8 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  * directory) must be inside the real path of an allowed directory or, for
  * `EXT:` paths, of the extension. An allowed directory or an extension may
  * itself be a symbolic link, e.g. a `fileadmin` that links to a shared
- * directory; a link inside it must not lead out of it.
+ * directory; a link inside it must not lead out of it. The file type rules
+ * apply to the name of the link and of its target.
  */
 final readonly class Typo3PathResolver implements PathResolverInterface
 {
@@ -132,7 +135,9 @@ final readonly class Typo3PathResolver implements PathResolverInterface
             ) {
                 throw $this->notAllowed(
                     $path,
-                    'files must be in the directory of the extension or in one of the directories ' . implode(', ', $this->directories) . '.',
+                    'files must be in the directory of the extension'
+                    . ($extensionDirectory === null ? '' : ' (' . rtrim($extensionDirectory, '/') . ')')
+                    . ' or in one of the directories ' . implode(', ', $this->directories) . '.',
                     self::ERROR_DIRECTORY_NOT_ALLOWED
                 );
             }
@@ -144,6 +149,11 @@ final readonly class Typo3PathResolver implements PathResolverInterface
             );
         }
         $this->assertFileTypeAllowed($absolutePath);
+        // the file type of the target of a symbolic link
+        $realPath = self::realPath($absolutePath);
+        if ($realPath !== null && !$this->isFileTypeAllowed(basename($realPath))) {
+            throw $this->notAllowed($path, 'the file type is not allowed in TYPO3 (fileDenyPattern, allowed file extensions).', self::ERROR_FILE_TYPE_NOT_ALLOWED);
+        }
 
         return $absolutePath;
     }
@@ -163,15 +173,16 @@ final readonly class Typo3PathResolver implements PathResolverInterface
     }
 
     /**
-     * Directory of the extension of an `EXT:` path; null if the extension is
-     * not loaded
+     * Directory of the extension of an `EXT:` path (extension key, Composer
+     * name or alias, like TYPO3 resolves it); null if the extension is not
+     * loaded
      */
     private static function extensionDirectory(string $path): ?string
     {
-        $extensionKey = explode('/', substr($path, 4), 2)[0];
+        $packageManager = GeneralUtility::makeInstance(PackageManager::class);
         try {
-            return ExtensionManagementUtility::extPath($extensionKey);
-        } catch (\Throwable) {
+            return $packageManager->getPackage($packageManager->extractPackageKeyFromPackagePath($path))->getPackagePath();
+        } catch (UnknownPackageException|UnknownPackagePathException) {
             return null;
         }
     }

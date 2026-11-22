@@ -57,6 +57,26 @@ class Typo3PathResolverTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function allowsFileInTheExtensionWithComposerName(): void
+    {
+        $path = 'EXT:cpsit/t3import_export/' . self::FIXTURES . 'courses.csv';
+
+        self::assertFileExists((new Typo3PathResolver())->resolve($path));
+    }
+
+    #[Test]
+    public function rejectsSymbolicLinkToAFileOutsideOfTheExtensionWithComposerName(): void
+    {
+        $target = $this->createFile($this->outsideDirectory());
+        $name = $this->createLink($target);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        (new Typo3PathResolver(directories: [Environment::getPublicPath() . '/fileadmin']))
+            ->resolve('EXT:cpsit/t3import_export/' . self::FIXTURES . $name);
+    }
+
+    #[Test]
     public function allowsSymbolicLinkToAFileInTheExtension(): void
     {
         $name = $this->createLink(ExtensionManagementUtility::extPath('t3import_export') . self::FIXTURES . 'courses.csv');
