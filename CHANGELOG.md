@@ -38,11 +38,21 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `GenerateFileResource` and `GenerateUploadFile`
 * The backend modules use the module access `user`
 * The file finishers use the resource API of TYPO3 14
+* `DataTargetFileStream` and `DataTargetXMLStream` write their temporary files
+  to `var/transient/t3import_export/` instead of `typo3temp/` below the public
+  directory
+* TCA: `searchFields` is replaced by the field option `searchable`; the
+  status of queue items is no longer searched in the backend
+* The backend modules redirect to the list with an error message for a task
+  or set that is not configured
 
 ### Deprecated
 
 * `Persistence\DataSourceCSV`, `DataSourceXML`, `DataTargetCSV`,
   `DataSourceDummy` and `DataTargetDummy`; use the classes of the core
+* `Domain\Model\DataStream` and `DataStreamInterface`; use the data stream of
+  the core
+* `DataTargetFileStream::TEMP_DIRECTORY`
 
 ### Removed
 
@@ -64,3 +74,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `FactoryMapInterface`, the component factories, `DataSourceFactory` and
   `DataTargetFactory`; use the factories of the core
 * `ext_tables.php`
+* Tasks and sets in TypoScript (`module.tx_t3importexport.settings`),
+  `ext_typoscript_setup.typoscript`, the static template and the TypoScript
+  examples; use YAML. The command `t3import-export:convert-typoscript`
+  converts existing configurations
+  ([#75](https://github.com/dwenzel/t3import_export/issues/75))
+
+### Security
+
+* `LookUpDB`: values from records are quoted in the `IN` constraint
