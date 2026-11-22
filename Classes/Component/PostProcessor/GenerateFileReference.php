@@ -107,7 +107,9 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
         }
 
         // Only check if file reference exists if we have a foreign UID
-        if ($foreignUid !== null && $this->fileReferenceExists($tableName, $fileId, $foreignUid, $targetField)) {
+        // compare with the field name of the reference records created below
+        $fieldName = $configuration['fieldName'] ?? '';
+        if ($foreignUid !== null && $this->fileReferenceExists($tableName, $fileId, $foreignUid, $fieldName)) {
             return false;
         }
 
@@ -135,6 +137,10 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
 
         if (!is_object($convertedRecord)
         ) {
+            if ($foreignUid === null) {
+                // a reference record requires the uid of the record
+                return false;
+            }
             $this->createFileReferenceRecord($configuration, $fileId, $foreignUid);
             $convertedRecord[$targetField] = 1;
         }
