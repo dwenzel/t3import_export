@@ -23,10 +23,16 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
      ***************************************************************/
 
 use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
+use CPSIT\ImportExportCore\Processor\XMLMapperPreProcessor;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 
 /**
  * Class XMLMapper
  * Maps one field of a record to another. Existing fields are overwritten!
+ *
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\Processor\XMLMapperPreProcessor`, see
+ * Documentation/DEPRECATIONS.md for the differences.
  */
 class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
 {
@@ -107,6 +113,11 @@ class XMLMapper extends AbstractPreProcessor implements PreProcessorInterface
      */
     public function process(array $configuration, array &$record): bool
     {
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . XMLMapperPreProcessor::class . '.',
+            DeprecationUtility::XML_COMPONENTS_ISSUE_URL
+        );
+
         $fields = $configuration['fields'];
         $record = $this->remapXMLStructure($record, $fields);
 

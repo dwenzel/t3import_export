@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- includes typo3temp/outside.xsd of the public directory, which is not an allowed directory -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="../../../../../../typo3temp/outside.xsd"/>
+  <xs:element name="course" type="xs:string"/>
+</xs:schema>

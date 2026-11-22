@@ -559,6 +559,152 @@ in 5.0; use `connection` to select a connection.
 | `__identity: 12` with `uid: 34` in a record | update `uid` in the database directly; remove `uid` from the record |
 | `config.identifier: Legacy` | `config.connection: Legacy` |
 
+### XML components
+
+`ValidateXML` (pre-processor and finisher) and `XMLMapper` moved into
+`cpsit/import-export-core` 0.6
+([#154](https://github.com/dwenzel/t3import_export/issues/154), core
+[#25](https://github.com/CPS-IT/import-export-core/issues/25)). The classes
+of the extension write a message to the deprecation log, work as before
+through 4.x and will be removed in 5.0.
+
+| Deprecated | Replacement |
+|---|---|
+| `Component\PreProcessor\ValidateXML` | `CPSIT\ImportExportCore\Processor\ValidateXMLPreProcessor` |
+| `Component\PreProcessor\XMLMapper` | `CPSIT\ImportExportCore\Processor\XMLMapperPreProcessor` |
+| `Component\Finisher\ValidateXML` | `CPSIT\ImportExportCore\File\ValidateXMLFinisher` |
+
+The extension registers the classes of the core, so that they read files
+and URLs with the rules of the extension (see
+[Files](./Persistence/Files.md)): `EXT:` paths, paths relative to the public
+directory, the allowed directories (`fileDirectories`) and the allowed hosts
+(`allowedHosts`). This also applies to the schemas named in `xs:include`,
+`xs:import`, `xs:redefine` and `xs:override`.
+
+The options keep their names, so in most tasks only `class` changes:
+
+| Deprecated class, option | Core class, option |
+|---|---|
+| `ValidateXML` (pre-processor), `fields: 'a,b'` | `ValidateXMLPreProcessor`, `fields: 'a,b'` or `fields: [a, b]` |
+| `ValidateXML` (pre-processor), `identifier` (default `uid`) | `ValidateXMLPreProcessor`, `identifier` (default `uid`, must be a non-empty string) |
+| `ValidateXML` (pre-processor or finisher), `schema: {file: ...}` | the same; with the finisher also `schema: {url: ...}` (the deprecated finisher ignores `schema.url`) |
+| `ValidateXML` (pre-processor), `schema: {url: ...}` | `ValidateXMLPreProcessor`, `schema: {url: ...}`; `schema` must name exactly one of `file` and `url` |
+| `ValidateXML` (finisher), `file` or `url` | `ValidateXMLFinisher`, `file` or `url` (exactly one of them) |
+| `ValidateXML` (finisher), `target.schema` (only checked, not used) | none, remove it |
+| `XMLMapper`, `fields` | `XMLMapperPreProcessor`, `fields` (not empty) |
+
+```yaml
+# before
+preProcessors:
+  10:
+    class: "CPSIT\\T3importExport\\Component\\PreProcessor\\ValidateXML"
+    config:
+      fields: "body"
+      schema:
+        file: "EXT:my_extension/Resources/Private/Schema/body.xsd"
+  20:
+    class: "CPSIT\\T3importExport\\Component\\PreProcessor\\XMLMapper"
+    config:
+      fields:
+        id: "@attribute"
+finishers:
+  10:
+    class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+    config:
+      file: "fileadmin/exports/news.xml"
+      schema:
+        file: "fileadmin/schemas/news.xsd"
+
+# after
+preProcessors:
+  10:
+    class: "CPSIT\\ImportExportCore\\Processor\\ValidateXMLPreProcessor"
+    config:
+      fields: "body"
+      schema:
+        file: "EXT:my_extension/Resources/Private/Schema/body.xsd"
+  20:
+    class: "CPSIT\\ImportExportCore\\Processor\\XMLMapperPreProcessor"
+    config:
+      fields:
+        id: "@attribute"
+finishers:
+  10:
+    class: "CPSIT\\ImportExportCore\\File\\ValidateXMLFinisher"
+    config:
+      file: "fileadmin/exports/news.xml"
+      schema:
+        file: "fileadmin/schemas/news.xsd"
+```
+
+Differences when replacing the deprecated classes with those of the core:
+
+* Schema files:
+  * the schema itself must have the file type `xsd` (before: only the
+    included schemas). If the schema or a schema it includes has another
+    type, an `InvalidConfigurationException` (1795200801) is thrown (before:
+    `MissingResourceException` 1795300201 for included schemas)
+  * with the TYPO3 feature `security.system.enforceAllowedFileExtensions`,
+    `xsd` must be in `$GLOBALS['TYPO3_CONF_VARS']['SYS']['miscfile_ext']`;
+    otherwise the schema is rejected (`MissingResourceException` 1646301113
+    of the pre-processor, 1795200901 of the finisher). This also applies to
+    the deprecated classes
+  * a schema is loaded and checked once per task. A schema that is not a
+    valid XML schema stops the task with a `ParseException` (pre-processor
+    1795200903, finisher 1795200904); before, the pre-processor logged an
+    error for each record and the finisher reported the file as invalid
+  * a schema that is missing, empty or outside of the allowed directories
+    and hosts, or that includes such a schema, throws a `MissingResourceException` with the code 1646301113
+    (pre-processor) or 1795200901 (finisher). Before: 1646301113 or 1508914547
+    for the schema itself, 1795300201 for included schemas, and the
+    `InvalidArgumentException` of the path rules (1795300101 to 1795300103)
+    for a schema path that is not allowed
+  * `schemaLocation` in `xs:include` and the other elements is resolved
+    relative to the naming schema only. Use relative locations in schemas
+    named by an `EXT:` path or a path relative to the public directory;
+    `EXT:` locations in `schemaLocation`, and relative locations in schemas
+    named by an absolute path, cannot be loaded. An empty `schemaLocation`
+    throws a `ParseException`
+  * schemas that import a URL, e.g. `http://www.w3.org/2001/xml.xsd`, need
+    the host in `allowedHosts` (as before) or a local copy of the imported
+    schema next to the schema
+* `ValidateXMLPreProcessor`:
+  * `fields` may also be a list
+  * a missing field or a value that is neither a string nor a `DOMDocument`
+    makes the record invalid without a PHP warning; a missing identifier
+    field is reported as empty ID
+  * the record is passed on in any case, with `xmlValidationFailed: true` if
+    a field is invalid; the deprecated class returned `false` in addition
+  * the message of error 1646304431 has no indentation and the libxml
+    message is trimmed; its description is `XML is invalid` (before: `XML ist
+    invalid`)
+  * the libxml error handling of PHP is restored after each record
+* `ValidateXMLFinisher`:
+  * `file` must have the file type `xml`; exactly one of `file` and `url` is
+    required. Paths and hosts are checked when the task runs (before: also
+    when the configuration was validated). A file that is missing or not
+    allowed is logged as error 1508914547, like an empty file
+  * the file is read element by element instead of being loaded into memory
+  * the document is not validated against a DTD it contains. Without a
+    schema, a well-formed document is valid (before: a document without
+    `DOCTYPE` was reported as invalid)
+  * the additional information of notice 1508776068 is a list of strings
+    (`Line 3, column 5: ...`) instead of `LibXMLError` objects; the title of
+    notice 1508914030 is `Validation succeeded`
+  * error 1508774170 (`target.schema` not a string) is not used
+* `XMLMapperPreProcessor`:
+  * `fields` must not be empty; every rule must be `@attribute`, `@value`,
+    `@cdata`, `@separateRow` or a combination separated by `|`; `mapTo`
+    must be a non-empty string and `'@separateRow'` as key must have the
+    value `true` (before: `'@separateRow': '@separateRow'`)
+  * a field that is missing in the record is skipped (before: `@value` was
+    set to `null` with a PHP warning); `@separateRow` is only added to
+    arrays
+* The classes of the core implement the interfaces of the core
+  (`process(array $record): array`, `finish(TaskContext $context)`) and are
+  `final`. Subclasses of the deprecated classes have to be changed into
+  own components or decorators.
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |
