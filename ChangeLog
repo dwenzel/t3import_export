@@ -1,3 +1,9 @@
+2026-11-22         [RELEASE] Release of t3import_export 1.1.2 (Dirk Wenzel)
+2026-11-22 dd75135 [TASK] Update ext_emconf for 1.1.2 (Dirk Wenzel)
+2026-11-22 23d2c86 [DOC] ValidateXML: describe the DTD validation of the finisher (Dirk Wenzel)
+2026-11-22 b58a98a [SECURITY] ValidateXML: resolve included schemas through the file rules (Dirk Wenzel)
+2026-11-22 f9d1106 [SECURITY] LookUpDB: quote values of the IN constraint (Dirk Wenzel)
+
 2026-11-10         [RELEASE] Release of t3import_export 1.1.1 (Dirk Wenzel)
 2026-11-10 79bc7e9 [TASK] Update ext_emconf for 1.1.1 (Dirk Wenzel)
 2026-11-10 659959d [BUGFIX] Declare dependency on t3extension_tools in ext_emconf (Dirk Wenzel)
