@@ -215,7 +215,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
                     }
 
                     foreach ($children as $childValue) {
-                        $childValues[] = sprintf('"%s%s"', $prefix, $childValue);
+                        $childValues[] = $queryBuilder->quote($prefix . $childValue);
                     }
                     $childValueList = implode(',', $childValues);
 
