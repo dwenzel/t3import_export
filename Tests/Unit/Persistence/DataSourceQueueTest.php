@@ -188,6 +188,16 @@ class DataSourceQueueTest extends TestCase
     }
 
     #[Test]
+    public function isConfigurationValidDoesNotWriteADeprecation(): void
+    {
+        self::assertTrue($this->subject->isConfigurationValid(
+            [DataSourceQueue::KEY_IDENTIFIER => self::QUEUE, DataSourceQueue::KEY_BATCH_SIZE => '2']
+        ));
+
+        self::assertSame([], $this->deprecations);
+    }
+
+    #[Test]
     public function limitTakesPrecedenceOverBatchSize(): void
     {
         $this->enqueue('a', 'b', 'c');

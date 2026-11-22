@@ -25,7 +25,7 @@ Writes the field `data` of each record into a queue.
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `identifier` | string | – | The queue, e.g. `import.events` |
-| `allowUpdate` | bool | false | A record that is already in the queue is set back to new |
+| `allowUpdate` | bool | false | `true`: a record that is already in the queue is set back to new, also if it was finished or failed. Strings and integers (e.g. `'1'`) are deprecated and treated as false. |
 
 * The target enqueues the record `['data' => '<data>']`. The value of `data`
   is written as string; other fields of the record are ignored. Records
@@ -37,6 +37,12 @@ Writes the field `data` of each record into a queue.
   versions count as well.
 * Prepare the field `data` with pre-processors, e.g. encode the record as
   JSON into `data`.
+* `allowUpdate` changed its meaning in 4.0. Before, only strings were valid
+  and the option had practically no effect on items in the queue. Now
+  `allowUpdate: true` sets them back to new, so that they are read again,
+  every time the record is written. Use it only if this is wanted.
+* The table stores the record as JSON in the column `data`
+  (`{"data":"<data>"}`).
 
 ```yaml
 target:
