@@ -77,6 +77,16 @@ services:
       public: true
       arguments:
         $pathResolver: '@t3import_export.target_path_resolver'
+    # XML components: schemas (and the schemas they include or import) and
+    # the file of the finisher are loaded with the resource loader above.
+    # Not shared: each component keeps the loaded schemas, so components with
+    # different schemas need their own instances
+    CPSIT\ImportExportCore\Processor\ValidateXMLPreProcessor:
+      public: true
+      shared: false
+    CPSIT\ImportExportCore\File\ValidateXMLFinisher:
+      public: true
+      shared: false
 
     # Database: the DBAL components of the core use the connections of
     # TYPO3; the connection `default` is the TYPO3 connection `Default`
