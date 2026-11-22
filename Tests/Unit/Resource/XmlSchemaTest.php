@@ -26,6 +26,7 @@ use CPSIT\T3importExport\Resource\XmlSchema;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
@@ -56,6 +57,8 @@ class XmlSchemaTest extends TestCase
         XSD;
 
     private string $directory = '';
+
+    private string $includeLocation = '';
 
     /**
      * @var list<RequestInterface>
@@ -218,15 +221,24 @@ class XmlSchemaTest extends TestCase
         self::assertTrue(self::isValid($subject, $uri, '<item><title>a</title></item>'));
     }
 
-    #[Test]
-    public function resolvesIncludeRelativeToTheUrlOfTheSchema(): void
+    public static function urlIncludeDataProvider(): iterable
     {
+        yield 'parent directory' => ['../common/types.xsd', 'https://data.example.org/schemas/common/types.xsd'];
+        yield 'above the root' => ['../../../../types.xsd', 'https://data.example.org/types.xsd'];
+        yield 'absolute path' => ['/common/./types.xsd', 'https://data.example.org/common/types.xsd'];
+    }
+
+    #[Test]
+    #[DataProvider('urlIncludeDataProvider')]
+    public function resolvesIncludeRelativeToTheUrlOfTheSchema(string $location, string $expected): void
+    {
+        $this->includeLocation = $location;
         $client = $this->createStub(ClientInterface::class);
         $client->method('sendRequest')->willReturnCallback(function (RequestInterface $request): Response {
             $this->requests[] = $request;
 
             return new Response(200, [], str_ends_with((string)$request->getUri(), 'main.xsd')
-                ? \sprintf(self::MAIN, '../common/types.xsd')
+                ? \sprintf(self::MAIN, $this->includeLocation)
                 : self::INCLUDED);
         });
         $subject = new XmlSchema(new ResourceAccess(
@@ -236,7 +248,7 @@ class XmlSchemaTest extends TestCase
 
         $uri = $subject->load('https://data.example.org/schemas/v1/main.xsd', 1);
 
-        self::assertSame('https://data.example.org/schemas/common/types.xsd', (string)$this->requests[1]->getUri());
+        self::assertSame($expected, (string)$this->requests[1]->getUri());
         self::assertTrue(self::isValid($subject, $uri, '<item><title>a</title></item>'));
     }
 

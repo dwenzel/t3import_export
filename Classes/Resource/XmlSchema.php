@@ -266,23 +266,31 @@ final class XmlSchema
     }
 
     /**
-     * Removes `.` and `..` segments. A leading slash is kept. `..` segments
-     * that would leave the root are kept, so that the file rules reject them.
+     * Removes `.` and `..` segments. A leading slash is kept. In an absolute
+     * path, `..` segments that would leave the root are removed (like in
+     * URLs); in a relative path they are kept, so that the file rules reject
+     * them.
      */
     private static function normalize(string $path): string
     {
+        $isAbsolute = str_starts_with($path, '/');
         $segments = [];
         foreach (explode('/', $path) as $segment) {
             if ($segment === '' || $segment === '.') {
                 continue;
             }
-            if ($segment === '..' && $segments !== [] && end($segments) !== '..') {
-                array_pop($segments);
-                continue;
+            if ($segment === '..') {
+                if ($segments !== [] && end($segments) !== '..') {
+                    array_pop($segments);
+                    continue;
+                }
+                if ($isAbsolute) {
+                    continue;
+                }
             }
             $segments[] = $segment;
         }
 
-        return (str_starts_with($path, '/') ? '/' : '') . implode('/', $segments);
+        return ($isAbsolute ? '/' : '') . implode('/', $segments);
     }
 }
