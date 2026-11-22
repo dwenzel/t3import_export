@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -92,6 +93,12 @@ class DataTargetFileStreamTest extends TestCase
             $this->persistenceManager
         );
         $this->mockBasicFileUtility();
+    }
+
+    protected function tearDown(): void
+    {
+        GeneralUtility::purgeInstances();
+        parent::tearDown();
     }
 
     #[Test]
@@ -211,6 +218,141 @@ class DataTargetFileStreamTest extends TestCase
         $this->subject->persistAll(null);
 
         self::assertNull($taskResult->getInfo());
+    }
+
+    #[Test]
+    public function persistCreatesNewTemporaryFileIfPreviousFileWasRemoved(): void
+    {
+        $files = [];
+        try {
+            $taskResult = new TaskResult();
+            $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
+
+            $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>1</a>'));
+            $this->subject->persistAll($taskResult);
+            $files[] = $firstFile = $taskResult->getInfo()->getPathname();
+            unlink($firstFile);
+
+            $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>2</a>'));
+            $this->subject->persistAll($taskResult);
+            $files[] = $secondFile = $taskResult->getInfo()->getPathname();
+
+            self::assertNotSame($firstFile, $secondFile);
+            self::assertSame('<a>2</a>', file_get_contents($secondFile));
+        } finally {
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
+    }
+
+    #[Test]
+    public function persistCreatesTemporaryDirectoryIfMissing(): void
+    {
+        $directory = rtrim(GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY), '/');
+        $backup = '';
+        if (file_exists($directory)) {
+            $candidate = $directory . '_backup_' . bin2hex(random_bytes(4));
+            if (!rename($directory, $candidate)) {
+                self::markTestSkipped('The existing temporary directory could not be moved aside.');
+            }
+            $backup = $candidate;
+        }
+
+        $fileName = '';
+        try {
+            $taskResult = new TaskResult();
+            $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
+            $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>1</a>'));
+            $this->subject->persistAll($taskResult);
+
+            self::assertDirectoryExists($directory);
+            $fileName = $taskResult->getInfo()->getPathname();
+            self::assertSame($directory, dirname($fileName));
+        } finally {
+            if ($fileName !== '' && is_file($fileName)) {
+                unlink($fileName);
+            }
+            if ($backup !== '') {
+                foreach (glob($directory . '/*') ?: [] as $file) {
+                    unlink($file);
+                }
+                if (is_dir($directory)) {
+                    rmdir($directory);
+                }
+                rename($backup, $directory);
+            }
+        }
+    }
+
+    #[Test]
+    public function persistUsesUniqueNameFromFileUtility(): void
+    {
+        $directory = sys_get_temp_dir() . '/t3import_export_' . bin2hex(random_bytes(6));
+        mkdir($directory);
+        $fileName = $directory . '/unique.tmp';
+        try {
+            $this->fileUtility->expects(self::once())
+                ->method('getUniqueName')
+                ->with(self::isString(), GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY))
+                ->willReturn($fileName);
+            GeneralUtility::addInstance(BasicFileUtility::class, $this->fileUtility);
+
+            $taskResult = new TaskResult();
+            $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
+            $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>1</a>'));
+            $this->subject->persistAll($taskResult);
+
+            self::assertSame($fileName, $taskResult->getInfo()->getPathname());
+            self::assertSame('<a>1</a>', file_get_contents($fileName));
+        } finally {
+            if (is_file($fileName)) {
+                unlink($fileName);
+            }
+            rmdir($directory);
+        }
+    }
+
+    #[Test]
+    public function persistThrowsExceptionIfTemporaryFileCannotBeCreated(): void
+    {
+        $fileName = sys_get_temp_dir() . '/t3import_export_missing_' . bin2hex(random_bytes(6)) . '/unique.tmp';
+        $fileUtility = $this->createStub(BasicFileUtility::class);
+        $fileUtility->method('getUniqueName')->willReturn($fileName);
+        GeneralUtility::addInstance(BasicFileUtility::class, $fileUtility);
+
+        $this->expectException(FileOperationErrorException::class);
+        $this->expectExceptionMessage('can\'t create new temp file: \'' . $fileName . '\'');
+
+        $this->persistWithoutWarnings($this->createDataStreamWithSampleBuffer('<a>1</a>'));
+    }
+
+    #[Test]
+    public function persistThrowsExceptionIfBufferCannotBeWritten(): void
+    {
+        // a directory exists, but cannot be written as a file
+        $directory = sys_get_temp_dir();
+        (new ReflectionClass($this->subject))->getProperty('tempFile')->setValue($this->subject, $directory);
+
+        $this->expectException(FileOperationErrorException::class);
+        $this->expectExceptionMessage('can\'t write in temp file: \'' . $directory . '\'');
+
+        $this->persistWithoutWarnings($this->createDataStreamWithSampleBuffer('<a>1</a>'));
+    }
+
+    /**
+     * Persists a stream while the warnings of failing file functions are ignored
+     */
+    protected function persistWithoutWarnings(DataStream $stream): void
+    {
+        set_error_handler(static fn(): bool => true, E_WARNING);
+        try {
+            $this->subject->persist($stream);
+        } finally {
+            restore_error_handler();
+        }
     }
 
     #[Test]
