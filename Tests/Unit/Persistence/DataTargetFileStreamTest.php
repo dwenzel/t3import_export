@@ -221,21 +221,29 @@ class DataTargetFileStreamTest extends TestCase
     #[Test]
     public function persistCreatesNewTemporaryFileIfPreviousFileWasRemoved(): void
     {
-        $taskResult = new TaskResult();
-        $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
+        $files = [];
+        try {
+            $taskResult = new TaskResult();
+            $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
 
-        $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>1</a>'));
-        $this->subject->persistAll($taskResult);
-        $firstFile = $taskResult->getInfo()->getPathname();
-        unlink($firstFile);
+            $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>1</a>'));
+            $this->subject->persistAll($taskResult);
+            $files[] = $firstFile = $taskResult->getInfo()->getPathname();
+            unlink($firstFile);
 
-        $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>2</a>'));
-        $this->subject->persistAll($taskResult);
-        $secondFile = $taskResult->getInfo()->getPathname();
+            $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>2</a>'));
+            $this->subject->persistAll($taskResult);
+            $files[] = $secondFile = $taskResult->getInfo()->getPathname();
 
-        self::assertNotSame($firstFile, $secondFile);
-        self::assertSame('<a>2</a>', file_get_contents($secondFile));
-        unlink($secondFile);
+            self::assertNotSame($firstFile, $secondFile);
+            self::assertSame('<a>2</a>', file_get_contents($secondFile));
+        } finally {
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
     }
 
     #[Test]
@@ -244,10 +252,14 @@ class DataTargetFileStreamTest extends TestCase
         $directory = rtrim(GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY), '/');
         $backup = '';
         if (file_exists($directory)) {
-            $backup = $directory . '_backup_' . bin2hex(random_bytes(4));
-            rename($directory, $backup);
+            $candidate = $directory . '_backup_' . bin2hex(random_bytes(4));
+            if (!rename($directory, $candidate)) {
+                self::markTestSkipped('The existing temporary directory could not be moved aside.');
+            }
+            $backup = $candidate;
         }
 
+        $fileName = '';
         try {
             $taskResult = new TaskResult();
             $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
@@ -257,8 +269,10 @@ class DataTargetFileStreamTest extends TestCase
             self::assertDirectoryExists($directory);
             $fileName = $taskResult->getInfo()->getPathname();
             self::assertSame($directory, dirname($fileName));
-            unlink($fileName);
         } finally {
+            if ($fileName !== '' && is_file($fileName)) {
+                unlink($fileName);
+            }
             if ($backup !== '') {
                 foreach (glob($directory . '/*') ?: [] as $file) {
                     unlink($file);
@@ -277,29 +291,35 @@ class DataTargetFileStreamTest extends TestCase
         $directory = sys_get_temp_dir() . '/t3import_export_' . bin2hex(random_bytes(6));
         mkdir($directory);
         $fileName = $directory . '/unique.tmp';
-        $this->fileUtility->expects(self::once())
-            ->method('getUniqueName')
-            ->with(self::isString(), GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY))
-            ->willReturn($fileName);
-        GeneralUtility::addInstance(BasicFileUtility::class, $this->fileUtility);
+        try {
+            $this->fileUtility->expects(self::once())
+                ->method('getUniqueName')
+                ->with(self::isString(), GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY))
+                ->willReturn($fileName);
+            GeneralUtility::addInstance(BasicFileUtility::class, $this->fileUtility);
 
-        $taskResult = new TaskResult();
-        $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
-        $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>1</a>'));
-        $this->subject->persistAll($taskResult);
+            $taskResult = new TaskResult();
+            $taskResult->setElements([$this->createDataStreamWithSampleBuffer('<a>1</a>')]);
+            $this->subject->persist($this->createDataStreamWithSampleBuffer('<a>1</a>'));
+            $this->subject->persistAll($taskResult);
 
-        self::assertSame($fileName, $taskResult->getInfo()->getPathname());
-        self::assertSame('<a>1</a>', file_get_contents($fileName));
-        unlink($fileName);
-        rmdir($directory);
+            self::assertSame($fileName, $taskResult->getInfo()->getPathname());
+            self::assertSame('<a>1</a>', file_get_contents($fileName));
+        } finally {
+            if (is_file($fileName)) {
+                unlink($fileName);
+            }
+            rmdir($directory);
+        }
     }
 
     #[Test]
     public function persistThrowsExceptionIfTemporaryFileCannotBeCreated(): void
     {
         $fileName = sys_get_temp_dir() . '/t3import_export_missing_' . bin2hex(random_bytes(6)) . '/unique.tmp';
-        $this->fileUtility->method('getUniqueName')->willReturn($fileName);
-        GeneralUtility::addInstance(BasicFileUtility::class, $this->fileUtility);
+        $fileUtility = $this->createStub(BasicFileUtility::class);
+        $fileUtility->method('getUniqueName')->willReturn($fileName);
+        GeneralUtility::addInstance(BasicFileUtility::class, $fileUtility);
 
         $this->expectException(FileOperationErrorException::class);
         $this->expectExceptionMessage('can\'t create new temp file: \'' . $fileName . '\'');
