@@ -25,6 +25,7 @@ use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Resource\XmlSchema;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use XMLReader;
@@ -130,20 +131,38 @@ class ValidateXML extends AbstractFinisher
 
             return false;
         }
+        // libxml loads no files or URLs itself; includes only from the directory of the schema file
+        $schemaLoader = new XmlSchema();
+        $schemaUri = null;
+        if (!empty($configuration['schema']['file'])) {
+            $schemaFile = (string)$this->getAbsoluteFilePath($configuration['schema']['file']);
+            $schemaContent = $schemaFile !== '' && is_file($schemaFile) ? file_get_contents($schemaFile) : false;
+            if ($schemaContent === false || trim($schemaContent) === '') {
+                $this->logError(1_508_914_547, null, [$configuration['schema']]);
+
+                return false;
+            }
+            $schemaUri = $schemaLoader->load($schemaContent, $schemaFile);
+        }
         libxml_use_internal_errors(true);
 
-        $this->xmlReader::XML($resource, null, LIBXML_DTDVALID);
-        $this->xmlReader->setParserProperty(XMLReader::VALIDATE, true);
+        $xmlReader = $this->xmlReader;
+        $isValid = $schemaLoader->run(static function () use ($xmlReader, $resource, $schemaUri): bool {
+            $xmlReader->XML($resource, null, LIBXML_DTDVALID | LIBXML_NONET);
+            $xmlReader->setParserProperty(XMLReader::VALIDATE, true);
+            if ($schemaUri !== null) {
+                $xmlReader->setSchema($schemaUri);
+            }
+            while ($xmlReader->read()) {
+                // read the whole document to validate it
+            }
+            $isValid = $xmlReader->isValid();
+            $xmlReader->close();
 
-        if (!empty($configuration['schema']['file'])) {
-            $schema = $this->getAbsoluteFilePath($configuration['schema']['file']);
-            $this->xmlReader->setSchema($schema);
-        }
+            return $isValid;
+        });
 
-        $this->xmlReader->read();
-        $this->xmlReader->close();
-
-        if (!$isValid = $this->xmlReader->isValid()) {
+        if (!$isValid) {
             $validationErrors = libxml_get_errors();
             $errorCount = count($validationErrors);
             $string1 = ($errorCount > 1)? 'were' : 'was';
