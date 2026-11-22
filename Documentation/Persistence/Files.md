@@ -48,8 +48,10 @@ The rules apply when the task runs, in the backend module, the command and
 the scheduler. They do not depend on the backend user: file mounts and
 permissions of backend users do not apply to tasks.
 
-Symbolic links inside an allowed directory are followed, e.g. a `fileadmin`
-that links to a shared directory.
+Symbolic links are resolved before the check: the real path of the file, or
+of its nearest existing parent directory, must be inside the real path of an
+allowed directory, so an allowed directory may be a link (e.g. a `fileadmin`
+on a shared volume), but a link inside it must not lead out of it.
 
 ## URLs
 

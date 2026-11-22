@@ -83,3 +83,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 ### Security
 
 * `LookUpDB`: values from records are quoted in the `IN` constraint
+* Symbolic links are resolved before the allowed directories are checked; a
+  link inside an allowed directory that points outside of it is rejected
+  (`Resource\Typo3PathResolver`)
