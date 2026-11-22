@@ -80,6 +80,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   converts existing configurations
   ([#75](https://github.com/dwenzel/t3import_export/issues/75))
 
+### Fixed
+
+* `LookUpDB` failed on TYPO3 14 because `Persistence\Query\QueryFacade`
+  called the removed `QueryBuilder::execute()`
+  ([#165](https://github.com/dwenzel/t3import_export/issues/165))
+
 ### Security
 
 * `LookUpDB`: values from records are quoted in the `IN` constraint
