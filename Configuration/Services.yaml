@@ -89,6 +89,15 @@ services:
     CPSIT\ImportExportCore\Dbal\RelationListPreProcessor:
       public: true
 
+    # Queue of the core on the table tx_t3importexport_queue_item, with the
+    # connection of the table mapping
+    CPSIT\T3importExport\Dbal\QueueRepositoryFactory:
+      public: true
+    CPSIT\ImportExportCore\Dbal\Queue\DbalQueueRepository:
+      public: true
+      factory: ['@CPSIT\T3importExport\Dbal\QueueRepositoryFactory', 'create']
+    CPSIT\ImportExportCore\Queue\QueueRepositoryInterface: '@CPSIT\ImportExportCore\Dbal\Queue\DbalQueueRepository'
+
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true
       arguments:

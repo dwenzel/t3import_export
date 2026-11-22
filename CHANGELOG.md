@@ -31,6 +31,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `RelationListPreProcessor`), which can be used in tasks; `default` is the
   TYPO3 connection `Default`
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* Table `tx_t3importexport_queue_item` for the queue of the core and
+  `Dbal\QueueRepositoryFactory`, which creates the queue repository of the
+  core on it; the repository is registered as `QueueRepositoryInterface`
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Changed
 
