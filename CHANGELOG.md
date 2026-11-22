@@ -38,7 +38,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * Upgrade wizard `t3importExport_queueItemMigration`, which copies the items
   of the queue table `tx_t3importexport_domain_model_queueitem` into the
   queue table of the core; items of all statuses are copied, items in
-  processing become new, and the wizard can be run again
+  processing become new, and the wizard can be run again. Run it before
+  running tasks with 4.0
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Changed

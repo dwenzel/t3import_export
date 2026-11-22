@@ -99,8 +99,9 @@ changed yet.
 The upgrade wizard `t3importExport_queueItemMigration`
 (`CPSIT\T3importExport\Upgrades\QueueItemMigration`) copies the items of
 `tx_t3importexport_domain_model_queueitem` into `tx_t3importexport_queue_item`.
-Run it after updating the database schema, in the Install Tool (Upgrade >
-Upgrade Wizard) or on the command line:
+Run it after updating the database schema and before running any task with
+version 4.0, in the Install Tool (Upgrade > Upgrade Wizard) or on the command
+line:
 
 ```bash
 vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration
@@ -129,14 +130,22 @@ vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration
   finish.
 * Items that are already in the queue table of the core (same queue and
   checksum) are not changed. Of several legacy items with the same identifier
-  and data, the first one (lowest `uid`) is copied.
+  and data, one is copied: a new or processing item is preferred over a
+  finished or failed one, then the lowest `uid`. The wizard reports the
+  number of migrated items, of items already in the queue table of the core
+  and of legacy duplicates that were not copied.
 * Items without identifier and items whose data is not valid UTF-8 (cannot be
   stored as JSON) are skipped; the wizard lists their `uid`.
 * The wizard can be run again (for example after
   `upgrade:mark:undone t3importExport_queueItemMigration`); it adds only the
-  missing items. It reports an update as necessary as long as an item of the
-  legacy table is missing in the queue table of the core.
-* The legacy table is read but not changed. Both tables are read and written
-  in batches of 500 rows on the connections TYPO3 assigns to them (table
-  mapping), which may differ.
-* Run the wizard while no import or export task uses the queue.
+  missing items. It does not copy later changes of the status in the legacy
+  table to items that were migrated before. It reports an update as necessary
+  as long as an item of the legacy table is missing in the queue table of the
+  core.
+* The legacy table is read but not changed. If it does not exist, the wizard
+  reports that there is nothing to migrate. Both tables are read in batches
+  of 500 rows and written in chunks of at most 100 rows (and about 1 MB of
+  data) on the connections TYPO3 assigns to them (table mapping), which may
+  differ.
+* Run the wizard while no import or export task uses the queue, and before
+  running tasks with version 4.0.

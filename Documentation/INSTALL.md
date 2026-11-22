@@ -175,7 +175,8 @@ before updating, see [Deprecations](./DEPRECATIONS.md#removed-in-40).
 
 If the queue (`DataTargetQueue`, `DataSourceQueue`) was used, run the upgrade
 wizard that copies the queue items into the queue table of the core after
-updating the database schema:
+updating the database schema and before running any task with 4.0. Later
+changes in the legacy table are not copied by a second run.
 
 ```bash
 vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration
