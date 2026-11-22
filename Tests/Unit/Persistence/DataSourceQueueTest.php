@@ -8,7 +8,9 @@ use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Persistence\DataSourceQueue as CoreDataSourceQueue;
 use CPSIT\ImportExportCore\Persistence\FailureAwareInterface;
 use CPSIT\ImportExportCore\Queue\InMemoryQueueRepository;
+use CPSIT\ImportExportCore\Queue\QueueItem;
 use CPSIT\ImportExportCore\Queue\QueueItemStatus;
+use CPSIT\ImportExportCore\Queue\QueueRepositoryInterface;
 use CPSIT\T3importExport\Persistence\CompletableSourceInterface;
 use CPSIT\T3importExport\Persistence\DataSourceQueue;
 use CPSIT\T3importExport\Utility\DeprecationUtility;
@@ -253,5 +255,67 @@ class DataSourceQueueTest extends TestCase
         $this->subject->fail(new \RuntimeException('failed'));
 
         self::assertSame(1, $this->repository->count(self::QUEUE, QueueItemStatus::Failed));
+    }
+
+    /**
+     * TransferService calls fail() after the processor of the core. The
+     * processor tells the source before the target, so that a target on the
+     * same connection (DataTargetDB) may roll back the failed status. The
+     * second fail() marks the items again.
+     */
+    #[Test]
+    public function secondFailMarksTheFailedItemsAgain(): void
+    {
+        $repository = new class ($this->repository) implements QueueRepositoryInterface {
+            /**
+             * @var list<int|string>
+             */
+            public array $failed = [];
+
+            public function __construct(private readonly QueueRepositoryInterface $repository) {}
+
+            public function enqueue(string $queue, array $data, bool $requeue = false): bool
+            {
+                return $this->repository->enqueue($queue, $data, $requeue);
+            }
+
+            public function claim(string $queue, int $limit): array
+            {
+                return $this->repository->claim($queue, $limit);
+            }
+
+            public function complete(QueueItem $item): void
+            {
+                $this->repository->complete($item);
+            }
+
+            public function fail(QueueItem $item): void
+            {
+                $this->failed[] = $item->id;
+                $this->repository->fail($item);
+            }
+
+            public function release(string $queue): int
+            {
+                return $this->repository->release($queue);
+            }
+
+            public function count(string $queue, QueueItemStatus $status): int
+            {
+                return $this->repository->count($queue, $status);
+            }
+        };
+        $this->subject = new DataSourceQueue($repository);
+        $this->enqueue('a', 'b', 'c');
+        $this->read([DataSourceQueue::KEY_IDENTIFIER => self::QUEUE, DataSourceQueue::KEY_LIMIT => 2]);
+
+        $this->subject->fail(new \RuntimeException('failed'));
+        $firstFail = $repository->failed;
+        $this->subject->fail();
+
+        self::assertCount(2, $firstFail);
+        self::assertSame([...$firstFail, ...$firstFail], $repository->failed);
+        self::assertSame(2, $this->repository->count(self::QUEUE, QueueItemStatus::Failed));
+        self::assertSame(1, $this->repository->count(self::QUEUE, QueueItemStatus::New));
     }
 }
