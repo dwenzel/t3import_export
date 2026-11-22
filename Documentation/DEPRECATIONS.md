@@ -204,6 +204,49 @@ Changes that concern tasks of the extension:
   more ([core #98](https://github.com/CPS-IT/import-export-core/issues/98));
   subclasses that call or override them must drop or copy them.
 
+### DataSourceDB
+
+`DataSourceDB` is an adapter on `DataSourceDBAL` of the core
+([#132](https://github.com/dwenzel/t3import_export/issues/132)). It stays
+the default source of a task. Configurations of earlier versions return the
+same records: options without SQL are read by the core, SQL in the options
+by a deprecated fallback (see
+[SQL in the options of DataSourceDB](#sql-in-the-options-of-datasourcedb)).
+As before, the restrictions of TYPO3 (`deleted`, `hidden`, start and end
+time) are not applied, and the connection of the table mapping is used.
+
+Breaking changes for code that uses the class:
+
+* `DataSourceDB` extends `CPSIT\ImportExportCore\Dbal\DataSourceDBAL`. The
+  constructor takes `Dbal\Typo3ConnectionProvider` (and an optional clock)
+  instead of `ConnectionPool` and `DatabaseConnectionService`. The methods
+  `getDatabase()`, `getDataBase()` and `getDatabaseConnectionService()` and
+  the properties `$database`, `$connectionPool` and `$connectionService`
+  (of `DatabaseTrait`) are removed. Get the connection from
+  `Typo3ConnectionProvider` or from the `ConnectionPool` of TYPO3.
+* `getRecords()` is declared with the return type `iterable`. It returns an
+  array as before; with the new option `cursorField` it returns a
+  `Generator`.
+* `isConfigurationValid()` checks the options of the core, e.g. `filter`,
+  `where` as map and `cursorField`. Options of the core cannot be combined
+  with SQL in the options. A content object or an expression that cannot be
+  evaluated is reported by `getRecords()`, as before.
+* Invalid configurations make `getRecords()` throw an
+  `InvalidConfigurationException` with the code 1796500001: an invalid
+  configuration of the core, or SQL in the options combined with `where` as
+  map, `filter`, `cursorField`, `pageSize` or `timezone`. Keys of the core
+  that were ignored before 4.0 are checked now; values such as
+  `pageSize: '10'`, `connection: ''`, an unknown `timezone`, a `filter` that
+  is not a condition or `cursorField` together with `orderBy` make the
+  configuration invalid. Remove such keys or correct their values.
+* An empty `table` makes the configuration invalid and `getRecords()` throw
+  the code 1796500001 (before: 1642072670 from `getRecords()`).
+* If both `config.connection` and `identifier` are set, `connection` is used
+  and a message is written to the deprecation log.
+* `config.connection` selects the connection. It had no effect before, but
+  was shown in an example of the documentation; remove it or check that it
+  names the connection of the table.
+
 ## Deprecated in 4.0
 
 ### Files
@@ -358,6 +401,69 @@ target:
     identifier: import.events
 ```
 
+### SQL in the options of DataSourceDB
+
+SQL in the options of `DataSourceDB` is read by a fallback with the query
+builder of TYPO3, which builds the same query as before 4.0, and writes a
+message to the deprecation log
+([#132](https://github.com/dwenzel/t3import_export/issues/132)). The
+fallback will be removed in 5.0. It concerns:
+
+* `where` as string
+* `join`, `alias` and `groupBy`
+* field names with table or alias (`p.uid`), `AS` or functions in `fields`
+  and `orderBy`
+* `limit` with offset (`10, 20`) or a value that is not a positive integer
+* a `table` that is not a plain name
+
+Comma-separated `fields` and `orderBy` with plain field names and a numeric
+`limit` are not deprecated; they are converted into the options of the core.
+
+Selecting the connection with `identifier` of the component is deprecated
+as well; use `config.connection`.
+
+| Deprecated | Replacement |
+|---|---|
+| `where: 'pid = 1 AND deleted = 0'` | `where: {pid: 1, deleted: 0}` |
+| `where: 'pid IN (1, 2)'` | `where: {pid: [1, 2]}` |
+| `where: 'tstamp > 1700000000'`, `<`, `<>`, `IS NULL` | `filter: {field: tstamp, op: '>', value: 1700000000}`; groups with `all`, `any`, `not` |
+| `where` with `strtotime()` in an expression | `filter` with a relative date, e.g. `value: {date: '-P1D', from: now}` |
+| `join` to filter by a related table | `filter: {exists: {table: ..., match: {...}}}` |
+| `join` to read fields of a related table | a pre-processor: `LookUpDB` (fields of a related record) or `RelationListPreProcessor` of the core (IDs of an MM relation) |
+| `groupBy`, `alias`, SQL in `fields` or `orderBy` | no replacement in the core; a view in the database, or a pre-processor |
+| `identifier: Legacy` next to `class` | `config.connection: Legacy` |
+
+```yaml
+# before
+source:
+  class: CPSIT\T3importExport\Persistence\DataSourceDB
+  identifier: Legacy
+  config:
+    table: tx_news_domain_model_news
+    fields: 'uid,title'
+    where: 'pid IN (42,43) AND hidden = 0 AND deleted = 0'
+    orderBy: 'datetime DESC'
+
+# after
+source:
+  class: CPSIT\T3importExport\Persistence\DataSourceDB
+  config:
+    table: tx_news_domain_model_news
+    connection: Legacy
+    fields: [uid, title]
+    where:
+      pid: [42, 43]
+      hidden: 0
+      deleted: 0
+    orderBy:
+      datetime: DESC
+```
+
+The values of `where` and `filter` are passed to the database as
+parameters. Keep SQL in configurations of the fallback free of values from
+records or user input; the configuration must come from trusted sources, as
+before.
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |
@@ -475,7 +581,11 @@ preProcessors:
    deprecated options, see [Queue](#queue). Use the commands
    `t3import-export:queue:status` and `t3import-export:queue:release` instead
    of the list of queue items in the backend.
-4. Check the deprecation log after running the tasks.
+4. Replace SQL in the options of `DataSourceDB` and `identifier` by the
+   options of the core, see
+   [SQL in the options of DataSourceDB](#sql-in-the-options-of-datasourcedb).
+   Until 5.0 the configurations of earlier versions work unchanged.
+5. Check the deprecation log after running the tasks.
 
 ## Converting TypoScript settings to YAML
 

@@ -48,6 +48,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   backend ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 * `DataSourceQueue` accepts the option `limit`
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* `DataSourceDB` accepts the options of `DataSourceDBAL` of the core
+  (`connection`, `fields` as list, `where` as map, `filter`, `orderBy` as
+  map, `cursorField`, `pageSize`, `timezone`)
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Changed
 
@@ -94,6 +98,19 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `export.`. See
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#queue)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* `DataSourceDB` is an adapter on `DataSourceDBAL` of the core and stays the
+  default source. Configurations of earlier versions return the same
+  records; SQL in the options is read by a deprecated fallback with the
+  query builder of TYPO3. Without `connection`, the connection of the table
+  mapping is used, and the restrictions of TYPO3 are not applied, as before.
+  The class extends `DataSourceDBAL`; its constructor takes
+  `Dbal\Typo3ConnectionProvider`, and `getDatabase()` is removed.
+  `getRecords()` is declared as `iterable` (an array, a generator with
+  `cursorField`), and `isConfigurationValid()` also checks the options of
+  the core and rejects an empty `table`; invalid configurations throw the
+  code 1796500001. See
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#datasourcedb)
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Deprecated
 
@@ -107,6 +124,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `DataTargetQueue`: `allowUpdate` as string or integer (treated as false;
   use a boolean) and
   the queue taken from the field `identifier` of the record
+* `DataSourceDB`: SQL in the options (`where` as string, `join`, `alias`,
+  `groupBy`, SQL in `fields` and `orderBy`) and the connection selected by
+  `identifier`; use the options of the core, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#sql-in-the-options-of-datasourcedb)
 
 ### Removed
 

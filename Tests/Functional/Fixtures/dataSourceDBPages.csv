@@ -1,0 +1,10 @@
+"pages",,,,,,,,,,
+,"uid","pid","title","is_siteroot","slug","deleted","hidden","starttime","endtime","sorting"
+,1,0,"Root",1,"/",0,0,0,0,256
+,2,1,"Subpage 1",0,"/subpage-1",0,0,0,0,512
+,3,1,"Subpage 2",0,"/subpage-2",0,0,0,0,256
+,4,1,"Deleted",0,"/deleted",1,0,0,0,768
+,5,1,"Hidden",0,"/hidden",0,1,0,0,1024
+,6,2,"Starts later",0,"/starts-later",0,0,4102444800,0,256
+,7,2,"Ended",0,"/ended",0,0,0,946684800,512
+,8,3,"Subpage 2.1",0,"/subpage-2-1",0,0,0,0,256
