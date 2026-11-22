@@ -55,6 +55,7 @@ vendor/bin/typo3 list t3import-export
 Expected output:
 ```
 t3import-export:export-set    Execute export set
+t3import-export:export-task   Execute export task
 t3import-export:import-set    Execute import set
 t3import-export:import-task   Execute import task
 ```

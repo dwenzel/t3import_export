@@ -23,6 +23,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   components that read or write files themselves
 * `Service\TransferService::run($tasks)` runs tasks with the processor of
   the core; it replaces `Service\DataTransferProcessor`
+* Command `t3import-export:export-task` (alias `export:task`) runs a single
+  export task; it accepts the option `--yaml-config`
+  ([#63](https://github.com/dwenzel/t3import_export/issues/63))
 
 ### Changed
 

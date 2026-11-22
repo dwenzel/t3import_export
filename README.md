@@ -265,6 +265,7 @@ Available commands:
 - `t3import-export:import-task <taskId>` - Execute single import task
 - `t3import-export:import-set <setId>` - Execute import set
 - `t3import-export:export-set <setId>` - Execute export set
+- `t3import-export:export-task <taskId>` - Execute single export task
 
 Options:
 - `--yaml-config <file>` - Use YAML configuration file

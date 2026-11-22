@@ -241,6 +241,9 @@ vendor/bin/typo3 t3import-export:import-set fullNewsImport --yaml-config fileadm
 
 # Execute export set from YAML
 vendor/bin/typo3 t3import-export:export-set newsExport --yaml-config fileadmin/config/news-export.yaml
+
+# Execute a single export task from YAML
+vendor/bin/typo3 t3import-export:export-task exportNews --yaml-config fileadmin/config/news-export.yaml
 ```
 
 #### Programmatic Loading
