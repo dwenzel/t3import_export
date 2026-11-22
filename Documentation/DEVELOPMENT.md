@@ -48,6 +48,17 @@ Unit tests can be executed with:
 composer test:unit
 ```
 
+Functional tests need a database. Without a database server, SQLite can be
+used:
+
+```bash
+typo3DatabaseDriver=pdo_sqlite composer test:functional
+```
+
+In the DDEV environment
+[t3import-export-bundle](https://github.com/dwenzel/t3import-export-bundle),
+`ddev ext test:unit` runs the unit tests of the checked out branch.
+
 ### Code Coverage
 
 To generate a code coverage report:
@@ -94,10 +105,15 @@ These standards are enforced through PHP-CS-Fixer, PHPStan, and EditorConfig.
 
 ## Contributing
 
-When contributing to this extension, please:
+The branching model, the workflow for pull requests and the release steps are
+described in [CONTRIBUTING.md](../CONTRIBUTING.md). In short:
 
-1. Create a feature branch from the `develop` branch
-2. Run all tests and quality checks before submitting
-3. Update documentation when introducing new features or changes
-4. Make sure code coverage remains high
-5. Follow the TYPO3 coding standards
+1. Create a feature branch from `main`, or from `support/typo3-v{major}` if the
+   change only concerns an older TYPO3 version. Name it after the issue, e.g.
+   `feature/152-changelog-and-release-steps`.
+2. Make the change with tests, and update the documentation.
+3. Add an entry to the section `Unreleased` of
+   [CHANGELOG.md](../CHANGELOG.md). Describe breaking changes and deprecations
+   in [DEPRECATIONS.md](DEPRECATIONS.md).
+4. Run the tests and `composer lint` and `composer sca`.
+5. Open a pull request into the branch you started from.
