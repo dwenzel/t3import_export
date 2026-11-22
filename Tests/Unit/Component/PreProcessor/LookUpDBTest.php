@@ -478,4 +478,78 @@ class LookUpDBTest extends TestCase
 
         $this->assertEquals(" category = 'cat_123'", $result['where']);
     }
+
+    /**
+     * @covers ::parseQueryConstraints
+     */
+    public function testParseQueryConstraintsQuotesValuesOfInConstraint(): void
+    {
+        $record = ['titles' => ['foo', 'bar") OR ("1"="1', "baz') OR ('1'='1"]];
+        $queryConfiguration = [
+            'table' => 'tx_test_table',
+            'where' => [
+                'IN' => [
+                    'field' => 'title',
+                    'values' => [
+                        'field' => 'titles',
+                        'prefix' => 'p_',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->connection->expects($this->exactly(3))
+            ->method('quote')
+            ->willReturnCallback(
+                static fn(string $value): string => "'" . str_replace("'", "''", $value) . "'"
+            );
+
+        $reflection = new \ReflectionClass($this->subject);
+        $method = $reflection->getMethod('parseQueryConstraints');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->subject, $record, $queryConfiguration);
+
+        $this->assertSame(
+            " title IN ('p_foo','p_bar\") OR (\"1\"=\"1','p_baz'') OR (''1''=''1') ",
+            $result['where']
+        );
+    }
+
+    /**
+     * @covers ::parseQueryConstraints
+     */
+    public function testParseQueryConstraintsQuotesValuesForKeepOrder(): void
+    {
+        $record = ['titles' => ["foo') OR ('1'='1", 'bar']];
+        $queryConfiguration = [
+            'table' => 'tx_test_table',
+            'where' => [
+                'IN' => [
+                    'field' => 'title',
+                    'keepOrder' => 1,
+                    'values' => [
+                        'field' => 'titles',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->connection->method('quote')
+            ->willReturnCallback(
+                static fn(string $value): string => "'" . str_replace("'", "''", $value) . "'"
+            );
+
+        $reflection = new \ReflectionClass($this->subject);
+        $method = $reflection->getMethod('parseQueryConstraints');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->subject, $record, $queryConfiguration);
+
+        $quotedList = "'foo'') OR (''1''=''1','bar'";
+        $this->assertSame(
+            ' title IN (' . $quotedList . ') ORDER BY FIELD (title,' . $quotedList . ')',
+            $result['where']
+        );
+    }
 }
