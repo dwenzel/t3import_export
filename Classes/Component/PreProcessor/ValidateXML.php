@@ -10,6 +10,7 @@ use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Resource\XmlSchema;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -76,6 +77,9 @@ class ValidateXML extends AbstractPreProcessor implements
     protected DOMDocument $document;
     protected ResourcePathConfigurationValidator $pathConfigurationValidator;
     protected string $schema = '';
+    protected ?XmlSchema $schemaLoader = null;
+    protected ?string $schemaLocation = null;
+    protected string $schemaUri = '';
 
     public function __construct(
         ?DOMDocument                        $document = null,
@@ -124,10 +128,10 @@ class ValidateXML extends AbstractPreProcessor implements
             true
         );
 
+        $this->schema = '';
         if (!empty($configuration[self::KEY_SCHEMA])) {
-            $schema = $this->loadResource($configuration[self::KEY_SCHEMA]);
-
-            if (empty($schema)) {
+            $location = $configuration[self::KEY_SCHEMA]['url'] ?? $configuration[self::KEY_SCHEMA]['file'] ?? null;
+            if (!is_string($location) || trim($location) === '') {
                 $message = sprintf(
                     self::MISSING_RESOURCE_MESSAGE,
                     self::KEY_SCHEMA
@@ -137,8 +141,14 @@ class ValidateXML extends AbstractPreProcessor implements
                     self::MISSING_RESOURCE_CODE
                 );
             }
-
-            $this->schema = $schema;
+            // included schemas are loaded with the file rules, libxml loads no files or URLs itself
+            if ($this->schemaLoader === null || $this->schemaLocation !== $location) {
+                $this->schemaLocation = null;
+                $this->schemaLoader = new XmlSchema($this->getResourceAccess());
+                $this->schemaUri = $this->schemaLoader->load($location, self::MISSING_RESOURCE_CODE);
+                $this->schemaLocation = $location;
+            }
+            $this->schema = $this->schemaUri;
         }
 
         foreach ($fields as $field) {
@@ -174,10 +184,17 @@ class ValidateXML extends AbstractPreProcessor implements
 
         libxml_use_internal_errors(true);
 
-        $this->document->loadXML($xml);
-
-        if (!empty($this->schema)) {
-            $this->document->schemaValidateSource($this->schema);
+        $document = $this->document;
+        $schema = $this->schema;
+        $validate = static function () use ($document, $xml, $schema): void {
+            if ($document->loadXML($xml, LIBXML_NONET) && $schema !== '') {
+                $document->schemaValidate($schema);
+            }
+        };
+        if ($schema !== '' && $this->schemaLoader instanceof XmlSchema) {
+            $this->schemaLoader->run($validate);
+        } else {
+            XmlSchema::isolate($validate);
         }
         $errors = libxml_get_errors();
         foreach ($errors as $error) {
