@@ -8,7 +8,9 @@ Please register you database before-hand.
 ## Example
 The example code below should be placed e.g. in a `AdditionalConfiguration.php` file. Never disclose any database credentials!
 
-The database connection can be used via identifier:
+The database connection can be used via identifier. Since 4.0 this is
+deprecated for `DataSourceDB`; use `config.connection` (see
+[DataSourceDB](../Persistence/DataSourceDB.md#database-connection)):
 ```yaml
 import:
   tasks:

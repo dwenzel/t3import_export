@@ -138,12 +138,20 @@ source:
   class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
   config:
     table: "source_table"                       # Required: Source table name
-    where: "hidden = 0 AND deleted = 0"        # Optional: WHERE clause
-    orderBy: "sorting ASC, title ASC"          # Optional: ORDER BY clause
-    limit: 1000                                 # Optional: LIMIT clause
-    connection: "Default"                       # Optional: Database connection name
-    pid: 123                                    # Optional: Page ID filter
+    fields: ["uid", "title"]                    # Optional: fields, default all
+    where:                                      # Optional: field => value
+      hidden: 0
+      deleted: 0
+    orderBy:                                    # Optional: field => ASC/DESC
+      sorting: ASC
+      title: ASC
+    limit: 1000                                 # Optional: maximum number of records
+    connection: "Default"                       # Optional: connection, default: table mapping
 ```
+
+The options of earlier versions (`where` as SQL string, `join`, `groupBy`)
+are still read, but deprecated; see
+[DataSourceDB](./Persistence/DataSourceDB.md).
 
 ### Repository Data Source
 
