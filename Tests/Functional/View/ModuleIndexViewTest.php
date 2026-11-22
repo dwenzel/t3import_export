@@ -71,8 +71,8 @@ class ModuleIndexViewTest extends FunctionalTestCase
         self::assertStringContainsString('<p>Runs all daily tasks.</p>', $html);
         self::assertStringContainsString('<h3>weekly</h3>', $html);
         self::assertStringNotContainsString('<select', $html);
-        $path = '/typo3/module/' . $module . '/' . $controller . '/' . $action . '?';
-        self::assertSame(2, substr_count($html, $path), 'Each set links to the ' . $action . ' action');
+        $path = '/typo3/module/' . $module . '/' . $controller . '/' . $action . '?token=';
+        self::assertSame(2, substr_count($html, $path), 'Each set links to the ' . $action . ' action with a token');
         self::assertStringContainsString('&amp;identifier=daily"', $html);
         self::assertStringContainsString('&amp;identifier=weekly"', $html);
     }

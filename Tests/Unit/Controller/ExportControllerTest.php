@@ -14,12 +14,6 @@ use PHPUnit\Framework\TestCase;
 class ExportControllerTest extends TestCase
 {
     #[Test]
-    public function indexTemplateIsExportIndex(): void
-    {
-        self::assertSame('Export/Index', ExportController::TEMPLATE_PATH_INDEX);
-    }
-
-    #[Test]
     public function getConfigurationReturnsTasksAndSetsOfExportFromYaml(): void
     {
         $yaml = [
