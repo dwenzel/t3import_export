@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3importExport\Domain\Model\DataStream;
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Domain\Model\DataStream;
+use CPSIT\ImportExportCore\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Stream\TemporaryStream;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
@@ -201,6 +202,40 @@ class DataTargetFileStreamTest extends TestCase
     }
 
     #[Test]
+    public function persistReadsStreamInChunks(): void
+    {
+        $content = str_repeat('<a>1</a>', DataTargetFileStream::CHUNK_SIZE);
+        $stream = $this->createDataStreamWithSampleBuffer($content);
+        // position at the end, as left by a writer
+        $stream->getStream()->seek(0, SEEK_END);
+        $taskResult = new TaskResult();
+        $taskResult->setElements([$stream]);
+
+        $this->subject->persist($stream, ['flush' => true]);
+        $this->subject->persistAll($taskResult);
+
+        $fileName = $taskResult->getInfo()->getPathname();
+        self::assertSame($content, file_get_contents($fileName));
+        self::assertSame('', $stream->getStream()->getContents());
+        unlink($fileName);
+    }
+
+    #[Test]
+    public function persistWritesEmptyFileForEmptyStream(): void
+    {
+        $stream = new DataStream();
+        $taskResult = new TaskResult();
+        $taskResult->setElements([$stream]);
+
+        $this->subject->persist($stream);
+        $this->subject->persistAll($taskResult);
+
+        $fileName = $taskResult->getInfo()->getPathname();
+        self::assertSame('', file_get_contents($fileName));
+        unlink($fileName);
+    }
+
+    #[Test]
     public function persistAllDoesNotSetInfoForEmptyResult(): void
     {
         $taskResult = new TaskResult();
@@ -219,8 +254,6 @@ class DataTargetFileStreamTest extends TestCase
 
     public function createDataStreamWithSampleBuffer($buffer): DataStream
     {
-        $ds = new DataStream();
-        $ds->setStreamBuffer($buffer);
-        return $ds;
+        return new DataStream(new TemporaryStream($buffer));
     }
 }

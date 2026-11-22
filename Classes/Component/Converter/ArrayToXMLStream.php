@@ -29,9 +29,9 @@ namespace CPSIT\T3importExport\Component\Converter;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\ImportExportCore\Component\Converter\ConverterInterface;
+use CPSIT\ImportExportCore\Domain\Model\DataStreamInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
@@ -127,7 +127,11 @@ class ArrayToXMLStream extends AbstractConverter implements ConverterInterface
         // fetch target class (DataStream) if not set return xml buffer instead
         $result = GeneralUtility::makeInstance($configuration['targetClass']);
         if ($result instanceof DataStreamInterface) {
-            $result->setStreamBuffer($buffer);
+            $stream = $result->getStream();
+            $stream->write($buffer);
+            if ($stream->isSeekable()) {
+                $stream->rewind();
+            }
         } else {
             $result = $buffer;
         }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3importExport\Domain\Model\DataStream;
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Domain\Model\DataStream;
+use CPSIT\ImportExportCore\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Stream\TemporaryStream;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
@@ -219,9 +220,7 @@ class DataTargetXMLStreamTest extends TestCase
 
     public function createDataStreamWithSampleBuffer($buffer): DataStream
     {
-        $ds = new DataStream();
-        $ds->setStreamBuffer($buffer);
-        return $ds;
+        return new DataStream(new TemporaryStream($buffer));
     }
 
     /**

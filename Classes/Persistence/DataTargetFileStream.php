@@ -6,8 +6,9 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
+use CPSIT\ImportExportCore\Domain\Model\DataStreamInterface;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Stream\TemporaryStream;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\File\BasicFileUtility;
@@ -34,6 +35,11 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     protected $tempFile;
 
     /**
+     * Bytes read from a data stream at once
+     */
+    final public const int CHUNK_SIZE = 8192;
+
+    /**
      * @param array|DomainObjectInterface $object
      * @throws FileOperationErrorException
      */
@@ -41,9 +47,25 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     public function persist($object, ?array $configuration = null): mixed
     {
         if ($object instanceof DataStreamInterface) {
-            $this->writeBuffer($object->getStreamBuffer());
+            $stream = $object->getStream();
+            if ($stream->isSeekable()) {
+                $stream->rewind();
+            }
+            $written = false;
+            while (!$stream->eof()) {
+                $chunk = $stream->read(self::CHUNK_SIZE);
+                if ($chunk === '') {
+                    break;
+                }
+                $this->writeBuffer($chunk);
+                $written = true;
+            }
+            if (!$written) {
+                $this->writeBuffer('');
+            }
             if (isset($configuration['flush'])) {
-                $object->setStreamBuffer(null);
+                $stream->close();
+                $object->setStream(new TemporaryStream());
             }
         }
 
