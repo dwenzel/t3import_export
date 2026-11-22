@@ -129,6 +129,10 @@ class CoreQueueRepositoryTest extends FunctionalTestCase
             self::assertSame(QueueItemStatus::Processing, $item->status);
             self::assertSame(self::QUEUE, $item->queue);
         }
+        // documents a limitation of core 0.6.0 in a TYPO3 process (TYPO3
+        // overrides the Doctrine type `datetime_immutable`); once the core is
+        // fixed, assert a time within the test run instead
+        self::assertSame(0, $claimed[0]->createdAt->getTimestamp());
         self::assertSame(2, $repository->count(self::QUEUE, QueueItemStatus::Processing));
         self::assertSame(1, $repository->count(self::QUEUE, QueueItemStatus::New));
         self::assertSame([['id' => 3]], self::data($repository->claim(self::QUEUE, 2)));

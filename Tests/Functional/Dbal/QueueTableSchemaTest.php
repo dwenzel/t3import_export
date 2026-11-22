@@ -27,6 +27,9 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * The columns are compared with a reference table that the core creates in
  * the same database, so both are read back by the same platform. Indexes are
  * compared with the definition of the core directly.
+ *
+ * SQLite does not distinguish `int` from `bigint` or `text` from `longtext`,
+ * so the full check of the column types needs MySQL (as in CI).
  */
 #[CoversClass(QueueRepositoryFactory::class)]
 class QueueTableSchemaTest extends FunctionalTestCase
