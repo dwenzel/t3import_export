@@ -75,6 +75,7 @@ class MoveFileTest extends TestCase
             MoveFile::CONFLICT_MODE_CANCEL => [MoveFile::CONFLICT_MODE_CANCEL, DuplicationBehavior::CANCEL],
             MoveFile::CONFLICT_MODE_RENAME_NEW_FILE => [MoveFile::CONFLICT_MODE_RENAME_NEW_FILE, DuplicationBehavior::RENAME],
             MoveFile::CONFLICT_MODE_OVERRIDE_EXISTING_FILE => [MoveFile::CONFLICT_MODE_OVERRIDE_EXISTING_FILE, DuplicationBehavior::REPLACE],
+            'unknown' => ['foo', DuplicationBehavior::RENAME],
         ];
     }
 

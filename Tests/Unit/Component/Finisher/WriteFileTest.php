@@ -503,6 +503,7 @@ class WriteFileTest extends TestCase
             WriteFile::CONFLICT_MODE_CANCEL => [WriteFile::CONFLICT_MODE_CANCEL, DuplicationBehavior::CANCEL],
             WriteFile::CONFLICT_MODE_CHANGENAME => [WriteFile::CONFLICT_MODE_CHANGENAME, DuplicationBehavior::RENAME],
             WriteFile::CONFLICT_MODE_REPLACE => [WriteFile::CONFLICT_MODE_REPLACE, DuplicationBehavior::REPLACE],
+            'unknown' => ['foo', DuplicationBehavior::RENAME],
         ];
     }
 

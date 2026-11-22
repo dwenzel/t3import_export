@@ -80,11 +80,12 @@ under `archive/` (for example `archive/develop`).
 1. Create or pick a GitHub issue.
 2. Create a feature branch from the target branch.
 3. Make the change, including tests.
-4. Run tests and linters locally.
-5. Open a pull request into the target branch and reference the issue
+4. Add your changes to the section `Unreleased` in `CHANGELOG.md`.
+5. Run tests and linters locally.
+6. Open a pull request into the target branch and reference the issue
    (`Closes #12`).
-6. The pull request is merged after the checks have passed and it has been reviewed.
-7. Delete the feature branch after merging.
+7. The pull request is merged after the checks have passed and it has been reviewed.
+8. Delete the feature branch after merging.
 
 ## Commit messages
 
@@ -104,7 +105,8 @@ Example: `[BUGFIX] Write file without accessing default folder of storage`
   of the extension. Before that, a support branch is created for the previous
   TYPO3 version from its last tag.
 * Release steps:
-  1. Update the version in `ext_emconf.php` and the `ChangeLog` in a feature
+  1. Update the version in `ext_emconf.php` and rename the section
+     `## Unreleased` in `CHANGELOG.md` to the version and date in a feature
      branch and merge it through a pull request (commit tag `[RELEASE]`).
   2. Tag the merge commit on `main` or on the support branch.
   3. Update the support matrix in `README.md` on `main`.

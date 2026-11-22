@@ -13,10 +13,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 ### Fixed
 
 * The conflict modes of the finishers `WriteFile` and `MoveFile` are applied
-  as named. Before, TYPO3 did not recognise the mode strings and fell back to
-  `cancel`. This changes the behaviour of existing configurations if a target
-  file exists: `changeName` (default of `WriteFile`) and `renameNewFile`
-  (default of `MoveFile`) now rename the new file, and `overrideExistingFile`
-  now replaces the existing file, instead of cancelling. Set
-  `conflictMode = cancel` to keep the previous behaviour
+  as named. Before, TYPO3 did not recognise `changeName`, `renameNewFile` and
+  `overrideExistingFile` and fell back to `cancel`. This changes the behaviour
+  of existing configurations if a target file exists: `changeName` (default of
+  `WriteFile`) and `renameNewFile` (default of `MoveFile`) now rename the new
+  file, and `overrideExistingFile` now replaces the existing file, instead of
+  cancelling. Set `conflictMode = cancel` to keep the previous behaviour
   ([#124](https://github.com/dwenzel/t3import_export/issues/124))

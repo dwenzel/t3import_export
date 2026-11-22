@@ -34,7 +34,7 @@ module.tx_t3importexport.settings.import.tasks.example {
       target {
         name = bar.xml
         storage = 7
-        conflictMode = replace
+        conflictMode = overrideExistingFile
         directory = boom
       }
     }
