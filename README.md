@@ -268,8 +268,8 @@ Available commands:
 - `t3import-export:export-task <taskId>` - Execute single export task
 
 Options:
-- `--yaml-config <file>` - Use YAML configuration file
-- `--dry-run` - Simulate execution without persisting data
+- `--yaml-config <file>` - Use YAML configuration file (`import-set`,
+  `export-set` and `export-task`)
 
 ## Scheduler Integration
 

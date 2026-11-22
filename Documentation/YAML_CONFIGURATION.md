@@ -603,17 +603,14 @@ import:
 ### Execute with YAML Configuration
 
 ```bash
-# Execute specific task from YAML file
-vendor/bin/typo3 t3import-export:import-task taskName --yaml-config config.yaml
+# Execute specific export task from YAML file
+vendor/bin/typo3 t3import-export:export-task taskName --yaml-config config.yaml
 
 # Execute set from YAML file
 vendor/bin/typo3 t3import-export:import-set setName --yaml-config config.yaml
 
 # Use environment-specific configuration
 vendor/bin/typo3 t3import-export:import-set fullImport --yaml-config config/production.yaml
-
-# Dry run mode (validate without executing)
-vendor/bin/typo3 t3import-export:import-task taskName --yaml-config config.yaml --dry-run
 ```
 
 ### Configuration Validation
