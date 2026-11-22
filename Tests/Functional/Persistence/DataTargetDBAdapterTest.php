@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Functional\Persistence;
 
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Exception\PersistenceException;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Persistence\DataSourceDB;
@@ -172,6 +173,29 @@ class DataTargetDBAdapterTest extends FunctionalTestCase
             'values of different types' => [
                 $table,
                 [['pid' => '4', 'header' => 1.5, 'bodytext' => null, 'colPos' => '1', 'hidden' => true, 'sorting' => 12]],
+            ],
+            'booleans in string columns' => [
+                $table,
+                [['header' => false, 'bodytext' => true], ['__identity' => 1, 'header' => false, 'bodytext' => true]],
+            ],
+            'booleans in integer columns' => [
+                $table,
+                [['header' => 'x', 'colPos' => false, 'hidden' => true]],
+            ],
+            'strings in integer columns (e.g. from CSV)' => [
+                $table,
+                [
+                    ['header' => 'x', 'colPos' => '', 'sorting' => '12abc', 'hidden' => '1'],
+                    ['__identity' => 1, 'colPos' => '', 'sorting' => ' 7 '],
+                ],
+            ],
+            'numbers in string columns' => [
+                $table,
+                [['header' => 12, 'bodytext' => 1.25]],
+            ],
+            'floats in integer columns' => [
+                $table,
+                [['__identity' => 1, 'sorting' => 2.5, 'colPos' => -1.5]],
             ],
             'update by __identity' => [
                 $table,
@@ -406,5 +430,81 @@ class DataTargetDBAdapterTest extends FunctionalTestCase
         $this->get(TransferService::class)->run([$task]);
 
         self::assertSame($expected, $this->rows());
+    }
+
+    #[Test]
+    public function failRollsBackAFallbackThatStartedTheBatch(): void
+    {
+        $subject = $this->get(DataTargetDB::class);
+        $expected = $this->rows();
+
+        $subject->persist(['__identity' => 2, 'uid' => 20, 'header' => 'Moved'], ['table' => self::TABLE]);
+        self::assertTrue($this->get(ConnectionPool::class)->getConnectionForTable(self::TABLE)->isTransactionActive());
+        $subject->fail(new \RuntimeException('failed'));
+
+        self::assertFalse($this->get(ConnectionPool::class)->getConnectionForTable(self::TABLE)->isTransactionActive());
+        self::assertSame($expected, $this->rows());
+    }
+
+    #[Test]
+    public function fallbackStartsANewBatchAfterFlushBatch(): void
+    {
+        $subject = $this->get(DataTargetDB::class);
+        $first = ['header' => 'First batch'];
+        $moved = ['__identity' => 2, 'uid' => 20, 'header' => 'Moved'];
+
+        $subject->persist($first, ['table' => self::TABLE]);
+        $subject->flushBatch(new TaskResult());
+        $subject->persist($moved, ['table' => self::TABLE]);
+        $subject->persistAll();
+
+        self::assertSame('20', $subject->getTargetId($moved));
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionCode(1794700024);
+        $subject->getTargetId($first);
+    }
+
+    /**
+     * With an ID map, the processor asks for the ID of each written record
+     * (the extension does not store the map yet, the core uses NullIdMap).
+     */
+    #[Test]
+    public function idMapGetsTheUidOfRecordsWithUnsetKeys(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/dataSourceDBPages.csv');
+        $task = $this->get(TransferTaskFactory::class)->create('idMapWithUnsetKeys', [
+            'source' => ['class' => DataSourceDB::class, 'config' => ['table' => 'pages', 'fields' => 'uid,pid,title', 'orderBy' => 'uid', 'limit' => 2]],
+            'idMap' => ['namespace' => 'pages', 'sourceIdField' => 'uid'],
+            'preProcessors' => [
+                10 => [
+                    'class' => 'CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor',
+                    'config' => ['rules' => [['rule' => 'rename', 'field' => 'header', 'from' => 'title']]],
+                ],
+            ],
+            'target' => ['class' => DataTargetDB::class, 'config' => ['table' => self::TABLE, 'unsetKeys' => 'uid']],
+        ]);
+
+        $this->get(TransferService::class)->run([$task]);
+
+        self::assertSame(['Root', 'Subpage 1'], \array_slice(array_column($this->rows(), 'header'), 3));
+    }
+
+    /**
+     * A skipped record has no ID; the processor asks for it nevertheless.
+     */
+    #[Test]
+    public function idMapWithSkipThrowsAClearException(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/dataSourceDBPages.csv');
+        $task = $this->get(TransferTaskFactory::class)->create('idMapWithSkip', [
+            'source' => ['class' => DataSourceDB::class, 'config' => ['table' => 'pages', 'fields' => 'uid,pid', 'orderBy' => 'uid', 'limit' => 2]],
+            'idMap' => ['namespace' => 'pages', 'sourceIdField' => 'uid'],
+            'target' => ['class' => DataTargetDB::class, 'config' => ['table' => self::TABLE, 'unsetKeys' => 'uid', 'skip' => ['ifEmpty' => ['field' => 'header']]]],
+        ]);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionCode(DataTargetDB::SKIPPED_RECORD_HAS_NO_ID_EXCEPTION_CODE);
+
+        $this->get(TransferService::class)->run([$task]);
     }
 }

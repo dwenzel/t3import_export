@@ -627,6 +627,35 @@ class DataTargetDBTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{array<array-key, mixed>}>
+     */
+    public static function invalidRecordWithUidChangeDataProvider(): array
+    {
+        return [
+            'array value' => [['__identity' => 1, 'uid' => 5, 'title' => ['x']]],
+            'column that is not a plain name' => [['__identity' => 1, 'uid' => 5, 'foo-bar' => 'x']],
+        ];
+    }
+
+    /**
+     * The fallback checks the record like the core.
+     *
+     * @param array<array-key, mixed> $record
+     */
+    #[Test]
+    #[DataProvider('invalidRecordWithUidChangeDataProvider')]
+    public function fallbackRejectsRecordsLikeTheCore(array $record): void
+    {
+        try {
+            $this->subject->persist($record, ['table' => 'foo']);
+            self::fail('An exception should be thrown.');
+        } catch (PersistenceException $exception) {
+            self::assertSame(DataTargetDB::PERSISTENCE_EXCEPTION_CODE, $exception->getCode());
+            self::assertInstanceOf(\UnexpectedValueException::class, $exception->getPrevious());
+        }
+    }
+
     #[Test]
     public function persistRejectsObjects(): void
     {
@@ -718,5 +747,88 @@ class DataTargetDBTest extends TestCase
     {
         self::assertTrue($this->subject->isDisabled(['disable' => 1]));
         self::assertFalse($this->subject->isDisabled(['table' => 'foo']));
+    }
+
+    /**
+     * The processor asks for the ID with the record it gave to persist(),
+     * before `unsetKeys` was applied.
+     */
+    #[Test]
+    public function getTargetIdAcceptsTheRecordBeforeUnsetKeys(): void
+    {
+        $configuration = ['table' => 'foo', 'unsetKeys' => 'other,__identity'];
+        $inserted = ['title' => 'new', 'other' => 'x'];
+        $identity = ['__identity' => 1, 'title' => 'inserted too'];
+
+        $this->subject->persist($inserted, $configuration);
+        $this->subject->persist($identity, $configuration);
+
+        self::assertSame('2', $this->subject->getTargetId($inserted));
+        self::assertSame('3', $this->subject->getTargetId($identity));
+        $this->subject->persistAll();
+    }
+
+    #[Test]
+    public function getTargetIdOfASkippedRecordThrowsException(): void
+    {
+        $record = ['title' => 'skipped', 'bar' => ''];
+        $this->subject->persist($record, self::VALID_CONFIG_EMPTY_FIELD);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionCode(DataTargetDB::SKIPPED_RECORD_HAS_NO_ID_EXCEPTION_CODE);
+
+        $this->subject->getTargetId($record);
+    }
+
+    #[Test]
+    public function getTargetIdOfAnUnknownRecordThrowsTheExceptionOfTheCore(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionCode(1794700024);
+
+        $this->subject->getTargetId(['title' => 'unknown']);
+    }
+
+    /**
+     * The `uid` of a record with `__identity` must not be used for the next
+     * record: a record with a `key` that matches no row is inserted.
+     */
+    #[Test]
+    public function identityOfARecordIsNotUsedForTheNextRecord(): void
+    {
+        $this->subject->persist(['__identity' => 1, 'title' => 'updated'], ['table' => 'foo']);
+        try {
+            $this->subject->persist(['__identity' => 1, 'unknown' => 'x'], ['table' => 'foo']);
+        } catch (PersistenceException) {
+        }
+        $this->subject->persist(['title' => 'new', 'bar' => 'x'], ['table' => 'foo', 'key' => ['title']]);
+        $this->subject->persistAll();
+
+        self::assertSame(['updated', 'new'], $this->titles());
+    }
+
+    /**
+     * The processor asks for the IDs of a batch after flushBatch(); the
+     * skipped records of the batch are known until the next batch starts.
+     */
+    #[Test]
+    public function skippedRecordsOfABatchAreKnownAfterFlushBatch(): void
+    {
+        $first = ['title' => 'first skipped', 'bar' => ''];
+        $second = ['title' => 'second skipped', 'bar' => ''];
+        $this->subject->persist(['title' => 'written', 'bar' => 'x'], self::VALID_CONFIG_EMPTY_FIELD);
+        $this->subject->flushBatch(new TaskResult());
+        $this->subject->persist($first, self::VALID_CONFIG_EMPTY_FIELD);
+        $this->subject->persist($second, self::VALID_CONFIG_EMPTY_FIELD);
+        $this->subject->flushBatch(new TaskResult());
+
+        foreach ([$first, $second] as $record) {
+            try {
+                $this->subject->getTargetId($record);
+                self::fail('An exception should be thrown.');
+            } catch (\LogicException $exception) {
+                self::assertSame(DataTargetDB::SKIPPED_RECORD_HAS_NO_ID_EXCEPTION_CODE, $exception->getCode());
+            }
+        }
     }
 }

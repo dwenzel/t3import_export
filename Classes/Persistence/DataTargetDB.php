@@ -6,12 +6,15 @@ namespace CPSIT\T3importExport\Persistence;
 
 use CPSIT\ImportExportCore\Component\DisableableInterface;
 use CPSIT\ImportExportCore\Dbal\DataTargetDBAL;
+use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\PersistenceException;
 use CPSIT\T3importExport\Component\DisableableTrait;
 use CPSIT\T3importExport\Dbal\Typo3ConnectionProvider;
 use CPSIT\T3importExport\Utility\DeprecationUtility;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Types\Type;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -40,6 +43,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *   (`__identity` -> `uid`); if there is no such row, nothing is written, as
  *   before 4.0. Other records are inserted.
  * - `unsetKeys` and `skip` are applied before the record is written
+ * - values are converted to the types of their columns, as the connection of
+ *   TYPO3 did before 4.0
  * - without `connection`, the connection of the table mapping of TYPO3 is
  *   used
  * - a record with `__identity` and another `uid` changes the `uid` of the row
@@ -75,12 +80,32 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
     final public const string UID_FIELD = 'uid';
     final public const int PERSISTENCE_EXCEPTION_CODE = 1_647_701_464;
     final public const int INVALID_CONFIGURATION_EXCEPTION_CODE = 1_796_600_001;
+    final public const int SKIPPED_RECORD_HAS_NO_ID_EXCEPTION_CODE = 1_796_600_002;
 
     /**
      * `uid` of the row that the current record updates: the record has an
      * `__identity`.
      */
     private ?string $identity = null;
+
+    /**
+     * Records skipped since the last commit or rollback (`skip`)
+     *
+     * @var list<array<array-key, mixed>>
+     */
+    private array $skipped = [];
+
+    /**
+     * Whether the next `persist()` starts a new batch for `$skipped`
+     */
+    private bool $skippedOfLastBatch = false;
+
+    /**
+     * Types of the columns by lower case name, by connection and table
+     *
+     * @var array<string, array<string, Type>>
+     */
+    private array $columnTypes = [];
 
     public function __construct(protected readonly Typo3ConnectionProvider $typo3ConnectionProvider)
     {
@@ -152,7 +177,13 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
             // the core rejects objects, as the target did before 4.0
             return parent::persist($object, $configuration);
         }
+        if ($this->skippedOfLastBatch) {
+            $this->skipped = [];
+            $this->skippedOfLastBatch = false;
+        }
         if ($this->shouldSkip($object, $configuration)) {
+            $this->skipped[] = $object;
+
             return false;
         }
         if (isset($configuration[self::FIELD_IDENTIFIER])) {
@@ -162,6 +193,7 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
             );
         }
 
+        $input = $object;
         $object = $this->unsetKeys($object, $configuration);
         $record = $object;
         unset($record[self::DEFAULT_IDENTITY_FIELD]);
@@ -170,18 +202,22 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
         $configuration[self::KEY_ID_FIELD] ??= self::UID_FIELD;
         // a connection that is not configured is a configuration error, not
         // an error of the record
-        $this->typo3ConnectionProvider->getConnection($configuration[self::KEY_CONNECTION]);
+        $connection = $this->typo3ConnectionProvider->getConnection($configuration[self::KEY_CONNECTION]);
+        $table = (string)$configuration[self::KEY_TABLE];
 
         try {
             if ($identity === null) {
+                $record = $this->convertValues($connection, $table, $record);
                 parent::persist($record, $configuration);
             } elseif ($this->changesUid($record, $identity)) {
+                $record = $this->convertValues($connection, $table, $record);
                 $this->changeUidWithFallback($record, $identity, $configuration);
             } else {
                 // values that are not scalar are rejected by the core
                 if (!\array_key_exists(self::UID_FIELD, $record)) {
                     $record[self::UID_FIELD] = $identity;
                 }
+                $record = $this->convertValues($connection, $table, $record);
                 $configuration[self::KEY_KEY] = [self::UID_FIELD];
                 $this->identity = \is_scalar($identity) ? (string)$identity : null;
                 parent::persist($record, $configuration);
@@ -198,13 +234,109 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
         } finally {
             $this->identity = null;
         }
-        // the core finds the records of the batch by the record it was given
+        // the processor asks for the ID with the record it gave to persist()
         $last = array_key_last($this->written);
         if ($last !== null && $this->written[$last][0] === $record) {
-            $this->written[$last][0] = $object;
+            $this->written[$last][0] = $input;
         }
 
         return true;
+    }
+
+    /**
+     * Returns the `uid` of a record of the current batch, given as it was
+     * passed to `persist()`.
+     *
+     * @throws \LogicException for a record that was skipped (`skip`) or not written
+     */
+    public function getTargetId(array|object $record): string
+    {
+        try {
+            return parent::getTargetId($record);
+        } catch (\LogicException $exception) {
+            if (\in_array($record, $this->skipped, true)) {
+                throw new \LogicException(
+                    'The record was skipped by the option "skip" of DataTargetDB and has no ID. With an ID map, use "disable" instead of "skip".',
+                    self::SKIPPED_RECORD_HAS_NO_ID_EXCEPTION_CODE,
+                    $exception
+                );
+            }
+            throw $exception;
+        }
+    }
+
+    /**
+     * The skipped records are kept until the next `persist()`, since the
+     * processor asks for the IDs of a batch after `flushBatch()`.
+     */
+    public function flushBatch(ResultInterface $result): void
+    {
+        $this->skippedOfLastBatch = true;
+        parent::flushBatch($result);
+    }
+
+    public function fail(\Throwable $error): void
+    {
+        $this->skipped = [];
+        $this->skippedOfLastBatch = false;
+        parent::fail($error);
+    }
+
+    /**
+     * Converts the values to the types of their columns, as the connection of
+     * TYPO3 did before 4.0 (`Connection::insert()` and `update()` bind values
+     * with the types of the database schema): e.g. `''` and `'2.5'` become
+     * `0` and `2` for an integer column, `false` becomes `''` for a string
+     * column. Fields that are not columns of the table are not changed.
+     *
+     * @param array<array-key, mixed> $record
+     * @return array<array-key, mixed>
+     */
+    protected function convertValues(Connection $connection, string $table, array $record): array
+    {
+        $types = $this->getColumnTypes($connection, $table);
+        $platform = $connection->getDatabasePlatform();
+        foreach ($record as $column => $value) {
+            $type = $types[strtolower((string)$column)] ?? null;
+            if ($type === null || $value === null) {
+                continue;
+            }
+            $value = $type->convertToDatabaseValue($value, $platform);
+            if (!\is_scalar($value)) {
+                // rejected by the core
+                $record[$column] = $value;
+                continue;
+            }
+            $record[$column] = match ($type->getBindingType()) {
+                ParameterType::INTEGER => (int)$value,
+                ParameterType::BOOLEAN => (bool)$value,
+                ParameterType::STRING, ParameterType::ASCII => (string)$value,
+                default => $value,
+            };
+        }
+
+        return $record;
+    }
+
+    /**
+     * @return array<string, Type> by lower case column name
+     */
+    protected function getColumnTypes(Connection $connection, string $table): array
+    {
+        $key = spl_object_id($connection) . ':' . $table;
+        if (!isset($this->columnTypes[$key])) {
+            $parts = explode('.', $table, 2);
+            $columns = \count($parts) === 2
+                ? $connection->createSchemaManager()->introspectTableColumnsByUnquotedName($parts[1], $parts[0])
+                : $connection->createSchemaManager()->introspectTableColumnsByUnquotedName($table);
+            $this->columnTypes[$key] = [];
+            foreach ($columns as $column) {
+                $name = $column->getObjectName()->getIdentifier()->getValue();
+                $this->columnTypes[$key][strtolower($name)] = $column->getType();
+            }
+        }
+
+        return $this->columnTypes[$key];
     }
 
     /**
@@ -263,6 +395,7 @@ class DataTargetDB extends DataTargetDBAL implements DisableableInterface
      */
     protected function changeUidWithFallback(array $record, mixed $identity, array $configuration): void
     {
+        $this->assertValidRecord($record);
         DeprecationUtility::trigger(
             'Changing the uid of a row with "__identity" and another "uid" in a record for DataTargetDB is deprecated since 4.0 and will not be possible in 5.0.',
             DeprecationUtility::DATABASE_ISSUE_URL
