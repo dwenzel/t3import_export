@@ -57,18 +57,18 @@ class RecreateSlugTest extends FunctionalTestCase
     #[Test]
     public function processUsesConfiguredTableAndSlugField(): void
     {
-        $GLOBALS['TCA']['pages']['columns']['path_segment'] = $GLOBALS['TCA']['pages']['columns']['slug'];
+        $GLOBALS['TCA']['pages']['columns']['nav_title']['config'] = $GLOBALS['TCA']['pages']['columns']['slug']['config'];
         $convertedRecord = ['uid' => 4, 'pid' => 1, 'title' => 'Other Page'];
         $record = [];
         $configuration = [
             RecreateSlug::KEY_TABLE_NAME => 'pages',
-            RecreateSlug::KEY_SLUG_FIELD => 'path_segment',
+            RecreateSlug::KEY_SLUG_FIELD => 'nav_title',
         ];
 
         $this->subject->process($configuration, $convertedRecord, $record);
 
         // the slug of the parent page is only prepended to the field "slug" of pages
-        self::assertSame('other-page', $convertedRecord['path_segment']);
+        self::assertSame('other-page', $convertedRecord['nav_title']);
         self::assertArrayNotHasKey('slug', $convertedRecord);
     }
 
