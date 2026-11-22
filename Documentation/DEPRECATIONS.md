@@ -231,6 +231,18 @@ Breaking changes for code that uses the class:
   `where` as map and `cursorField`. Options of the core cannot be combined
   with SQL in the options. A content object or an expression that cannot be
   evaluated is reported by `getRecords()`, as before.
+* Invalid configurations make `getRecords()` throw an
+  `InvalidConfigurationException` with the code 1796500001: an invalid
+  configuration of the core, or SQL in the options combined with `where` as
+  map, `filter`, `cursorField`, `pageSize` or `timezone`. Keys of the core
+  that were ignored before 4.0 are checked now; values such as
+  `pageSize: '10'`, `connection: ''`, an unknown `timezone`, a `filter` that
+  is not a condition or `cursorField` together with `orderBy` make the
+  configuration invalid. Remove such keys or correct their values.
+* An empty `table` makes the configuration invalid and `getRecords()` throw
+  the code 1796500001 (before: 1642072670 from `getRecords()`).
+* If both `config.connection` and `identifier` are set, `connection` is used
+  and a message is written to the deprecation log.
 * `config.connection` selects the connection. It had no effect before, but
   was shown in an example of the documentation; remove it or check that it
   names the connection of the table.

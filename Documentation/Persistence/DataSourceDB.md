@@ -92,6 +92,9 @@ for the migration.
   name, as before 4.0 (deprecated, use `connection`). `identifier: Default`
   uses the table mapping. A connection that is not configured throws a
   `MissingDatabaseException` (code 1449363030).
+* `connection` takes precedence over `identifier`. If both are set, the
+  `identifier` is ignored for the connection and a message is written to the
+  deprecation log.
 
 ### Records
 
@@ -105,6 +108,23 @@ records. With `cursorField` it returns a generator, so that an interrupted
 task can continue after the last processed record.
 
 A query that fails returns no records, as before 4.0.
+
+### Invalid configurations
+
+`getRecords()` throws an `InvalidConfigurationException` with the code
+1796500001 if
+
+* `table` is missing, empty or not a string (before 4.0, an empty table
+  threw the code 1642072670),
+* an option of the core has an invalid value, or
+* SQL in the options is combined with `where` as map, `filter`,
+  `cursorField`, `pageSize` or `timezone`.
+
+`isConfigurationValid()` returns false in these cases, so the task cannot be
+created. Options of the core were ignored before 4.0; a configuration that
+contains them with values the core does not accept (e.g. `pageSize: '10'`,
+`connection: ''`, an unknown `timezone`, a `filter` that is not a condition,
+or `cursorField` together with `orderBy`) is invalid now.
 
 ### Values from expressions
 The values above (`where`, `limit`, ...) may be given as an array with

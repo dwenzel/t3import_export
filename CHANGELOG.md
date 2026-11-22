@@ -104,7 +104,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   query builder of TYPO3. Without `connection`, the connection of the table
   mapping is used, and the restrictions of TYPO3 are not applied, as before.
   The class extends `DataSourceDBAL`; its constructor takes
-  `Dbal\Typo3ConnectionProvider`, and `getDatabase()` is removed. See
+  `Dbal\Typo3ConnectionProvider`, and `getDatabase()` is removed.
+  `getRecords()` is declared as `iterable` (an array, a generator with
+  `cursorField`), and `isConfigurationValid()` also checks the options of
+  the core and rejects an empty `table`; invalid configurations throw the
+  code 1796500001. See
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#datasourcedb)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
