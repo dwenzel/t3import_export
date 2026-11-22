@@ -361,7 +361,12 @@ preProcessors:
 2. Replace content objects by expressions (`RenderContent` ->
    `EvaluateExpressions`, `disable = TEXT` -> `disable.expression`,
    `DataSourceDB` values -> `{expression: ...}`).
-3. Check the deprecation log after running the tasks.
+3. If the queue was used: update the database schema and, before running
+   any task, run the upgrade wizard `t3importExport_queueItemMigration`
+   (`vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration`). It
+   copies the queue items into the queue table of the core, see
+   [Persistence](./Persistence.md#migrating-the-queue-items-of-earlier-versions).
+4. Check the deprecation log after running the tasks.
 
 ## Converting TypoScript settings to YAML
 

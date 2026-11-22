@@ -173,6 +173,17 @@ Tasks and sets in TypoScript (`module.tx_t3importexport.settings`) are not
 read any more. Convert them to YAML with `t3import-export:convert-typoscript`
 before updating, see [Deprecations](./DEPRECATIONS.md#removed-in-40).
 
+If the queue (`DataTargetQueue`, `DataSourceQueue`) was used, run the upgrade
+wizard that copies the queue items into the queue table of the core after
+updating the database schema and before running any task with 4.0. Later
+changes in the legacy table are not copied by a second run.
+
+```bash
+vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration
+```
+
+See [Persistence](./Persistence.md#migrating-the-queue-items-of-earlier-versions).
+
 ### From Version 1.x to 2.x
 1. **Backup Configuration**: Save the current configuration
 2. **Update Composer**: `composer update cpsit/t3import_export`
