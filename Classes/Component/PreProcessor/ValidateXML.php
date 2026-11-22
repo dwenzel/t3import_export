@@ -8,6 +8,7 @@ use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Resource\XmlSchema;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -72,6 +73,7 @@ class ValidateXML extends AbstractPreProcessor implements
     protected DOMDocument $document;
     protected ResourcePathConfigurationValidator $pathConfigurationValidator;
     protected string $schema = '';
+    protected ?XmlSchema $schemaLoader = null;
 
     public function __construct(
         DOMDocument $document = null,
@@ -134,7 +136,15 @@ class ValidateXML extends AbstractPreProcessor implements
                 );
             }
 
-            $this->schema = $schema;
+            // libxml loads no files or URLs itself; includes only from the directory of the schema file
+            $schemaFile = null;
+            if (!isset($configuration[self::KEY_SCHEMA]['url']) && isset($configuration[self::KEY_SCHEMA]['file'])) {
+                $schemaFile = (string)$this->getAbsoluteFilePath($configuration[self::KEY_SCHEMA]['file']);
+            }
+            $this->schemaLoader = new XmlSchema();
+            $this->schema = $this->schemaLoader->load((string)$schema, $schemaFile === '' ? null : $schemaFile);
+        } else {
+            $this->schema = '';
         }
 
         foreach ($fields as $field) {
@@ -170,10 +180,17 @@ class ValidateXML extends AbstractPreProcessor implements
 
         libxml_use_internal_errors(true);
 
-        $this->document->loadXML($xml);
-
-        if (!empty($this->schema)) {
-            $this->document->schemaValidateSource($this->schema);
+        $document = $this->document;
+        $schema = (string)$this->schema;
+        $validate = static function () use ($document, $xml, $schema): void {
+            if ($document->loadXML($xml, LIBXML_NONET) && $schema !== '') {
+                $document->schemaValidate($schema);
+            }
+        };
+        if ($schema !== '' && $this->schemaLoader instanceof XmlSchema) {
+            $this->schemaLoader->run($validate);
+        } else {
+            XmlSchema::isolate($validate);
         }
         $errors = libxml_get_errors();
         foreach ($errors as $error) {
