@@ -10,6 +10,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ## Unreleased
 
+## 3.3.0 - 2026-11-22
+
 ### Security
 
 * `LookUpDB`: values from records are quoted in the `IN` constraint
