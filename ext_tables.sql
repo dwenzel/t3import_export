@@ -82,3 +82,19 @@ CREATE TABLE tx_t3importexport_queue_item
 		UNIQUE KEY tx_t3importexport_queue_item_checksum (queue, checksum),
 		KEY tx_t3importexport_queue_item_status (queue, status)
 );
+
+#
+# Table structure for table 'tx_t3importexport_id_map'
+# ID map of cpsit/import-export-core (DbalIdMap): which source record became
+# which target record. The table has no TCA; its structure must match
+# DbalIdMap::getTables().
+#
+CREATE TABLE tx_t3importexport_id_map
+(
+		namespace   varchar(255) DEFAULT '' NOT NULL,
+		source_id   varchar(255) DEFAULT '' NOT NULL,
+		target_id   varchar(255) DEFAULT '' NOT NULL,
+		checksum    varchar(40)  DEFAULT '' NOT NULL,
+
+		PRIMARY KEY (namespace, source_id)
+);
