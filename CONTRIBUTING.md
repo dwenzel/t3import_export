@@ -110,9 +110,10 @@ Breaking changes are prefixed with `[!!!]`, e.g.
 * Support for a new TYPO3 major version always results in a new major version
   of the extension. Before that, a support branch is created for the previous
   TYPO3 version from its last tag.
-* The version that `main` or a support branch is working towards is the branch
-  alias in `composer.json` (e.g. `"dev-main": "4.0.x-dev"`), so that a project
-  can require the development state as `4.0.x-dev`.
+* The version that `main` is working towards is the branch alias in
+  `composer.json` (e.g. `"dev-main": "4.0.x-dev"`), so that a project can
+  require the development state as `4.0.x-dev`. Support branches have no
+  branch alias.
 
 ### Release steps
 
@@ -122,8 +123,8 @@ Breaking changes are prefixed with `[!!!]`, e.g.
      date, e.g. `## 4.0.0 - 2026-12-01`, and adds an empty `## Unreleased`
      section above it,
    * sets the version in `ext_emconf.php`,
-   * sets the branch alias in `composer.json` to the next version
-     (e.g. `4.1.x-dev`),
+   * after a major or minor release from `main`, sets the branch alias in
+     `composer.json` to the next minor version (e.g. `4.1.x-dev`),
    * updates the support matrix in `README.md` (on `main`; for a release from
      a support branch in a separate pull request into `main`).
 2. After the pull request has been merged and the checks on the branch have

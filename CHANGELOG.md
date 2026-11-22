@@ -21,10 +21,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']`
 * `Resource\ResourceAccess` applies the rules for files and URLs to
   components that read or write files themselves
+* `Service\TransferService::run($tasks)` runs tasks with the processor of
+  the core; it replaces `Service\DataTransferProcessor`
 
 ### Changed
 
-* Requires TYPO3 14.3, PHP 8.3 and `cpsit/import-export-core` ^0.5
+* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.5
 * Tasks are run by the processor of the core; tasks, sets and components are
   created by the factories of the core
   ([#71](https://github.com/dwenzel/t3import_export/issues/71))
@@ -52,6 +54,13 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `ConcatenateFields`, `ImplodeArray`, `MapFields`, `MapFieldValues`,
   `RemoveFields`, `SetFieldValue`, `StringToTime`, `UnsetEmptyFields`)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
-* `Service\DataTransferProcessor`, the task and set models and the factories
-  of the extension
+* Pre-processor `EvaluateExpressions`, `Expression\ExpressionEvaluator` and
+  `Expression\ExpressionEvaluatorInterface`; use the classes of the core
+* `Service\DataTransferProcessor`; use `Service\TransferService`
+* `Domain\Model\TransferTask`, `TransferSet`, `Dto\TaskDemand` and
+  `Dto\DemandInterface`; use the models of the core
+* `Domain\Factory\TransferTaskFactory`, `Factory\FactoryFactory`,
+  `ComponentFactoryMap`, `AbstractFactory`, `FactoryInterface`,
+  `FactoryMapInterface`, the component factories, `DataSourceFactory` and
+  `DataTargetFactory`; use the factories of the core
 * `ext_tables.php`

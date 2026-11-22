@@ -52,12 +52,12 @@ Functional tests need a database. Without a database server, SQLite can be
 used:
 
 ```bash
-typo3DatabaseDriver=pdo_sqlite .build/bin/phpunit -c phpunit.functional.xml
+typo3DatabaseDriver=pdo_sqlite composer test:functional
 ```
 
 In the DDEV environment
 [t3import-export-bundle](https://github.com/dwenzel/t3import-export-bundle),
-`ddev ext test:unit` runs the tests of the checked out branch.
+`ddev ext test:unit` runs the unit tests of the checked out branch.
 
 ### Code Coverage
 
