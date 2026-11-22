@@ -64,3 +64,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `FactoryMapInterface`, the component factories, `DataSourceFactory` and
   `DataTargetFactory`; use the factories of the core
 * `ext_tables.php`
+
+### Security
+
+* ValidateXML: schemas cannot include files or URLs outside the allowed
+  locations
