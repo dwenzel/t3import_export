@@ -96,7 +96,7 @@ class ArrayToDomainObject extends AbstractConverter implements ConverterInterfac
     }
 
     /**
-     * @param array|null $configuration Configuration array from TypoScript
+     * @param array|null $configuration Configuration array of the component
      * @return PropertyMappingConfiguration
      */
     public function getMappingConfiguration($configuration = null)

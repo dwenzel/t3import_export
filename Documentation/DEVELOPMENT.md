@@ -22,7 +22,6 @@ composer lint             # Run all linters
 composer lint:composer    # Check composer.json formatting
 composer lint:editorconfig # Check EditorConfig compliance
 composer lint:php         # Check PHP coding style
-composer lint:typoscript  # Check TypoScript files
 
 # Static code analysis
 composer sca              # Run all static analyzers

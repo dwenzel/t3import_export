@@ -13,12 +13,14 @@ Available PreProcessors:
 
 You may add your own PostProcessors. They **must** implement the PostProcessorInterface and **may** inherit from AbstractPostProcessor.
 
-PostProcessors for import tasks are configured at the TypoScript path:
+PostProcessors are configured as a list below `postProcessors` of a task (`import.tasks.<task identifier>.postProcessors` or `export.tasks.<task identifier>.postProcessors`):
 
-```
-module.tx_t3importexport.settings.import.tasks.<task identifier>.postProcessors
-```
-The path for export tasks is:
-```
-module.tx_t3importexport.settings.export.tasks.<task identifier>.postProcessors
+```yaml
+import:
+  tasks:
+    exampleTask:
+      postProcessors:
+        - class: "Vendor\\Extension\\Component\\MyComponent"
+          config:
+            # configuration of the component
 ```

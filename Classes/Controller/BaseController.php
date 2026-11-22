@@ -11,14 +11,13 @@ use CPSIT\ImportExportCore\Exception\MissingInterfaceException;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
 use CPSIT\T3importExport\Service\TransferService;
-use CPSIT\T3importExport\Utility\DeprecationUtility;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /***************************************************************
@@ -61,11 +60,12 @@ abstract class BaseController extends ActionController
     protected ?ConfigurationHandlerInterface $configurationHandler = null;
 
     /**
-     * Identifiers of tasks and sets defined in TypoScript
+     * Tasks and sets of the module from the YAML configuration
      *
-     * @var string[]
+     * @var array<string, mixed>
      */
-    protected array $typoScriptIdentifiers = [];
+    protected array $configuration = [];
+
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
         protected PageRenderer $pageRenderer
@@ -76,30 +76,7 @@ abstract class BaseController extends ActionController
         $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $this->moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue('module.t3import_export'));
         $this->moduleTemplate->getDocHeaderComponent()->disable();
-        $this->typoScriptIdentifiers = $this->getTypoScriptIdentifiers($this->settings);
-        if ($this->typoScriptIdentifiers !== []) {
-            DeprecationUtility::trigger(
-                'Tasks and sets in TypoScript (module.tx_t3importexport.settings) are deprecated since 3.1 and will be removed in 4.0. Move them to YAML files.'
-            );
-        }
-        $this->settings = $this->mergeYamlConfiguration($this->settings);
-    }
-
-    /**
-     * @param array<string, mixed> $settings
-     * @return string[]
-     */
-    protected function getTypoScriptIdentifiers(array $settings): array
-    {
-        $identifiers = [];
-        foreach (['tasks', 'sets'] as $type) {
-            $definitions = $settings[$this->getSettingsKey()][$type] ?? null;
-            if (is_array($definitions)) {
-                $identifiers = [...$identifiers, ...array_map('strval', array_keys($definitions))];
-            }
-        }
-
-        return $identifiers;
+        $this->configuration = $this->getConfiguration();
     }
 
     public function injectConfigurationHandler(ConfigurationHandlerInterface $configurationHandler): void
@@ -108,33 +85,19 @@ abstract class BaseController extends ActionController
     }
 
     /**
-     * Adds tasks and sets from the YAML configuration to the TypoScript
-     * settings of the module. TypoScript takes precedence for identifiers
-     * defined in both.
+     * Returns the tasks and sets of the module (import or export)
+     * from the YAML configuration.
      *
-     * @param array<string, mixed> $settings
      * @return array<string, mixed>
      */
-    protected function mergeYamlConfiguration(array $settings): array
+    protected function getConfiguration(): array
     {
         if (!$this->configurationHandler instanceof ConfigurationHandlerInterface) {
-            return $settings;
+            return [];
         }
-        $settingsKey = $this->getSettingsKey();
-        $yamlConfiguration = $this->configurationHandler->getFullConfiguration()[$settingsKey] ?? [];
-        if (!is_array($yamlConfiguration)) {
-            return $settings;
-        }
-        foreach (['tasks', 'sets'] as $type) {
-            $fromYaml = is_array($yamlConfiguration[$type] ?? null) ? $yamlConfiguration[$type] : [];
-            $fromTypoScript = is_array($settings[$settingsKey][$type] ?? null) ? $settings[$settingsKey][$type] : [];
-            if ($fromYaml === [] && $fromTypoScript === []) {
-                continue;
-            }
-            $settings[$settingsKey][$type] = array_replace($fromYaml, $fromTypoScript);
-        }
+        $configuration = $this->configurationHandler->getFullConfiguration()[$this->getSettingsKey()] ?? [];
 
-        return $settings;
+        return is_array($configuration) ? $configuration : [];
     }
 
     public function injectTransferService(TransferService $transferService): void
@@ -166,35 +129,19 @@ abstract class BaseController extends ActionController
      */
     public function indexAction(): ResponseInterface
     {
-        if ($this->typoScriptIdentifiers !== []) {
-            $this->getFlashMessageQueue('module.t3import_export')->enqueue(
-                GeneralUtility::makeInstance(
-                    FlashMessage::class,
-                    sprintf(
-                        'Defined in TypoScript: %s. TypoScript configuration is deprecated and will be removed in version 4.0. Please move these tasks and sets to YAML files.',
-                        implode(', ', $this->typoScriptIdentifiers)
-                    ),
-                    'Deprecated configuration',
-                    ContextualFeedbackSeverity::WARNING,
-                    false
-                )
-            );
-        }
-        $settingsKey = $this->getSettingsKey();
         $tasks = [];
         $sets = [];
-        if (isset($this->settings[$settingsKey]['tasks'])) {
-            $tasks = $this->buildTasksFromSettings($this->settings[$settingsKey]['tasks']);
+        if (isset($this->configuration['tasks'])) {
+            $tasks = $this->buildTasksFromSettings($this->configuration['tasks']);
         }
-        if (isset($this->settings[$settingsKey]['sets'])) {
-            $sets = $this->buildSetsFromSettings($this->settings[$settingsKey]['sets']);
+        if (isset($this->configuration['sets'])) {
+            $sets = $this->buildSetsFromSettings($this->configuration['sets']);
         }
 
         $this->moduleTemplate->assignMultiple(
             [
                 'tasks' => $tasks,
                 'sets' => $sets,
-                'settings' => $this->settings[$settingsKey],
             ]
         );
         return $this->moduleTemplate->renderResponse(static::TEMPLATE_PATH_INDEX);
@@ -210,9 +157,10 @@ abstract class BaseController extends ActionController
      */
     protected function taskAction($identifier): void
     {
+        $this->redirectToIndexIfNotConfigured('tasks', (string)$identifier);
         $task = $this->transferTaskFactory->create(
             (string)$identifier,
-            $this->settings[$this->getSettingsKey()]['tasks'][$identifier]
+            $this->configuration['tasks'][$identifier]
         );
         $result = $this->transferService->run([$task]);
         $this->moduleTemplate->assignMultiple(
@@ -231,24 +179,44 @@ abstract class BaseController extends ActionController
      */
     protected function setAction($identifier): void
     {
-        $settingsKey = $this->getSettingsKey();
+        $this->redirectToIndexIfNotConfigured('sets', (string)$identifier);
+        $set = $this->transferSetFactory->get(
+            $this->configuration['sets'][$identifier],
+            (string)$identifier
+        );
 
-        $tasks = [];
-        if (isset($this->settings[$settingsKey]['sets'][$identifier])) {
-            $set = $this->getTransferSetFactory()->get(
-                $this->settings[$settingsKey]['sets'][$identifier],
-                (string)$identifier
-            );
-            $tasks = $set->getTasks();
-        }
-
-        $result = $this->transferService->run($tasks);
+        $result = $this->transferService->run($set->getTasks());
         $this->moduleTemplate->assignMultiple(
             [
                 'set' => $identifier,
                 'result' => $result,
             ]
         );
+    }
+
+    /**
+     * Redirects to the index action with an error message if no task or set
+     * with the identifier is configured.
+     *
+     * @param string $type 'tasks' or 'sets'
+     * @throws PropagateResponseException
+     */
+    protected function redirectToIndexIfNotConfigured(string $type, string $identifier): void
+    {
+        if (isset($this->configuration[$type][$identifier])) {
+            return;
+        }
+        $this->getFlashMessageQueue('module.t3import_export')->enqueue(
+            new FlashMessage(
+                sprintf('No %s with the identifier "%s" is configured.', $type === 'sets' ? 'set' : 'task', $identifier),
+                'Not configured',
+                ContextualFeedbackSeverity::ERROR,
+                // keep the message for the request after the redirect
+                true
+            )
+        );
+
+        throw new PropagateResponseException($this->redirect('index'), 1795300481);
     }
 
     /**
@@ -279,21 +247,10 @@ abstract class BaseController extends ActionController
 
         if (is_array($settings)) {
             foreach ($settings as $identifier => $setSettings) {
-                $sets[$identifier] = $this->getTransferSetFactory()->get($setSettings, (string)$identifier);
+                $sets[$identifier] = $this->transferSetFactory->get($setSettings, (string)$identifier);
             }
         }
 
         return $sets;
-    }
-
-    /**
-     * Returns the set factory with the TypoScript settings of the module, so that
-     * sets find tasks defined in TypoScript (they take precedence over YAML).
-     */
-    protected function getTransferSetFactory(): TransferSetFactory
-    {
-        $this->transferSetFactory->withSettings($this->settings);
-
-        return $this->transferSetFactory;
     }
 }

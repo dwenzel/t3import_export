@@ -6,7 +6,7 @@
 
 The **Import & Export** extension provides a comprehensive, flexible framework for importing and exporting data in TYPO3 14.3. It supports multiple data formats, sources, and destinations with powerful transformation capabilities through a modular component architecture.
 
-Imports data from different sources into TYPO3 and exports from TYPO3 to different targets. Possible data sources and targets are databases, and files (XML, CSV...). Import and export tasks are described via TypoScript or modern YAML configuration and can be grouped to sets. Tasks can be executed manually via backend module or command line or automatically as a scheduler task.
+Imports data from different sources into TYPO3 and exports from TYPO3 to different targets. Possible data sources and targets are databases, and files (XML, CSV...). Import and export tasks are described in YAML files and can be grouped to sets. Tasks can be executed manually via backend module or command line or automatically as a scheduler task.
 
 ## Support matrix
 
@@ -37,7 +37,7 @@ process.
 - [Processing Flow](#processing-flow)
 
 ### 🔧 Configuration
-- [TypoScript Configuration](./Documentation/CONFIGURATION.md)
+- [Configuration](./Documentation/CONFIGURATION.md)
 - [YAML Configuration](./Documentation/YAML_CONFIGURATION.md)
 - [Configuration Examples](#configuration-examples)
 
@@ -106,7 +106,7 @@ The **Import & Export** extension provides a comprehensive, flexible framework f
 - **TYPO3 14.3**: Compatible with TYPO3 14.3 LTS
 - **Command Line Support**: CLI execution for automation and scheduling
 - **Backend Integration**: User-friendly backend module interface
-- **YAML Configuration**: Modern configuration format alongside TypoScript
+- **YAML Configuration**: Tasks and sets are configured in YAML files
 - **Queue System**: Asynchronous processing capabilities
 - **Multi-language Support**: Localization and translation workflows
 
@@ -126,52 +126,7 @@ For detailed installation instructions, troubleshooting, and environment setup, 
 
 ### 1. Basic Configuration
 
-Create a simple import task in TypoScript:
-
-```typoscript
-module.tx_t3importexport.settings.import.tasks.newsImport {
-    label = News Import
-    description = Import news from CSV file
-
-    source {
-        class = CPSIT\ImportExportCore\File\DataSourceCSV
-        config {
-            file = fileadmin/imports/news.csv
-            delimiter = ,
-            enclosure = "
-        }
-    }
-
-    preProcessors {
-        10 {
-            class = CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor
-            config {
-                rules {
-                    0 {
-                        rule = copy
-                        field = headline
-                        from = title
-                    }
-                    1 {
-                        rule = copy
-                        field = content
-                        from = bodytext
-                    }
-                }
-            }
-        }
-    }
-
-    target {
-        class = CPSIT\T3importExport\Persistence\DataTargetDB
-        config {
-            table = tx_news_domain_model_news
-        }
-    }
-}
-```
-
-### 2. YAML Configuration Alternative
+Create a YAML file in one of the configured directories (see [YAML configuration](./Documentation/YAML_CONFIGURATION.md)) with an import task:
 
 ```yaml
 import:
@@ -197,7 +152,7 @@ import:
           table: "tx_news_domain_model_news"
 ```
 
-### 3. Execution
+### 2. Execution
 
 Execute via command line:
 ```bash
@@ -223,10 +178,13 @@ For detailed architecture information, see [Architecture Overview](./Documentati
 
 ## Configuration Overview
 
-Configuration can be done via TypoScript or modern YAML format. Both approaches provide the same functionality, with YAML offering better readability and structure for complex configurations.
+Tasks and sets are configured in YAML files. The TypoScript configuration
+(`module.tx_t3importexport.settings`) was removed in version 4.0; the command
+`t3import-export:convert-typoscript` converts it to YAML, see
+[Deprecations](./Documentation/DEPRECATIONS.md#typoscript-configuration).
 
-- **[TypoScript Configuration](./Documentation/CONFIGURATION.md)** - Traditional TYPO3 configuration
-- **[YAML Configuration](./Documentation/YAML_CONFIGURATION.md)** - Modern structured configuration
+- **[Configuration](./Documentation/CONFIGURATION.md)** - Tasks and sets
+- **[YAML Configuration](./Documentation/YAML_CONFIGURATION.md)** - Reference and examples
 
 ## Tasks and Sets
 
@@ -324,75 +282,56 @@ The extension integrates with TYPO3 Scheduler for automated execution:
 ## Configuration Examples
 
 ### CSV Import with Field Mapping
-```typoscript
-module.tx_t3importexport.settings.import.tasks.productImport {
-    source {
-        class = CPSIT\ImportExportCore\File\DataSourceCSV
-        config {
-            file = fileadmin/imports/products.csv
-            skipLines = 1
-            delimiter = ;
-        }
-    }
-    preProcessors {
-        10 {
-            class = CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor
-            config {
-                rules {
-                    0 {
-                        rule = copy
-                        field = product_name
-                        from = name
-                    }
-                    1 {
-                        rule = copy
-                        field = product_price
-                        from = price
-                    }
-                    2 {
-                        rule = copy
-                        field = product_desc
-                        from = description
-                    }
-                }
-            }
-        }
-    }
-    target {
-        class = CPSIT\T3importExport\Persistence\DataTargetDB
-        config {
-            table = tx_shop_domain_model_product
-        }
-    }
-}
+```yaml
+import:
+  tasks:
+    productImport:
+      source:
+        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
+        config:
+          file: "fileadmin/imports/products.csv"
+          delimiter: ";"
+      preProcessors:
+        - class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
+          config:
+            rules:
+              - {rule: copy, field: product_name, from: name}
+              - {rule: copy, field: product_price, from: price}
+              - {rule: copy, field: product_desc, from: description}
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: "tx_shop_domain_model_product"
 ```
 
 ### XML Export with Validation
-```typoscript
-module.tx_t3importexport.settings.export.tasks.newsExport {
-    source {
-        class = CPSIT\T3importExport\Persistence\DataSourceDB
-        config {
-            table = tx_news_domain_model_news
-            where = hidden = 0
-        }
-    }
-    target {
-        class = CPSIT\T3importExport\Persistence\DataTargetXMLStream
-        config {
-            file = fileadmin/exports/news.xml
-            rootElement = news
-        }
-    }
-    finishers {
-        10 {
-            class = CPSIT\T3importExport\Component\Finisher\ValidateXML
-            config {
-                schemaFile = fileadmin/schemas/news.xsd
-            }
-        }
-    }
-}
+```yaml
+export:
+  tasks:
+    newsExport:
+      source:
+        class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
+        config:
+          table: "tx_news_domain_model_news"
+          where: "hidden = 0"
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetXMLStream"
+        config:
+          output: file            # write to a temporary file
+          rootNodeName: "news"
+      finishers:
+        # store the temporary file as fileadmin/exports/news.xml
+        - class: "CPSIT\\T3importExport\\Component\\Finisher\\WriteFile"
+          config:
+            target:
+              name: "news.xml"
+              directory: "exports"
+              conflictMode: replace
+        - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+          config:
+            file: "fileadmin/exports/news.xml"
+            schema:
+              file: "fileadmin/schemas/news.xsd"
 ```
 
 ## Common Use Cases
@@ -423,13 +362,6 @@ module.tx_t3importexport.settings.export.tasks.newsExport {
 2. **File Permissions**: Ensure TYPO3 can read source files and write to target locations
 3. **Database Connections**: Verify database credentials for external sources
 4. **Component Configuration**: Check component configuration syntax and required parameters
-
-### Debug Mode
-
-Enable debug output in configuration:
-```typoscript
-module.tx_t3importexport.settings.debug = 1
-```
 
 ### Log Files
 

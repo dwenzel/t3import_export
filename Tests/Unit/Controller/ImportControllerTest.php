@@ -4,30 +4,26 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Controller;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\ImportExportCore\Domain\Model\TransferSet;
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Http\PropagateResponseException;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 
 class ImportControllerTest extends TestCase
 {
     #[Test]
-    public function setsAreBuiltWithTypoScriptSettings(): void
+    public function setsAreBuiltWithTransferSetFactory(): void
     {
-        $settings = [
-            'import' => [
-                'tasks' => ['foo' => ['label' => 'Foo']],
-                'sets' => ['bar' => ['tasks' => 'foo']],
-            ],
-        ];
-        $transferSet = $this->createMock(TransferSet::class);
+        $transferSet = $this->createStub(TransferSet::class);
         $transferSetFactory = $this->createMock(TransferSetFactory::class);
-        $transferSetFactory->expects(self::once())
-            ->method('withSettings')
-            ->with($settings)
-            ->willReturnSelf();
         $transferSetFactory->expects(self::once())
             ->method('get')
             ->with(['tasks' => 'foo'], 'bar')
@@ -37,31 +33,24 @@ class ImportControllerTest extends TestCase
         /** @var ImportController $subject */
         $subject = $reflection->newInstanceWithoutConstructor();
         $subject->injectTransferSetFactory($transferSetFactory);
-        $reflection->getProperty('settings')->setValue($subject, $settings);
 
         $sets = $reflection->getMethod('buildSetsFromSettings')
-            ->invoke($subject, $settings['import']['sets']);
+            ->invoke($subject, ['bar' => ['tasks' => 'foo']]);
 
         self::assertSame(['bar' => $transferSet], $sets);
     }
 
     #[Test]
-    public function mergeYamlConfigurationAddsTasksAndSetsFromYaml(): void
+    public function getConfigurationReturnsTasksAndSetsOfModuleFromYaml(): void
     {
-        $settings = [
-            'import' => [
-                'tasks' => ['both' => ['label' => 'from TypoScript'], 'ts' => ['label' => 'TypoScript only']],
-            ],
-            'export' => ['tasks' => ['other' => []]],
-        ];
         $yaml = [
             'import' => [
-                'tasks' => ['both' => ['label' => 'from YAML'], 'yaml' => ['label' => 'YAML only']],
+                'tasks' => ['yaml' => ['label' => 'YAML']],
                 'sets' => ['yamlSet' => ['tasks' => 'yaml']],
             ],
             'export' => ['tasks' => ['ignored' => []]],
         ];
-        $configurationHandler = $this->createMock(ConfigurationHandlerInterface::class);
+        $configurationHandler = $this->createStub(ConfigurationHandlerInterface::class);
         $configurationHandler->method('getFullConfiguration')->willReturn($yaml);
 
         $reflection = new \ReflectionClass(ImportController::class);
@@ -69,43 +58,92 @@ class ImportControllerTest extends TestCase
         $subject = $reflection->newInstanceWithoutConstructor();
         $subject->injectConfigurationHandler($configurationHandler);
 
-        $merged = $reflection->getMethod('mergeYamlConfiguration')->invoke($subject, $settings);
-
-        self::assertSame(
-            [
-                'both' => ['label' => 'from TypoScript'],
-                'yaml' => ['label' => 'YAML only'],
-                'ts' => ['label' => 'TypoScript only'],
-            ],
-            $merged['import']['tasks']
-        );
-        self::assertSame(['yamlSet' => ['tasks' => 'yaml']], $merged['import']['sets']);
-        self::assertSame($settings['export'], $merged['export']);
+        self::assertSame($yaml['import'], $reflection->getMethod('getConfiguration')->invoke($subject));
     }
 
     #[Test]
-    public function mergeYamlConfigurationReturnsSettingsWithoutConfigurationHandler(): void
+    public function getConfigurationIgnoresTypoScriptSettings(): void
     {
-        $settings = ['import' => ['tasks' => ['ts' => []]]];
+        $configurationHandler = $this->createStub(ConfigurationHandlerInterface::class);
+        $configurationHandler->method('getFullConfiguration')->willReturn([]);
+
+        $reflection = new \ReflectionClass(ImportController::class);
+        /** @var ImportController $subject */
+        $subject = $reflection->newInstanceWithoutConstructor();
+        $subject->injectConfigurationHandler($configurationHandler);
+        $reflection->getProperty('settings')->setValue(
+            $subject,
+            ['import' => ['tasks' => ['typoScript' => ['label' => 'TypoScript']]]]
+        );
+
+        self::assertSame([], $reflection->getMethod('getConfiguration')->invoke($subject));
+    }
+
+    #[Test]
+    public function getConfigurationReturnsEmptyArrayWithoutConfigurationHandler(): void
+    {
         $reflection = new \ReflectionClass(ImportController::class);
         $subject = $reflection->newInstanceWithoutConstructor();
 
-        self::assertSame($settings, $reflection->getMethod('mergeYamlConfiguration')->invoke($subject, $settings));
+        self::assertSame([], $reflection->getMethod('getConfiguration')->invoke($subject));
     }
 
-    #[Test]
-    public function getTypoScriptIdentifiersReturnsTasksAndSetsOfModule(): void
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function actionsForUnknownIdentifiersDataProvider(): array
     {
-        $settings = [
-            'import' => ['tasks' => ['a' => [], 'b' => []], 'sets' => ['s' => []]],
-            'export' => ['tasks' => ['other' => []]],
+        return [
+            'task' => ['taskAction', 'No task with the identifier "missing" is configured.'],
+            'set' => ['setAction', 'No set with the identifier "missing" is configured.'],
         ];
-        $reflection = new \ReflectionClass(ImportController::class);
-        $subject = $reflection->newInstanceWithoutConstructor();
+    }
 
-        self::assertSame(
-            ['a', 'b', 's'],
-            $reflection->getMethod('getTypoScriptIdentifiers')->invoke($subject, $settings)
-        );
+    #[Test]
+    #[DataProvider('actionsForUnknownIdentifiersDataProvider')]
+    public function actionsRedirectToIndexForUnknownIdentifier(string $action, string $message): void
+    {
+        $response = $this->createStub(ResponseInterface::class);
+        $flashMessageQueue = $this->createMock(FlashMessageQueue::class);
+        $flashMessageQueue->expects(self::once())
+            ->method('enqueue')
+            ->with(self::callback(
+                static fn(FlashMessage $flashMessage): bool => $flashMessage->getMessage() === $message
+                    && $flashMessage->getSeverity() === ContextualFeedbackSeverity::ERROR
+                    && $flashMessage->isSessionMessage()
+            ));
+        $subject = $this->getMockBuilder(ImportController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['redirect', 'getFlashMessageQueue'])
+            ->getMock();
+        $subject->expects(self::once())->method('getFlashMessageQueue')
+            ->with('module.t3import_export')
+            ->willReturn($flashMessageQueue);
+        $subject->expects(self::once())->method('redirect')->with('index')->willReturn($response);
+        $reflection = new \ReflectionClass(ImportController::class);
+        $reflection->getProperty('configuration')->setValue($subject, ['tasks' => ['foo' => []], 'sets' => ['bar' => []]]);
+
+        try {
+            $reflection->getMethod($action)->invoke($subject, 'missing');
+            self::fail('No PropagateResponseException was thrown');
+        } catch (PropagateResponseException $exception) {
+            self::assertSame(1795300481, $exception->getCode());
+            self::assertSame($response, $exception->getResponse());
+        }
+    }
+
+    #[Test]
+    public function redirectToIndexIfNotConfiguredDoesNothingForConfiguredIdentifier(): void
+    {
+        $subject = $this->getMockBuilder(ImportController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['redirect', 'getFlashMessageQueue'])
+            ->getMock();
+        $subject->expects(self::never())->method('redirect');
+        $subject->expects(self::never())->method('getFlashMessageQueue');
+        $reflection = new \ReflectionClass(ImportController::class);
+        $reflection->getProperty('configuration')->setValue($subject, ['tasks' => ['foo' => []]]);
+
+        $reflection->getMethod('redirectToIndexIfNotConfigured')->invoke($subject, 'tasks', 'foo');
     }
 }
