@@ -5,18 +5,23 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Functional\Persistence;
 
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
-use CPSIT\T3importExport\Domain\Model\QueueItem;
+use CPSIT\ImportExportCore\Queue\QueueItemStatus;
+use CPSIT\ImportExportCore\Queue\QueueRepositoryInterface;
+use CPSIT\T3importExport\Dbal\QueueRepositoryFactory;
 use CPSIT\T3importExport\Persistence\DataSourceQueue;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
- * Queue items are marked as processing when read and as finished
- * or failed afterwards (#93)
+ * The queue source reads from the queue table of the core and marks the
+ * items as processing, finished or failed.
  */
+#[CoversClass(DataSourceQueue::class)]
 class DataSourceQueueTest extends FunctionalTestCase
 {
-    protected const array CONFIGURATION = ['identifier' => 'import.foo', 'batchSize' => 2];
+    protected const array CONFIGURATION = ['identifier' => 'import.foo', 'limit' => 2];
 
     // typo3/cms-install is required by t3extension_tools
     protected array $coreExtensionsToLoad = ['install'];
@@ -30,70 +35,87 @@ class DataSourceQueueTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->importCSVDataSet(__DIR__ . '/../Fixtures/queueItems.csv');
+        $repository = $this->get(QueueRepositoryInterface::class);
+        foreach (['a', 'b', 'c'] as $data) {
+            $repository->enqueue('import.foo', ['data' => $data]);
+        }
+        $repository->enqueue('import.bar', ['data' => 'd']);
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private static function read(iterable $records): array
+    {
+        return is_array($records) ? array_values($records) : iterator_to_array($records, false);
+    }
+
+    /**
+     * @return array<string, int> status by data
+     */
+    private function getStatusByData(): array
+    {
+        $rows = $this->get(ConnectionPool::class)->getConnectionForTable(QueueRepositoryFactory::TABLE)
+            ->select(['data', 'status'], QueueRepositoryFactory::TABLE, ['queue' => 'import.foo'], [], ['id' => 'ASC'])
+            ->fetchAllAssociative();
+        $status = [];
+        foreach ($rows as $row) {
+            $status[json_decode((string)$row['data'], true)['data']] = (int)$row['status'];
+        }
+
+        return $status;
     }
 
     #[Test]
-    public function getRecordsReadsOldestNewItemsAndMarksThemAsProcessing(): void
+    public function getRecordsReadsOldestNewItemsWithoutUidAndMarksThemAsProcessing(): void
     {
         $subject = $this->get(DataSourceQueue::class);
 
-        $records = $subject->getRecords(self::CONFIGURATION);
+        $records = self::read($subject->getRecords(self::CONFIGURATION));
 
-        self::assertSame([1, 2], array_column($records, 'uid'));
+        self::assertSame([['data' => 'a'], ['data' => 'b']], $records);
         self::assertSame(
-            [1 => QueueItem::STATUS_PROCESSING, 2 => QueueItem::STATUS_PROCESSING, 3 => QueueItem::STATUS_NEW, 4 => QueueItem::STATUS_NEW, 5 => QueueItem::STATUS_FINISHED],
-            $this->getStatusByUid()
+            ['a' => QueueItemStatus::Processing->value, 'b' => QueueItemStatus::Processing->value, 'c' => QueueItemStatus::New->value],
+            $this->getStatusByData()
         );
-        self::assertGreaterThan(0, $this->getItem(1)['started_date']);
+    }
+
+    #[Test]
+    public function batchSizeOfEarlierVersionsIsUsedAsLimit(): void
+    {
+        $subject = $this->get(DataSourceQueue::class);
+
+        $records = @self::read($subject->getRecords(['identifier' => 'import.foo', 'batchSize' => '1']));
+
+        self::assertSame([['data' => 'a']], $records);
     }
 
     #[Test]
     public function completedItemsAreFinishedAndNotReadAgain(): void
     {
         $subject = $this->get(DataSourceQueue::class);
-        $subject->getRecords(self::CONFIGURATION);
+        self::read($subject->getRecords(self::CONFIGURATION));
 
         $subject->complete(new TaskResult());
 
-        self::assertSame(QueueItem::STATUS_FINISHED, $this->getStatusByUid()[1]);
-        self::assertSame(QueueItem::STATUS_FINISHED, $this->getStatusByUid()[2]);
-        self::assertGreaterThan(0, $this->getItem(2)['finished_date']);
-        self::assertSame([3], array_column($subject->getRecords(self::CONFIGURATION), 'uid'));
+        self::assertSame(
+            ['a' => QueueItemStatus::Finished->value, 'b' => QueueItemStatus::Finished->value, 'c' => QueueItemStatus::New->value],
+            $this->getStatusByData()
+        );
+        self::assertSame([['data' => 'c']], self::read($subject->getRecords(self::CONFIGURATION)));
     }
 
     #[Test]
     public function failedItemsAreMarkedAsFailed(): void
     {
         $subject = $this->get(DataSourceQueue::class);
-        $subject->getRecords(self::CONFIGURATION);
+        self::read($subject->getRecords(self::CONFIGURATION));
 
         $subject->fail();
 
-        self::assertSame(QueueItem::STATUS_FAILED, $this->getStatusByUid()[1]);
-        self::assertSame(QueueItem::STATUS_FAILED, $this->getStatusByUid()[2]);
-        self::assertSame(QueueItem::STATUS_NEW, $this->getStatusByUid()[3]);
-    }
-
-    /**
-     * @return array<int, int>
-     */
-    protected function getStatusByUid(): array
-    {
-        $rows = $this->getConnectionPool()->getConnectionForTable(QueueItem::TABLE)
-            ->select(['uid', 'status'], QueueItem::TABLE, [], [], ['uid' => 'ASC'])
-            ->fetchAllAssociative();
-
-        return array_combine(
-            array_map('intval', array_column($rows, 'uid')),
-            array_map('intval', array_column($rows, 'status'))
+        self::assertSame(
+            ['a' => QueueItemStatus::Failed->value, 'b' => QueueItemStatus::Failed->value, 'c' => QueueItemStatus::New->value],
+            $this->getStatusByData()
         );
-    }
-
-    protected function getItem(int $uid): array
-    {
-        return $this->getConnectionPool()->getConnectionForTable(QueueItem::TABLE)
-            ->select(['*'], QueueItem::TABLE, ['uid' => $uid])
-            ->fetchAssociative();
     }
 }

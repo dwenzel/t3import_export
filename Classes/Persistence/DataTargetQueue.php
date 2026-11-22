@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\ImportExportCore\ConfigurableInterface;
-use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
-use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
-use CPSIT\T3importExport\Domain\Model\QueueItem;
-use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
-use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
+use CPSIT\ImportExportCore\Persistence\DataTargetQueue as CoreDataTargetQueue;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 
 /***************************************************************
  *  Copyright notice
@@ -30,80 +25,84 @@ use TYPO3\CMS\Extbase\DomainObject\DomainObjectInterface;
  ***************************************************************/
 
 /**
- * Class DataTargetQueue
- * Creates and persists queue items
+ * Writes the field `data` of records into the queue of the core (table
+ * `tx_t3importexport_queue_item`).
+ *
+ * Adapter on the queue target of the core. It enqueues the record
+ * `['data' => '<data as string>']`, as the queue of earlier versions stored
+ * only this field as payload. The upgrade wizard migrates the items of
+ * earlier versions to the same record, so that records queued before are
+ * recognised as duplicates. Other fields of the record are ignored.
+ *
+ * Configuration:
+ *
+ * - `identifier` (string, required): the queue
+ * - `allowUpdate` (bool, default false): records already in the queue are set
+ *   back to new. Other values than booleans are deprecated and cast to bool.
+ *
+ * Records without a scalar field `data` and objects are not written
+ * (`persist()` returns false).
  */
-class DataTargetQueue implements DataTargetInterface, ConfigurableInterface
+class DataTargetQueue extends CoreDataTargetQueue
 {
-    use ConfigurableTrait;
+    final public const string FIELD_DATA = 'data';
 
-    final public const string KEY_IDENTIFIER = 'identifier';
-    final public const string KEY_ALLOW_UPDATE = 'allowUpdate';
-    protected string $targetClass = QueueItem::class;
-
-    public function __construct(protected QueueItemRepository $repository) {}
+    /**
+     * @deprecated since 4.0, will be removed in 5.0: the queue is configured
+     * with `identifier` of the target, not in the record.
+     */
+    final public const string FIELD_IDENTIFIER = 'identifier';
 
     public function isConfigurationValid(array $configuration): bool
     {
-        if (
-            empty($configuration[self::KEY_IDENTIFIER])
-            || !is_string($configuration[self::KEY_IDENTIFIER])) {
-            return false;
-        }
-        $parts = explode('.', $configuration[self::KEY_IDENTIFIER]);
-
-        // identifier must begin with either 'import.' or 'export.'
-        if (!($parts[0] === 'import' || $parts[0] === 'export')) {
-            return false;
-        }
-
-        if (!empty($configuration[self::KEY_ALLOW_UPDATE])
-            && !is_string($configuration[self::KEY_ALLOW_UPDATE])) {
-            return false;
-        }
-        return true;
+        return parent::isConfigurationValid($this->normalizeConfiguration($configuration, false));
     }
 
-    /**
-     * Persist QueueItems
-     * Note: Only arrays representing a valid QueueItem record are considered.
-     * Instances of DomainObjectInterface are ignored.
-     *
-     * @param array|DomainObjectInterface $object
-     * @return bool|mixed
-     */
-    public function persist($object, ?array $configuration = null)
+    public function persist(array|object $object, ?array $configuration = null): bool
     {
-        $result = null;
         if (!is_array($object)) {
-            // todo log warning
             return false;
         }
-        if (empty($object[self::KEY_IDENTIFIER])) {
-            $object[QueueItem::FIELD_IDENTIFIER] = $configuration[self::KEY_IDENTIFIER];
-            $object[QueueItem::FIELD_CHECKSUM] = sha1($object[QueueItem::FIELD_DATA] . $configuration[self::KEY_IDENTIFIER]);
+        $data = $object[self::FIELD_DATA] ?? null;
+        if (!is_scalar($data)) {
+            return false;
+        }
+        $configuration = $this->normalizeConfiguration($configuration ?? $this->configuration, true);
+        $queue = $object[self::FIELD_IDENTIFIER] ?? null;
+        if (is_string($queue) && $queue !== '') {
+            DeprecationUtility::trigger(
+                'The queue of DataTargetQueue is taken from the field "identifier" of the record. This is deprecated'
+                . ' since 4.0 and will be removed in 5.0. Configure the queue with "identifier" of the target.',
+                DeprecationUtility::DATABASE_ISSUE_URL
+            );
+            $configuration[self::KEY_IDENTIFIER] = $queue;
         }
 
-        try {
-            if ($this->repository->isNew($object)) {
-                $result = $this->repository->add($object);
-            } elseif ((bool)$configuration[self::KEY_ALLOW_UPDATE]) {
-                $result = $this->repository->update($object);
-            }
-        } catch (InvalidArgumentException) {
-            // todo log error
-            $result = false;
-        }
-
-        return $result;
+        return parent::persist([self::FIELD_DATA => (string)$data], $configuration);
     }
 
     /**
-     * Method doesn't do anything.
-     * Please @see DataTargetQueue::persist
+     * Casts integers and strings in `allowUpdate` to bool, like earlier
+     * versions did.
      *
-     * @param null $result
-     * @return mixed|void
+     * @param array<array-key, mixed> $configuration
+     * @return array<array-key, mixed>
      */
-    public function persistAll($result = null, ?array $configuration = null) {}
+    protected function normalizeConfiguration(array $configuration, bool $notify): array
+    {
+        $allowUpdate = $configuration[self::KEY_ALLOW_UPDATE] ?? null;
+        if (!is_string($allowUpdate) && !is_int($allowUpdate)) {
+            return $configuration;
+        }
+        if ($notify) {
+            DeprecationUtility::trigger(
+                'Other values than true and false in the option "allowUpdate" of DataTargetQueue are deprecated since 4.0'
+                . ' and will not be accepted in 5.0.',
+                DeprecationUtility::DATABASE_ISSUE_URL
+            );
+        }
+        $configuration[self::KEY_ALLOW_UPDATE] = (bool)$allowUpdate;
+
+        return $configuration;
+    }
 }

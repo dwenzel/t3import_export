@@ -13,6 +13,7 @@ final class DeprecationUtility
     public const ISSUE_URL = 'https://github.com/dwenzel/t3import_export/issues/75';
     public const FILE_COMPONENTS_ISSUE_URL = 'https://github.com/dwenzel/t3import_export/issues/144';
     public const CORE_ISSUE_URL = 'https://github.com/dwenzel/t3import_export/issues/71';
+    public const DATABASE_ISSUE_URL = 'https://github.com/dwenzel/t3import_export/issues/132';
 
     /**
      * @var array<string, true>
