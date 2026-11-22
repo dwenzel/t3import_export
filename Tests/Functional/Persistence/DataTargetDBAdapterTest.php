@@ -7,6 +7,7 @@ namespace CPSIT\T3importExport\Tests\Functional\Persistence;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Exception\PersistenceException;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
+use CPSIT\T3importExport\Dbal\IdMapFactory;
 use CPSIT\T3importExport\Persistence\DataSourceDB;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
 use CPSIT\T3importExport\Service\DatabaseConnectionService;
@@ -474,7 +475,7 @@ class DataTargetDBAdapterTest extends FunctionalTestCase
 
     /**
      * With an ID map, the processor asks for the ID of each written record
-     * (the extension does not store the map yet, the core uses NullIdMap).
+     * and stores it in the ID map table.
      */
     #[Test]
     public function idMapGetsTheUidOfRecordsWithUnsetKeys(): void
@@ -494,7 +495,17 @@ class DataTargetDBAdapterTest extends FunctionalTestCase
 
         $this->get(TransferService::class)->run([$task]);
 
-        self::assertSame(['Root', 'Subpage 1'], \array_slice(array_column($this->rows(), 'header'), 3));
+        $rows = $this->rows();
+        self::assertSame(['Root', 'Subpage 1'], \array_slice(array_column($rows, 'header'), 3));
+        self::assertSame(
+            [
+                ['source_id' => '1', 'target_id' => (string)$rows[3]['uid']],
+                ['source_id' => '2', 'target_id' => (string)$rows[4]['uid']],
+            ],
+            $this->get(ConnectionPool::class)->getConnectionForTable(IdMapFactory::TABLE)
+                ->select(['source_id', 'target_id'], IdMapFactory::TABLE, ['namespace' => 'pages'], [], ['source_id' => 'ASC'])
+                ->fetchAllAssociative()
+        );
     }
 
     /**
