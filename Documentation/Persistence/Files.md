@@ -89,6 +89,15 @@ file that does not exist is handled as before. Relative source paths of
 `GenerateFileResource` and `GenerateUploadFile` are relative to the public
 directory (before: to the working directory of the PHP process).
 
+Schemas that the schema of `ValidateXML` names in `xs:include`, `xs:import`,
+`xs:redefine` or `xs:override` are loaded with the same rules, relative to
+the location of the schema that names them: files from the allowed
+directories (or `EXT:` paths) with the file type `xsd`, URLs from the allowed
+hosts. A schema location that is not allowed throws a
+`MissingResourceException` (code 1795300201). libxml loads no other files or
+URLs while validating, so external entities and external DTDs of the
+validated documents are not loaded.
+
 Not covered: the temporary files of `DataTargetFileStream` and
 `DataTargetXMLStream` (fixed directory `transient/t3import_export/` of the var
 directory, outside of the public directory in Composer installations), the
