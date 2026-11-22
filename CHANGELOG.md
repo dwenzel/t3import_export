@@ -238,6 +238,7 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   extension or of an allowed directory; a symbolic link that points outside
   of them is rejected (`Resource\Typo3PathResolver`)
 * The file type rules apply to the name of a symbolic link and of its target
-  (`Resource\Typo3PathResolver`)
+  (`Resource\Typo3PathResolver`); a link whose target has no allowed file
+  type (e.g. `data.csv` pointing to `data.csv.1`) is rejected
 * ValidateXML: schemas cannot include files or URLs outside the allowed
   locations
