@@ -8,6 +8,7 @@ use CPSIT\T3importExport\Tests\Unit\Traits\MockDatabaseTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /***************************************************************
  *  Copyright notice
@@ -165,4 +166,85 @@ class LookUpDBTest extends TestCase
         );
     }
 
+    /**
+     * Returns the subject with a connection which quotes values
+     */
+    protected function getSubjectWithQuotingConnection(): LookUpDB
+    {
+        $connection = $this->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['quote'])
+            ->getMock();
+        $connection->method('quote')
+            ->willReturnCallback(
+                static fn($value): string => "'" . str_replace("'", "''", (string)$value) . "'"
+            );
+        $connectionPool = $this->getMockBuilder(ConnectionPool::class)
+            ->onlyMethods(['getConnectionForTable'])
+            ->getMock();
+        $connectionPool->method('getConnectionForTable')->willReturn($connection);
+
+        return new LookUpDB($connectionPool, $this->connectionService);
+    }
+
+    /**
+     * @covers ::parseQueryConstraints
+     */
+    public function testParseQueryConstraintsQuotesValuesOfInConstraint(): void
+    {
+        $subject = $this->getSubjectWithQuotingConnection();
+        $record = ['titles' => ['foo', 'bar") OR ("1"="1', "baz') OR ('1'='1"]];
+        $queryConfiguration = [
+            'table' => 'tx_test_table',
+            'where' => [
+                'IN' => [
+                    'field' => 'title',
+                    'values' => [
+                        'field' => 'titles',
+                        'prefix' => 'p_',
+                    ],
+                ],
+            ],
+        ];
+
+        $method = new \ReflectionMethod($subject, 'parseQueryConstraints');
+        $method->setAccessible(true);
+        $result = $method->invoke($subject, $record, $queryConfiguration);
+
+        $this->assertSame(
+            " title IN ('p_foo','p_bar\") OR (\"1\"=\"1','p_baz'') OR (''1''=''1') ",
+            $result['where']
+        );
+    }
+
+    /**
+     * @covers ::parseQueryConstraints
+     */
+    public function testParseQueryConstraintsQuotesValuesForKeepOrder(): void
+    {
+        $subject = $this->getSubjectWithQuotingConnection();
+        $record = ['titles' => ["foo') OR ('1'='1", 'bar']];
+        $queryConfiguration = [
+            'table' => 'tx_test_table',
+            'where' => [
+                'IN' => [
+                    'field' => 'title',
+                    'keepOrder' => 1,
+                    'values' => [
+                        'field' => 'titles',
+                    ],
+                ],
+            ],
+        ];
+
+        $method = new \ReflectionMethod($subject, 'parseQueryConstraints');
+        $method->setAccessible(true);
+        $result = $method->invoke($subject, $record, $queryConfiguration);
+
+        $quotedList = "'foo'') OR (''1''=''1','bar'";
+        $this->assertSame(
+            ' title IN (' . $quotedList . ') ORDER BY FIELD (title,' . $quotedList . ')',
+            $result['where']
+        );
+    }
 }
