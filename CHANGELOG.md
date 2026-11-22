@@ -10,8 +10,27 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ## Unreleased
 
+### Security
+
+* `LookUpDB`: values from records are quoted in the `IN` constraint
+  ([#161](https://github.com/dwenzel/t3import_export/pull/161))
+* `ValidateXML`: included schemas (`xs:include`, `xs:import`, `xs:redefine`,
+  `xs:override`) are loaded only from `xsd` files below the directory of the
+  main schema; URLs and other locations are denied. External entities and
+  external DTDs are not loaded
+  ([#167](https://github.com/dwenzel/t3import_export/pull/167))
+
 ### Fixed
 
+* The finisher `ValidateXML` validates the document. Before, it failed before
+  validating ("Cannot access parser properties before loading data"). This
+  changes the behaviour of existing configurations: without
+  `config.schema.file`, the document is validated against its DTD, so a
+  document without `DOCTYPE` or with an external DTD is reported as invalid;
+  with a schema, the schema validation counts. A missing or empty schema file
+  is logged as error 1508914547. See
+  [ValidateXML](Documentation/Components/Finishers/ValidateXML.md)
+  ([#167](https://github.com/dwenzel/t3import_export/pull/167))
 * The conflict modes of the finishers `WriteFile` and `MoveFile` are applied
   as named. Before, TYPO3 did not recognise `changeName`, `renameNewFile` and
   `overrideExistingFile` and fell back to `cancel`. This changes the behaviour
