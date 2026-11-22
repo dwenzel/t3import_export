@@ -142,4 +142,164 @@ class LookUpDBProcessTest extends FunctionalTestCase
         self::assertTrue($this->subject->process($configuration, $record));
         self::assertSame('Root', $record['parentTitle']);
     }
+
+    #[Test]
+    public function processKeepsOrderOfInValues(): void
+    {
+        $configuration = [
+            'targetField' => 'pages',
+            'select' => [
+                'table' => 'pages',
+                'fields' => 'uid',
+                'where' => [
+                    'IN' => [
+                        'field' => 'title',
+                        'keepOrder' => 1,
+                        'values' => [
+                            'field' => 'titles',
+                        ],
+                    ],
+                    'AND' => [
+                        'condition' => 'pid>=',
+                        'value' => 'minPid',
+                    ],
+                ],
+            ],
+            'fields' => [
+                'uid' => ['mapTo' => 'uid'],
+            ],
+        ];
+        $record = [
+            'titles' => ['Subpage 2', 'Root', 'Subpage 1'],
+            'minPid' => 0,
+        ];
+
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertSame(
+            [['uid' => 3], ['uid' => 1], ['uid' => 2]],
+            $record['pages']
+        );
+    }
+
+    #[Test]
+    public function processKeepsOrderOfInValuesForSingleRow(): void
+    {
+        $configuration = [
+            'targetField' => 'page',
+            'select' => [
+                'table' => 'pages',
+                'fields' => 'uid',
+                'where' => [
+                    'AND' => [
+                        'condition' => 'pid=',
+                        'value' => 'pid',
+                    ],
+                    'IN' => [
+                        'field' => 'slug',
+                        'keepOrder' => 1,
+                        'values' => [
+                            'field' => 'slugs',
+                            'prefix' => '/',
+                        ],
+                    ],
+                ],
+                'singleRow' => 1,
+            ],
+            'fields' => [
+                'uid' => ['mapTo' => 'pageUid'],
+            ],
+        ];
+        $record = [
+            'pid' => 1,
+            'slugs' => ['subpage-2', 'subpage-1'],
+        ];
+
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertSame(3, $record['pageUid']);
+    }
+
+    #[Test]
+    public function processRemovesTargetFieldForEmptyInValues(): void
+    {
+        $configuration = [
+            'targetField' => 'pages',
+            'select' => [
+                'table' => 'pages',
+                'fields' => 'uid',
+                'where' => [
+                    'IN' => [
+                        'field' => 'title',
+                        'keepOrder' => 1,
+                        'values' => [
+                            'field' => 'titles',
+                        ],
+                    ],
+                ],
+            ],
+            'fields' => [
+                'uid' => ['mapTo' => 'uid'],
+            ],
+        ];
+        $record = ['titles' => [], 'pages' => 'foo'];
+
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertArrayNotHasKey('pages', $record);
+    }
+
+    #[Test]
+    public function processFindsOrConstraintForEmptyInValues(): void
+    {
+        $configuration = [
+            'targetField' => 'pages',
+            'select' => [
+                'table' => 'pages',
+                'fields' => 'uid',
+                'where' => [
+                    'IN' => [
+                        'field' => 'title',
+                        'values' => [
+                            'field' => 'titles',
+                        ],
+                    ],
+                    'OR' => [
+                        'condition' => 'slug=',
+                        'value' => 'slug',
+                    ],
+                ],
+            ],
+            'fields' => [
+                'uid' => ['mapTo' => 'uid'],
+            ],
+        ];
+        $record = ['titles' => [], 'slug' => '/subpage-1'];
+
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertSame([['uid' => 2]], $record['pages']);
+    }
+
+    #[Test]
+    public function processLeavesRecordUnchangedForSingleRowWithoutResult(): void
+    {
+        $configuration = [
+            'targetField' => 'parent',
+            'select' => [
+                'table' => 'pages',
+                'fields' => 'uid',
+                'where' => [
+                    'AND' => [
+                        'condition' => 'slug=',
+                        'value' => 'parentSlug',
+                    ],
+                ],
+                'singleRow' => 1,
+            ],
+            'fields' => [
+                'uid' => ['mapTo' => 'parentUid'],
+            ],
+        ];
+        $record = ['parentSlug' => '/missing'];
+
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertSame(['parentSlug' => '/missing'], $record);
+    }
 }

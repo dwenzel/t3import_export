@@ -63,6 +63,11 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
     protected const CONFIGURATION_KEY_QUERY = 'select';
 
     /**
+     * Alias of the column used to sort the result with `keepOrder`
+     */
+    protected const ORDER_FIELD_ALIAS = 'tx_t3importexport_order';
+
+    /**
      * Tells if a given configuration is valid
      */
     #[\Override]
@@ -112,23 +117,26 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             return true;
         }
         $queryConfiguration = $this->getQueryConfiguration($configuration);
+        $constraints = is_array($queryConfiguration['where'] ?? null) ? $queryConfiguration['where'] : [];
         try {
+            $inValues = $this->getInConstraintValues($record, $queryConfiguration);
             $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
         } catch (InvalidConfigurationException) {
             // todo: log error
             return false;
         }
 
-        if (!empty($queryConfiguration['singleRow'])) {
-            $queryConfiguration['limit'] = 1;
+        $queryResult = [];
+        if (!$this->isAlwaysEmpty($constraints, $inValues)) {
+            $keepOrder = $inValues !== null && !empty($constraints['IN']['keepOrder']);
+            $queryResult = $keepOrder
+                ? $this->findRowsInOrder($queryConfiguration, $constraints['IN']['field'], $inValues)
+                : $this->findRows($queryConfiguration);
         }
-        $queryResult = (new QueryFacade())->getQueryResultByConfig($queryConfiguration);
 
         $targetField = $configuration['targetField'];
 
-        if (empty($queryResult)
-            && isset($record[$targetField])
-        ) {
+        if (empty($queryResult)) {
             unset($record[$targetField]);
             return true;
         }
@@ -147,6 +155,101 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         }
 
         return true;
+    }
+
+    /**
+     * Runs the query
+     */
+    protected function findRows(array $queryConfiguration): array
+    {
+        if (!empty($queryConfiguration['singleRow'])) {
+            $queryConfiguration['limit'] = 1;
+        }
+
+        return (new QueryFacade())->getQueryResultByConfig($queryConfiguration);
+    }
+
+    /**
+     * Runs the query and sorts the rows by the order of the values
+     * of the IN constraint. Sorting in PHP works on all databases.
+     *
+     * @param string[] $values
+     */
+    protected function findRowsInOrder(array $queryConfiguration, string $field, array $values): array
+    {
+        // the rows within the limit are only known after sorting
+        $limit = (int)($queryConfiguration['limit'] ?? 0);
+        unset($queryConfiguration['limit']);
+        $queryConfiguration['fields'] .= ',' . $field . ' AS ' . self::ORDER_FIELD_ALIAS;
+        $rows = (new QueryFacade())->getQueryResultByConfig($queryConfiguration);
+        $rows = $this->sortRowsByValues($rows, $values);
+
+        return $limit > 0 ? array_slice($rows, 0, $limit) : $rows;
+    }
+
+    /**
+     * Sorts rows by the position of their order field in the given values.
+     * Rows without a matching value are moved to the end.
+     *
+     * @param string[] $values
+     */
+    protected function sortRowsByValues(array $rows, array $values): array
+    {
+        $positions = [];
+        foreach (array_values($values) as $position => $value) {
+            $positions[$value] ??= $position;
+        }
+        $last = count($positions);
+
+        usort(
+            $rows,
+            static fn(array $a, array $b): int => ($positions[(string)$a[self::ORDER_FIELD_ALIAS]] ?? $last)
+                <=> ($positions[(string)$b[self::ORDER_FIELD_ALIAS]] ?? $last)
+        );
+
+        return array_map(
+            static function (array $row): array {
+                unset($row[self::ORDER_FIELD_ALIAS]);
+                return $row;
+            },
+            $rows
+        );
+    }
+
+    /**
+     * An empty IN constraint matches nothing unless it is combined with OR
+     *
+     * @param string[]|null $inValues
+     */
+    protected function isAlwaysEmpty(array $constraints, ?array $inValues): bool
+    {
+        return $inValues === []
+            && !isset($constraints['OR']);
+    }
+
+    /**
+     * Returns the (prefixed) values of the IN constraint or null
+     * if there is no IN constraint
+     *
+     * @return string[]|null
+     * @throws InvalidConfigurationException
+     */
+    protected function getInConstraintValues(array $record, array $queryConfiguration): ?array
+    {
+        $operatorConfig = $queryConfiguration['where']['IN'] ?? null;
+        if (!is_array($operatorConfig) || !isset($operatorConfig['values'], $operatorConfig['field'])) {
+            return null;
+        }
+        $childConfig = $operatorConfig['values'];
+        if (!is_array($childConfig) || !isset($childConfig['field']) || !is_array($record[$childConfig['field']] ?? null)) {
+            throw new InvalidConfigurationException('Error while parsing configuration for operator `IN`');
+        }
+        $prefix = (string)($childConfig['prefix'] ?? '');
+
+        return array_map(
+            static fn($value): string => $prefix . $value,
+            array_values($record[$childConfig['field']])
+        );
     }
 
     protected function getQueryConfiguration($configuration): array
@@ -176,7 +279,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         ) {
             return $queryConfiguration;
         }
-        $queryBuilder = $this->connectionPool->getConnectionForTable($queryConfiguration['table']);
+        $connection = $this->connectionPool->getConnectionForTable($queryConfiguration['table']);
         $whereClause = '';
         foreach ($queryConfiguration['where'] as $operator => $operatorConfig) {
             if ($operator === 'AND' || $operator === 'OR') {
@@ -191,40 +294,28 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 
                 if (isset($operatorConfig['value'])) {
                     //read field value from record
-                    $whereClause .= $queryBuilder->quote($prefix . $record[$operatorConfig['value']]);
+                    $whereClause .= $connection->quote($prefix . $record[$operatorConfig['value']]);
                 }
             }
 
             if ($operator === 'IN') {
-                if (isset($operatorConfig['values'], $operatorConfig['field'])) {
-                    $childConfig = $operatorConfig['values'];
-                    $sourceField = $operatorConfig['field'];
-
-                    if (!is_array($childConfig) || !isset($childConfig['field']) || !is_array($record[$childConfig['field']])
-                    ) {
-                        throw (new InvalidConfigurationException('Error while parsing configuration for operator `'));
-                    }
-                    $childField = $childConfig['field'];
-
-                    $children = $record[$childField];
-                    $prefix = $order = '';
-                    $childValues = [];
-
-                    if (isset($childConfig['prefix'])) {
-                        $prefix = $childConfig['prefix'];
-                    }
-
-                    foreach ($children as $childValue) {
-                        $childValues[] = $queryBuilder->quote($prefix . $childValue);
-                    }
-                    $childValueList = implode(',', $childValues);
-
-                    if (isset($operatorConfig['keepOrder'])) {
-                        $order = sprintf('ORDER BY FIELD (%s,%s)', $sourceField, $childValueList);
-                    }
-
-                    $whereClause .= sprintf(' %s IN (%s) %s', $sourceField, $childValueList, $order);
+                $values = $this->getInConstraintValues($record, $queryConfiguration);
+                if ($values === null) {
+                    continue;
                 }
+                if ($whereClause !== '') {
+                    $whereClause .= ' AND';
+                }
+                if ($values === []) {
+                    // IN () is invalid SQL, an empty set matches nothing
+                    $whereClause .= ' 1 = 0 ';
+                    continue;
+                }
+                $quotedValues = array_map(
+                    static fn(string $value): string => $connection->quote($value),
+                    $values
+                );
+                $whereClause .= sprintf(' %s IN (%s) ', $operatorConfig['field'], implode(',', $quotedValues));
             }
         }
         $queryConfiguration['where'] = $whereClause;

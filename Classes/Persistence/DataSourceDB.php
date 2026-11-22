@@ -16,8 +16,8 @@ use CPSIT\T3importExport\Expression\ExpressionEvaluatorTrait;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception as DBALException;
-use Doctrine\DBAL\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /***************************************************************

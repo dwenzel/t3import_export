@@ -519,7 +519,7 @@ class LookUpDBTest extends TestCase
     /**
      * @covers ::parseQueryConstraints
      */
-    public function testParseQueryConstraintsQuotesValuesForKeepOrder(): void
+    public function testParseQueryConstraintsDoesNotAddOrderForKeepOrder(): void
     {
         $record = ['titles' => ["foo') OR ('1'='1", 'bar']];
         $queryConfiguration = [
@@ -546,10 +546,56 @@ class LookUpDBTest extends TestCase
 
         $result = $method->invoke($this->subject, $record, $queryConfiguration);
 
-        $quotedList = "'foo'') OR (''1''=''1','bar'";
         $this->assertSame(
-            ' title IN (' . $quotedList . ') ORDER BY FIELD (title,' . $quotedList . ')',
+            " title IN ('foo'') OR (''1''=''1','bar') ",
             $result['where']
+        );
+    }
+
+    /**
+     * @covers ::parseQueryConstraints
+     */
+    public function testParseQueryConstraintsReplacesEmptyInConstraint(): void
+    {
+        $record = ['titles' => []];
+        $queryConfiguration = [
+            'table' => 'tx_test_table',
+            'where' => [
+                'IN' => [
+                    'field' => 'title',
+                    'values' => [
+                        'field' => 'titles',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->connection->expects($this->never())->method('quote');
+
+        $method = new \ReflectionMethod($this->subject, 'parseQueryConstraints');
+        $result = $method->invoke($this->subject, $record, $queryConfiguration);
+
+        $this->assertSame(' 1 = 0 ', $result['where']);
+    }
+
+    /**
+     * @covers ::sortRowsByValues
+     */
+    public function testSortRowsByValuesKeepsOrderOfValues(): void
+    {
+        $rows = [
+            ['uid' => 1, 'tx_t3importexport_order' => 'a'],
+            ['uid' => 2, 'tx_t3importexport_order' => 'x'],
+            ['uid' => 3, 'tx_t3importexport_order' => 'c'],
+            ['uid' => 4, 'tx_t3importexport_order' => 4],
+        ];
+
+        $method = new \ReflectionMethod($this->subject, 'sortRowsByValues');
+        $result = $method->invoke($this->subject, $rows, ['c', '4', 'a']);
+
+        $this->assertSame(
+            [['uid' => 3], ['uid' => 4], ['uid' => 1], ['uid' => 2]],
+            $result
         );
     }
 }

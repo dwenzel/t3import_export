@@ -89,6 +89,15 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Fixed
 
+* `LookUpDB` sorts the rows for `keepOrder` in PHP instead of adding the
+  MySQL-specific `ORDER BY FIELD()` to the WHERE clause, so it works on all
+  databases and together with AND/OR constraints
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
+* `LookUpDB` does not create invalid SQL (`IN ()`) for empty values and
+  returns no result for the record; an IN constraint after AND/OR is joined
+  with AND ([#180](https://github.com/dwenzel/t3import_export/issues/180))
+* `LookUpDB` with `singleRow` does not read from an empty result
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
 * `LookUpDB` failed on TYPO3 14 because `Persistence\Query\QueryFacade`
   called the removed `QueryBuilder::execute()`
   ([#165](https://github.com/dwenzel/t3import_export/issues/165))
