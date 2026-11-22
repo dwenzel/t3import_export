@@ -9,8 +9,10 @@ use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use CPSIT\ImportExportCore\Processor\ValidateXMLPreProcessor;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Resource\XmlSchema;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -38,8 +40,10 @@ use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
  * Class ValidateXML
  *
  * Validates the XML of given fields
- * @todo this class is very similar to
- * @see Finisher\ValidateXML it might be better to merge them.
+ *
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\Processor\ValidateXMLPreProcessor`, see
+ * Documentation/DEPRECATIONS.md for the differences.
  */
 class ValidateXML extends AbstractPreProcessor implements
     PreProcessorInterface,
@@ -122,6 +126,11 @@ class ValidateXML extends AbstractPreProcessor implements
      */
     public function process(array $configuration, array &$record): bool
     {
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . ValidateXMLPreProcessor::class . '.',
+            DeprecationUtility::XML_COMPONENTS_ISSUE_URL
+        );
+
         $fields = GeneralUtility::trimExplode(
             self::SEPARATOR,
             $configuration[self::KEY_FIELDS],

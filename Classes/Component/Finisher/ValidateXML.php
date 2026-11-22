@@ -21,17 +21,23 @@ namespace CPSIT\T3importExport\Component\Finisher;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\File\ValidateXMLFinisher;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Resource\XmlSchema;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use XMLReader;
 
 /**
- * Class ValidateXML
+ * Validates an XML file against a schema
+ *
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\File\ValidateXMLFinisher`, see
+ * Documentation/DEPRECATIONS.md for the differences.
  */
 class ValidateXML extends AbstractFinisher
     implements FinisherInterface, LoggingInterface
@@ -125,6 +131,11 @@ class ValidateXML extends AbstractFinisher
      */
     public function process(array $configuration, array &$records, array|object &$result): bool
     {
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . ValidateXMLFinisher::class . '.',
+            DeprecationUtility::XML_COMPONENTS_ISSUE_URL
+        );
+
         $resource = $this->loadResource($configuration);
         if (empty($resource)) {
             $this->logError(1_508_914_547, null, [$configuration]);
