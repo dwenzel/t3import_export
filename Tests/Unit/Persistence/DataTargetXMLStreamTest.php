@@ -371,6 +371,26 @@ class DataTargetXMLStreamTest extends TestCase
     }
 
     #[Test]
+    public function persistWritesStreamLargerThanOneChunk(): void
+    {
+        $buffer = str_repeat('<a>1</a>', DataTargetFileStream::CHUNK_SIZE);
+
+        self::assertSame(
+            '<?xml version="1.0" encoding="UTF-8"?><rows>' . $buffer . '<a>2</a></rows>',
+            $this->persistToFile([], [$buffer, '<a>2</a>'])
+        );
+    }
+
+    #[Test]
+    public function persistWritesNothingForEmptyStream(): void
+    {
+        self::assertSame(
+            '<?xml version="1.0" encoding="UTF-8"?><rows><a>1</a></rows>',
+            $this->persistToFile([], ['', '<a>1</a>', ''])
+        );
+    }
+
+    #[Test]
     public function persistAllWritesRootAttributes(): void
     {
         self::assertSame(

@@ -189,7 +189,12 @@ and writes a message to the deprecation log. Changes:
 * `DataTargetFileStream` and `DataTargetXMLStream` accept every object with
   the interface of the core. They rewind the stream if it is seekable and
   read it in chunks of 8 KB. With `flush`, the stream is closed and replaced
-  by an empty one (before: the buffer was set to `null`).
+  by an empty one (before: the buffer was set to `null`). A stream that is
+  not readable throws a `RuntimeException` (code 1795500101).
+* Classes that extend `Domain\Model\DataStream`: the property `$buffer` is
+  gone, overrides of `setStreamBuffer()` and `getStreamBuffer()` are no
+  longer called (the components use `getStream()`), and constructors must
+  call `parent::__construct()`.
 * Custom classes that implement `Domain\Model\DataStreamInterface` must
   implement `getStream()` and `setStream()`; extend the `DataStream` of the
   core instead.

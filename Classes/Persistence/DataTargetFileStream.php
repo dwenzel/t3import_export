@@ -42,12 +42,19 @@ class DataTargetFileStream extends DataTargetRepository implements ConfigurableI
     /**
      * @param array|DomainObjectInterface $object
      * @throws FileOperationErrorException
+     * @throws \RuntimeException if the stream of a data stream is not readable
      */
     #[\Override]
     public function persist($object, ?array $configuration = null): mixed
     {
         if ($object instanceof DataStreamInterface) {
             $stream = $object->getStream();
+            if (!$stream->isReadable()) {
+                throw new \RuntimeException(
+                    'The stream of the data stream ' . $object::class . ' is not readable',
+                    1795500101
+                );
+            }
             if ($stream->isSeekable()) {
                 $stream->rewind();
             }
