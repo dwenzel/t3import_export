@@ -225,6 +225,6 @@ class GenerateFileReference extends AbstractPostProcessor implements PostProcess
                 )
             )
             ->executeQuery()->fetchOne();
-        return $result === 1;
+        return (int)$result > 0;
     }
 }

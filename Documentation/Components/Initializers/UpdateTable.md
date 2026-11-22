@@ -21,12 +21,17 @@ Use this initializer if you have to update some records with a specific set of *
 
   where clause for the *update* query.
 
-* **config.setfields** *array*
+* **config.setFields** *array*
 
   array of fields and values to use as *update* query.
 
 
 ### Optional
+
+* **config.types** *array*
+
+    Parameter type for fields in *setFields*: `int`, `bool` or `null`.
+    Fields without a type are bound as strings.
 
 * **config.identifier** *string*
 
@@ -45,8 +50,11 @@ initializers {
     config {
       table = pages
       where = pid = 1
-      setfields {
+      setFields {
         hidden = 1
+      }
+      types {
+        hidden = int
       }
     }
   }

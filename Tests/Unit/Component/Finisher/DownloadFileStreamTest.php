@@ -8,6 +8,7 @@ use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Component\Finisher\DownloadFileStream;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(DownloadFileStream::class)]
@@ -36,19 +37,22 @@ class DownloadFileStreamTest extends TestCase
         return new class () extends DownloadFileStream {
             public array $headers = [];
 
+            #[\Override]
             protected function sendHeader(string $header): void
             {
                 $this->headers[] = $header;
             }
 
+            #[\Override]
             protected function terminate(): never
             {
-                throw new \RuntimeException('terminated', 1763800000);
+                throw new \LogicException('terminated', 1763800000);
             }
         };
     }
 
-    public function testProcessReturnsFalseIfResultIsNoTaskResult(): void
+    #[Test]
+    public function processReturnsFalseIfResultIsNoTaskResult(): void
     {
         $subject = $this->createSubject();
         $records = [];
@@ -58,7 +62,8 @@ class DownloadFileStreamTest extends TestCase
         self::assertSame([], $subject->headers);
     }
 
-    public function testProcessReturnsFalseIfFileDoesNotExist(): void
+    #[Test]
+    public function processReturnsFalseIfFileDoesNotExist(): void
     {
         $subject = $this->createSubject();
         $records = [];
@@ -90,8 +95,9 @@ class DownloadFileStreamTest extends TestCase
         ];
     }
 
+    #[Test]
     #[DataProvider('configurationDataProvider')]
-    public function testProcessSendsFileWithHeaders(array $configuration, string $type, string $fileName): void
+    public function processSendsFileWithHeaders(array $configuration, string $type, string $fileName): void
     {
         $subject = $this->createSubject();
         $records = [];
@@ -102,7 +108,7 @@ class DownloadFileStreamTest extends TestCase
         try {
             $subject->process($configuration, $records, $result);
             self::fail('The request was not terminated');
-        } catch (\RuntimeException $exception) {
+        } catch (\LogicException $exception) {
             self::assertSame(1763800000, $exception->getCode());
         }
 
@@ -120,7 +126,8 @@ class DownloadFileStreamTest extends TestCase
         );
     }
 
-    public function testProcessUsesGeneratedFileNameByDefault(): void
+    #[Test]
+    public function processUsesGeneratedFileNameByDefault(): void
     {
         $subject = $this->createSubject();
         $records = [];
@@ -130,7 +137,9 @@ class DownloadFileStreamTest extends TestCase
         $this->expectOutputString('file content');
         try {
             $subject->process([], $records, $result);
-        } catch (\RuntimeException) {
+            self::fail('The request was not terminated');
+        } catch (\LogicException $exception) {
+            self::assertSame(1763800000, $exception->getCode());
         }
 
         self::assertMatchesRegularExpression(

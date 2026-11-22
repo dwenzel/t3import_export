@@ -7,6 +7,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PostProcessor;
 use CPSIT\T3importExport\Component\PostProcessor\RecreateSlug;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(RecreateSlug::class)]
@@ -28,8 +29,9 @@ class RecreateSlugTest extends TestCase
         ];
     }
 
+    #[Test]
     #[DataProvider('invalidConfigurationDataProvider')]
-    public function testIsConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
+    public function isConfigurationValidReturnsFalseForInvalidConfiguration(array $configuration): void
     {
         $this->assertFalse($this->subject->isConfigurationValid($configuration));
     }
@@ -48,8 +50,9 @@ class RecreateSlugTest extends TestCase
         ];
     }
 
+    #[Test]
     #[DataProvider('validConfigurationDataProvider')]
-    public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
+    public function isConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
         $this->assertTrue($this->subject->isConfigurationValid($configuration));
     }

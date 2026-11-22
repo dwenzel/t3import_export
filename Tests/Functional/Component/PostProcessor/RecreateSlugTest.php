@@ -57,6 +57,7 @@ class RecreateSlugTest extends FunctionalTestCase
     #[Test]
     public function processUsesConfiguredTableAndSlugField(): void
     {
+        $navTitleConfiguration = $GLOBALS['TCA']['pages']['columns']['nav_title']['config'];
         $GLOBALS['TCA']['pages']['columns']['nav_title']['config'] = $GLOBALS['TCA']['pages']['columns']['slug']['config'];
         $convertedRecord = ['uid' => 4, 'pid' => 1, 'title' => 'Other Page'];
         $record = [];
@@ -65,7 +66,11 @@ class RecreateSlugTest extends FunctionalTestCase
             RecreateSlug::KEY_SLUG_FIELD => 'nav_title',
         ];
 
-        $this->subject->process($configuration, $convertedRecord, $record);
+        try {
+            $this->subject->process($configuration, $convertedRecord, $record);
+        } finally {
+            $GLOBALS['TCA']['pages']['columns']['nav_title']['config'] = $navTitleConfiguration;
+        }
 
         // the slug of the parent page is only prepended to the field "slug" of pages
         self::assertSame('other-page', $convertedRecord['nav_title']);

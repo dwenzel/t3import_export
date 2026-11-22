@@ -99,6 +99,22 @@ class GenerateFileReferenceTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function processDoesNotCreateFurtherReferencesIfDuplicatesExist(): void
+    {
+        $connection = $this->get(ConnectionPool::class)->getConnectionForTable('sys_file_reference');
+        $row = ['pid' => 5, 'uid_local' => 1, 'uid_foreign' => 10, 'tablenames' => 'tt_content', 'fieldname' => 'image'];
+        $connection->insert('sys_file_reference', $row);
+        $connection->insert('sys_file_reference', $row);
+        $convertedRecord = ['uid' => 10];
+        $record = ['imageId' => 1];
+
+        self::assertFalse(
+            $this->subject->process($this->configuration(['fieldName' => 'image']), $convertedRecord, $record)
+        );
+        self::assertCount(2, $this->fetchReferences());
+    }
+
+    #[Test]
     public function processReturnsFalseIfFileDoesNotExist(): void
     {
         $convertedRecord = ['uid' => 10];

@@ -94,17 +94,15 @@ class UpdateTableTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function processUpdatesAllRecordsWithoutCondition(): void
+    public function processReturnsFalseWithoutCondition(): void
     {
         $records = [];
         $configuration = [
             UpdateTable::KEY_TABLE => 'pages',
             UpdateTable::KEY_SET_FIELDS => ['hidden' => 1],
-            UpdateTable::KEY_TYPES => ['hidden' => 'int'],
         ];
 
-        $this->subject->process($configuration, $records);
-
-        self::assertSame([1, 1, 1], array_column($this->fetchPages(), 'hidden'));
+        self::assertFalse($this->subject->process($configuration, $records));
+        self::assertSame([0, 0, 0], array_column($this->fetchPages(), 'hidden'));
     }
 }

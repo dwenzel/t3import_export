@@ -45,8 +45,12 @@ class UpdateTable extends AbstractInitializer implements InitializerInterface
      */
     public function process(array $configuration, array &$records): bool
     {
+        if (empty($configuration[static::KEY_WHERE])) {
+            // isConfigurationValid() requires a condition
+            return false;
+        }
         $table = $configuration[static::KEY_TABLE];
-        $where = !empty($configuration[static::KEY_WHERE]) ? $configuration[static::KEY_WHERE] : '1=1';
+        $where = $configuration[static::KEY_WHERE];
         $data = $configuration[static::KEY_SET_FIELDS];
         $types = !empty($configuration[static::KEY_TYPES]) ? $configuration[static::KEY_TYPES] : [];
 
