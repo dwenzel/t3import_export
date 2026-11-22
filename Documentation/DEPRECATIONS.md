@@ -193,6 +193,44 @@ Changes when replacing the deprecated classes with those of the core:
   order mark, and the header only with `fields`. Set `bom` and `header` to keep
   the file as it is.
 
+### Data stream
+
+`ArrayToXMLStream`, `DataTargetFileStream` and `DataTargetXMLStream` use the
+data stream of `cpsit/import-export-core`
+([#71](https://github.com/dwenzel/t3import_export/issues/71)). The classes of
+the extension extend those of the core and will be removed in 5.0.
+
+| Deprecated | Replacement |
+|---|---|
+| `Domain\Model\DataStream` | `CPSIT\ImportExportCore\Domain\Model\DataStream` |
+| `Domain\Model\DataStreamInterface` | `CPSIT\ImportExportCore\Domain\Model\DataStreamInterface` |
+
+`targetClass: CPSIT\T3importExport\Domain\Model\DataStream` keeps working
+and writes a message to the deprecation log. Changes:
+
+* The content is kept in a PSR-7 stream (`getStream()`, `setStream()`),
+  in memory up to 2 MB and in a temporary file beyond. `getStreamBuffer()`
+  and `setStreamBuffer()` are deprecated in the core and still work.
+* `getStreamBuffer()` returns `null` for an empty stream, also before
+  anything was set (before: an `Error`, because the property was not
+  initialised). `setStreamBuffer('')` and `setStreamBuffer(null)` both set
+  an empty stream.
+* `ArrayToXMLStream` writes into the stream of the target class and rewinds
+  it. It checks the interface of the core, which the deprecated interface
+  extends.
+* `DataTargetFileStream` and `DataTargetXMLStream` accept every object with
+  the interface of the core. They rewind the stream if it is seekable and
+  read it in chunks of 8 KB. With `flush`, the stream is closed and replaced
+  by an empty one (before: the buffer was set to `null`). A stream that is
+  not readable throws a `RuntimeException` (code 1795500101).
+* Classes that extend `Domain\Model\DataStream`: the property `$buffer` is
+  gone, overrides of `setStreamBuffer()` and `getStreamBuffer()` are no
+  longer called (the components use `getStream()`), and constructors must
+  call `parent::__construct()`.
+* Custom classes that implement `Domain\Model\DataStreamInterface` must
+  implement `getStream()` and `setStream()`; extend the `DataStream` of the
+  core instead.
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |
