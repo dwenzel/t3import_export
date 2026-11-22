@@ -53,7 +53,7 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 * `t3import-export:import-task` returns 1 instead of 0 for an invalid task
   configuration and 2 right away for an empty task identifier
-* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.6. Components of a
+* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.6.1. Components of a
   task run in the order of their integer keys (core
   [#81](https://github.com/CPS-IT/import-export-core/issues/81)); see
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#changes-of-cpsitimport-export-core-06)

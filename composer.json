@@ -20,7 +20,7 @@
   "require": {
     "php": ">=8.3",
     "ext-xmlreader": "*",
-    "cpsit/import-export-core": "^0.6",
+    "cpsit/import-export-core": "^0.6.1",
     "dwenzel/t3extension-tools": "^6.2",
     "symfony/expression-language": "^7.1",
     "typo3/cms-core": "^14.3"

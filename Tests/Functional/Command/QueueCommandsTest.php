@@ -228,8 +228,6 @@ class QueueCommandsTest extends FunctionalTestCase
         self::assertCount(1, $items);
         self::assertSame('export.bar', $items[0]['queue']);
         self::assertSame(QueueItemStatus::Failed, $items[0]['status']);
-        // read from the table, not from the items of the core repository,
-        // whose times are 1970-01-01 in a TYPO3 process (core#106)
         self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $items[0]['createdAt']);
         self::assertStringStartsNotWith('1970', $items[0]['createdAt']);
     }

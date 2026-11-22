@@ -182,7 +182,7 @@ Breaking changes:
 
 ### Changes of `cpsit/import-export-core` 0.6
 
-4.0 requires `cpsit/import-export-core` ^0.6 (core
+4.0 requires `cpsit/import-export-core` ^0.6.1 (core
 [UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md#060)).
 Changes that concern tasks of the extension:
 

@@ -95,9 +95,6 @@ class CoreQueueRepositoryTest extends FunctionalTestCase
         self::assertSame(QueueItem::checksum(self::QUEUE, $record), $rows[0]['checksum']);
         self::assertSame($record, json_decode((string)$rows[0]['data'], true));
         self::assertSame(QueueItemStatus::New->value, (int)$rows[0]['status']);
-        // the timestamps are read back as 1970-01-01 on TYPO3 connections: TYPO3
-        // registers a mutable type for `datetime_immutable`, which
-        // DbalQueueRepository (core 0.6.0) does not accept
         self::assertNotEmpty($rows[0]['created_at']);
         self::assertSame(1, $repository->count(self::QUEUE, QueueItemStatus::New));
     }
@@ -118,6 +115,7 @@ class CoreQueueRepositoryTest extends FunctionalTestCase
     public function claimReturnsNewItemsInOrderAndMarksThemAsProcessing(): void
     {
         $repository = $this->createRepository();
+        $before = time();
         foreach ([1, 2, 3] as $id) {
             $repository->enqueue(self::QUEUE, ['id' => $id]);
         }
@@ -129,10 +127,11 @@ class CoreQueueRepositoryTest extends FunctionalTestCase
             self::assertSame(QueueItemStatus::Processing, $item->status);
             self::assertSame(self::QUEUE, $item->queue);
         }
-        // documents a limitation of core 0.6.0 in a TYPO3 process (TYPO3
-        // overrides the Doctrine type `datetime_immutable`); once the core is
-        // fixed, assert a time within the test run instead
-        self::assertSame(0, $claimed[0]->createdAt->getTimestamp());
+        // TYPO3 registers a mutable type for `datetime_immutable`; core 0.6.1
+        // keeps the timestamps (core#106)
+        self::assertGreaterThanOrEqual($before, $claimed[0]->createdAt->getTimestamp());
+        self::assertLessThanOrEqual(time(), $claimed[0]->createdAt->getTimestamp());
+        self::assertGreaterThanOrEqual($before, $claimed[0]->updatedAt->getTimestamp());
         self::assertSame(2, $repository->count(self::QUEUE, QueueItemStatus::Processing));
         self::assertSame(1, $repository->count(self::QUEUE, QueueItemStatus::New));
         self::assertSame([['id' => 3]], self::data($repository->claim(self::QUEUE, 2)));
