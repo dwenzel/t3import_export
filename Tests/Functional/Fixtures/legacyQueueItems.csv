@@ -1,0 +1,10 @@
+"tx_t3importexport_domain_model_queueitem",,,,,,,,
+,"uid","pid","identifier","checksum","data","status","created_date","started_date","finished_date"
+,1,0,"import.foo","c1","a",0,1700000000,0,0
+,2,0,"import.foo","c2","b",1,1700000000,1700000100,0
+,3,0,"import.foo","c3","c",2,1700000000,1700000100,1700000200
+,4,0,"import.foo","c4","d",3,1700000000,1700000100,1700000300
+,5,0,"import.bar","c5","a",2,1700000000,1700000100,1700000200
+,6,0,"import.foo","c6","a",3,1700000500,1700000600,1700000700
+,7,0,"","c7","e",0,1700000000,0,0
+,8,0,"import.foo","c8","f",9,0,0,0
