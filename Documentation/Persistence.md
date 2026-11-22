@@ -3,7 +3,7 @@ Persistence
 
 Import and export tasks use data sources and targets.
 
-A set of standard sources and targets is included. You may write your own and include them by configuration in TypoScript.
+A set of standard sources and targets is included. You may write your own and include them by configuration in YAML.
 
 There exist interfaces for sources and targets. Your custom class **must** implement one of them.
 

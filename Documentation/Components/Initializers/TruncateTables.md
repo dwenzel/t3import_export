@@ -22,26 +22,19 @@ Truncates (empties) database tables.
     If not set the default TYPO3 database will be used.
 
 ### Example
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask.initializers {
-  1 {
-    class = CPSIT\T3importExport\Component\Initializer\TruncateTables
-    config {
-      # initializer is disabled if condition is true
-      disable = TEXT
-      disable {
-        value = 1
-        if {
-          # your TypoScript condition
-        }
-      }
-      # all tables will be truncated!
-      tables (
-        tx_t3events_domain_model_event,tx_t3events_domain_model_performance,
-        tx_t3events_event_person_mm,tx_t3events_event_genre_mm,tx_t3events_event_audience_mm,
-        tx_t3events_event_department_mm,tx_t3events_event_tag_mm,tx_t3events_event_venue_mm
-      )
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      initializers:
+        - class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
+          config:
+            # initializer is disabled if the expression is true
+            disable:
+              expression: "false"  # your condition
+            # all tables will be truncated!
+            tables: >-
+              tx_t3events_domain_model_event,tx_t3events_domain_model_performance,
+              tx_t3events_event_person_mm,tx_t3events_event_genre_mm,tx_t3events_event_audience_mm,
+              tx_t3events_event_department_mm,tx_t3events_event_tag_mm,tx_t3events_event_venue_mm
 ```

@@ -1,5 +1,4 @@
 # Example YAML configuration for import sets
-# This is equivalent to the TypoScript example in TypoScript/sets.typoscript
 
 import:
   sets:

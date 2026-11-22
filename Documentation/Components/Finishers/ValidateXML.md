@@ -7,27 +7,25 @@ Note: This finisher will **not** stop the execution of the current task, if vali
 ## Examples
 
 ### Validate XML from file
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  preProcessors.20 {
-    class = CPSIT\T3importExport\Component\Finisher\ValidateXML
-    config {
-      file = fileadmin/foo/bar/Export.xml
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      finishers:
+        - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+          config:
+            file: fileadmin/foo/bar/Export.xml
 ```
 ### Validate XML from URL
 
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask {
-  preProcessors.20 {
-    class = CPSIT\T3importExport\Component\Finisher\ValidateXML
-    config {
-      url = https://typo3.org/xml-feeds/rss.xml
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      finishers:
+        - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+          config:
+            url: https://typo3.org/xml-feeds/rss.xml
 ```
 ### Options
 | option                    | type    | required |description         |

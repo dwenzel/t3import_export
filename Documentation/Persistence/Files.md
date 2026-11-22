@@ -87,8 +87,10 @@ file that does not exist is handled as before. Relative source paths of
 `GenerateFileResource` and `GenerateUploadFile` are relative to the public
 directory (before: to the working directory of the PHP process).
 
-Not covered: the temporary files of `DataTargetFileStream` (fixed directory
-`typo3temp/`), the YAML configuration directories
+Not covered: the temporary files of `DataTargetFileStream` and
+`DataTargetXMLStream` (fixed directory `transient/t3import_export/` of the var
+directory, outside of the public directory in Composer installations), the
+YAML configuration directories
 (`yamlConfigurationDirectories`, set by the administrator) and the file
 arguments of the console commands.
 

@@ -1,5 +1,4 @@
 # Example YAML configuration for importing CSV data into tt_content table
-# This is equivalent to the TypoScript example in TypoScript/csv2ttContent.typoscript
 
 import:
   tasks:
@@ -16,12 +15,11 @@ import:
           file: "EXT:t3import_export/Resources/Public/Examples/CSV/csv2ttContent.csv"
 
       preProcessors:
-        1:
-          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+        - class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
           config:
-            targetField: "pid"
-            # target page id
-            value: 1
+            values:
+              # target page id
+              pid: 1
 
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"

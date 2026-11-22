@@ -66,7 +66,7 @@ class TransferSetFactoryTest extends TestCase
     }
 
     #[Test]
-    public function getPrefersImportTasksAndSettingsOverConfigurationHandler(): void
+    public function getPrefersImportTasksOverExportTasks(): void
     {
         $this->configuration = [
             'import' => ['tasks' => ['foo' => self::TASK + ['label' => 'yaml import']]],
@@ -75,9 +75,6 @@ class TransferSetFactoryTest extends TestCase
         $subject = $this->createSubject();
 
         self::assertSame('yaml import', $subject->get(['tasks' => 'foo'], 'set')->getTasks()['foo']->getLabel());
-
-        $subject->withSettings(['import' => ['tasks' => ['foo' => ['label' => 'typoscript']]]]);
-        self::assertSame('typoscript', $subject->get(['tasks' => 'foo'], 'set')->getTasks()['foo']->getLabel());
     }
 
     #[Test]

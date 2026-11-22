@@ -6,10 +6,12 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Unit\Component\Converter;
 
 use CPSIT\T3importExport\Component\Converter\ArrayToXMLStream;
-use CPSIT\T3importExport\Domain\Model\DataStream;
+use CPSIT\ImportExportCore\Domain\Model\DataStream;
+use CPSIT\T3importExport\Domain\Model\DataStream as LegacyDataStream;
 use CPSIT\T3importExport\Property\PropertyMappingConfigurationBuilder;
 use CPSIT\T3importExport\Validation\Configuration\MappingConfigurationValidator;
 use CPSIT\T3importExport\Validation\Configuration\TargetClassConfigurationValidator;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -135,6 +137,41 @@ class ArrayToXMLStreamTest extends TestCase
         $result = $this->subject->convert($testArray, $testConfig);
         $this->assertInstanceOf(DataStream::class, $result);
         $this->assertEquals('<row><value>a</value></row>', $result->getStreamBuffer());
+    }
+
+    #[Test]
+    public function convertWritesToStreamAndRewindsIt(): void
+    {
+        $testArray = ['value' => 'a'];
+        $result = $this->subject->convert($testArray, ['targetClass' => DataStream::class]);
+
+        self::assertInstanceOf(DataStream::class, $result);
+        self::assertSame(0, $result->getStream()->tell());
+        self::assertSame('<row><value>a</value></row>', $result->getStream()->getContents());
+    }
+
+    #[Test]
+    public function convertKeepsSupportingDeprecatedDataStreamAsTargetClass(): void
+    {
+        $deprecations = [];
+        set_error_handler(
+            static function (int $level, string $message) use (&$deprecations): bool {
+                $deprecations[] = $message;
+                return true;
+            },
+            E_USER_DEPRECATED
+        );
+        try {
+            $testArray = ['value' => 'a'];
+            $result = $this->subject->convert($testArray, ['targetClass' => LegacyDataStream::class]);
+        } finally {
+            restore_error_handler();
+            DeprecationUtility::reset();
+        }
+
+        self::assertInstanceOf(LegacyDataStream::class, $result);
+        self::assertSame('<row><value>a</value></row>', $result->getStreamBuffer());
+        self::assertCount(1, $deprecations);
     }
 
     #[Test]

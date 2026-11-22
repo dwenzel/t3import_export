@@ -2,8 +2,8 @@ Overview
 ========
 
 ## Configuration
-Import and export tasks are configured via TypoScript. Please refer to the
-[Configuration](./CONFIGURATION.MD)
+Import and export tasks are configured in YAML files. Please refer to the
+[Configuration](./CONFIGURATION.md)
 
 
 ## Execution
