@@ -33,7 +33,7 @@
             </div>
             <ul>
                 <f:for each="{sets}" as="set">
-                    <f:render partial="Set/ListItem" arguments="{set: set}"/>
+                    <f:render partial="Set/ListItem" arguments="{set: set, action: 'importSet'}"/>
                 </f:for>
             </ul>
         </f:then>

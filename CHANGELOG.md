@@ -45,6 +45,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   status of queue items is no longer searched in the backend
 * The backend modules redirect to the list with an error message for a task
   or set that is not configured
+* The export module lists export sets with label and description, like the
+  import module ([#62](https://github.com/dwenzel/t3import_export/issues/62))
 
 ### Deprecated
 

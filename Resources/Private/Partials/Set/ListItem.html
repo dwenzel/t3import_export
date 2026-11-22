@@ -1,9 +1,13 @@
+<f:comment>
+    Renders a transfer set with label and description.
+    Arguments: set, action (importSet or exportSet)
+</f:comment>
 <li>
     <h3>{f:if(condition: set.label, then: set.label, else: set.identifier)}</h3>
     <f:if condition="{set.description}"><p>{set.description}</p></f:if>
     <f:link.action
         class="btn btn-default"
-        action="importSet"
+        action="{action}"
         arguments="{identifier: '{set.identifier}'}">{f:translate(key: 'button.execute')}
     </f:link.action>
 </li>
