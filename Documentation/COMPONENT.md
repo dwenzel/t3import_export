@@ -51,7 +51,7 @@ import:
 ```
 Disables the component if the task result has a message with one of the IDs
 `12345` or `9876`. Messages are added to the task result by components. For
-instance finisher ValidateXML adds the message with the ID `1508776068` when
+instance the finisher `ValidateXMLFinisher` adds the message with the ID `1508776068` when
 the validation fails.
 
 ### By Expression

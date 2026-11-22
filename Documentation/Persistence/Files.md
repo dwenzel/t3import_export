@@ -78,7 +78,7 @@ files themselves:
 
 | Component | Path | Rules |
 |---|---|---|
-| `PreProcessor\ValidateXML`, `Finisher\ValidateXML` | `file` or `url` of the document, `schema.file` / `schema.url` | allowed directories and file types, allowed hosts |
+| `PreProcessor\ValidateXML`, `Finisher\ValidateXML` (deprecated) | `file` or `url` of the document, `schema.file` / `schema.url` | allowed directories and file types, allowed hosts |
 | `Persistence\DataTargetXMLStream` | `template` | allowed directories and file types |
 | `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | source file (`sourcePath` and the record field) | allowed directories and file types, allowed hosts for URLs |
 | `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | target file in the storage (`storageId`, `targetDirectoryPath`) | file types only (`fileDenyPattern`, allowed file extensions); the storage is not limited to the allowed directories |
@@ -88,6 +88,10 @@ A path or URL that is not allowed throws the exception described above, a
 file that does not exist is handled as before. Relative source paths of
 `GenerateFileResource` and `GenerateUploadFile` are relative to the public
 directory (before: to the working directory of the PHP process).
+
+The XML components of the core, `ValidateXMLPreProcessor` and
+`ValidateXMLFinisher`, load the document and the schemas with the resource
+loader, like the file sources (see [XML components](../DEPRECATIONS.md#xml-components)).
 
 Schemas that the schema of `ValidateXML` names in `xs:include`, `xs:import`,
 `xs:redefine` or `xs:override` are loaded with the same rules, relative to

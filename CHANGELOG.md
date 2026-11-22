@@ -64,6 +64,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 * `Component\DisableableTrait` implements `disable` for components that do
   not extend `AbstractComponent`
+* The XML components of the core (`ValidateXMLPreProcessor`,
+  `XMLMapperPreProcessor`, `ValidateXMLFinisher`) can be used in tasks; they
+  load schemas and files with the rules of the extension (`EXT:` paths,
+  `fileDirectories`, `allowedHosts`)
+  ([#154](https://github.com/dwenzel/t3import_export/issues/154))
 
 ### Changed
 
@@ -163,6 +168,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `DataTargetDB`: a record with `__identity` and another `uid` (changes
   the `uid` of the row) and the option `identifier`, which has no effect;
   see [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#records-of-datatargetdb)
+* `Component\PreProcessor\ValidateXML`, `Component\Finisher\ValidateXML`
+  and `Component\PreProcessor\XMLMapper`; use `ValidateXMLPreProcessor`,
+  `ValidateXMLFinisher` and `XMLMapperPreProcessor` of the core, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#xml-components)
+  ([#154](https://github.com/dwenzel/t3import_export/issues/154))
 
 ### Removed
 

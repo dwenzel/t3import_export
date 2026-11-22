@@ -101,7 +101,7 @@ import:
             pages: "42,43"
 
         20:
-          class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+          class: "CPSIT\\ImportExportCore\\File\\ValidateXMLFinisher"
           config:
             file: "fileadmin/imports/news_feed.xml"
             schema:

@@ -9,7 +9,8 @@ PreProcessors are optional. You may configure as many as you need.
 Available PreProcessors:
 * [EvaluateExpressionsPreProcessor](./PreProcessors/EVALUATE_EXPRESSIONS.md) (core)
 * [LookUpDB](./PreProcessors/LOOK_UP_DB.md)
-* [XMLMapper](./PreProcessors/XML_MAPPER.md)
+* [ValidateXMLPreProcessor](./PreProcessors/VALIDATE_XML.md) (core; replaces the deprecated `ValidateXML`)
+* [XMLMapperPreProcessor](./PreProcessors/XML_MAPPER.md) (core; replaces the deprecated `XMLMapper`)
 
 The pre-processors `AddArrays`, `Clean`, `ConcatenateFields`, `ImplodeArray`,
 `MapFields`, `MapFieldValues`, `RemoveFields`, `SetFieldValue`, `StringToTime`

@@ -55,7 +55,8 @@ process.
 - **[PreProcessors](./Documentation/Components/PREPROCESSOR.md)** - Data transformation
   - Pre-processors of `cpsit/import-export-core`, e.g. `ValueRulesPreProcessor`, `SetValuesPreProcessor`, `CleanPreProcessor`: see [Deprecations](./Documentation/DEPRECATIONS.md#deprecated-in-32)
   - [LookUpDB](./Documentation/Components/PreProcessors/LOOK_UP_DB.md)
-  - [XMLMapper](./Documentation/Components/PreProcessors/XML_MAPPER.md)
+  - [ValidateXMLPreProcessor](./Documentation/Components/PreProcessors/VALIDATE_XML.md) (core)
+  - [XMLMapperPreProcessor](./Documentation/Components/PreProcessors/XML_MAPPER.md) (core)
 
 - **[Converters](./Documentation/Components/CONVERTER.md)** - Format transformation
   - [ArrayToDomainObject](./Documentation/Components/Converters/ArrayToDomainObject.md)
@@ -67,7 +68,7 @@ process.
 
 - **[Finishers](./Documentation/Components/FINISHER.md)** - Post-execution tasks
   - [ClearCache](./Documentation/Components/Finishers/ClearCache.md)
-  - [ValidateXML](./Documentation/Components/Finishers/ValidateXML.md)
+  - [ValidateXMLFinisher](./Documentation/Components/Finishers/ValidateXML.md) (core)
   - [MoveFile](./Documentation/Components/Finishers/MoveFile.md)
   - [WriteFile](./Documentation/Components/Finishers/WriteFile.md)
   - [DownloadFileStream](./Documentation/Components/Finishers/DownloadFileStream.md)
@@ -329,7 +330,7 @@ export:
               name: "news.xml"
               directory: "exports"
               conflictMode: replace
-        - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+        - class: "CPSIT\\ImportExportCore\\File\\ValidateXMLFinisher"
           config:
             file: "fileadmin/exports/news.xml"
             schema:

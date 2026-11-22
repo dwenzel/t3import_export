@@ -30,12 +30,12 @@ Generic components without TYPO3 dependencies (apart from
 | `PreProcessor\AddArrays` | 100 % | – | [core#68] |
 | `PreProcessor\StringToTime` | 100 % | – | [core#68] |
 | `PreProcessor\UnsetEmptyFields` | 100 % | undefined key, [#131] | [core#68] |
-| `PreProcessor\XMLMapper` | 99 % | – | [core#68] |
+| `PreProcessor\XMLMapper` | 99 % | moved in 4.0 (core 0.6), deprecated | [core#25] |
 | `PreProcessor\Clean` | 0 % | tests, [#130] | [core#68] |
 | `PreProcessor\ImplodeArray` | 0 % | tests, [#130] | [core#68] |
 | `PreProcessor\EvaluateExpressions`, `Expression\ExpressionEvaluator` | 100 % | moved in 4.0 | [core#24] |
-| `PreProcessor\ValidateXML` | 0 % | tests, [#130]; path abstraction | [core#25] |
-| `Finisher\ValidateXML` | 97 % | path abstraction | [core#25] |
+| `PreProcessor\ValidateXML` | 0 % | moved in 4.0 (core 0.6), deprecated | [core#25] |
+| `Finisher\ValidateXML` | 97 % | moved in 4.0 (core 0.6), deprecated | [core#25] |
 | `Converter\ArrayToXMLStream` | 81 % | Extbase property mapper for `targetClass` separated | [core#25] |
 | `Persistence\DataSourceCSV` | 100 % | moved in 4.0 (core 0.3), deprecated subclass | [core#25] |
 | `Persistence\DataSourceXML` | 73 % | moved in 4.0 (core 0.3), deprecated subclass | [core#25] |

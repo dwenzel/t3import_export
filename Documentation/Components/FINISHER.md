@@ -13,7 +13,7 @@ Available Finishers:
 * DownloadFileStream
 * [MoveFile](./Finishers/MoveFile.md)
 * [WriteFile](./Finishers/WriteFile.md)
-* [ValidateXML](./Finishers/ValidateXML.md)
+* [ValidateXMLFinisher](./Finishers/ValidateXML.md) (core; replaces the deprecated `ValidateXML`)
 
 You may add your own Finishers. They **must** implement the FinisherInterface
 and **may** inherit from AbstractFinisher.

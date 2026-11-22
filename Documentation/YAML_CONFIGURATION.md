@@ -252,12 +252,22 @@ preProcessors:
 preProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
     config:
-      sourceField: "category_name"              # Field containing lookup value
-      targetField: "category_uid"               # Field to store result
-      table: "sys_category"                     # Lookup table
-      field: "title"                            # Field to search in
-      returnField: "uid"                        # Field to return
+      targetField: "category_uid"               # Removed from the record if nothing is found
+      select:
+        table: "sys_category"                   # Lookup table
+        fields: "uid"                           # Columns to read
+        where:
+          AND:
+            condition: "title="                 # SQL condition, followed by the quoted value
+            value: "category_name"              # Record field with the lookup value
+        singleRow: true                         # Use only the first row
+      fields:
+        uid:
+          mapTo: "category_uid"                 # Record field for the column uid
 ```
+
+See [LookUpDB](./Components/PreProcessors/LOOK_UP_DB.md) for the `IN`
+constraint and the other options.
 
 #### String to Time Conversion
 ```yaml
@@ -324,11 +334,11 @@ finishers:
 #### Validate XML
 ```yaml
 finishers:
-  - class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
+  - class: "CPSIT\\ImportExportCore\\File\\ValidateXMLFinisher"
     config:
-      file: "fileadmin/exports/data.xml"        # File to validate
-      schemaFile: "fileadmin/schemas/data.xsd"  # XSD schema file
-      onError: "continue"                       # continue|stop on validation error
+      file: "fileadmin/exports/data.xml"        # File to validate (or url)
+      schema:
+        file: "fileadmin/schemas/data.xsd"      # Optional: XSD schema file (or url)
 ```
 
 #### Move File
@@ -435,11 +445,18 @@ import:
         # Step 4: Lookup categories
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
           config:
-            sourceField: "category_name"
             targetField: "category_uid"
-            table: "sys_category"
-            field: "title"
-            returnField: "uid"
+            select:
+              table: "sys_category"
+              fields: "uid"
+              where:
+                AND:
+                  condition: "title="
+                  value: "category_name"
+              singleRow: true
+            fields:
+              uid:
+                mapTo: "category_uid"
 
         # Step 5: Set default values
         - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
