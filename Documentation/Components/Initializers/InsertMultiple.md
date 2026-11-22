@@ -32,29 +32,21 @@ Use this initializer if you have to insert a few records into a table.
     Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md)
     If not set the default TYPO3 database will be used.
 ### Example
-```
-module.tx_t3importexport.settings.import.tasks.exampleTask.initializers {
-  1 {
-    class = CPSIT\T3importExport\Component\Initializer\InsertMultiple
-    config {
-      # initializer is disabled if condition is true
-      disable = TEXT
-      disable {
-        value = 1
-        if {
-          # your TypoScript condition
-        }
-      }
-      # identifier = fooDatabaseConnection
-
-      table = sys_category
-      fields = uid,pid,title,parent
-      rows {
-        10 = 15,10,Urgent,0
-        20 = 16,10,Cool,15
-        30 = 17,10,Nasty,15
-      }
-    }
-  }
-}
+```yaml
+import:
+  tasks:
+    exampleTask:
+      initializers:
+        - class: "CPSIT\\T3importExport\\Component\\Initializer\\InsertMultiple"
+          config:
+            # initializer is disabled if the expression is true
+            disable:
+              expression: "false"  # your condition
+            # identifier: fooDatabaseConnection
+            table: sys_category
+            fields: uid,pid,title,parent
+            rows:
+              10: 15,10,Urgent,0
+              20: 16,10,Cool,15
+              30: 17,10,Nasty,15
 ```

@@ -96,8 +96,10 @@ hosts. A schema location that is not allowed throws a
 URLs while validating, so external entities and external DTDs of the
 validated documents are not loaded.
 
-Not covered: the temporary files of `DataTargetFileStream` (fixed directory
-`typo3temp/`), the YAML configuration directories
+Not covered: the temporary files of `DataTargetFileStream` and
+`DataTargetXMLStream` (fixed directory `transient/t3import_export/` of the var
+directory, outside of the public directory in Composer installations), the
+YAML configuration directories
 (`yamlConfigurationDirectories`, set by the administrator) and the file
 arguments of the console commands.
 

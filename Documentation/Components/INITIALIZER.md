@@ -15,12 +15,14 @@ Currently the following initializers exist:
 You may add your own initializers. They **must** implement the
 `InitializerInterface` and **may** inherit from AbstractInitializer.
 
-Initializers for import tasks are configured at the TypoScript path:
+Initializers are configured as a list below `initializers` of a task (`import.tasks.<task identifier>.initializers` or `export.tasks.<task identifier>.initializers`):
 
-```
-module.tx_t3importexport.settings.import.tasks.\<task identifier\>.initializers
-```
-The path for export tasks is:
-```
-module.tx_t3importexport.settings.export.tasks.\<task identifier\>.initializers
+```yaml
+import:
+  tasks:
+    exampleTask:
+      initializers:
+        - class: "Vendor\\Extension\\Component\\MyComponent"
+          config:
+            # configuration of the component
 ```

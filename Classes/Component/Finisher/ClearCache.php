@@ -44,33 +44,25 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
     /**
      *  Clears the page class depending on result and configuration
      *
-     * Configuration examples (TypoScript):
+     * Configuration examples (YAML):
      * 1. Clear all if any result
-     * config {
-     *  all = 1
-     * }
+     * config:
+     *   all: 1
      * 2. Clear selected pages (if any result)
-     * config {
-     *  pages = '1,3,5'
-     * }
+     * config:
+     *   pages: '1,3,5'
      * 3. Clear all if any result for a given class name
      * ($result[0] must contain an object of the given class)
-     * config {
-     *  classes {
-     *   NameSpaced\ClassName\OfResult {
-     *    all = 1
-     *   }
-     *  }
-     * }
+     * config:
+     *   classes:
+     *     NameSpaced\ClassName\OfResult:
+     *       all: 1
      * 4. Clear selected pages if any result for a given class name
      * ($result[0] must contain an object of the given class)
-     * config {
-     *  classes {
-     *   NameSpaced\ClassName\OfResult {
-     *    pages = 1,3,5
-     *   }
-     *  }
-     * }
+     * config:
+     *   classes:
+     *     NameSpaced\ClassName\OfResult:
+     *       pages: '1,3,5'
      * @noinspection ReferencingObjectsInspection
      */
     public function process(array $configuration, array &$records, array|object &$result): bool

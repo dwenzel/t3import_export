@@ -26,28 +26,18 @@ use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Domain\Model\TransferSet;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Factory\TransferSetFactory as CoreTransferSetFactory;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
  * Builds sets with the factory of the core. The tasks of a set are looked up
- * in the import and export tasks of the configuration handler (YAML) and of
- * the settings passed with withSettings() (TypoScript), which take precedence.
+ * in the import and export tasks of the configuration handler (YAML); import
+ * tasks take precedence.
  */
 class TransferSetFactory
 {
-    protected array $settings = [];
-
     public function __construct(
         private readonly CoreTransferSetFactory $transferSetFactory,
         private readonly ConfigurationHandlerInterface $configurationHandler
     ) {}
-
-    public function withSettings(array $settings): self
-    {
-        $this->settings = $settings;
-
-        return $this;
-    }
 
     /**
      * @throws InvalidConfigurationException if a task of the set is not defined or its configuration is invalid
@@ -57,7 +47,6 @@ class TransferSetFactory
         // Read on each call: configuration may be added after construction (e.g. --yaml-config).
         // Structure: ['import' => ['tasks' => ..., 'sets' => ...], 'export' => [...]]
         $configuration = $this->configurationHandler->getFullConfiguration();
-        ArrayUtility::mergeRecursiveWithOverrule($configuration, $this->settings);
         $taskDefinitions = array_replace(
             is_array($configuration['export']['tasks'] ?? null) ? $configuration['export']['tasks'] : [],
             is_array($configuration['import']['tasks'] ?? null) ? $configuration['import']['tasks'] : []

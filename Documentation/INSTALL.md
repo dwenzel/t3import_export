@@ -81,9 +81,6 @@ chmod -R 755 fileadmin/imports fileadmin/exports
 ```bash
 # Install with development dependencies
 composer require --dev cpsit/t3import_export
-
-# Enable debug mode in TypoScript
-module.tx_t3importexport.settings.debug = 1
 ```
 
 ### Production Environment
@@ -106,18 +103,19 @@ ddev exec vendor/bin/typo3 cache:flush
 ## Verification
 
 ### Test Installation
-Create a simple test configuration to verify installation:
+Create a simple test configuration to verify installation, e.g. in
+`Configuration/ImportExport/test.yaml` of your site package (the directory must
+be configured, see [YAML configuration](./YAML_CONFIGURATION.md#configuring-the-directories)):
 
-```typoscript
-module.tx_t3importexport.settings.import.tasks.test {
-    label = Installation Test
-    source {
-        class = CPSIT\T3importExport\Persistence\DataSourceDummy
-    }
-    target {
-        class = CPSIT\T3importExport\Persistence\DataTargetDummy
-    }
-}
+```yaml
+import:
+  tasks:
+    test:
+      label: "Installation Test"
+      source:
+        class: "CPSIT\\ImportExportCore\\Persistence\\NullDataSource"
+      target:
+        class: "CPSIT\\ImportExportCore\\Persistence\\NullDataTarget"
 ```
 
 Execute test task:
@@ -169,8 +167,13 @@ vendor/bin/typo3 t3import-export:import-task --help
 
 ## Upgrade Instructions
 
+### From Version 3.x to 4.x
+Tasks and sets in TypoScript (`module.tx_t3importexport.settings`) are not
+read any more. Convert them to YAML with `t3import-export:convert-typoscript`
+before updating, see [Deprecations](./DEPRECATIONS.md#removed-in-40).
+
 ### From Version 1.x to 2.x
-1. **Backup Configuration**: Export current TypoScript configuration
+1. **Backup Configuration**: Save the current configuration
 2. **Update Composer**: `composer update cpsit/t3import_export`
 3. **Review Breaking Changes**: Check CHANGELOG.md for breaking changes
 4. **Update Configuration**: Migrate configuration to new format if needed

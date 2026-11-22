@@ -5,26 +5,20 @@ Generates and updates file references.
 
 ### Configuration Example
 
-```typo3_typoscript
-module.tx_t3importexport.settings.import.tasks.example {
-    postProcessors {
-        10 {
-            class = CPSIT\T3importExport\Component\PostProcessor\SetL10nParent
-            config {
-                subject {
-                    parentField = ln10_parent
-                }
-
-                parent {
-                    table = tx_foo_bar
-                    identityField = uid
-                    matchField = import_id
-                    prefix = RECORD_DE-
-                }
-            }
-        }
-    }
-}
+```yaml
+import:
+  tasks:
+    example:
+      postProcessors:
+        - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\SetL10nParent"
+          config:
+            subject:
+              parentField: ln10_parent
+            parent:
+              table: tx_foo_bar
+              identityField: uid
+              matchField: import_id
+              prefix: RECORD_DE-
 ```
 
 Finds a localization parent record for `subject` by matching the value

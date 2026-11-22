@@ -1,9 +1,9 @@
 Deprecations
 ============
 
-TypoScript configuration and rendering content with TypoScript are deprecated
-since version 3.1 and will be removed in version 4.0 (together with support
-for TYPO3 14). Reasons and plan:
+TypoScript configuration and rendering content with TypoScript were deprecated
+in version 3.1 and are removed in version 4.0 (together with support for
+TYPO3 14). Reasons and plan:
 [#75](https://github.com/dwenzel/t3import_export/issues/75).
 
 Deprecated features write a message to the TYPO3 deprecation log (each message
@@ -11,6 +11,33 @@ once per request). Enable the log in the Install Tool (Settings > Configuration
 Presets > Debug, or `$GLOBALS['TYPO3_CONF_VARS']['LOG']['TYPO3']['CMS']['deprecations']`).
 
 ## Removed in 4.0
+
+### TypoScript configuration
+
+Tasks and sets are read from YAML files only. The TypoScript configuration
+(`module.tx_t3importexport.settings`) is not read any more
+([#75](https://github.com/dwenzel/t3import_export/issues/75)).
+
+| Removed | Replacement |
+|---|---|
+| Tasks and sets in TypoScript (`module.tx_t3importexport.settings.import` and `.export`) | YAML files in the configured directories, see [YAML configuration](./YAML_CONFIGURATION.md). Convert them with `t3import-export:convert-typoscript`, see [Migration](#migration). |
+| Notice about tasks and sets from TypoScript in the backend modules | none |
+| `module.tx_t3importexport.settings.debug` (debug output in the backend modules) | none |
+| `ext_typoscript_setup.typoscript` (template paths of the backend modules) | none, the default paths of the extension are used |
+| Static template "Import Export: Examples" and the TypoScript examples in `Resources/Public/Examples/TypoScript/` | the YAML examples in `Resources/Public/Examples/Yaml/` |
+| `Domain\Factory\TransferSetFactory::withSettings()` | none; the tasks of a set are looked up in the YAML configuration |
+| `BaseController::mergeYamlConfiguration()`, `getTypoScriptIdentifiers()`, `getTransferSetFactory()` and the property `$typoScriptIdentifiers` | `BaseController::getConfiguration()` returns the tasks and sets of the module from YAML |
+| Tasks and sets in `$this->settings` of the controllers | the property `$configuration` (tasks and sets of the module from YAML); `$this->settings` holds only what Extbase reads from TypoScript and no tasks or sets |
+| Template variable `{settings}` in the index templates of the backend modules (not assigned any more) | `{tasks}` and `{sets}` |
+
+The task and set actions of the backend modules redirect to the list with an
+error message if the identifier is not configured (before: a PHP warning for
+tasks, an empty run for sets).
+
+The command `t3import-export:convert-typoscript` stays: it reads TypoScript
+files, not the configuration of the site, and helps with the migration.
+
+### Rendering content with TypoScript
 
 Rendering content with TypoScript needs the TypoScriptFrontendController,
 which TYPO3 14 removed. These features are removed:
@@ -150,6 +177,11 @@ to the classes of the core and the deprecated ones:
   and `ResourcePathConfigurationValidator`. Relative source paths of
   `GenerateFileResource` and `GenerateUploadFile` are relative to the public
   directory. See [Files](./Persistence/Files.md#other-components).
+* `DataTargetFileStream` and `DataTargetXMLStream` write their temporary file
+  into `transient/t3import_export/` of the var directory (before:
+  `typo3temp/tx_importexport_/` of the public directory, which the web server
+  may deliver). The constant `DataTargetFileStream::TEMP_DIRECTORY` is no longer
+  used and deprecated; subclasses can override `getTemporaryDirectory()`.
 
 Changes when replacing the deprecated classes with those of the core:
 
@@ -160,6 +192,44 @@ Changes when replacing the deprecated classes with those of the core:
   always a header row (`header: true`); the deprecated class writes a byte
   order mark, and the header only with `fields`. Set `bom` and `header` to keep
   the file as it is.
+
+### Data stream
+
+`ArrayToXMLStream`, `DataTargetFileStream` and `DataTargetXMLStream` use the
+data stream of `cpsit/import-export-core`
+([#71](https://github.com/dwenzel/t3import_export/issues/71)). The classes of
+the extension extend those of the core and will be removed in 5.0.
+
+| Deprecated | Replacement |
+|---|---|
+| `Domain\Model\DataStream` | `CPSIT\ImportExportCore\Domain\Model\DataStream` |
+| `Domain\Model\DataStreamInterface` | `CPSIT\ImportExportCore\Domain\Model\DataStreamInterface` |
+
+`targetClass: CPSIT\T3importExport\Domain\Model\DataStream` keeps working
+and writes a message to the deprecation log. Changes:
+
+* The content is kept in a PSR-7 stream (`getStream()`, `setStream()`),
+  in memory up to 2 MB and in a temporary file beyond. `getStreamBuffer()`
+  and `setStreamBuffer()` are deprecated in the core and still work.
+* `getStreamBuffer()` returns `null` for an empty stream, also before
+  anything was set (before: an `Error`, because the property was not
+  initialised). `setStreamBuffer('')` and `setStreamBuffer(null)` both set
+  an empty stream.
+* `ArrayToXMLStream` writes into the stream of the target class and rewinds
+  it. It checks the interface of the core, which the deprecated interface
+  extends.
+* `DataTargetFileStream` and `DataTargetXMLStream` accept every object with
+  the interface of the core. They rewind the stream if it is seekable and
+  read it in chunks of 8 KB. With `flush`, the stream is closed and replaced
+  by an empty one (before: the buffer was set to `null`). A stream that is
+  not readable throws a `RuntimeException` (code 1795500101).
+* Classes that extend `Domain\Model\DataStream`: the property `$buffer` is
+  gone, overrides of `setStreamBuffer()` and `getStreamBuffer()` are no
+  longer called (the components use `getStream()`), and constructors must
+  call `parent::__construct()`.
+* Custom classes that implement `Domain\Model\DataStreamInterface` must
+  implement `getStream()` and `setStream()`; extend the `DataStream` of the
+  core instead.
 
 ## Deprecated in 3.1
 
@@ -263,7 +333,8 @@ preProcessors:
 
 1. Move the tasks and sets from TypoScript to a YAML file in one of the
    configured directories (`yamlConfigurationDirectories`). The command
-   `t3import-export:convert-typoscript` converts them, see below.
+   `t3import-export:convert-typoscript` converts them, see below. Version 4.0
+   ignores tasks and sets in TypoScript.
 2. Replace content objects by expressions (`RenderContent` ->
    `EvaluateExpressions`, `disable = TEXT` -> `disable.expression`,
    `DataSourceDB` values -> `{expression: ...}`).

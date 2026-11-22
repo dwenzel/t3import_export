@@ -12,7 +12,6 @@ return [
         'label' => 'queue',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'searchFields' => 'queue,checksum,status',
         'typeicon_classes' => [
             'default' => Extension::SVG_ICON_IDENTIFIER_JOBS,
         ],
@@ -40,6 +39,7 @@ return [
                 'type' => 'datetime',
                 'size' => 10,
                 'readOnly' => true,
+                'searchable' => false,
             ],
         ],
         'started_date' => [
@@ -49,6 +49,7 @@ return [
                 'type' => 'datetime',
                 'size' => 10,
                 'readOnly' => true,
+                'searchable' => false,
             ],
         ],
         'finished_date' => [
@@ -58,6 +59,7 @@ return [
                 'type' => 'datetime',
                 'size' => 10,
                 'readOnly' => true,
+                'searchable' => false,
             ],
         ],
         'data' => [
@@ -67,6 +69,7 @@ return [
                 'width' => 200,
                 'eval' => 'trim',
                 'readOnly' => true,
+                'searchable' => false,
             ],
         ],
         'checksum' => [
