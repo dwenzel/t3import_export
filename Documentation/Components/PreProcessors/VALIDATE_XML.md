@@ -1,5 +1,5 @@
-ValidateXML
-===========
+ValidateXMLPreProcessor
+=======================
 
 Checks that fields of a record hold well-formed XML and, with `schema`, that
 the XML is valid against an XML schema (XSD).
@@ -54,7 +54,9 @@ Each error of the XML parser or the schema validation is logged as error
 1646304431 (`Validation Error`), with the field, the record ID and the error
 in the message.
 
-The schema is loaded and checked once per task. A schema that cannot be
-loaded, is empty, includes a schema that cannot be loaded or is not allowed
-throws a `MissingResourceException` (1646301113), a schema that is not a valid
-XML schema a `ParseException` (1795200903); both stop the task.
+The schema is loaded and checked once per task. If the schema or a schema it
+includes cannot be loaded, is empty or is outside of the allowed directories
+and hosts, a `MissingResourceException` (1646301113) is thrown; if it has a
+file type other than `xsd`, an `InvalidConfigurationException` (1795200801);
+if the schema is not a valid XML schema, a `ParseException` (1795200903).
+All of them stop the task.

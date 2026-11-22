@@ -1,5 +1,5 @@
-XMLMapper
-=========
+XMLMapperPreProcessor
+=====================
 
 Marks fields of a record for writing as XML with `DataTargetXMLStream`: as
 attribute, as text or CDATA section of the parent element, under another

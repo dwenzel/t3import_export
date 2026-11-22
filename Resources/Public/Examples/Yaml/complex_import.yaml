@@ -105,4 +105,6 @@ import:
           config:
             file: "fileadmin/imports/news_feed.xml"
             schema:
+              # with security.system.enforceAllowedFileExtensions, add xsd to
+              # $GLOBALS['TYPO3_CONF_VARS']['SYS']['miscfile_ext']
               file: "fileadmin/imports/news_schema.xsd"

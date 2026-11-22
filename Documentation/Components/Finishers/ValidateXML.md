@@ -1,5 +1,5 @@
-Finisher ValidateXML
-====================
+ValidateXMLFinisher
+===================
 
 Validates an XML file after the task, e.g. the file written by the target,
 and optionally against an XML schema (XSD). The finisher does **not** stop
@@ -95,7 +95,7 @@ _Errors_).
 |------------|------------------------------------|-------|
 | 1795200901 | `MissingResourceException`         | The schema or a schema it includes cannot be loaded, is empty or is not allowed. |
 | 1795200904 | `ParseException`                   | The schema is not a valid XML schema. |
-| –          | `InvalidConfigurationException`    | `file` or `schema.file` has a file type that is not allowed. |
+| 1795200801 | `InvalidConfigurationException`    | `file`, the schema or a schema it includes has a file type that is not allowed. |
 
 ## Deprecated: Component\Finisher\ValidateXML
 

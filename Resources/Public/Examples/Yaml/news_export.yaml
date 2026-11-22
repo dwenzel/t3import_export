@@ -55,6 +55,8 @@ export:
           config:
             file: "fileadmin/exports/news_feed.xml"
             schema:
+              # with security.system.enforceAllowedFileExtensions, add xsd to
+              # $GLOBALS['TYPO3_CONF_VARS']['SYS']['miscfile_ext']
               file: "fileadmin/schemas/news_schema.xsd"
 
         # In the backend module, the finisher DownloadFileStream can send the

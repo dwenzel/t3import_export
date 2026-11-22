@@ -79,8 +79,10 @@ services:
         $pathResolver: '@t3import_export.target_path_resolver'
     # XML components: schemas (and the schemas they include or import) and
     # the file of the finisher are loaded with the resource loader above.
-    # Not shared: each component keeps the loaded schemas, so components with
-    # different schemas need their own instances
+    # Not shared: the factory clones the service, and clones of the
+    # pre-processor would share its loaded schemas (XmlSchema), so two
+    # pre-processors with different schemas need their own instances. For the
+    # finisher, which loads the schema in each run, this is defensive.
     CPSIT\ImportExportCore\Processor\ValidateXMLPreProcessor:
       public: true
       shared: false

@@ -641,14 +641,20 @@ Differences when replacing the deprecated classes with those of the core:
 
 * Schema files:
   * the schema itself must have the file type `xsd` (before: only the
-    included schemas); another type throws an
-    `InvalidConfigurationException`
+    included schemas). If the schema or a schema it includes has another
+    type, an `InvalidConfigurationException` (1795200801) is thrown (before:
+    `MissingResourceException` 1795300201 for included schemas)
+  * with the TYPO3 feature `security.system.enforceAllowedFileExtensions`,
+    `xsd` must be in `$GLOBALS['TYPO3_CONF_VARS']['SYS']['miscfile_ext']`;
+    otherwise the schema is rejected (`MissingResourceException` 1646301113
+    of the pre-processor, 1795200901 of the finisher). This also applies to
+    the deprecated classes
   * a schema is loaded and checked once per task. A schema that is not a
     valid XML schema stops the task with a `ParseException` (pre-processor
     1795200903, finisher 1795200904); before, the pre-processor logged an
     error for each record and the finisher reported the file as invalid
-  * a schema that is missing, empty or not allowed, or that includes such a
-    schema, throws a `MissingResourceException` with the code 1646301113
+  * a schema that is missing, empty or outside of the allowed directories
+    and hosts, or that includes such a schema, throws a `MissingResourceException` with the code 1646301113
     (pre-processor) or 1795200901 (finisher). Before: 1646301113 or 1508914547
     for the schema itself, 1795300201 for included schemas, and the
     `InvalidArgumentException` of the path rules (1795300101 to 1795300103)
