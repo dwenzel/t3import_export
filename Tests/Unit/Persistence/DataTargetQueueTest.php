@@ -222,35 +222,51 @@ class DataTargetQueueTest extends TestCase
         self::assertSame([], $this->deprecations);
     }
 
+    public static function allowUpdateDataProvider(): array
+    {
+        return [
+            'true' => [true, true, 0],
+            'false' => [false, false, 0],
+            'string 1' => ['1', false, 1],
+            'integer 1' => [1, false, 1],
+            'string true' => ['true', false, 1],
+            'string 0' => ['0', false, 1],
+        ];
+    }
+
+    /**
+     * Only `true` sets existing items back to new. Strings and integers had
+     * practically no effect before 4.0 and are treated as false.
+     */
     #[Test]
-    public function allowUpdateAsStringIsCastAndDeprecated(): void
+    #[DataProvider('allowUpdateDataProvider')]
+    public function onlyTrueInAllowUpdateSetsExistingItemsBackToNew(mixed $allowUpdate, bool $requeued, int $deprecations): void
     {
         $this->subject->persist(['data' => 'a'], self::CONFIGURATION);
         $this->repository->complete($this->repository->claim(self::QUEUE, 1)[0]);
 
         $result = $this->subject->persist(
             ['data' => 'a'],
-            [DataTargetQueue::KEY_IDENTIFIER => self::QUEUE, DataTargetQueue::KEY_ALLOW_UPDATE => '1']
+            [DataTargetQueue::KEY_IDENTIFIER => self::QUEUE, DataTargetQueue::KEY_ALLOW_UPDATE => $allowUpdate]
         );
 
-        self::assertTrue($result);
-        self::assertCount(1, $this->deprecations);
-        self::assertStringContainsString('allowUpdate', $this->deprecations[0]);
+        self::assertSame($requeued, $result);
+        self::assertSame($requeued ? 1 : 0, $this->repository->count(self::QUEUE, QueueItemStatus::New));
+        self::assertSame($requeued ? 0 : 1, $this->repository->count(self::QUEUE, QueueItemStatus::Finished));
+        self::assertCount($deprecations, $this->deprecations);
+        if ($deprecations > 0) {
+            self::assertStringContainsString('allowUpdate', $this->deprecations[0]);
+        }
     }
 
     #[Test]
-    public function allowUpdateZeroAsStringDoesNotRequeue(): void
+    public function isConfigurationValidDoesNotWriteADeprecation(): void
     {
-        $this->subject->persist(['data' => 'a'], self::CONFIGURATION);
-        $this->repository->complete($this->repository->claim(self::QUEUE, 1)[0]);
+        self::assertTrue($this->subject->isConfigurationValid(
+            [DataTargetQueue::KEY_IDENTIFIER => self::QUEUE, DataTargetQueue::KEY_ALLOW_UPDATE => '1']
+        ));
 
-        $result = $this->subject->persist(
-            ['data' => 'a'],
-            [DataTargetQueue::KEY_IDENTIFIER => self::QUEUE, DataTargetQueue::KEY_ALLOW_UPDATE => '0']
-        );
-
-        self::assertFalse($result);
-        self::assertSame(1, $this->repository->count(self::QUEUE, QueueItemStatus::Finished));
+        self::assertSame([], $this->deprecations);
     }
 
     #[Test]

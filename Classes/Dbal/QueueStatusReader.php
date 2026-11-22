@@ -33,6 +33,11 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
  * list them.
  *
  * The times are the values stored in the table (`created_at`, `updated_at`).
+ *
+ * The table is read directly with the connection TYPO3 assigns to it (table
+ * mapping), like `QueueRepositoryFactory` does. If `QueueRepositoryInterface`
+ * is bound to another repository (e.g. another table), this class does not
+ * follow and still reads `tx_t3importexport_queue_item`.
  */
 class QueueStatusReader
 {
@@ -70,8 +75,11 @@ class QueueStatusReader
      * Returns the items in the order they were added.
      *
      * @param list<string> $queues only these queues; all queues if empty
+     * `status` is null for a value in the table that is not a status of the
+     * core; `statusValue` holds the stored value.
+     *
      * @param QueueItemStatus|null $status only items with this status
-     * @return list<array{id: int, queue: string, status: QueueItemStatus, createdAt: string, updatedAt: string}>
+     * @return list<array{id: int, queue: string, status: QueueItemStatus|null, statusValue: int, createdAt: string, updatedAt: string}>
      */
     public function findItems(array $queues, ?QueueItemStatus $status, int $limit): array
     {
@@ -92,7 +100,8 @@ class QueueStatusReader
             static fn(array $row): array => [
                 'id' => (int)$row['id'],
                 'queue' => (string)$row['queue'],
-                'status' => QueueItemStatus::from((int)$row['status']),
+                'status' => QueueItemStatus::tryFrom((int)$row['status']),
+                'statusValue' => (int)$row['status'],
                 'createdAt' => (string)$row['created_at'],
                 'updatedAt' => (string)$row['updated_at'],
             ],

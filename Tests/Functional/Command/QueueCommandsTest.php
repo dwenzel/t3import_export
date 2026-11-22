@@ -8,12 +8,14 @@ use CPSIT\ImportExportCore\Queue\QueueItemStatus;
 use CPSIT\ImportExportCore\Queue\QueueRepositoryInterface;
 use CPSIT\T3importExport\Command\QueueReleaseCommand;
 use CPSIT\T3importExport\Command\QueueStatusCommand;
+use CPSIT\T3importExport\Dbal\QueueRepositoryFactory;
 use CPSIT\T3importExport\Dbal\QueueStatusReader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use TYPO3\CMS\Core\Console\CommandRegistry;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
@@ -230,5 +232,44 @@ class QueueCommandsTest extends FunctionalTestCase
         // whose times are 1970-01-01 in a TYPO3 process (core#106)
         self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $items[0]['createdAt']);
         self::assertStringStartsNotWith('1970', $items[0]['createdAt']);
+    }
+
+    #[Test]
+    public function readerListsTheItemsInTheOrderTheyWereAdded(): void
+    {
+        $items = $this->get(QueueStatusReader::class)->findItems([], null, 10);
+
+        self::assertSame(
+            [
+                ['import.foo', QueueItemStatus::Finished],
+                ['import.foo', QueueItemStatus::Processing],
+                ['import.foo', QueueItemStatus::Processing],
+                ['import.foo', QueueItemStatus::New],
+                ['export.bar', QueueItemStatus::Failed],
+                ['export.bar', QueueItemStatus::Processing],
+            ],
+            array_map(static fn(array $item): array => [$item['queue'], $item['status']], $items)
+        );
+        $ids = array_column($items, 'id');
+        $sorted = $ids;
+        sort($sorted);
+        self::assertSame($sorted, $ids);
+    }
+
+    #[Test]
+    public function itemWithAnUnknownStatusIsListedAsUnknown(): void
+    {
+        $this->get(ConnectionPool::class)->getConnectionForTable(QueueRepositoryFactory::TABLE)
+            ->update(QueueRepositoryFactory::TABLE, ['status' => 9], ['queue' => 'export.bar', 'status' => QueueItemStatus::Failed->value]);
+
+        $items = $this->get(QueueStatusReader::class)->findItems(['export.bar'], null, 10);
+        self::assertNull($items[0]['status']);
+        self::assertSame(9, $items[0]['statusValue']);
+
+        $tester = $this->createTester(QueueStatusCommand::DEFAULT_NAME);
+        self::assertSame(Command::SUCCESS, $tester->execute(['--queue' => ['export.bar']]));
+        self::assertSame(1, self::countItemRows($tester->getDisplay(), 'export.bar', 'unknown \\(9\\)'));
+        // the total includes the item with the unknown status
+        self::assertMatchesRegularExpression('/export\.bar\s+\|\s+0\s+\|\s+1\s+\|\s+0\s+\|\s+0\s+\|\s+2\s/', $tester->getDisplay());
     }
 }
