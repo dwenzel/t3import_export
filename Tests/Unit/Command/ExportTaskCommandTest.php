@@ -182,4 +182,18 @@ class ExportTaskCommandTest extends TestCase
         self::assertSame(Command::FAILURE, $status);
         self::assertStringContainsString('Error loading YAML configuration', $commandTester->getDisplay());
     }
+
+    #[Test]
+    public function executeReturnsInvalidForEmptyTaskIdentifier(): void
+    {
+        $this->transferTaskFactory->expects(self::never())->method('create');
+        $this->transferService->expects(self::never())->method('run');
+
+        $commandTester = new CommandTester($this->subject);
+        $status = $commandTester->execute([TaskArgument::NAME => '']);
+
+        self::assertSame(Command::INVALID, $status);
+        self::assertStringContainsString('must not be omitted', $commandTester->getDisplay());
+        self::assertStringNotContainsString(ExportTaskCommand::MESSAGE_STARTING, $commandTester->getDisplay());
+    }
 }

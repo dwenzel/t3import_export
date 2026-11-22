@@ -289,7 +289,8 @@ Available commands:
 
 Options:
 - `--yaml-config <file>` - Use YAML configuration file (`import-set`,
-  `export-set` and `export-task`)
+  `export-set` and `export-task`); the path is relative to the working
+  directory and is not restricted to the allowed directories
 
 ## Common Use Cases
 

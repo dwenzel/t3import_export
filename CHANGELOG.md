@@ -29,6 +29,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Changed
 
+* `t3import-export:import-task` returns 1 instead of 0 for an invalid task
+  configuration and 2 right away for an empty task identifier
 * Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.5
 * Tasks are run by the processor of the core; tasks, sets and components are
   created by the factories of the core

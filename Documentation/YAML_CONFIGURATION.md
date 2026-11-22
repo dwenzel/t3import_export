@@ -612,13 +612,3 @@ vendor/bin/typo3 t3import-export:import-set setName --yaml-config config.yaml
 # Use environment-specific configuration
 vendor/bin/typo3 t3import-export:import-set fullImport --yaml-config config/production.yaml
 ```
-
-### Configuration Validation
-
-```bash
-# Validate YAML configuration
-vendor/bin/typo3 t3import-export:validate-config --yaml-config config.yaml
-
-# Show resolved configuration
-vendor/bin/typo3 t3import-export:show-config --yaml-config config.yaml
-```

@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Command;
 
 use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use CPSIT\ImportExportCore\Domain\Model\TransferTask;
+use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\T3importExport\Command\Argument\TaskArgument;
 use CPSIT\T3importExport\Command\ImportTaskCommand;
@@ -119,5 +120,34 @@ class ImportTaskCommandTest extends TestCase
 
         self::assertSame(Command::INVALID, $status);
         self::assertStringContainsString('No configuration found', $commandTester->getDisplay());
+    }
+
+    #[Test]
+    public function executeReturnsInvalidForEmptyTaskIdentifier(): void
+    {
+        $this->transferTaskFactory->expects(self::never())->method('create');
+        $this->transferService->expects(self::never())->method('run');
+
+        $commandTester = new CommandTester($this->subject);
+        $status = $commandTester->execute([TaskArgument::NAME => '']);
+
+        self::assertSame(Command::INVALID, $status);
+        self::assertStringContainsString('must not be omitted', $commandTester->getDisplay());
+        self::assertStringNotContainsString(ImportTaskCommand::MESSAGE_STARTING, $commandTester->getDisplay());
+    }
+
+    #[Test]
+    public function executeFailsForInvalidTaskConfiguration(): void
+    {
+        $this->transferTaskFactory->method('create')
+            ->willThrowException(new InvalidConfigurationException('source is missing', 1451206701));
+        $this->transferService->expects(self::never())->method('run');
+
+        $commandTester = new CommandTester($this->subject);
+        $status = $commandTester->execute([TaskArgument::NAME => self::TASK_IDENTIFIER]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('source is missing', $commandTester->getDisplay());
+        self::assertStringNotContainsString(ImportTaskCommand::MESSAGE_SUCCESS, $commandTester->getDisplay());
     }
 }

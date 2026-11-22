@@ -61,15 +61,14 @@ class ImportTaskCommand extends Command implements ArgumentAwareInterface
     final public const string MESSAGE_STARTING = 'Starting import task';
     final public const string WARNING_MISSING_PARAMETER = 'Parameter "%s" must not be omitted';
     final public const string WARNING_MISSING_CONFIGURATION = 'No configuration found for task with identifier "%s".';
-    protected const OPTIONS = [];
-    protected const ARGUMENTS = [
+    final public const array OPTIONS = [];
+    final public const array ARGUMENTS = [
         TaskArgument::class,
     ];
 
-    protected static $optionsToConfigure = self::OPTIONS;
-    protected static $argumentsToConfigure = self::ARGUMENTS;
     /**
-     * @var string
+     * @var array|string[]
      */
-    protected static $defaultName = self::DEFAULT_NAME;
+    protected static array $optionsToConfigure = self::OPTIONS;
+    protected static array $argumentsToConfigure = self::ARGUMENTS;
 }
