@@ -83,6 +83,54 @@ class DataSourceQueueTest extends TestCase
         return is_array($records) ? array_values($records) : iterator_to_array($records, false);
     }
 
+    /**
+     * A repository that records the IDs of the items marked as failed
+     *
+     * @return QueueRepositoryInterface&object{failed: list<int|string>}
+     */
+    private function createSpyRepository(): QueueRepositoryInterface
+    {
+        return new class ($this->repository) implements QueueRepositoryInterface {
+            /**
+             * @var list<int|string>
+             */
+            public array $failed = [];
+
+            public function __construct(private readonly QueueRepositoryInterface $repository) {}
+
+            public function enqueue(string $queue, array $data, bool $requeue = false): bool
+            {
+                return $this->repository->enqueue($queue, $data, $requeue);
+            }
+
+            public function claim(string $queue, int $limit): array
+            {
+                return $this->repository->claim($queue, $limit);
+            }
+
+            public function complete(QueueItem $item): void
+            {
+                $this->repository->complete($item);
+            }
+
+            public function fail(QueueItem $item): void
+            {
+                $this->failed[] = $item->id;
+                $this->repository->fail($item);
+            }
+
+            public function release(string $queue): int
+            {
+                return $this->repository->release($queue);
+            }
+
+            public function count(string $queue, QueueItemStatus $status): int
+            {
+                return $this->repository->count($queue, $status);
+            }
+        };
+    }
+
     #[Test]
     public function isAdapterOnTheQueueSourceOfTheCore(): void
     {
@@ -266,45 +314,7 @@ class DataSourceQueueTest extends TestCase
     #[Test]
     public function secondFailMarksTheFailedItemsAgain(): void
     {
-        $repository = new class ($this->repository) implements QueueRepositoryInterface {
-            /**
-             * @var list<int|string>
-             */
-            public array $failed = [];
-
-            public function __construct(private readonly QueueRepositoryInterface $repository) {}
-
-            public function enqueue(string $queue, array $data, bool $requeue = false): bool
-            {
-                return $this->repository->enqueue($queue, $data, $requeue);
-            }
-
-            public function claim(string $queue, int $limit): array
-            {
-                return $this->repository->claim($queue, $limit);
-            }
-
-            public function complete(QueueItem $item): void
-            {
-                $this->repository->complete($item);
-            }
-
-            public function fail(QueueItem $item): void
-            {
-                $this->failed[] = $item->id;
-                $this->repository->fail($item);
-            }
-
-            public function release(string $queue): int
-            {
-                return $this->repository->release($queue);
-            }
-
-            public function count(string $queue, QueueItemStatus $status): int
-            {
-                return $this->repository->count($queue, $status);
-            }
-        };
+        $repository = $this->createSpyRepository();
         $this->subject = new DataSourceQueue($repository);
         $this->enqueue('a', 'b', 'c');
         $this->read([DataSourceQueue::KEY_IDENTIFIER => self::QUEUE, DataSourceQueue::KEY_LIMIT => 2]);
@@ -317,5 +327,22 @@ class DataSourceQueueTest extends TestCase
         self::assertSame([...$firstFail, ...$firstFail], $repository->failed);
         self::assertSame(2, $this->repository->count(self::QUEUE, QueueItemStatus::Failed));
         self::assertSame(1, $this->repository->count(self::QUEUE, QueueItemStatus::New));
+    }
+
+    #[Test]
+    public function failAfterCompleteMarksNoItems(): void
+    {
+        $repository = $this->createSpyRepository();
+        $this->subject = new DataSourceQueue($repository);
+        $this->enqueue('a', 'b');
+        $this->read([DataSourceQueue::KEY_IDENTIFIER => self::QUEUE, DataSourceQueue::KEY_LIMIT => 1]);
+        $this->subject->fail();
+        $this->read([DataSourceQueue::KEY_IDENTIFIER => self::QUEUE, DataSourceQueue::KEY_LIMIT => 1]);
+        $this->subject->complete(new TaskResult());
+
+        $this->subject->fail();
+
+        self::assertCount(1, $repository->failed);
+        self::assertSame(1, $this->repository->count(self::QUEUE, QueueItemStatus::Finished));
     }
 }
