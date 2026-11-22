@@ -52,6 +52,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   or set that is not configured
 * The export module lists export sets with label and description, like the
   import module ([#62](https://github.com/dwenzel/t3import_export/issues/62))
+* `LookUpDB` without `singleRow` no longer sets a target field that was not
+  in the record to `[]` for an empty result; the field stays unset
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
+* `LookUpDB` with `keepOrder` does not sort the rows if `groupBy` is set
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
 
 ### Deprecated
 
@@ -89,6 +94,15 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Fixed
 
+* `LookUpDB` sorts the rows for `keepOrder` in PHP instead of adding the
+  MySQL-specific `ORDER BY FIELD()` to the WHERE clause, so it works on all
+  databases and together with AND/OR constraints
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
+* `LookUpDB` does not create invalid SQL (`IN ()`) for empty values and
+  returns no result for the record; an IN constraint after AND/OR is joined
+  with AND ([#180](https://github.com/dwenzel/t3import_export/issues/180))
+* `LookUpDB` with `singleRow` does not read from an empty result
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
 * `LookUpDB` failed on TYPO3 14 because `Persistence\Query\QueryFacade`
   called the removed `QueryBuilder::execute()`
   ([#165](https://github.com/dwenzel/t3import_export/issues/165))

@@ -47,3 +47,50 @@ config {
   }
 }
 ```
+
+### Constraints
+
+`select.where` accepts the keys `AND`, `OR` and `IN`, each once. The
+constraints are joined in the order of the configuration, without
+parentheses; `IN` is joined with `AND`. SQL evaluates `AND` before `OR`: the
+keys `IN`, `AND`, `OR` result in `field IN (...) AND a OR b`, which matches
+`(field IN (...) AND a) OR b`.
+
+### IN constraint
+
+`IN` looks for rows whose column `field` has one of the values of the record
+field `values.field` (an array). An optional `values.prefix` is put in front
+of each value.
+
+```yaml
+preProcessors:
+  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
+    config:
+      targetField: categories
+      select:
+        table: sys_category
+        fields: uid
+        where:
+          IN:
+            field: title
+            keepOrder: 1
+            values:
+              field: categoryTitles
+      fields:
+        uid:
+          mapTo: uid
+```
+
+* An empty array of values matches nothing. Without an `OR` constraint no
+  query is run and the record gets no result.
+* With `keepOrder` the rows are returned in the order of the values. The rows
+  are sorted in PHP after the query, so this works on all databases. Values
+  are compared case-insensitively and without trailing spaces. Rows whose
+  value is not in the list come last. `limit` and `singleRow` are applied
+  after sorting.
+* `keepOrder` has no effect if `groupBy` is set.
+
+### Empty result
+
+If the query returns no rows, the target field is removed from the record.
+A target field that was not in the record is not set.

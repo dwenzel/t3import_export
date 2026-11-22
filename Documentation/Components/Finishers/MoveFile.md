@@ -36,7 +36,7 @@ import:
             target:
               name: bar.xml
               storage: 7
-              conflictMode: replace
+              conflictMode: overrideExistingFile
               directory: boom
 ```
 Renames (moves) the file `foo.xml` from directory `foo/bar` of the storage with ID
