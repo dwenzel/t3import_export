@@ -183,6 +183,8 @@ vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration
 ```
 
 See [Persistence](./Persistence.md#migrating-the-queue-items-of-earlier-versions).
+The legacy table stays until 5.0. Records read from the queue no longer
+contain `uid`, see [Deprecations](./DEPRECATIONS.md#queue).
 
 ### From Version 1.x to 2.x
 1. **Backup Configuration**: Save the current configuration
@@ -215,6 +217,7 @@ To remove all extension data:
 DELETE FROM sys_template WHERE config LIKE '%t3import_export%';
 
 -- Remove queue items (if using queue)
+DROP TABLE IF EXISTS tx_t3importexport_queue_item;
 DROP TABLE IF EXISTS tx_t3importexport_domain_model_queueitem;
 ```
 

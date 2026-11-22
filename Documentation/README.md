@@ -63,9 +63,10 @@
   - [XML Files](./Persistence/DataSourceXML.md)
   - [Database](./Persistence/DataSourceDB.md)
   - [Repository](./Persistence/DataSourceRepository.md)
-  - [Queue](./Persistence/DataSourceQueue.md)
+  - [Queue](./Persistence/Queue.md)
 - **Data Targets**
   - [Database](./Persistence/DataTargetDB.md)
+  - [Queue](./Persistence/Queue.md#datatargetqueue)
   - [CSV Files](./Persistence/DataTargetCSV.md)
   - [XML Streams](./Persistence/DataTargetXMLStream.md)
   - [Repository](./Persistence/DataTargetRepository.md)
@@ -82,7 +83,7 @@
 - [Backend Module](#backend-module)
 - [Command Line Interface](#command-line-interface)
 - [Scheduler Integration](#scheduler-integration)
-- [Queue Processing](#queue-processing)
+- [Queue Processing](./Persistence/Queue.md)
 
 ### 🛠️ Development
 - [Development Guide](./DEVELOPMENT.md)
@@ -286,6 +287,10 @@ Available commands:
 - `t3import-export:import-set <setId>` - Execute import set
 - `t3import-export:export-set <setId>` - Execute export set
 - `t3import-export:export-task <taskId>` - Execute single export task
+- `t3import-export:queue:status` - Show the number of queue items by status,
+  list items with `--queue` or `--status`
+- `t3import-export:queue:release --queue <queue>` (or `--all`) - Set queue
+  items in processing back to new, see [Queue](./Persistence/Queue.md#commands)
 
 Options:
 - `--yaml-config <file>` - Use YAML configuration file (`import-set`,

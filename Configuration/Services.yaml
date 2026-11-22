@@ -97,6 +97,8 @@ services:
       public: true
       factory: ['@CPSIT\T3importExport\Dbal\QueueRepositoryFactory', 'create']
     CPSIT\ImportExportCore\Queue\QueueRepositoryInterface: '@CPSIT\ImportExportCore\Dbal\Queue\DbalQueueRepository'
+    CPSIT\T3importExport\Dbal\QueueStatusReader:
+      public: true
 
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:
       public: true
@@ -156,4 +158,8 @@ services:
     CPSIT\T3importExport\Configuration\TypoScriptConverter:
       public: true
     CPSIT\T3importExport\Command\ConvertTypoScriptCommand:
+      public: true
+    CPSIT\T3importExport\Command\QueueStatusCommand:
+      public: true
+    CPSIT\T3importExport\Command\QueueReleaseCommand:
       public: true

@@ -41,6 +41,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   processing become new, and the wizard can be run again. Run it before
   running tasks with 4.0
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* Commands `t3import-export:queue:status` (alias `queue:status`), which shows
+  the number of queue items by status and lists items, and
+  `t3import-export:queue:release` (alias `queue:release`), which sets items
+  in processing back to new; they replace the list of queue items in the
+  backend ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* `DataSourceQueue` accepts the option `limit`
 
 ### Changed
 
@@ -75,6 +81,16 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   ([#180](https://github.com/dwenzel/t3import_export/issues/180))
 * `LookUpDB` with `keepOrder` does not sort the rows if `groupBy` is set
   ([#180](https://github.com/dwenzel/t3import_export/issues/180))
+* `DataSourceQueue` and `DataTargetQueue` are adapters on the queue
+  components of the core and use the table `tx_t3importexport_queue_item`.
+  Records read from the queue no longer contain `uid`. The target enqueues
+  only the field `data` of a record, as string (`['data' => '<data>']`, the
+  record of the migrated items); other fields are ignored. With
+  `allowUpdate`, records already in the queue are set back to new. The
+  `identifier` of the queue no longer needs the prefix `import.` or
+  `export.`. See
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#queue)
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Deprecated
 
@@ -83,6 +99,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `Domain\Model\DataStream` and `DataStreamInterface`; use the data stream of
   the core
 * `DataTargetFileStream::TEMP_DIRECTORY`
+* `DataSourceQueue`: option `batchSize` (use `limit`) and the constants
+  `KEY_BATCH_SIZE` and `DEFAULT_BATCH_SIZE`
+* `DataTargetQueue`: `allowUpdate` as string or integer (use a boolean) and
+  the queue taken from the field `identifier` of the record
 
 ### Removed
 
@@ -109,6 +129,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   examples; use YAML. The command `t3import-export:convert-typoscript`
   converts existing configurations
   ([#75](https://github.com/dwenzel/t3import_export/issues/75))
+* `Domain\Model\QueueItem`, `Domain\Repository\QueueItemRepository` and
+  the TCA of the table `tx_t3importexport_domain_model_queueitem` (list of
+  queue items in the backend); use the queue of the core and the commands
+  `queue:status` and `queue:release`. The table stays defined through 4.x
+  for the upgrade wizard and will be removed in 5.0
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Fixed
 

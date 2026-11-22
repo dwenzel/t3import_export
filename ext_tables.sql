@@ -41,6 +41,10 @@ CREATE TABLE tx_t3importexport_domain_model_exporttarget
 
 #
 # Table structure for table 'tx_t3importexport_domain_model_queueitem'
+# Queue of versions before 4.0. It is no longer used, but kept through 4.x so
+# that the upgrade wizard t3importExport_queueItemMigration can read it (the
+# database compare would rename a table that is not defined here). It will be
+# removed in 5.0.
 #
 CREATE TABLE tx_t3importexport_domain_model_queueitem
 (

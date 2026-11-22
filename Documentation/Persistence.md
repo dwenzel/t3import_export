@@ -12,10 +12,12 @@ Please see [Overview](./OVERVIEW.md) for the general application flow and detail
     * [DataSourceCSV](./Persistence/DataSourceCSV.md)
     * [DataSourceXML](./Persistence/DataSourceXML.md)
     * [DataSourceDB](./Persistence/DataSourceDB.md)
+    * [DataSourceQueue](./Persistence/Queue.md#datasourcequeue)
     * DataSourceDynamicRepository
 * Targets
     * [DataTargetDB](./Persistence/DataTargetDB.md)
     * [DataTargetCSV](./Persistence/DataTargetCSV.md)
+    * [DataTargetQueue](./Persistence/Queue.md#datatargetqueue)
     * DataTargetFileStream
     * DataTargetRepository
     * DataTargetXMLStream
@@ -90,9 +92,15 @@ table are correct), until the core accepts `\DateTimeInterface` for these
 values; TYPO3 replaces the Doctrine type `datetime_immutable` with a mutable
 type.
 
+`DataSourceQueue` and `DataTargetQueue` of the extension use this queue, see
+[Queue](./Persistence/Queue.md). The commands `t3import-export:queue:status`
+and `t3import-export:queue:release` show and release the items.
+
 The queue table of earlier versions
-(`tx_t3importexport_domain_model_queueitem`) and its components are not
-changed yet.
+(`tx_t3importexport_domain_model_queueitem`) is no longer used. Its TCA, the
+model `Domain\Model\QueueItem` and `Domain\Repository\QueueItemRepository`
+are removed in 4.0. The table stays defined in `ext_tables.sql` through 4.x,
+so that the upgrade wizard below can read it; it will be removed in 5.0.
 
 ### Migrating the queue items of earlier versions
 

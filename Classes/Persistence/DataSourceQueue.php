@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\ImportExportCore\ConfigurableInterface;
-use CPSIT\ImportExportCore\ConfigurableTrait;
-use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
-use CPSIT\ImportExportCore\Persistence\DataSourceInterface;
-use CPSIT\T3importExport\Domain\Model\QueueItem;
-use CPSIT\T3importExport\Domain\Repository\QueueItemRepository;
+use CPSIT\ImportExportCore\Persistence\DataSourceQueue as CoreDataSourceQueue;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /***************************************************************
@@ -30,84 +26,77 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  ***************************************************************/
 
 /**
- * Class DataSourceQueue
- * Reads new queue items and marks them as processing. After the task
- * they are marked as finished or failed (see CompletableSourceInterface).
+ * Reads records from the queue of the core (table
+ * `tx_t3importexport_queue_item`) and claims them. After the task the claimed
+ * items are marked as finished, or as failed if the task fails.
+ *
+ * Adapter on the queue source of the core, which accepts the options of
+ * earlier versions:
+ *
+ * - `identifier` (string, required): the queue
+ * - `limit` (int, default 10): items per run
+ * - `batchSize` (deprecated): used as `limit` if `limit` is not set
+ *
+ * The records are those written into the queue, e.g. `['data' => '...']`
+ * for records of `DataTargetQueue`. They have no `uid`.
  */
-class DataSourceQueue implements DataSourceInterface, ConfigurableInterface, CompletableSourceInterface
+class DataSourceQueue extends CoreDataSourceQueue implements CompletableSourceInterface
 {
-    use ConfigurableTrait;
-
-    final public const string KEY_IDENTIFIER = 'identifier';
+    /**
+     * @deprecated since 4.0, will be removed in 5.0. Use `limit` (KEY_LIMIT).
+     */
     final public const string KEY_BATCH_SIZE = 'batchSize';
-    final public const int DEFAULT_BATCH_SIZE = 10;
-    protected string $targetClass = QueueItem::class;
 
     /**
-     * uids of the items claimed by getRecords()
-     *
-     * @var int[]
+     * @deprecated since 4.0, will be removed in 5.0. Use DEFAULT_LIMIT.
      */
-    protected array $claimedUids = [];
-
-    public function __construct(protected QueueItemRepository $repository) {}
+    final public const int DEFAULT_BATCH_SIZE = self::DEFAULT_LIMIT;
 
     public function isConfigurationValid(array $configuration): bool
     {
-        if (
-            empty($configuration[self::KEY_IDENTIFIER])
-            || !is_string($configuration[self::KEY_IDENTIFIER])) {
-            return false;
-        }
-        $parts = explode('.', $configuration[self::KEY_IDENTIFIER]);
-
-        // identifier must begin with either 'import.' or 'export.'
-        if (!($parts[0] === 'import' || $parts[0] === 'export')) {
-            return false;
-        }
-
-        if (!empty($configuration[self::KEY_BATCH_SIZE])
-            && !MathUtility::canBeInterpretedAsInteger($configuration[self::KEY_BATCH_SIZE])
-        ) {
-            return false;
-        }
-        return true;
+        return parent::isConfigurationValid($this->normalizeConfiguration($configuration, false));
     }
 
     public function getRecords(array $configuration): iterable
     {
-        $identifier = $configuration[self::KEY_IDENTIFIER];
-        $limit = static::DEFAULT_BATCH_SIZE;
-        if (!empty($configuration[self::KEY_BATCH_SIZE])) {
-            $limit = (int)$configuration[self::KEY_BATCH_SIZE];
+        return parent::getRecords($this->normalizeConfiguration($configuration, true));
+    }
+
+    /**
+     * Marks the claimed items as failed. The argument is optional, since
+     * `TransferService` calls `fail()` without an error
+     * (`CompletableSourceInterface` of the extension).
+     */
+    public function fail(?\Throwable $error = null): void
+    {
+        parent::fail($error ?? new \RuntimeException('The task failed.', 1_796_400_101));
+    }
+
+    /**
+     * Maps `batchSize` onto `limit`: an integer or a string that can be
+     * interpreted as integer. An empty `batchSize` stands for the default.
+     *
+     * @param array<array-key, mixed> $configuration
+     * @return array<array-key, mixed>
+     */
+    protected function normalizeConfiguration(array $configuration, bool $notify): array
+    {
+        if (!array_key_exists(self::KEY_BATCH_SIZE, $configuration)) {
+            return $configuration;
         }
+        $batchSize = $configuration[self::KEY_BATCH_SIZE];
+        unset($configuration[self::KEY_BATCH_SIZE]);
+        if ($notify) {
+            DeprecationUtility::trigger(
+                'The option "batchSize" of DataSourceQueue is deprecated since 4.0 and will be removed in 5.0. Use "limit".',
+                DeprecationUtility::DATABASE_ISSUE_URL
+            );
+        }
+        if (array_key_exists(self::KEY_LIMIT, $configuration) || empty($batchSize)) {
+            return $configuration;
+        }
+        $configuration[self::KEY_LIMIT] = MathUtility::canBeInterpretedAsInteger($batchSize) ? (int)$batchSize : $batchSize;
 
-        $fields = [QueueItem::FIELD_UID, QueueItem::FIELD_DATA];
-        $records = $this->repository->findNewByIdentifier($identifier, $limit, $fields);
-
-        $uids = array_map(
-            static fn(array $record): int => (int)$record[QueueItem::FIELD_UID],
-            $records
-        );
-        $this->repository->updateStatus($uids, QueueItem::STATUS_PROCESSING);
-        $this->claimedUids = array_merge($this->claimedUids, $uids);
-
-        return $records;
-    }
-
-    public function complete(ResultInterface $result): void
-    {
-        $this->release(QueueItem::STATUS_FINISHED);
-    }
-
-    public function fail(): void
-    {
-        $this->release(QueueItem::STATUS_FAILED);
-    }
-
-    protected function release(int $status): void
-    {
-        $this->repository->updateStatus($this->claimedUids, $status);
-        $this->claimedUids = [];
+        return $configuration;
     }
 }

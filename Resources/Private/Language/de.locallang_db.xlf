@@ -17,14 +17,6 @@
 			<source>Title</source>
 			<target>Titel</target>
 		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_queue" approved="yes">
-			<source>Queue</source>
-			<target>Warteschlange</target>
-		</trans-unit>
-		<trans-unit id="tx_t3importexport_domain_model_queueitem" approved="yes">
-			<source>Queue Item</source>
-			<target>Warteschlangeneintrag</target>
-		</trans-unit>
 		</body>
 	</file>
 </xliff>
