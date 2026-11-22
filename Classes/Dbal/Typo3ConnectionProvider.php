@@ -29,7 +29,9 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  * Connection names are the names in
  * `$GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']`. The default name of the
  * core, `default`, stands for the TYPO3 connection `Default`; both names can
- * be used in a configuration.
+ * be used in a configuration. A TYPO3 connection named `default` (lower case)
+ * cannot be reached, since the name always refers to `Default`. Entries with
+ * an empty configuration count as not configured.
  *
  * The core components get a connection by name only. The table mapping of
  * TYPO3 (`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']`) is applied by
@@ -43,9 +45,9 @@ final readonly class Typo3ConnectionProvider implements ConnectionProviderInterf
 
     public function hasConnection(string $name): bool
     {
-        $connections = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections'] ?? [];
+        $configuration = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections'][self::toTypo3Name($name)] ?? null;
 
-        return \is_array($connections) && \array_key_exists(self::toTypo3Name($name), $connections);
+        return \is_array($configuration) && $configuration !== [];
     }
 
     public function getConnection(string $name): Connection

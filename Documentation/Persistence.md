@@ -35,11 +35,20 @@ documentation. They get their connections from
 * Without `connection`, the components use the core name `default`, which
   stands for the TYPO3 connection `Default`. `default` and `Default` are the
   same connection.
+  A TYPO3 connection named `default` (lower case) cannot be used, since the
+  name always refers to `Default`.
 * The core components do not read the table mapping of TYPO3
   (`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']`). For a table mapped
   to another connection, set `connection` to the name of that connection.
   `Typo3ConnectionProvider::getConnectionNameForTable()` returns the name for
   a table.
+* The core components build their queries with the query builder of
+  Doctrine DBAL, not with the one of TYPO3, and write without DataHandler.
+  The restrictions of TYPO3 (`deleted`, `hidden`, start and end time,
+  workspaces) do not apply, `tstamp` and `crdate` are not set, and neither
+  the reference index nor caches are updated. Filter deleted or hidden
+  records in `where` or `filter`, and set system fields in the records
+  yourself.
 
 ```yaml
 source:

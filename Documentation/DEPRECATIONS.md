@@ -68,8 +68,8 @@ extension (core [#24](https://github.com/CPS-IT/import-export-core/issues/24)).
 
 ### Processor and factories of the core
 
-4.0 requires `cpsit/import-export-core` 0.2, which contains the processor, the
-task and set models and the factories
+The processor, the task and set models and the factories moved into
+`cpsit/import-export-core` 0.2
 ([#71](https://github.com/dwenzel/t3import_export/issues/71), core
 [UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md)).
 
@@ -139,10 +139,6 @@ Changes that concern tasks of the extension:
 * `Dbal\DataTargetDBAL` has no methods `quoteColumns()` and `types()` any
   more ([core #98](https://github.com/CPS-IT/import-export-core/issues/98));
   subclasses that call or override them must drop or copy them.
-
-The DBAL components of the core (`Dbal\DataSourceDBAL`, `Dbal\DataTargetDBAL`,
-`Dbal\RelationListPreProcessor`) can be used in tasks with the connections of
-TYPO3, see [Persistence](./Persistence.md#database-components-of-the-core).
 
 ## Deprecated in 4.0
 

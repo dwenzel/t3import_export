@@ -69,6 +69,42 @@ class Typo3ConnectionProviderTest extends TestCase
         self::assertSame($expected, $this->subject->hasConnection($name));
     }
 
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function emptyConnectionConfigurationDataProvider(): array
+    {
+        return [
+            'null' => [null],
+            'empty string' => [''],
+            'empty array' => [[]],
+            'string' => ['pdo_sqlite'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('emptyConnectionConfigurationDataProvider')]
+    public function hasConnectionReturnsFalseForAnEmptyConfiguration(mixed $configuration): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Empty'] = $configuration;
+
+        self::assertFalse($this->subject->hasConnection('Empty'));
+    }
+
+    #[Test]
+    public function getConnectionThrowsForAnEmptyConfiguration(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Empty'] = [];
+        $connectionPool = $this->createMock(ConnectionPool::class);
+        $connectionPool->expects($this->never())->method('getConnectionByName');
+        $subject = new Typo3ConnectionProvider($connectionPool);
+
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(1795351767);
+
+        $subject->getConnection('Empty');
+    }
+
     #[Test]
     public function hasConnectionReturnsFalseWithoutConfiguredConnections(): void
     {

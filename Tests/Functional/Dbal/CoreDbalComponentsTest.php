@@ -7,9 +7,12 @@ namespace CPSIT\T3importExport\Tests\Functional\Dbal;
 use CPSIT\ImportExportCore\Dbal\ConnectionProviderInterface;
 use CPSIT\ImportExportCore\Dbal\DataSourceDBAL;
 use CPSIT\ImportExportCore\Dbal\DataTargetDBAL;
+use CPSIT\ImportExportCore\Dbal\RelationListPreProcessor;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
+use CPSIT\ImportExportCore\Factory\ComponentFactoryInterface;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
+use CPSIT\ImportExportCore\Pipeline\PreProcessorInterface;
 use CPSIT\ImportExportCore\Processor\SetValuesPreProcessor;
 use CPSIT\T3importExport\Dbal\Typo3ConnectionProvider;
 use CPSIT\T3importExport\Service\TransferService;
@@ -223,6 +226,34 @@ class CoreDbalComponentsTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function relationListPreProcessorReadsTypo3RelationTable(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/sys_category_record_mm.csv');
+        $preProcessor = $this->get(ComponentFactoryInterface::class)->create(PreProcessorInterface::class, [
+            'class' => RelationListPreProcessor::class,
+            'config' => [
+                'table' => 'sys_category_record_mm',
+                'targetField' => 'categories',
+                'localField' => 'uid_foreign',
+                'foreignField' => 'uid_local',
+                'sortField' => 'sorting_foreign',
+                'where' => ['tablenames' => 'pages', 'fieldname' => 'categories'],
+                'separator' => ',',
+            ],
+        ]);
+
+        self::assertInstanceOf(RelationListPreProcessor::class, $preProcessor);
+        self::assertSame(
+            ['uid' => 2, 'categories' => '4,5'],
+            $preProcessor->process(['uid' => 2])
+        );
+        self::assertSame(
+            ['uid' => 1, 'categories' => ''],
+            $preProcessor->process(['uid' => 1])
+        );
+    }
+
+    #[Test]
     public function targetWritesWithTheConnectionOfTheTableMapping(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections'][self::SECOND_CONNECTION]
@@ -235,6 +266,8 @@ class CoreDbalComponentsTest extends FunctionalTestCase
 
         self::assertSame(self::SECOND_CONNECTION, $connectionName);
         self::assertSame($provider->getConnectionForTable('pages'), $provider->getConnection($connectionName));
+        // `Second` points to the same database as `Default`; that the target
+        // uses a different connection object proves that the name is routed
         self::assertNotSame(
             $provider->getConnection(ConnectionProviderInterface::DEFAULT_CONNECTION),
             $provider->getConnection($connectionName)
