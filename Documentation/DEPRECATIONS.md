@@ -1,9 +1,9 @@
 Deprecations
 ============
 
-TypoScript configuration and rendering content with TypoScript are deprecated
-since version 3.1 and will be removed in version 4.0 (together with support
-for TYPO3 14). Reasons and plan:
+TypoScript configuration and rendering content with TypoScript were deprecated
+in version 3.1 and are removed in version 4.0 (together with support for
+TYPO3 14). Reasons and plan:
 [#75](https://github.com/dwenzel/t3import_export/issues/75).
 
 Deprecated features write a message to the TYPO3 deprecation log (each message
@@ -11,6 +11,27 @@ once per request). Enable the log in the Install Tool (Settings > Configuration
 Presets > Debug, or `$GLOBALS['TYPO3_CONF_VARS']['LOG']['TYPO3']['CMS']['deprecations']`).
 
 ## Removed in 4.0
+
+### TypoScript configuration
+
+Tasks and sets are read from YAML files only. The TypoScript configuration
+(`module.tx_t3importexport.settings`) is not read any more
+([#75](https://github.com/dwenzel/t3import_export/issues/75)).
+
+| Removed | Replacement |
+|---|---|
+| Tasks and sets in TypoScript (`module.tx_t3importexport.settings.import` and `.export`) | YAML files in the configured directories, see [YAML configuration](./YAML_CONFIGURATION.md). Convert them with `t3import-export:convert-typoscript`, see [Migration](#migration). |
+| Notice about tasks and sets from TypoScript in the backend modules | none |
+| `module.tx_t3importexport.settings.debug` (debug output in the backend modules) | none |
+| `ext_typoscript_setup.typoscript` (template paths of the backend modules) | none, the default paths of the extension are used |
+| Static template "Import Export: Examples" and the TypoScript examples in `Resources/Public/Examples/TypoScript/` | the YAML examples in `Resources/Public/Examples/Yaml/` |
+| `Domain\Factory\TransferSetFactory::withSettings()` | none; the tasks of a set are looked up in the YAML configuration |
+| `BaseController::mergeYamlConfiguration()`, `getTypoScriptIdentifiers()`, `getTransferSetFactory()` | `BaseController::getConfiguration()` returns the tasks and sets of the module from YAML |
+
+The command `t3import-export:convert-typoscript` stays: it reads TypoScript
+files, not the configuration of the site, and helps with the migration.
+
+### Rendering content with TypoScript
 
 Rendering content with TypoScript needs the TypoScriptFrontendController,
 which TYPO3 14 removed. These features are removed:
@@ -263,7 +284,8 @@ preProcessors:
 
 1. Move the tasks and sets from TypoScript to a YAML file in one of the
    configured directories (`yamlConfigurationDirectories`). The command
-   `t3import-export:convert-typoscript` converts them, see below.
+   `t3import-export:convert-typoscript` converts them, see below. Version 4.0
+   ignores tasks and sets in TypoScript.
 2. Replace content objects by expressions (`RenderContent` ->
    `EvaluateExpressions`, `disable = TEXT` -> `disable.expression`,
    `DataSourceDB` values -> `{expression: ...}`).

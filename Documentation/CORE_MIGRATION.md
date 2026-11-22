@@ -100,7 +100,8 @@ The table initializers could later be implemented on the core's DBAL layer.
 | Content objects in `disabled` | as above | `disabled.expression`, later the core condition evaluator ([core#24]) |
 | Content objects in `DataSourceDB` query values | as above | `{expression: ...}` |
 | Constructor arguments of `ConcatenateFields` | as above | – |
-| TypoScript configuration, `TypoScriptConverter`, `ConvertTypoScriptCommand` | deprecated in 3.1 ([#75]) | YAML; the converter may stay one more major version for the migration |
+| TypoScript configuration | deprecated in 3.1, removed in 4.0 ([#75]) | YAML |
+| `TypoScriptConverter`, `ConvertTypoScriptCommand` | kept in 4.0 for the migration ([#75]) | – |
 | `RenderContentInterface` in the core | [core#70] | – |
 
 See also [Deprecations](./DEPRECATIONS.md).

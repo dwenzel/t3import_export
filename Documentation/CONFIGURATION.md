@@ -1,34 +1,31 @@
 Configuration
 =============
 
-Configuration can be done via TypoScript or modern YAML format. Both approaches provide the same functionality, with YAML offering better readability and structure for complex configurations.
+Tasks and sets are configured in YAML files. The TypoScript configuration
+(`module.tx_t3importexport.settings`) was removed in version 4.0, see
+[Deprecations](./DEPRECATIONS.md#typoscript-configuration). The command
+`t3import-export:convert-typoscript` converts an existing TypoScript
+configuration to YAML.
 
-You may put your configuration into any Template record. Best practice is to place all configuration into a file and include it.
+YAML files in the configured directories
+(`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDirectories']`)
+are loaded automatically, see [YAML configuration](./YAML_CONFIGURATION.md#configuring-the-directories).
+Commands also accept a file with `--yaml-config`.
 
 ## Tasks
-An import task is described at the TypoScript path:
+Import tasks are described below `import.tasks`, export tasks below
+`export.tasks`:
 
-```
-module.tx_t3importexport.settings.import.tasks.<task identifier>
+```yaml
+import:
+  tasks:
+    event:
+      label: Incremental import of events
+      description: Imports recent events from foo.com.
+      # ...
 ```
 
-An export task at:
-```
-module.tx_t3importexport.settings.export.tasks.<task identifier>
-```
 Identifiers **must** be unique and **must not** contain white space or dots (.)
-
-Configuration for import task with identifier *event*:
-
-```
-module.tx_t3importexport.settings.import.tasks {
-  event {
-    label = Incremental import of events
-    description = Imports recent events from foo.com.
-   ...
-  }
-}
-```
 
 Each configuration of a task **must** contain the keys
  * source
@@ -48,34 +45,23 @@ Each configuration of a task **must** contain the keys
 
  For *description* HTML markup is allowed.
 
- The keys *initializers*, *preProcessors*, *postProcessors*, *converters*, *postProcessors*, *finishers* **must** contain at least one
- sub-key. Arbitrary identifiers are allowed numbers recommended.
+ The keys *initializers*, *preProcessors*, *converters*, *postProcessors* and
+ *finishers* contain a list of components, which are processed in the given
+ order:
 
- ```
- ...
-     preProcessors {
-       10 {
-         ... configuration for first pre processor
-       }
-       20 {
-         ... configuration for second pre processor
-       }
-     }
-  ...
- ```
+```yaml
+      preProcessors:
+        - class: "First\\PreProcessor"
+          config:
+            # configuration for the first pre-processor
+        - class: "Second\\PreProcessor"
+          config:
+            # configuration for the second pre-processor
+```
 
- ## Sets
- An import set is described at the TypoScript path:
-
- ```
- module.tx_t3importexport.settings.import.sets.<set identifier>
- ```
-
- An export task at:
- ```
- module.tx_t3importexport.settings.export.sets.<set identifier>
- ```
-Identifiers **must** be unique.
+## Sets
+Import sets are described below `import.sets`, export sets below
+`export.sets`. Identifiers **must** be unique.
 
 Each configuration of a set **must** contain the key
  * tasks
@@ -89,14 +75,13 @@ Each configuration of a set **must** contain the key
 
 Configuration for import set with identifier *fullImport*:
 
-```
-module.tx_t3importexport.settings.import.sets {
-  fullImport {
-   label = Full Import
-   description = This is a really huge import set.
-   tasks = event,internet,allTheRest
-  }
-}
+```yaml
+import:
+  sets:
+    fullImport:
+      label: Full Import
+      description: This is a really huge import set.
+      tasks: event,internet,allTheRest
 ```
 
 ## YAML Configuration
@@ -269,13 +254,12 @@ $parser = new YamlConfigurationParser();
 $loader = new YamlConfigurationLoader($parser);
 $configuration = $loader->load('/path/to/config.yaml');
 
-// Configuration is now in TypoScript-compatible format
-// $configuration['module']['tx_t3importexport']['settings']
+// Structure: ['import' => ['tasks' => ..., 'sets' => ...], 'export' => [...]]
 ```
 
 ## Configuration Validation
 
-The extension includes comprehensive validation for both TypoScript and YAML configurations:
+The extension validates the configuration of tasks and sets:
 
 ### Common Validation Rules
 
@@ -283,17 +267,6 @@ The extension includes comprehensive validation for both TypoScript and YAML con
 2. **Class Validation**: All component classes must exist and implement proper interfaces
 3. **Configuration Structure**: Component configurations must follow expected schema
 4. **Identifier Uniqueness**: Task and set identifiers must be unique within their scope
-
-### TypoScript Validation
-
-```typoscript
-# Enable configuration validation
-module.tx_t3importexport.settings.validation.enabled = 1
-
-# Validation strictness levels
-module.tx_t3importexport.settings.validation.level = strict
-# Options: strict, loose, disabled
-```
 
 ### YAML Schema Validation
 

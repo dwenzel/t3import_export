@@ -4,30 +4,20 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Controller;
 
+use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
+use CPSIT\ImportExportCore\Domain\Model\TransferSet;
 use CPSIT\T3importExport\Controller\ImportController;
 use CPSIT\T3importExport\Domain\Factory\TransferSetFactory;
-use CPSIT\ImportExportCore\Domain\Model\TransferSet;
-use CPSIT\ImportExportCore\Configuration\ConfigurationHandlerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ImportControllerTest extends TestCase
 {
     #[Test]
-    public function setsAreBuiltWithTypoScriptSettings(): void
+    public function setsAreBuiltWithTransferSetFactory(): void
     {
-        $settings = [
-            'import' => [
-                'tasks' => ['foo' => ['label' => 'Foo']],
-                'sets' => ['bar' => ['tasks' => 'foo']],
-            ],
-        ];
-        $transferSet = $this->createMock(TransferSet::class);
+        $transferSet = $this->createStub(TransferSet::class);
         $transferSetFactory = $this->createMock(TransferSetFactory::class);
-        $transferSetFactory->expects(self::once())
-            ->method('withSettings')
-            ->with($settings)
-            ->willReturnSelf();
         $transferSetFactory->expects(self::once())
             ->method('get')
             ->with(['tasks' => 'foo'], 'bar')
@@ -37,31 +27,24 @@ class ImportControllerTest extends TestCase
         /** @var ImportController $subject */
         $subject = $reflection->newInstanceWithoutConstructor();
         $subject->injectTransferSetFactory($transferSetFactory);
-        $reflection->getProperty('settings')->setValue($subject, $settings);
 
         $sets = $reflection->getMethod('buildSetsFromSettings')
-            ->invoke($subject, $settings['import']['sets']);
+            ->invoke($subject, ['bar' => ['tasks' => 'foo']]);
 
         self::assertSame(['bar' => $transferSet], $sets);
     }
 
     #[Test]
-    public function mergeYamlConfigurationAddsTasksAndSetsFromYaml(): void
+    public function getConfigurationReturnsTasksAndSetsOfModuleFromYaml(): void
     {
-        $settings = [
-            'import' => [
-                'tasks' => ['both' => ['label' => 'from TypoScript'], 'ts' => ['label' => 'TypoScript only']],
-            ],
-            'export' => ['tasks' => ['other' => []]],
-        ];
         $yaml = [
             'import' => [
-                'tasks' => ['both' => ['label' => 'from YAML'], 'yaml' => ['label' => 'YAML only']],
+                'tasks' => ['yaml' => ['label' => 'YAML']],
                 'sets' => ['yamlSet' => ['tasks' => 'yaml']],
             ],
             'export' => ['tasks' => ['ignored' => []]],
         ];
-        $configurationHandler = $this->createMock(ConfigurationHandlerInterface::class);
+        $configurationHandler = $this->createStub(ConfigurationHandlerInterface::class);
         $configurationHandler->method('getFullConfiguration')->willReturn($yaml);
 
         $reflection = new \ReflectionClass(ImportController::class);
@@ -69,43 +52,33 @@ class ImportControllerTest extends TestCase
         $subject = $reflection->newInstanceWithoutConstructor();
         $subject->injectConfigurationHandler($configurationHandler);
 
-        $merged = $reflection->getMethod('mergeYamlConfiguration')->invoke($subject, $settings);
-
-        self::assertSame(
-            [
-                'both' => ['label' => 'from TypoScript'],
-                'yaml' => ['label' => 'YAML only'],
-                'ts' => ['label' => 'TypoScript only'],
-            ],
-            $merged['import']['tasks']
-        );
-        self::assertSame(['yamlSet' => ['tasks' => 'yaml']], $merged['import']['sets']);
-        self::assertSame($settings['export'], $merged['export']);
+        self::assertSame($yaml['import'], $reflection->getMethod('getConfiguration')->invoke($subject));
     }
 
     #[Test]
-    public function mergeYamlConfigurationReturnsSettingsWithoutConfigurationHandler(): void
+    public function getConfigurationIgnoresTypoScriptSettings(): void
     {
-        $settings = ['import' => ['tasks' => ['ts' => []]]];
-        $reflection = new \ReflectionClass(ImportController::class);
-        $subject = $reflection->newInstanceWithoutConstructor();
+        $configurationHandler = $this->createStub(ConfigurationHandlerInterface::class);
+        $configurationHandler->method('getFullConfiguration')->willReturn([]);
 
-        self::assertSame($settings, $reflection->getMethod('mergeYamlConfiguration')->invoke($subject, $settings));
+        $reflection = new \ReflectionClass(ImportController::class);
+        /** @var ImportController $subject */
+        $subject = $reflection->newInstanceWithoutConstructor();
+        $subject->injectConfigurationHandler($configurationHandler);
+        $reflection->getProperty('settings')->setValue(
+            $subject,
+            ['import' => ['tasks' => ['typoScript' => ['label' => 'TypoScript']]]]
+        );
+
+        self::assertSame([], $reflection->getMethod('getConfiguration')->invoke($subject));
     }
 
     #[Test]
-    public function getTypoScriptIdentifiersReturnsTasksAndSetsOfModule(): void
+    public function getConfigurationReturnsEmptyArrayWithoutConfigurationHandler(): void
     {
-        $settings = [
-            'import' => ['tasks' => ['a' => [], 'b' => []], 'sets' => ['s' => []]],
-            'export' => ['tasks' => ['other' => []]],
-        ];
         $reflection = new \ReflectionClass(ImportController::class);
         $subject = $reflection->newInstanceWithoutConstructor();
 
-        self::assertSame(
-            ['a', 'b', 's'],
-            $reflection->getMethod('getTypoScriptIdentifiers')->invoke($subject, $settings)
-        );
+        self::assertSame([], $reflection->getMethod('getConfiguration')->invoke($subject));
     }
 }

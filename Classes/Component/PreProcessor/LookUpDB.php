@@ -97,7 +97,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
          * todo method cannot be tested because of its complexity and
          * the dependency from  SelectQuery
          * We probably should extract
-         * - a parser for the TypoScript config which produces the configuration for
+         * - a parser for the configuration which produces the configuration for
          *   the query and / or
          * - a builder class or factory for the query
          */
