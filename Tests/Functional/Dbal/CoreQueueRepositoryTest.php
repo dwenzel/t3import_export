@@ -132,6 +132,7 @@ class CoreQueueRepositoryTest extends FunctionalTestCase
         self::assertGreaterThanOrEqual($before, $claimed[0]->createdAt->getTimestamp());
         self::assertLessThanOrEqual(time(), $claimed[0]->createdAt->getTimestamp());
         self::assertGreaterThanOrEqual($before, $claimed[0]->updatedAt->getTimestamp());
+        self::assertLessThanOrEqual(time(), $claimed[0]->updatedAt->getTimestamp());
         self::assertSame(2, $repository->count(self::QUEUE, QueueItemStatus::Processing));
         self::assertSame(1, $repository->count(self::QUEUE, QueueItemStatus::New));
         self::assertSame([['id' => 3]], self::data($repository->claim(self::QUEUE, 2)));

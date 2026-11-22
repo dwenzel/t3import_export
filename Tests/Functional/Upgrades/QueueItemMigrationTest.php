@@ -19,7 +19,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * Migration of the items of the legacy queue table into the queue table of
- * the core. The new table is read directly.
+ * the core. The new table is read directly to check the stored values.
  */
 #[CoversClass(QueueItemMigration::class)]
 #[CoversClass(LegacyQueueItemConverter::class)]
