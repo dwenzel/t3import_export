@@ -59,7 +59,7 @@ Tracked in [#132].
 | `PreProcessor\UnsetEmptyFields` | 100 % | `ValueRulesPreProcessor` `remove` with `when: {empty: true}` | core "empty" is missing, `null` or `''`; the extension uses PHP `empty()` |
 | `Persistence\DataSourceDB` | 94 % | `DataSourceDBAL` | `{expression: ...}` query values |
 | `Persistence\DataTargetDB` | 70 % | `DataTargetDBAL`, upsert by ID map | – |
-| `Persistence\DataSourceQueue`, `DataTargetQueue`, `Domain\Repository\QueueItemRepository` | 100 / 92 / 74 % | core queue, `DbalQueueRepository` | table, migration of queue items |
+| `Persistence\DataSourceQueue`, `DataTargetQueue`, `Domain\Repository\QueueItemRepository` | 100 / 92 / 74 % | core queue, `DbalQueueRepository` | replaced in 4.0: source and target are adapters, the repository is removed, items are migrated by an upgrade wizard |
 | `Persistence\DataSourceDummy`, `DataTargetDummy` | no tests | `NullDataSource`, `NullDataTarget` (4.0, deprecated) | – |
 | `PreProcessor\LookUpDB` | 47 % | partly `ResolveReferencePreProcessor` | general lookups by query |
 | `Service\DataTransferProcessor`, `Domain\Model\TransferTask`, `TransferSet`, `DataStream`, `Dto\TaskDemand`, task and set factories, component factories, `Factory\FactoryFactory`, `ComponentFactoryMap` | 97–100 % | core processor, models, factory and registry | [#71] |

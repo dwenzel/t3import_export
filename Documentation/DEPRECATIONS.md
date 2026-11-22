@@ -117,6 +117,51 @@ The configuration does not change.
 `AbstractComponent::isDisabled()` uses `CPSIT\ImportExportCore\Condition\ConditionEvaluator`.
 Message IDs in `disable.if.result.hasMessage` may now also be a single integer.
 
+### Queue
+
+The queue source and target use the queue of `cpsit/import-export-core` and
+the table `tx_t3importexport_queue_item`
+([#132](https://github.com/dwenzel/t3import_export/issues/132)). See
+[Queue](./Persistence/Queue.md).
+
+| Removed | Replacement |
+|---|---|
+| `Domain\Model\QueueItem` | `CPSIT\ImportExportCore\Queue\QueueItem`, `QueueItemStatus` |
+| `Domain\Repository\QueueItemRepository` | `CPSIT\ImportExportCore\Queue\QueueRepositoryInterface` (`DbalQueueRepository` on `tx_t3importexport_queue_item`) |
+| TCA of `tx_t3importexport_domain_model_queueitem` (list of queue items in the backend) and its labels in `locallang_db.xlf` | the commands `t3import-export:queue:status` and `t3import-export:queue:release` |
+| Configuration of `DataSourceQueue` and `DataTargetQueue`: `identifier` must begin with `import.` or `export.` | any non-empty `identifier` |
+
+Breaking changes:
+
+* Records read by `DataSourceQueue` no longer contain `uid` (before:
+  `['uid' => ..., 'data' => ...]`, now `['data' => ...]`). Remove mappings
+  or components that use `uid` of the queue item; the queue item cannot be
+  changed by its `uid` any more.
+* `DataTargetQueue` enqueues only the field `data` of a record, as string
+  (`['data' => '<data>']`). Before, all fields of the record were written as
+  columns of the queue table, e.g. `status`, `checksum` or `created_date`;
+  they are ignored now. Records without a scalar `data` are not written
+  (`persist()` returns false).
+* With `allowUpdate`, a record that is already in the queue is set back to
+  new (status new). Before, the columns of the existing item were updated
+  from the record and the status was kept unless the record contained it.
+* A record that is already in the queue and is not updated makes `persist()`
+  return false instead of null.
+* `DataSourceQueue` reads the items lazily: they are claimed when the
+  records are iterated, not when `getRecords()` is called. If the task fails,
+  the processor of the core marks the claimed items as failed.
+* The constructors of `DataSourceQueue` and `DataTargetQueue` take
+  `CPSIT\ImportExportCore\Queue\QueueRepositoryInterface` instead of
+  `QueueItemRepository`. Both extend the classes of the core
+  (`CPSIT\ImportExportCore\Persistence\DataSourceQueue`, `DataTargetQueue`).
+  The property `$targetClass` is removed.
+* The checksum is computed by the core from queue and record
+  (`QueueItem::checksum()`), not as `sha1(data . identifier)`.
+* The table `tx_t3importexport_domain_model_queueitem` is no longer used. Its
+  items are copied into the new table by the upgrade wizard
+  `t3importExport_queueItemMigration`, see [Migration](#migration). The table
+  stays defined through 4.x for the wizard and will be removed in 5.0.
+
 ### Changes of `cpsit/import-export-core` 0.6
 
 4.0 requires `cpsit/import-export-core` ^0.6 (core
@@ -135,7 +180,8 @@ Changes that concern tasks of the extension:
   of the core (`Persistence\FailureAwareInterface`) before it passes the
   exception on: `DataTargetDBAL` rolls back the rows of the current batch
   ([core #102](https://github.com/CPS-IT/import-export-core/issues/102)).
-  The sources and targets of the extension are not affected.
+  Of the sources and targets of the extension, only `DataSourceQueue` is
+  concerned: it marks the claimed items as failed, as it did before.
 * `Dbal\DataTargetDBAL` has no methods `quoteColumns()` and `types()` any
   more ([core #98](https://github.com/CPS-IT/import-export-core/issues/98));
   subclasses that call or override them must drop or copy them.
@@ -254,6 +300,46 @@ and writes a message to the deprecation log. Changes:
   implement `getStream()` and `setStream()`; extend the `DataStream` of the
   core instead.
 
+### Options of the queue source and target
+
+`DataSourceQueue` and `DataTargetQueue` accept the options of earlier
+versions and write a message to the deprecation log
+([#132](https://github.com/dwenzel/t3import_export/issues/132)). They will
+not be accepted in 5.0.
+
+| Deprecated | Replacement |
+|---|---|
+| `DataSourceQueue`: `batchSize` | `limit` (integer); `batchSize` is used if `limit` is not set |
+| `DataSourceQueue::KEY_BATCH_SIZE`, `DEFAULT_BATCH_SIZE` | `KEY_LIMIT`, `DEFAULT_LIMIT` |
+| `DataTargetQueue`: `allowUpdate` as string or integer (e.g. `'1'`) | `allowUpdate: true` or `false`; other values are cast to bool as before |
+| `DataTargetQueue`: field `identifier` in the record, used as queue | the option `identifier` of the target |
+
+```yaml
+# before
+source:
+  class: CPSIT\T3importExport\Persistence\DataSourceQueue
+  config:
+    identifier: import.events
+    batchSize: 50
+target:
+  class: CPSIT\T3importExport\Persistence\DataTargetQueue
+  config:
+    identifier: import.events
+    allowUpdate: '1'
+
+# after
+source:
+  class: CPSIT\T3importExport\Persistence\DataSourceQueue
+  config:
+    identifier: import.events
+    limit: 50
+target:
+  class: CPSIT\T3importExport\Persistence\DataTargetQueue
+  config:
+    identifier: import.events
+    allowUpdate: true
+```
+
 ## Deprecated in 3.1
 
 | Deprecated | Replacement |
@@ -366,6 +452,11 @@ preProcessors:
    (`vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration`). It
    copies the queue items into the queue table of the core, see
    [Persistence](./Persistence.md#migrating-the-queue-items-of-earlier-versions).
+   Check tasks that use `uid` of the records of `DataSourceQueue` or fields
+   other than `data` in records for `DataTargetQueue`, and replace the
+   deprecated options, see [Queue](#queue). Use the commands
+   `t3import-export:queue:status` and `t3import-export:queue:release` instead
+   of the list of queue items in the backend.
 4. Check the deprecation log after running the tasks.
 
 ## Converting TypoScript settings to YAML
