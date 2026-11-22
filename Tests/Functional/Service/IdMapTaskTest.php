@@ -276,6 +276,22 @@ class IdMapTaskTest extends FunctionalTestCase
         self::assertSame(['uid' => 5, 'title' => 'Changed in TYPO3', 'parent' => 0], $categories[2]);
     }
 
+    /**
+     * The mapping of a row deleted in TYPO3 stays; DataTargetDB writes
+     * nothing for an `__identity` without row.
+     */
+    #[Test]
+    public function recordOfADeletedRowIsNotWrittenAgain(): void
+    {
+        $this->get(TransferService::class)->run([$this->createPagesTask(false)]);
+        $this->get(ConnectionPool::class)->getConnectionForTable(self::TARGET_TABLE)->delete(self::TARGET_TABLE, ['uid' => 5]);
+
+        $this->get(TransferService::class)->run([$this->createPagesTask(false)]);
+
+        self::assertSame(self::expectedPageMap(), $this->idMap('pages'));
+        self::assertSame([3, 4, 6, 7, 8, 9, 10, 11], array_column($this->categories(), 'uid'));
+    }
+
     #[Test]
     public function resolveReferencePreProcessorSetsTheUidsOfImportedRecords(): void
     {
