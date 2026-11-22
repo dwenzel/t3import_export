@@ -76,6 +76,9 @@ class Typo3PathResolverTest extends TestCase
         yield 'empty' => ['', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'null byte' => ["fileadmin/news.csv\0.txt", Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'parent directory' => ['fileadmin/../../news.csv', Typo3PathResolver::ERROR_NOT_ALLOWED];
+        yield 'trailing parent directory' => ['fileadmin/missing/..', Typo3PathResolver::ERROR_NOT_ALLOWED];
+        yield 'trailing parent directory with slash' => ['fileadmin/missing/../', Typo3PathResolver::ERROR_NOT_ALLOWED];
+        yield 'parent directory with backslash' => ['fileadmin/missing\\..\\news.csv', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'absolute path outside of the project' => ['/etc/passwd', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'stream wrapper' => ['php://filter/resource=/etc/passwd', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'url' => ['https://example.org/news.csv', Typo3PathResolver::ERROR_NOT_ALLOWED];

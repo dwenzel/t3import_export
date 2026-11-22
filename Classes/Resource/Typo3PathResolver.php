@@ -108,8 +108,9 @@ final readonly class Typo3PathResolver implements PathResolverInterface
             trim($path) === ''
             || str_contains($path, "\0")
             || preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $path) === 1
+            || \in_array('..', preg_split('#[/\\\\]+#', $path) ?: [], true)
         ) {
-            throw $this->notAllowed($path, 'empty paths, null bytes and stream wrappers are not allowed.', self::ERROR_NOT_ALLOWED);
+            throw $this->notAllowed($path, 'empty paths, null bytes, ".." segments and stream wrappers are not allowed.', self::ERROR_NOT_ALLOWED);
         }
         $isExtensionPath = PathUtility::isExtensionPath($path);
         if ($isExtensionPath && !$this->allowExtensionPaths) {
