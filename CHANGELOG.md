@@ -47,6 +47,7 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   in processing back to new; they replace the list of queue items in the
   backend ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 * `DataSourceQueue` accepts the option `limit`
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Changed
 
@@ -86,7 +87,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   Records read from the queue no longer contain `uid`. The target enqueues
   only the field `data` of a record, as string (`['data' => '<data>']`, the
   record of the migrated items); other fields are ignored. With
-  `allowUpdate`, records already in the queue are set back to new. The
+  `allowUpdate: true`, records already in the queue are set back to new;
+  strings and integers in `allowUpdate`, which had practically no effect
+  before, are treated as false. The
   `identifier` of the queue no longer needs the prefix `import.` or
   `export.`. See
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#queue)
@@ -101,7 +104,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `DataTargetFileStream::TEMP_DIRECTORY`
 * `DataSourceQueue`: option `batchSize` (use `limit`) and the constants
   `KEY_BATCH_SIZE` and `DEFAULT_BATCH_SIZE`
-* `DataTargetQueue`: `allowUpdate` as string or integer (use a boolean) and
+* `DataTargetQueue`: `allowUpdate` as string or integer (treated as false;
+  use a boolean) and
   the queue taken from the field `identifier` of the record
 
 ### Removed

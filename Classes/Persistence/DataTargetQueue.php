@@ -38,7 +38,7 @@ use CPSIT\T3importExport\Utility\DeprecationUtility;
  *
  * - `identifier` (string, required): the queue
  * - `allowUpdate` (bool, default false): records already in the queue are set
- *   back to new. Other values than booleans are deprecated and cast to bool.
+ *   back to new. Strings and integers are deprecated and treated as false.
  *
  * Records without a scalar field `data` and objects are not written
  * (`persist()` returns false).
@@ -82,8 +82,10 @@ class DataTargetQueue extends CoreDataTargetQueue
     }
 
     /**
-     * Casts integers and strings in `allowUpdate` to bool, like earlier
-     * versions did.
+     * Only `true` enables `allowUpdate`. Strings and integers were accepted
+     * by earlier versions but had practically no effect there (the status of
+     * existing items was not changed); they are treated as false, so that
+     * finished or failed items are not set back to new on every run.
      *
      * @param array<array-key, mixed> $configuration
      * @return array<array-key, mixed>
@@ -96,12 +98,13 @@ class DataTargetQueue extends CoreDataTargetQueue
         }
         if ($notify) {
             DeprecationUtility::trigger(
-                'Other values than true and false in the option "allowUpdate" of DataTargetQueue are deprecated since 4.0'
-                . ' and will not be accepted in 5.0.',
+                'The option "allowUpdate" of DataTargetQueue as string or integer is deprecated since 4.0 and is'
+                . ' treated as false; it had practically no effect before 4.0. Since 4.0, "allowUpdate: true" sets'
+                . ' items that are already in the queue back to new. Use true or false.',
                 DeprecationUtility::DATABASE_ISSUE_URL
             );
         }
-        $configuration[self::KEY_ALLOW_UPDATE] = (bool)$allowUpdate;
+        $configuration[self::KEY_ALLOW_UPDATE] = false;
 
         return $configuration;
     }

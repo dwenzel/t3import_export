@@ -142,21 +142,39 @@ Breaking changes:
   columns of the queue table, e.g. `status`, `checksum` or `created_date`;
   they are ignored now. Records without a scalar `data` are not written
   (`persist()` returns false).
-* With `allowUpdate`, a record that is already in the queue is set back to
-  new (status new). Before, the columns of the existing item were updated
-  from the record and the status was kept unless the record contained it.
+* `allowUpdate` has a new meaning and accepts booleans only: with
+  `allowUpdate: true`, a record that is already in the queue is set back to
+  new, also if it was finished or failed. Before, only strings were valid
+  (e.g. `'1'`), and the columns of the existing item were updated from the
+  record; its status was not changed unless the record contained it, so the
+  option had practically no effect. Strings and integers are now treated as
+  false (deprecated, see
+  [Options of the queue source and target](#options-of-the-queue-source-and-target)).
+  Set `allowUpdate: true` only if items that are in the queue should be
+  processed again on every run that writes them.
 * A record that is already in the queue and is not updated makes `persist()`
   return false instead of null.
-* `DataSourceQueue` reads the items lazily: they are claimed when the
-  records are iterated, not when `getRecords()` is called. If the task fails,
-  the processor of the core marks the claimed items as failed.
+* `DataSourceQueue::getRecords()` returns a `Generator` instead of an array.
+  The items are claimed when the records are iterated, not when
+  `getRecords()` is called. For tasks nothing changes: `TransferService`
+  reads the records of all tasks (`buildQueue()`) before it processes them,
+  as before. If the task fails, the claimed items are marked as failed.
 * The constructors of `DataSourceQueue` and `DataTargetQueue` take
   `CPSIT\ImportExportCore\Queue\QueueRepositoryInterface` instead of
   `QueueItemRepository`. Both extend the classes of the core
   (`CPSIT\ImportExportCore\Persistence\DataSourceQueue`, `DataTargetQueue`).
-  The property `$targetClass` is removed.
+  Subclasses must follow the changed signatures:
+  `DataTargetQueue::persist(array|object $object, ?array $configuration = null): bool`,
+  `persistAll(mixed $result = null, ?array $configuration = null): void` and
+  `DataSourceQueue::fail(?\Throwable $error = null): void`. The properties
+  `$targetClass` and `DataSourceQueue::$claimedUids` and the method
+  `DataSourceQueue::release()` are removed.
 * The checksum is computed by the core from queue and record
   (`QueueItem::checksum()`), not as `sha1(data . identifier)`.
+* The column `data` of the table `tx_t3importexport_queue_item` holds the
+  record as JSON (`{"data":"<data>"}`), not the data itself. Adapt code that
+  reads the table directly. The column of the queue is `queue` (before:
+  `identifier`), the times are `created_at` and `updated_at` (DATETIME).
 * The table `tx_t3importexport_domain_model_queueitem` is no longer used. Its
   items are copied into the new table by the upgrade wizard
   `t3importExport_queueItemMigration`, see [Migration](#migration). The table
@@ -311,7 +329,7 @@ not be accepted in 5.0.
 |---|---|
 | `DataSourceQueue`: `batchSize` | `limit` (integer); `batchSize` is used if `limit` is not set |
 | `DataSourceQueue::KEY_BATCH_SIZE`, `DEFAULT_BATCH_SIZE` | `KEY_LIMIT`, `DEFAULT_LIMIT` |
-| `DataTargetQueue`: `allowUpdate` as string or integer (e.g. `'1'`) | `allowUpdate: true` or `false`; other values are cast to bool as before |
+| `DataTargetQueue`: `allowUpdate` as string or integer (e.g. `'1'`) | `allowUpdate: true` or `false`. Strings and integers are treated as false: before 4.0 they had practically no effect, while `allowUpdate: true` now sets items that are in the queue back to new. Remove the option to keep the previous behaviour. |
 | `DataTargetQueue`: field `identifier` in the record, used as queue | the option `identifier` of the target |
 
 ```yaml
@@ -327,7 +345,8 @@ target:
     identifier: import.events
     allowUpdate: '1'
 
-# after
+# after: allowUpdate removed, as '1' had practically no effect before;
+# set allowUpdate: true only if items in the queue should be set back to new
 source:
   class: CPSIT\T3importExport\Persistence\DataSourceQueue
   config:
@@ -337,7 +356,6 @@ target:
   class: CPSIT\T3importExport\Persistence\DataTargetQueue
   config:
     identifier: import.events
-    allowUpdate: true
 ```
 
 ## Deprecated in 3.1
