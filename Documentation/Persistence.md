@@ -93,3 +93,50 @@ type.
 The queue table of earlier versions
 (`tx_t3importexport_domain_model_queueitem`) and its components are not
 changed yet.
+
+### Migrating the queue items of earlier versions
+
+The upgrade wizard `t3importExport_queueItemMigration`
+(`CPSIT\T3importExport\Upgrades\QueueItemMigration`) copies the items of
+`tx_t3importexport_domain_model_queueitem` into `tx_t3importexport_queue_item`.
+Run it after updating the database schema, in the Install Tool (Upgrade >
+Upgrade Wizard) or on the command line:
+
+```bash
+vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration
+```
+
+| Legacy table | Queue table of the core |
+|---|---|
+| `identifier` | `queue` |
+| `data` | `data`: the record `{"data": "<data>"}` as JSON |
+| – | `checksum`: computed by the core for queue and record |
+| `status` 0 (new), 1 (processing) | `status` 0 (new) |
+| `status` 2 (finished), 3 (failed) | `status` 2 (finished), 3 (failed) |
+| other `status` values | `status` 3 (failed) |
+| `created_date` | `created_at` |
+| latest of `created_date`, `started_date`, `finished_date` | `updated_at` |
+
+* Items of all statuses are copied. Finished and failed items are kept so
+  that the core recognises records that were queued before as duplicates:
+  the checksum is the one the core computes when the record
+  `['data' => <data>]` is written into the same queue
+  (`QueueItem::checksum()`). The checksum of the legacy table is not used,
+  since the core computes it differently.
+* The record is the one the queue source of earlier versions returned
+  (without `uid`), so the data stays a string; it is not decoded.
+* Items in processing become new: they were claimed by a run that did not
+  finish.
+* Items that are already in the queue table of the core (same queue and
+  checksum) are not changed. Of several legacy items with the same identifier
+  and data, the first one (lowest `uid`) is copied.
+* Items without identifier and items whose data is not valid UTF-8 (cannot be
+  stored as JSON) are skipped; the wizard lists their `uid`.
+* The wizard can be run again (for example after
+  `upgrade:mark:undone t3importExport_queueItemMigration`); it adds only the
+  missing items. It reports an update as necessary as long as an item of the
+  legacy table is missing in the queue table of the core.
+* The legacy table is read but not changed. Both tables are read and written
+  in batches of 500 rows on the connections TYPO3 assigns to them (table
+  mapping), which may differ.
+* Run the wizard while no import or export task uses the queue.
