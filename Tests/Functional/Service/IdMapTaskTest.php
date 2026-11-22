@@ -319,6 +319,15 @@ class IdMapTaskTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function unresolvedReferenceCanBeKept(): void
+    {
+        $this->get(TransferService::class)->run([$this->createContentTask(['onMissing' => 'keep'])]);
+
+        // the pids of the content elements, since the pages have no mapping
+        self::assertSame([1, 1, 2], array_column(\array_slice($this->categories(), 1), 'parent'));
+    }
+
+    #[Test]
     public function unresolvedReferenceCanBeEmptied(): void
     {
         $this->get(TransferService::class)->run([$this->createContentTask(['onMissing' => 'empty'])]);

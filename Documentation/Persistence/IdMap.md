@@ -104,7 +104,7 @@ the record after the pre-processors.
 |---|---|---|---|
 | `namespace` | string | – | required; as in `idMap` |
 | `sourceIdField` | string | – | required; as in `idMap` |
-| `targetIdField` | string | – | as in `idMap`; required if `TargetIdPreProcessor` sets the target ID in another field, otherwise each record is written once more in the second run |
+| `targetIdField` | string | – | as in `idMap`; required if `TargetIdPreProcessor` sets the target ID in another field, otherwise the records are written again in every run |
 
 * The filter runs after the pre-processors, so values that pre-processors
   add are part of the checksum. Changes of converters, post-processors or of
@@ -113,6 +113,10 @@ the record after the pre-processors.
 * Changes of the records in TYPO3 are not detected either: a record changed
   in the backend is not written again as long as its source record does not
   change.
+* The ID map is read and written per record: a task with `idMap`,
+  `TargetIdPreProcessor` and `UnchangedRecordFilter` needs about four queries
+  per written record (two `get()`, and `set()` with `has()` and an insert or
+  update), besides the queries of the target.
 
 Example
 -------
@@ -205,5 +209,25 @@ DELETE FROM tx_t3importexport_id_map WHERE namespace = 'legacy_pages';
 Mappings of rows deleted from the target table are not removed;
 `TargetIdPreProcessor` then sets the `uid` of a row that does not exist, and
 `DataTargetDB` writes nothing for the record, as for any `__identity` without
-row. Rows marked as deleted in TYPO3 (`deleted = 1`) still exist and are
-updated.
+row. To insert the record again, delete its mapping:
+
+```sql
+DELETE FROM tx_t3importexport_id_map
+WHERE namespace = 'legacy_pages' AND source_id = '42';
+```
+
+Rows marked as deleted in TYPO3 (`deleted = 1`) still exist: they are
+updated, but stay deleted, unless the record sets `deleted`.
+
+Case of source IDs
+------------------
+
+On MySQL and MariaDB, the table gets the collation of the database (e.g.
+`utf8mb4_unicode_ci`), so `namespace` and `source_id` are compared without
+case and without trailing spaces: the source IDs `ABC` and `abc` share one
+mapping and one target record. SQLite compares them with case. Integer IDs
+are not affected. Use source IDs that differ in more than case, or normalise
+them (e.g. to lower case) before the ID map is used. A binary collation for
+the table is proposed in the core
+([CPS-IT/import-export-core#116](https://github.com/CPS-IT/import-export-core/issues/116));
+the table of the extension follows the definition of the core.
