@@ -66,3 +66,24 @@ target:
     key: [import_id]
     idField: uid
 ```
+
+Queue of the core
+-----------------
+
+The queue repository of the core
+(`CPSIT\ImportExportCore\Dbal\Queue\DbalQueueRepository`) stores its items in
+the table `tx_t3importexport_queue_item`. The table is defined in
+`ext_tables.sql` and created by TYPO3 like any other table of the extension,
+not by the `SchemaInstaller` of the core. Its structure follows
+`DbalQueueRepository::getTables()`; a functional test compares both. The
+table has no TCA and is not shown in the backend.
+
+`CPSIT\T3importExport\Dbal\QueueRepositoryFactory` creates the repository on
+the connection the table is mapped to in
+`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']` (`Default` without
+mapping). The repository is registered as `QueueRepositoryInterface` of the
+core.
+
+The queue table of earlier versions
+(`tx_t3importexport_domain_model_queueitem`) and its components are not
+changed yet.

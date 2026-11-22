@@ -58,4 +58,23 @@ CREATE TABLE tx_t3importexport_domain_model_queueitem
 		PRIMARY KEY (uid)
 );
 
+#
+# Table structure for table 'tx_t3importexport_queue_item'
+# Queue of cpsit/import-export-core (DbalQueueRepository). The table has no
+# TCA; its structure must match DbalQueueRepository::getTables().
+#
+CREATE TABLE tx_t3importexport_queue_item
+(
+		id          bigint                    NOT NULL auto_increment,
+		queue       varchar(255) DEFAULT ''   NOT NULL,
+		checksum    varchar(40)  DEFAULT ''   NOT NULL,
+		data        longtext,
+		status      smallint     DEFAULT '0'  NOT NULL,
+		claim_token varchar(32)  DEFAULT ''   NOT NULL,
+		created_at  datetime     DEFAULT NULL,
+		updated_at  datetime     DEFAULT NULL,
+
+		PRIMARY KEY (id),
+		UNIQUE KEY tx_t3importexport_queue_item_checksum (queue, checksum),
+		KEY tx_t3importexport_queue_item_status (queue, status)
 );
