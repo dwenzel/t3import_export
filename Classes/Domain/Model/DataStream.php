@@ -28,20 +28,21 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Domain\Model;
 
-class DataStream implements DataStreamInterface
+use CPSIT\T3importExport\Utility\DeprecationUtility;
+use Psr\Http\Message\StreamInterface;
+
+/**
+ * @deprecated since 4.0, will be removed in 5.0. Use
+ * `CPSIT\ImportExportCore\Domain\Model\DataStream`.
+ */
+class DataStream extends \CPSIT\ImportExportCore\Domain\Model\DataStream implements DataStreamInterface
 {
-    protected ?string $buffer;
-
-    public function setStreamBuffer(?string $buffer): void
+    public function __construct(?StreamInterface $stream = null)
     {
-        $this->buffer = $buffer;
-    }
-
-    /**
-     * @return ?string
-     */
-    public function getStreamBuffer(): ?string
-    {
-        return $this->buffer;
+        DeprecationUtility::trigger(
+            self::class . ' is deprecated since 4.0. Use ' . parent::class . '.',
+            DeprecationUtility::CORE_ISSUE_URL
+        );
+        parent::__construct($stream);
     }
 }

@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
-use CPSIT\T3importExport\Domain\Model\DataStream;
-use CPSIT\T3importExport\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Domain\Model\DataStream;
+use CPSIT\ImportExportCore\Domain\Model\DataStreamInterface;
+use CPSIT\ImportExportCore\Stream\ResourceStream;
+use CPSIT\ImportExportCore\Stream\TemporaryStream;
+use CPSIT\T3importExport\Domain\Model\DataStream as LegacyDataStream;
+use CPSIT\T3importExport\Utility\DeprecationUtility;
+use Psr\Http\Message\StreamInterface;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetFileStream;
@@ -210,6 +215,100 @@ class DataTargetFileStreamTest extends TestCase
     }
 
     #[Test]
+    public function persistReadsStreamInChunks(): void
+    {
+        $content = str_repeat('<a>1</a>', DataTargetFileStream::CHUNK_SIZE);
+        $stream = $this->createDataStreamWithSampleBuffer($content);
+        // position at the end, as left by a writer
+        $stream->getStream()->seek(0, SEEK_END);
+        $taskResult = new TaskResult();
+        $taskResult->setElements([$stream]);
+
+        $this->subject->persist($stream, ['flush' => true]);
+        $this->subject->persistAll($taskResult);
+
+        $fileName = $taskResult->getInfo()->getPathname();
+        self::assertSame($content, file_get_contents($fileName));
+        self::assertSame('', $stream->getStream()->getContents());
+        unlink($fileName);
+    }
+
+    #[Test]
+    public function persistWritesEmptyFileForEmptyStream(): void
+    {
+        $stream = new DataStream();
+        $taskResult = new TaskResult();
+        $taskResult->setElements([$stream]);
+
+        $this->subject->persist($stream);
+        $this->subject->persistAll($taskResult);
+
+        $fileName = $taskResult->getInfo()->getPathname();
+        self::assertSame('', file_get_contents($fileName));
+        unlink($fileName);
+    }
+
+    #[Test]
+    public function persistDoesNotRewindNonSeekableStream(): void
+    {
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->method('isReadable')->willReturn(true);
+        $stream->method('isSeekable')->willReturn(false);
+        $stream->expects(self::never())->method('rewind');
+        $stream->method('eof')->willReturnOnConsecutiveCalls(false, true);
+        $stream->method('read')->with(DataTargetFileStream::CHUNK_SIZE)->willReturn('<a>1</a>');
+        $dataStream = new DataStream($stream);
+        $taskResult = new TaskResult();
+        $taskResult->setElements([$dataStream]);
+
+        $this->subject->persist($dataStream);
+        $this->subject->persistAll($taskResult);
+
+        $fileName = $taskResult->getInfo()->getPathname();
+        self::assertSame('<a>1</a>', file_get_contents($fileName));
+        unlink($fileName);
+    }
+
+    #[Test]
+    public function persistThrowsExceptionForStreamThatIsNotReadable(): void
+    {
+        $fileName = tempnam(sys_get_temp_dir(), 't3import_export_');
+        $stream = new ResourceStream(fopen($fileName, 'wb'));
+        try {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionCode(1795500101);
+
+            $this->subject->persist(new DataStream($stream));
+        } finally {
+            $stream->close();
+            unlink($fileName);
+        }
+    }
+
+    #[Test]
+    public function persistAcceptsDeprecatedDataStream(): void
+    {
+        set_error_handler(static fn(): bool => true, E_USER_DEPRECATED);
+        try {
+            $stream = new LegacyDataStream();
+        } finally {
+            restore_error_handler();
+            DeprecationUtility::reset();
+        }
+        $stream->setStreamBuffer('<a>1</a>');
+        $taskResult = new TaskResult();
+        $taskResult->setElements([$stream]);
+
+        $this->subject->persist($stream, ['flush' => true]);
+        $this->subject->persistAll($taskResult);
+
+        $fileName = $taskResult->getInfo()->getPathname();
+        self::assertSame('<a>1</a>', file_get_contents($fileName));
+        self::assertNull($stream->getStreamBuffer());
+        unlink($fileName);
+    }
+
+    #[Test]
     public function persistAllDoesNotSetInfoForEmptyResult(): void
     {
         $taskResult = new TaskResult();
@@ -363,8 +462,6 @@ class DataTargetFileStreamTest extends TestCase
 
     public function createDataStreamWithSampleBuffer($buffer): DataStream
     {
-        $ds = new DataStream();
-        $ds->setStreamBuffer($buffer);
-        return $ds;
+        return new DataStream(new TemporaryStream($buffer));
     }
 }
