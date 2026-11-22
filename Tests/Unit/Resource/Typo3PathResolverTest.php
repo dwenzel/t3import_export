@@ -20,6 +20,8 @@ class Typo3PathResolverTest extends TestCase
      */
     private array $configuration = [];
 
+    private string $testDirectory = '';
+
     protected function setUp(): void
     {
         $this->configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
@@ -28,6 +30,9 @@ class Typo3PathResolverTest extends TestCase
     protected function tearDown(): void
     {
         $GLOBALS['TYPO3_CONF_VARS'] = $this->configuration;
+        if ($this->testDirectory !== '') {
+            self::removeDirectory($this->testDirectory);
+        }
     }
 
     #[Test]
@@ -71,6 +76,9 @@ class Typo3PathResolverTest extends TestCase
         yield 'empty' => ['', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'null byte' => ["fileadmin/news.csv\0.txt", Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'parent directory' => ['fileadmin/../../news.csv', Typo3PathResolver::ERROR_NOT_ALLOWED];
+        yield 'trailing parent directory' => ['fileadmin/missing/..', Typo3PathResolver::ERROR_NOT_ALLOWED];
+        yield 'trailing parent directory with slash' => ['fileadmin/missing/../', Typo3PathResolver::ERROR_NOT_ALLOWED];
+        yield 'parent directory with backslash' => ['fileadmin/missing\\..\\news.csv', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'absolute path outside of the project' => ['/etc/passwd', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'stream wrapper' => ['php://filter/resource=/etc/passwd', Typo3PathResolver::ERROR_NOT_ALLOWED];
         yield 'url' => ['https://example.org/news.csv', Typo3PathResolver::ERROR_NOT_ALLOWED];
@@ -148,5 +156,128 @@ class Typo3PathResolverTest extends TestCase
 
         $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
         $subject->assertFileTypeAllowed('/srv/storage/images/photo.php');
+    }
+
+    #[Test]
+    public function rejectsSymbolicLinkToAFileOutsideOfTheAllowedDirectories(): void
+    {
+        $directory = $this->createTestDirectory();
+        file_put_contents($directory . '/outside/secret.csv', 'secret');
+        symlink($directory . '/outside/secret.csv', $directory . '/allowed/link.csv');
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        (new Typo3PathResolver(directories: [$directory . '/allowed']))->resolve($directory . '/allowed/link.csv');
+    }
+
+    #[Test]
+    public function rejectsSymbolicLinkToAFileOutsideOfTheProject(): void
+    {
+        $directory = $this->createTestDirectory();
+        $outside = tempnam(sys_get_temp_dir(), 't3import_export');
+        self::assertIsString($outside);
+        symlink($outside, $directory . '/allowed/link.csv');
+
+        try {
+            $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+            (new Typo3PathResolver(directories: [$directory . '/allowed']))->resolve($directory . '/allowed/link.csv');
+        } finally {
+            unlink($outside);
+        }
+    }
+
+    #[Test]
+    public function rejectsDanglingSymbolicLink(): void
+    {
+        $directory = $this->createTestDirectory();
+        symlink($directory . '/outside/new.csv', $directory . '/allowed/link.csv');
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        (new Typo3PathResolver(directories: [$directory . '/allowed']))->resolve($directory . '/allowed/link.csv');
+    }
+
+    #[Test]
+    public function rejectsFilesInASymbolicLinkToADirectoryOutsideOfTheAllowedDirectories(): void
+    {
+        $directory = $this->createTestDirectory();
+        file_put_contents($directory . '/outside/secret.csv', 'secret');
+        symlink($directory . '/outside', $directory . '/allowed/linked');
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        try {
+            $subject->resolve($directory . '/allowed/linked/secret.csv');
+            self::fail('An existing file in a linked directory must be rejected.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED, $exception->getCode());
+        }
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+        $subject->resolve($directory . '/allowed/linked/new/news.csv');
+    }
+
+    #[Test]
+    public function allowsFilesInAnAllowedDirectoryThatIsASymbolicLink(): void
+    {
+        $directory = $this->createTestDirectory();
+        file_put_contents($directory . '/outside/news.csv', 'news');
+        symlink($directory . '/outside', $directory . '/shared');
+        $subject = new Typo3PathResolver(directories: [$directory . '/shared']);
+
+        self::assertSame($directory . '/shared/news.csv', $subject->resolve($directory . '/shared/news.csv'));
+        self::assertSame($directory . '/shared/import/new.csv', $subject->resolve($directory . '/shared/import/new.csv'));
+    }
+
+    #[Test]
+    public function allowsFilesThatDoNotExistYetInAnAllowedDirectory(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        self::assertSame($directory . '/allowed/new.csv', $subject->resolve($directory . '/allowed/new.csv'));
+        self::assertSame($directory . '/allowed/sub/new.csv', $subject->resolve($directory . '/allowed/sub/new.csv'));
+    }
+
+    #[Test]
+    public function rejectsParentDirectorySegmentsInAnExistingAllowedDirectory(): void
+    {
+        $directory = $this->createTestDirectory();
+        file_put_contents($directory . '/outside/secret.csv', 'secret');
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        (new Typo3PathResolver(directories: [$directory . '/allowed']))->resolve($directory . '/allowed/../outside/secret.csv');
+    }
+
+    /**
+     * Creates a directory in the var directory (inside of the project) with
+     * the sub-directories `allowed` and `outside`.
+     */
+    private function createTestDirectory(): string
+    {
+        $this->testDirectory = Environment::getVarPath() . '/' . uniqid('Typo3PathResolverTest', true);
+        mkdir($this->testDirectory . '/allowed', 0o777, true);
+        mkdir($this->testDirectory . '/outside');
+
+        return $this->testDirectory;
+    }
+
+    private static function removeDirectory(string $directory): void
+    {
+        if (!is_dir($directory) || is_link($directory)) {
+            return;
+        }
+        foreach (scandir($directory) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            $path = $directory . '/' . $entry;
+            if (is_dir($path) && !is_link($path)) {
+                self::removeDirectory($path);
+            } else {
+                unlink($path);
+            }
+        }
+        rmdir($directory);
     }
 }

@@ -41,8 +41,11 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *   extension must be in `textfile_ext`, `mediafile_ext` or `miscfile_ext`.
  *
  * Paths with `..` segments and stream wrappers (`scheme://`) are rejected.
- * Symbolic links inside an allowed directory are followed, e.g. a `fileadmin`
- * that links to a shared directory.
+ * Symbolic links are resolved before the check: the real path of the file (or,
+ * for a file that does not exist yet, of its nearest existing parent
+ * directory) must be inside the real path of an allowed directory. An allowed
+ * directory may itself be a symbolic link, e.g. a `fileadmin` that links to a
+ * shared directory; a link inside it must not lead out of it.
  */
 final readonly class Typo3PathResolver implements PathResolverInterface
 {
@@ -105,8 +108,9 @@ final readonly class Typo3PathResolver implements PathResolverInterface
             trim($path) === ''
             || str_contains($path, "\0")
             || preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $path) === 1
+            || \in_array('..', preg_split('#[/\\\\]+#', $path) ?: [], true)
         ) {
-            throw $this->notAllowed($path, 'empty paths, null bytes and stream wrappers are not allowed.', self::ERROR_NOT_ALLOWED);
+            throw $this->notAllowed($path, 'empty paths, null bytes, ".." segments and stream wrappers are not allowed.', self::ERROR_NOT_ALLOWED);
         }
         $isExtensionPath = PathUtility::isExtensionPath($path);
         if ($isExtensionPath && !$this->allowExtensionPaths) {
@@ -145,13 +149,46 @@ final readonly class Typo3PathResolver implements PathResolverInterface
 
     private function isInAllowedDirectory(string $absolutePath): bool
     {
+        $realPath = self::realPath($absolutePath);
+        if ($realPath === null) {
+            return false;
+        }
         foreach ($this->directories as $directory) {
-            if (str_starts_with($absolutePath, $directory . '/')) {
+            $realDirectory = self::realPath($directory);
+            if ($realDirectory !== null && str_starts_with($realPath, rtrim($realDirectory, '/') . '/')) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Resolves symbolic links in `$absolutePath` (without `..` segments): the
+     * real path of the nearest existing part of the path, followed by the
+     * parts that do not exist yet.
+     *
+     * @return string|null null if a symbolic link cannot be resolved, e.g.
+     *                     it points to a file that does not exist
+     */
+    private static function realPath(string $absolutePath): ?string
+    {
+        $existing = $absolutePath;
+        $missing = '';
+        while (!file_exists($existing) && !is_link($existing)) {
+            $parent = \dirname($existing);
+            if ($parent === $existing) {
+                return $absolutePath;
+            }
+            $missing = '/' . basename($existing) . $missing;
+            $existing = $parent;
+        }
+        $realPath = realpath($existing);
+        if ($realPath === false) {
+            return null;
+        }
+
+        return rtrim($realPath, '/') . $missing;
     }
 
     private function isFileTypeAllowed(string $fileName): bool
