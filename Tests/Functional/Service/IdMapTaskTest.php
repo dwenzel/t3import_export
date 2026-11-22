@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Functional\Service;
 
+use CPSIT\ImportExportCore\Dbal\DataTargetDBAL;
 use CPSIT\ImportExportCore\Domain\Model\TransferTaskInterface;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor;
@@ -234,6 +235,45 @@ class IdMapTaskTest extends FunctionalTestCase
         $newChecksums = $this->checksums('pages');
         self::assertNotSame($checksums['1'], $newChecksums['1']);
         self::assertSame(array_diff_key($checksums, ['1' => '']), array_diff_key($newChecksums, ['1' => '']));
+    }
+
+    /**
+     * With DataTargetDBAL of the core, the target ID is set in `uid` itself:
+     * TargetIdPreProcessor removes the source `uid` of new records and sets
+     * the mapped `uid` of records written before.
+     */
+    #[Test]
+    public function dataTargetDbalUpdatesByTheUidOfTheIdMap(): void
+    {
+        $idMap = ['namespace' => 'pages', 'sourceIdField' => 'uid'];
+        $settings = [
+            'source' => [
+                'class' => DataSourceDB::class,
+                'config' => ['table' => 'pages', 'fields' => 'uid,title', 'orderBy' => 'uid'],
+            ],
+            'idMap' => $idMap,
+            'preProcessors' => [
+                10 => ['class' => TargetIdPreProcessor::class, 'config' => $idMap],
+            ],
+            'filters' => [
+                10 => ['class' => UnchangedRecordFilter::class, 'config' => $idMap],
+            ],
+            'target' => [
+                'class' => DataTargetDBAL::class,
+                'config' => ['table' => self::TARGET_TABLE, 'key' => ['uid'], 'idField' => 'uid'],
+            ],
+        ];
+        $this->get(TransferService::class)->run([$this->get(TransferTaskFactory::class)->create('pagesToCategories', $settings)]);
+        $this->update('pages', ['title' => 'Root renamed'], 1);
+        $this->update(self::TARGET_TABLE, ['title' => 'Changed in TYPO3'], 5);
+
+        $this->get(TransferService::class)->run([$this->get(TransferTaskFactory::class)->create('pagesToCategories', $settings)]);
+
+        self::assertSame(self::expectedPageMap(), $this->idMap('pages'));
+        $categories = $this->categories();
+        self::assertCount(9, $categories);
+        self::assertSame(['uid' => 4, 'title' => 'Root renamed', 'parent' => 0], $categories[1]);
+        self::assertSame(['uid' => 5, 'title' => 'Changed in TYPO3', 'parent' => 0], $categories[2]);
     }
 
     #[Test]
