@@ -120,12 +120,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   Configurations and records of earlier versions write the same rows; a
   record with `__identity` updates the row with this `uid`. The rows of a
   batch are written in one transaction and rolled back if the task fails;
-  before, each row was committed at once. Values must be scalar or `null`,
+  before, each row was committed at once. Values are converted to the
+  column types, as before. Values must be scalar or `null`,
   field names plain names, and records not empty (`PersistenceException`
   1647701464). The class extends `DataTargetDBAL` instead of
   `AbstractComponent`; its constructor takes `Dbal\Typo3ConnectionProvider`,
   `getDatabase()` is removed, and invalid configurations throw the code
-  1796600001. See
+  1796600001. With an ID map, a record skipped by `skip` fails the task
+  (1796600002); use `disable`. See
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#datatargetdb)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 * `DataSourceQueue::fail()` marks the items of a failed run again when it is

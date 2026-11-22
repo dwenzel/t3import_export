@@ -77,7 +77,7 @@ process.
 - **Data Sources**
   - [CSV Files](./Documentation/Persistence/DataSourceCSV.md)
   - [XML Files](./Documentation/Persistence/DataSourceXML.md)
-  - [Database Tables](./Documentation/Persistence/DataTargetDB.md)
+  - [Database Tables](./Documentation/Persistence/DataSourceDB.md)
 - **Data Targets**
   - [Database Tables](./Documentation/Persistence/DataTargetDB.md)
   - [CSV Files](./Documentation/Persistence/DataTargetCSV.md)

@@ -275,9 +275,15 @@ Changed behaviour:
   name was written if the column existed, and an empty record inserted an
   empty row on MySQL (an SQL error on other platforms). Remove or convert
   such fields before the target, e.g. with `unsetKeys` or a pre-processor.
-* `false` is written as `0` (before: an empty string, which MySQL rejects
-  for integer columns). A record with only `__identity` does not change the
-  row (before: an SQL error).
+* Values are converted to the types of their columns, as before: e.g. `''`
+  and `'2.5'` become `0` and `2` in an integer column, `false` becomes `''`
+  and `true` `'1'` in a string column. A record with only `__identity` does
+  not change the row (before: an SQL error).
+* With an ID map (`idMap` of the task, core), the processor asks the target
+  for the `uid` of each record. A record skipped by `skip` has none: the task
+  fails with a `LogicException` (code 1796600002). Use `disable` instead of
+  `skip` in tasks with an ID map. Before 4.0, an ID map could not be used
+  with `DataTargetDB`.
 * The configuration is checked like the one of `DataTargetDBAL`: `table`
   must be a plain name, `connection` must not be empty, `key` must be a list
   of field names and `idField` a plain name. An invalid configuration makes
