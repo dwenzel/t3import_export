@@ -7,8 +7,11 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 use CPSIT\T3importExport\Component\Finisher\MoveFile;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -60,5 +63,40 @@ class MoveFileTest extends TestCase
             MoveFile::NOTICE_CODES,
             $this->subject->getNoticeCodes()
         );
+    }
+
+    /**
+     * @return array<string, array{string|null, DuplicationBehavior}>
+     */
+    public static function conflictModeDataProvider(): array
+    {
+        return [
+            'not configured' => [null, DuplicationBehavior::RENAME],
+            MoveFile::CONFLICT_MODE_CANCEL => [MoveFile::CONFLICT_MODE_CANCEL, DuplicationBehavior::CANCEL],
+            MoveFile::CONFLICT_MODE_RENAME_NEW_FILE => [MoveFile::CONFLICT_MODE_RENAME_NEW_FILE, DuplicationBehavior::RENAME],
+            MoveFile::CONFLICT_MODE_OVERRIDE_EXISTING_FILE => [MoveFile::CONFLICT_MODE_OVERRIDE_EXISTING_FILE, DuplicationBehavior::REPLACE],
+        ];
+    }
+
+    #[DataProvider('conflictModeDataProvider')]
+    public function testProcessMapsConflictModeToDuplicationBehavior(?string $conflictMode, DuplicationBehavior $expected): void
+    {
+        $records = [];
+        $result = [];
+        $configuration = [
+            'source' => ['name' => 'foo.xml'],
+            'target' => ['name' => 'bar.xml'],
+        ];
+        if ($conflictMode !== null) {
+            $configuration['target']['conflictMode'] = $conflictMode;
+        }
+        $file = $this->createStub(File::class);
+        $this->resourceStorage->method('hasFileInFolder')->willReturn(true);
+        $this->folder->method('getFiles')->willReturn(['foo.xml' => $file]);
+        $this->resourceStorage->expects($this->once())
+            ->method('moveFile')
+            ->with($file, $this->folder, 'bar.xml', $expected);
+
+        $this->assertTrue($this->subject->process($configuration, $records, $result));
     }
 }

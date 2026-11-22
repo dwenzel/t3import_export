@@ -27,6 +27,7 @@ use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -61,6 +62,15 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_RENAME_NEW_FILE,
         self::CONFLICT_MODE_OVERRIDE_EXISTING_FILE,
+    ];
+
+    /**
+     * Conflict modes of this finisher mapped to the duplication behavior of the core
+     */
+    final public const array DUPLICATION_BEHAVIORS = [
+        self::CONFLICT_MODE_CANCEL => DuplicationBehavior::CANCEL,
+        self::CONFLICT_MODE_RENAME_NEW_FILE => DuplicationBehavior::RENAME,
+        self::CONFLICT_MODE_OVERRIDE_EXISTING_FILE => DuplicationBehavior::REPLACE,
     ];
 
     /**
@@ -226,7 +236,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
             $sourceFile,
             $targetFolder,
             $targetFileName,
-            $conflictMode
+            self::DUPLICATION_BEHAVIORS[$conflictMode] ?? DuplicationBehavior::RENAME
         );
         $this->logNotice(1_509_024_162, [$sourceFileName, $targetFileName], $configuration);
 

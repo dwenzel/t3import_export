@@ -11,6 +11,7 @@ use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -480,7 +481,7 @@ class WriteFileTest extends TestCase
                     null,
                     $this->folder,
                     $configuration['target']['name'],
-                    $conflictMode,
+                    DuplicationBehavior::REPLACE,
                 ]
             )
             ->willReturn(false);
@@ -490,6 +491,37 @@ class WriteFileTest extends TestCase
             $records,
             $result
         );
+    }
+
+    /**
+     * @return array<string, array{string|null, DuplicationBehavior}>
+     */
+    public static function conflictModeDataProvider(): array
+    {
+        return [
+            'not configured' => [null, DuplicationBehavior::RENAME],
+            WriteFile::CONFLICT_MODE_CANCEL => [WriteFile::CONFLICT_MODE_CANCEL, DuplicationBehavior::CANCEL],
+            WriteFile::CONFLICT_MODE_CHANGENAME => [WriteFile::CONFLICT_MODE_CHANGENAME, DuplicationBehavior::RENAME],
+            WriteFile::CONFLICT_MODE_REPLACE => [WriteFile::CONFLICT_MODE_REPLACE, DuplicationBehavior::REPLACE],
+        ];
+    }
+
+    #[DataProvider('conflictModeDataProvider')]
+    public function testProcessMapsConflictModeToDuplicationBehavior(?string $conflictMode, DuplicationBehavior $expected): void
+    {
+        $records = [];
+        $configuration = ['target' => ['name' => 'bar.xml']];
+        if ($conflictMode !== null) {
+            $configuration['target']['conflictMode'] = $conflictMode;
+        }
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['getInfo'])->getMock();
+        $result->method('getInfo')->willReturn($this->fileInfo);
+        $this->resourceStorage->expects($this->once())
+            ->method('addFile')
+            ->with($this->anything(), $this->anything(), $this->anything(), $expected);
+
+        $this->subject->process($configuration, $records, $result);
     }
 
     public function testProcessDoesNotAccessDefaultFolderIfDirectoryIsConfigured(): void

@@ -25,6 +25,7 @@ use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
@@ -59,6 +60,15 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
         self::CONFLICT_MODE_CANCEL,
         self::CONFLICT_MODE_CHANGENAME,
         self::CONFLICT_MODE_REPLACE,
+    ];
+
+    /**
+     * Conflict modes of this finisher mapped to the duplication behavior of the core
+     */
+    final public const array DUPLICATION_BEHAVIORS = [
+        self::CONFLICT_MODE_CANCEL => DuplicationBehavior::CANCEL,
+        self::CONFLICT_MODE_CHANGENAME => DuplicationBehavior::RENAME,
+        self::CONFLICT_MODE_REPLACE => DuplicationBehavior::REPLACE,
     ];
     protected ResourceFactory $resourceFactory;
 
@@ -174,7 +184,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
             $fileInfo->getRealPath(),
             $folder,
             $configuration['target']['name'],
-            $conflictMode
+            self::DUPLICATION_BEHAVIORS[$conflictMode] ?? DuplicationBehavior::RENAME
         );
 
         return true;
