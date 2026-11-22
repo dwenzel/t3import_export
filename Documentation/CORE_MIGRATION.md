@@ -58,7 +58,7 @@ Tracked in [#132].
 | `PreProcessor\SetFieldValue` | 100 % | `SetValuesPreProcessor` | – |
 | `PreProcessor\UnsetEmptyFields` | 100 % | `ValueRulesPreProcessor` `remove` with `when: {empty: true}` | core "empty" is missing, `null` or `''`; the extension uses PHP `empty()` |
 | `Persistence\DataSourceDB` | 94 % | `DataSourceDBAL` | adapter in 4.0, stays the default source; `{expression: ...}` query values; SQL in the options (`where` string, `join`, `groupBy`) by a deprecated fallback |
-| `Persistence\DataTargetDB` | 70 % | `DataTargetDBAL`, upsert by ID map | adapter in 4.0 (`__identity` -> `uid`, batches in transactions); a `uid` change with `__identity` by a deprecated fallback; ID map planned in [#132] |
+| `Persistence\DataTargetDB` | 70 % | `DataTargetDBAL`, upsert by ID map | adapter in 4.0 (`__identity` -> `uid`, batches in transactions); a `uid` change with `__identity` by a deprecated fallback; ID map table and state components in 4.0 [#132] |
 | `Persistence\DataSourceQueue`, `DataTargetQueue`, `Domain\Repository\QueueItemRepository` | 100 / 92 / 74 % | core queue, `DbalQueueRepository` | replaced in 4.0: source and target are adapters, the repository is removed, items are migrated by an upgrade wizard |
 | `Persistence\DataSourceDummy`, `DataTargetDummy` | no tests | `NullDataSource`, `NullDataTarget` (4.0, deprecated) | – |
 | `PreProcessor\LookUpDB` | 47 % | partly `ResolveReferencePreProcessor` | general lookups by query |

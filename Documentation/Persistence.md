@@ -21,6 +21,7 @@ Please see [Overview](./OVERVIEW.md) for the general application flow and detail
     * DataTargetFileStream
     * DataTargetRepository
     * DataTargetXMLStream
+* [ID map and state components](./Persistence/IdMap.md)
 
 Database components of the core
 -------------------------------
@@ -73,6 +74,32 @@ target:
     key: [import_id]
     idField: uid
 ```
+
+ID map of the core
+------------------
+
+The ID map of the core (`CPSIT\ImportExportCore\Dbal\State\DbalIdMap`)
+stores which source record became which target record in the table
+`tx_t3importexport_id_map`: namespace, source ID, target ID and the checksum
+of the record. Like the queue table below, the table is defined in
+`ext_tables.sql` and created by TYPO3, not by the `SchemaInstaller` of the
+core; its structure follows `DbalIdMap::getTables()`, which a functional
+test compares. The table has no TCA.
+
+`CPSIT\T3importExport\Dbal\IdMapFactory` creates the ID map on the
+connection the table is mapped to in
+`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']` (`Default` without
+mapping). It is registered as `IdMapInterface` of the core, so
+
+* the processor stores the target IDs of tasks with the option `idMap`, and
+* `TargetIdPreProcessor`, `ResolveReferencePreProcessor` and
+  `UnchangedRecordFilter` of the core read them.
+
+See [ID map and state components](./Persistence/IdMap.md) for the options
+and an example.
+
+The checkpoints of the core (resuming interrupted tasks) are not stored:
+the processor uses the `NullCheckpointStore` of the core.
 
 Queue of the core
 -----------------

@@ -55,6 +55,13 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `DataTargetDB` accepts the options `connection`, `key` and `idField` of
   `DataTargetDBAL` of the core
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+* Table `tx_t3importexport_id_map` for the ID map of the core and
+  `Dbal\IdMapFactory`, which creates the ID map of the core on it; the ID map
+  is registered as `IdMapInterface`. Tasks can use the option `idMap` and the
+  components `TargetIdPreProcessor`, `ResolveReferencePreProcessor` and
+  `UnchangedRecordFilter` of the core, e.g. to update the records of earlier
+  runs and skip unchanged records
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 * `Component\DisableableTrait` implements `disable` for components that do
   not extend `AbstractComponent`
 

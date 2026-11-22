@@ -173,6 +173,14 @@ Tasks and sets in TypoScript (`module.tx_t3importexport.settings`) are not
 read any more. Convert them to YAML with `t3import-export:convert-typoscript`
 before updating, see [Deprecations](./DEPRECATIONS.md#removed-in-40).
 
+Update the database schema: 4.0 adds the tables `tx_t3importexport_queue_item`
+(queue) and `tx_t3importexport_id_map` (ID map, see
+[ID map and state components](./Persistence/IdMap.md)).
+
+```bash
+vendor/bin/typo3 database:updateschema
+```
+
 If the queue (`DataTargetQueue`, `DataSourceQueue`) was used, run the upgrade
 wizard that copies the queue items into the queue table of the core after
 updating the database schema and before running any task with 4.0. Later
@@ -219,6 +227,9 @@ DELETE FROM sys_template WHERE config LIKE '%t3import_export%';
 -- Remove queue items (if using queue)
 DROP TABLE IF EXISTS tx_t3importexport_queue_item;
 DROP TABLE IF EXISTS tx_t3importexport_domain_model_queueitem;
+
+-- Remove the ID map
+DROP TABLE IF EXISTS tx_t3importexport_id_map;
 ```
 
 ## Sources and Support

@@ -43,6 +43,7 @@ services:
     CPSIT\ImportExportCore\Service\DataTransferProcessor:
       arguments:
         $eventDispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
+        $idMap: '@CPSIT\ImportExportCore\State\IdMapInterface'
         $conditionEvaluator: '@CPSIT\ImportExportCore\Condition\ConditionEvaluatorInterface'
 
     # Files: paths are resolved like TYPO3 file names, inside the allowed
@@ -98,6 +99,22 @@ services:
       factory: ['@CPSIT\T3importExport\Dbal\QueueRepositoryFactory', 'create']
     CPSIT\ImportExportCore\Queue\QueueRepositoryInterface: '@CPSIT\ImportExportCore\Dbal\Queue\DbalQueueRepository'
     CPSIT\T3importExport\Dbal\QueueStatusReader:
+      public: true
+
+    # ID map of the core on the table tx_t3importexport_id_map, with the
+    # connection of the table mapping. The processor records the target IDs
+    # of tasks with `idMap` in it; the state components read it.
+    CPSIT\T3importExport\Dbal\IdMapFactory:
+      public: true
+    CPSIT\ImportExportCore\Dbal\State\DbalIdMap:
+      public: true
+      factory: ['@CPSIT\T3importExport\Dbal\IdMapFactory', 'create']
+    CPSIT\ImportExportCore\State\IdMapInterface: '@CPSIT\ImportExportCore\Dbal\State\DbalIdMap'
+    CPSIT\ImportExportCore\State\Component\TargetIdPreProcessor:
+      public: true
+    CPSIT\ImportExportCore\State\Component\ResolveReferencePreProcessor:
+      public: true
+    CPSIT\ImportExportCore\State\Component\UnchangedRecordFilter:
       public: true
 
     CPSIT\T3importExport\Domain\Factory\TransferSetFactory:

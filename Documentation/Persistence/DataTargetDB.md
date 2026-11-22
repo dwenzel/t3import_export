@@ -41,7 +41,8 @@ versions and writes the same rows
   fails (`LogicException`, code 1796600002). The processor asks for the IDs
   after `flushBatch()`, so the batch with the skipped record is already
   committed when the task fails. Use `disable` instead of `skip` in tasks
-  with an ID map.
+  with an ID map. See [ID map and state components](./IdMap.md) for
+  updating the records of earlier runs.
 
 ## Configuration
 
