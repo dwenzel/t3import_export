@@ -84,9 +84,7 @@ import:
         10:
           class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
           config:
-            pageIds:
-              - 42
-              - 43
+            pages: "42,43"
 
       target:
         class: "CPSIT\\ImportExportCore\\Persistence\\NullDataTarget"

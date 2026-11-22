@@ -210,7 +210,9 @@ abstract class BaseController extends ActionController
             new FlashMessage(
                 sprintf('No %s with the identifier "%s" is configured.', $type === 'sets' ? 'set' : 'task', $identifier),
                 'Not configured',
-                ContextualFeedbackSeverity::ERROR
+                ContextualFeedbackSeverity::ERROR,
+                // keep the message for the request after the redirect
+                true
             )
         );
 

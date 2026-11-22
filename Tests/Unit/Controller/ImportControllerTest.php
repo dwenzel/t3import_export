@@ -110,6 +110,7 @@ class ImportControllerTest extends TestCase
             ->with(self::callback(
                 static fn(FlashMessage $flashMessage): bool => $flashMessage->getMessage() === $message
                     && $flashMessage->getSeverity() === ContextualFeedbackSeverity::ERROR
+                    && $flashMessage->isSessionMessage()
             ));
         $subject = $this->getMockBuilder(ImportController::class)
             ->disableOriginalConstructor()

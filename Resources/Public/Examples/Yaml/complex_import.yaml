@@ -46,12 +46,19 @@ import:
         40:
           class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
           config:
-            table: "sys_category"
             select:
+              table: "sys_category"
               fields: "uid"
-              where: "title = ###category###"
-            sourceField: "category"
+              where:
+                AND:
+                  # title of the category equals the field "category" of the record
+                  condition: "title="
+                  value: "category"
+              singleRow: true
             targetField: "categories"
+            fields:
+              uid:
+                mapTo: "categories"
 
       converters:
         10:
@@ -63,33 +70,39 @@ import:
         10:
           class: "CPSIT\\T3importExport\\Component\\PostProcessor\\GenerateFileReference"
           config:
-            sourceField: "image_url"
+            # uid of an existing sys_file record
+            sourceField: "image"
             targetField: "fal_media"
-            targetFolder: "1:/news_import/"
+            # page of the file reference records
+            targetPage: 42
 
         20:
           class: "CPSIT\\T3importExport\\Component\\PostProcessor\\SetL10nParent"
           config:
-            languageField: "sys_language_uid"
+            subject:
+              parentField: "l10n_parent"
+            parent:
+              table: "tx_news_domain_model_news"
+              identityField: "uid"
+              matchField: "import_id"
+              prefix: "NEWS_DE-"
             disable:
               if.result.hasMessage: 1508776068
 
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetRepository"
         config:
-          repository: "GeorgRinger\\News\\Domain\\Repository\\NewsRepository"
+          targetClass: "GeorgRinger\\News\\Domain\\Model\\News"
 
       finishers:
         10:
           class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
           config:
-            tables:
-              - "tx_news_domain_model_news"
-            pageIds:
-              - 42
-              - 43
+            pages: "42,43"
 
         20:
           class: "CPSIT\\T3importExport\\Component\\Finisher\\ValidateXML"
           config:
-            schema: "fileadmin/imports/news_schema.xsd"
+            file: "fileadmin/imports/news_feed.xml"
+            schema:
+              file: "fileadmin/imports/news_schema.xsd"
