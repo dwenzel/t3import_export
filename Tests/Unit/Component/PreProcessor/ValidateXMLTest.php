@@ -7,12 +7,14 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\T3importExport\Component\PreProcessor\ValidateXML;
+use CPSIT\T3importExport\Resource\XmlSchema;
 use CPSIT\T3importExport\Validation\Configuration\ResourcePathConfigurationValidator;
 use DOMDocument;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Describes the behaviour of the ValidateXML pre-processor before it moves to the core
@@ -34,6 +36,26 @@ class ValidateXMLTest extends TestCase
         </xs:schema>
         XSD;
 
+    protected const string SCHEMA_WITH_INCLUDE = <<<'XSD'
+        <?xml version="1.0" encoding="utf-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <xs:include schemaLocation="%s"/>
+          <xs:element name="item" type="itemType"/>
+        </xs:schema>
+        XSD;
+
+    protected const string INCLUDED_SCHEMA = <<<'XSD'
+        <?xml version="1.0" encoding="utf-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <xs:complexType name="itemType">
+            <xs:sequence>
+              <xs:element name="title" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:schema>
+        XSD;
+
+    protected string $directory = '';
     protected ValidateXML $subject;
     protected MessageContainer $messageContainer;
     public string $schemaFile = '';
@@ -71,6 +93,9 @@ class ValidateXMLTest extends TestCase
     {
         if ($this->schemaFile !== '' && is_file($this->schemaFile)) {
             unlink($this->schemaFile);
+        }
+        if ($this->directory !== '') {
+            GeneralUtility::rmdir($this->directory, true);
         }
     }
 
@@ -235,5 +260,100 @@ class ValidateXMLTest extends TestCase
         $this->expectExceptionCode(ValidateXML::MISSING_RESOURCE_CODE);
 
         $this->subject->process($configuration, $record);
+    }
+
+    /**
+     * Creates a directory with the sub directory `schemas`, writes the
+     * files to it and uses `schemas/main.xsd` as schema.
+     *
+     * @param array<string, string> $files content by path relative to the directory
+     */
+    protected function useSchemaDirectory(array $files): array
+    {
+        $this->directory = sys_get_temp_dir() . '/' . uniqid('t3import-export-xsd', true);
+        GeneralUtility::mkdir_deep($this->directory . '/schemas/sub');
+        foreach ($files as $path => $content) {
+            file_put_contents($this->directory . '/' . $path, $content);
+        }
+        $this->schemaFile = $this->directory . '/schemas/main.xsd';
+
+        return ['file' => 'EXT:foo/schema.xsd'];
+    }
+
+    #[Test]
+    public function processUsesIncludedSchemaBelowTheDirectoryOfTheSchema(): void
+    {
+        $schema = $this->useSchemaDirectory([
+            'schemas/main.xsd' => sprintf(self::SCHEMA_WITH_INCLUDE, 'sub/types.xsd'),
+            'schemas/sub/types.xsd' => self::INCLUDED_SCHEMA,
+        ]);
+        $configuration = ['fields' => 'foo', 'schema' => $schema];
+        $valid = ['uid' => 1, 'foo' => '<item><title>a</title></item>'];
+        $invalid = ['uid' => 2, 'foo' => '<item><name>a</name></item>'];
+
+        self::assertTrue($this->subject->process($configuration, $valid));
+        self::assertFalse($this->subject->process($configuration, $invalid));
+    }
+
+    public static function includeNotAllowedDataProvider(): iterable
+    {
+        yield 'URL' => ['https://example.org/types.xsd'];
+        yield 'file URL' => ['file:///etc/types.xsd'];
+        yield 'outside of the directory of the schema' => ['../types.xsd'];
+        yield 'absolute path outside of the directory of the schema' => ['/etc/passwd'];
+        yield 'other file type' => ['sub/types.xml'];
+        yield 'missing file' => ['sub/missing.xsd'];
+    }
+
+    #[Test]
+    #[DataProvider('includeNotAllowedDataProvider')]
+    public function processThrowsExceptionForIncludeThatIsNotAllowed(string $location): void
+    {
+        $schema = $this->useSchemaDirectory([
+            'schemas/main.xsd' => sprintf(self::SCHEMA_WITH_INCLUDE, $location),
+            'types.xsd' => self::INCLUDED_SCHEMA,
+            'schemas/sub/types.xml' => self::INCLUDED_SCHEMA,
+        ]);
+        $record = ['uid' => 1, 'foo' => '<item><title>a</title></item>'];
+
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(XmlSchema::ERROR_INCLUDE_NOT_ALLOWED);
+
+        $this->subject->process(['fields' => 'foo', 'schema' => $schema], $record);
+    }
+
+    #[Test]
+    public function processDoesNotExpandExternalEntities(): void
+    {
+        $schema = $this->useSchemaDirectory([
+            'schemas/main.xsd' => self::SCHEMA,
+            'schemas/secret.xsd' => 'secret-content',
+        ]);
+        $document = new DOMDocument();
+        $test = $this;
+        $this->subject = new class ($document, $this->createStub(ResourcePathConfigurationValidator::class), $this->messageContainer, $test) extends ValidateXML {
+            public function __construct(
+                ?DOMDocument $document,
+                ?ResourcePathConfigurationValidator $pathConfigurationValidator,
+                ?MessageContainer $messageContainer,
+                private readonly ValidateXMLTest $test
+            ) {
+                parent::__construct($document, $pathConfigurationValidator, $messageContainer);
+            }
+
+            protected function getAbsoluteFilePath($path)
+            {
+                return $this->test->schemaFile;
+            }
+        };
+        $xml = '<?xml version="1.0"?><!DOCTYPE item [<!ENTITY e SYSTEM "file://' . $this->directory . '/schemas/secret.xsd">]>'
+            . '<item><title>&e;</title></item>';
+
+        foreach ([['fields' => 'foo'], ['fields' => 'foo', 'schema' => $schema]] as $configuration) {
+            $record = ['uid' => 1, 'foo' => $xml];
+            $this->subject->process($configuration, $record);
+
+            self::assertStringNotContainsString('secret-content', (string)$document->saveXML());
+        }
     }
 }
