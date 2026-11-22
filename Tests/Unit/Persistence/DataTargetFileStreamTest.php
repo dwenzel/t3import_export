@@ -179,7 +179,7 @@ class DataTargetFileStreamTest extends TestCase
         self::assertInstanceOf(FileInfo::class, $fileInfo);
         $fileName = $fileInfo->getPathname();
         self::assertStringStartsWith(
-            Environment::getVarPath() . '/transient/t3import_export/',
+            $this->temporaryDirectory(),
             $fileName
         );
         self::assertStringStartsNotWith(Environment::getPublicPath() . '/', $fileName);
@@ -350,7 +350,7 @@ class DataTargetFileStreamTest extends TestCase
     #[Test]
     public function persistCreatesTemporaryDirectoryIfMissing(): void
     {
-        $directory = rtrim(GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY), '/');
+        $directory = rtrim($this->temporaryDirectory(), '/');
         $backup = '';
         if (file_exists($directory)) {
             $candidate = $directory . '_backup_' . bin2hex(random_bytes(4));
@@ -395,7 +395,7 @@ class DataTargetFileStreamTest extends TestCase
         try {
             $this->fileUtility->expects(self::once())
                 ->method('getUniqueName')
-                ->with(self::isString(), GeneralUtility::getFileAbsFileName(DataTargetFileStream::TEMP_DIRECTORY))
+                ->with(self::isString(), $this->temporaryDirectory())
                 ->willReturn($fileName);
             GeneralUtility::addInstance(BasicFileUtility::class, $this->fileUtility);
 
@@ -463,5 +463,13 @@ class DataTargetFileStreamTest extends TestCase
     public function createDataStreamWithSampleBuffer($buffer): DataStream
     {
         return new DataStream(new TemporaryStream($buffer));
+    }
+
+    /**
+     * Directory of the temporary files of DataTargetFileStream, with trailing slash
+     */
+    protected function temporaryDirectory(): string
+    {
+        return Environment::getVarPath() . '/transient/t3import_export/';
     }
 }
