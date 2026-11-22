@@ -52,6 +52,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   or set that is not configured
 * The export module lists export sets with label and description, like the
   import module ([#62](https://github.com/dwenzel/t3import_export/issues/62))
+* `LookUpDB` without `singleRow` no longer sets a target field that was not
+  in the record to `[]` for an empty result; the field stays unset
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
+* `LookUpDB` with `keepOrder` does not sort the rows if `groupBy` is set
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180))
 
 ### Deprecated
 

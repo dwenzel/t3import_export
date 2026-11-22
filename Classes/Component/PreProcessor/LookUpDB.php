@@ -120,7 +120,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
         $constraints = is_array($queryConfiguration['where'] ?? null) ? $queryConfiguration['where'] : [];
         try {
             $inValues = $this->getInConstraintValues($record, $queryConfiguration);
-            $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration);
+            $queryConfiguration = $this->parseQueryConstraints($record, $queryConfiguration, $inValues);
         } catch (InvalidConfigurationException) {
             // todo: log error
             return false;
@@ -172,11 +172,16 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
     /**
      * Runs the query and sorts the rows by the order of the values
      * of the IN constraint. Sorting in PHP works on all databases.
+     * With groupBy the rows are not sorted: the additional column for
+     * sorting could break the grouping.
      *
      * @param string[] $values
      */
     protected function findRowsInOrder(array $queryConfiguration, string $field, array $values): array
     {
+        if (!empty($queryConfiguration['groupBy'])) {
+            return $this->findRows($queryConfiguration);
+        }
         // the rows within the limit are only known after sorting
         $limit = (int)($queryConfiguration['limit'] ?? 0);
         unset($queryConfiguration['limit']);
@@ -189,7 +194,9 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
 
     /**
      * Sorts rows by the position of their order field in the given values.
-     * Rows without a matching value are moved to the end.
+     * Values are compared case-insensitively and without trailing spaces,
+     * like most database collations do. Rows without a matching value
+     * are moved to the end.
      *
      * @param string[] $values
      */
@@ -197,14 +204,14 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
     {
         $positions = [];
         foreach (array_values($values) as $position => $value) {
-            $positions[$value] ??= $position;
+            $positions[self::normalizeOrderValue($value)] ??= $position;
         }
         $last = count($positions);
 
         usort(
             $rows,
-            static fn(array $a, array $b): int => ($positions[(string)$a[self::ORDER_FIELD_ALIAS]] ?? $last)
-                <=> ($positions[(string)$b[self::ORDER_FIELD_ALIAS]] ?? $last)
+            static fn(array $a, array $b): int => ($positions[self::normalizeOrderValue($a[self::ORDER_FIELD_ALIAS])] ?? $last)
+                <=> ($positions[self::normalizeOrderValue($b[self::ORDER_FIELD_ALIAS])] ?? $last)
         );
 
         return array_map(
@@ -214,6 +221,11 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             },
             $rows
         );
+    }
+
+    protected static function normalizeOrderValue(mixed $value): string
+    {
+        return mb_strtolower(rtrim((string)$value, ' '));
     }
 
     /**
@@ -270,9 +282,11 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
      * Parses the constraints of a query configuration into a
      * WHERE clause
      *
-     * @return array|false Parsed query configuration
+     * @param string[]|null $inValues values of the IN constraint, determined if not given
+     * @return array Parsed query configuration
+     * @throws InvalidConfigurationException
      */
-    protected function parseQueryConstraints(array $record, array $queryConfiguration): array
+    protected function parseQueryConstraints(array $record, array $queryConfiguration, ?array $inValues = null): array
     {
         if (empty($queryConfiguration['where'])
             || !is_array($queryConfiguration['where'])
@@ -299,7 +313,7 @@ class LookUpDB extends AbstractPreProcessor implements PreProcessorInterface
             }
 
             if ($operator === 'IN') {
-                $values = $this->getInConstraintValues($record, $queryConfiguration);
+                $values = $inValues ?? $this->getInConstraintValues($record, $queryConfiguration);
                 if ($values === null) {
                     continue;
                 }

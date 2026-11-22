@@ -598,4 +598,20 @@ class LookUpDBTest extends TestCase
             $result
         );
     }
+
+    /**
+     * @covers ::sortRowsByValues
+     */
+    public function testSortRowsByValuesIgnoresCaseAndTrailingSpaces(): void
+    {
+        $rows = [
+            ['uid' => 1, 'tx_t3importexport_order' => 'Foo'],
+            ['uid' => 2, 'tx_t3importexport_order' => 'bar  '],
+        ];
+
+        $method = new \ReflectionMethod($this->subject, 'sortRowsByValues');
+        $result = $method->invoke($this->subject, $rows, ['BAR', 'foo ']);
+
+        $this->assertSame([['uid' => 2], ['uid' => 1]], $result);
+    }
 }

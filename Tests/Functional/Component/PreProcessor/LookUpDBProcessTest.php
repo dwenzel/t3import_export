@@ -302,4 +302,59 @@ class LookUpDBProcessTest extends FunctionalTestCase
         self::assertTrue($this->subject->process($configuration, $record));
         self::assertSame(['parentSlug' => '/missing'], $record);
     }
+
+    #[Test]
+    public function processDoesNotSetTargetFieldForEmptyResult(): void
+    {
+        $configuration = [
+            'targetField' => 'children',
+            'select' => [
+                'table' => 'pages',
+                'fields' => 'uid',
+                'where' => [
+                    'AND' => [
+                        'condition' => 'pid=',
+                        'value' => 'uid',
+                    ],
+                ],
+            ],
+            'fields' => [
+                'uid' => ['mapTo' => 'childUid'],
+            ],
+        ];
+        $record = ['uid' => 3];
+
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertSame(['uid' => 3], $record);
+    }
+
+    #[Test]
+    public function processDoesNotSortRowsForKeepOrderWithGroupBy(): void
+    {
+        $configuration = [
+            'targetField' => 'pages',
+            'select' => [
+                'table' => 'pages',
+                'fields' => 'pid',
+                'where' => [
+                    'IN' => [
+                        'field' => 'title',
+                        'keepOrder' => 1,
+                        'values' => [
+                            'field' => 'titles',
+                        ],
+                    ],
+                ],
+                'groupBy' => 'pid',
+                'orderBy' => 'pid',
+            ],
+            'fields' => [
+                'pid' => ['mapTo' => 'pid'],
+            ],
+        ];
+        $record = ['titles' => ['Subpage 2', 'Root', 'Subpage 1']];
+
+        self::assertTrue($this->subject->process($configuration, $record));
+        self::assertSame([['pid' => 0], ['pid' => 1]], $record['pages']);
+    }
 }
