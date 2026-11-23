@@ -306,13 +306,13 @@ class DataSourceQueueTest extends TestCase
     }
 
     /**
-     * TransferService calls fail() after the processor of the core. The
-     * processor tells the source before the target, so that a target on the
-     * same connection (DataTargetDB) may roll back the failed status. The
-     * second fail() marks the items again.
+     * TransferService calls fail() again after the processor of the core.
+     * The processor tells the target before the source (core 0.7), so the
+     * items marked as failed are not rolled back by a target on the same
+     * connection, and the second fail() marks no items.
      */
     #[Test]
-    public function secondFailMarksTheFailedItemsAgain(): void
+    public function secondFailMarksNoItems(): void
     {
         $repository = $this->createSpyRepository();
         $this->subject = new DataSourceQueue($repository);
@@ -320,13 +320,26 @@ class DataSourceQueueTest extends TestCase
         $this->read([DataSourceQueue::KEY_IDENTIFIER => self::QUEUE, DataSourceQueue::KEY_LIMIT => 2]);
 
         $this->subject->fail(new \RuntimeException('failed'));
-        $firstFail = $repository->failed;
         $this->subject->fail();
 
-        self::assertCount(2, $firstFail);
-        self::assertSame([...$firstFail, ...$firstFail], $repository->failed);
+        self::assertCount(2, $repository->failed);
         self::assertSame(2, $this->repository->count(self::QUEUE, QueueItemStatus::Failed));
         self::assertSame(1, $this->repository->count(self::QUEUE, QueueItemStatus::New));
+    }
+
+    #[Test]
+    public function failDoesNotMarkItemsClaimedAgainByAnotherRun(): void
+    {
+        $this->enqueue('a', 'b');
+        $this->read([DataSourceQueue::KEY_IDENTIFIER => self::QUEUE]);
+        $this->repository->release(self::QUEUE);
+        $other = new DataSourceQueue($this->repository);
+        iterator_to_array($other->getRecords([DataSourceQueue::KEY_IDENTIFIER => self::QUEUE]), false);
+
+        $this->subject->fail();
+
+        self::assertSame(2, $this->repository->count(self::QUEUE, QueueItemStatus::Processing));
+        self::assertSame(0, $this->repository->count(self::QUEUE, QueueItemStatus::Failed));
     }
 
     #[Test]

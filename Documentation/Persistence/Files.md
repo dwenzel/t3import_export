@@ -59,9 +59,11 @@ pointing to a versioned file `data.csv.20261122`) is rejected.
 
 ## URLs
 
-`url` is loaded with the HTTP client of TYPO3 (`$GLOBALS['TYPO3_CONF_VARS']['HTTP']`,
-e.g. proxy, timeout and redirects), only from the allowed hosts. No host is
-allowed by default:
+URLs are loaded only from the allowed hosts. The `url` of the data sources
+and of the XML components (`ValidateXML` and the XML components of the core)
+is loaded by `HttpResourceLoader` of the core with the HTTP
+client of TYPO3 (`$GLOBALS['TYPO3_CONF_VARS']['HTTP']`, e.g. proxy and
+timeout). No host is allowed by default:
 
 ```php
 // config/system/additional.php
@@ -74,6 +76,24 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = [
 `['*']` allows all hosts. A URL with another host throws a
 `MissingResourceException` (code 1795200302) before a request is sent. The
 URL is not checked for its file type, since it often has no file extension.
+
+For the `url` of these components, redirects are followed by the loader,
+not by the client. The extension passes the PSR-18 client of TYPO3 (Guzzle)
+to the loader, and Guzzle's `sendRequest()` does not follow redirects, so
+the settings `$GLOBALS['TYPO3_CONF_VARS']['HTTP']['allow_redirects']` have
+no effect here. The loader
+
+* follows redirects (301, 302, 303, 307, 308) with a GET request, at most
+  five for one URL; more fail the request,
+* checks the target of each redirect like the URL itself: it must be an
+  `http` or `https` URL with an allowed host, otherwise a
+  `MissingResourceException` is thrown (code 1795200302 for a host that is
+  not allowed),
+* does not follow a redirect from `https` to `http`.
+
+A redirect to another allowed host is followed; allow every host a URL may
+redirect to. Default headers of the client are sent with each request, also
+to the target of a redirect.
 
 ## Other components
 

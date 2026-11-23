@@ -61,7 +61,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   components `TargetIdPreProcessor`, `ResolveReferencePreProcessor` and
   `UnchangedRecordFilter` of the core, e.g. to update the records of earlier
   runs and skip unchanged records
-  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132)). The
+  columns `namespace` and `source_id` use the binary collation `utf8mb4_bin`
+  on MySQL and MariaDB
+  (core [#116](https://github.com/CPS-IT/import-export-core/issues/116));
+  trailing spaces are ignored (PAD SPACE), see
+  [Persistence](Documentation/Persistence.md#id-map-of-the-core)
 * `Component\DisableableTrait` implements `disable` for components that do
   not extend `AbstractComponent`
 * The XML components of the core (`ValidateXMLPreProcessor`,
@@ -74,10 +79,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 * `t3import-export:import-task` returns 1 instead of 0 for an invalid task
   configuration and 2 right away for an empty task identifier
-* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.6.1. Components of a
+* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.7. Components of a
   task run in the order of their integer keys (core
   [#81](https://github.com/CPS-IT/import-export-core/issues/81)); see
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#changes-of-cpsitimport-export-core-06)
+* If a task fails, the processor of the core tells the target before the
+  source, and `DataSourceQueue` marks only items that are still claimed by
+  the run as finished or failed (core 0.7); see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#changes-of-cpsitimport-export-core-07)
 * Tasks are run by the processor of the core; tasks, sets and components are
   created by the factories of the core
   ([#71](https://github.com/dwenzel/t3import_export/issues/71))
@@ -86,7 +95,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `fileadmin/` and `var/import/`) and with allowed file types; URLs are
   loaded only from allowed hosts (by default none). This applies to all file
   components, including `ValidateXML`, `DataTargetXMLStream`,
-  `GenerateFileResource` and `GenerateUploadFile`
+  `GenerateFileResource` and `GenerateUploadFile`. The `url` of the data
+  sources and of the XML components (`ValidateXML` and the XML components of
+  the core) is loaded by `HttpResourceLoader` of the core,
+  which follows redirects itself (at most five) and checks the scheme and
+  the allowed host of each redirect; a redirect from `https` to `http` is
+  not followed. URLs that redirect to an allowed host are loaded. The
+  redirect settings of TYPO3 do not apply to them
+  ([Files](Documentation/Persistence/Files.md#urls))
 * The backend modules use the module access `user`
 * The file finishers use the resource API of TYPO3 14
 * `DataTargetFileStream` and `DataTargetXMLStream` write their temporary files
@@ -145,9 +161,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   (1796600002) after its batch was committed; use `disable`. See
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#datatargetdb)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
-* `DataSourceQueue::fail()` marks the items of a failed run again when it is
-  called again, so that `TransferService` marks them as failed after a
-  target on the same connection rolled back its batch
 
 ### Deprecated
 

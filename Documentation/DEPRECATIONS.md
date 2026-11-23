@@ -182,9 +182,9 @@ Breaking changes:
 
 ### Changes of `cpsit/import-export-core` 0.6
 
-4.0 requires `cpsit/import-export-core` ^0.6.1 (core
-[UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md#060)).
-Changes that concern tasks of the extension:
+Changes of core 0.6
+([UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md#060))
+that concern tasks of the extension:
 
 * The components of a task (`initializers`, `preProcessors`, `converters`,
   `postProcessors`, `finishers`, `filters`) run in the order of their integer
@@ -204,6 +204,24 @@ Changes that concern tasks of the extension:
 * `Dbal\DataTargetDBAL` has no methods `quoteColumns()` and `types()` any
   more ([core #98](https://github.com/CPS-IT/import-export-core/issues/98));
   subclasses that call or override them must drop or copy them.
+
+### Changes of `cpsit/import-export-core` 0.7
+
+4.0 requires `cpsit/import-export-core` ^0.7 (core
+[UPGRADE.md](https://github.com/CPS-IT/import-export-core/blob/main/UPGRADE.md)).
+Changes that concern tasks of the extension:
+
+* If a task fails, the processor calls `fail()` first on the target, then on
+  the source ([core #109](https://github.com/CPS-IT/import-export-core/issues/109)).
+  `DataTargetDB` rolls back the rows of the current batch before
+  `DataSourceQueue` marks the claimed items as failed, so the items stay
+  failed when both use the same connection.
+* `DataSourceQueue` marks items as finished or failed only while they are
+  still claimed by the run
+  ([core #109](https://github.com/CPS-IT/import-export-core/issues/109),
+  [#115](https://github.com/CPS-IT/import-export-core/issues/115)). Items
+  released (`queue:release`) or requeued while a task runs stay new and are
+  processed again.
 
 ### DataSourceDB
 

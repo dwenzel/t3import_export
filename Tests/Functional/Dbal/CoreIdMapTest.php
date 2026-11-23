@@ -12,6 +12,7 @@ use CPSIT\ImportExportCore\State\Component\UnchangedRecordFilter;
 use CPSIT\ImportExportCore\State\IdMapInterface;
 use CPSIT\ImportExportCore\State\IdMapping;
 use CPSIT\T3importExport\Dbal\IdMapFactory;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -135,6 +136,43 @@ class CoreIdMapTest extends FunctionalTestCase
         self::assertFalse($idMap->has('pages', '8'));
         self::assertFalse($idMap->get('news', '7')->exists());
         self::assertEquals([new IdMapping('news', 'ä-1', '5')], iterator_to_array($idMap->all('news'), false));
+    }
+
+    #[Test]
+    public function sourceIdsThatDifferInCaseHaveTheirOwnMapping(): void
+    {
+        $idMap = $this->get(IdMapInterface::class);
+
+        $idMap->set(new IdMapping('pages', 'ABC', '1'));
+        $idMap->set(new IdMapping('pages', 'abc', '2'));
+        $idMap->set(new IdMapping('Pages', 'abc', '3'));
+
+        self::assertSame('1', $idMap->get('pages', 'ABC')->targetId);
+        self::assertSame('2', $idMap->get('pages', 'abc')->targetId);
+        self::assertSame('3', $idMap->get('Pages', 'abc')->targetId);
+        self::assertCount(3, $this->fetchRows());
+    }
+
+    /**
+     * `ext_tables.sql` sets `utf8mb4_bin` for `namespace` and `source_id`.
+     * It is a PAD SPACE collation: trailing spaces are ignored.
+     */
+    #[Test]
+    public function keyColumnsHaveABinaryCollationOnMysqlAndMariaDb(): void
+    {
+        $connection = $this->get(ConnectionPool::class)->getConnectionForTable(IdMapFactory::TABLE);
+        if (!$connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('The collation is set on MySQL and MariaDB only.');
+        }
+
+        $collations = $connection->executeQuery(
+            'SELECT COLUMN_NAME, COLLATION_NAME FROM information_schema.COLUMNS'
+            . ' WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME IN (?, ?)'
+            . ' ORDER BY COLUMN_NAME',
+            [IdMapFactory::TABLE, 'namespace', 'source_id']
+        )->fetchAllKeyValue();
+
+        self::assertSame(['namespace' => 'utf8mb4_bin', 'source_id' => 'utf8mb4_bin'], $collations);
     }
 
     #[Test]

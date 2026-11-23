@@ -84,7 +84,20 @@ stores which source record became which target record in the table
 of the record. Like the queue table below, the table is defined in
 `ext_tables.sql` and created by TYPO3, not by the `SchemaInstaller` of the
 core; its structure follows `DbalIdMap::getTables()`, which a functional
-test compares. The table has no TCA.
+test compares (except the collation). The table has no TCA.
+
+On MySQL and MariaDB, the columns `namespace` and `source_id` have the
+binary collation `utf8mb4_bin`, so source IDs that differ in case, such as
+`ABC` and `abc`, have their own mappings. `utf8mb4_bin` is a PAD SPACE
+collation: trailing spaces are ignored, and source IDs that differ only in
+trailing spaces (`abc` and `abc `) still share one mapping. The core uses
+`utf8mb4_0900_bin` (MySQL) or `utf8mb4_nopad_bin` (MariaDB) for tables it
+creates itself, which compare trailing spaces too; `ext_tables.sql` needs one
+collation that exists on both servers, and TYPO3 applies a collation only
+together with a character set. The source ID is taken from the record as
+read from the source, before the pre-processors; if trailing spaces are
+significant, the source has to provide distinct IDs. PostgreSQL and SQLite
+compare the values byte by byte.
 
 `CPSIT\T3importExport\Dbal\IdMapFactory` creates the ID map on the
 connection the table is mapped to in

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Persistence;
 
-use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
 use CPSIT\ImportExportCore\Persistence\DataSourceQueue as CoreDataSourceQueue;
-use CPSIT\ImportExportCore\Queue\QueueItem;
 use CPSIT\T3importExport\Utility\DeprecationUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -65,33 +63,13 @@ class DataSourceQueue extends CoreDataSourceQueue implements CompletableSourceIn
     }
 
     /**
-     * Items marked as failed since the last `complete()`
-     *
-     * @var list<QueueItem>
-     */
-    protected array $failed = [];
-
-    /**
      * Marks the claimed items as failed. The argument is optional, since
      * `TransferService` calls `fail()` without an error
      * (`CompletableSourceInterface` of the extension).
-     *
-     * A later call marks the same items as failed again: the processor of the
-     * core tells the source before the target, so a target that writes on the
-     * same connection (e.g. `DataTargetDB`) rolls back the failed status with
-     * its batch. `TransferService` calls `fail()` again after the processor.
      */
     public function fail(?\Throwable $error = null): void
     {
-        $this->failed = [...$this->failed, ...$this->claimed];
-        $this->claimed = $this->failed;
         parent::fail($error ?? new \RuntimeException('The task failed.', 1_796_400_101));
-    }
-
-    public function complete(ResultInterface $result): void
-    {
-        $this->failed = [];
-        parent::complete($result);
     }
 
     /**
