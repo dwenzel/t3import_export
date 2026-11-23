@@ -238,6 +238,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Security
 
+* URLs are loaded by `HttpResourceLoader` of the core 0.7, which follows
+  redirects itself (at most five), checks the scheme and the allowed host of
+  each redirect and does not follow a redirect from `https` to `http`. The
+  HTTP client of TYPO3 does not follow redirects here; the documentation
+  said before that the HTTP settings of TYPO3 apply to redirects
+  ([Files](Documentation/Persistence/Files.md#urls))
 * `LookUpDB`: values from records are quoted in the `IN` constraint
 * Symbolic links are resolved before the allowed directories are checked; a
   link inside an allowed directory that points outside of it is rejected
