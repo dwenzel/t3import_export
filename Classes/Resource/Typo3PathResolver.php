@@ -21,6 +21,9 @@ use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Resource\PathResolverInterface;
 use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
+use TYPO3\CMS\Core\Package\Exception\UnknownPackagePathException;
+use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Resource\Security\FileNameValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -35,7 +38,8 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *   default: `fileadmin/` of the public directory and `import/` of the var
  *   directory). Relative paths are relative to the public directory.
  * - `EXT:` paths are allowed if `$allowExtensionPaths` is set, in the
- *   extension only for reading.
+ *   extension only for reading. The file must be inside the directory of the
+ *   extension (or inside one of the allowed directories).
  * - The file name must not match `$GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern']`.
  * - With the feature `security.system.enforceAllowedFileExtensions`, the
  *   extension must be in `textfile_ext`, `mediafile_ext` or `miscfile_ext`.
@@ -43,9 +47,11 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  * Paths with `..` segments and stream wrappers (`scheme://`) are rejected.
  * Symbolic links are resolved before the check: the real path of the file (or,
  * for a file that does not exist yet, of its nearest existing parent
- * directory) must be inside the real path of an allowed directory. An allowed
- * directory may itself be a symbolic link, e.g. a `fileadmin` that links to a
- * shared directory; a link inside it must not lead out of it.
+ * directory) must be inside the real path of an allowed directory or, for
+ * `EXT:` paths, of the extension. An allowed directory or an extension may
+ * itself be a symbolic link, e.g. a `fileadmin` that links to a shared
+ * directory; a link inside it must not lead out of it. The file type rules
+ * apply to the name of the link and of its target.
  */
 final readonly class Typo3PathResolver implements PathResolverInterface
 {
@@ -121,7 +127,21 @@ final readonly class Typo3PathResolver implements PathResolverInterface
         if ($absolutePath === '') {
             throw $this->notAllowed($path, 'it contains ".." or is outside of the project.', self::ERROR_NOT_ALLOWED);
         }
-        if (!$isExtensionPath && !$this->isInAllowedDirectory($absolutePath)) {
+        if ($isExtensionPath) {
+            $extensionDirectory = self::extensionDirectory($path);
+            if (
+                !self::isInDirectories($absolutePath, $extensionDirectory === null ? [] : [$extensionDirectory])
+                && !self::isInDirectories($absolutePath, $this->directories)
+            ) {
+                throw $this->notAllowed(
+                    $path,
+                    'files must be in the directory of the extension'
+                    . ($extensionDirectory === null ? '' : ' (' . rtrim($extensionDirectory, '/') . ')')
+                    . ' or in one of the directories ' . implode(', ', $this->directories) . '.',
+                    self::ERROR_DIRECTORY_NOT_ALLOWED
+                );
+            }
+        } elseif (!self::isInDirectories($absolutePath, $this->directories)) {
             throw $this->notAllowed(
                 $path,
                 'files must be in one of the directories ' . implode(', ', $this->directories) . '.',
@@ -129,6 +149,11 @@ final readonly class Typo3PathResolver implements PathResolverInterface
             );
         }
         $this->assertFileTypeAllowed($absolutePath);
+        // the file type of the target of a symbolic link
+        $realPath = self::realPath($absolutePath);
+        if ($realPath !== null && !$this->isFileTypeAllowed(basename($realPath))) {
+            throw $this->notAllowed($path, 'the file type is not allowed in TYPO3 (fileDenyPattern, allowed file extensions).', self::ERROR_FILE_TYPE_NOT_ALLOWED);
+        }
 
         return $absolutePath;
     }
@@ -147,13 +172,31 @@ final readonly class Typo3PathResolver implements PathResolverInterface
         }
     }
 
-    private function isInAllowedDirectory(string $absolutePath): bool
+    /**
+     * Directory of the extension of an `EXT:` path (extension key, Composer
+     * name or alias, like TYPO3 resolves it); null if the extension is not
+     * loaded
+     */
+    private static function extensionDirectory(string $path): ?string
+    {
+        $packageManager = GeneralUtility::makeInstance(PackageManager::class);
+        try {
+            return $packageManager->getPackage($packageManager->extractPackageKeyFromPackagePath($path))->getPackagePath();
+        } catch (UnknownPackageException|UnknownPackagePathException) {
+            return null;
+        }
+    }
+
+    /**
+     * @param list<string> $directories
+     */
+    private static function isInDirectories(string $absolutePath, array $directories): bool
     {
         $realPath = self::realPath($absolutePath);
         if ($realPath === null) {
             return false;
         }
-        foreach ($this->directories as $directory) {
+        foreach ($directories as $directory) {
             $realDirectory = self::realPath($directory);
             if ($realDirectory !== null && str_starts_with($realPath, rtrim($realDirectory, '/') . '/')) {
                 return true;

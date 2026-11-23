@@ -187,6 +187,18 @@ class Typo3PathResolverTest extends TestCase
     }
 
     #[Test]
+    public function rejectsSymbolicLinkToAFileTypeThatIsNotAllowed(): void
+    {
+        $directory = $this->createTestDirectory();
+        file_put_contents($directory . '/allowed/script.php', '<?php');
+        symlink($directory . '/allowed/script.php', $directory . '/allowed/link.csv');
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        (new Typo3PathResolver(directories: [$directory . '/allowed']))->resolve($directory . '/allowed/link.csv');
+    }
+
+    #[Test]
     public function rejectsDanglingSymbolicLink(): void
     {
         $directory = $this->createTestDirectory();
