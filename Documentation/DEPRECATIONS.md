@@ -222,6 +222,17 @@ Changes that concern tasks of the extension:
   [#115](https://github.com/CPS-IT/import-export-core/issues/115)). Items
   released (`queue:release`) or requeued while a task runs stay new and are
   processed again.
+* The columns `namespace` and `source_id` of the ID map are compared byte
+  by byte ([core #116](https://github.com/CPS-IT/import-export-core/issues/116)).
+  `ext_tables.sql` gives them the collation `utf8mb4_bin` on MySQL and
+  MariaDB; the database analyzer of TYPO3 changes existing tables. Source
+  IDs that differ only in case, which shared one mapping before, get their
+  own mappings; a merged mapping is not split, the other source ID gets a
+  new mapping in the next run. `utf8mb4_bin` is a PAD SPACE collation:
+  source IDs that differ only in trailing spaces still share one mapping,
+  unlike in tables that the core creates itself (`utf8mb4_0900_bin`,
+  `utf8mb4_nopad_bin`). See
+  [Persistence](./Persistence.md#id-map-of-the-core).
 
 ### DataSourceDB
 

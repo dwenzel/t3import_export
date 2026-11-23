@@ -88,11 +88,15 @@ CREATE TABLE tx_t3importexport_queue_item
 # ID map of cpsit/import-export-core (DbalIdMap): which source record became
 # which target record. The table has no TCA; its structure must match
 # DbalIdMap::getTables().
+# namespace and source_id are compared byte by byte on MySQL and MariaDB.
+# The core uses utf8mb4_0900_bin (MySQL) or utf8mb4_nopad_bin (MariaDB);
+# utf8mb4_bin is available on both, but ignores trailing spaces (PAD SPACE).
+# TYPO3 applies COLLATE only together with CHARACTER SET.
 #
 CREATE TABLE tx_t3importexport_id_map
 (
-		namespace   varchar(255) DEFAULT '' NOT NULL,
-		source_id   varchar(255) DEFAULT '' NOT NULL,
+		namespace   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '' NOT NULL,
+		source_id   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '' NOT NULL,
 		target_id   varchar(255) DEFAULT '' NOT NULL,
 		checksum    varchar(40)  DEFAULT '' NOT NULL,
 

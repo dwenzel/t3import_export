@@ -209,6 +209,13 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Fixed
 
+* `tx_t3importexport_id_map`: the columns `namespace` and `source_id` have
+  the collation `utf8mb4_bin` on MySQL and MariaDB. Before, they had the
+  default collation of the database, and source IDs that differ only in case
+  shared one mapping. `utf8mb4_bin` ignores trailing spaces (PAD SPACE), so
+  source IDs that differ only in trailing spaces still share one mapping; see
+  [Persistence](Documentation/Persistence.md#id-map-of-the-core)
+  (core [#116](https://github.com/CPS-IT/import-export-core/issues/116))
 * `LookUpDB` sorts the rows for `keepOrder` in PHP instead of adding the
   MySQL-specific `ORDER BY FIELD()` to the WHERE clause, so it works on all
   databases and together with AND/OR constraints
