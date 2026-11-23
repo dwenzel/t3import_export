@@ -74,10 +74,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 * `t3import-export:import-task` returns 1 instead of 0 for an invalid task
   configuration and 2 right away for an empty task identifier
-* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.6.1. Components of a
+* Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.7. Components of a
   task run in the order of their integer keys (core
   [#81](https://github.com/CPS-IT/import-export-core/issues/81)); see
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#changes-of-cpsitimport-export-core-06)
+* If a task fails, the processor of the core tells the target before the
+  source, and `DataSourceQueue` marks only items that are still claimed by
+  the run as finished or failed (core 0.7); see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#changes-of-cpsitimport-export-core-07)
 * Tasks are run by the processor of the core; tasks, sets and components are
   created by the factories of the core
   ([#71](https://github.com/dwenzel/t3import_export/issues/71))
