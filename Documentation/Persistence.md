@@ -84,7 +84,7 @@ stores which source record became which target record in the table
 of the record. Like the queue table below, the table is defined in
 `ext_tables.sql` and created by TYPO3, not by the `SchemaInstaller` of the
 core; its structure follows `DbalIdMap::getTables()`, which a functional
-test compares. The table has no TCA.
+test compares (except the collation). The table has no TCA.
 
 On MySQL and MariaDB, the columns `namespace` and `source_id` have the
 binary collation `utf8mb4_bin`, so source IDs that differ in case, such as

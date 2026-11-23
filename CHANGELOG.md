@@ -61,7 +61,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   components `TargetIdPreProcessor`, `ResolveReferencePreProcessor` and
   `UnchangedRecordFilter` of the core, e.g. to update the records of earlier
   runs and skip unchanged records
-  ([#132](https://github.com/dwenzel/t3import_export/issues/132))
+  ([#132](https://github.com/dwenzel/t3import_export/issues/132)). The
+  columns `namespace` and `source_id` use the binary collation `utf8mb4_bin`
+  on MySQL and MariaDB
+  (core [#116](https://github.com/CPS-IT/import-export-core/issues/116));
+  trailing spaces are ignored (PAD SPACE), see
+  [Persistence](Documentation/Persistence.md#id-map-of-the-core)
 * `Component\DisableableTrait` implements `disable` for components that do
   not extend `AbstractComponent`
 * The XML components of the core (`ValidateXMLPreProcessor`,
@@ -90,7 +95,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `fileadmin/` and `var/import/`) and with allowed file types; URLs are
   loaded only from allowed hosts (by default none). This applies to all file
   components, including `ValidateXML`, `DataTargetXMLStream`,
-  `GenerateFileResource` and `GenerateUploadFile`
+  `GenerateFileResource` and `GenerateUploadFile`. The `url` of the data
+  sources and of the XML components (`ValidateXML` and the XML components of
+  the core) is loaded by `HttpResourceLoader` of the core,
+  which follows redirects itself (at most five) and checks the scheme and
+  the allowed host of each redirect; a redirect from `https` to `http` is
+  not followed. URLs that redirect to an allowed host are loaded. The
+  redirect settings of TYPO3 do not apply to them
+  ([Files](Documentation/Persistence/Files.md#urls))
 * The backend modules use the module access `user`
 * The file finishers use the resource API of TYPO3 14
 * `DataTargetFileStream` and `DataTargetXMLStream` write their temporary files
@@ -209,13 +221,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Fixed
 
-* `tx_t3importexport_id_map`: the columns `namespace` and `source_id` have
-  the collation `utf8mb4_bin` on MySQL and MariaDB. Before, they had the
-  default collation of the database, and source IDs that differ only in case
-  shared one mapping. `utf8mb4_bin` ignores trailing spaces (PAD SPACE), so
-  source IDs that differ only in trailing spaces still share one mapping; see
-  [Persistence](Documentation/Persistence.md#id-map-of-the-core)
-  (core [#116](https://github.com/CPS-IT/import-export-core/issues/116))
 * `LookUpDB` sorts the rows for `keepOrder` in PHP instead of adding the
   MySQL-specific `ORDER BY FIELD()` to the WHERE clause, so it works on all
   databases and together with AND/OR constraints
@@ -238,12 +243,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Security
 
-* URLs are loaded by `HttpResourceLoader` of the core 0.7, which follows
-  redirects itself (at most five), checks the scheme and the allowed host of
-  each redirect and does not follow a redirect from `https` to `http`. The
-  HTTP client of TYPO3 does not follow redirects here; the documentation
-  said before that the HTTP settings of TYPO3 apply to redirects
-  ([Files](Documentation/Persistence/Files.md#urls))
 * `LookUpDB`: values from records are quoted in the `IN` constraint
 * Symbolic links are resolved before the allowed directories are checked; a
   link inside an allowed directory that points outside of it is rejected
