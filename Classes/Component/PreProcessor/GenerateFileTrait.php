@@ -16,7 +16,9 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\LoggingTrait;
+use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
@@ -60,10 +62,12 @@ trait GenerateFileTrait
      * Copies a source file or URL to a target path in the storage.
      *
      * The source must be an allowed file (see `Typo3PathResolver`) or a URL
-     * of an allowed host. The target file name must have an allowed file type.
+     * of an allowed host. URLs are loaded with the resource loader of the
+     * core (see `copyUrl()`). The target file name must have an allowed file
+     * type.
      *
      * @throws \CPSIT\ImportExportCore\Exception\InvalidArgumentException if the source file or the target file type is not allowed
-     * @throws \CPSIT\ImportExportCore\Exception\MissingResourceException if the source URL is not allowed
+     * @throws MissingResourceException if the source URL is not allowed
      */
     protected function copyFile(string $sourceFilePath, string $targetPath): bool
     {
@@ -71,21 +75,67 @@ trait GenerateFileTrait
         if ($absoluteTargetPath === '') {
             return false;
         }
+        if (ResourceAccess::isUrl($sourceFilePath)) {
+            return $this->copyUrl($sourceFilePath, $absoluteTargetPath);
+        }
 
         return @copy($this->resolveSourceFile($sourceFilePath), $absoluteTargetPath);
     }
 
     /**
-     * @return string absolute path of an allowed file, or an allowed URL
+     * Writes the contents of a URL to a file.
+     *
+     * The URL is loaded with the HTTP resource loader of the core and the HTTP
+     * client of TYPO3: redirects are followed by the loader and checked like
+     * the URL (scheme, allowed host). Returns false if the URL cannot be
+     * loaded or the file cannot be written; an incomplete file is removed.
+     *
+     * @throws MissingResourceException if the URL is not an http(s) URL or the host of the URL or of a redirect is not allowed
+     */
+    protected function copyUrl(string $url, string $absoluteTargetPath): bool
+    {
+        $this->getResourceAccess()->assertUrlAllowed($url);
+        try {
+            $stream = $this->getResourceAccess()->openUrl($url);
+        } catch (MissingResourceException $exception) {
+            if ($exception->getCode() === HttpResourceLoader::ERROR_HOST_NOT_ALLOWED) {
+                throw $exception;
+            }
+
+            return false;
+        }
+
+        try {
+            $handle = @fopen($absoluteTargetPath, 'wb');
+            if ($handle === false) {
+                return false;
+            }
+            try {
+                while (!$stream->eof()) {
+                    $chunk = $stream->read(8192);
+                    if (fwrite($handle, $chunk) !== \strlen($chunk)) {
+                        throw new \RuntimeException('The file cannot be written.', 1_795_300_101);
+                    }
+                }
+            } catch (\RuntimeException) {
+                fclose($handle);
+                @unlink($absoluteTargetPath);
+
+                return false;
+            }
+
+            return fclose($handle);
+        } finally {
+            $stream->close();
+        }
+    }
+
+    /**
+     * @return string absolute path of an allowed file
+     * @throws \CPSIT\ImportExportCore\Exception\InvalidArgumentException if the file is not allowed
      */
     protected function resolveSourceFile(string $sourceFilePath): string
     {
-        if (ResourceAccess::isUrl($sourceFilePath)) {
-            $this->getResourceAccess()->assertUrlAllowed($sourceFilePath);
-
-            return $sourceFilePath;
-        }
-
         return $this->getResourceAccess()->resolveFile($sourceFilePath);
     }
 

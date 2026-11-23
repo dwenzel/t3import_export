@@ -32,8 +32,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -70,7 +74,9 @@ class GenerateUploadFileTest extends TestCase
     {
         $this->subject = $this->getMockBuilder(GenerateUploadFile::class)
             ->onlyMethods(['getAbsoluteTargetPath', 'resolveSourceFile'])->getMock();
-        $this->subject->method('resolveSourceFile')->willReturnArgument(0);
+        $this->subject->method('resolveSourceFile')->willReturnCallback(
+            static fn(string $path): string => vfsStream::url('root') . '/' . $path
+        );
 
         $this->resourceStorage = $this->getMockBuilder(ResourceStorage::class)
             ->disableOriginalConstructor()
@@ -138,7 +144,7 @@ class GenerateUploadFileTest extends TestCase
         ];
 
         // Non-existent source file path
-        $nonExistentSourceFilePath = vfsStream::url($rootDirectory) . '/nonexistent/file.txt';
+        $nonExistentSourceFilePath = 'nonexistent/file.txt';
 
         $storageConfiguration = ['basePath' => vfsStream::url($rootDirectory)];
         $this->resourceStorage->expects($this->once())
@@ -256,6 +262,138 @@ class GenerateUploadFileTest extends TestCase
     }
 
     /**
+     * A subject that loads URLs of data.example.org and cdn.example.org with
+     * the given client and writes to vfs://root/target/<file name>
+     */
+    protected function createSubjectLoadingUrls(ClientInterface $client): GenerateUploadFile
+    {
+        vfsStream::setup('root', null, ['target' => []]);
+        $subject = new class () extends GenerateUploadFile {
+            protected function getAbsoluteTargetPath(string $targetPath): string
+            {
+                return vfsStream::url('root/target/' . basename($targetPath));
+            }
+        };
+        $subject->withStorage($this->resourceStorage);
+        $subject->injectFilePathFactory($this->filePathFactory);
+        $requestFactory = $this->createStub(RequestFactoryInterface::class);
+        $requestFactory->method('createRequest')->willReturnCallback(
+            static fn(string $method, $uri): Request => new Request($method, $uri)
+        );
+        $subject->setResourceAccess(new ResourceAccess(
+            new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
+            new HttpResourceLoader($client, $requestFactory, ['data.example.org', 'cdn.example.org'])
+        ));
+        $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
+
+        return $subject;
+    }
+
+    /**
+     * @param list<ResponseInterface> $responses
+     * @param list<string> $requestedUrls
+     */
+    protected function createClient(array $responses, array &$requestedUrls): ClientInterface
+    {
+        $client = $this->createStub(ClientInterface::class);
+        $client->method('sendRequest')->willReturnCallback(
+            static function (RequestInterface $request) use (&$responses, &$requestedUrls): ResponseInterface {
+                $requestedUrls[] = (string)$request->getUri();
+
+                return array_shift($responses) ?? throw new \LogicException('unexpected request');
+            }
+        );
+
+        return $client;
+    }
+
+    #[Test]
+    public function getFileWritesContentOfAllowedUrlToTarget(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], 'image data')], $requestedUrls));
+
+        $result = $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg');
+
+        self::assertSame('fileadmin/target/image.jpg', $result);
+        self::assertSame(['https://data.example.org/image.jpg'], $requestedUrls);
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
+    }
+
+    #[Test]
+    public function getFileFollowsRedirectToAllowedHost(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([
+            new Response(302, ['Location' => 'https://cdn.example.org/files/image.jpg']),
+            new Response(200, [], 'image data'),
+        ], $requestedUrls));
+
+        $result = $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg');
+
+        self::assertSame('fileadmin/target/image.jpg', $result);
+        self::assertSame(['https://data.example.org/image.jpg', 'https://cdn.example.org/files/image.jpg'], $requestedUrls);
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
+    }
+
+    #[Test]
+    public function getFileDoesNotFollowRedirectToHostThatIsNotAllowed(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([
+            new Response(302, ['Location' => 'https://other.example.org/image.jpg']),
+            new Response(200, [], 'other data'),
+        ], $requestedUrls));
+
+        try {
+            $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg');
+            self::fail('Expected exception was not thrown');
+        } catch (MissingResourceException $exception) {
+            self::assertSame(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED, $exception->getCode());
+        }
+
+        self::assertSame(['https://data.example.org/image.jpg'], $requestedUrls);
+        self::assertFileDoesNotExist(vfsStream::url('root/target/image.jpg'));
+    }
+
+    #[Test]
+    public function getFileDoesNotFollowRedirectFromHttpsToHttp(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([
+            new Response(301, ['Location' => 'http://data.example.org/image.jpg']),
+            new Response(200, [], 'image data'),
+        ], $requestedUrls));
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
+        self::assertSame(['https://data.example.org/image.jpg'], $requestedUrls);
+        self::assertFileDoesNotExist(vfsStream::url('root/target/image.jpg'));
+    }
+
+    #[Test]
+    public function getFileRejectsUrlThatIsNotAnHttpUrl(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([], $requestedUrls));
+
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'ftp://data.example.org/image.jpg');
+    }
+
+    #[Test]
+    public function getFileReturnsEmptyStringIfUrlCannotBeLoaded(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(404, [], 'not found')], $requestedUrls));
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
+        self::assertFileDoesNotExist(vfsStream::url('root/target/image.jpg'));
+    }
+
+    /**
      * Creates a mock file structure for testing
      *
      * @return array Array containing [rootDirectory, sourceFileName, sourceFilePath, targetDirectory, configuration, fileStructure]
@@ -266,7 +404,7 @@ class GenerateUploadFileTest extends TestCase
         $sourceFileContent = 'source file content';
         $sourceDirectory = 'sourceDir';
         $sourceFileName = 'foo.csv';
-        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $sourceFilePath = $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
         $targetDirectory = 'targetDir';
         $configuration = [
             'targetDirectoryPath' => $targetDirectory,

@@ -94,7 +94,9 @@ class GenerateFileResourceTest extends TestCase
             )
             ->onlyMethods(['logError', 'getAbsoluteTargetPath', 'resolveSourceFile'])
             ->getMock();
-        $this->subject->method('resolveSourceFile')->willReturnArgument(0);
+        $this->subject->method('resolveSourceFile')->willReturnCallback(
+            static fn(string $path): string => vfsStream::url('root') . '/' . $path
+        );
 
         // Set protected properties via reflection
         $reflection = new \ReflectionClass($this->subject);
@@ -199,7 +201,7 @@ class GenerateFileResourceTest extends TestCase
         $sourceFileContent = 'source file content';
         $sourceDirectory = 'sourceDir';
         $sourceFileName = 'foo.csv';
-        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $sourceFilePath = $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
         $targetDirectory = 'targetDir';
 
         $configuration = [
