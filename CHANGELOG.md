@@ -149,9 +149,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   (1796600002) after its batch was committed; use `disable`. See
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#datatargetdb)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
-* `DataSourceQueue::fail()` marks the items of a failed run again when it is
-  called again, so that `TransferService` marks them as failed after a
-  target on the same connection rolled back its batch
 
 ### Deprecated
 
