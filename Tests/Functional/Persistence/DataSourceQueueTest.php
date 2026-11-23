@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Tests\Functional\Persistence;
 
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Exception\PersistenceException;
 use CPSIT\ImportExportCore\Factory\TransferTaskFactory;
 use CPSIT\ImportExportCore\Persistence\NullDataTarget;
 use CPSIT\ImportExportCore\Processor\ValueRulesPreProcessor;
@@ -14,6 +15,7 @@ use CPSIT\T3importExport\Dbal\QueueRepositoryFactory;
 use CPSIT\T3importExport\Persistence\DataSourceQueue;
 use CPSIT\T3importExport\Persistence\DataTargetDB;
 use CPSIT\T3importExport\Service\TransferService;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -191,13 +193,16 @@ class DataSourceQueueTest extends FunctionalTestCase
             ],
         ]);
 
+        $exception = null;
         try {
             $this->get(TransferService::class)->run([$task]);
-            self::fail('The task should fail.');
         } catch (\Throwable $exception) {
-            self::assertNotSame('The task should fail.', $exception->getMessage());
         }
 
+        // DataTargetDB wraps the exception of the database
+        self::assertInstanceOf(PersistenceException::class, $exception);
+        self::assertSame(DataTargetDB::PERSISTENCE_EXCEPTION_CODE, $exception->getCode());
+        self::assertInstanceOf(UniqueConstraintViolationException::class, $exception->getPrevious());
         $connection = $this->get(ConnectionPool::class)->getConnectionForTable('sys_category');
         self::assertFalse($connection->isTransactionActive());
         self::assertSame(0, $connection->count('*', 'sys_category', ['uid' => 10]));
