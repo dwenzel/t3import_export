@@ -32,8 +32,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use GuzzleHttp\Psr7\FnStream;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
@@ -265,9 +267,9 @@ class GenerateUploadFileTest extends TestCase
      * A subject that loads URLs of data.example.org and cdn.example.org with
      * the given client and writes to vfs://root/target/<file name>
      */
-    protected function createSubjectLoadingUrls(ClientInterface $client): GenerateUploadFile
+    protected function createSubjectLoadingUrls(ClientInterface $client, array $targetFiles = []): GenerateUploadFile
     {
-        vfsStream::setup('root', null, ['target' => []]);
+        vfsStream::setup('root', null, ['target' => $targetFiles]);
         $subject = new class () extends GenerateUploadFile {
             protected function getAbsoluteTargetPath(string $targetPath): string
             {
@@ -372,6 +374,66 @@ class GenerateUploadFileTest extends TestCase
     }
 
     #[Test]
+    public function getFileLoadsUrlWithUppercaseSchemeThroughTheLoader(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], 'image data')], $requestedUrls));
+
+        $result = $subject->getFile(['targetDirectoryPath' => 'target'], 'HTTP://data.example.org/image.jpg');
+
+        self::assertSame('fileadmin/target/image.jpg', $result);
+        self::assertCount(1, $requestedUrls);
+        self::assertSame('http://data.example.org/image.jpg', strtolower($requestedUrls[0]));
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
+    }
+
+    #[Test]
+    public function getFileDoesNotFollowRedirectToFileUrl(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([
+            new Response(302, ['Location' => 'file:///etc/hosts']),
+        ], $requestedUrls));
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
+        self::assertSame(['https://data.example.org/image.jpg'], $requestedUrls);
+        self::assertFileDoesNotExist(vfsStream::url('root/target/image.jpg'));
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_URL_NOT_LOADED));
+    }
+
+    #[Test]
+    public function getFileKeepsExistingTargetIfFileCannotBeWritten(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls(
+            $this->createClient([new Response(200, [], str_repeat('x', 100))], $requestedUrls),
+            ['image.jpg' => 'old content']
+        );
+        vfsStream::setQuota(50);
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
+        self::assertSame('old content', file_get_contents(vfsStream::url('root/target/image.jpg')));
+        self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
+    public function getFileKeepsExistingTargetIfUrlCannotBeReadCompletely(): void
+    {
+        $body = FnStream::decorate(Utils::streamFor('image data'), [
+            'read' => static fn(): string => throw new \RuntimeException('connection lost'),
+        ]);
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls(
+            $this->createClient([new Response(200, [], $body)], $requestedUrls),
+            ['image.jpg' => 'old content']
+        );
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
+        self::assertSame('old content', file_get_contents(vfsStream::url('root/target/image.jpg')));
+        self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
     public function getFileRejectsUrlThatIsNotAnHttpUrl(): void
     {
         $requestedUrls = [];
@@ -391,6 +453,7 @@ class GenerateUploadFileTest extends TestCase
 
         self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
         self::assertFileDoesNotExist(vfsStream::url('root/target/image.jpg'));
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_URL_NOT_LOADED));
     }
 
     /**

@@ -18,11 +18,13 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  */
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\LoggingTrait;
+use CPSIT\ImportExportCore\Messaging\Message;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use Psr\Http\Message\StreamInterface;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -36,6 +38,11 @@ trait GenerateFileTrait
     use ResourceStorageTrait;
     use ResourceTrait;
     use LoggingTrait;
+
+    /**
+     * Message ID of the warning that a URL cannot be loaded
+     */
+    public const int WARNING_URL_NOT_LOADED = 1_795_300_501;
 
     protected FilePathFactory $filePathFactory;
 
@@ -87,8 +94,10 @@ trait GenerateFileTrait
      *
      * The URL is loaded with the HTTP resource loader of the core and the HTTP
      * client of TYPO3: redirects are followed by the loader and checked like
-     * the URL (scheme, allowed host). Returns false if the URL cannot be
-     * loaded or the file cannot be written; an incomplete file is removed.
+     * the URL (scheme, allowed host). The content is written to a temporary
+     * file in the target directory, which then replaces the target file.
+     * Returns false if the URL cannot be loaded (logged as warning) or the
+     * file cannot be written; the target file is not changed then.
      *
      * @throws MissingResourceException if the URL is not an http(s) URL or the host of the URL or of a redirect is not allowed
      */
@@ -101,33 +110,53 @@ trait GenerateFileTrait
             if ($exception->getCode() === HttpResourceLoader::ERROR_HOST_NOT_ALLOWED) {
                 throw $exception;
             }
+            $this->logMessage(
+                'URL not loaded',
+                $exception->getMessage(),
+                Message::SEVERITY_WARNING,
+                self::WARNING_URL_NOT_LOADED
+            );
 
             return false;
         }
 
+        $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
         try {
-            $handle = @fopen($absoluteTargetPath, 'wb');
+            $handle = @fopen($temporaryPath, 'xb');
             if ($handle === false) {
                 return false;
             }
-            try {
-                while (!$stream->eof()) {
-                    $chunk = $stream->read(8192);
-                    if (fwrite($handle, $chunk) !== \strlen($chunk)) {
-                        throw new \RuntimeException('The file cannot be written.', 1_795_300_101);
-                    }
-                }
-            } catch (\RuntimeException) {
-                fclose($handle);
-                @unlink($absoluteTargetPath);
+            $written = $this->writeStream($stream, $handle);
+            if (!fclose($handle) || !$written || !@rename($temporaryPath, $absoluteTargetPath)) {
+                @unlink($temporaryPath);
 
                 return false;
             }
 
-            return fclose($handle);
+            return true;
         } finally {
             $stream->close();
         }
+    }
+
+    /**
+     * @param resource $handle
+     * @return bool false if the stream cannot be read or the file cannot be written
+     */
+    private function writeStream(StreamInterface $stream, $handle): bool
+    {
+        try {
+            while (!$stream->eof()) {
+                $chunk = $stream->read(8192);
+                if (fwrite($handle, $chunk) !== \strlen($chunk)) {
+                    return false;
+                }
+            }
+        } catch (\RuntimeException) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

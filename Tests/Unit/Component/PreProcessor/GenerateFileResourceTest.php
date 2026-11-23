@@ -19,7 +19,13 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
+use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
+use CPSIT\T3importExport\Resource\ResourceAccess;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\ImportExportCore\LoggingInterface;
@@ -29,6 +35,11 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -303,6 +314,83 @@ class GenerateFileResourceTest extends TestCase
         $this->mockFileGenerationBehavior($invalidConfiguration['targetDirectoryPath'], $sourceFileName);
 
         $this->assertNull($this->subject->getFile($invalidConfiguration, $sourceFilePath));
+    }
+
+    /**
+     * A subject that loads URLs of data.example.org with the given responses
+     * and writes to vfs://root/target/<file name>
+     *
+     * @param list<ResponseInterface> $responses
+     * @param list<string> $requestedUrls
+     */
+    protected function createSubjectLoadingUrls(array $responses, array &$requestedUrls): GenerateFileResource
+    {
+        vfsStream::setup('root', null, ['target' => []]);
+        $subject = new class ($this->fileIndexRepository, $this->filePathFactory) extends GenerateFileResource {
+            protected function getAbsoluteTargetPath(string $targetPath): string
+            {
+                return vfsStream::url('root/target/' . basename($targetPath));
+            }
+        };
+        $subject->withStorage($this->resourceStorage);
+        $client = $this->createStub(ClientInterface::class);
+        $client->method('sendRequest')->willReturnCallback(
+            static function (RequestInterface $request) use (&$responses, &$requestedUrls): ResponseInterface {
+                $requestedUrls[] = (string)$request->getUri();
+
+                return array_shift($responses) ?? throw new \LogicException('unexpected request');
+            }
+        );
+        $requestFactory = $this->createStub(RequestFactoryInterface::class);
+        $requestFactory->method('createRequest')->willReturnCallback(
+            static fn(string $method, $uri): Request => new Request($method, $uri)
+        );
+        $subject->setResourceAccess(new ResourceAccess(
+            new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
+            new HttpResourceLoader($client, $requestFactory, ['data.example.org'])
+        ));
+        $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
+
+        return $subject;
+    }
+
+    #[Test]
+    public function getFileAddsFileLoadedFromAllowedUrl(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls([new Response(200, [], 'image data')], $requestedUrls);
+        $file = $this->createStub(File::class);
+        $this->resourceStorage->expects(self::once())->method('hasFile')->with('target/image.jpg')->willReturn(false);
+        $this->resourceStorage->expects(self::once())->method('getFile')->with('target/image.jpg')->willReturn($file);
+        $this->fileIndexRepository->expects(self::once())->method('add')->with($file);
+
+        self::assertSame($file, $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
+        self::assertSame(['https://data.example.org/image.jpg'], $requestedUrls);
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
+    }
+
+    #[Test]
+    public function getFileDoesNotFollowRedirectToHostThatIsNotAllowed(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls([
+            new Response(302, ['Location' => 'https://other.example.org/image.jpg']),
+            new Response(200, [], 'other data'),
+        ], $requestedUrls);
+        $this->resourceStorage->expects(self::once())->method('hasFile')->willReturn(false);
+        $this->resourceStorage->expects(self::never())->method('getFile');
+        $this->fileIndexRepository->expects(self::never())->method('add');
+
+        try {
+            $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg');
+            self::fail('Expected exception was not thrown');
+        } catch (MissingResourceException $exception) {
+            self::assertSame(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED, $exception->getCode());
+        }
+
+        self::assertSame(['https://data.example.org/image.jpg'], $requestedUrls);
+        self::assertFileDoesNotExist(vfsStream::url('root/target/image.jpg'));
     }
 
     /**
