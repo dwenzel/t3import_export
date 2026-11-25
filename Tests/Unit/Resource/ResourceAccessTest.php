@@ -21,6 +21,8 @@ use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -68,6 +70,27 @@ class ResourceAccessTest extends TestCase
         $this->expectExceptionCode(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED);
 
         $this->subject->assertUrlAllowed('https://other.example.org/news.xml');
+    }
+
+    #[Test]
+    public function openUrlDoesNotFollowRedirectToHostThatIsNotAllowed(): void
+    {
+        $client = $this->createMock(ClientInterface::class);
+        $client->expects(self::once())->method('sendRequest')
+            ->willReturn(new Response(302, ['Location' => 'https://other.example.org/news.xml']));
+        $requestFactory = $this->createStub(RequestFactoryInterface::class);
+        $requestFactory->method('createRequest')->willReturnCallback(
+            static fn(string $method, $uri): Request => new Request($method, $uri)
+        );
+        $subject = new ResourceAccess(
+            new Typo3PathResolver(directories: [Environment::getVarPath() . '/import']),
+            new HttpResourceLoader($client, $requestFactory, ['data.example.org'])
+        );
+
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED);
+
+        $subject->openUrl('https://data.example.org/news.xml');
     }
 
     #[Test]

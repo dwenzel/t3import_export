@@ -20,6 +20,7 @@ namespace CPSIT\T3importExport\Resource;
 use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
+use Psr\Http\Message\StreamInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -93,6 +94,17 @@ class ResourceAccess
     }
 
     /**
+     * Opens a URL with the HTTP resource loader of the core. The loader
+     * follows redirects itself and checks each target like the URL.
+     *
+     * @throws MissingResourceException if the URL is not allowed or cannot be loaded
+     */
+    public function openUrl(string $url): StreamInterface
+    {
+        return $this->getHttpResourceLoader()->open($url);
+    }
+
+    /**
      * Contents of a file or URL; null if the file does not exist.
      *
      * @throws InvalidArgumentException if the file is not allowed
@@ -101,7 +113,7 @@ class ResourceAccess
     public function load(string $location): ?string
     {
         if (self::isUrl($location)) {
-            return $this->getHttpResourceLoader()->open($location)->getContents();
+            return $this->openUrl($location)->getContents();
         }
         $path = $this->resolveFile($location);
         if (!is_file($path)) {

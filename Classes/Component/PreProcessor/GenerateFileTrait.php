@@ -16,11 +16,15 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\LoggingTrait;
+use CPSIT\ImportExportCore\Messaging\Message;
+use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use Psr\Http\Message\StreamInterface;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -34,6 +38,11 @@ trait GenerateFileTrait
     use ResourceStorageTrait;
     use ResourceTrait;
     use LoggingTrait;
+
+    /**
+     * Message ID of the warning that a URL cannot be loaded
+     */
+    public const int WARNING_URL_NOT_LOADED = 1_795_300_501;
 
     protected FilePathFactory $filePathFactory;
 
@@ -60,10 +69,12 @@ trait GenerateFileTrait
      * Copies a source file or URL to a target path in the storage.
      *
      * The source must be an allowed file (see `Typo3PathResolver`) or a URL
-     * of an allowed host. The target file name must have an allowed file type.
+     * of an allowed host. URLs are loaded with the resource loader of the
+     * core (see `copyUrl()`). The target file name must have an allowed file
+     * type.
      *
      * @throws \CPSIT\ImportExportCore\Exception\InvalidArgumentException if the source file or the target file type is not allowed
-     * @throws \CPSIT\ImportExportCore\Exception\MissingResourceException if the source URL is not allowed
+     * @throws MissingResourceException if the source URL is not allowed
      */
     protected function copyFile(string $sourceFilePath, string $targetPath): bool
     {
@@ -71,21 +82,89 @@ trait GenerateFileTrait
         if ($absoluteTargetPath === '') {
             return false;
         }
+        if (ResourceAccess::isUrl($sourceFilePath)) {
+            return $this->copyUrl($sourceFilePath, $absoluteTargetPath);
+        }
 
         return @copy($this->resolveSourceFile($sourceFilePath), $absoluteTargetPath);
     }
 
     /**
-     * @return string absolute path of an allowed file, or an allowed URL
+     * Writes the contents of a URL to a file.
+     *
+     * The URL is loaded with the HTTP resource loader of the core and the HTTP
+     * client of TYPO3: redirects are followed by the loader and checked like
+     * the URL (scheme, allowed host). The content is written to a temporary
+     * file in the target directory, which then replaces the target file.
+     * Returns false if the URL cannot be loaded (logged as warning) or the
+     * file cannot be written; the target file is not changed then.
+     *
+     * @throws MissingResourceException if the URL is not an http(s) URL or the host of the URL or of a redirect is not allowed
+     */
+    protected function copyUrl(string $url, string $absoluteTargetPath): bool
+    {
+        $this->getResourceAccess()->assertUrlAllowed($url);
+        try {
+            $stream = $this->getResourceAccess()->openUrl($url);
+        } catch (MissingResourceException $exception) {
+            if ($exception->getCode() === HttpResourceLoader::ERROR_HOST_NOT_ALLOWED) {
+                throw $exception;
+            }
+            $this->logMessage(
+                'URL not loaded',
+                $exception->getMessage(),
+                Message::SEVERITY_WARNING,
+                self::WARNING_URL_NOT_LOADED
+            );
+
+            return false;
+        }
+
+        $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
+        try {
+            $handle = @fopen($temporaryPath, 'xb');
+            if ($handle === false) {
+                return false;
+            }
+            $written = $this->writeStream($stream, $handle);
+            if (!fclose($handle) || !$written || !@rename($temporaryPath, $absoluteTargetPath)) {
+                @unlink($temporaryPath);
+
+                return false;
+            }
+
+            return true;
+        } finally {
+            $stream->close();
+        }
+    }
+
+    /**
+     * @param resource $handle
+     * @return bool false if the stream cannot be read or the file cannot be written
+     */
+    private function writeStream(StreamInterface $stream, $handle): bool
+    {
+        try {
+            while (!$stream->eof()) {
+                $chunk = $stream->read(8192);
+                if (fwrite($handle, $chunk) !== \strlen($chunk)) {
+                    return false;
+                }
+            }
+        } catch (\RuntimeException) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return string absolute path of an allowed file
+     * @throws \CPSIT\ImportExportCore\Exception\InvalidArgumentException if the file is not allowed
      */
     protected function resolveSourceFile(string $sourceFilePath): string
     {
-        if (ResourceAccess::isUrl($sourceFilePath)) {
-            $this->getResourceAccess()->assertUrlAllowed($sourceFilePath);
-
-            return $sourceFilePath;
-        }
-
         return $this->getResourceAccess()->resolveFile($sourceFilePath);
     }
 
