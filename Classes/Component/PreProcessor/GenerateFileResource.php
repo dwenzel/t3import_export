@@ -77,7 +77,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
 
         $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
-        if (!@copy($sourceFilePath, $this->getAbsoluteFilePath($targetPath))) {
+        if (!$this->copySourceFile((string)$sourceFilePath, (string)$this->getAbsoluteFilePath($targetPath))) {
             return null;
         }
 

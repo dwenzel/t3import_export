@@ -10,6 +10,7 @@ Available PreProcessors:
 * [AddArrays](./PreProcessors/ADD_ARRAYS.md)
 * [Clean](./PreProcessors/CLEAN.md)
 * [ConcatenateFields](./PreProcessors/CONCATENATE_FIELDS.md)
+* [GenerateFileResource, GenerateUploadFile](./PreProcessors/GENERATE_FILE.md)
 * [ImplodeArray](./PreProcessors/IMPLODE_ARRAY.md)
 * [LookUpDB](./PreProcessors/LOOK_UP_DB.md)
 * [MapFields](./PreProcessors/MAP_FIELDS.md)
