@@ -176,6 +176,10 @@ import:
               - {rule: copy, field: bodytext, from: content}
               - {rule: copy, field: author, from: author_name}
               - {rule: copy, field: datetime, from: publish_date}
+        - class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
+          config:
+            values:
+              pid: 42
         # parses the date with strtotime()
         - class: "CPSIT\\ImportExportCore\\Processor\\StringToTimePreProcessor"
           config:
@@ -187,7 +191,7 @@ import:
         config:
           table: "tx_news_domain_model_news"
 
-      # Post-processing
+      # Post-processing (RecreateSlug needs the field pid)
       postProcessors:
         - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
           config:
@@ -280,7 +284,8 @@ The extension validates the configuration of tasks and sets:
 5. **Sets**: A set that refers to an undefined task throws an
    `InvalidConfigurationException`
 
-There is no schema for the YAML files; unknown keys are ignored.
+There is no schema for the YAML files. Most components ignore unknown keys;
+some reject them, e.g. the rules of `ValueRulesPreProcessor`.
 
 ## Environment-Specific Configuration
 
@@ -342,8 +347,10 @@ import:
    directories, URLs are loaded only from the allowed hosts, see
    [Files](./Persistence/Files.md)
 2. **Database Access**: Limit database permissions for import/export operations;
-   SQL in options (`where` of `DataSourceDB`, `DeleteFromTable`, `LookUpDB`)
-   is used as it is, so configurations must come from trusted sources
+   SQL in options (`where` of `DeleteFromTable` and `UpdateTable`, `condition`
+   of `LookUpDB`, and the deprecated `where` string, `join` and `groupBy` of
+   `DataSourceDB`) is used as it is, so configurations must come from trusted
+   sources
 3. **Validation**: Always validate external data before processing
 4. **Logging**: Enable appropriate logging for audit trails
 

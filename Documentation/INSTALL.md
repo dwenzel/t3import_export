@@ -205,12 +205,11 @@ See [Persistence](./Persistence.md#migrating-the-queue-items-of-earlier-versions
 The legacy table stays until 5.0. Records read from the queue no longer
 contain `uid`, see [Deprecations](./DEPRECATIONS.md#queue).
 
-### From Version 1.x to 2.x
-1. **Backup Configuration**: Save the current configuration
-2. **Update Composer**: `composer update cpsit/t3import_export`
-3. **Review Breaking Changes**: Check CHANGELOG.md for breaking changes
-4. **Update Configuration**: Migrate configuration to new format if needed
-5. **Test**: Verify all tasks work as expected
+### Earlier versions
+For updates between earlier major versions (e.g. 1.x to 2.x, 2.x to 3.x),
+see the sections of [CHANGELOG.md](../CHANGELOG.md) and
+[Deprecations](./DEPRECATIONS.md). Update one major version at a time and
+check the tasks after each step.
 
 ### Database Schema Updates
 After an update, create new tables and columns:
@@ -238,6 +237,9 @@ DROP TABLE IF EXISTS tx_t3importexport_domain_model_queueitem;
 
 -- Remove the ID map
 DROP TABLE IF EXISTS tx_t3importexport_id_map;
+
+-- Remove the export targets
+DROP TABLE IF EXISTS tx_t3importexport_domain_model_exporttarget;
 ```
 
 ## Sources and Support

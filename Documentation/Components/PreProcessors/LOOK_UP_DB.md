@@ -39,6 +39,8 @@ preProcessors:
 | `select.fields` | Columns to read, comma separated, default `*` |
 | `select.where` | Constraints `AND`, `OR` and `IN`, see below |
 | `select.groupBy`, `select.orderBy`, `select.limit` | SQL parts of the query |
+| `select.alias`, `select.join` | Alias of `select.table`, and an inner join with `table`, `alias` and `condition` (SQL) |
+| `select.type` | `select` (default) or `selectJoin`; `selectJoin` adds a left join from `select.leftJoin` with `fromAlias` (alias of `select.table`), `table`, `alias` and `condition` (SQL) |
 | `select.singleRow` | Use only the first row; its mapped columns are set in the record itself |
 | `fields.<column>.mapTo` | Field that gets the value of the column |
 | `childRecords` | Field with a list of child records; the lookup is done for each child record instead of the record |

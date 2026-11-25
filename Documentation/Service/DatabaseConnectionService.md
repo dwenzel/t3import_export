@@ -24,13 +24,13 @@ components select a connection with `config.connection` (`DataSourceDB`,
 
 ## Example
 
-The database connection can be used via identifier. Since 4.0 this is
-deprecated for `DataSourceDB`; use `config.connection` (see
-[DataSourceDB](../Persistence/DataSourceDB.md#database-connection)).
-`DataTargetDB` never used `identifier`; since 4.0 `config.identifier`
-writes a message to the deprecation log, and `config.connection` selects
-the connection (see
-[DataTargetDB](../Persistence/DataTargetDB.md#database-connection)):
+Select the connection with `config.connection` (see
+[DataSourceDB](../Persistence/DataSourceDB.md#database-connection) and
+[DataTargetDB](../Persistence/DataTargetDB.md#database-connection)).
+Selecting it with `identifier` next to `class` is deprecated for
+`DataSourceDB` since 4.0; `config.identifier` of `DataTargetDB` never had an
+effect.
+
 ```yaml
 import:
   tasks:
@@ -38,13 +38,19 @@ import:
       # [...]
       source:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
-        identifier: xyz
         config:
           table: seminars
-          fields: id,title_de,title_en,title_2_en,title_2_de,description_de,description_en,type,season_begin
-          orderBy: id
+          connection: xyz
+          fields: [id, title_de, title_en, description_de, description_en, type, season_begin]
           where:
-            expression: "'published=1 AND edited >= \\'' ~ date('Y-m-d', strtotime('midnight')) ~ '\\''"
+            published: 1
+          # edited today or later
+          filter:
+            field: edited
+            op: '>='
+            value: {date: 'P0D', from: today, format: date}
+          orderBy:
+            id: ASC
           limit: 5000
 ```
-For the default connection, the identifier can be omitted.
+Without `connection`, the connection of the table mapping is used.
