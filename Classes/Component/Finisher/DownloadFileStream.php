@@ -40,16 +40,13 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface
     }
 
     /**
-     * Returns the path of the file in the info of the result. Targets set a
-     * file info object or a path.
+     * Returns the path of the file in the info of the result. Only file info
+     * objects are accepted, as set by DataTargetFileStream.
      */
     protected function getFilePath(mixed $info): ?string
     {
         if ($info instanceof \SplFileInfo) {
             return $info->getPathname();
-        }
-        if (is_string($info) && $info !== '') {
-            return $info;
         }
 
         return null;

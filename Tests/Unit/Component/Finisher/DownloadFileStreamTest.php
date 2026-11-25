@@ -64,12 +64,12 @@ class DownloadFileStreamTest extends TestCase
     }
 
     #[Test]
-    public function processReturnsFalseIfFileDoesNotExist(): void
+    public function processReturnsFalseIfInfoIsNoFileInfo(): void
     {
         $subject = $this->createSubject();
         $records = [];
         $result = new TaskResult();
-        $result->setInfo($this->file . '.missing');
+        $result->setInfo($this->file);
 
         self::assertFalse($subject->process([], $records, $result));
         self::assertSame([], $subject->headers);
@@ -103,7 +103,7 @@ class DownloadFileStreamTest extends TestCase
         $subject = $this->createSubject();
         $records = [];
         $result = new TaskResult();
-        $result->setInfo($this->file);
+        $result->setInfo(new FileInfo($this->file));
 
         $this->expectOutputString('file content');
         try {
@@ -133,7 +133,7 @@ class DownloadFileStreamTest extends TestCase
         $subject = $this->createSubject();
         $records = [];
         $result = new TaskResult();
-        $result->setInfo($this->file);
+        $result->setInfo(new FileInfo($this->file));
 
         $this->expectOutputString('file content');
         try {
@@ -170,24 +170,5 @@ class DownloadFileStreamTest extends TestCase
 
         self::assertFalse($subject->process([], $records, $result));
         self::assertSame([], $subject->headers);
-    }
-
-    #[Test]
-    public function processSendsFileOfFileInfo(): void
-    {
-        $subject = $this->createSubject();
-        $records = [];
-        $result = new TaskResult();
-        $result->setInfo(new FileInfo($this->file));
-
-        $this->expectOutputString('file content');
-        try {
-            $subject->process(['filename' => 'export'], $records, $result);
-            self::fail('The request was not terminated');
-        } catch (\LogicException $exception) {
-            self::assertSame(1763800000, $exception->getCode());
-        }
-
-        self::assertContains('Content-Length: 12', $subject->headers);
     }
 }
