@@ -31,6 +31,17 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   configuration files (e.g. `.htaccess`, `.user.ini`), names with a colon and
   names ending in a dot or space are refused
   ([#199](https://github.com/dwenzel/t3import_export/pull/199))
+* `GenerateFileResource` and `GenerateUploadFile` read local source files
+  only inside allowed directories (default: `fileadmin/` of the public
+  directory and `import/` of the `var` directory, configurable with
+  `fileSourceDirectories`) or, for `EXT:` paths, inside the extension. `..`
+  segments, control characters and stream wrappers are refused; symbolic links
+  are resolved. URLs are loaded only with http(s) from hosts in
+  `allowedHosts` (default: none), redirects are checked the same way, and the
+  value of a record cannot change the host of a URL `sourcePath`. SVG files
+  are sanitized. Existing configurations which copy files from other
+  directories or from URLs need the configuration, see
+  [GenerateFileResource](Documentation/Components/PreProcessors/GENERATE_FILE.md#source-files)
 
 ## 3.3.0 - 2026-11-22
 

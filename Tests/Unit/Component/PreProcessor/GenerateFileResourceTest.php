@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\T3importExport\Resource\FileSourceGuard;
 use CPSIT\T3importExport\Resource\FileTargetGuard;
 use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
@@ -31,6 +32,8 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\FileIndexRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -41,6 +44,8 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
  */
 class GenerateFileResourceTest extends TestCase
 {
+    protected string $sourceDirectory = '';
+
     /**
      * @var GenerateFileResource |MockObject
      */
@@ -71,6 +76,11 @@ class GenerateFileResourceTest extends TestCase
      */
     protected $storageRepository;
 
+    protected function tearDown(): void
+    {
+        GeneralUtility::rmdir($this->sourceDirectory, true);
+    }
+
     /**
      * set up subject
      * @throws vfsStreamException
@@ -78,6 +88,8 @@ class GenerateFileResourceTest extends TestCase
      */
     protected function setUp(): void
     {
+        $this->sourceDirectory = Environment::getPublicPath() . '/typo3temp/var/tests/generate-file-' . uniqid('', true);
+        GeneralUtility::mkdir_deep($this->sourceDirectory);
         $this->mockFileIndexRepository()
             ->mockResourceStorage()
             ->mockFilePathFactory()
@@ -96,6 +108,7 @@ class GenerateFileResourceTest extends TestCase
             )
             ->onlyMethods(['logError', 'getAbsoluteFilePath'])
             ->getMock();
+        $this->subject->setFileSourceGuard(new FileSourceGuard([$this->sourceDirectory], []));
 
         // Set protected properties via reflection
         $reflection = new \ReflectionClass($this->subject);
@@ -200,7 +213,8 @@ class GenerateFileResourceTest extends TestCase
         $sourceFileContent = 'source file content';
         $sourceDirectory = 'sourceDir';
         $sourceFileName = 'foo.csv';
-        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        $sourceFilePath = $this->sourceDirectory . '/' . $sourceFileName;
+        file_put_contents($sourceFilePath, $sourceFileContent);
         $targetDirectory = 'targetDir';
 
         $configuration = [
