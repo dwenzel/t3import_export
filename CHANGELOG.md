@@ -42,6 +42,7 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   are sanitized. Existing configurations which copy files from other
   directories or from URLs need the configuration, see
   [GenerateFileResource](Documentation/Components/PreProcessors/GENERATE_FILE.md#source-files)
+  ([#202](https://github.com/dwenzel/t3import_export/pull/202))
 
 ## 3.3.0 - 2026-11-22
 
