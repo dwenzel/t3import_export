@@ -37,8 +37,8 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *
  * File names matching `$GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern']`
  * or the default pattern of TYPO3, server configuration files (e.g.
- * `.htaccess`, `.user.ini`), names with a colon and names ending in a dot or
- * space are never written. Paths with `..` segments and stream wrappers (`scheme://`) are
+ * `.htaccess`, `.user.ini`), names with a colon, `?` or `#` and names ending in
+ * a dot or space are never written. Paths with `..` segments and stream wrappers (`scheme://`) are
  * rejected. Symbolic links are resolved: the real path must be inside the real
  * path of an allowed directory, so an allowed directory may itself be a link.
  */
@@ -155,7 +155,7 @@ final readonly class FileTargetGuard
      * Checks a file name against the configured fileDenyPattern of TYPO3
      * and against its default pattern (so that an empty or weaker
      * configured pattern does not disable the check), and denies server
-     * configuration files, colons (alternate data streams) and names
+     * configuration files, colons (alternate data streams), `?` and `#` and names
      * ending in a dot or space. For files of any type, e.g. copied images.
      *
      * @throws InvalidArgumentException if the file name is not allowed
@@ -165,6 +165,7 @@ final readonly class FileTargetGuard
         if (
             $fileName === ''
             || str_contains($fileName, ':')
+            || strpbrk($fileName, '?#') !== false
             || preg_match('/[. ]$/', $fileName) === 1
             || !$this->fileNameValidator->isValid($fileName)
             || !$this->defaultFileNameValidator->isValid($fileName)

@@ -25,7 +25,8 @@ The file is written only if
 * its extension is one of the allowed data file types, by default `csv`, `tsv`,
   `txt`, `xml`, `json`, `yaml` and `yml`, and its name does not match the
   `fileDenyPattern` of TYPO3 (`$GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern']`)
-  or its default pattern, contains no colon and does not end in a dot or space,
+  or its default pattern, contains no colon, `?` or `#` and does not end in a dot
+  or space,
 * it is inside one of the allowed directories, by default `fileadmin/` and
   `typo3temp/` of the public directory and the `var` directory of TYPO3.
 
