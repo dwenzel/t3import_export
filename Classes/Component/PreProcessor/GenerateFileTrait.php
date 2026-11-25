@@ -16,8 +16,10 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
+use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -29,6 +31,7 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  */
 trait GenerateFileTrait
 {
+    use FileTargetGuardTrait;
     use ResourceStorageTrait;
     use LoggingTrait;
 
@@ -139,12 +142,17 @@ trait GenerateFileTrait
     }
 
     /**
+     * The file name of the target is the one of the source. It must not
+     * match the fileDenyPattern of TYPO3 (the file is copied without FAL).
+     *
      * @param array $configuration
      * @param string $sourcePath
      * @return string
+     * @throws InvalidArgumentException if the file name is not allowed
      */
     protected function getTargetPath($configuration, $sourcePath)
     {
+        $this->getFileTargetGuard()->assertFileName(PathUtility::basename((string)$sourcePath));
         $storageConfiguration = $this->resourceStorage->getConfiguration();
 
         $targetDirectoryPath = $this->filePathFactory->createFromParts(

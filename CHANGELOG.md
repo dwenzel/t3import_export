@@ -16,6 +16,18 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   scheduler any more; it writes only files with the extension `.yaml` or
   `.yml` in an existing directory (no symbolic links, no `..` segments, no
   control characters) and does not read or write files with a stream wrapper
+* `DataTargetCSV` writes only files with an allowed data file type (default:
+  `csv`, `tsv`, `txt`, `xml`, `json`, `yaml`, `yml`) inside an allowed
+  directory (default: `fileadmin/` and `typo3temp/` of the public directory and
+  the `var` directory). Both lists can be configured. Names matching the
+  `fileDenyPattern` of TYPO3, `EXT:` paths, `..` segments and stream wrappers
+  are refused; symbolic links are resolved. This changes the behaviour of
+  existing configurations which write to other directories or file types, see
+  [DataTargetCSV](Documentation/Persistence/DataTargetCSV.md#written-files)
+* `GenerateFileResource` and `GenerateUploadFile` copy only files whose names
+  do not match the `fileDenyPattern` of TYPO3; the target names of `WriteFile`
+  and `MoveFile` are checked the same way. Server configuration files (e.g.
+  `.htaccess`, `.user.ini`) are refused
 
 ## 3.3.0 - 2026-11-22
 

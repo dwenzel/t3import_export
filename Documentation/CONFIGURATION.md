@@ -358,6 +358,10 @@ import:
 ### Security Considerations
 
 1. **File Paths**: Use absolute paths or EXT: syntax for security
+   Files written by `DataTargetCSV` must have an allowed data file type and must
+   be inside an allowed directory, see [DataTargetCSV](Persistence/DataTargetCSV.md#written-files).
+   Files copied by `GenerateFileResource` and `GenerateUploadFile` and the target
+   names of `WriteFile` and `MoveFile` must not match the `fileDenyPattern` of TYPO3.
 2. **Database Access**: Limit database permissions for import/export operations
 3. **Validation**: Always validate external data before processing
 4. **Logging**: Enable appropriate logging for audit trails

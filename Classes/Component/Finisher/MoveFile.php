@@ -23,9 +23,11 @@ namespace CPSIT\T3importExport\Component\Finisher;
  ***************************************************************/
 
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
+use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -37,6 +39,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  */
 class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInterface
 {
+    use FileTargetGuardTrait;
     use LoggingTrait;
     use ResourceStorageTrait;
 
@@ -178,6 +181,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
      * Default is renameNewFile (according to TYPO3 conventions)
      * @param object|array $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
+     * @throws InvalidArgumentException if the file name of the target is not allowed (see FileTargetGuard)
      * @noinspection ReferencingObjectsInspection
      */
     public function process(
@@ -189,6 +193,7 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
         $targetStorage = $defaultStorage;
         $sourceStorage = $defaultStorage;
         $sourceFileName = $configuration['source']['name'];
+        $this->getFileTargetGuard()->assertFileName((string)$configuration['target']['name']);
 
         if (!empty($configuration['source']['storage'])) {
             $sourceStorage = $this->resourceFactory->getStorageObject((int)$configuration['source']['storage']);

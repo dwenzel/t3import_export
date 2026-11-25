@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Persistence\DataTargetCSV;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -152,5 +153,48 @@ class DataTargetCSVTest extends TestCase
     {
         self::assertNull($this->subject->persist(['uid' => 1], ['file' => $this->fileName]));
         self::assertFileDoesNotExist($this->absoluteFileName);
+    }
+
+    public static function deniedFileDataProvider(): iterable
+    {
+        yield 'php file' => ['typo3temp/var/tests/data-target-csv.php'];
+        yield 'phtml file' => ['typo3temp/var/tests/data-target-csv.phtml'];
+        yield 'php before csv' => ['typo3temp/var/tests/data-target-csv.php.csv'];
+        yield 'htaccess' => ['typo3temp/var/tests/.htaccess'];
+        yield 'user.ini' => ['typo3temp/var/tests/.user.ini'];
+        yield 'public directory' => ['data-target-csv.csv'];
+        yield 'dot dot segment' => ['typo3temp/var/tests/../../data-target-csv.csv'];
+        yield 'stream wrapper' => ['php://filter/resource=typo3temp/var/tests/data-target-csv.csv'];
+    }
+
+    #[Test]
+    #[DataProvider('deniedFileDataProvider')]
+    public function persistAllDoesNotWriteDeniedFiles(string $fileName): void
+    {
+        $absoluteFileName = GeneralUtility::getFileAbsFileName($fileName);
+        $exception = null;
+        try {
+            $this->subject->persistAll($this->createResult([['uid' => 1]]), ['file' => $fileName]);
+        } catch (InvalidArgumentException $exception) {
+        }
+        self::assertInstanceOf(InvalidArgumentException::class, $exception);
+        if ($absoluteFileName !== '') {
+            self::assertFileDoesNotExist($absoluteFileName);
+        }
+    }
+
+    #[Test]
+    public function persistAllWritesFileInFileadmin(): void
+    {
+        $fileName = 'fileadmin/data-target-csv-' . uniqid('', true) . '.csv';
+        $absoluteFileName = GeneralUtility::getFileAbsFileName($fileName);
+        GeneralUtility::mkdir_deep(dirname($absoluteFileName));
+        try {
+            $this->subject->persistAll($this->createResult([['uid' => 1]]), ['file' => $fileName]);
+
+            self::assertSame(self::BOM . "1\n", file_get_contents($absoluteFileName));
+        } finally {
+            @unlink($absoluteFileName);
+        }
     }
 }

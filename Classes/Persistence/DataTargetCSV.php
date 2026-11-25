@@ -20,8 +20,10 @@ namespace CPSIT\T3importExport\Persistence;
 use CPSIT\ImportExportCore\ConfigurableInterface;
 use CPSIT\ImportExportCore\ConfigurableTrait;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\IdentifiableTrait;
 use CPSIT\ImportExportCore\Persistence\DataTargetInterface;
+use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -34,6 +36,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
     use IdentifiableTrait;
     use ConfigurableTrait;
     use ResourceTrait;
+    use FileTargetGuardTrait;
 
     final public const string TEMP_DIRECTORY = 'typo3temp/tx_importexport_';
 
@@ -68,6 +71,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
 
     /**
      * @return array|array[]|mixed
+     * @throws InvalidArgumentException if the file cannot be written there (see FileTargetGuard)
      */
     public function persistAll($result = null, ?array $configuration = null)
     {
@@ -97,8 +101,7 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         $result->rewind();
         $fields = array_keys($result->current());
 
-        $fileName = $configuration['file'];
-        $absFileName = GeneralUtility::getFileAbsFileName($fileName);
+        $absFileName = $this->getFileTargetGuard()->resolveDataFile((string)($configuration['file'] ?? ''));
         touch($absFileName);
 
         $output = fopen($absFileName, 'r+');

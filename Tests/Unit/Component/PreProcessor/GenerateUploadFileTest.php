@@ -19,6 +19,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\T3importExport\Resource\FileTargetGuard;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
 use CPSIT\T3importExport\Factory\FilePathFactory;
 use org\bovigo\vfs\vfsStream;
@@ -222,5 +224,28 @@ class GenerateUploadFileTest extends TestCase
             $targetDirectory => [],
         ];
         return [$rootDirectory, $sourceFileName, $sourceFilePath, $targetDirectory, $configuration, $fileStructure];
+    }
+
+    #[Test]
+    public function getFileDoesNotCopyFilesWithDeniedNames(): void
+    {
+        vfsStreamWrapper::register();
+        vfsStream::setup('root', null, [
+            'sourceDir' => ['foo.php' => '<?php'],
+            'targetDir' => [],
+        ]);
+        $this->resourceStorage->method('getConfiguration')
+            ->willReturn(['basePath' => vfsStream::url('root')]);
+        $this->filePathFactory->method('createFromParts')
+            ->willReturn(vfsStream::url('root') . '/targetDir/');
+        $this->subject->method('getAbsoluteFilePath')->willReturnArgument(0);
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], vfsStream::url('root') . '/sourceDir/foo.php');
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertFileDoesNotExist(vfsStream::url('root') . '/targetDir/foo.php');
     }
 }
