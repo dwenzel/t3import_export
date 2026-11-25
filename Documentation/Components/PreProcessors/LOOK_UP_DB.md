@@ -45,6 +45,12 @@ preProcessors:
 | `fields.<column>.mapTo` | Field that gets the value of the column |
 | `childRecords` | Field with a list of child records; the lookup is done for each child record instead of the record |
 
+`select.alias` is the alias of `select.table` only with the type `select`.
+With `selectJoin`, the alias of `select.table` is `leftJoin.fromAlias`, while
+`join` still joins from `select.alias` (or the table name). If you combine
+`selectJoin` with `join`, set `select.alias` to the value of
+`leftJoin.fromAlias`.
+
 `condition` of `AND` and `OR` is SQL; the value of the record field `value`
 (with an optional `prefix`) is quoted and appended to it. The query uses the
 connection that `select.table` is mapped to and does not apply the

@@ -347,9 +347,9 @@ import:
    directories, URLs are loaded only from the allowed hosts, see
    [Files](./Persistence/Files.md)
 2. **Database Access**: Limit database permissions for import/export operations;
-   SQL in options (`where` of `DeleteFromTable` and `UpdateTable`, `condition`
-   of `LookUpDB`, and the deprecated `where` string, `join` and `groupBy` of
-   `DataSourceDB`) is used as it is, so configurations must come from trusted
+   SQL in options (e.g. `where` of `DeleteFromTable` and `UpdateTable`,
+   `condition` of `LookUpDB`, and the deprecated `where` string, `join` and
+   `groupBy` of `DataSourceDB`) is used as it is, so configurations must come from trusted
    sources
 3. **Validation**: Always validate external data before processing
 4. **Logging**: Enable appropriate logging for audit trails

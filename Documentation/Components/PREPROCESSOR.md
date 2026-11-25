@@ -9,11 +9,15 @@ PreProcessors are optional. You may configure as many as you need.
 Available PreProcessors:
 * [EvaluateExpressionsPreProcessor](./PreProcessors/EVALUATE_EXPRESSIONS.md) (core)
 * [LookUpDB](./PreProcessors/LOOK_UP_DB.md)
-* `GenerateFileResource`: copies the files named in a field (paths or URLs)
-  into a storage and sets the field to the file objects. Not documented yet;
-  for paths and URLs see [Files](../Persistence/Files.md#other-components)
-* `GenerateUploadFile`: like `GenerateFileResource`, but sets the field to
-  the path of the copied file
+* `GenerateFileResource`: reads the file paths or URLs in `sourceField`,
+  copies each file into the directory `targetDirectoryPath` of the storage
+  `storageId` (a file with the same name that is already there is used
+  instead) and sets `targetField` to the file object, or with `multipleRows`
+  to a list of file objects. Not documented yet; for paths and URLs see
+  [Files](../Persistence/Files.md#other-components)
+* `GenerateUploadFile`: copies the files like `GenerateFileResource` and sets
+  `targetField` to the path of the copied file (base path of the storage,
+  `targetDirectoryPath` and file name), or `''` if it could not be copied
 * `TargetIdPreProcessor`, `ResolveReferencePreProcessor` (core): see
   [ID map and state components](../Persistence/IdMap.md)
 * `RelationListPreProcessor` (core): see [Persistence](../Persistence.md#database-components-of-the-core)

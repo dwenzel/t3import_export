@@ -207,9 +207,10 @@ contain `uid`, see [Deprecations](./DEPRECATIONS.md#queue).
 
 ### Earlier versions
 For updates between earlier major versions (e.g. 1.x to 2.x, 2.x to 3.x),
-see the sections of [CHANGELOG.md](../CHANGELOG.md) and
-[Deprecations](./DEPRECATIONS.md). Update one major version at a time and
-check the tasks after each step.
+see the commit log of the versions up to 3.2.0 in [ChangeLog](../ChangeLog),
+and [CHANGELOG.md](../CHANGELOG.md) and [Deprecations](./DEPRECATIONS.md) for
+later versions. Update one major version at a time and check the tasks after
+each step.
 
 ### Database Schema Updates
 After an update, create new tables and columns:
