@@ -79,7 +79,7 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
      */
     public function getFile($configuration, $sourceFilePath)
     {
-        $filePath = PathUtility::sanitizeTrailingSeparator($configuration['targetDirectoryPath'], DIRECTORY_SEPARATOR) . PathUtility::basename($sourceFilePath);
+        $filePath = PathUtility::sanitizeTrailingSeparator($configuration['targetDirectoryPath'], DIRECTORY_SEPARATOR) . $this->getSourceFileName((string)$sourceFilePath);
 
         if ($this->resourceStorage->hasFile($filePath)
         ) {
@@ -88,7 +88,11 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
 
         $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
-        if (!@copy($sourceFilePath, $this->getAbsoluteFilePath($targetPath))) {
+        if (!$this->copySourceFile(
+            (string)$sourceFilePath,
+            (string)$this->getAbsoluteFilePath($targetPath),
+            isset($configuration['sourcePath']) ? (string)$configuration['sourcePath'] : null
+        )) {
             return null;
         }
 
