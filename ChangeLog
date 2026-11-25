@@ -1,3 +1,11 @@
+2026-11-25         [RELEASE] Release of t3import_export 1.1.3 (Dirk Wenzel)
+2026-11-25 b889db5 [TASK] Update ext_emconf for 1.1.3 (Dirk Wenzel)
+2026-11-25 f3717e0 [SECURITY] Document file name rules of file targets (Dirk Wenzel)
+2026-11-25 b9916fd [SECURITY] Tighten source checks of generated files (Dirk Wenzel)
+2026-11-25 8a925f0 [SECURITY] Restrict source files of generated files (Dirk Wenzel)
+2026-11-25 3c7770b [SECURITY] Tighten file name checks of file targets (Dirk Wenzel)
+2026-11-25 d24bcea [SECURITY] Refuse executable file names for file targets (Dirk Wenzel)
+
 2026-11-22         [RELEASE] Release of t3import_export 1.1.2 (Dirk Wenzel)
 2026-11-22 dd75135 [TASK] Update ext_emconf for 1.1.2 (Dirk Wenzel)
 2026-11-22 23d2c86 [DOC] ValidateXML: describe the DTD validation of the finisher (Dirk Wenzel)
