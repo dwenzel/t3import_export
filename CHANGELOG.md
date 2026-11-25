@@ -10,6 +10,13 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ## Unreleased
 
+### Security
+
+* The command `t3import-export:convert-typoscript` is not offered by the
+  scheduler any more; it writes only files with the extension `.yaml` or
+  `.yml` in an existing directory (no symbolic links, no `..` segments, no
+  control characters) and does not read or write files with a stream wrapper
+
 ## 3.3.0 - 2026-11-22
 
 ### Security
