@@ -31,18 +31,40 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   configuration files (e.g. `.htaccess`, `.user.ini`), names with a colon and
   names ending in a dot or space are refused
   ([#199](https://github.com/dwenzel/t3import_export/pull/199))
-* `GenerateFileResource` and `GenerateUploadFile` read local source files
-  only inside allowed directories (default: `fileadmin/` of the public
-  directory and `import/` of the `var` directory, configurable with
-  `fileSourceDirectories`) or, for `EXT:` paths, inside the extension. `..`
-  segments, control characters and stream wrappers are refused; symbolic links
-  are resolved. URLs are loaded only with http(s) from hosts in
-  `allowedHosts` (default: none), redirects are checked the same way, and the
-  value of a record cannot change the host of a URL `sourcePath`. SVG files
-  are sanitized. Existing configurations which copy files from other
-  directories or from URLs need the configuration, see
-  [GenerateFileResource](Documentation/Components/PreProcessors/GENERATE_FILE.md#source-files)
-  ([#202](https://github.com/dwenzel/t3import_export/pull/202))
+* `GenerateFileResource` and `GenerateUploadFile` check the source of the
+  files they copy
+  ([#202](https://github.com/dwenzel/t3import_export/pull/202)). Existing
+  configurations which copy files from other directories or from URLs need
+  configuration, see
+  [GenerateFileResource](Documentation/Components/PreProcessors/GENERATE_FILE.md#source-files):
+  * Local files are read only inside allowed directories (default:
+    `fileadmin/` of the public directory and `import/` of the `var`
+    directory). A list in
+    `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileSourceDirectories']`
+    replaces the default list, it does not extend it. `..` segments, control
+    characters and stream wrappers are refused; symbolic links are resolved.
+  * `EXT:` paths are allowed only as `sourcePath` of the configuration; the
+    file must be below that directory inside the extension. A value of a
+    record which is an `EXT:` path is refused.
+  * URLs are loaded only with http(s) from hosts listed in
+    `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts']`
+    (default: none, so URLs are refused until hosts are listed). An entry
+    `host` allows only the default port of the scheme (80, 443), an entry
+    `host:port` only that port; `*.example.org` allows subdomains. `*`
+    allows every host and port, including internal addresses. Host names are
+    not resolved or checked against IP ranges, so do not list names which
+    resolve to internal addresses.
+  * Redirects are followed by the extension, at most 5, each checked like the
+    URL; no redirect from https to http.
+  * If `sourcePath` is a URL, the value of a record cannot change its scheme,
+    host or port. The path of a URL `sourcePath` is not a boundary.
+  * A source which is not allowed throws an exception (codes 1795400201 to
+    1795400204) and stops the task, possibly after earlier records were
+    imported.
+  * The target name is the last segment of the path (for URLs without query
+    and fragment); names with `?` or `#` and `.svgz` files are refused. SVG
+    files (by extension or MIME type of the content) are sanitized with the
+    SVG sanitizer of TYPO3. HTML and XML files are not sanitized.
 
 ## 3.3.0 - 2026-11-22
 

@@ -367,8 +367,9 @@ import:
    `fileDenyPattern` of TYPO3 or its default pattern, must not contain a colon
    and must not end in a dot or space. Their source files must be inside an
    allowed directory (default: `fileadmin/` of the public directory and
-   `import/` of the `var` directory) or be http(s) URLs of an allowed host (no
-   host by default). See [GenerateFileResource](Components/PreProcessors/GENERATE_FILE.md#source-files).
+   `import/` of the `var` directory), below an `EXT:` path configured as
+   `sourcePath`, or be http(s) URLs of an allowed host and port (no host by
+   default). See [GenerateFileResource](Components/PreProcessors/GENERATE_FILE.md#source-files).
 2. **Database Access**: Limit database permissions for import/export operations
 3. **Validation**: Always validate external data before processing
 4. **Logging**: Enable appropriate logging for audit trails

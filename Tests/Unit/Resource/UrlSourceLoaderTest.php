@@ -175,4 +175,45 @@ class UrlSourceLoaderTest extends TestCase
 
         self::assertNull($this->subject()->open('https://data.example.org/image.jpg'));
     }
+
+    #[Test]
+    public function openRejectsRedirectToOtherPort(): void
+    {
+        $this->respond([
+            'http://127.0.0.1:18081/image.jpg' => self::redirect('http://127.0.0.1:18082/image.jpg'),
+            'http://127.0.0.1:18082/image.jpg' => self::ok('image'),
+        ]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_HOST_NOT_ALLOWED);
+
+        (new UrlSourceLoader($this->requestFactory, new FileSourceGuard([], ['127.0.0.1:18081'])))
+            ->open('http://127.0.0.1:18081/image.jpg');
+    }
+
+    #[Test]
+    public function openFollowsRedirectToListedPort(): void
+    {
+        $this->respond([
+            'http://127.0.0.1:18081/image.jpg' => self::redirect('http://127.0.0.1:18082/image.jpg'),
+            'http://127.0.0.1:18082/image.jpg' => self::ok('image'),
+        ]);
+
+        self::assertSame(
+            'image',
+            (string)(new UrlSourceLoader($this->requestFactory, new FileSourceGuard([], ['127.0.0.1:18081', '127.0.0.1:18082'])))
+                ->open('http://127.0.0.1:18081/image.jpg')
+        );
+    }
+
+    #[Test]
+    public function openRejectsRedirectToNonDefaultPortOfHostWithoutPort(): void
+    {
+        $this->respond([
+            'https://data.example.org/image.jpg' => self::redirect('https://data.example.org:8443/image.jpg'),
+        ]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_HOST_NOT_ALLOWED);
+
+        $this->subject()->open('https://data.example.org/image.jpg');
+    }
 }

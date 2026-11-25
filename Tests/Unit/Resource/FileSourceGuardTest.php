@@ -11,6 +11,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
+use TYPO3\CMS\Core\Package\PackageInterface;
+use TYPO3\CMS\Core\Package\PackageManager;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 #[CoversClass(FileSourceGuard::class)]
@@ -37,11 +41,12 @@ class FileSourceGuardTest extends TestCase
         );
         GeneralUtility::rmdir($this->directory, true);
         GeneralUtility::rmdir($this->outsideDirectory, true);
+        GeneralUtility::purgeInstances();
     }
 
     protected function subject(): FileSourceGuard
     {
-        return new FileSourceGuard([$this->directory], ['data.example.org', '*.cdn.example.com']);
+        return new FileSourceGuard([$this->directory], ['data.example.org', '*.cdn.example.com', 'files.example.org:8443', '127.0.0.1:18081']);
     }
 
     #[Test]
@@ -133,7 +138,10 @@ class FileSourceGuardTest extends TestCase
             self::markTestSkipped('Symbolic links cannot be created.');
         }
 
-        self::assertSame($link . '/image.jpg', (new FileSourceGuard([$link], []))->resolveFile($link . '/image.jpg'));
+        self::assertSame(
+            realpath($this->directory) . '/image.jpg',
+            (new FileSourceGuard([$link], []))->resolveFile($link . '/image.jpg')
+        );
     }
 
     public static function deniedPathDataProvider(): iterable
@@ -163,13 +171,119 @@ class FileSourceGuardTest extends TestCase
         (new FileSourceGuard())->resolveFile($path);
     }
 
-    #[Test]
-    public function resolveFileRejectsExtensionPathsIfNotAllowed(): void
+    /**
+     * The extension `my_ext` is in `$this->directory`, with the files
+     * `image.jpg`, `Import/a.csv` and `Import/prefix_a.csv`.
+     */
+    protected function mockExtension(): void
     {
+        GeneralUtility::mkdir_deep($this->directory . '/Import');
+        file_put_contents($this->directory . '/Import/a.csv', 'a');
+        file_put_contents($this->directory . '/Import/prefix_a.csv', 'a');
+        $package = $this->createMock(PackageInterface::class);
+        $package->method('getPackagePath')->willReturn($this->directory . '/');
+        $packageManager = $this->createMock(PackageManager::class);
+        $packageManager->method('extractPackageKeyFromPackagePath')->willReturnCallback(
+            static fn(string $path): string => explode('/', substr($path, 4))[0]
+        );
+        $packageManager->method('getPackage')->willReturnCallback(
+            static function (string $key) use ($package): PackageInterface {
+                if ($key !== 'my_ext') {
+                    throw new UnknownPackageException('unknown', 1795400299);
+                }
+
+                return $package;
+            }
+        );
+        $packageManager->method('isPackageActive')->willReturnCallback(static fn(string $key): bool => $key === 'my_ext');
+        $packageManager->method('resolvePackagePath')->willReturnCallback(
+            function (string $path): string {
+                if (!str_starts_with($path, 'EXT:my_ext/')) {
+                    throw new UnknownPackageException('unknown', 1795400299);
+                }
+
+                return $this->directory . '/' . substr($path, \strlen('EXT:my_ext/'));
+            }
+        );
+        ExtensionManagementUtility::setPackageManager($packageManager);
+        GeneralUtility::setSingletonInstance(PackageManager::class, $packageManager);
+    }
+
+    public static function extensionFileDataProvider(): iterable
+    {
+        yield 'directory' => ['EXT:my_ext/Import/', 'a.csv', '/Import/a.csv'];
+        yield 'prefix of file name' => ['EXT:my_ext/Import/prefix_', 'a.csv', '/Import/prefix_a.csv'];
+    }
+
+    #[Test]
+    #[DataProvider('extensionFileDataProvider')]
+    public function resolveFileAcceptsFileBelowExtensionSourcePath(string $sourcePath, string $value, string $expected): void
+    {
+        $this->mockExtension();
+        $guard = new FileSourceGuard([$this->outsideDirectory], []);
+
+        self::assertSame(
+            realpath($this->directory) . $expected,
+            $guard->resolveFile($guard->buildLocation($sourcePath, $value), $sourcePath)
+        );
+    }
+
+    public static function deniedExtensionPathDataProvider(): iterable
+    {
+        yield 'value without source path' => [null, 'EXT:my_ext/Import/a.csv', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'other extension as value' => [null, 'EXT:core/composer.json', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'dot dot segment' => ['EXT:my_ext/Import/', '../image.jpg', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'local source path' => ['fileadmin/', 'EXT:my_ext/image.jpg', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'unknown extension' => ['EXT:unknown/Import/', 'a.csv', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+    }
+
+    #[Test]
+    #[DataProvider('deniedExtensionPathDataProvider')]
+    public function resolveFileRejectsExtensionPaths(?string $sourcePath, string $value, int $code): void
+    {
+        $this->mockExtension();
+        $guard = new FileSourceGuard([$this->outsideDirectory], []);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode($code);
+
+        $guard->resolveFile($guard->buildLocation($sourcePath, $value), $sourcePath);
+    }
+
+    #[Test]
+    public function resolveFileRejectsExtensionPathWhichIsNotBelowSourcePath(): void
+    {
+        $this->mockExtension();
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(FileSourceGuard::ERROR_PATH_NOT_ALLOWED);
 
-        (new FileSourceGuard(null, null, false))->resolveFile('EXT:t3import_export/Resources/Public/Icons/Extension.svg');
+        (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/image.jpg', 'EXT:my_ext/Import/');
+    }
+
+    #[Test]
+    public function resolveFileRejectsSymbolicLinkLeadingOutOfSourcePath(): void
+    {
+        $this->mockExtension();
+        if (!@symlink($this->directory . '/image.jpg', $this->directory . '/Import/link.jpg')) {
+            self::markTestSkipped('Symbolic links cannot be created.');
+        }
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/Import/link.jpg', 'EXT:my_ext/Import/');
+    }
+
+    #[Test]
+    public function resolveFileRejectsSourcePathLeadingOutOfExtension(): void
+    {
+        $this->mockExtension();
+        file_put_contents($this->outsideDirectory . '/a.csv', 'a');
+        if (!@symlink($this->outsideDirectory, $this->directory . '/Link')) {
+            self::markTestSkipped('Symbolic links cannot be created.');
+        }
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/Link/a.csv', 'EXT:my_ext/Link/');
     }
 
     public static function allowedUrlDataProvider(): iterable
@@ -177,7 +291,11 @@ class FileSourceGuardTest extends TestCase
         yield 'http' => ['http://data.example.org/image.jpg'];
         yield 'https' => ['https://data.example.org/image.jpg'];
         yield 'upper case host' => ['https://DATA.example.org/image.jpg'];
-        yield 'port' => ['https://data.example.org:8443/image.jpg'];
+        yield 'default port of https' => ['https://data.example.org:443/image.jpg'];
+        yield 'default port of http' => ['http://data.example.org:80/image.jpg'];
+        yield 'configured port' => ['https://files.example.org:8443/image.jpg'];
+        yield 'configured port with http' => ['http://files.example.org:8443/image.jpg'];
+        yield 'configured port of address' => ['http://127.0.0.1:18081/image.jpg'];
         yield 'sub domain' => ['https://images.cdn.example.com/image.jpg'];
     }
 
@@ -192,10 +310,14 @@ class FileSourceGuardTest extends TestCase
     public static function urlOfDeniedHostDataProvider(): iterable
     {
         yield 'other host' => ['https://example.org/image.jpg'];
-        yield 'internal address' => ['http://127.0.0.1:18081/latest/meta-data/'];
+        yield 'internal address' => ['http://169.254.169.254/latest/meta-data/'];
         yield 'host with allowed prefix' => ['https://data.example.org.example.net/image.jpg'];
         yield 'domain of wildcard' => ['https://cdn.example.com/image.jpg'];
         yield 'user information' => ['https://data.example.org@127.0.0.1/image.jpg'];
+        yield 'port of host without port' => ['https://data.example.org:8443/image.jpg'];
+        yield 'http port with https' => ['https://data.example.org:80/image.jpg'];
+        yield 'other port of host with port' => ['http://127.0.0.1:18082/image.jpg'];
+        yield 'default port of host with port' => ['https://files.example.org/image.jpg'];
     }
 
     #[Test]
