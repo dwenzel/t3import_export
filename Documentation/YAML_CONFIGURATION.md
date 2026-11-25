@@ -8,7 +8,6 @@ YAML is the only configuration format for tasks and sets since version 4.0. It o
 
 - **Better Readability**: Clear hierarchical structure
 - **Easier Maintenance**: Version control friendly
-- **Validation Support**: Built-in schema validation
 - **Environment Management**: Easy environment-specific configurations
 
 Tasks and sets from YAML files in the configured directories
@@ -35,6 +34,9 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['yamlConfigurationDire
   (`ext_localconf.php` of t3import_export). Directories added later, e.g. in the
   `ext_localconf.php` of an extension that depends on t3import_export and is
   therefore loaded after it, are not read.
+- The files of a directory are loaded in alphabetical order; subdirectories
+  and `*.yml` files are not read. A later file is merged into the
+  configuration of the earlier ones.
 
 ## YAML Structure Reference
 
@@ -123,13 +125,16 @@ source:
 source:
   class: "CPSIT\\ImportExportCore\\File\\DataSourceXML"
   config:
-    file: "fileadmin/imports/data.xml"          # Required: File path
-    xpath: "//record"                           # Optional: XPath expression for records
-    rootElement: "data"                         # Optional: Root element name
+    file: "fileadmin/imports/data.xml"          # Required: File path (or url)
+    element: "record"                           # Name of the record elements (or expression)
+    # expression: "//data/record"               # XPath expression for the record elements
     namespaces:                                 # Optional: XML namespaces
       ns1: "http://example.com/namespace1"
       ns2: "http://example.com/namespace2"
+    lists: ["category"]                         # Optional: child elements that are always lists
 ```
+
+See [DataSourceXML](./Persistence/DataSourceXML.md).
 
 ### Database Data Source
 
@@ -157,14 +162,16 @@ are still read, but deprecated; see
 
 ```yaml
 source:
-  class: "CPSIT\\T3importExport\\Persistence\\DataSourceRepository"
+  class: "CPSIT\\T3importExport\\Persistence\\DataSourceDynamicRepository"
   config:
-    repository: "Vendor\\Extension\\Domain\\Repository\\ModelRepository"
-    method: "findAll"                           # Optional: Repository method (default: findAll)
-    arguments:                                  # Optional: Method arguments
-      - "argument1"
-      - "argument2"
+    class: "Vendor\\Extension\\Domain\\Model\\Item"  # Required: domain model; its repository is used
+    storagePids: "12,13"                        # Optional: storage pages
+    languageId: 1                               # Optional: language
+    limit: 100                                  # Optional: maximum number of records
+    offset: 0                                   # Optional
 ```
+
+The records are arrays of the properties of the domain objects.
 
 ## Data Targets Configuration
 
@@ -189,12 +196,15 @@ A record with `__identity` updates the row with this `uid`. Fields such as
 target:
   class: "CPSIT\\ImportExportCore\\File\\DataTargetCSV"
   config:
-    file: "fileadmin/exports/data.csv"          # Required: Output file path
+    file: "fileadmin/exports/data.csv"          # Required: Output file path, replaced if it exists
+    fields: "uid,title"                         # Optional: fields to write (default: fields of the first record)
     delimiter: ","                              # Optional: Field delimiter
     enclosure: "\""                             # Optional: Field enclosure
-    headers: true                               # Optional: Include headers (default: true)
-    mode: "w"                                   # Optional: File mode (w=overwrite, a=append)
+    header: true                                # Optional: Write the field names (default: true)
+    bom: false                                  # Optional: UTF-8 byte order mark (default: false)
 ```
+
+See [DataTargetCSV](./Persistence/DataTargetCSV.md).
 
 ### XML Stream Data Target
 
@@ -202,12 +212,17 @@ target:
 target:
   class: "CPSIT\\T3importExport\\Persistence\\DataTargetXMLStream"
   config:
-    file: "fileadmin/exports/data.xml"          # Required: Output file path
-    rootElement: "data"                         # Optional: Root element name
-    recordElement: "record"                     # Optional: Record element name
-    encoding: "UTF-8"                           # Optional: XML encoding
-    formatOutput: true                          # Optional: Pretty print XML
+    output: "file"                              # write to a temporary file (default: the output)
+    rootNodeName: "data"                        # Optional: Root element name (default: rows)
+    rootAttributes:                             # Optional: Attributes of the root element
+      version: "1.0"
+    header: '<?xml version="1.0" encoding="UTF-8"?>'  # Optional: first line
+    # template: "EXT:my_extension/Resources/Private/Export/feed.xml"  # Optional: template with {{CONTENT}}
 ```
+
+The records must be converted to XML first, e.g. with the converter
+`ArrayToXMLStream`. The finisher `WriteFile` stores the temporary file in a
+storage, `DownloadFileStream` sends it to the browser.
 
 ## Component Configuration Examples
 
@@ -219,7 +234,6 @@ initializers:
   - class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
     config:
       tables: "table1,table2"                   # Comma-separated table names
-      confirmDeletion: false                    # Optional: Require confirmation
 ```
 
 #### Delete from Table
@@ -228,7 +242,7 @@ initializers:
   - class: "CPSIT\\T3importExport\\Component\\Initializer\\DeleteFromTable"
     config:
       table: "target_table"
-      where: "pid = 123 AND sys_language_uid = 0"
+      where: "pid = 123 AND sys_language_uid = 0" # SQL, used as it is
 ```
 
 ### PreProcessors
@@ -275,7 +289,7 @@ preProcessors:
   - class: "CPSIT\\ImportExportCore\\Processor\\StringToTimePreProcessor"
     config:
       fields: "publish_date,update_date"        # Comma-separated field names, parsed with strtotime()
-      multipleRowFields: "dates"                # Optional: fields with a list of values
+      multipleRowFields: "dates"                # Optional: fields with a list of child rows
 ```
 
 #### Set Field Values
@@ -294,20 +308,25 @@ preProcessors:
 postProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\GenerateFileReference"
     config:
-      sourceField: "image_path"                 # Field containing file path
-      targetField: "image"                      # FAL field to populate
-      storage: "1"                              # Storage UID
-      folder: "user_upload/images/"             # Target folder
+      sourceField: "image_id"                   # Field with the uid of the file (sys_file)
+      targetField: "image"                      # Field for the file reference
+      targetPage: 42                            # Optional: page of the reference record
 ```
+
+See [GenerateFileReference](./Components/PostProcessors/GenerateFileReferenc.md)
+for array records.
 
 #### Set Localization Parent
 ```yaml
 postProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\SetL10nParent"
     config:
-      parentField: "l10n_parent"
-      languageField: "sys_language_uid"
-      identifierField: "import_id"              # Field to match records
+      subject:
+        parentField: "l10n_parent"              # Field with the value to match
+      parent:
+        table: "tx_myext_record"                # Table of the localization parent
+        matchField: "import_id"                 # Field compared with the value
+        identityField: "uid"                    # Optional: written to l10n_parent
 ```
 
 #### Recreate Slug
@@ -315,10 +334,11 @@ postProcessors:
 postProcessors:
   - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
     config:
-      field: "path_segment"                     # Slug field
-      sourceFields: "title,subtitle"           # Fields to generate slug from
-      separator: "-"                            # Optional: Separator character
+      tableName: "tx_news_domain_model_news"    # Optional: table (default: pages)
+      slugField: "path_segment"                 # Optional: slug field (default: slug)
 ```
+
+The slug is generated from the fields set in the TCA of the slug field.
 
 ### Finishers
 
@@ -327,8 +347,8 @@ postProcessors:
 finishers:
   - class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
     config:
-      cacheGroups: "pages,news"                # Comma-separated cache groups
-      tags: "tag1,tag2"                         # Optional: Specific cache tags
+      pages: "1,3,5"                            # Comma-separated page IDs
+      # all: 1                                  # or clear the caches of all pages
 ```
 
 #### Validate XML
@@ -346,14 +366,23 @@ finishers:
 finishers:
   - class: "CPSIT\\T3importExport\\Component\\Finisher\\MoveFile"
     config:
-      sourceFile: "fileadmin/temp/data.csv"
-      targetFile: "fileadmin/archive/data-processed.csv"
-      overwrite: true                           # Optional: Overwrite target
+      source:
+        name: "data.csv"                        # File in the storage
+        directory: "temp"                       # Optional
+        storage: 1                              # Optional (default: 1)
+      target:
+        name: "data-processed.csv"
+        directory: "archive"                    # Optional, created if missing
+        conflictMode: overrideExistingFile      # Optional: cancel, renameNewFile (default), overrideExistingFile
 ```
 
 ## Advanced Configuration Patterns
 
 ### Multi-Environment Setup
+
+Files are merged in the order they are loaded: maps are merged, lists and
+scalar values of the later file replace those of the earlier one. With
+`--yaml-config` only the given file is read.
 
 #### Base Configuration (base.yaml)
 ```yaml
@@ -390,7 +419,8 @@ import:
     baseTask:
       source:
         config:
-          file: "/secure/imports/production-data.csv"
+          # absolute path in an allowed directory (default: var/import/)
+          file: "/var/www/html/var/import/production-data.csv"
       target:
         config:
           table: "target_table"
@@ -421,29 +451,32 @@ import:
           file: "fileadmin/imports/complex-data.csv"
 
       preProcessors:
-        # Step 1: Clean and validate data
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\Clean"
+        # Step 1: Trim values
+        10:
+          class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            fields: "title,description"
-            trim: true
-            removeEmptyValues: true
+            rules:
+              - {rule: trim, field: name}
+              - {rule: trim, field: desc}
 
         # Step 2: Map field names
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\MapFields"
+        20:
+          class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
           config:
-            map:
-              name: "title"
-              desc: "description"
-              cat: "category_name"
+            rules:
+              - {rule: rename, field: title, from: name}
+              - {rule: rename, field: description, from: desc}
+              - {rule: rename, field: category_name, from: cat}
 
-        # Step 3: Convert dates
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\StringToTime"
+        # Step 3: Convert dates with strtotime()
+        30:
+          class: "CPSIT\\ImportExportCore\\Processor\\StringToTimePreProcessor"
           config:
             fields: "publish_date"
-            format: "d.m.Y H:i"
 
         # Step 4: Lookup categories
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
+        40:
+          class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
           config:
             targetField: "category_uid"
             select:
@@ -458,11 +491,17 @@ import:
               uid:
                 mapTo: "category_uid"
 
-        # Step 5: Set default values
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\SetFieldValue"
+        # Step 5: Set default values and remove fields
+        50:
+          class: "CPSIT\\ImportExportCore\\Processor\\SetValuesPreProcessor"
           config:
-            field: "pid"
-            value: "123"
+            values:
+              pid: 123
+        60:
+          class: "CPSIT\\ImportExportCore\\Processor\\ValueRulesPreProcessor"
+          config:
+            rules:
+              - {rule: remove, fields: [category_name]}
 
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
@@ -471,23 +510,24 @@ import:
 
       postProcessors:
         # Generate URL slugs
-        - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
+        10:
+          class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
           config:
-            field: "path_segment"
-            sourceFields: "title"
+            tableName: "tx_news_domain_model_news"
+            slugField: "path_segment"
 
       finishers:
-        # Clear relevant caches
-        - class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
+        # Clear the caches of the news pages
+        10:
+          class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
           config:
-            cacheGroups: "pages,news"
+            pages: "123"
 ```
 
 ## Configuration Validation
 
-### Schema Validation
-
-YAML configurations are automatically validated against predefined schemas. Common validation errors include:
+There is no schema for the YAML files. Unknown keys are ignored. When a task
+is created, the following cases throw an `InvalidConfigurationException`:
 
 ```yaml
 # Invalid: Missing required fields
@@ -506,44 +546,33 @@ import:
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
 
-# Invalid: Malformed configuration
+# Invalid: Malformed configuration of a component
 import:
   tasks:
     invalidTask:
       source:
-        class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
+        class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
         config:
-          file: ""                              # ERROR: Empty file path
+          table: ""                             # ERROR: Empty table name
 ```
 
-### Error Messages
-
-The extension provides detailed error messages for configuration issues:
-
-```
-Configuration Error in task 'newsImport':
-- Missing required field 'source.config.file'
-- Invalid class 'InvalidClassName' in preProcessors[0]
-- Field 'target.config.table' cannot be empty
-```
+A set that refers to an undefined task throws an
+`InvalidConfigurationException` as well.
 
 ## Best Practices
 
 ### 1. File Organization
 
 ```
-Configuration/
-├── base/
-│   ├── import-tasks.yaml       # Base import configurations
-│   └── export-tasks.yaml       # Base export configurations
-├── environments/
-│   ├── development.yaml        # Development overrides
-│   ├── staging.yaml           # Staging overrides
-│   └── production.yaml        # Production overrides
-└── sets/
-    ├── full-import.yaml       # Complete import sets
-    └── maintenance.yaml       # Maintenance tasks
+Configuration/ImportExport/
+├── 10-import-tasks.yaml       # Import tasks
+├── 20-export-tasks.yaml       # Export tasks
+└── 30-sets.yaml               # Sets
 ```
+
+Files are loaded in alphabetical order; subdirectories are not read. Use a
+separate configured directory for environment-specific files, e.g. one that
+is added in `config/system/additional.php` only on production.
 
 ### 2. Configuration Naming
 
@@ -601,29 +630,29 @@ import:
 import:
   tasks:
     robustImport:
-      label: "Robust Import with Error Handling"
+      label: "Import with skipped rows"
 
-      # Continue processing even if individual records fail
       source:
         class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
           file: "fileadmin/imports/data.csv"
-          continueOnError: true
+          # false (default): rows with a wrong number of values are skipped
+          # and reported; true: such a row ends the task
+          strict: false
 
-      # Validate data before processing
-      preProcessors:
-        - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\ValidateFields"
-          config:
-            required: "title,email"
-            patterns:
-              email: "/^[^@]+@[^@]+\.[^@]+$/"
-
-      finishers:
-        # Log results for monitoring
-        - class: "CPSIT\\T3importExport\\Component\\Finisher\\LogResults"
-          config:
-            logFile: "var/log/import-results.log"
+      target:
+        class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
+        config:
+          table: "tx_myext_record"
+          # do not write records without title
+          skip:
+            ifEmpty:
+              field: title
 ```
+
+Skipped rows and other problems are added as messages to the task result;
+later components can be disabled by their IDs, see
+[Components](./COMPONENT.md#by-message).
 
 ## Command Line Usage
 

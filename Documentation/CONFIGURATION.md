@@ -49,7 +49,9 @@ Each configuration of a task **must** contain the keys
 
  The keys *initializers*, *preProcessors*, *converters*, *postProcessors* and
  *finishers* contain a list of components, which are processed in the given
- order:
+ order. With integer keys (`10`, `20`), the components run in the order of
+ the keys, see
+ [Deprecations](./DEPRECATIONS.md#changes-of-cpsitimport-export-core-06):
 
 ```yaml
       preProcessors:
@@ -66,7 +68,7 @@ Import sets are described below `import.sets`, export sets below
 `export.sets`. Identifiers **must** be unique.
 
 Each configuration of a set **must** contain the key
- * tasks
+ * tasks (comma separated identifiers or a list)
 
  and **may** contain the keys
 
@@ -189,13 +191,14 @@ import:
       postProcessors:
         - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\RecreateSlug"
           config:
-            field: "path_segment"
+            tableName: "tx_news_domain_model_news"
+            slugField: "path_segment"
 
       # Finalize with cache clearing
       finishers:
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
           config:
-            cacheGroups: "pages,news"
+            pages: "42"
 ```
 
 ### YAML Set Example
@@ -267,13 +270,17 @@ The extension validates the configuration of tasks and sets:
 ### Common Validation Rules
 
 1. **Required Fields**: `source` and `target` are mandatory for all tasks
-2. **Class Validation**: All component classes must exist and implement proper interfaces
-3. **Configuration Structure**: Component configurations must follow expected schema
-4. **Identifier Uniqueness**: Task and set identifiers must be unique within their scope
+2. **Class Validation**: All component classes must exist and implement the
+   interface of their type
+3. **Component Configuration**: Each component checks its configuration
+   (`isConfigurationValid()`); an invalid configuration throws an
+   `InvalidConfigurationException` when the task is created
+4. **Identifier Uniqueness**: Task and set identifiers must be unique within their scope;
+   a later file with the same identifier is merged into the earlier one
+5. **Sets**: A set that refers to an undefined task throws an
+   `InvalidConfigurationException`
 
-### YAML Schema Validation
-
-YAML configurations are automatically validated against internal schemas. Invalid configurations will generate clear error messages indicating the specific validation failures.
+There is no schema for the YAML files; unknown keys are ignored.
 
 ## Environment-Specific Configuration
 
@@ -305,11 +312,11 @@ import:
         - class: "CPSIT\\T3importExport\\Component\\Initializer\\TruncateTables"
           config:
             tables: "target_table"
-            confirmDeletion: true
       source:
         class: "CPSIT\\ImportExportCore\\File\\DataSourceCSV"
         config:
-          file: "/secure/imports/production-data.csv"
+          # absolute path in an allowed directory (default: var/import/)
+          file: "/var/www/html/var/import/production-data.csv"
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetDB"
         config:
@@ -317,7 +324,7 @@ import:
       finishers:
         - class: "CPSIT\\T3importExport\\Component\\Finisher\\ClearCache"
           config:
-            cacheGroups: "all"
+            all: 1
 ```
 
 ## Best Practices
@@ -331,14 +338,20 @@ import:
 
 ### Security Considerations
 
-1. **File Paths**: Use absolute paths or EXT: syntax for security
-2. **Database Access**: Limit database permissions for import/export operations
+1. **Files and URLs**: Files are read and written only in the allowed
+   directories, URLs are loaded only from the allowed hosts, see
+   [Files](./Persistence/Files.md)
+2. **Database Access**: Limit database permissions for import/export operations;
+   SQL in options (`where` of `DataSourceDB`, `DeleteFromTable`, `LookUpDB`)
+   is used as it is, so configurations must come from trusted sources
 3. **Validation**: Always validate external data before processing
 4. **Logging**: Enable appropriate logging for audit trails
 
 ### Performance Optimization
 
-1. **Memory Management**: Use queue processing for large datasets
-2. **Batch Processing**: Configure appropriate batch sizes
+1. **Memory Management**: The records of a task are read before they are
+   processed; split large datasets with a queue (`limit` of `DataSourceQueue`)
+2. **Batch Processing**: The processor writes in batches of 100 records;
+   `DataTargetDB` commits one transaction per batch
 3. **Index Usage**: Ensure proper database indexes for lookups
 4. **Cache Management**: Clear only necessary caches in finishers
