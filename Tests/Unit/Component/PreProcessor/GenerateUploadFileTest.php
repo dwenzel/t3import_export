@@ -30,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -425,5 +426,137 @@ class GenerateUploadFileTest extends TestCase
 
         self::assertSame(vfsStream::url('root') . '/targetDir/image.txt', $record['target']);
         self::assertSame('image', file_get_contents($record['target']));
+    }
+
+    protected const SVG = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/></svg>';
+
+    protected function targetFiles(): array
+    {
+        return array_values(array_diff(scandir(vfsStream::url('root') . '/targetDir'), ['.', '..']));
+    }
+
+    public static function urlWithQueryOrFragmentDataProvider(): iterable
+    {
+        yield 'fragment' => ['https://data.example.org/evil.svg#a'];
+        yield 'query' => ['https://data.example.org/evil.svg?x=1'];
+    }
+
+    /**
+     * @test
+     * @dataProvider urlWithQueryOrFragmentDataProvider
+     */
+    public function getFileUsesPathOfUrlAsFileNameAndSanitizesSvg(string $url): void
+    {
+        $this->prepareTargetDirectory();
+        $this->useHttpResponses([$url => self::response(self::SVG)], new FileSourceGuard([$this->sourceDirectory], ['data.example.org']));
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $url);
+
+        self::assertSame(vfsStream::url('root') . '/targetDir/evil.svg', $result);
+        self::assertStringNotContainsString('script', (string)file_get_contents($result));
+        self::assertSame(['evil.svg'], $this->targetFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function getFileSanitizesSvgContentWithOtherFileExtension(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/image.txt', '<?xml version="1.0"?>' . "\n" . self::SVG);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.txt');
+
+        self::assertSame(vfsStream::url('root') . '/targetDir/image.txt', $result);
+        self::assertStringNotContainsString('script', (string)file_get_contents($result));
+        self::assertStringContainsString('rect', (string)file_get_contents($result));
+    }
+
+    public static function deniedTargetNameDataProvider(): iterable
+    {
+        yield 'compressed svg' => ['image.svgz'];
+        yield 'compressed svg in upper case' => ['image.SVGZ'];
+        yield 'question mark' => ['evil.svg?x=1'];
+        yield 'hash' => ['evil.svg#a'];
+    }
+
+    /**
+     * @test
+     * @dataProvider deniedTargetNameDataProvider
+     */
+    public function getFileDoesNotCopyFilesWithDeniedTargetNames(string $fileName): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, (string)gzencode(self::SVG));
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/' . $fileName);
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function getFileRemovesTemporaryFileIfSanitizingFails(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/image.svg', self::SVG);
+        $sanitizer = $this->getMockBuilder(SvgSanitizer::class)->onlyMethods(['sanitizeFile'])->getMock();
+        $sanitizer->method('sanitizeFile')->willThrowException(new \RuntimeException('failed', 1795400298));
+        GeneralUtility::addInstance(SvgSanitizer::class, $sanitizer);
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.svg');
+            self::fail('No exception thrown');
+        } catch (\RuntimeException $exception) {
+            self::assertSame(1795400298, $exception->getCode());
+        } finally {
+            GeneralUtility::purgeInstances();
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function processDoesNotCopyExtensionPathOfRecord(): void
+    {
+        $this->prepareTargetDirectory();
+        $record = ['source' => 'EXT:core/composer.json'];
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_PATH_NOT_ALLOWED);
+
+        $this->subject->process(
+            [
+                'sourceField' => 'source',
+                'targetField' => 'target',
+                'targetDirectoryPath' => 'targetDir',
+                'multipleRows' => false,
+            ],
+            $record
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function getFileDoesNotFollowRedirectToOtherPort(): void
+    {
+        $this->prepareTargetDirectory();
+        $this->useHttpResponses(
+            [
+                'http://127.0.0.1:18081/image.txt' => self::response('', 302, ['Location' => 'http://127.0.0.1:18082/secret.txt']),
+                'http://127.0.0.1:18082/secret.txt' => self::response('secret'),
+            ],
+            new FileSourceGuard([$this->sourceDirectory], ['127.0.0.1:18081'])
+        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_HOST_NOT_ALLOWED);
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], 'http://127.0.0.1:18081/image.txt');
     }
 }
