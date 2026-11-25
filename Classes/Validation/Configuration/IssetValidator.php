@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-class IssetValidator implements \CPSIT\T3importExport\Validation\Configuration\ConfigurationValidatorInterface
+class IssetValidator implements ConfigurationValidatorInterface
 {
     use ArrayAccessTrait;
 

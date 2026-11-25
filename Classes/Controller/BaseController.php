@@ -153,7 +153,7 @@ abstract class BaseController extends ActionController
      * @param string $identifier
      * @throws InvalidConfigurationException
      * @throws MissingClassException
-     * @throws MissingInterfaceException|\CPSIT\ImportExportCore\Exception\MissingInterfaceException
+     * @throws MissingInterfaceException|MissingInterfaceException
      */
     protected function taskAction($identifier): void
     {

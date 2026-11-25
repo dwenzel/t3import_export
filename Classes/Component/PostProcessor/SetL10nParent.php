@@ -21,7 +21,7 @@ namespace CPSIT\T3importExport\Component\PostProcessor;
  *  GNU General Public License for more details.
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
+use Doctrine\DBAL\Exception;
 use CPSIT\ImportExportCore\Component\PostProcessor\PostProcessorInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\ImportExportCore\Exception\MissingClassException;
@@ -65,7 +65,7 @@ class SetL10nParent extends AbstractPostProcessor implements PostProcessorInterf
      * @param mixed $convertedRecord
      * @param array $record
      * @return bool
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function process(array $configuration, mixed &$convertedRecord, array &$record): bool
     {
