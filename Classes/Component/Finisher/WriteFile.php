@@ -23,6 +23,8 @@ namespace CPSIT\T3importExport\Component\Finisher;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
+use CPSIT\T3importExport\Exception\InvalidArgumentException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
@@ -35,7 +37,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  */
 class WriteFile extends AbstractFinisher implements FinisherInterface
 {
-    use ResourceStorageTrait;
+    use ResourceStorageTrait, FileTargetGuardTrait;
 
     /**
      * cancel file operation
@@ -120,6 +122,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
      * @throws InsufficientFolderAccessPermissionsException
      * @throws ExistingTargetFolderException|ExistingTargetFileNameException
+     * @throws InvalidArgumentException if the file name of the target is not allowed (see FileTargetGuard)
      */
     public function process(array $configuration, array &$records, &$result): bool
     {
@@ -131,6 +134,9 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
 
         /** @var FileInfo $fileInfo */
         $fileInfo = $result->getInfo();
+        if (!empty($configuration['target']['name'])) {
+            $this->getFileTargetGuard()->assertFileName((string)$configuration['target']['name']);
+        }
 
         if (!empty($configuration['target']['storage'])) {
             $storage = $this->resourceFactory->getStorageObject((int)$configuration['target']['storage']);

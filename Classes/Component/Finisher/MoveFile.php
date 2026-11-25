@@ -27,6 +27,8 @@ use CPSIT\T3importExport\LoggingTrait;
 use CPSIT\T3importExport\Messaging\MessageContainer;
 use CPSIT\T3importExport\Resource\ResourceFactoryTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
+use CPSIT\T3importExport\Exception\InvalidArgumentException;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -37,7 +39,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 class MoveFile extends AbstractFinisher
     implements FinisherInterface, LoggingInterface
 {
-    use LoggingTrait, ResourceStorageTrait;
+    use LoggingTrait, ResourceStorageTrait, FileTargetGuardTrait;
 
     /**
      * cancel file operation
@@ -188,6 +190,7 @@ class MoveFile extends AbstractFinisher
      * @param array $records
      * @param array|TaskResult $result
      * @return bool Returns false if the result is not a TaskResult or doesn't contain a FileInfo object.
+     * @throws InvalidArgumentException if the file name of the target is not allowed (see FileTargetGuard)
      */
     public function process(array $configuration,
                             array &$records,
@@ -197,6 +200,7 @@ class MoveFile extends AbstractFinisher
         $targetStorage = $defaultStorage;
         $sourceStorage = $defaultStorage;
         $sourceFileName = $configuration['source']['name'];
+        $this->getFileTargetGuard()->assertFileName((string)$configuration['target']['name']);
 
         if (!empty($configuration['source']['storage'])) {
             $sourceStorage = $this->resourceFactory->getStorageObject((int)$configuration['source']['storage']);

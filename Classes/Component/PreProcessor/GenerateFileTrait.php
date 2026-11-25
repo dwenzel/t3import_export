@@ -21,13 +21,15 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
+use CPSIT\T3importExport\Exception\InvalidArgumentException;
 
 /**
  * Trait GenerateFileTrait
  */
 trait GenerateFileTrait
 {
-    use ResourceStorageTrait, LoggingTrait;
+    use ResourceStorageTrait, LoggingTrait, FileTargetGuardTrait;
 
     /**
      * Errors by id
@@ -166,12 +168,17 @@ trait GenerateFileTrait
     }
 
     /**
+     * The file name of the target is the one of the source. It must not
+     * match the fileDenyPattern of TYPO3 (the file is copied without FAL).
+     *
      * @param array $configuration
      * @param string $sourcePath
      * @return string
+     * @throws InvalidArgumentException if the file name is not allowed
      */
     protected function getTargetPath($configuration, $sourcePath)
     {
+        $this->getFileTargetGuard()->assertFileName(PathUtility::basename((string)$sourcePath));
         $storageConfiguration = $this->resourceStorage->getConfiguration();
 
         $targetDirectoryPath = $this->filePathFactory->createFromParts(

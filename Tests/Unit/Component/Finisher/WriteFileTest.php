@@ -2,6 +2,8 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
+use CPSIT\T3importExport\Resource\FileTargetGuard;
+use CPSIT\T3importExport\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Component\Finisher\WriteFile;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
@@ -485,5 +487,17 @@ class WriteFileTest extends TestCase
             $result
         );
 
+    }
+
+    public function testProcessDoesNotWriteDeniedFileNames(): void
+    {
+        $records = [];
+        $this->result->method('getInfo')->willReturn($this->fileInfo);
+        $this->resourceStorage->expects($this->never())->method('addFile');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->subject->process(['target' => ['name' => '.user.ini']], $records, $this->result);
     }
 }
