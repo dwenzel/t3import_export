@@ -334,6 +334,12 @@ export:
           where:
             hidden: 0
             deleted: 0
+      converters:
+        # converts each record into an XML element <item>
+        - class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToXMLStream"
+          config:
+            targetClass: "CPSIT\\ImportExportCore\\Domain\\Model\\DataStream"
+            nodeName: "item"
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetXMLStream"
         config:
