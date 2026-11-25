@@ -218,6 +218,8 @@ target:
       version: "1.0"
     header: '<?xml version="1.0" encoding="UTF-8"?>'  # Optional: first line
     # template: "EXT:my_extension/Resources/Private/Export/feed.xml"  # Optional: template with {{CONTENT}}
+    # templateReplace:                         # Optional: replaces {{key}} in the template
+    #   date: NOW                               # NOW: the current time (DATE_W3C)
 ```
 
 The records must be converted to XML first, e.g. with the converter
@@ -326,7 +328,7 @@ postProcessors:
       parent:
         table: "tx_myext_record"                # Table of the localization parent
         matchField: "import_id"                 # Field compared with the value
-        identityField: "uid"                    # Optional: written to l10n_parent
+        identityField: "uid"                    # Required: written to l10n_parent
 ```
 
 #### Recreate Slug
@@ -382,7 +384,8 @@ finishers:
 
 Files are merged in the order they are loaded: maps are merged, lists and
 scalar values of the later file replace those of the earlier one. With
-`--yaml-config` only the given file is read.
+`--yaml-config` the given file is merged over the configuration loaded from
+the directories.
 
 #### Base Configuration (base.yaml)
 ```yaml
@@ -526,7 +529,8 @@ import:
 
 ## Configuration Validation
 
-There is no schema for the YAML files. Unknown keys are ignored. When a task
+There is no schema for the YAML files. Most components ignore unknown keys;
+some reject them, e.g. the rules of `ValueRulesPreProcessor`. When a task
 is created, the following cases throw an `InvalidConfigurationException`:
 
 ```yaml

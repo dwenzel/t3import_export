@@ -32,7 +32,8 @@ not changed.
 
 The field that is set is always `l10n_parent`, also if `subject.parentField`
 names another field. The query uses the connection that `parent.table` is
-mapped to and does not apply the restrictions of TYPO3.
+mapped to and the default restrictions of TYPO3: deleted and hidden parents,
+and parents outside their start and end time, are not found.
 
 For domain objects (after `ArrayToDomainObject`) use
 [TranslateObject](./TranslateObject.md).
@@ -44,7 +45,7 @@ For domain objects (after `ArrayToDomainObject`) use
 | config.subject.parentField  | string | yes      | field of the converted record with the value to match |
 | config.parent.table         | string | yes      | table of the localization parent |
 | config.parent.matchField    | string | yes      | field of the parent table that is compared with the value |
-| config.parent.identityField | string | no       | field of the parent row that is written to `l10n_parent`; default `uid`. Must not be empty. |
+| config.parent.identityField | string | yes      | field of the parent row that is written to `l10n_parent`, e.g. `uid`. Without it the configuration is invalid. |
 | config.parent.prefix        | string | no       | prefix put in front of the value before matching. Must not be empty. |
 | config.setL10nSource        | bool   | no       | also set `l10n_source` |
 
