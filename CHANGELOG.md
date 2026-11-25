@@ -247,7 +247,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 * The command `t3import-export:convert-typoscript` is not offered by the
   scheduler any more; it writes only files with the extension `.yaml` or
-  `.yml` and does not read or write files with a stream wrapper
+  `.yml` in an existing directory (no symbolic links, no `..` segments, no
+  control characters) and does not read or write files with a stream wrapper
 * `LookUpDB`: values from records are quoted in the `IN` constraint
 * Symbolic links are resolved before the allowed directories are checked; a
   link inside an allowed directory that points outside of it is rejected

@@ -153,6 +153,51 @@ class TypoScriptConverterTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function commandRefusesSymbolicLinkAsOutputFile(): void
+    {
+        $target = $this->instancePath . '/typo3temp/link-target.php';
+        $link = $this->instancePath . '/typo3temp/link.yaml';
+        file_put_contents($target, 'unchanged');
+        symlink($target, $link);
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $link]);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertSame('unchanged', file_get_contents($target));
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileWithNullByte(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $this->instancePath . "/typo3temp/null.php\0.yaml"]);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertFileDoesNotExist($this->instancePath . '/typo3temp/null.php');
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileWithParentDirectorySegment(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $this->instancePath . '/typo3temp/../dotdot.yaml']);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertFileDoesNotExist($this->instancePath . '/dotdot.yaml');
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileInMissingDirectory(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        self::assertSame(Command::FAILURE, $commandTester->execute(['files' => [self::FIXTURE], '--output' => $this->instancePath . '/missing/converted.yaml']));
+    }
+
+    #[Test]
     public function commandFailsForFileWithStreamWrapper(): void
     {
         $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
