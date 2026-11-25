@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Command;
 
 use CPSIT\T3importExport\Configuration\TypoScriptConverter;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,11 +16,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Converts TypoScript settings of the module to YAML
+ *
+ * The command reads and writes files given on the command line. It is meant
+ * for the command line only and is not offered by the scheduler: it is
+ * registered in Configuration/Services.yaml with `schedulable: false`
+ * (the attribute #[AsCommand] cannot set this flag in TYPO3 13).
  */
-#[AsCommand(
-    name: 't3import-export:convert-typoscript',
-    description: 'Converts tasks and sets from TypoScript (module.tx_t3importexport.settings) to YAML',
-)]
 class ConvertTypoScriptCommand extends Command
 {
     public const ARGUMENT_FILES = 'files';
@@ -45,7 +45,7 @@ class ConvertTypoScriptCommand extends Command
                 self::OPTION_OUTPUT,
                 'o',
                 InputOption::VALUE_REQUIRED,
-                'Write the YAML to this file instead of the standard output'
+                'Write the YAML to this file (*.yaml, *.yml) instead of the standard output'
             )
             ->addOption(
                 self::OPTION_CONSTANTS,
@@ -62,6 +62,12 @@ class ConvertTypoScriptCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $messages = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+
+        $outputFile = $input->getOption(self::OPTION_OUTPUT);
+        if (is_string($outputFile) && $outputFile !== '' && !$this->isAllowedOutputFile($outputFile)) {
+            $messages->writeln(sprintf('<error>The output file must be a local file with the extension .yaml or .yml: %s</error>', $outputFile));
+            return Command::FAILURE;
+        }
 
         $constantFiles = (array)$input->getOption(self::OPTION_CONSTANTS);
         $yamlFiles = array_filter($constantFiles, static fn($file): bool => (bool)preg_match('/\.ya?ml$/i', (string)$file));
@@ -94,7 +100,6 @@ class ConvertTypoScriptCommand extends Command
         }
 
         $yaml = Yaml::dump($result['configuration'], 20, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-        $outputFile = $input->getOption(self::OPTION_OUTPUT);
         if (is_string($outputFile) && $outputFile !== '') {
             if (file_put_contents($outputFile, $yaml) === false) {
                 $messages->writeln(sprintf('<error>Could not write %s</error>', $outputFile));
@@ -134,8 +139,24 @@ class ConvertTypoScriptCommand extends Command
         return $contents;
     }
 
+    protected function isAllowedOutputFile(string $file): bool
+    {
+        return !$this->hasScheme($file) && (bool)preg_match('/\.ya?ml$/i', $file);
+    }
+
+    /**
+     * Tells if the path uses a stream wrapper (e.g. ftp://, phar://)
+     */
+    protected function hasScheme(string $file): bool
+    {
+        return str_contains($file, '://');
+    }
+
     protected function resolvePath(string $file): ?string
     {
+        if ($this->hasScheme($file)) {
+            return null;
+        }
         if (!str_starts_with($file, 'EXT:') && is_file($file)) {
             return $file;
         }

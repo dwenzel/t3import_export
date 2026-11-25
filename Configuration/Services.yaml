@@ -84,3 +84,8 @@ services:
       public: true
     CPSIT\T3importExport\Command\ConvertTypoScriptCommand:
       public: true
+      tags:
+        - name: console.command
+          command: 't3import-export:convert-typoscript'
+          description: 'Converts tasks and sets from TypoScript (module.tx_t3importexport.settings) to YAML'
+          schedulable: false
