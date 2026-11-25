@@ -11,6 +11,7 @@ Available PreProcessors:
 * [Clean](./PreProcessors/CLEAN.md) (deprecated)
 * [ConcatenateFields](./PreProcessors/CONCATENATE_FIELDS.md) (deprecated)
 * [EvaluateExpressions](./PreProcessors/EVALUATE_EXPRESSIONS.md)
+* [GenerateFileResource, GenerateUploadFile](./PreProcessors/GENERATE_FILE.md)
 * [ImplodeArray](./PreProcessors/IMPLODE_ARRAY.md) (deprecated)
 * [LookUpDB](./PreProcessors/LOOK_UP_DB.md)
 * [MapFields](./PreProcessors/MAP_FIELDS.md) (deprecated)

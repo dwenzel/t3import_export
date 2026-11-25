@@ -19,10 +19,17 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
 use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\T3importExport\Factory\FilePathFactory;
+use CPSIT\T3importExport\Resource\FileSourceGuard;
+use CPSIT\T3importExport\Resource\FileTargetGuard;
 use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use CPSIT\T3importExport\Resource\UrlSourceLoader;
+use Psr\Http\Message\StreamInterface;
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -36,6 +43,33 @@ trait GenerateFileTrait
     use LoggingTrait;
 
     protected FilePathFactory $filePathFactory;
+
+    protected ?FileSourceGuard $fileSourceGuard = null;
+
+    protected ?UrlSourceLoader $urlSourceLoader = null;
+
+    public function setFileSourceGuard(FileSourceGuard $fileSourceGuard): void
+    {
+        $this->fileSourceGuard = $fileSourceGuard;
+    }
+
+    protected function getFileSourceGuard(): FileSourceGuard
+    {
+        return $this->fileSourceGuard ??= new FileSourceGuard();
+    }
+
+    public function setUrlSourceLoader(UrlSourceLoader $urlSourceLoader): void
+    {
+        $this->urlSourceLoader = $urlSourceLoader;
+    }
+
+    protected function getUrlSourceLoader(): UrlSourceLoader
+    {
+        return $this->urlSourceLoader ??= new UrlSourceLoader(
+            GeneralUtility::makeInstance(RequestFactory::class),
+            $this->getFileSourceGuard()
+        );
+    }
 
     /**
      * injects the file path factory
@@ -55,6 +89,124 @@ trait GenerateFileTrait
      * @return File|string|null
      */
     abstract public function getFile($configuration, $sourceFilePath);
+
+    /**
+     * Copies a source file or URL to a target file.
+     *
+     * Local files must be in an allowed directory, URLs must be http(s) URLs
+     * of an allowed host (see `FileSourceGuard`). `EXT:` paths are allowed
+     * only below the configured `sourcePath`. The content is written to a
+     * temporary file in the target directory, which then replaces the target
+     * file. SVG files (by file extension or MIME type of the content) are
+     * sanitized. Returns false if the source cannot be read or the target
+     * cannot be written.
+     *
+     * @param string|null $sourcePath the `sourcePath` of the configuration
+     * @throws InvalidArgumentException if the source is not allowed
+     */
+    protected function copySourceFile(string $sourceFilePath, string $absoluteTargetPath, ?string $sourcePath = null): bool
+    {
+        if ($absoluteTargetPath === '') {
+            return false;
+        }
+        if (FileSourceGuard::isUrl($sourceFilePath)) {
+            $this->getFileSourceGuard()->assertUrlAllowed($sourceFilePath);
+            $stream = $this->getUrlSourceLoader()->open($sourceFilePath);
+            if ($stream === null) {
+                return false;
+            }
+        } else {
+            $realPath = $this->getFileSourceGuard()->resolveFile($sourceFilePath, $sourcePath);
+            if (!is_file($realPath)) {
+                return false;
+            }
+            $source = @fopen($realPath, 'rb');
+            if ($source === false) {
+                return false;
+            }
+            $stream = new Stream($source);
+        }
+
+        $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
+        $handle = false;
+        $created = false;
+        $renamed = false;
+        try {
+            $handle = @fopen($temporaryPath, 'xb');
+            if ($handle === false) {
+                return false;
+            }
+            $created = true;
+            $written = $this->writeStream($stream, $handle);
+            $closed = fclose($handle);
+            $handle = false;
+            if (!$closed || !$written) {
+                return false;
+            }
+            if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
+                GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($temporaryPath);
+            }
+            $renamed = @rename($temporaryPath, $absoluteTargetPath);
+
+            return $renamed;
+        } finally {
+            if (\is_resource($handle)) {
+                fclose($handle);
+            }
+            if ($created && !$renamed) {
+                @unlink($temporaryPath);
+            }
+            $stream->close();
+        }
+    }
+
+    /**
+     * Like the SVG check of TYPO3: the file extension is svg (or svgz) or the
+     * MIME type of the content is image/svg+xml.
+     */
+    protected function isSvgFile(string $targetPath, string $contentPath): bool
+    {
+        if (\in_array(strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)), ['svg', 'svgz'], true)) {
+            return true;
+        }
+        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+
+        return \is_string($content)
+            && (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+    }
+
+    /**
+     * File name of a source file; for http(s) URLs the last segment of the
+     * path, without query and fragment
+     */
+    protected function getSourceFileName(string $sourceFilePath): string
+    {
+        if (preg_match('#^https?://#i', $sourceFilePath) === 1) {
+            $sourceFilePath = (string)parse_url($sourceFilePath, PHP_URL_PATH);
+        }
+
+        return PathUtility::basename($sourceFilePath);
+    }
+
+    /**
+     * @param resource $handle
+     * @return bool false if the stream cannot be read or the file cannot be written
+     */
+    private function writeStream(StreamInterface $stream, $handle): bool
+    {
+        try {
+            while (!$stream->eof()) {
+                $chunk = $stream->read(8192);
+                if (fwrite($handle, $chunk) !== \strlen($chunk)) {
+                    return false;
+                }
+            }
+        } catch (\RuntimeException) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Process record
@@ -77,7 +229,11 @@ trait GenerateFileTrait
 
         // Prefix all files with the source path
         if (isset($configuration['sourcePath'])) {
-            $filePaths = preg_filter('/^/', (string)$configuration['sourcePath'], $filePaths);
+            $sourcePath = (string)$configuration['sourcePath'];
+            $filePaths = array_map(
+                fn(string $filePath): string => $this->getFileSourceGuard()->buildLocation($sourcePath, $filePath),
+                $filePaths
+            );
         }
 
         if ($configuration['multipleRows']) {
@@ -152,7 +308,14 @@ trait GenerateFileTrait
      */
     protected function getTargetPath($configuration, $sourcePath)
     {
-        $this->getFileTargetGuard()->assertFileName(PathUtility::basename((string)$sourcePath));
+        $fileName = $this->getSourceFileName((string)$sourcePath);
+        $this->getFileTargetGuard()->assertFileName($fileName);
+        if (strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'svgz') {
+            throw new InvalidArgumentException(
+                \sprintf('The file "%s" cannot be written: compressed SVG files (svgz) are not allowed.', $fileName),
+                FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED
+            );
+        }
         $storageConfiguration = $this->resourceStorage->getConfiguration();
 
         $targetDirectoryPath = $this->filePathFactory->createFromParts(
@@ -162,6 +325,6 @@ trait GenerateFileTrait
             ]
         );
 
-        return $targetDirectoryPath . PathUtility::basename($sourcePath);
+        return $targetDirectoryPath . $fileName;
     }
 }

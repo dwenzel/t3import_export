@@ -364,8 +364,13 @@ import:
    wrappers are refused. See [DataTargetCSV](Persistence/DataTargetCSV.md#written-files).
    The names of files copied by `GenerateFileResource` and `GenerateUploadFile`
    and the target names of `WriteFile` and `MoveFile` must not match the
-   `fileDenyPattern` of TYPO3 or its default pattern, must not contain a colon
-   and must not end in a dot or space.
+   `fileDenyPattern` of TYPO3 or its default pattern, must not contain a
+   colon, `?` or `#` and must not end in a dot or space (exception code
+   1795400103; this also applies to `file` of `DataTargetCSV`). Their source files must be inside an
+   allowed directory (default: `fileadmin/` of the public directory and
+   `import/` of the `var` directory), below an `EXT:` path configured as
+   `sourcePath`, or be http(s) URLs of an allowed host and port (no host by
+   default). See [GenerateFileResource](Components/PreProcessors/GENERATE_FILE.md#source-files).
 2. **Database Access**: Limit database permissions for import/export operations
 3. **Validation**: Always validate external data before processing
 4. **Logging**: Enable appropriate logging for audit trails

@@ -280,6 +280,8 @@ class FileTargetGuardTest extends TestCase
         yield 'trailing dot' => ['export.php.'];
         yield 'trailing space' => ['export.php '];
         yield 'csv with trailing dot' => ['export.csv.'];
+        yield 'question mark' => ['image.svg?x=1'];
+        yield 'hash' => ['image.svg#a'];
     }
 
     #[Test]
