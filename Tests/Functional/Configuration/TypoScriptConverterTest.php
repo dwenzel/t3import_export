@@ -118,6 +118,94 @@ class TypoScriptConverterTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function commandWritesYamlFile(): void
+    {
+        $outputFile = $this->instancePath . '/typo3temp/converted.yaml';
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $outputFile]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertSame('Events', Yaml::parseFile($outputFile)['import']['tasks']['event']['label']);
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileWithoutYamlExtension(): void
+    {
+        $outputFile = $this->instancePath . '/typo3temp/converted.php';
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $outputFile]);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertFileDoesNotExist($outputFile);
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileWithStreamWrapper(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => 'file://' . $this->instancePath . '/typo3temp/stream.yaml']);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertFileDoesNotExist($this->instancePath . '/typo3temp/stream.yaml');
+    }
+
+    #[Test]
+    public function commandRefusesSymbolicLinkAsOutputFile(): void
+    {
+        $target = $this->instancePath . '/typo3temp/link-target.php';
+        $link = $this->instancePath . '/typo3temp/link.yaml';
+        file_put_contents($target, 'unchanged');
+        symlink($target, $link);
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $link]);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertSame('unchanged', file_get_contents($target));
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileWithNullByte(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $this->instancePath . "/typo3temp/null.php\0.yaml"]);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertFileDoesNotExist($this->instancePath . '/typo3temp/null.php');
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileWithParentDirectorySegment(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        $exitCode = $commandTester->execute(['files' => [self::FIXTURE], '--output' => $this->instancePath . '/typo3temp/../dotdot.yaml']);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertFileDoesNotExist($this->instancePath . '/dotdot.yaml');
+    }
+
+    #[Test]
+    public function commandRefusesOutputFileInMissingDirectory(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        self::assertSame(Command::FAILURE, $commandTester->execute(['files' => [self::FIXTURE], '--output' => $this->instancePath . '/missing/converted.yaml']));
+    }
+
+    #[Test]
+    public function commandFailsForFileWithStreamWrapper(): void
+    {
+        $commandTester = new CommandTester($this->get(ConvertTypoScriptCommand::class));
+
+        self::assertSame(Command::FAILURE, $commandTester->execute(['files' => ['file://' . __DIR__ . '/../Fixtures/TypoScript/setup.typoscript']]));
+    }
+
+    #[Test]
     public function convertSubstitutesConstants(): void
     {
         $subject = $this->get(TypoScriptConverter::class);
