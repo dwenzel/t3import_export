@@ -1,16 +1,17 @@
 # Components and the core library
 
 Overview of the extension's components with respect to
-[cpsit/import-export-core](https://github.com/CPS-IT/import-export-core) 0.2:
+[cpsit/import-export-core](https://github.com/CPS-IT/import-export-core):
 which can move to the core, which are replaced by core components, which stay
-in the extension and which are removed. The direction is described in the
-core's `Documentation/Architecture.md` ("Direction for 0.2.0").
+in the extension and which are removed. The plan was made for core 0.2 (see
+the core's `Documentation/Architecture.md`); the column "Prerequisite" and
+"Differences" show the state of version 4.0, which requires core ^0.7.
 
 A component moves only when its behaviour is covered by tests. The tests are
 ported with the component, so that the core version is checked against the
 same cases.
 
-State: 2026-11-16. Line coverage of unit and functional tests together,
+Coverage state: 2026-11-16. Line coverage of unit and functional tests together,
 measured on `feature/116-typo3-v15` with TYPO3 14.3 and PHP 8.4 (63.9 % in
 total). To measure it again in the DDEV bundle:
 
@@ -27,13 +28,13 @@ Generic components without TYPO3 dependencies (apart from
 
 | Component | Coverage | Prerequisite | Issue |
 |---|---|---|---|
-| `PreProcessor\AddArrays` | 100 % | – | [core#68] |
-| `PreProcessor\StringToTime` | 100 % | – | [core#68] |
-| `PreProcessor\UnsetEmptyFields` | 100 % | undefined key, [#131] | [core#68] |
+| `PreProcessor\AddArrays` | 100 % | removed in 4.0, core `AddArraysPreProcessor` | [core#68] |
+| `PreProcessor\StringToTime` | 100 % | removed in 4.0, core `StringToTimePreProcessor` | [core#68] |
+| `PreProcessor\UnsetEmptyFields` | 100 % | removed in 4.0, core `UnsetEmptyFieldsPreProcessor` | [core#68] |
 | `PreProcessor\XMLMapper` | 99 % | moved in 4.0 (core 0.6), deprecated | [core#25] |
-| `PreProcessor\Clean` | 0 % | tests, [#130] | [core#68] |
-| `PreProcessor\ImplodeArray` | 0 % | tests, [#130] | [core#68] |
-| `PreProcessor\EvaluateExpressions`, `Expression\ExpressionEvaluator` | 100 % | moved in 4.0 | [core#24] |
+| `PreProcessor\Clean` | 0 % | removed in 4.0, core `CleanPreProcessor` | [core#68] |
+| `PreProcessor\ImplodeArray` | 0 % | removed in 4.0, core `ImplodeArrayPreProcessor` | [core#68] |
+| `PreProcessor\EvaluateExpressions`, `Expression\ExpressionEvaluator` | 100 % | moved in 4.0, removed from the extension | [core#24] |
 | `PreProcessor\ValidateXML` | 0 % | moved in 4.0 (core 0.6), deprecated | [core#25] |
 | `Finisher\ValidateXML` | 97 % | moved in 4.0 (core 0.6), deprecated | [core#25] |
 | `Converter\ArrayToXMLStream` | 81 % | Extbase property mapper for `targetClass` separated | [core#25] |
@@ -51,18 +52,18 @@ Tracked in [#132].
 
 | Extension | Coverage | Core | Differences |
 |---|---|---|---|
-| `PreProcessor\MapFields` | 100 % | `ValueRulesPreProcessor` `copy` / `rename` | – |
-| `PreProcessor\MapFieldValues` | 65 % | `ValueRulesPreProcessor` `map`, `otherwise` | to be checked, tests in [#130] |
-| `PreProcessor\RemoveFields` | 94 % | `ValueRulesPreProcessor` `remove` | `children` not supported, [core#69] |
-| `PreProcessor\ConcatenateFields` | 92 % | `ValueRulesPreProcessor` `join` | `wrap` / `noTrimWrap` not supported, [core#69] |
-| `PreProcessor\SetFieldValue` | 100 % | `SetValuesPreProcessor` | – |
-| `PreProcessor\UnsetEmptyFields` | 100 % | `ValueRulesPreProcessor` `remove` with `when: {empty: true}` | core "empty" is missing, `null` or `''`; the extension uses PHP `empty()` |
+| `PreProcessor\MapFields` | 100 % | `ValueRulesPreProcessor` `copy` / `rename` | removed in 4.0 |
+| `PreProcessor\MapFieldValues` | 65 % | `ValueRulesPreProcessor` `map`, `otherwise` | removed in 4.0; values are compared as strings, see [Deprecations](./DEPRECATIONS.md#migrating-to-valuerulespreprocessor) |
+| `PreProcessor\RemoveFields` | 94 % | `ValueRulesPreProcessor` `remove` | removed in 4.0; nested fields as paths (`children.*.hidden`), [core#69] |
+| `PreProcessor\ConcatenateFields` | 92 % | `ValueRulesPreProcessor` `wrap` and `join` | removed in 4.0, [core#69] |
+| `PreProcessor\SetFieldValue` | 100 % | `SetValuesPreProcessor` | removed in 4.0 |
+| `PreProcessor\UnsetEmptyFields` | 100 % | `UnsetEmptyFieldsPreProcessor` (same `empty()` semantics) | removed in 4.0; `ValueRulesPreProcessor` `remove` with `when: {empty: true}` treats only a missing field, `null` or `''` as empty |
 | `Persistence\DataSourceDB` | 94 % | `DataSourceDBAL` | adapter in 4.0, stays the default source; `{expression: ...}` query values; SQL in the options (`where` string, `join`, `groupBy`) by a deprecated fallback |
 | `Persistence\DataTargetDB` | 70 % | `DataTargetDBAL`, upsert by ID map | adapter in 4.0 (`__identity` -> `uid`, batches in transactions); a `uid` change with `__identity` by a deprecated fallback; ID map table and state components in 4.0 [#132] |
 | `Persistence\DataSourceQueue`, `DataTargetQueue`, `Domain\Repository\QueueItemRepository` | 100 / 92 / 74 % | core queue, `DbalQueueRepository` | replaced in 4.0: source and target are adapters, the repository is removed, items are migrated by an upgrade wizard |
 | `Persistence\DataSourceDummy`, `DataTargetDummy` | no tests | `NullDataSource`, `NullDataTarget` (4.0, deprecated) | – |
-| `PreProcessor\LookUpDB` | 47 % | partly `ResolveReferencePreProcessor` | general lookups by query |
-| `Service\DataTransferProcessor`, `Domain\Model\TransferTask`, `TransferSet`, `DataStream`, `Dto\TaskDemand`, task and set factories, component factories, `Factory\FactoryFactory`, `ComponentFactoryMap` | 97–100 % | core processor, models, factory and registry | [#71] |
+| `PreProcessor\LookUpDB` | 47 % | partly `ResolveReferencePreProcessor` | stays in 4.x; general lookups by query have no core equivalent |
+| `Service\DataTransferProcessor`, `Domain\Model\TransferTask`, `TransferSet`, `DataStream`, `Dto\TaskDemand`, task and set factories, component factories, `Factory\FactoryFactory`, `ComponentFactoryMap` | 97–100 % | core processor, models, factory and registry | replaced in 4.0 (`DataStream` deprecated subclass), [#71] |
 
 ## Stays in the extension
 
@@ -96,10 +97,10 @@ The table initializers could later be implemented on the core's DBAL layer.
 
 | Component | State | Replacement |
 |---|---|---|
-| `PreProcessor\RenderContent`, `RenderContentTrait` (frontend rendering) | deprecated in 3.1, removed on the TYPO3 15 branch ([#75], [#121]) | `ValueRulesPreProcessor`, `SetValuesPreProcessor`, `EvaluateExpressions`; no replacement for `parseFunc`, `typolink`, `crop` |
-| Content objects in `disabled` | as above | `disabled.expression`, later the core condition evaluator ([core#24]) |
+| `PreProcessor\RenderContent`, `RenderContentTrait` (frontend rendering) | deprecated in 3.1, removed in 4.0 ([#75], [#121]) | `ValueRulesPreProcessor`, `SetValuesPreProcessor`, `EvaluateExpressionsPreProcessor`; no replacement for `parseFunc`, `typolink`, `crop` |
+| Content objects in `disable` | as above | `disable.expression`, evaluated by the core condition evaluator ([core#24]) |
 | Content objects in `DataSourceDB` query values | as above | `{expression: ...}` |
-| Constructor arguments of `ConcatenateFields` | as above | – |
+| Constructor arguments of `ConcatenateFields` | as above; `ConcatenateFields` is removed in 4.0 | – |
 | TypoScript configuration | deprecated in 3.1, removed in 4.0 ([#75]) | YAML |
 | `TypoScriptConverter`, `ConvertTypoScriptCommand` | kept in 4.0 for the migration ([#75]) | – |
 | `RenderContentInterface` in the core | [core#70] | – |

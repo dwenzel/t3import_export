@@ -10,9 +10,10 @@ Installation
 * **Disk Space**: Adequate space for temporary files during processing
 
 ### Dependencies
-* **TYPO3 Core Extensions**: extbase, fluid
-* **Symfony Components**: symfony/yaml (for YAML configuration support)
-* **Import-Export-Core**: cpsit/import-export-core (automatically installed)
+Installed by Composer:
+* **Import-Export-Core**: cpsit/import-export-core ^0.7
+* **Extension tools**: dwenzel/t3extension-tools
+* **Symfony Components**: symfony/expression-language
 
 ## Installation
 
@@ -22,29 +23,31 @@ Installation
 # Install the extension
 composer require cpsit/t3import_export
 
-# Clear caches
+# Create the tables of the extension and clear caches
+vendor/bin/typo3 extension:setup
 vendor/bin/typo3 cache:flush
 ```
 
 ### Manual Installation
 
 1. Download the extension from GitHub or Packagist
-2. Extract to `packages/` directory
-3. Run composer install in the extension directory
-4. Activate the extension in TYPO3 Extension Manager
+2. Extract it to a local path repository of your project, e.g. `packages/`
+3. Require it with Composer: `composer require cpsit/t3import_export:@dev`
 
 ## Post-Installation Setup
 
 ### 1. Activate Extension
-After installation, activate the extension in the TYPO3 Extension Manager:
-- Login to TYPO3 Backend
-- Navigate to **Admin Tools > Extensions**
-- Find **t3import_export** and activate it
+In Composer mode the extension is active after `composer require`. Create its
+tables with `vendor/bin/typo3 extension:setup` or in the Install Tool
+(Maintenance > Analyze Database Structure).
 
-### 2. Configure Backend Modules
-The extension automatically adds import/export modules to the backend. Access them via:
-- **System > Import/Export > Import Module**
-- **System > Import/Export > Export Module**
+### 2. Backend Modules
+The extension adds two modules to the backend:
+- **System > Imports**
+- **System > Exports**
+
+They list the tasks and sets of the YAML configuration (see
+[YAML configuration](./YAML_CONFIGURATION.md#configuring-the-directories)).
 
 ### 3. Command Line Setup
 Verify CLI commands are available:
@@ -52,15 +55,22 @@ Verify CLI commands are available:
 vendor/bin/typo3 list t3import-export
 ```
 
-Expected output:
+Expected output (aliases in brackets):
 ```
-t3import-export:export-set    Execute export set
-t3import-export:export-task   Execute export task
-t3import-export:import-set    Execute import set
-t3import-export:import-task   Execute import task
+t3import-export:convert-typoscript  Converts tasks and sets from TypoScript (module.tx_t3importexport.settings) to YAML
+t3import-export:export-set          [export:set] Performs pre-defined export set.
+t3import-export:export-task         [export:task] Performs pre-defined export task.
+t3import-export:import-set          [import:set] Performs pre-defined import sets.
+t3import-export:import-task         [import:task] Performs pre-defined import task.
+t3import-export:queue:release       [queue:release] Sets queue items in processing back to new.
+t3import-export:queue:status        [queue:status] Shows the number of queue items by status and lists items.
 ```
 
-### 4. File Permissions
+### 4. Files and URLs
+Files are read and written only in the allowed directories (by default
+`fileadmin/` and `var/import/`), URLs are loaded only from the allowed hosts
+(by default none). See [Files](./Persistence/Files.md) to configure them.
+
 Ensure proper file permissions for:
 - **Import directories**: Readable by web server
 - **Export directories**: Writable by web server
@@ -78,19 +88,10 @@ chmod -R 755 fileadmin/imports fileadmin/exports
 
 ## Environment-Specific Configuration
 
-### Development Environment
-```bash
-# Install with development dependencies
-composer require --dev cpsit/t3import_export
-```
-
 ### Production Environment
 ```bash
-# Install for production
-composer require --no-dev cpsit/t3import_export
-
-# Optimize autoloader
-composer dump-autoload --optimize
+# Install the locked versions without development dependencies
+composer install --no-dev --optimize-autoloader
 ```
 
 ### Docker/DDEV Setup
@@ -126,21 +127,21 @@ vendor/bin/typo3 t3import-export:import-task test
 
 ### Check Backend Module
 1. Login to TYPO3 Backend
-2. Navigate to **System > Import/Export**
-3. Verify modules load without errors
+2. Navigate to **System > Imports**
+3. Verify the module loads without errors
 4. Check that test task appears in task list
 
 ## Troubleshooting Installation
 
 ### Common Issues
 
-**Extension not found in Extension Manager:**
+**Extension not found:**
 - Clear all caches: `vendor/bin/typo3 cache:flush`
 - Check composer installation: `composer show cpsit/t3import_export`
 
 **Command line tools not available:**
 - Verify TYPO3 installation: `vendor/bin/typo3 --version`
-- Check extension is active in Extension Manager
+- Check that the extension is installed: `composer show cpsit/t3import_export`
 
 **Permission errors:**
 - Verify web server has read/write access to required directories
@@ -148,7 +149,7 @@ vendor/bin/typo3 t3import-export:import-task test
 
 **Memory issues with large datasets:**
 ```php
-// In LocalConfiguration.php or .htaccess
+// e.g. in config/system/additional.php
 ini_set('memory_limit', '512M');
 ini_set('max_execution_time', 300);
 ```
@@ -169,17 +170,27 @@ vendor/bin/typo3 t3import-export:import-task --help
 ## Upgrade Instructions
 
 ### From Version 3.x to 4.x
+4.0 requires TYPO3 14.3 and `cpsit/import-export-core` ^0.7. The steps are
+listed in [Deprecations](./DEPRECATIONS.md#migration); in short:
+
 Tasks and sets in TypoScript (`module.tx_t3importexport.settings`) are not
 read any more. Convert them to YAML with `t3import-export:convert-typoscript`
 before updating, see [Deprecations](./DEPRECATIONS.md#removed-in-40).
+
+Replace the pre-processors removed in 4.0 by those of the core, see
+[Deprecations](./DEPRECATIONS.md#deprecated-in-32). Files are read only in
+the allowed directories and URLs only from the allowed hosts, see
+[Files](./Persistence/Files.md).
 
 Update the database schema: 4.0 adds the tables `tx_t3importexport_queue_item`
 (queue) and `tx_t3importexport_id_map` (ID map, see
 [ID map and state components](./Persistence/IdMap.md)).
 
 ```bash
-vendor/bin/typo3 database:updateschema
+vendor/bin/typo3 extension:setup
 ```
+
+(or `database:updateschema` of typo3-console, or the Install Tool).
 
 If the queue (`DataTargetQueue`, `DataSourceQueue`) was used, run the upgrade
 wizard that copies the queue items into the queue table of the core after
@@ -202,9 +213,9 @@ contain `uid`, see [Deprecations](./DEPRECATIONS.md#queue).
 5. **Test**: Verify all tasks work as expected
 
 ### Database Schema Updates
-The extension includes database migrations. After update:
+After an update, create new tables and columns:
 ```bash
-vendor/bin/typo3 database:updateschema
+vendor/bin/typo3 extension:setup
 ```
 
 ## Uninstallation
@@ -221,9 +232,6 @@ vendor/bin/typo3 cache:flush
 ### Clean Database (Optional)
 To remove all extension data:
 ```sql
--- Remove configuration
-DELETE FROM sys_template WHERE config LIKE '%t3import_export%';
-
 -- Remove queue items (if using queue)
 DROP TABLE IF EXISTS tx_t3importexport_queue_item;
 DROP TABLE IF EXISTS tx_t3importexport_domain_model_queueitem;
