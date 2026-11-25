@@ -32,7 +32,9 @@ trait MockFileStructureTrait
 
         $sourceDirectory = 'sourceDir';
         $sourceFileName = 'foo.csv';
-        $sourceFilePath = 'vfs://' . $rootDirectory . DIRECTORY_SEPARATOR . $sourceDirectory . DIRECTORY_SEPARATOR . $sourceFileName;
+        // a real file in an allowed source directory (property of the test case)
+        $sourceFilePath = $this->sourceDirectory . '/' . $sourceFileName;
+        file_put_contents($sourceFilePath, $sourceFileContent);
         $targetDirectory = 'targetDir';
         $configuration = [
             'targetDirectoryPath' => $targetDirectory

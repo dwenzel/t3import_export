@@ -23,6 +23,12 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use CPSIT\T3importExport\Resource\FileTargetGuardTrait;
 use CPSIT\T3importExport\Exception\InvalidArgumentException;
+use CPSIT\T3importExport\Resource\FileSourceGuard;
+use CPSIT\T3importExport\Resource\UrlSourceLoader;
+use Psr\Http\Message\StreamInterface;
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Http\Stream;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
 
 /**
  * Trait GenerateFileTrait
@@ -49,6 +55,33 @@ trait GenerateFileTrait
      * @var FilePathFactory
      */
     protected FilePathFactory $filePathFactory;
+
+    protected ?FileSourceGuard $fileSourceGuard = null;
+
+    protected ?UrlSourceLoader $urlSourceLoader = null;
+
+    public function setFileSourceGuard(FileSourceGuard $fileSourceGuard): void
+    {
+        $this->fileSourceGuard = $fileSourceGuard;
+    }
+
+    protected function getFileSourceGuard(): FileSourceGuard
+    {
+        return $this->fileSourceGuard ??= new FileSourceGuard();
+    }
+
+    public function setUrlSourceLoader(UrlSourceLoader $urlSourceLoader): void
+    {
+        $this->urlSourceLoader = $urlSourceLoader;
+    }
+
+    protected function getUrlSourceLoader(): UrlSourceLoader
+    {
+        return $this->urlSourceLoader ??= new UrlSourceLoader(
+            GeneralUtility::makeInstance(RequestFactory::class),
+            $this->getFileSourceGuard()
+        );
+    }
 
     /**
      * injects the file path factory
@@ -84,6 +117,87 @@ trait GenerateFileTrait
     }
 
     /**
+     * Copies a source file or URL to a target file.
+     *
+     * Local files must be in an allowed directory, URLs must be http(s) URLs
+     * of an allowed host (see `FileSourceGuard`). The content is written to a
+     * temporary file in the target directory, which then replaces the target
+     * file. SVG files are sanitized like FAL does. Returns false if the source
+     * cannot be read or the target cannot be written.
+     *
+     * @throws InvalidArgumentException if the source is not allowed
+     */
+    protected function copySourceFile(string $sourceFilePath, string $absoluteTargetPath): bool
+    {
+        if ($absoluteTargetPath === '') {
+            return false;
+        }
+        if (FileSourceGuard::isUrl($sourceFilePath)) {
+            $this->getFileSourceGuard()->assertUrlAllowed($sourceFilePath);
+            $stream = $this->getUrlSourceLoader()->open($sourceFilePath);
+            if ($stream === null) {
+                return false;
+            }
+        } else {
+            $path = $this->getFileSourceGuard()->resolveFile($sourceFilePath);
+            if (!is_file($path)) {
+                return false;
+            }
+            $source = @fopen($path, 'rb');
+            if ($source === false) {
+                return false;
+            }
+            $stream = new Stream($source);
+        }
+
+        $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
+        try {
+            $handle = @fopen($temporaryPath, 'xb');
+            if ($handle === false) {
+                return false;
+            }
+            $written = $this->writeStream($stream, $handle);
+            if (!fclose($handle) || !$written) {
+                @unlink($temporaryPath);
+
+                return false;
+            }
+            if (strtolower(pathinfo($absoluteTargetPath, PATHINFO_EXTENSION)) === 'svg') {
+                GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($temporaryPath);
+            }
+            if (!@rename($temporaryPath, $absoluteTargetPath)) {
+                @unlink($temporaryPath);
+
+                return false;
+            }
+
+            return true;
+        } finally {
+            $stream->close();
+        }
+    }
+
+    /**
+     * @param resource $handle
+     * @return bool false if the stream cannot be read or the file cannot be written
+     */
+    private function writeStream(StreamInterface $stream, $handle): bool
+    {
+        try {
+            while (!$stream->eof()) {
+                $chunk = $stream->read(8192);
+                if (fwrite($handle, $chunk) !== \strlen($chunk)) {
+                    return false;
+                }
+            }
+        } catch (\RuntimeException) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Process record
      * Generates one or multiple file objects, adds them to the repository and the record field
      *
@@ -99,9 +213,13 @@ trait GenerateFileTrait
         }
         $filePaths = GeneralUtility::trimExplode($separator, $record[$configuration['fieldName']], true);
 
-        // Prefix all files with source path
+        // Prefix all files with the source path
         if (isset($configuration['sourcePath'])) {
-            $filePaths = preg_filter('/^/', $configuration['sourcePath'], $filePaths);
+            $sourcePath = (string)$configuration['sourcePath'];
+            $filePaths = array_map(
+                fn(string $filePath): string => $this->getFileSourceGuard()->buildLocation($sourcePath, $filePath),
+                $filePaths
+            );
         }
 
         if ($configuration['multipleRows']) {
