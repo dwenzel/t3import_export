@@ -6,47 +6,48 @@ record.
 
 
 ### Example
+```yaml
+preProcessors:
+  - class: "CPSIT\\T3importExport\\Component\\PreProcessor\\LookUpDB"
+    config:
+      # the field of the processed record that gets the result
+      targetField: target_fieldname
+      select:
+        # the database table where we want to look for an entry
+        table: lookup_tablename
+        # the columns we like to use as result of the lookup
+        fields: uid
+        where:
+          AND:
+            # compare the column title of the lookup table with a value
+            condition: "title="
+            # the field of the source record whose value is compared
+            value: source_fieldname
+        singleRow: true
+      fields:
+        # map the column uid of the lookup row to a field of the record
+        uid:
+          mapTo: target_fieldname
 ```
-class = CPSIT\T3importExport\Component\PreProcessor\LookUpDB
-config {
-  select {
 
-    # the database table where we want to look for an entry
-    table = lookup_tablename
+### Options
 
-    # the column we like to use as result of the lookup proprocessor
-    fields = uid
+| option | description |
+|---|---|
+| `targetField` | Field of the record for the result (required). Without `singleRow` it gets a list of the mapped rows. |
+| `select.table` | Table to look in (required) |
+| `select.fields` | Columns to read, comma separated, default `*` |
+| `select.where` | Constraints `AND`, `OR` and `IN`, see below |
+| `select.groupBy`, `select.orderBy`, `select.limit` | SQL parts of the query |
+| `select.singleRow` | Use only the first row; its mapped columns are set in the record itself |
+| `fields.<column>.mapTo` | Field that gets the value of the column |
+| `childRecords` | Field with a list of child records; the lookup is done for each child record instead of the record |
 
-    where {
-      AND {
-
-        # the sql where clause, in this case we like to compare the title
-        # column of the lookup table with a value
-        condition = title=
-
-        # the attribute of our source record we want to copmpare with the title
-        # column
-        value = source_fieldname
-
-      }
-    }
-    singleRow = true
-  }
-
-  # the attribute containing the lookup value in our processed record after the
-  # pre processing
-  targetField = target_fieldname
-
-  fields {
-
-    # map the uid from the lookup record to the attribute in our pre processor
-    # record
-    uid {
-      mapTo = target_fieldname
-    }
-  }
-}
-```
+`condition` of `AND` and `OR` is SQL; the value of the record field `value`
+(with an optional `prefix`) is quoted and appended to it. The query uses the
+connection that `select.table` is mapped to and does not apply the
+restrictions of TYPO3 (`deleted`, `hidden`). The configuration must come from
+trusted sources.
 
 ### Constraints
 

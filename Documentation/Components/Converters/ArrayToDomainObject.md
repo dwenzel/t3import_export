@@ -5,7 +5,7 @@ Transforms a (nested) array to an domain object using the (Extbase) PropertyMapp
 the target object class. Non scalar values are mapped recursively.
 
 **Notes**
-* If a record has a key *__identiy*, the property will try and find an object by this id (usually the field *uid*).
+* If a record has a key *__identity*, the property will try and find an object by this id (usually the field *uid*).
 If found the object is updated. If *__identity* is not set or no object can be found, a new object is created.
 * There are some properties which **can not** be set via PropertyMapper e.g. *uid*, *_localized_uid*, *_language_uid*, *_versioned_uid*. They must be handled separatly e.g by a finisher.
 * **Important** Currently it is **not possible** to import an object and correctly localize it via PropertyMapper (due to limitations in TYPO3 core). Namely the correct relation between original an translated object can not be established. If necessary you will have to fix it on your own.
@@ -81,7 +81,7 @@ This example shows how a custom property mapping can be achieved.
 | option                    | type       | required | description                                                                                    |
 | --------------------------| ---------- | ---------|----------------------------------------------------------------------------------------------- |
 | config.targetClass        | string     | yes      | fully qualified class name. A repository with matching name must exist                         |
-| config.allowProperties    | string     | yes      | comma separated list of properties which should be mapped. A matching key must exist in the incoming array. |
+| config.allowProperties    | string     | no       | comma separated list of properties which should be mapped. A matching key must exist in the incoming array. |
 | config.allowAllProperties | boolean    | no       | If 1 the property mapper is allowed to map all properties otherwise only those are allowed which are configured in *allowProperties* option |
 | config.properties         | array      | no       | Array containing configuration for properties. Each key corresponds to a property name         |
 | [...].properties.\<name\> | array      | no       | Array containing configuration for a single property. *Important*: Any other option can be applied recursively to properties and sub-properties. |
@@ -90,7 +90,3 @@ This example shows how a custom property mapping can be achieved.
 | config.typeConverter      | array      | no       | optional configuration for a type converter                                                    |
 | [...].class               | string     | no       | fully qualified class name of a custom type converter implementation                           |
 | [...].options             | array      | no       | Array of options for the type converter. Available options depend on implementation.           |
-
-### Signal
-The component emits a signal just after building a property mapping configuration and before passing the record to the property mapper.
-See *ArrayToDomainObject-\>convert()* for details.

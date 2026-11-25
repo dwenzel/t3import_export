@@ -33,10 +33,15 @@ Use this initializer if you have to update some records with a specific set of *
     Parameter type for fields in *setFields*: `int`, `bool` or `null`.
     Fields without a type are bound as strings.
 
-* **config.identifier** *string*
+### Database connection
 
-    Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md).
-    If not set the default TYPO3 database will be used.
+The initializer uses the connection that the table is mapped to in
+`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']` (`Default` without
+mapping). An option `identifier` is ignored.
+
+The `where` clause is SQL and used as it is; the configuration must come from
+trusted sources. The restrictions of TYPO3 (`deleted`, `hidden`) are not
+applied.
 
 
 ### Example

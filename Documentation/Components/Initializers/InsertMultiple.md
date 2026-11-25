@@ -27,10 +27,13 @@ Use this initializer if you have to insert a few records into a table.
 
     If the value is 1, the initializer will not be called.
     See [Components](../../COMPONENT.md#disable-components) for `if.result.hasMessage` and `expression`.
-* **config.identifier** *string*
 
-    Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md)
-    If not set the default TYPO3 database will be used.
+### Database connection
+
+The initializer uses the connection that the table is mapped to in
+`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']` (`Default` without
+mapping). An option `identifier` is ignored.
+
 ### Example
 ```yaml
 import:
@@ -42,7 +45,6 @@ import:
             # initializer is disabled if the expression is true
             disable:
               expression: "false"  # your condition
-            # identifier: fooDatabaseConnection
             table: sys_category
             fields: uid,pid,title,parent
             rows:

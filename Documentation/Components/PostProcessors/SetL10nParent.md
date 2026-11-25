@@ -1,7 +1,8 @@
-PostProcessor GenerateFileReference
-===================================
+PostProcessor SetL10nParent
+===========================
 
-Generates and updates file references.
+Sets the localization parent of a converted record (an array, e.g. for
+`DataTargetDB`).
 
 ### Configuration Example
 
@@ -13,7 +14,7 @@ import:
         - class: "CPSIT\\T3importExport\\Component\\PostProcessor\\SetL10nParent"
           config:
             subject:
-              parentField: ln10_parent
+              parentField: l10n_parent
             parent:
               table: tx_foo_bar
               identityField: uid
@@ -21,50 +22,60 @@ import:
               prefix: RECORD_DE-
 ```
 
-Finds a localization parent record for `subject` by matching the value
-of `subject.parentField` with
-the value of `parent.matchField`. An optional value of `parent.prefix` of is
-added to the value of
-`source.identityField` before matching `parent.matchField`.
-`subject.parentField` will be set to the `parent.identityField`
+Reads the value of `subject.parentField` of the converted record, puts
+`parent.prefix` in front of it and looks for a row in `parent.table` whose
+`parent.matchField` has this value. If a row is found, the field
+`l10n_parent` of the converted record is set to the value of
+`parent.identityField` of that row (and `l10n_source` with
+`setL10nSource`). If the value is empty or no row is found, the record is
+not changed.
+
+The field that is set is always `l10n_parent`, also if `subject.parentField`
+names another field. The query uses the connection that `parent.table` is
+mapped to and does not apply the restrictions of TYPO3.
+
+For domain objects (after `ArrayToDomainObject`) use
+[TranslateObject](./TranslateObject.md).
 
 ### Options
 
-| option                      | type   | required | description                                                                                               |
-|-----------------------------|--------|----------|-----------------------------------------------------------------------------------------------------------|
-| config.subject.parentField  | string | yes      | Source field name                                                                                         |
-| config.parent.table         | string | yes      | Table name for lookup of localization parent                                                              |
-| config.parent.matchField    | string | yes      | Match field for lookup of localization parent                                                             |
-| config.parent.identityField | string | no       | Field name to lookup for localization parent.<br/> If not set `uid` will be used.<br/> Must not be empty. |
-| config.parent.prefix        | string | no       | Optional prefix for lookup field. Must not be empty.                                                      |
+| option                      | type   | required | description |
+|-----------------------------|--------|----------|-------------|
+| config.subject.parentField  | string | yes      | field of the converted record with the value to match |
+| config.parent.table         | string | yes      | table of the localization parent |
+| config.parent.matchField    | string | yes      | field of the parent table that is compared with the value |
+| config.parent.identityField | string | no       | field of the parent row that is written to `l10n_parent`; default `uid`. Must not be empty. |
+| config.parent.prefix        | string | no       | prefix put in front of the value before matching. Must not be empty. |
+| config.setL10nSource        | bool   | no       | also set `l10n_source` |
 
 ### Example records
 
-**Source**
+**Converted record**
 
 ```php
-$subject = [
+$record = [
    'sys_language_uid' => 1,
    'import_id' => 'RECORD_EN-5',
-   'l10_parent' => 4
-]
+   'l10n_parent' => 4,
+];
+```
 
+**Parent row** in `tx_foo_bar`
+
+```php
 $parent = [
   'uid' => 17,
   'import_id' => 'RECORD_DE-4',
-  'sys_language_uid' => 0
-]
+  'sys_language_uid' => 0,
+];
 ```
 
 **Result**
 
 ```php
-$subject = [
-   'uid' => '<will be set to new internal uid',
+$record = [
    'sys_language_uid' => 1,
    'import_id' => 'RECORD_EN-5',
-   'sys_language_uid' => 1,
-   'l10n_parent' => 17
-]
-
+   'l10n_parent' => 17,
+];
 ```
