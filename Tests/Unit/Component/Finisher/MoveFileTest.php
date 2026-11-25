@@ -2,6 +2,8 @@
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
+use CPSIT\T3importExport\Resource\FileTargetGuard;
+use CPSIT\T3importExport\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Component\Finisher\MoveFile;
 use CPSIT\T3importExport\LoggingInterface;
 use CPSIT\T3importExport\Tests\Unit\Traits\MockMessageContainerTrait;
@@ -645,4 +647,19 @@ class MoveFileTest extends TestCase
         );
     }
 
+    public function testProcessDoesNotMoveToDeniedFileNames(): void
+    {
+        $records = [];
+        $result = [];
+        $this->resourceStorage->expects($this->never())->method('moveFile');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->subject->process(
+            ['source' => ['name' => 'foo.xml'], 'target' => ['name' => '.htaccess']],
+            $records,
+            $result
+        );
+    }
 }
