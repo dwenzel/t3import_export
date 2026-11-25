@@ -65,7 +65,7 @@ class ConvertTypoScriptCommand extends Command
 
         $outputFile = $input->getOption(self::OPTION_OUTPUT);
         if (is_string($outputFile) && $outputFile !== '' && !$this->isAllowedOutputFile($outputFile)) {
-            $messages->writeln(sprintf('<error>The output file must be a local file with the extension .yaml or .yml: %s</error>', $outputFile));
+            $messages->writeln(sprintf('<error>The output file must be a local file with the extension .yaml or .yml in an existing directory (no symbolic link, no ".."): %s</error>', $outputFile));
             return Command::FAILURE;
         }
 
@@ -139,9 +139,30 @@ class ConvertTypoScriptCommand extends Command
         return $contents;
     }
 
+    /**
+     * The output file must be a local YAML file (*.yaml, *.yml) in an existing
+     * directory. Control characters, `..` segments, stream wrappers and
+     * symbolic links are not allowed.
+     */
     protected function isAllowedOutputFile(string $file): bool
     {
-        return !$this->hasScheme($file) && (bool)preg_match('/\.ya?ml$/i', $file);
+        if (
+            preg_match('/[\x00-\x1F\x7F]/', $file)
+            || $this->hasScheme($file)
+            || in_array('..', preg_split('#[/\\\\]+#', $file) ?: [], true)
+            || !preg_match('/\.ya?ml$/i', $file)
+        ) {
+            return false;
+        }
+        if (is_link($file)) {
+            return false;
+        }
+        if (file_exists($file)) {
+            return is_file($file);
+        }
+        $directory = realpath(dirname($file));
+
+        return $directory !== false && is_dir($directory);
     }
 
     /**
