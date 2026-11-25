@@ -30,7 +30,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   target names of `WriteFile` and `MoveFile` are checked the same way. Server
   configuration files (e.g. `.htaccess`, `.user.ini`), names with a colon and
   names ending in a dot or space are refused
-  ([#199](https://github.com/dwenzel/t3import_export/pull/199))
+  ([#199](https://github.com/dwenzel/t3import_export/pull/199)). Names
+  containing `?` or `#` are refused as well
+  ([#202](https://github.com/dwenzel/t3import_export/pull/202)). These rules
+  also apply to `file` of `DataTargetCSV` (exception code 1795400103).
 * `GenerateFileResource` and `GenerateUploadFile` check the source of the
   files they copy
   ([#202](https://github.com/dwenzel/t3import_export/pull/202)). Existing
@@ -64,7 +67,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   * The target name is the last segment of the path (for URLs without query
     and fragment); names with `?` or `#` and `.svgz` files are refused. SVG
     files (by extension or MIME type of the content) are sanitized with the
-    SVG sanitizer of TYPO3. HTML and XML files are not sanitized.
+    SVG sanitizer of TYPO3; the MIME type detection is a best effort. HTML,
+    XHTML and XML files are not sanitized.
+  * Target file names containing `?` or `#` are now refused (exception code
+    1795400103), like names with a colon and names ending in a dot or space.
+    This affects `file` of `DataTargetCSV`, `target.name` of `WriteFile` and
+    `MoveFile`, and the names of local source files of `GenerateFileResource`
+    and `GenerateUploadFile` (e.g. `report#1.csv`, `a?b.csv`). Rename such
+    files or targets before upgrading.
 
 ## 3.3.0 - 2026-11-22
 

@@ -197,19 +197,24 @@ final readonly class FileSourceGuard
         $extensionDirectory = self::extensionDirectory($sourcePath);
         $absoluteSourcePath = GeneralUtility::getFileAbsFileName($sourcePath);
         $absolutePath = GeneralUtility::getFileAbsFileName($path);
-        if ($extensionDirectory === null || $absoluteSourcePath === '' || $absolutePath === '') {
+        if ($extensionDirectory === null) {
             throw $this->notAllowed($path, 'the extension of the source path is not loaded.', self::ERROR_DIRECTORY_NOT_ALLOWED);
+        }
+        if ($absoluteSourcePath === '' || $absolutePath === '') {
+            throw $this->notAllowed($path, 'the path cannot be resolved inside the extension.', self::ERROR_DIRECTORY_NOT_ALLOWED);
         }
         // the directory of the source path: the path itself if it ends with a slash, else its parent
         $sourceDirectory = str_ends_with($sourcePath, '/') ? rtrim($absoluteSourcePath, '/') : \dirname($absoluteSourcePath);
         $realSourceDirectory = self::realPath($sourceDirectory);
         $realPath = self::realPath($absolutePath);
-        if (
-            $realSourceDirectory === null
-            || $realPath === null
-            || !self::isInDirectories($realSourceDirectory . '/', [$extensionDirectory])
-            || !self::isInDirectories($realPath, [$realSourceDirectory])
-        ) {
+        if ($realSourceDirectory === null || !self::isInDirectories($realSourceDirectory . '/', [$extensionDirectory])) {
+            throw $this->notAllowed(
+                $path,
+                'the source directory must be inside the extension (a source path without trailing slash uses its parent directory).',
+                self::ERROR_DIRECTORY_NOT_ALLOWED
+            );
+        }
+        if ($realPath === null || !self::isInDirectories($realPath, [$realSourceDirectory])) {
             throw $this->notAllowed(
                 $path,
                 'files of EXT: paths must be below the directory of the source path inside the extension.',
