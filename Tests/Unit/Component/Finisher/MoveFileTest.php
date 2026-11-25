@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
+use CPSIT\T3importExport\Resource\FileTargetGuard;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Component\Finisher\MoveFile;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
@@ -99,5 +101,24 @@ class MoveFileTest extends TestCase
             ->with($file, $this->folder, 'bar.xml', $expected);
 
         $this->assertTrue($this->subject->process($configuration, $records, $result));
+    }
+
+    public function testProcessDoesNotMoveToDeniedFileNames(): void
+    {
+        $records = [];
+        $result = [];
+        $file = $this->createStub(File::class);
+        $this->resourceStorage->method('hasFileInFolder')->willReturn(true);
+        $this->folder->method('getFiles')->willReturn(['foo.xml' => $file]);
+        $this->resourceStorage->expects($this->never())->method('moveFile');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->subject->process(
+            ['source' => ['name' => 'foo.xml'], 'target' => ['name' => '.htaccess']],
+            $records,
+            $result
+        );
     }
 }
