@@ -34,7 +34,9 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *   (`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileSourceDirectories']`,
  *   default: `fileadmin/` of the public directory and `import/` of the var
  *   directory). Relative directories are relative to the public directory.
- * - or, for `EXT:` paths, inside the directory of the extension.
+ * - or, for an `EXT:` path given as `sourcePath` in the configuration, below
+ *   the directory of that `sourcePath` inside the extension. A value of a
+ *   record cannot name an `EXT:` path.
  *
  * Paths with control characters, `..` segments and stream wrappers
  * (`scheme://`, `php:`, `data:`, `phar:` ...) are rejected. Symbolic links are
@@ -43,8 +45,10 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *
  * URLs are loaded only with http and https and from an allowed host
  * (`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts']`,
- * default: none). `example.org` allows this host, `*.example.org` its
- * subdomains and `*` all hosts.
+ * default: none). `example.org` allows this host with the default port of
+ * the scheme (80, 443), `example.org:8080` this host with port 8080,
+ * `*.example.org` the subdomains (optionally with a port) and `*` all hosts
+ * and ports.
  */
 final readonly class FileSourceGuard
 {
@@ -59,18 +63,17 @@ final readonly class FileSourceGuard
     private array $directories;
 
     /**
-     * @var list<string>|null lower case host names, null: all hosts
+     * @var list<array{host: string, port: int|null}>|null lower case host names and ports (null: default port), null: all hosts
      */
     private ?array $allowedHosts;
 
     /**
      * @param list<string>|null $directories allowed directories, absolute or relative to the public directory; default: the configured ones
-     * @param list<string>|null $allowedHosts allowed hosts, `*.example.org` for subdomains, `*` for all hosts; default: the configured ones
+     * @param list<string>|null $allowedHosts allowed hosts (`host` or `host:port`), `*.example.org` for subdomains, `*` for all hosts; default: the configured ones
      */
     public function __construct(
         ?array $directories = null,
         ?array $allowedHosts = null,
-        private bool $allowExtensionPaths = true,
     ) {
         $this->directories = array_map(
             static fn(string $directory): string => rtrim(
@@ -86,10 +89,19 @@ final readonly class FileSourceGuard
             )
         );
         $hosts = array_map(
-            static fn(string $host): string => rtrim(strtolower(trim($host)), '.'),
+            static fn(string $host): string => strtolower(trim($host)),
             $allowedHosts ?? self::configuredList('allowedHosts', [])
         );
-        $this->allowedHosts = \in_array('*', $hosts, true) ? null : $hosts;
+        $this->allowedHosts = \in_array('*', $hosts, true) ? null : array_map(
+            static function (string $host): array {
+                if (preg_match('/^(.+):(\d+)$/', $host, $matches) === 1 && !str_ends_with($matches[1], ':')) {
+                    return ['host' => rtrim($matches[1], '.'), 'port' => (int)$matches[2]];
+                }
+
+                return ['host' => rtrim($host, '.'), 'port' => null];
+            },
+            $hosts
+        );
     }
 
     /**
@@ -136,37 +148,33 @@ final readonly class FileSourceGuard
     /**
      * Resolves the path of a local source file.
      *
-     * @return string absolute path
+     * An `EXT:` path is only allowed if `$sourcePath` (the `sourcePath` of the
+     * configuration) is an `EXT:` path and `$path` starts with it. The file
+     * must be below the directory of `$sourcePath`, which must be inside the
+     * extension.
+     *
+     * @return string real path of the file (symbolic links resolved)
      * @throws InvalidArgumentException if the path is not allowed
      */
-    public function resolveFile(string $path): string
+    public function resolveFile(string $path, ?string $sourcePath = null): string
     {
         $isExtensionPath = PathUtility::isExtensionPath($path);
         if (
-            trim($path) === ''
-            || preg_match('/[\x00-\x1F\x7F]/', $path) === 1
-            // stream wrappers and schemes like php:, data:, phar: (a single letter is a drive letter)
-            || (!$isExtensionPath && preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]+:#', $path) === 1)
-            || \in_array('..', preg_split('#[/\\\\]+#', $path) ?: [], true)
-            || ($isExtensionPath && !$this->allowExtensionPaths)
+            self::isInvalidPath($path)
+            || ($isExtensionPath && ($sourcePath === null || !PathUtility::isExtensionPath($sourcePath) || !str_starts_with($path, $sourcePath)))
         ) {
             throw $this->notAllowed(
                 $path,
-                'empty paths, control characters, ".." segments and stream wrappers are not allowed.',
+                'empty paths, control characters, ".." segments, stream wrappers and EXT: paths which are not the configured source path are not allowed.',
                 self::ERROR_PATH_NOT_ALLOWED
             );
         }
         if ($isExtensionPath) {
-            $absolutePath = GeneralUtility::getFileAbsFileName($path);
-            $extensionDirectory = self::extensionDirectory($path);
-            if ($absolutePath === '' || $extensionDirectory === null || !self::isInDirectories($absolutePath, [$extensionDirectory])) {
-                throw $this->notAllowed($path, 'files of EXT: paths must be in the directory of the extension.', self::ERROR_DIRECTORY_NOT_ALLOWED);
-            }
-
-            return $absolutePath;
+            return $this->resolveExtensionFile($path, (string)$sourcePath);
         }
         $absolutePath = PathUtility::isAbsolutePath($path) ? $path : Environment::getPublicPath() . '/' . $path;
-        if (!self::isInDirectories($absolutePath, $this->directories)) {
+        $realPath = self::realPath($absolutePath);
+        if ($realPath === null || !self::isInDirectories($realPath, $this->directories)) {
             throw $this->notAllowed(
                 $path,
                 'files can only be read from the directories ' . implode(', ', $this->directories) . '.',
@@ -174,7 +182,51 @@ final readonly class FileSourceGuard
             );
         }
 
-        return $absolutePath;
+        return $realPath;
+    }
+
+    /**
+     * @return string real path of the file
+     * @throws InvalidArgumentException if the file is not below the directory of the source path inside the extension
+     */
+    private function resolveExtensionFile(string $path, string $sourcePath): string
+    {
+        if (self::isInvalidPath($sourcePath)) {
+            throw $this->notAllowed($sourcePath, 'the source path is not allowed.', self::ERROR_PATH_NOT_ALLOWED);
+        }
+        $extensionDirectory = self::extensionDirectory($sourcePath);
+        $absoluteSourcePath = GeneralUtility::getFileAbsFileName($sourcePath);
+        $absolutePath = GeneralUtility::getFileAbsFileName($path);
+        if ($extensionDirectory === null || $absoluteSourcePath === '' || $absolutePath === '') {
+            throw $this->notAllowed($path, 'the extension of the source path is not loaded.', self::ERROR_DIRECTORY_NOT_ALLOWED);
+        }
+        // the directory of the source path: the path itself if it ends with a slash, else its parent
+        $sourceDirectory = str_ends_with($sourcePath, '/') ? rtrim($absoluteSourcePath, '/') : \dirname($absoluteSourcePath);
+        $realSourceDirectory = self::realPath($sourceDirectory);
+        $realPath = self::realPath($absolutePath);
+        if (
+            $realSourceDirectory === null
+            || $realPath === null
+            || !self::isInDirectories($realSourceDirectory . '/', [$extensionDirectory])
+            || !self::isInDirectories($realPath, [$realSourceDirectory])
+        ) {
+            throw $this->notAllowed(
+                $path,
+                'files of EXT: paths must be below the directory of the source path inside the extension.',
+                self::ERROR_DIRECTORY_NOT_ALLOWED
+            );
+        }
+
+        return $realPath;
+    }
+
+    private static function isInvalidPath(string $path): bool
+    {
+        return trim($path) === ''
+            || preg_match('/[\x00-\x1F\x7F]/', $path) === 1
+            // stream wrappers and schemes like php:, data:, phar: (a single letter is a drive letter)
+            || (!PathUtility::isExtensionPath($path) && preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]+:#', $path) === 1)
+            || \in_array('..', preg_split('#[/\\\\]+#', $path) ?: [], true);
     }
 
     /**
@@ -199,6 +251,10 @@ final readonly class FileSourceGuard
         }
     }
 
+    /**
+     * Whether the host and port of a URL are allowed. An entry without port
+     * allows only the default port of the scheme (80 for http, 443 for https).
+     */
     public function isHostAllowed(string $url): bool
     {
         $host = rtrim(strtolower((string)parse_url($url, PHP_URL_HOST)), '.');
@@ -208,11 +264,13 @@ final readonly class FileSourceGuard
         if ($this->allowedHosts === null) {
             return true;
         }
+        $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+        $defaultPort = $scheme === 'https' ? 443 : 80;
+        $port = parse_url($url, PHP_URL_PORT) ?? $defaultPort;
         foreach ($this->allowedHosts as $allowedHost) {
-            if (
-                $host === $allowedHost
-                || (str_starts_with($allowedHost, '*.') && str_ends_with($host, substr($allowedHost, 1)))
-            ) {
+            $hostMatches = $host === $allowedHost['host']
+                || (str_starts_with($allowedHost['host'], '*.') && str_ends_with($host, substr($allowedHost['host'], 1)));
+            if ($hostMatches && $port === ($allowedHost['port'] ?? $defaultPort)) {
                 return true;
             }
         }
@@ -254,14 +312,11 @@ final readonly class FileSourceGuard
     }
 
     /**
+     * @param string $realPath real path (see `realPath()`)
      * @param list<string> $directories
      */
-    private static function isInDirectories(string $absolutePath, array $directories): bool
+    private static function isInDirectories(string $realPath, array $directories): bool
     {
-        $realPath = self::realPath($absolutePath);
-        if ($realPath === null) {
-            return false;
-        }
         foreach ($directories as $directory) {
             $realDirectory = self::realPath($directory);
             if ($realDirectory !== null && str_starts_with($realPath, rtrim($realDirectory, '/') . '/')) {
