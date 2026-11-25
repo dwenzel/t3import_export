@@ -3,6 +3,9 @@ Finisher ClearCache
 Clears caches.
 Currently only _all_, and _pages_ cache are supported. Arbitrary caches or cache groups are not supported yet.
 **Note**: Nothing will be done, if the result is empty.
+Tasks in a set share one result, so the finisher also acts on the records of
+earlier tasks of the set, and `classes` checks the first item of the first
+task with records.
 
 ### Examples
 **all**
