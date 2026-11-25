@@ -88,6 +88,8 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = [
   each port which is needed.
 * `*.example.com` allows the subdomains of `example.com` (not `example.com`
   itself), `*.example.com:8443` with port 8443.
+* IPv6 addresses need brackets: `[::1]` (default port), `[::1]:8080`.
+  `*:port` (all hosts with one port) is not supported.
 * `*` allows every host and port, including internal addresses such as
   `127.0.0.1` or `169.254.169.254`.
 
@@ -116,8 +118,17 @@ are refused. Compressed SVG files (`.svgz`) are refused.
 
 SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG
 if its extension is `svg` or if the content has the MIME type `image/svg+xml`,
-whatever its name. Other file types, e.g. HTML or XML files, are not
-sanitized; check them before they are served from a public directory.
+whatever its name. The MIME type is detected with `finfo` on the first
+megabyte of the content; this is a best effort and may miss SVG content that
+the detection does not recognize. HTML, XHTML and XML files are not sanitized;
+check them before they are served from a public directory.
+
+Upgrade note: target file names containing `?` or `#` are now refused
+(exception code 1795400103), like names with a colon and names ending in a dot
+or space. This affects `file` of `DataTargetCSV`, `target.name` of `WriteFile`
+and `MoveFile`, and the names of local source files of `GenerateFileResource`
+and `GenerateUploadFile` (e.g. `report#1.csv`, `a?b.csv`). Rename such files
+or targets before upgrading.
 
 ## Example
 
