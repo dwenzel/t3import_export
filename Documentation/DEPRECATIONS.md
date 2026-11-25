@@ -867,8 +867,11 @@ vendor/bin/typo3 t3import-export:convert-typoscript \
   or YAML files such as site settings (a top-level `settings` key is used if
   present). `{$...}` in the settings is replaced by these values; TypoScript
   constants take precedence over YAML values.
-* **--output** (`-o`): YAML file to write. Without it, the YAML is written to
-  the standard output.
+* **--output** (`-o`): YAML file to write (extension `.yaml` or `.yml`).
+  Without it, the YAML is written to the standard output.
+
+The command is meant for the command line; the scheduler does not offer it.
+Files with a stream wrapper (e.g. `ftp://`) are not read or written.
 
 The command lists content objects (e.g. `TEXT`) and constants without a value.
 Content objects are copied as they are; they work in 3.x only and have to be
