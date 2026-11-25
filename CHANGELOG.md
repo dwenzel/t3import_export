@@ -10,6 +10,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ## Unreleased
 
+## 3.3.1 - 2026-11-25
+
 ### Security
 
 * The command `t3import-export:convert-typoscript` is not offered by the
