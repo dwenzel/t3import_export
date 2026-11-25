@@ -156,12 +156,14 @@ trait GenerateFileTrait
 
         $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
         $handle = false;
+        $created = false;
         $renamed = false;
         try {
             $handle = @fopen($temporaryPath, 'xb');
             if ($handle === false) {
                 return false;
             }
+            $created = true;
             $written = $this->writeStream($stream, $handle);
             $closed = fclose($handle);
             $handle = false;
@@ -178,7 +180,7 @@ trait GenerateFileTrait
             if (\is_resource($handle)) {
                 fclose($handle);
             }
-            if (!$renamed) {
+            if ($created && !$renamed) {
                 @unlink($temporaryPath);
             }
             $stream->close();

@@ -212,6 +212,9 @@ class FileSourceGuardTest extends TestCase
         $packageManager->method('isPackageActive')->willReturnCallback(static fn(string $key): bool => $key === 'my_ext');
         $packageManager->method('resolvePackagePath')->willReturnCallback(
             function (string $path): string {
+                if ($path === 'EXT:my_ext') {
+                    return $this->directory;
+                }
                 if (!str_starts_with($path, 'EXT:my_ext/')) {
                     throw new UnknownPackageException('unknown', 1795400299);
                 }
@@ -277,6 +280,20 @@ class FileSourceGuardTest extends TestCase
         $this->expectExceptionCode(FileSourceGuard::ERROR_PATH_NOT_ALLOWED);
 
         (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/image.jpg', 'EXT:my_ext/Import/');
+    }
+
+    /**
+     * @test
+     */
+    public function resolveFileRejectsSourceDirectoryOutsideOfExtension(): void
+    {
+        $this->mockExtension();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
+        $this->expectExceptionMessage('the source directory must be inside the extension');
+
+        // without trailing slash: the directory is the parent of the extension
+        (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/Import/a.csv', 'EXT:my_ext');
     }
 
     /**
