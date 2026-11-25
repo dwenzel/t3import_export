@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Persistence;
 
+use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
 use CPSIT\T3importExport\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Persistence\DataTargetCSV;
@@ -76,6 +77,23 @@ class DataTargetCSVTest extends TestCase
         self::assertInstanceOf(InvalidArgumentException::class, $exception);
         if ($absoluteFileName !== '') {
             self::assertFileDoesNotExist($absoluteFileName);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function persistAllThrowsExceptionIfFileCannotBeOpened(): void
+    {
+        $directory = 'typo3temp/var/tests/data-target-csv-' . uniqid('', true) . '.csv';
+        $absoluteDirectory = GeneralUtility::getFileAbsFileName($directory);
+        GeneralUtility::mkdir_deep($absoluteDirectory);
+        try {
+            $this->expectException(FileOperationErrorException::class);
+
+            @$this->subject->persistAll($this->createTaskResult([['uid' => 1]]), ['file' => $directory]);
+        } finally {
+            GeneralUtility::rmdir($absoluteDirectory);
         }
     }
 }

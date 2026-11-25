@@ -36,8 +36,9 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *   var directory). Relative directories are relative to the public directory.
  *
  * File names matching `$GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern']`
- * and server configuration files (e.g. `.htaccess`, `.user.ini`) are never
- * written. Paths with `..` segments and stream wrappers (`scheme://`) are
+ * or the default pattern of TYPO3, server configuration files (e.g.
+ * `.htaccess`, `.user.ini`), names with a colon and names ending in a dot or
+ * space are never written. Paths with `..` segments and stream wrappers (`scheme://`) are
  * rejected. Symbolic links are resolved: the real path must be inside the real
  * path of an allowed directory, so an allowed directory may itself be a link.
  */
@@ -65,6 +66,8 @@ final readonly class FileTargetGuard
      */
     private array $directories;
 
+    private FileNameValidator $defaultFileNameValidator;
+
     /**
      * @param list<string>|null $extensions allowed file extensions of data files; default: the configured ones
      * @param list<string>|null $directories allowed directories, absolute or relative to the public directory; default: the configured ones
@@ -74,6 +77,7 @@ final readonly class FileTargetGuard
         ?array $directories = null,
         private FileNameValidator $fileNameValidator = new FileNameValidator(),
     ) {
+        $this->defaultFileNameValidator = new FileNameValidator(FileNameValidator::DEFAULT_FILE_DENY_PATTERN);
         $this->extensions = array_map(
             static fn(string $extension): string => strtolower(ltrim($extension, '.')),
             $extensions ?? self::configuredList('fileTargetExtensions', self::DEFAULT_EXTENSIONS)
@@ -148,8 +152,11 @@ final readonly class FileTargetGuard
     }
 
     /**
-     * Checks a file name against the fileDenyPattern of TYPO3 and denies
-     * server configuration files. For files of any type, e.g. copied images.
+     * Checks a file name against the configured fileDenyPattern of TYPO3
+     * and against its default pattern (so that an empty or weaker
+     * configured pattern does not disable the check), and denies server
+     * configuration files, colons (alternate data streams) and names
+     * ending in a dot or space. For files of any type, e.g. copied images.
      *
      * @throws InvalidArgumentException if the file name is not allowed
      */
@@ -157,7 +164,10 @@ final readonly class FileTargetGuard
     {
         if (
             $fileName === ''
+            || str_contains($fileName, ':')
+            || preg_match('/[. ]$/', $fileName) === 1
             || !$this->fileNameValidator->isValid($fileName)
+            || !$this->defaultFileNameValidator->isValid($fileName)
             || preg_match(self::SERVER_CONFIGURATION_FILES, $fileName) === 1
         ) {
             throw $this->notAllowed($fileName, 'the file type is not allowed (fileDenyPattern).', self::ERROR_FILE_TYPE_NOT_ALLOWED);
