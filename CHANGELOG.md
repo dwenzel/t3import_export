@@ -26,9 +26,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   [DataTargetCSV](Documentation/Persistence/DataTargetCSV.md#written-files)
   ([#199](https://github.com/dwenzel/t3import_export/pull/199))
 * `GenerateFileResource` and `GenerateUploadFile` copy only files whose names
-  do not match the `fileDenyPattern` of TYPO3; the target names of `WriteFile`
-  and `MoveFile` are checked the same way. Server configuration files (e.g.
-  `.htaccess`, `.user.ini`) are refused
+  do not match the `fileDenyPattern` of TYPO3 or its default pattern; the
+  target names of `WriteFile` and `MoveFile` are checked the same way. Server
+  configuration files (e.g. `.htaccess`, `.user.ini`), names with a colon and
+  names ending in a dot or space are refused
   ([#199](https://github.com/dwenzel/t3import_export/pull/199))
 
 ## 3.3.0 - 2026-11-22

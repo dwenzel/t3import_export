@@ -45,7 +45,7 @@ Write the file from `result.info` into the file `bar.xml` in the directory `foo/
 ### Options
 | option                    | type    | required | default    |description         |
 | --------------------------| ------- | ---------|------------|----------- |
-| config.target.name        | string  | yes      |            | target file name. Names matching the `fileDenyPattern` of TYPO3 and server configuration files (e.g. `.htaccess`, `.user.ini`) are not allowed |
+| config.target.name        | string  | yes      |            | target file name. Names matching the `fileDenyPattern` of TYPO3 or its default pattern, server configuration files (e.g. `.htaccess`, `.user.ini`), names with a colon and names ending in a dot or space are not allowed |
 | config.target.storage     | integer | no       | 1          | ID of the storage in which the file should be written. If not set default storage is used. |
 | config.target.directory   | string  | no       |            | target directory name. If the directory does not exist, it will be created in the selected storage |
 | config.target.conflictMode| string  | no       | changeName | which strategy to use when a file already exists. Allowed: cancel, replace, changeName |

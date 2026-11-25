@@ -105,12 +105,12 @@ class DataTargetCSV implements DataTargetInterface, ConfigurableInterface
         touch($absFileName);
 
         $output = fopen($absFileName, 'r+');
-        fwrite($output, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
         if (!$output) {
             throw new FileOperationErrorException(
                 'can\'t create new temp file: \'' . $absFileName . '\''
             );
         }
+        fwrite($output, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
         if (isset($configuration['fields'])) {
             $fields = GeneralUtility::trimExplode(',', $configuration['fields'], true);
             fputcsv($output, $fields, $delimiter, $enclosure, $escape);

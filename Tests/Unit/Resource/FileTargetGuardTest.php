@@ -272,4 +272,46 @@ class FileTargetGuardTest extends TestCase
 
         (new FileTargetGuard())->assertFileName($fileName);
     }
+
+    public static function unsafeFileNameDataProvider(): iterable
+    {
+        yield 'alternate data stream' => ['export.php::$DATA'];
+        yield 'colon' => ['export.csv:stream'];
+        yield 'trailing dot' => ['export.php.'];
+        yield 'trailing space' => ['export.php '];
+        yield 'csv with trailing dot' => ['export.csv.'];
+    }
+
+    #[Test]
+    #[DataProvider('unsafeFileNameDataProvider')]
+    public function assertFileNameRejectsColonsAndTrailingDotsOrSpaces(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        (new FileTargetGuard())->assertFileName($fileName);
+    }
+
+    public static function weakFileDenyPatternDataProvider(): iterable
+    {
+        yield 'empty pattern' => [''];
+        yield 'other pattern' => ['\\.exe$'];
+    }
+
+    #[Test]
+    #[DataProvider('weakFileDenyPatternDataProvider')]
+    public function assertFileNameAppliesDefaultFileDenyPattern(string $pattern): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = $pattern;
+        try {
+            $subject = new FileTargetGuard();
+        } finally {
+            unset($GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern']);
+        }
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $subject->assertFileName('export.phtml');
+    }
 }
