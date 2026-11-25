@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\ConfigurableInterface;
+use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\CacheService;
 
@@ -52,13 +53,13 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      * config:
      *   pages: '1,3,5'
      * 3. Clear all if any result for a given class name
-     * ($result[0] must contain an object of the given class)
+     * (the first item of the result must be an object of the given class)
      * config:
      *   classes:
      *     NameSpaced\ClassName\OfResult:
      *       all: 1
      * 4. Clear selected pages if any result for a given class name
-     * ($result[0] must contain an object of the given class)
+     * (the first item of the result must be an object of the given class)
      * config:
      *   classes:
      *     NameSpaced\ClassName\OfResult:
@@ -67,7 +68,8 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
      */
     public function process(array $configuration, array &$records, array|object &$result): bool
     {
-        if (!(bool)$result) {
+        $items = $this->getResultItems($result);
+        if ($items === []) {
             // nothing imported - do not clear any cache
             return true;
         }
@@ -84,7 +86,8 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
             isset($configuration['classes'])
             && is_array($configuration['classes'])
         ) {
-            $resultClass = $result[0]::class;
+            $firstItem = reset($items);
+            $resultClass = is_object($firstItem) ? $firstItem::class : null;
 
             foreach ($configuration['classes'] as $key => $localConfig) {
                 if ($key !== $resultClass) {
@@ -104,6 +107,25 @@ class ClearCache extends AbstractFinisher implements FinisherInterface, Configur
         }
 
         return true;
+    }
+
+    /**
+     * Returns the items of the result. The result is the task result of the
+     * core or, for direct calls, an array.
+     */
+    protected function getResultItems(array|object $result): array
+    {
+        if (is_array($result)) {
+            return $result;
+        }
+        if ($result instanceof ResultInterface) {
+            return $result->toArray();
+        }
+        if ($result instanceof \Traversable) {
+            return iterator_to_array($result, false);
+        }
+
+        return [];
     }
 
     /**

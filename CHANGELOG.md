@@ -223,6 +223,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Fixed
 
+* `ClearCache` clears caches only if the task result has items, and the
+  option `classes` works with the task result of the core
 * `LookUpDB` sorts the rows for `keepOrder` in PHP instead of adding the
   MySQL-specific `ORDER BY FIELD()` to the WHERE clause, so it works on all
   databases and together with AND/OR constraints
