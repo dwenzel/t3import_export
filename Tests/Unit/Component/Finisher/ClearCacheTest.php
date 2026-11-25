@@ -50,9 +50,9 @@ class ClearCacheTest extends TestCase
     protected function mockCacheService(): void
     {
         // Mock dependencies for CacheService
-        $configurationManager = $this->createMock(ConfigurationManagerInterface::class);
-        $cacheManager = $this->createMock(CacheManager::class);
-        $connectionPool = $this->createMock(ConnectionPool::class);
+        $configurationManager = $this->createStub(ConfigurationManagerInterface::class);
+        $cacheManager = $this->createStub(CacheManager::class);
+        $connectionPool = $this->createStub(ConnectionPool::class);
 
         $this->cacheService = $this->getMockBuilder(CacheService::class)
             ->setConstructorArgs([$configurationManager, $cacheManager, $connectionPool])
@@ -165,6 +165,8 @@ class ClearCacheTest extends TestCase
     public function testIsConfigurationValidAlwaysReturnsTrue(): void
     {
         $configuration = [];
+        $this->cacheService->expects($this->never())
+            ->method('clearPageCache');
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
         );
