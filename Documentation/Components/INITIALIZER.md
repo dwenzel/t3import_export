@@ -2,9 +2,10 @@ Initializer
 ===========
 
 Initializers are performed for each task *before* any other transformation
-(i.e. PreProcessors, Converter, PostProcessors and Finishers). They receive
-their configuration and an array containing **all** records which where fetched
-from source for this task.
+(i.e. PreProcessors, Converter, PostProcessors and Finishers), after the
+records of the task were read from the source. Initializers of the extension
+receive their configuration and an empty array of records: the processor of
+`cpsit/import-export-core` does not pass the records to them.
 
 Currently the following initializers exist:
 * [DeleteFromTable](./Initializers/DeleteFromTable.md)

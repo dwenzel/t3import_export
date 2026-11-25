@@ -79,9 +79,13 @@ process.
   - [CSV Files](./Documentation/Persistence/DataSourceCSV.md)
   - [XML Files](./Documentation/Persistence/DataSourceXML.md)
   - [Database Tables](./Documentation/Persistence/DataSourceDB.md)
+  - [Queue](./Documentation/Persistence/Queue.md#datasourcequeue)
 - **Data Targets**
   - [Database Tables](./Documentation/Persistence/DataTargetDB.md)
   - [CSV Files](./Documentation/Persistence/DataTargetCSV.md)
+  - [Queue](./Documentation/Persistence/Queue.md#datatargetqueue)
+- [ID map and state components](./Documentation/Persistence/IdMap.md)
+- [Files: paths and URLs](./Documentation/Persistence/Files.md)
 
 ### 🔌 Services & Utilities
 - [Database Connection Service](./Documentation/Service/DatabaseConnectionService.md)
@@ -119,7 +123,8 @@ The **Import & Export** extension provides a comprehensive, flexible framework f
 composer require cpsit/t3import_export
 ```
 
-Activate the extension in the TYPO3 Extension Manager.
+In Composer mode the extension is active after installation. Update the
+database schema afterwards (`vendor/bin/typo3 extension:setup`).
 
 For detailed installation instructions, troubleshooting, and environment setup, see [Installation Guide](./Documentation/INSTALL.md).
 
@@ -169,9 +174,10 @@ vendor/bin/typo3 t3import-export:import-set --yaml-config path/to/config.yaml
 
 - **TYPO3**: 14.3 LTS
 - **PHP**: 8.3 or 8.4
-- **Dependencies**:
-  - symfony/yaml (for YAML configuration)
-  - TYPO3 core extensions (extbase, fluid)
+- **Dependencies** (installed by Composer):
+  - cpsit/import-export-core ^0.7
+  - dwenzel/t3extension-tools
+  - symfony/expression-language
 
 ## Architecture Overview
 
@@ -205,9 +211,9 @@ A **Set** is a collection of tasks that are executed sequentially. Sets allow yo
 
 Each task execution follows this flow:
 
-1. **Initialize**: Execute Initializers (e.g., clear tables, prepare data)
-2. **Build Queue**: Load data from source into processing queue
-3. **Process Records**: For each record:
+1. **Read**: The records of all tasks are read from their sources
+2. **Initialize**: Execute Initializers (e.g., clear tables, prepare data)
+3. **Process Records**: For each record, in batches of 100:
    - Apply PreProcessors (transform data)
    - Apply Converters (change format)
    - Apply PostProcessors (enhance objects)
@@ -254,10 +260,9 @@ Execute after processing completes. Common uses:
 
 Access the import/export module in the TYPO3 backend:
 
-1. Navigate to **System > Import/Export**
-2. Choose **Import** or **Export** module
-3. Select configured tasks or sets
-4. Execute with real-time progress feedback
+1. Navigate to **System > Imports** or **System > Exports**
+2. Select a configured task or set
+3. Execute it
 
 ## Command Line Interface
 
@@ -267,6 +272,14 @@ Available commands:
 - `t3import-export:import-set <setId>` - Execute import set
 - `t3import-export:export-set <setId>` - Execute export set
 - `t3import-export:export-task <taskId>` - Execute single export task
+- `t3import-export:queue:status` - Show the number of queue items by status,
+  see [Queue](./Documentation/Persistence/Queue.md#commands)
+- `t3import-export:queue:release` - Set queue items in processing back to new
+- `t3import-export:convert-typoscript` - Convert tasks and sets from
+  TypoScript to YAML (command line only)
+
+The commands have the short aliases `import:task`, `import:set`,
+`export:task`, `export:set`, `queue:status` and `queue:release`.
 
 Options:
 - `--yaml-config <file>` - Use YAML configuration file (`import-set`,
@@ -275,12 +288,14 @@ Options:
 
 ## Scheduler Integration
 
-The extension integrates with TYPO3 Scheduler for automated execution:
+The commands can be run by the TYPO3 Scheduler:
 
-1. Create new Scheduler task
-2. Select **Import/Export Task** type
-3. Configure task or set to execute
-4. Set execution schedule
+1. Create a new Scheduler task of the type **Execute console commands**
+2. Select a command, e.g. `t3import-export:import-set`
+3. Enter the task or set identifier as argument
+4. Set the execution schedule
+
+`t3import-export:convert-typoscript` is not offered by the Scheduler.
 
 ## Configuration Examples
 
@@ -316,7 +331,9 @@ export:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
         config:
           table: "tx_news_domain_model_news"
-          where: "hidden = 0"
+          where:
+            hidden: 0
+            deleted: 0
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetXMLStream"
         config:
@@ -361,7 +378,7 @@ export:
 
 ### Common Issues
 
-1. **Memory Limits**: For large datasets, increase PHP memory limit or use queue processing
+1. **Memory Limits**: The records of a task are read before they are processed; for large datasets, increase the PHP memory limit or split the data with a queue
 2. **File Permissions**: Ensure TYPO3 can read source files and write to target locations
 3. **Database Connections**: Verify database credentials for external sources
 4. **Component Configuration**: Check component configuration syntax and required parameters
@@ -371,11 +388,13 @@ export:
 Check TYPO3 log files for detailed error information:
 - `var/log/typo3_*.log`
 - Component-specific error messages
-- SQL query logs for database operations
+- The deprecation log for deprecated options
 
 ## API Documentation
 
-For detailed API documentation, refer to the inline code documentation and the `Documentation/UML/` directory containing UML diagrams.
+For detailed API documentation, refer to the inline code documentation. The
+UML diagrams in `Documentation/UML/` describe an earlier version and are not
+updated for 4.0.
 
 ## Contributing
 

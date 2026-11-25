@@ -9,6 +9,9 @@ PreProcessors are optional. You may configure as many as you need.
 Available PreProcessors:
 * [EvaluateExpressionsPreProcessor](./PreProcessors/EVALUATE_EXPRESSIONS.md) (core)
 * [LookUpDB](./PreProcessors/LOOK_UP_DB.md)
+* `TargetIdPreProcessor`, `ResolveReferencePreProcessor` (core): see
+  [ID map and state components](../Persistence/IdMap.md)
+* `RelationListPreProcessor` (core): see [Persistence](../Persistence.md#database-components-of-the-core)
 * [ValidateXMLPreProcessor](./PreProcessors/VALIDATE_XML.md) (core; replaces the deprecated `ValidateXML`)
 * [XMLMapperPreProcessor](./PreProcessors/XML_MAPPER.md) (core; replaces the deprecated `XMLMapper`)
 
@@ -19,7 +22,7 @@ and `UnsetEmptyFields` were removed in 4.0. Use the pre-processors of
 instead, see [Deprecations](../DEPRECATIONS.md#deprecated-in-32). Lists in
 their configuration (e.g. `rules` of `ValueRulesPreProcessor`) must be lists.
 
-You may add your own PreProcessors. They **must** implement the PreProcessorInterface and **may** inherit from AbstractInitializer.
+You may add your own PreProcessors. They **must** implement the PreProcessorInterface and **may** inherit from AbstractPreProcessor.
 
 PreProcessors are configured as a list below `preProcessors` of a task (`import.tasks.<task identifier>.preProcessors` or `export.tasks.<task identifier>.preProcessors`):
 

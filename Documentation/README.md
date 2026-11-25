@@ -20,13 +20,12 @@
 ### 🔧 Configuration
 - [Deprecations](./DEPRECATIONS.md)
 - [YAML Configuration](#yaml-configuration)
-- [Environment Setup](#environment-setup)
+- [Environment-Specific Configuration](./CONFIGURATION.md#environment-specific-configuration)
 - [Configuration Examples](#configuration-examples)
 
 ### 🧩 Components
 - [Component Overview](./COMPONENT.md)
 - [Component Types](#component-types)
-- [Custom Components](#custom-components)
 
 #### Component Types
 - **[Initializers](./Components/INITIALIZER.md)** - Pre-execution setup
@@ -38,6 +37,7 @@
 - **[PreProcessors](./Components/PREPROCESSOR.md)** - Data transformation
   - Pre-processors of `cpsit/import-export-core`, e.g. `ValueRulesPreProcessor`, `SetValuesPreProcessor`, `CleanPreProcessor`: see [Deprecations](./DEPRECATIONS.md#deprecated-in-32)
   - [LookUpDB](./Components/PreProcessors/LOOK_UP_DB.md)
+  - `TargetIdPreProcessor`, `ResolveReferencePreProcessor` (core): see [ID map](./Persistence/IdMap.md)
   - [EvaluateExpressionsPreProcessor](./Components/PreProcessors/EVALUATE_EXPRESSIONS.md) (core)
   - [ValidateXMLPreProcessor](./Components/PreProcessors/VALIDATE_XML.md) (core)
   - [XMLMapperPreProcessor](./Components/PreProcessors/XML_MAPPER.md) (core)
@@ -48,6 +48,7 @@
 - **[PostProcessors](./Components/POSTPROCESSOR.md)** - Object enhancement
   - [GenerateFileReference](./Components/PostProcessors/GenerateFileReferenc.md)
   - [SetL10nParent](./Components/PostProcessors/SetL10nParent.md)
+  - [TranslateObject](./Components/PostProcessors/TranslateObject.md)
   - [RecreateSlug](./Components/PostProcessors/RecreateSlug.md)
 
 - **[Finishers](./Components/FINISHER.md)** - Post-execution tasks
@@ -63,22 +64,20 @@
   - [CSV Files](./Persistence/DataSourceCSV.md)
   - [XML Files](./Persistence/DataSourceXML.md)
   - [Database](./Persistence/DataSourceDB.md)
-  - [Repository](./Persistence/DataSourceRepository.md)
-  - [Queue](./Persistence/Queue.md)
+  - [Queue](./Persistence/Queue.md#datasourcequeue)
+  - Repository (`DataSourceDynamicRepository`, not documented yet)
 - **Data Targets**
   - [Database](./Persistence/DataTargetDB.md)
   - [Queue](./Persistence/Queue.md#datatargetqueue)
   - [CSV Files](./Persistence/DataTargetCSV.md)
-  - [XML Streams](./Persistence/DataTargetXMLStream.md)
-  - [Repository](./Persistence/DataTargetRepository.md)
-  - [File Streams](./Persistence/DataTargetFileStream.md)
+  - XML Streams, Repository, File Streams (`DataTargetXMLStream`,
+    `DataTargetRepository`, `DataTargetFileStream`, not documented yet)
+- [ID map and state components](./Persistence/IdMap.md)
 - [Files: paths and URLs](./Persistence/Files.md)
 
 ### 🔌 Services & Utilities
 - [Database Connection Service](./Service/DatabaseConnectionService.md)
-- [Translation Service](#translation-service)
-- [Configuration Validation](#configuration-validation)
-- [Message Container](#message-container)
+- [Configuration Validation](./CONFIGURATION.md#configuration-validation)
 
 ### 🚀 Execution Methods
 - [Backend Module](#backend-module)
@@ -89,20 +88,19 @@
 ### 🛠️ Development
 - [Development Guide](./DEVELOPMENT.md)
 - [Components and the core library](./CORE_MIGRATION.md)
-- [Creating Custom Components](#creating-custom-components)
-- [Testing](#testing)
+- [Creating Custom Components](./COMPONENT.md)
+- [Testing](./DEVELOPMENT.md#testing)
 - [Contributing](#contributing)
 
 ### 📚 Examples & Use Cases
 - [Common Use Cases](#common-use-cases)
 - [Configuration Examples](#configuration-examples)
-- [Migration Scenarios](#migration-scenarios)
+- [Migration from earlier versions](./DEPRECATIONS.md#migration)
 - [Troubleshooting](#troubleshooting)
 
 ### 🔍 Reference
-- [YAML Configuration Reference](#yaml-configuration-reference)
+- [YAML Configuration Reference](./YAML_CONFIGURATION.md)
 - [API Documentation](#api-documentation)
-- [Error Codes](#error-codes)
 
 ---
 
@@ -129,7 +127,8 @@ The **Import & Export** extension provides a comprehensive, flexible framework f
 composer require cpsit/t3import_export
 ```
 
-Activate the extension in the TYPO3 Extension Manager.
+In Composer mode the extension is active after installation. Update the
+database schema afterwards (`vendor/bin/typo3 extension:setup`).
 
 ### 2. Basic Configuration
 
@@ -175,9 +174,10 @@ vendor/bin/typo3 t3import-export:import-set --yaml-config path/to/config.yaml
 
 - **TYPO3**: 14.3 LTS
 - **PHP**: 8.3 or 8.4
-- **Dependencies**:
-  - symfony/yaml (for YAML configuration)
-  - TYPO3 core extensions (extbase, fluid)
+- **Dependencies** (installed by Composer):
+  - cpsit/import-export-core ^0.7
+  - dwenzel/t3extension-tools
+  - symfony/expression-language
 
 ## Tasks and Sets
 
@@ -197,9 +197,9 @@ A **Set** is a collection of tasks that are executed sequentially. Sets allow yo
 
 Each task execution follows this flow:
 
-1. **Initialize**: Execute Initializers (e.g., clear tables, prepare data)
-2. **Build Queue**: Load data from source into processing queue
-3. **Process Records**: For each record:
+1. **Read**: The records of all tasks are read from their sources
+2. **Initialize**: Execute Initializers (e.g., clear tables, prepare data)
+3. **Process Records**: For each record, in batches of 100:
    - Apply PreProcessors (transform data)
    - Apply Converters (change format)
    - Apply PostProcessors (enhance objects)
@@ -275,10 +275,9 @@ Execute after processing completes. Common uses:
 
 Access the import/export module in the TYPO3 backend:
 
-1. Navigate to **System > Import/Export**
-2. Choose **Import** or **Export** module
-3. Select configured tasks or sets
-4. Execute with real-time progress feedback
+1. Navigate to **System > Imports** or **System > Exports**
+2. Select a configured task or set
+3. Execute it
 
 ## Command Line Interface
 
@@ -292,11 +291,28 @@ Available commands:
   list items with `--queue` or `--status`
 - `t3import-export:queue:release --queue <queue>` (or `--all`) - Set queue
   items in processing back to new, see [Queue](./Persistence/Queue.md#commands)
+- `t3import-export:convert-typoscript` - Convert tasks and sets from
+  TypoScript to YAML (command line only), see
+  [Deprecations](./DEPRECATIONS.md#converting-typoscript-settings-to-yaml)
+
+The commands have the short aliases `import:task`, `import:set`,
+`export:task`, `export:set`, `queue:status` and `queue:release`.
 
 Options:
 - `--yaml-config <file>` - Use YAML configuration file (`import-set`,
   `export-set` and `export-task`); the path is relative to the working
   directory and is not restricted to the allowed directories
+
+## Scheduler Integration
+
+The commands can be run by the TYPO3 Scheduler:
+
+1. Create a new Scheduler task of the type **Execute console commands**
+2. Select a command, e.g. `t3import-export:import-set`
+3. Enter the task or set identifier as argument
+4. Set the execution schedule
+
+`t3import-export:convert-typoscript` is not offered by the Scheduler.
 
 ## Common Use Cases
 
@@ -352,7 +368,9 @@ export:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
         config:
           table: "tx_news_domain_model_news"
-          where: "hidden = 0"
+          where:
+            hidden: 0
+            deleted: 0
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetXMLStream"
         config:
@@ -377,7 +395,7 @@ export:
 
 ### Common Issues
 
-1. **Memory Limits**: For large datasets, increase PHP memory limit or use queue processing
+1. **Memory Limits**: The records of a task are read before they are processed; for large datasets, increase the PHP memory limit or split the data with a queue
 2. **File Permissions**: Ensure TYPO3 can read source files and write to target locations
 3. **Database Connections**: Verify database credentials for external sources
 4. **Component Configuration**: Check component configuration syntax and required parameters
@@ -387,11 +405,13 @@ export:
 Check TYPO3 log files for detailed error information:
 - `var/log/typo3_*.log`
 - Component-specific error messages
-- SQL query logs for database operations
+- The deprecation log for deprecated options
 
 ## API Documentation
 
-For detailed API documentation, refer to the inline code documentation and the `Documentation/UML/` directory containing UML diagrams.
+For detailed API documentation, refer to the inline code documentation. The
+UML diagrams in `Documentation/UML/` describe an earlier version and are not
+updated for 4.0.
 
 ## Contributing
 
