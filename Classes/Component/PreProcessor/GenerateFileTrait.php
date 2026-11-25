@@ -16,6 +16,7 @@ namespace CPSIT\T3importExport\Component\PreProcessor;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\LoggingTrait;
 use CPSIT\ImportExportCore\Messaging\Message;
@@ -73,7 +74,7 @@ trait GenerateFileTrait
      * core (see `copyUrl()`). The target file name must have an allowed file
      * type.
      *
-     * @throws \CPSIT\ImportExportCore\Exception\InvalidArgumentException if the source file or the target file type is not allowed
+     * @throws InvalidArgumentException if the source file or the target file type is not allowed
      * @throws MissingResourceException if the source URL is not allowed
      */
     protected function copyFile(string $sourceFilePath, string $targetPath): bool
@@ -161,7 +162,7 @@ trait GenerateFileTrait
 
     /**
      * @return string absolute path of an allowed file
-     * @throws \CPSIT\ImportExportCore\Exception\InvalidArgumentException if the file is not allowed
+     * @throws InvalidArgumentException if the file is not allowed
      */
     protected function resolveSourceFile(string $sourceFilePath): string
     {

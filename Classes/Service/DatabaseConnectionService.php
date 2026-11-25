@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Service;
 
 use CPSIT\T3importExport\Exception\MissingDatabaseException;
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -48,7 +49,7 @@ class DatabaseConnectionService implements SingletonInterface
      *
      * @param string $identifier Identifier for the requested database
      * @throws MissingDatabaseException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      * if the requested database does not exist @see
      * @deprecated
      * Use @see ConnectionPool::getConnectionForTable() instead

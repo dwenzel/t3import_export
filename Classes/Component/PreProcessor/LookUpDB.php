@@ -8,7 +8,6 @@ use CPSIT\ImportExportCore\Component\PreProcessor\PreProcessorInterface;
 use CPSIT\ImportExportCore\Exception\InvalidConfigurationException;
 use CPSIT\T3importExport\DatabaseTrait;
 use CPSIT\T3importExport\Persistence\Query\QueryFacade;
-use CPSIT\T3importExport\Persistence\Query\SelectJoinQuery;
 use CPSIT\T3importExport\Persistence\Query\SelectQuery;
 
 /***************************************************************

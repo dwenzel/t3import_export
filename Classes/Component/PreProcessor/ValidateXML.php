@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Component\PreProcessor;
 
-use CPSIT\T3importExport\Component\Finisher;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\LoggingTrait;

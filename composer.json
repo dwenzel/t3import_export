@@ -35,6 +35,7 @@
     "phpstan/phpstan": "^2.1",
     "phpunit/phpcov": "^11.0",
     "phpunit/phpunit": "^11.5 || ^12.1",
+    "rector/rector": "~2.8.5",
     "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^3.1",
     "ssch/typo3-rector": "^3.0",
