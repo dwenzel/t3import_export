@@ -282,3 +282,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * If `sourcePath` of `GenerateFileResource` or `GenerateUploadFile` is a URL,
   the value of a record cannot change its scheme, host, port or user
   information
+* `GenerateFileResource` and `GenerateUploadFile` check the names of the
+  files they write: the default `fileDenyPattern` of TYPO3 applies in
+  addition to a configured one; server configuration files (e.g.
+  `.htaccess`, `.user.ini`, `web.config`), names with `?`, `#`, `:` or
+  control characters and names ending in a dot or space are refused
+  (exception code 1795400103). For URLs the target name is the last segment
+  of the path, without query and fragment

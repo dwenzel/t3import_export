@@ -284,6 +284,49 @@ class GenerateUploadFileTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string}>
+     */
+    public static function notAllowedTargetFileNameDataProvider(): iterable
+    {
+        yield 'server configuration file' => ['.user.ini'];
+        yield 'hash' => ['image#1.jpg'];
+        yield 'question mark' => ['image?.jpg'];
+        yield 'colon' => ['image:1.jpg'];
+        yield 'trailing dot' => ['image.jpg.'];
+    }
+
+    #[Test]
+    #[DataProvider('notAllowedTargetFileNameDataProvider')]
+    public function getFileRejectsTargetFileNameThatIsNotAllowed(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/' . $fileName);
+    }
+
+    #[Test]
+    public function getFileTakesTheTargetFileNameOfAUrlFromItsPath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/download.php?file=image.jpg');
+    }
+
+    #[Test]
+    public function getFileWritesUrlWithQueryAndFragmentToTheNameOfItsPath(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], 'image data')], $requestedUrls));
+
+        $result = $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg?size=large#top');
+
+        self::assertSame('fileadmin/target/image.jpg', $result);
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
+    }
+
+    /**
      * A subject that loads URLs of data.example.org and cdn.example.org with
      * the given client and writes to vfs://root/target/<file name>
      */

@@ -94,6 +94,18 @@ class ResourceAccess
         $this->getPathResolver()->assertFileTypeAllowed($path);
     }
 
+    /**
+     * Applies the rules for names of written files (see
+     * `Typo3PathResolver::assertTargetFileName()`) to a file outside of the
+     * allowed directories, e.g. in a FAL storage.
+     *
+     * @throws InvalidArgumentException
+     */
+    public function assertTargetFileAllowed(string $path): void
+    {
+        $this->getPathResolver()->assertTargetFileName($path);
+    }
+
     public function isUrlAllowed(string $url): bool
     {
         $loader = $this->getHttpResourceLoader();

@@ -181,16 +181,33 @@ trait GenerateFileTrait
     }
 
     /**
+     * The file name must be allowed for written files (see
+     * `Typo3PathResolver::assertTargetFileName()`).
+     *
      * @return string absolute path in the storage, '' if it cannot be resolved
+     * @throws InvalidArgumentException if the file name is not allowed
      */
     protected function getAbsoluteTargetPath(string $targetPath): string
     {
         $absolutePath = GeneralUtility::getFileAbsFileName($targetPath);
         if ($absolutePath !== '') {
-            $this->getResourceAccess()->assertFileTypeAllowed($absolutePath);
+            $this->getResourceAccess()->assertTargetFileAllowed($absolutePath);
         }
 
         return $absolutePath;
+    }
+
+    /**
+     * File name of a source file; for URLs the last segment of the path,
+     * without query and fragment
+     */
+    protected function getSourceFileName(string $sourceFilePath): string
+    {
+        if (ResourceAccess::isUrl($sourceFilePath)) {
+            $sourceFilePath = (string)parse_url($sourceFilePath, PHP_URL_PATH);
+        }
+
+        return PathUtility::basename($sourceFilePath);
     }
 
     /**
@@ -313,6 +330,9 @@ trait GenerateFileTrait
     }
 
     /**
+     * The file name of the target is the one of the source (for URLs the last
+     * segment of the path).
+     *
      * @param array $configuration
      * @param string $sourcePath
      * @return string
@@ -328,6 +348,6 @@ trait GenerateFileTrait
             ]
         );
 
-        return $targetDirectoryPath . PathUtility::basename($sourcePath);
+        return $targetDirectoryPath . $this->getSourceFileName((string)$sourcePath);
     }
 }

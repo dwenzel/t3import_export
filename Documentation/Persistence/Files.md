@@ -153,7 +153,7 @@ files themselves:
 | `PreProcessor\ValidateXML`, `Finisher\ValidateXML` (deprecated) | `file` or `url` of the document, `schema.file` / `schema.url` | allowed directories and file types, allowed hosts |
 | `Persistence\DataTargetXMLStream` | `template` | allowed directories and file types |
 | `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | source file (`sourcePath` and the record field) | allowed directories and file types, allowed hosts for URLs |
-| `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | target file in the storage (`storageId`, `targetDirectoryPath`) | file types only (`fileDenyPattern`, allowed file extensions); the storage is not limited to the allowed directories |
+| `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | target file in the storage (`storageId`, `targetDirectoryPath`) | file names of written files (see [below](#names-of-written-files)); the storage is not limited to the allowed directories |
 | `Validation\Configuration\ResourcePathConfigurationValidator` | `file`, `url` | a path or host that is not allowed makes the configuration invalid |
 
 `GenerateFileResource` and `GenerateUploadFile` build the source path from
@@ -191,6 +191,26 @@ directory, outside of the public directory in Composer installations), the
 YAML configuration directories
 (`yamlConfigurationDirectories`, set by the administrator) and the file
 arguments of the console commands.
+
+## Names of written files
+
+The extension checks the names of the files it writes itself, in addition
+to the file type rules above (`Typo3PathResolver::assertTargetFileName()`):
+
+* the default `fileDenyPattern` of TYPO3 applies in addition to a configured
+  one, so an empty or weaker configured pattern does not allow e.g. `.php`
+  files
+* server configuration files are refused: `.htaccess`, `.htpasswd` and other
+  `.ht*` files, `.user.ini`, `php.ini`, `web.config`
+* names with `?`, `#`, `:` or control characters and names ending in a dot or
+  a space are refused
+
+A name that is not allowed throws an `InvalidArgumentException` (code
+1795400103, or 1795300103 for the `fileDenyPattern` configured in TYPO3).
+The target name of `GenerateFileResource` and `GenerateUploadFile` is the
+name of the source file; for a URL the last segment of its path, without
+query and fragment (`https://example.org/image.jpg?size=large` is written to
+`image.jpg`).
 
 ## Large files
 
