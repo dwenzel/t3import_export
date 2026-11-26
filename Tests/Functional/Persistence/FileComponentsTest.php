@@ -14,7 +14,9 @@ use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\ImportExportCore\Resource\PathResolverInterface;
 use CPSIT\ImportExportCore\Resource\ResourceLoaderInterface;
 use CPSIT\T3importExport\Persistence\DataSourceCSV as LegacyDataSourceCSV;
+use CPSIT\T3importExport\Persistence\DataTargetCSV as LegacyDataTargetCSV;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -117,6 +119,38 @@ class FileComponentsTest extends FunctionalTestCase
         $this->expectException(PersistenceException::class);
 
         $target->persist(['id' => 1], ['file' => 'typo3temp/courses.csv']);
+    }
+
+    /**
+     * @return iterable<string, array{class-string, string}>
+     */
+    public static function notAllowedCsvTargetNameDataProvider(): iterable
+    {
+        foreach (['core' => DataTargetCSV::class, 'deprecated' => LegacyDataTargetCSV::class] as $component => $class) {
+            yield $component . ', question mark' => [$class, 'a?b.csv'];
+            yield $component . ', hash' => [$class, 'report#1.csv'];
+            yield $component . ', colon' => [$class, 'a:b.csv'];
+        }
+    }
+
+    /**
+     * @param class-string<DataTargetCSV> $class
+     */
+    #[Test]
+    #[DataProvider('notAllowedCsvTargetNameDataProvider')]
+    public function csvTargetDoesNotWriteFileNamesThatAreNotAllowed(string $class, string $fileName): void
+    {
+        $target = GeneralUtility::makeInstance($class);
+        $file = Environment::getVarPath() . '/import/tests/' . $fileName;
+
+        try {
+            @$target->persist(['id' => 1], ['file' => $file]);
+            self::fail('The file is written.');
+        } catch (PersistenceException $exception) {
+            self::assertSame(DataTargetCSV::ERROR_WRITE_FAILED, $exception->getCode());
+            self::assertSame(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED, $exception->getPrevious()?->getCode());
+        }
+        self::assertFileDoesNotExist($file);
     }
 
     #[Test]

@@ -47,7 +47,8 @@ services:
         $conditionEvaluator: '@CPSIT\ImportExportCore\Condition\ConditionEvaluatorInterface'
 
     # Files: paths are resolved like TYPO3 file names, inside the allowed
-    # directories; EXT: paths only for reading. URLs are loaded with the HTTP
+    # directories; EXT: paths only for reading. The resolver of the targets
+    # also checks the names of written files. URLs are loaded with the HTTP
     # client of TYPO3, only from the allowed hosts. See Documentation/Persistence/Files.md
     CPSIT\T3importExport\Resource\Typo3PathResolver:
       arguments:
@@ -56,6 +57,7 @@ services:
       class: CPSIT\T3importExport\Resource\Typo3PathResolver
       arguments:
         $allowExtensionPaths: false
+        $checkTargetFileNames: true
     CPSIT\ImportExportCore\Resource\PathResolverInterface: '@CPSIT\T3importExport\Resource\Typo3PathResolver'
     CPSIT\ImportExportCore\Resource\FileResourceLoader: ~
     CPSIT\T3importExport\Resource\AllowedHosts:

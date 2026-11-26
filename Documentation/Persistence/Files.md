@@ -40,6 +40,8 @@ Rejected, with an exception before the file is opened or created:
 * with the feature `security.system.enforceAllowedFileExtensions`: file
   extensions that are not in `textfile_ext`, `mediafile_ext` or
   `miscfile_ext` of `$GLOBALS['TYPO3_CONF_VARS']['SYS']`
+* in targets (`DataTargetCSV`): file names that are not allowed for written
+  files, see [Names of written files](#names-of-written-files)
 * file types the component does not read or write: `DataSourceCSV` and
   `DataTargetCSV` accept `csv`, `tsv` and `txt`, `DataSourceXML` accepts
   `xml` (core `FileTypePolicy`)
@@ -194,8 +196,9 @@ arguments of the console commands.
 
 ## Names of written files
 
-The extension checks the names of the files it writes itself, in addition
-to the file type rules above (`Typo3PathResolver::assertTargetFileName()`):
+The extension checks the names of the files it writes itself and of the
+file targets of the core (`DataTargetCSV`), in addition to the file type
+rules above (`Typo3PathResolver::assertTargetFileName()`):
 
 * the default `fileDenyPattern` of TYPO3 applies in addition to a configured
   one, so an empty or weaker configured pattern does not allow e.g. `.php`
