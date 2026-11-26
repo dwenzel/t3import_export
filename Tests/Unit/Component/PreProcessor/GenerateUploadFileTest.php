@@ -263,6 +263,24 @@ class GenerateUploadFileTest extends TestCase
         $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/image.php');
     }
 
+    #[Test]
+    public function getFilePassesTheSourcePathOfTheConfigurationToTheSourceCheck(): void
+    {
+        $subject = $this->createSubjectWithFileRules();
+        $resourceAccess = $this->createMock(ResourceAccess::class);
+        $resourceAccess->expects(self::once())->method('resolveSourceFile')
+            ->with('EXT:t3import_export/Resources/Public/ext_icon.gif', 'EXT:t3import_export/Resources/Public/')
+            ->willThrowException(new InvalidArgumentException('not allowed', Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED));
+        $subject->setResourceAccess($resourceAccess);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $subject->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => 'EXT:t3import_export/Resources/Public/'],
+            'EXT:t3import_export/Resources/Public/ext_icon.gif'
+        );
+    }
+
     /**
      * A subject that loads URLs of data.example.org and cdn.example.org with
      * the given client and writes to vfs://root/target/<file name>

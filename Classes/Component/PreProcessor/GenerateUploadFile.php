@@ -48,7 +48,7 @@ class GenerateUploadFile extends AbstractPreProcessor implements PreProcessorInt
     {
         $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
-        if (!$this->copyFile((string)$sourceFilePath, $targetPath)) {
+        if (!$this->copyFile((string)$sourceFilePath, $targetPath, $this->getSourcePath($configuration))) {
             $targetPath = '';
         }
 

@@ -70,14 +70,16 @@ trait GenerateFileTrait
      * Copies a source file or URL to a target path in the storage.
      *
      * The source must be an allowed file (see `Typo3PathResolver`) or a URL
-     * of an allowed host. URLs are loaded with the resource loader of the
-     * core (see `copyUrl()`). The target file name must have an allowed file
-     * type.
+     * of an allowed host. An `EXT:` path is only allowed below an `EXT:`
+     * `sourcePath` of the configuration. URLs are loaded with the resource
+     * loader of the core (see `copyUrl()`). The target file name must have an
+     * allowed file type.
      *
+     * @param string|null $sourcePath the `sourcePath` of the configuration
      * @throws InvalidArgumentException if the source file or the target file type is not allowed
      * @throws MissingResourceException if the source URL is not allowed
      */
-    protected function copyFile(string $sourceFilePath, string $targetPath): bool
+    protected function copyFile(string $sourceFilePath, string $targetPath, ?string $sourcePath = null): bool
     {
         $absoluteTargetPath = $this->getAbsoluteTargetPath($targetPath);
         if ($absoluteTargetPath === '') {
@@ -87,7 +89,7 @@ trait GenerateFileTrait
             return $this->copyUrl($sourceFilePath, $absoluteTargetPath);
         }
 
-        return @copy($this->resolveSourceFile($sourceFilePath), $absoluteTargetPath);
+        return @copy($this->resolveSourceFile($sourceFilePath, $sourcePath), $absoluteTargetPath);
     }
 
     /**
@@ -161,12 +163,21 @@ trait GenerateFileTrait
     }
 
     /**
+     * @param string|null $sourcePath the `sourcePath` of the configuration
      * @return string absolute path of an allowed file
      * @throws InvalidArgumentException if the file is not allowed
      */
-    protected function resolveSourceFile(string $sourceFilePath): string
+    protected function resolveSourceFile(string $sourceFilePath, ?string $sourcePath = null): string
     {
-        return $this->getResourceAccess()->resolveFile($sourceFilePath);
+        return $this->getResourceAccess()->resolveSourceFile($sourceFilePath, $sourcePath);
+    }
+
+    /**
+     * @param array<string, mixed> $configuration
+     */
+    protected function getSourcePath(array $configuration): ?string
+    {
+        return isset($configuration['sourcePath']) ? (string)$configuration['sourcePath'] : null;
     }
 
     /**

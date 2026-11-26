@@ -137,6 +137,13 @@ files themselves:
 | `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | target file in the storage (`storageId`, `targetDirectoryPath`) | file types only (`fileDenyPattern`, allowed file extensions); the storage is not limited to the allowed directories |
 | `Validation\Configuration\ResourcePathConfigurationValidator` | `file`, `url` | a path or host that is not allowed makes the configuration invalid |
 
+`GenerateFileResource` and `GenerateUploadFile` build the source path from
+`sourcePath` and a value of the record. For them, an `EXT:` path is only
+allowed if `sourcePath` is an `EXT:` path: the file must then be below the
+directory of `sourcePath` (the path itself if it ends with a slash, else its
+parent directory) inside the extension. A value of a record which is an
+`EXT:` path is refused (code 1795300101).
+
 A path or URL that is not allowed throws the exception described above, a
 file that does not exist is handled as before. Relative source paths of
 `GenerateFileResource` and `GenerateUploadFile` are relative to the public

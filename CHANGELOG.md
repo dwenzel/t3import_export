@@ -269,3 +269,7 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   type (e.g. `data.csv` pointing to `data.csv.1`) is rejected
 * ValidateXML: schemas cannot include files or URLs outside the allowed
   locations
+* `GenerateFileResource` and `GenerateUploadFile` accept an `EXT:` path only
+  as configured `sourcePath`; the file must be below the directory of that
+  `sourcePath` inside the extension. A value of a record which is an `EXT:`
+  path is refused (exception code 1795300101)
