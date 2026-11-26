@@ -12,6 +12,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ## Unreleased
 
+## 4.0.0 - 2026-11-26
+
 ### Added
 
 * Support for TYPO3 14.3
@@ -104,7 +106,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   the allowed host of each redirect; a redirect from `https` to `http` is
   not followed. URLs that redirect to an allowed host are loaded. The
   redirect settings of TYPO3 do not apply to them
-  ([Files](Documentation/Persistence/Files.md#urls))
+  ([Files](Documentation/Persistence/Files.md#urls)); see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * The backend modules use the module access `user`
 * The file finishers use the resource API of TYPO3 14
 * `DataTargetFileStream` and `DataTargetXMLStream` write their temporary files
@@ -193,32 +196,38 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 * Support for TYPO3 13; it is maintained on the branch `support/typo3-v13`
 * Rendering content with TypoScript: pre-processor `RenderContent`, content
-  objects in `disable` and in `DataSourceDB` queries
+  objects in `disable` and in `DataSourceDB` queries; see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#rendering-content-with-typoscript)
   ([#75](https://github.com/dwenzel/t3import_export/issues/75))
 * The pre-processors that the core replaces (`AddArrays`, `Clean`,
   `ConcatenateFields`, `ImplodeArray`, `MapFields`, `MapFieldValues`,
-  `RemoveFields`, `SetFieldValue`, `StringToTime`, `UnsetEmptyFields`)
+  `RemoveFields`, `SetFieldValue`, `StringToTime`, `UnsetEmptyFields`); see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#pre-processors-replaced-by-the-core)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 * Pre-processor `EvaluateExpressions`, `Expression\ExpressionEvaluator` and
-  `Expression\ExpressionEvaluatorInterface`; use the classes of the core
+  `Expression\ExpressionEvaluatorInterface`; use the classes of the core, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#expressions-and-conditions-of-the-core)
 * `Service\DataTransferProcessor`; use `Service\TransferService`
 * `Domain\Model\TransferTask`, `TransferSet`, `Dto\TaskDemand` and
   `Dto\DemandInterface`; use the models of the core
 * `Domain\Factory\TransferTaskFactory`, `Factory\FactoryFactory`,
   `ComponentFactoryMap`, `AbstractFactory`, `FactoryInterface`,
   `FactoryMapInterface`, the component factories, `DataSourceFactory` and
-  `DataTargetFactory`; use the factories of the core
+  `DataTargetFactory`; use the factories of the core, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#processor-and-factories-of-the-core)
 * `ext_tables.php`
 * Tasks and sets in TypoScript (`module.tx_t3importexport.settings`),
   `ext_typoscript_setup.typoscript`, the static template and the TypoScript
   examples; use YAML. The command `t3import-export:convert-typoscript`
-  converts existing configurations
+  converts existing configurations, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#typoscript-configuration)
   ([#75](https://github.com/dwenzel/t3import_export/issues/75))
 * `Domain\Model\QueueItem`, `Domain\Repository\QueueItemRepository` and
   the TCA of the table `tx_t3importexport_domain_model_queueitem` (list of
   queue items in the backend); use the queue of the core and the commands
   `queue:status` and `queue:release`. The table stays defined through 4.x
-  for the upgrade wizard and will be removed in 5.0
+  for the upgrade wizard and will be removed in 5.0; see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#queue)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Fixed
