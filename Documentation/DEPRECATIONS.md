@@ -3,7 +3,7 @@ Deprecations
 
 TypoScript configuration and rendering content with TypoScript were deprecated
 in version 3.1 and are removed in version 4.0 (together with support for
-TYPO3 14). Reasons and plan:
+TYPO3 13). Reasons and plan:
 [#75](https://github.com/dwenzel/t3import_export/issues/75).
 
 Deprecated features write a message to the TYPO3 deprecation log (each message
@@ -828,8 +828,14 @@ preProcessors:
    `t3import-export:convert-typoscript` converts them, see below. Version 4.0
    ignores tasks and sets in TypoScript.
 2. Replace content objects by expressions (`RenderContent` ->
-   `EvaluateExpressions`, `disable = TEXT` -> `disable.expression`,
-   `DataSourceDB` values -> `{expression: ...}`).
+   `EvaluateExpressionsPreProcessor` of the core, `disable = TEXT` ->
+   `disable.expression`, `DataSourceDB` values -> `{expression: ...}`).
+   Replace the pre-processors removed in 4.0 by those of the core, see
+   [Deprecated in 3.2](#deprecated-in-32), and the deprecated file and XML
+   classes, see [Files](#files) and [XML components](#xml-components).
+   Configure the allowed directories and hosts if files outside of
+   `fileadmin/` and `var/import/` or URLs are read, see
+   [Files](./Persistence/Files.md).
 3. If the queue was used: update the database schema and, before running
    any task, run the upgrade wizard `t3importExport_queueItemMigration`
    (`vendor/bin/typo3 upgrade:run t3importExport_queueItemMigration`). It

@@ -32,8 +32,9 @@ composer migration        # Run all migrations
 composer migration:rector # Run TYPO3 Rector
 
 # Testing
-composer test             # Run all tests
+composer test             # Run unit and functional tests
 composer test:unit        # Run unit tests
+composer test:functional  # Run functional tests
 composer test:coverage    # Generate code coverage report
 ```
 
@@ -66,16 +67,10 @@ To generate a code coverage report:
 composer test:coverage
 ```
 
-The code coverage setup has been updated to use a centralized configuration file
-(`phpunit.xml` in the root directory). This change ensures consistent test execution
-across different environments.
-
-**Important changes:**
-- The test:coverage command now uses `phpunit.xml` instead of
-  `Tests/Build/UnitTests.xml`
-- Xdebug mode is explicitly set with `XDEBUG_MODE=coverage` to ensure proper
-  coverage reporting
-- Coverage reports are generated in `.build/log/coverage/`
+- Unit tests use `phpunit.unit.xml`, functional tests `phpunit.functional.xml`
+- `XDEBUG_MODE=coverage` is set by the scripts
+- The coverage of both is merged with `phpcov`; the reports are written to
+  `.build/log/coverage/` (HTML in `html/_merged`, `clover.xml`)
 
 ## GitHub Workflows
 

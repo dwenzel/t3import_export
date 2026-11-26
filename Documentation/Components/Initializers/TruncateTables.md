@@ -16,10 +16,12 @@ Truncates (empties) database tables.
 
     If the value is 1, the initializer will not be called.
     See [Components](../../COMPONENT.md#disable-components) for `if.result.hasMessage` and `expression`.
-* **identifier** *string*
 
-    Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md)
-    If not set the default TYPO3 database will be used.
+### Database connection
+
+The initializer uses the connection that each table is mapped to in
+`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']` (`Default` without
+mapping). An option `identifier` is ignored.
 
 ### Example
 ```yaml

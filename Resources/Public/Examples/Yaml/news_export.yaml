@@ -13,9 +13,12 @@ export:
         class: "CPSIT\\T3importExport\\Persistence\\DataSourceDB"
         config:
           table: "tx_news_domain_model_news"
-          fields: "*"
-          where: "pid IN (42,43) AND hidden = 0 AND deleted = 0"
-          orderBy: "datetime DESC"
+          where:
+            pid: [42, 43]
+            hidden: 0
+            deleted: 0
+          orderBy:
+            datetime: DESC
 
       preProcessors:
         10:
@@ -30,7 +33,7 @@ export:
           # converts each record into an XML element <item>
           class: "CPSIT\\T3importExport\\Component\\Converter\\ArrayToXMLStream"
           config:
-            targetClass: "CPSIT\\T3importExport\\Domain\\Model\\DataStream"
+            targetClass: "CPSIT\\ImportExportCore\\Domain\\Model\\DataStream"
             nodeName: "item"
 
       target:

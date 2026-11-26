@@ -6,9 +6,11 @@ They receive their configuration and an object (or array containing the **curren
 
 PostProcessors are optional. You may configure as many as you need.
 
-Available PreProcessors:
+Available PostProcessors:
 * [GenerateFileReference](./PostProcessors/GenerateFileReferenc.md)
+* [RecreateSlug](./PostProcessors/RecreateSlug.md)
 * SetHiddenProperties
+* [SetL10nParent](./PostProcessors/SetL10nParent.md)
 * [TranslateObject](./PostProcessors/TranslateObject.md)
 
 You may add your own PostProcessors. They **must** implement the PostProcessorInterface and **may** inherit from AbstractPostProcessor.

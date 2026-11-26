@@ -1,16 +1,17 @@
 Finisher
 ========
 
-Finishers are performed after all Initiallizers, PreProcessors, Converters and
-PostProcessors. Every finisher receives all records *and* the result containing
-the result of processing and conversion.
+Finishers are performed after all Initializers, PreProcessors, Converters and
+PostProcessors. Finishers of the extension receive their configuration, an
+empty array of records (the processor of `cpsit/import-export-core` does not
+pass the records to them) and the task result (`TaskResult` of the core).
 
 Finishers are optional. You may configure as many as you need.
 
 Available Finishers:
 
 * [ClearCache](./Finishers/ClearCache.md)
-* DownloadFileStream
+* [DownloadFileStream](./Finishers/DownloadFileStream.md)
 * [MoveFile](./Finishers/MoveFile.md)
 * [WriteFile](./Finishers/WriteFile.md)
 * [ValidateXMLFinisher](./Finishers/ValidateXML.md) (core; replaces the deprecated `ValidateXML`)

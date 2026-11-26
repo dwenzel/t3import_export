@@ -77,17 +77,16 @@ import:
             targetPage: 42
 
         20:
-          class: "CPSIT\\T3importExport\\Component\\PostProcessor\\SetL10nParent"
+          # makes the news a translation of the news whose uid is in the
+          # field "parent_uid" of the record (domain objects only; use
+          # SetL10nParent for array records)
+          class: "CPSIT\\T3importExport\\Component\\PostProcessor\\TranslateObject"
           config:
-            subject:
-              parentField: "l10n_parent"
-            parent:
-              table: "tx_news_domain_model_news"
-              identityField: "uid"
-              matchField: "import_id"
-              prefix: "NEWS_DE-"
+            parentField: "parent_uid"
+            language: 1
+            # disabled for records without parent
             disable:
-              if.result.hasMessage: 1508776068
+              expression: "(record['parent_uid'] ?? '') == ''"
 
       target:
         class: "CPSIT\\T3importExport\\Persistence\\DataTargetRepository"

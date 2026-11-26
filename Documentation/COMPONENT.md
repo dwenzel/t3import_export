@@ -1,18 +1,19 @@
 Components
 ==========
 
-Import and export tasks are performed by a data transfer processor.
+Import and export tasks are performed by the data transfer processor of
+`cpsit/import-export-core`.
 
 Each task has a data source and target and may request sub-tasks which will be
 performed by components.
 
 Currently the following types of components are implemented:
 
-* [Initializers](./Components/Initializer.md)
+* [Initializers](./Components/INITIALIZER.md)
 * [PreProcessors](./Components/PREPROCESSOR.md)
 * [Converters](./Components/CONVERTER.md)
 * [PostProcessors](./Components/POSTPROCESSOR.md)
-* [Finishers](./Components/Finisher.md)
+* [Finishers](./Components/FINISHER.md)
 
 A set of standard components is included. You may write your own components and
 include them by configuration (YAML).

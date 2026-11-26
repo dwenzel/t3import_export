@@ -61,7 +61,8 @@ pointing to a versioned file `data.csv.20261122`) is rejected.
 
 URLs are loaded only from the allowed hosts. The `url` of the data sources
 and of the XML components (`ValidateXML` and the XML components of the core)
-is loaded by `HttpResourceLoader` of the core with the HTTP
+and the source URLs of `GenerateFileResource` and `GenerateUploadFile` are
+loaded by `HttpResourceLoader` of the core with the HTTP
 client of TYPO3 (`$GLOBALS['TYPO3_CONF_VARS']['HTTP']`, e.g. proxy and
 timeout). No host is allowed by default:
 
@@ -94,6 +95,34 @@ no effect here. The loader
 A redirect to another allowed host is followed; allow every host a URL may
 redirect to. Default headers of the client are sent with each request, also
 to the target of a redirect.
+
+### Timeout and size
+
+Neither the loader nor the extension limits how long a download takes or
+how large it is:
+
+* TYPO3 sets `$GLOBALS['TYPO3_CONF_VARS']['HTTP']['timeout']` to `0` by
+  default, which means no time limit for the request; only the connection
+  is limited (`connect_timeout`, 10 seconds). A server that sends slowly or
+  does not end the response keeps the task waiting.
+* The HTTP client (Guzzle) receives the whole response body before the
+  loader returns it. It keeps the body in a `php://temp` stream: up to 2 MB
+  in memory, beyond that in a temporary file of the system. There is no
+  maximum size. `GenerateFileResource` and `GenerateUploadFile` then copy the
+  body into a temporary file next to the target file (`.<name>.<random>.part`
+  in the target directory), which replaces the target file when it is
+  complete.
+
+Set a timeout for tasks that load URLs, e.g. in `config/system/additional.php`
+(it applies to all HTTP requests of TYPO3):
+
+```php
+$GLOBALS['TYPO3_CONF_VARS']['HTTP']['timeout'] = 30;
+```
+
+Allow only hosts you trust to deliver files of a reasonable size, and do not
+use `['*']` for URLs that come from imported records, e.g. the source field
+of `GenerateFileResource`.
 
 ## Other components
 

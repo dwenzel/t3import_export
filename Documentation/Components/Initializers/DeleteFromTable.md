@@ -29,10 +29,14 @@ Use this initializer if you have to delete records determined by *where* clause 
     If the value is 1, the initializer will not be called.
     See [Components](../../COMPONENT.md#disable-components) for `if.result.hasMessage` and `expression`.
 
-* **config.identifier** *string*
+### Database connection
 
-    Identifier for a database registered with the [DatabaseConnectionService](../../Service/DATABASE_CONNECTION_SERVICE.md).
-    If not set the default TYPO3 database will be used.
+The initializer uses the connection that the table is mapped to in
+`$GLOBALS['TYPO3_CONF_VARS']['DB']['TableMapping']` (`Default` without
+mapping). An option `identifier` is ignored.
+
+The `where` clause is SQL and used as it is; the configuration must come from
+trusted sources.
 
 
 ### Example
@@ -46,7 +50,6 @@ import:
             # initializer is disabled if the expression is true
             disable:
               expression: "false"  # your condition
-            # identifier: fooDatabaseConnection
             table: sys_category
             where: 'title LIKE "%foo%"'
 ```
