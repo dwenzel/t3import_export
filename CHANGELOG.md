@@ -223,6 +223,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ### Fixed
 
+* `ClearCache` clears caches only if the task result has items, and the
+  option `classes` works with the task result of the core
+* `DownloadFileStream` sends the file of the file info that
+  `DataTargetFileStream` sets in the task result and sends nothing if there
+  is no file, instead of failing with a type error
+* `DataSourceDynamicRepository` passes constraints as arguments to
+  `logicalAnd()`/`logicalOr()`, so configurations with `constraints` work on
+  TYPO3 14
 * `LookUpDB` sorts the rows for `keepOrder` in PHP instead of adding the
   MySQL-specific `ORDER BY FIELD()` to the WHERE clause, so it works on all
   databases and together with AND/OR constraints

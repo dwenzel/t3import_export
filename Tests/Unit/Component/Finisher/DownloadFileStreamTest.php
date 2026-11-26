@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Component\Finisher\DownloadFileStream;
+use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -63,12 +64,12 @@ class DownloadFileStreamTest extends TestCase
     }
 
     #[Test]
-    public function processReturnsFalseIfFileDoesNotExist(): void
+    public function processReturnsFalseIfInfoIsNoFileInfo(): void
     {
         $subject = $this->createSubject();
         $records = [];
         $result = new TaskResult();
-        $result->setInfo($this->file . '.missing');
+        $result->setInfo($this->file);
 
         self::assertFalse($subject->process([], $records, $result));
         self::assertSame([], $subject->headers);
@@ -102,7 +103,7 @@ class DownloadFileStreamTest extends TestCase
         $subject = $this->createSubject();
         $records = [];
         $result = new TaskResult();
-        $result->setInfo($this->file);
+        $result->setInfo(new FileInfo($this->file));
 
         $this->expectOutputString('file content');
         try {
@@ -132,7 +133,7 @@ class DownloadFileStreamTest extends TestCase
         $subject = $this->createSubject();
         $records = [];
         $result = new TaskResult();
-        $result->setInfo($this->file);
+        $result->setInfo(new FileInfo($this->file));
 
         $this->expectOutputString('file content');
         try {
@@ -146,5 +147,28 @@ class DownloadFileStreamTest extends TestCase
             '/^Content-Disposition: attachment; filename="file_\d+\.dat"$/',
             $subject->headers[2]
         );
+    }
+
+    #[Test]
+    public function processReturnsFalseIfResultHasNoInfo(): void
+    {
+        $subject = $this->createSubject();
+        $records = [];
+        $result = new TaskResult();
+
+        self::assertFalse($subject->process([], $records, $result));
+        self::assertSame([], $subject->headers);
+    }
+
+    #[Test]
+    public function processReturnsFalseIfFileOfFileInfoDoesNotExist(): void
+    {
+        $subject = $this->createSubject();
+        $records = [];
+        $result = new TaskResult();
+        $result->setInfo(new FileInfo($this->file . '.missing'));
+
+        self::assertFalse($subject->process([], $records, $result));
+        self::assertSame([], $subject->headers);
     }
 }

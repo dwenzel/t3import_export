@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
+use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\T3importExport\Component\Finisher\ClearCache;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -49,9 +50,9 @@ class ClearCacheTest extends TestCase
     protected function mockCacheService(): void
     {
         // Mock dependencies for CacheService
-        $configurationManager = $this->createMock(ConfigurationManagerInterface::class);
-        $cacheManager = $this->createMock(CacheManager::class);
-        $connectionPool = $this->createMock(ConnectionPool::class);
+        $configurationManager = $this->createStub(ConfigurationManagerInterface::class);
+        $cacheManager = $this->createStub(CacheManager::class);
+        $connectionPool = $this->createStub(ConnectionPool::class);
 
         $this->cacheService = $this->getMockBuilder(CacheService::class)
             ->setConstructorArgs([$configurationManager, $cacheManager, $connectionPool])
@@ -164,6 +165,8 @@ class ClearCacheTest extends TestCase
     public function testIsConfigurationValidAlwaysReturnsTrue(): void
     {
         $configuration = [];
+        $this->cacheService->expects($this->never())
+            ->method('clearPageCache');
         $this->assertTrue(
             $this->subject->isConfigurationValid($configuration)
         );
@@ -189,5 +192,74 @@ class ClearCacheTest extends TestCase
             ->method('clearPageCache');
 
         $this->subject->process($configuration, $records, $nonEmptyResult);
+    }
+
+    #[Test]
+    public function processDoesNotClearCacheForEmptyTaskResult(): void
+    {
+        $configuration = ['all' => '1'];
+        $records = [];
+        $result = new TaskResult();
+
+        $this->cacheService->expects($this->never())
+            ->method('clearPageCache');
+
+        $this->subject->process($configuration, $records, $result);
+    }
+
+    #[Test]
+    public function processClearsAllCachesForNonEmptyTaskResult(): void
+    {
+        $configuration = ['all' => '1'];
+        $records = [];
+        $result = new TaskResult();
+        $result->add(['uid' => 1]);
+
+        $this->cacheService->expects($this->once())
+            ->method('clearPageCache')
+            ->with(null);
+
+        $this->subject->process($configuration, $records, $result);
+    }
+
+    #[Test]
+    public function processClearsSelectedPageCachesIfClassOfTaskResultItemMatches(): void
+    {
+        $configuration = [
+            'classes' => [
+                \stdClass::class => [
+                    'pages' => '1,5',
+                ],
+            ],
+        ];
+        $records = [];
+        $result = new TaskResult();
+        $result->add(new \stdClass());
+
+        $this->cacheService->expects($this->once())
+            ->method('clearPageCache')
+            ->with([1, 5]);
+
+        $this->subject->process($configuration, $records, $result);
+    }
+
+    #[Test]
+    public function processDoesNotClearCacheIfTaskResultItemIsNoObject(): void
+    {
+        $configuration = [
+            'classes' => [
+                \stdClass::class => [
+                    'all' => '1',
+                ],
+            ],
+        ];
+        $records = [];
+        $result = new TaskResult();
+        $result->add(['uid' => 1]);
+
+        $this->cacheService->expects($this->never())
+            ->method('clearPageCache');
+
+        $this->subject->process($configuration, $records, $result);
     }
 }

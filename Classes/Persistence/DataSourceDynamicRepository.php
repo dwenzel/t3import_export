@@ -239,13 +239,17 @@ class DataSourceDynamicRepository implements DataSourceInterface, ConfigurableIn
             // LOGICAL CONJUNCTION
             if (strtolower((string)$key) === self::LOGICAL_AND) {
                 $subConstrains = $this->generateConstrainForQuery($query, $config[$key], $negative);
-                if (!empty($subConstrains)) {
-                    $constrains[] = $query->logicalAnd($subConstrains);
+                if (count($subConstrains) === 1) {
+                    $constrains[] = $subConstrains[0];
+                } elseif ($subConstrains !== []) {
+                    $constrains[] = $query->logicalAnd(...$subConstrains);
                 }
             } elseif (strtolower((string)$key) === self::LOGICAL_OR) {
                 $subConstrains = $this->generateConstrainForQuery($query, $config[$key], $negative);
-                if (!empty($subConstrains)) {
-                    $constrains[] = $query->logicalOr($subConstrains);
+                if (count($subConstrains) === 1) {
+                    $constrains[] = $subConstrains[0];
+                } elseif ($subConstrains !== []) {
+                    $constrains[] = $query->logicalOr(...$subConstrains);
                 }
             } elseif (strtolower((string)$key) === self::LOGICAL_NOT) {
                 $subConstrains = $this->generateConstrainForQuery($query, $config[$key], !$negative);

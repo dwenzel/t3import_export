@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Component\Finisher;
 
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
-use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Domain\Model\ResultInterface;
 
 /***************************************************************
  *  Copyright notice
@@ -29,18 +29,32 @@ class DownloadFileStream extends AbstractFinisher implements FinisherInterface
     /** @noinspection ReferencingObjectsInspection */
     public function process(array $configuration, array &$records, array|object &$result): bool
     {
-        if ($result instanceof TaskResult) {
-            $taskResult = $result;
-            $tempFile = $taskResult->getInfo();
-            $this->prepareFileToDownload($tempFile, $configuration);
+        if ($result instanceof ResultInterface) {
+            $filePath = $this->getFilePath($result->getInfo());
+            if ($filePath !== null) {
+                $this->prepareFileToDownload($filePath, $configuration);
+            }
         }
         // we expect $this->prepareFileToDownload to exit if the file was downloaded
         return false;
     }
 
-    protected function prepareFileToDownload($filePath, $configuration): void
+    /**
+     * Returns the path of the file in the info of the result. Only file info
+     * objects are accepted, as set by DataTargetFileStream.
+     */
+    protected function getFilePath(mixed $info): ?string
     {
-        if (file_exists($filePath)) {
+        if ($info instanceof \SplFileInfo) {
+            return $info->getPathname();
+        }
+
+        return null;
+    }
+
+    protected function prepareFileToDownload(string $filePath, array $configuration): void
+    {
+        if (is_file($filePath)) {
             $cType = 'application/octet-stream';
             $fileName = 'file_' . time();
             $fileExt = '.dat';
