@@ -23,8 +23,10 @@ namespace CPSIT\T3importExport\Component\Finisher;
  ***************************************************************/
 use CPSIT\ImportExportCore\Component\Finisher\FinisherInterface;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
+use CPSIT\T3importExport\Resource\ResourceTrait;
 use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
@@ -40,6 +42,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 class WriteFile extends AbstractFinisher implements FinisherInterface
 {
     use ResourceStorageTrait;
+    use ResourceTrait;
 
     /**
      * cancel file operation
@@ -132,6 +135,7 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
      * @throws ExistingTargetFolderException
      * @throws InsufficientFolderAccessPermissionsException
      * @throws InsufficientFolderWritePermissionsException
+     * @throws InvalidArgumentException if the target file name is not allowed (see Typo3PathResolver::assertTargetFileName())
      * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      * @noinspection ReferencingObjectsInspection
      */
@@ -145,6 +149,9 @@ class WriteFile extends AbstractFinisher implements FinisherInterface
 
         /** @var FileInfo $fileInfo */
         $fileInfo = $result->getInfo();
+        if (!empty($configuration['target']['name'])) {
+            $this->getResourceAccess()->assertTargetFileAllowed((string)$configuration['target']['name']);
+        }
 
         if (!empty($configuration['target']['storage'])) {
             $storage = $this->storageRepository->getStorageObject((int)$configuration['target']['storage']);

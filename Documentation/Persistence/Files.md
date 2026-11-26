@@ -196,9 +196,10 @@ arguments of the console commands.
 
 ## Names of written files
 
-The extension checks the names of the files it writes itself and of the
-file targets of the core (`DataTargetCSV`), in addition to the file type
-rules above (`Typo3PathResolver::assertTargetFileName()`):
+The extension checks the names of the files it writes itself, of the
+file targets of the core (`DataTargetCSV`) and the target names of the
+finishers `WriteFile` and `MoveFile`, in addition to the file type rules
+above (`Typo3PathResolver::assertTargetFileName()`):
 
 * the default `fileDenyPattern` of TYPO3 applies in addition to a configured
   one, so an empty or weaker configured pattern does not allow e.g. `.php`

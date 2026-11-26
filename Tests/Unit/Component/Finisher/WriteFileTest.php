@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Component\Finisher\WriteFile;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\T3importExport\Domain\Model\Dto\FileInfo;
 use CPSIT\ImportExportCore\Domain\Model\TaskResult;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
@@ -611,5 +613,32 @@ class WriteFileTest extends TestCase
         $fileInfo->method('getRealPath')->willReturn(self::REAL_PATH);
 
         return $fileInfo;
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function notAllowedTargetNameDataProvider(): iterable
+    {
+        yield 'server configuration file' => ['.user.ini'];
+        yield 'web.config' => ['web.config'];
+        yield 'hash' => ['report#1.csv'];
+        yield 'question mark' => ['report?.csv'];
+        yield 'trailing dot' => ['report.csv.'];
+    }
+
+    #[DataProvider('notAllowedTargetNameDataProvider')]
+    public function testProcessDoesNotWriteFileNamesThatAreNotAllowed(string $fileName): void
+    {
+        $records = [];
+        $result = $this->getMockBuilder(TaskResult::class)
+            ->onlyMethods(['getInfo'])->getMock();
+        $result->method('getInfo')->willReturn($this->fileInfo);
+        $this->resourceStorage->expects($this->never())->method('addFile');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->subject->process(['target' => ['name' => $fileName]], $records, $result);
     }
 }

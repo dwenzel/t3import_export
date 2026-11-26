@@ -295,6 +295,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `DataTargetCSV` (of the core and the deprecated class of the extension)
   applies the same rules to the name of `file`; e.g. `report#1.csv` or
   `a?b.csv` are refused (previous exception code 1795400103)
+* The finishers `WriteFile` and `MoveFile` apply the same rules to
+  `target.name`
 * `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by
   file extension or MIME type of the content) with the SVG sanitizer of
   TYPO3 and refuse compressed SVG files (`.svgz`)
