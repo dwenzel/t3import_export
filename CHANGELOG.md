@@ -292,3 +292,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `GenerateFileResource` and `GenerateUploadFile` copy local files through a
   temporary file in the target directory, like URLs; the target file is
   replaced only when the copy is complete
+* `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by
+  file extension or MIME type of the content) with the SVG sanitizer of
+  TYPO3 and refuse compressed SVG files (`.svgz`)

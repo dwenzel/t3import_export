@@ -43,6 +43,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
@@ -579,6 +581,80 @@ class GenerateUploadFileTest extends TestCase
 
         self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.jpg'));
         self::assertSame([], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    protected const string SVG = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/></svg>';
+
+    #[Test]
+    public function getFileSanitizesSvgFiles(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+
+        self::assertSame('fileadmin/target/image.svg', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg'));
+        $content = (string)file_get_contents(vfsStream::url('root/target/image.svg'));
+        self::assertStringNotContainsString('script', $content);
+        self::assertStringContainsString('rect', $content);
+    }
+
+    #[Test]
+    public function getFileSanitizesSvgContentWithOtherFileExtension(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.txt' => '<?xml version="1.0"?>' . "\n" . self::SVG]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.txt');
+
+        $content = (string)file_get_contents(vfsStream::url('root/target/image.txt'));
+        self::assertStringNotContainsString('script', $content);
+        self::assertStringContainsString('rect', $content);
+    }
+
+    #[Test]
+    public function getFileSanitizesSvgOfUrl(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], self::SVG)], $requestedUrls));
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.svg?v=1');
+
+        self::assertStringNotContainsString('script', (string)file_get_contents(vfsStream::url('root/target/image.svg')));
+    }
+
+    #[Test]
+    public function getFileRemovesTemporaryFileIfSanitizingFails(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+        $sanitizer = $this->getMockBuilder(SvgSanitizer::class)->onlyMethods(['sanitizeFile'])->getMock();
+        $sanitizer->method('sanitizeFile')->willThrowException(new \RuntimeException('failed', 1795300598));
+        GeneralUtility::addInstance(SvgSanitizer::class, $sanitizer);
+
+        try {
+            $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+            self::fail('No exception thrown');
+        } catch (\RuntimeException $exception) {
+            self::assertSame(1795300598, $exception->getCode());
+        } finally {
+            GeneralUtility::purgeInstances();
+        }
+        self::assertSame([], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function compressedSvgDataProvider(): iterable
+    {
+        yield 'svgz' => ['image.svgz'];
+        yield 'svgz in upper case' => ['image.SVGZ'];
+    }
+
+    #[Test]
+    #[DataProvider('compressedSvgDataProvider')]
+    public function getFileRejectsCompressedSvgFiles(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/' . $fileName);
     }
 
     #[Test]

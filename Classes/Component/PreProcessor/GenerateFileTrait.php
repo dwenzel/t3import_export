@@ -25,10 +25,12 @@ use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use Psr\Http\Message\StreamInterface;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -140,29 +142,55 @@ trait GenerateFileTrait
 
     /**
      * Writes a stream to a temporary file in the target directory
-     * (`.<name>.<random>.part`), which then replaces the target file. Returns
-     * false if the stream cannot be read or the file cannot be written; the
-     * target file is not changed then. The stream is closed.
+     * (`.<name>.<random>.part`), which then replaces the target file. SVG
+     * files (by file extension or MIME type of the content) are sanitized
+     * with the SVG sanitizer of TYPO3 before. Returns false if the stream
+     * cannot be read or the file cannot be written; the target file is not
+     * changed then. The stream is closed.
      */
     protected function writeTargetFile(StreamInterface $stream, string $absoluteTargetPath): bool
     {
         $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
+        $created = false;
+        $renamed = false;
         try {
             $handle = @fopen($temporaryPath, 'xb');
             if ($handle === false) {
                 return false;
             }
+            $created = true;
             $written = $this->writeStream($stream, $handle);
-            if (!fclose($handle) || !$written || !@rename($temporaryPath, $absoluteTargetPath)) {
-                @unlink($temporaryPath);
-
+            if (!fclose($handle) || !$written) {
                 return false;
             }
+            if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
+                GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($temporaryPath);
+            }
+            $renamed = @rename($temporaryPath, $absoluteTargetPath);
 
-            return true;
+            return $renamed;
         } finally {
+            if ($created && !$renamed) {
+                @unlink($temporaryPath);
+            }
             $stream->close();
         }
+    }
+
+    /**
+     * Like the SVG check of TYPO3: the file extension is svg or the MIME type
+     * of the content is image/svg+xml. The MIME type detection is a best
+     * effort.
+     */
+    protected function isSvgFile(string $targetPath, string $contentPath): bool
+    {
+        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svg') {
+            return true;
+        }
+        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+
+        return \is_string($content)
+            && (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
     }
 
     /**
@@ -205,7 +233,8 @@ trait GenerateFileTrait
 
     /**
      * The file name must be allowed for written files (see
-     * `Typo3PathResolver::assertTargetFileName()`).
+     * `Typo3PathResolver::assertTargetFileName()`); compressed SVG files
+     * (`svgz`), which cannot be sanitized, are refused.
      *
      * @return string absolute path in the storage, '' if it cannot be resolved
      * @throws InvalidArgumentException if the file name is not allowed
@@ -215,6 +244,12 @@ trait GenerateFileTrait
         $absolutePath = GeneralUtility::getFileAbsFileName($targetPath);
         if ($absolutePath !== '') {
             $this->getResourceAccess()->assertTargetFileAllowed($absolutePath);
+        }
+        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svgz') {
+            throw new InvalidArgumentException(
+                \sprintf('The path "%s" is not allowed: compressed SVG files (svgz) are not written.', $targetPath),
+                Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
+            );
         }
 
         return $absolutePath;
