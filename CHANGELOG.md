@@ -289,3 +289,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   control characters and names ending in a dot or space are refused
   (exception code 1795400103). For URLs the target name is the last segment
   of the path, without query and fragment
+* `GenerateFileResource` and `GenerateUploadFile` copy local files through a
+  temporary file in the target directory, like URLs; the target file is
+  replaced only when the copy is complete

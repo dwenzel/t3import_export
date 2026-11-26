@@ -522,6 +522,65 @@ class GenerateUploadFileTest extends TestCase
         self::assertSame([], $requestedUrls);
     }
 
+    /**
+     * A subject that copies files from vfs://root/source/<file name> to
+     * vfs://root/target/<file name>
+     *
+     * @param array<string, string> $sourceFiles
+     * @param array<string, string> $targetFiles
+     */
+    protected function createSubjectCopyingFiles(array $sourceFiles, array $targetFiles = []): GenerateUploadFile
+    {
+        vfsStream::setup('root', null, ['source' => $sourceFiles, 'target' => $targetFiles]);
+        $subject = new class () extends GenerateUploadFile {
+            protected function getAbsoluteTargetPath(string $targetPath): string
+            {
+                return vfsStream::url('root/target/' . basename($targetPath));
+            }
+
+            protected function resolveSourceFile(string $sourceFilePath, ?string $sourcePath = null): string
+            {
+                return vfsStream::url('root/source/' . basename($sourceFilePath));
+            }
+        };
+        $subject->withStorage($this->resourceStorage);
+        $subject->injectFilePathFactory($this->filePathFactory);
+        $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
+
+        return $subject;
+    }
+
+    #[Test]
+    public function getFileCopiesLocalFileWithoutTemporaryFilesLeft(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.jpg' => 'image data'], ['image.jpg' => 'old content']);
+
+        self::assertSame('fileadmin/target/image.jpg', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.jpg'));
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
+        self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
+    public function getFileKeepsExistingTargetIfLocalFileCannotBeWritten(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.jpg' => str_repeat('x', 100)], ['image.jpg' => 'old content']);
+        vfsStream::setQuota(150);
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.jpg'));
+        self::assertSame('old content', file_get_contents(vfsStream::url('root/target/image.jpg')));
+        self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
+    public function getFileReturnsEmptyStringIfLocalFileDoesNotExist(): void
+    {
+        $subject = $this->createSubjectCopyingFiles([]);
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.jpg'));
+        self::assertSame([], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
     #[Test]
     public function getFileRejectsUrlThatIsNotAnHttpUrl(): void
     {

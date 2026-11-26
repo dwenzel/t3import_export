@@ -26,6 +26,7 @@ use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use Psr\Http\Message\StreamInterface;
+use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -72,8 +73,10 @@ trait GenerateFileTrait
      * The source must be an allowed file (see `Typo3PathResolver`) or a URL
      * of an allowed host. An `EXT:` path is only allowed below an `EXT:`
      * `sourcePath` of the configuration. URLs are loaded with the resource
-     * loader of the core (see `copyUrl()`). The target file name must have an
-     * allowed file type.
+     * loader of the core (see `copyUrl()`). The target file name must be
+     * allowed (see `getAbsoluteTargetPath()`). The content is written to a
+     * temporary file in the target directory, which then replaces the target
+     * file (see `writeTargetFile()`).
      *
      * @param string|null $sourcePath the `sourcePath` of the configuration
      * @throws InvalidArgumentException if the source file or the target file type is not allowed
@@ -89,7 +92,16 @@ trait GenerateFileTrait
             return $this->copyUrl($sourceFilePath, $absoluteTargetPath);
         }
 
-        return @copy($this->resolveSourceFile($sourceFilePath, $sourcePath), $absoluteTargetPath);
+        $absoluteSourcePath = $this->resolveSourceFile($sourceFilePath, $sourcePath);
+        if (!is_file($absoluteSourcePath)) {
+            return false;
+        }
+        $source = @fopen($absoluteSourcePath, 'rb');
+        if ($source === false) {
+            return false;
+        }
+
+        return $this->writeTargetFile(new Stream($source), $absoluteTargetPath);
     }
 
     /**
@@ -123,6 +135,17 @@ trait GenerateFileTrait
             return false;
         }
 
+        return $this->writeTargetFile($stream, $absoluteTargetPath);
+    }
+
+    /**
+     * Writes a stream to a temporary file in the target directory
+     * (`.<name>.<random>.part`), which then replaces the target file. Returns
+     * false if the stream cannot be read or the file cannot be written; the
+     * target file is not changed then. The stream is closed.
+     */
+    protected function writeTargetFile(StreamInterface $stream, string $absoluteTargetPath): bool
+    {
         $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
         try {
             $handle = @fopen($temporaryPath, 'xb');

@@ -212,6 +212,12 @@ name of the source file; for a URL the last segment of its path, without
 query and fragment (`https://example.org/image.jpg?size=large` is written to
 `image.jpg`).
 
+`GenerateFileResource` and `GenerateUploadFile` write the content of a
+local file or URL into a temporary file in the target directory
+(`.<name>.<random>.part`), which replaces the target file when it is
+complete. If the source cannot be read or the file cannot be written, the
+target file is not changed.
+
 ## Large files
 
 The sources read the file while the records are processed, so the file is not
