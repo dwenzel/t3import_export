@@ -273,3 +273,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   as configured `sourcePath`; the file must be below the directory of that
   `sourcePath` inside the extension. A value of a record which is an `EXT:`
   path is refused (exception code 1795300101)
+* `allowedHosts` checks the port: an entry `host` allows only the default
+  port of the scheme (80, 443), an entry `host:port` only that port,
+  `*.example.org` the subdomains and `*` every host and port. This applies to
+  the URL and to the target of every redirect (`Resource\AllowedHosts`,
+  `Resource\AllowedHostsClient`). Configurations which load URLs with
+  another port need an entry `host:port`
+* If `sourcePath` of `GenerateFileResource` or `GenerateUploadFile` is a URL,
+  the value of a record cannot change its scheme, host, port or user
+  information

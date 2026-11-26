@@ -20,6 +20,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Resource;
 use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
+use CPSIT\T3importExport\Resource\AllowedHosts;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\T3importExport\Resource\XmlSchema;
@@ -89,7 +90,8 @@ class XmlSchemaTest extends TestCase
 
         return new XmlSchema(new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
-            new HttpResourceLoader($client, new HttpFactory(), ['data.example.org'])
+            new HttpResourceLoader($client, new HttpFactory(), ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         ));
     }
 
@@ -243,7 +245,8 @@ class XmlSchemaTest extends TestCase
         });
         $subject = new XmlSchema(new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
-            new HttpResourceLoader($client, new HttpFactory(), ['data.example.org'])
+            new HttpResourceLoader($client, new HttpFactory(), ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         ));
 
         $uri = $subject->load('https://data.example.org/schemas/v1/main.xsd', 1);

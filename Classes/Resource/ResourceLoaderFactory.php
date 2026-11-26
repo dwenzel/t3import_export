@@ -27,8 +27,14 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  * `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts']`:
  *
  * - not set or empty: no URL is loaded
- * - `['data.example.org', '*.example.com']`: these hosts, `*.` for subdomains
- * - `['*']`: all hosts
+ * - `['data.example.org', '*.example.com']`: these hosts with the default
+ *   port of the scheme, `*.` for subdomains
+ * - `['data.example.org:8443']`: this host with port 8443 only
+ * - `['*']`: all hosts and ports
+ *
+ * The loader of the core checks the host names; the client passed to it
+ * (`AllowedHostsClient`) checks the host and port of every request,
+ * including the requests for redirects (see `AllowedHosts`).
  */
 final readonly class ResourceLoaderFactory
 {
@@ -39,7 +45,13 @@ final readonly class ResourceLoaderFactory
 
     public function createHttpResourceLoader(): HttpResourceLoader
     {
-        return new HttpResourceLoader($this->client, $this->requestFactory, self::allowedHosts());
+        $allowedHosts = AllowedHosts::fromConfiguration();
+
+        return new HttpResourceLoader(
+            new AllowedHostsClient($this->client, $allowedHosts),
+            $this->requestFactory,
+            $allowedHosts->hostNames()
+        );
     }
 
     /**

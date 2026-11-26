@@ -74,9 +74,28 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = [
 ];
 ```
 
-`['*']` allows all hosts. A URL with another host throws a
-`MissingResourceException` (code 1795200302) before a request is sent. The
-URL is not checked for its file type, since it often has no file extension.
+An entry checks the host and the port:
+
+| Entry | Allows |
+|---|---|
+| `data.example.org` | this host with the default port of the scheme (80 for `http`, 443 for `https`) |
+| `data.example.org:8443` | this host with port 8443 only |
+| `*.example.com` | the subdomains of example.com with the default port |
+| `*.example.com:8080` | the subdomains of example.com with port 8080 |
+| `*` | all hosts and ports, including internal addresses |
+
+Host names are not resolved or checked against IP ranges, so do not list
+names which resolve to internal addresses.
+
+A URL with another host or port throws a `MissingResourceException`
+before a request is sent: code 1795200302 where the extension checks the
+URL first (`GenerateFileResource`, `GenerateUploadFile`, `ValidateXML`,
+`ResourcePathConfigurationValidator`), code 1795200301 (request failed) for
+the `url` of the data sources and of the XML components of the core, whose
+loader checks only the host name; there the HTTP client of the extension
+(`Resource\AllowedHostsClient`) refuses the request to a port that is not
+allowed. The URL is not checked for its file type, since it often has no
+file extension.
 
 For the `url` of these components, redirects are followed by the loader,
 not by the client. The extension passes the PSR-18 client of TYPO3 (Guzzle)
@@ -87,9 +106,9 @@ no effect here. The loader
 * follows redirects (301, 302, 303, 307, 308) with a GET request, at most
   five for one URL; more fail the request,
 * checks the target of each redirect like the URL itself: it must be an
-  `http` or `https` URL with an allowed host, otherwise a
+  `http` or `https` URL with an allowed host and port, otherwise a
   `MissingResourceException` is thrown (code 1795200302 for a host that is
-  not allowed),
+  not allowed, 1795200301 for a port that is not allowed),
 * does not follow a redirect from `https` to `http`.
 
 A redirect to another allowed host is followed; allow every host a URL may
@@ -143,6 +162,10 @@ allowed if `sourcePath` is an `EXT:` path: the file must then be below the
 directory of `sourcePath` (the path itself if it ends with a slash, else its
 parent directory) inside the extension. A value of a record which is an
 `EXT:` path is refused (code 1795300101).
+
+If `sourcePath` is a URL, the value of the record cannot change its scheme,
+host, port or user information (code 1795200302). The path of a URL
+`sourcePath` is not a boundary.
 
 A path or URL that is not allowed throws the exception described above, a
 file that does not exist is handled as before. Relative source paths of

@@ -26,15 +26,23 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Applies the file rules of the extension to the components that read or
  * write files themselves (not through the resource loaders of the core):
- * files through `Typo3PathResolver`, URLs through the allowed hosts of
- * `ResourceLoaderFactory`.
+ * files through `Typo3PathResolver`, URLs through the allowed hosts and
+ * ports (`AllowedHosts`) and the loader of `ResourceLoaderFactory`.
  */
 class ResourceAccess
 {
+    private AllowedHosts $allowedHosts;
+
+    /**
+     * @param AllowedHosts|null $allowedHosts default: the configured ones
+     */
     public function __construct(
         private ?Typo3PathResolver $pathResolver = null,
         private ?HttpResourceLoader $httpResourceLoader = null,
-    ) {}
+        ?AllowedHosts $allowedHosts = null,
+    ) {
+        $this->allowedHosts = $allowedHosts ?? AllowedHosts::fromConfiguration();
+    }
 
     public static function isUrl(string $location): bool
     {
@@ -90,17 +98,17 @@ class ResourceAccess
     {
         $loader = $this->getHttpResourceLoader();
 
-        return $loader->supports($url) && $loader->isHostAllowed($url);
+        return $loader->supports($url) && $loader->isHostAllowed($url) && $this->allowedHosts->isAllowed($url);
     }
 
     /**
-     * @throws MissingResourceException if the URL is not an http(s) URL or its host is not allowed
+     * @throws MissingResourceException if the URL is not an http(s) URL or its host or port is not allowed
      */
     public function assertUrlAllowed(string $url): void
     {
         if (!$this->isUrlAllowed($url)) {
             throw new MissingResourceException(
-                \sprintf('Resource "%s" cannot be loaded: the host is not allowed.', $url),
+                \sprintf('Resource "%s" cannot be loaded: the host or port is not allowed.', $url),
                 HttpResourceLoader::ERROR_HOST_NOT_ALLOWED
             );
         }

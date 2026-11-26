@@ -214,7 +214,11 @@ trait GenerateFileTrait
 
         // Prefix all files with the source path
         if (isset($configuration['sourcePath'])) {
-            $filePaths = preg_filter('/^/', (string)$configuration['sourcePath'], $filePaths);
+            $sourcePath = (string)$configuration['sourcePath'];
+            $filePaths = array_map(
+                fn(string $filePath): string => $this->buildSourceLocation($sourcePath, $filePath),
+                $filePaths
+            );
         }
 
         if ($configuration['multipleRows']) {
@@ -231,6 +235,36 @@ trait GenerateFileTrait
         $record[$targetField] = $fieldValue;
 
         return true;
+    }
+
+    /**
+     * Joins the source path of the configuration and a value of the record.
+     * If the source path is a URL, the value cannot change its scheme, host,
+     * port or user information.
+     *
+     * @throws MissingResourceException if the value changes the scheme, host or port of a URL source path
+     */
+    protected function buildSourceLocation(string $sourcePath, string $value): string
+    {
+        $location = $sourcePath . $value;
+        if (!ResourceAccess::isUrl($sourcePath)) {
+            return $location;
+        }
+        $base = parse_url($sourcePath);
+        $result = parse_url($location);
+        foreach (['scheme', 'host', 'port', 'user', 'pass'] as $component) {
+            if (
+                !\is_array($base) || !\is_array($result)
+                || strtolower((string)($base[$component] ?? '')) !== strtolower((string)($result[$component] ?? ''))
+            ) {
+                throw new MissingResourceException(
+                    \sprintf('Resource "%s" cannot be loaded: the value must not change the scheme, host or port of the source path.', $location),
+                    HttpResourceLoader::ERROR_HOST_NOT_ALLOWED
+                );
+            }
+        }
+
+        return $location;
     }
 
     /**

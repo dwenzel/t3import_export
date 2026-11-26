@@ -22,6 +22,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
+use CPSIT\T3importExport\Resource\AllowedHosts;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use GuzzleHttp\Psr7\Request;
@@ -347,7 +348,8 @@ class GenerateFileResourceTest extends TestCase
         );
         $subject->setResourceAccess(new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
-            new HttpResourceLoader($client, $requestFactory, ['data.example.org'])
+            new HttpResourceLoader($client, $requestFactory, ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         ));
         $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
         $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');

@@ -58,6 +58,8 @@ services:
         $allowExtensionPaths: false
     CPSIT\ImportExportCore\Resource\PathResolverInterface: '@CPSIT\T3importExport\Resource\Typo3PathResolver'
     CPSIT\ImportExportCore\Resource\FileResourceLoader: ~
+    CPSIT\T3importExport\Resource\AllowedHosts:
+      factory: ['CPSIT\T3importExport\Resource\AllowedHosts', 'fromConfiguration']
     CPSIT\T3importExport\Resource\ResourceLoaderFactory:
       arguments:
         $client: '@Psr\Http\Client\ClientInterface'

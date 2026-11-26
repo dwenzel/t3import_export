@@ -23,6 +23,7 @@ use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
+use CPSIT\T3importExport\Resource\AllowedHosts;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\T3importExport\Factory\FilePathFactory;
@@ -228,7 +229,8 @@ class GenerateUploadFileTest extends TestCase
         $client->expects(self::never())->method('sendRequest');
         $subject->setResourceAccess(new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
-            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org'])
+            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         ));
         $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
         $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
@@ -302,7 +304,8 @@ class GenerateUploadFileTest extends TestCase
         );
         $subject->setResourceAccess(new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
-            new HttpResourceLoader($client, $requestFactory, ['data.example.org', 'cdn.example.org'])
+            new HttpResourceLoader($client, $requestFactory, ['data.example.org', 'cdn.example.org']),
+            new AllowedHosts(['data.example.org', 'cdn.example.org'])
         ));
         $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
         $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
@@ -449,6 +452,31 @@ class GenerateUploadFileTest extends TestCase
         self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
         self::assertSame('old content', file_get_contents(vfsStream::url('root/target/image.jpg')));
         self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
+    public function processDoesNotLetARecordChangeTheHostOfAUrlSourcePath(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], 'image data')], $requestedUrls));
+        $record = ['image' => '@cdn.example.org/image.jpg'];
+
+        try {
+            $subject->process(
+                [
+                    'targetDirectoryPath' => 'target',
+                    'sourceField' => 'image',
+                    'targetField' => 'image',
+                    'sourcePath' => 'https://data.example.org',
+                    'multipleRows' => false,
+                ],
+                $record
+            );
+            self::fail('The URL is loaded.');
+        } catch (MissingResourceException $exception) {
+            self::assertSame(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertSame([], $requestedUrls);
     }
 
     #[Test]
