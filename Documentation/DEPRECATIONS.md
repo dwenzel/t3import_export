@@ -398,7 +398,8 @@ to the classes of the core and the deprecated ones:
   [Files](./Persistence/Files.md#urls)).
 * The rules also apply to `ValidateXML` (pre-processor and finisher),
   `DataTargetXMLStream` (`template`), `GenerateFileResource` and
-  `GenerateUploadFile` (source file; the target file only for its file type)
+  `GenerateUploadFile` (source file; the target file only for its name, see
+  [Names of written files](./Persistence/Files.md#names-of-written-files))
   and `ResourcePathConfigurationValidator`. Relative source paths of
   `GenerateFileResource` and `GenerateUploadFile` are relative to the public
   directory. See [Files](./Persistence/Files.md#other-components).
@@ -407,6 +408,24 @@ to the classes of the core and the deprecated ones:
   `typo3temp/tx_importexport_/` of the public directory, which the web server
   may deliver). The constant `DataTargetFileStream::TEMP_DIRECTORY` is no longer
   used and deprecated; subclasses can override `getTemporaryDirectory()`.
+
+Upgrading from 3.3.1: the options of 3.3.1 for files are replaced by
+`fileDirectories`. Version 4.0 does not read the options of 3.3.1; rename
+them in `config/system/additional.php`:
+
+| 3.3.1 | 4.0 |
+|---|---|
+| `fileSourceDirectories` (default `fileadmin/`, `var/import/`) | `fileDirectories` (default `fileadmin/`, `var/import/`); one list for reading and writing |
+| `fileTargetDirectories` (default `fileadmin/`, `typo3temp/`, `var/`) | `fileDirectories`; `DataTargetCSV` writes only into these directories, by default not into `typo3temp/` or other directories of `var/` |
+| `fileTargetExtensions` (default `csv`, `tsv`, `txt`, `xml`, `json`, `yaml`, `yml`) | none; `DataTargetCSV` of the core writes only `csv`, `tsv` and `txt` files |
+| `allowedHosts` as list or comma-separated string | `allowedHosts` as list only; a string allows no host |
+
+The rules for names of written files, the port check of `allowedHosts`, the
+check of `EXT:` sources and the SVG sanitizing of `GenerateFileResource` and
+`GenerateUploadFile` are the same as in 3.3.1. Different exception codes:
+a source file that is not allowed throws codes 1795300101 to 1795300103
+(3.3.1: 1795400201 to 1795400204), a URL whose host or port is not allowed
+1795200302 or 1795200301 (see [Files](./Persistence/Files.md#urls)).
 
 Changes when replacing the deprecated classes with those of the core:
 

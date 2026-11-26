@@ -297,6 +297,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `a?b.csv` are refused (previous exception code 1795400103)
 * The finishers `WriteFile` and `MoveFile` apply the same rules to
   `target.name`
+* The options `fileSourceDirectories`, `fileTargetDirectories` and
+  `fileTargetExtensions` of 3.3.1 are not read; use `fileDirectories`, see
+  [Deprecations](Documentation/DEPRECATIONS.md#files)
 * `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by
   file extension or MIME type of the content) with the SVG sanitizer of
   TYPO3 and refuse compressed SVG files (`.svgz`)
