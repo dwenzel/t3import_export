@@ -120,9 +120,10 @@ trait GenerateFileTrait
     /**
      * Copies a source file or URL to a target file.
      *
-     * Local files must be in an allowed directory, URLs must be http(s) URLs
-     * of an allowed host (see `FileSourceGuard`). `EXT:` paths are allowed
-     * only below the configured `sourcePath`. The content is written to a
+     * Local files and `EXT:` paths are allowed only below the configured
+     * `sourcePath` and local files only in an allowed directory, URLs must be
+     * http(s) URLs of an allowed host (see `FileSourceGuard`). The content is
+     * written to a
      * temporary file in the target directory, which then replaces the target
      * file. SVG files (by file extension or MIME type of the content) are
      * sanitized. Returns false if the source cannot be read or the target

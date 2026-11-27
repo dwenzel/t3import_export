@@ -147,7 +147,8 @@ class GenerateFileResourceTest extends TestCase
         $targetDirectory = 'invalidDirectory';
 
         $configuration = [
-            'targetDirectoryPath' => $targetDirectory
+            'targetDirectoryPath' => $targetDirectory,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
 
         $fileStructure = [
