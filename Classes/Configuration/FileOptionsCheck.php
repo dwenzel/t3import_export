@@ -43,12 +43,16 @@ final class FileOptionsCheck
         }
         $messages = [];
         foreach (self::OPTIONS_OF_VERSION_3 as $option) {
-            if (\array_key_exists($option, $configuration)) {
-                $messages[] = \sprintf(
-                    'The option $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'%s\'] of version 3.3 is not read. Use [\'fileDirectories\'] instead, see Documentation/DEPRECATIONS.md (Files).',
-                    $option
-                );
+            if (!\array_key_exists($option, $configuration)) {
+                continue;
             }
+            $messages[] = \sprintf(
+                'The option $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'%s\'] of version 3.3 is not read. %s See Documentation/DEPRECATIONS.md (Files).',
+                $option,
+                $option === 'fileTargetExtensions'
+                    ? 'It has no equivalent: DataTargetCSV writes only files of the types csv, tsv and txt.'
+                    : 'Use [\'fileDirectories\'] instead.'
+            );
         }
         if (\is_string($configuration['allowedHosts'] ?? null)) {
             $messages[] = 'The option $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'allowedHosts\'] is a string and is not read, so no host is allowed. Use a list, e.g. [\'data.example.org\'], see Documentation/Persistence/Files.md (URLs).';

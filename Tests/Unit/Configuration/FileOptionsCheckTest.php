@@ -50,7 +50,36 @@ class FileOptionsCheckTest extends TestCase
 
         self::assertCount(1, $messages);
         self::assertStringContainsString("['" . $option . "']", $messages[0]);
-        self::assertStringContainsString('fileDirectories', $messages[0]);
+    }
+
+    #[Test]
+    #[DataProvider('directoryOptionsOfVersion3DataProvider')]
+    public function recommendsFileDirectoriesForDirectoryOptions(string $option): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export'][$option] = ['fileadmin/import'];
+
+        self::assertStringContainsString("Use ['fileDirectories']", FileOptionsCheck::messages()[0]);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function directoryOptionsOfVersion3DataProvider(): iterable
+    {
+        yield 'fileSourceDirectories' => ['fileSourceDirectories'];
+        yield 'fileTargetDirectories' => ['fileTargetDirectories'];
+    }
+
+    #[Test]
+    public function tellsThatFileTargetExtensionsHasNoEquivalent(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileTargetExtensions'] = ['csv', 'json'];
+
+        $message = FileOptionsCheck::messages()[0];
+
+        self::assertStringNotContainsString('fileDirectories', $message);
+        self::assertStringContainsString('no equivalent', $message);
+        self::assertStringContainsString('csv, tsv and txt', $message);
     }
 
     #[Test]
