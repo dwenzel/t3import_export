@@ -563,7 +563,7 @@ class GenerateUploadFileTest extends TestCase
     }
 
     /**
-     * The SVG sanitizer of TYPO3 12 refuses an `SVG` root element in upper
+     * The SVG sanitizer of TYPO3 11 refuses an `SVG` root element in upper
      * case: the file is not written.
      *
      * @test
@@ -597,7 +597,7 @@ class GenerateUploadFileTest extends TestCase
         $this->prepareTargetDirectory();
         file_put_contents($this->sourceDirectory . '/' . $fileName, '<html><body><script>alert(1)</script></body></html>');
 
-        // the SVG sanitizer of TYPO3 12 refuses content without svg element: the file is not written
+        // the SVG sanitizer of TYPO3 11 refuses content without svg element: the file is not written
         try {
             $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
             self::fail('No exception thrown');

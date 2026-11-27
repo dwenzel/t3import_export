@@ -168,8 +168,11 @@ root element is read with XMLReader (no network access, no DTD loading, no
 entity substitution); for content XMLReader cannot read, a simple scan is
 used, which treats a document type with an internal subset as unknown. If the
 root element is unknown, the MIME type `image/svg+xml` (detected with `finfo`)
-decides. This is a best effort. If the sanitizer leaves an empty file, e.g.
-for content that is no valid SVG, a warning is logged (1795300502).
+decides. This is a best effort. If the sanitizer leaves an empty file, a
+warning is logged (1795300502). The SVG sanitizer of TYPO3 11 throws an
+exception for content without an `svg` element (e.g. a file named
+`page.svg.txt` with HTML content or an `SVG` root element in upper case): the
+file is then not written and the task stops.
 
 HTML, XHTML and XML files with another root element are not sanitized, also if
 they contain an inline `svg` element. If XML content contains elements of the
