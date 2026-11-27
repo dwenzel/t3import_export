@@ -916,11 +916,12 @@ class GenerateUploadFileTest extends TestCase
 
     /**
      * Content whose first megabyte ends after `$tail`, the start of an SVG
-     * root element after a long comment
+     * root element after a long comment. The start tag is longer than the
+     * lookahead of XMLReader.
      */
     protected static function contentWithRootAtTheEndOfTheWindow(string $tail): string
     {
-        $body = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>';
+        $body = '<svg xmlns="http://www.w3.org/2000/svg" data-pad="' . str_repeat('x', 10000) . '"><script>alert(1)</script></svg>';
         self::assertStringStartsWith($tail, $body);
 
         return '<!--' . str_repeat('a', 1048576 - 7 - \strlen($tail)) . '-->' . $body;
@@ -984,6 +985,55 @@ class GenerateUploadFileTest extends TestCase
         $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
 
         $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileSanitizesSvgRootAfterWhitespaceWithinTheLookahead(): void
+    {
+        $content = str_repeat("\n", 1048576) . self::SVG;
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/x.xml')));
+    }
+
+    #[Test]
+    public function getFileWarnsIfWhitespaceFillsTheWindow(): void
+    {
+        // also longer than the lookahead of XMLReader
+        $content = str_repeat("\n", 1048576 + 10000) . self::SVG;
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileWarnsAboutScriptAtTheEndOfTheWindow(): void
+    {
+        // the root element is in no namespace; the script element in the last 300 bytes of the window is
+        $start = '<?xml version="1.0"?><feed><entry>';
+        $script = '<script xmlns="http://www.w3.org/1999/xhtml">alert(1)</script>';
+        $content = $start . str_repeat('a', 1048576 - 300 - \strlen($start)) . $script . str_repeat('b', 20000) . '</entry></feed>';
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileWarnsAboutXhtmlRootWithScriptAtTheEndOfTheWindow(): void
+    {
+        $start = '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>';
+        $content = $start . str_repeat('a', 1048576 - 300 - \strlen($start)) . '</p><script>alert(1)</script>' . str_repeat('b', 20000) . '</body></html>';
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
 
         self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
     }

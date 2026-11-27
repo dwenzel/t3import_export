@@ -278,9 +278,10 @@ XHTML or SVG namespace or an `xml-stylesheet` processing instruction (within
 the first megabyte) is logged as warning (1795300503), since a browser may
 run scripts in it when the file is served from a public directory. The same
 warning is logged if the root element does not start within the first
-megabyte (e.g. after a long comment or document type, or more than 1000
-items before it) or the first megabyte ends inside its start tag, so the
-content is not checked. Allow such files only from trusted
+megabyte (e.g. after a long comment, document type or whitespace, or more
+than 1000 items before it) or the first megabyte ends inside its start tag,
+so the content is not checked. The XML reader reads 8 KB more than the first
+megabyte, so that it can report the elements that end within it. Allow such files only from trusted
 sources.
 
 ## Large files

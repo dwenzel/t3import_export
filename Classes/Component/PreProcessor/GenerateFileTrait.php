@@ -82,6 +82,17 @@ trait GenerateFileTrait
      */
     private const int MAX_PROLOG_ITEMS = 1000;
 
+    /**
+     * Size of the checked window at the start of a file
+     */
+    private const int CHECKED_WINDOW = 1048576;
+
+    /**
+     * Bytes after the window that XMLReader reads, so that it can report the
+     * nodes which end within the window
+     */
+    private const int XML_READER_LOOKAHEAD = 8192;
+
     private const string ACTIVE_CONTENT_PATTERN = '/\.(?:html?|xht(?:ml)?|m?js|shtml?)(?:\..*)?$/i';
 
     protected FilePathFactory $filePathFactory;
@@ -275,14 +286,15 @@ trait GenerateFileTrait
         if (preg_match(self::SVG_PATTERN, PathUtility::basename($targetPath)) === 1) {
             return true;
         }
-        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        $content = @file_get_contents($contentPath, false, null, 0, self::CHECKED_WINDOW + self::XML_READER_LOOKAHEAD);
         if (!\is_string($content)) {
             return false;
         }
+        $window = substr($content, 0, self::CHECKED_WINDOW);
 
         return self::readRootElementIsSvg($content)
-            ?? self::hasSvgRootElement($content)
-            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+            ?? self::hasSvgRootElement($window)
+            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($window) === 'image/svg+xml';
     }
 
     /**
@@ -293,11 +305,12 @@ trait GenerateFileTrait
      */
     protected function checkXmlContent(string $contentPath, string $targetPath): void
     {
-        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        $content = @file_get_contents($contentPath, false, null, 0, self::CHECKED_WINDOW + self::XML_READER_LOOKAHEAD);
         if (!\is_string($content)) {
             return;
         }
-        if (\strlen($content) >= 1048576 && self::isRootElementBeyondWindow($content)) {
+        $window = substr($content, 0, self::CHECKED_WINDOW);
+        if (\strlen($window) >= self::CHECKED_WINDOW && self::isRootElementBeyondWindow($window)) {
             $this->logMessage(
                 'XML file not checked',
                 \sprintf(
@@ -335,7 +348,11 @@ trait GenerateFileTrait
     {
         $start = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
         $start += strspn($content, " \t\n\r\0\x0B", $start);
-        if (($content[$start] ?? '') !== '<') {
+        if ($start >= \strlen($content)) {
+            // only a byte order mark and whitespace
+            return true;
+        }
+        if ($content[$start] !== '<') {
             return false;
         }
         $offset = self::skipProlog($content, true);
@@ -343,7 +360,9 @@ trait GenerateFileTrait
             return true;
         }
 
-        // a complete start tag of the root element (attribute values may contain ">")
+        // a complete start tag of the root element (attribute values may
+        // contain ">"); an error of preg_match() (false) counts as incomplete,
+        // so the check fails safe
         return preg_match(
             '/\G<[^\s>\/]++(?:\s++[^\s=>\/]++(?:\s*+=\s*+(?:"[^"]*+"|\'[^\']*+\'|[^\s"\'>]++))?)*+\s*+\/?>/',
             $content,
