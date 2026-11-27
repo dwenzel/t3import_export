@@ -71,7 +71,7 @@ trait GenerateFileTrait
      * `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
      * is `true`
      */
-    public const ACTIVE_CONTENT_PATTERN = '/\.(html?|xht(ml)?|m?js|shtml?)(\..*)?$/i';
+    private const ACTIVE_CONTENT_PATTERN = '/\.(?:html?|xht(?:ml)?|m?js|shtml?)(?:\..*)?$/i';
 
     protected FilePathFactory $filePathFactory;
 
