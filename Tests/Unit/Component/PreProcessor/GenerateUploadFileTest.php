@@ -638,6 +638,9 @@ class GenerateUploadFileTest extends TestCase
         yield 'byte order mark and whitespace' => ["\xEF\xBB\xBF \n\t" . self::SVG];
         yield 'doctype' => ['<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' . "\n" . self::SVG];
         yield 'upper case element' => [str_replace('<svg ', '<SVG ', self::SVG)];
+        yield 'processing instruction and doctype with internal subset' => [
+            '<?xml version="1.0"?><?xml-stylesheet href="a.css"?><!DOCTYPE svg [<!ENTITY a "b">]>' . self::SVG,
+        ];
         yield 'namespace prefix' => ['<?xml version="1.0"?><!--' . str_repeat(' comment', 20000) . ' --><s:svg xmlns:s="http://www.w3.org/2000/svg"><s:script>alert(1)</s:script></s:svg>'];
     }
 
@@ -650,6 +653,47 @@ class GenerateUploadFileTest extends TestCase
         $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.txt');
 
         self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/image.txt')));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function markupWithInlineSvgDataProvider(): iterable
+    {
+        yield 'html' => ['page.html', '<!DOCTYPE html>' . "\n" . '<html><body><p>Logo</p>' . self::SVG . '</body></html>'];
+        yield 'rss' => ['feed.xml', '<?xml version="1.0"?><rss version="2.0"><channel><title>News</title><description>' . self::SVG . '</description></channel></rss>'];
+        yield 'comment with svg before the root element' => ['page.html', '<!-- <svg> --><html><body>' . self::SVG . '</body></html>'];
+    }
+
+    #[Test]
+    #[DataProvider('markupWithInlineSvgDataProvider')]
+    public function getFileDoesNotSanitizeMarkupWithInlineSvg(string $fileName, string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles([$fileName => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/' . $fileName);
+
+        self::assertSame($content, file_get_contents(vfsStream::url('root/target/' . $fileName)));
+    }
+
+    #[Test]
+    public function getFileLogsWarningIfSanitizingEmptiesTheFile(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => 'not an svg file']);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
+    }
+
+    #[Test]
+    public function getFileLogsNoWarningIfSanitizingKeepsContent(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
     }
 
     #[Test]

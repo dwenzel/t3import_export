@@ -48,6 +48,11 @@ trait GenerateFileTrait
      */
     public const int WARNING_URL_NOT_LOADED = 1_795_300_501;
 
+    /**
+     * Message ID of the warning that the SVG sanitizer emptied a file
+     */
+    public const int WARNING_SVG_EMPTY = 1_795_300_502;
+
     protected FilePathFactory $filePathFactory;
 
     /**
@@ -184,7 +189,7 @@ trait GenerateFileTrait
                 return false;
             }
             if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
-                GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($temporaryPath);
+                $this->sanitizeSvgFile($temporaryPath, $absoluteTargetPath);
             }
             $renamed = @rename($temporaryPath, $absoluteTargetPath);
 
@@ -198,11 +203,35 @@ trait GenerateFileTrait
     }
 
     /**
-     * Whether a file is sanitized as SVG: the file extension is svg, the MIME
-     * type of the content is image/svg+xml, or the content is markup (it
-     * starts with `<` after a byte order mark and whitespace) that contains an
-     * `svg` element (also with a namespace prefix) within the first megabyte, e.g. after a long prolog or
-     * comment. The detection is a best effort.
+     * Sanitizes an SVG file with the SVG sanitizer of TYPO3; logs a warning
+     * if the sanitizer leaves an empty file, e.g. for content that is no
+     * valid SVG.
+     */
+    protected function sanitizeSvgFile(string $path, string $targetPath): void
+    {
+        clearstatcache(true, $path);
+        $sizeBefore = (int)@filesize($path);
+        GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($path);
+        clearstatcache(true, $path);
+        if ($sizeBefore > 0 && (int)@filesize($path) === 0) {
+            $this->logMessage(
+                'SVG file empty',
+                \sprintf('The SVG sanitizer removed the whole content of "%s".', basename($targetPath)),
+                Message::SEVERITY_WARNING,
+                self::WARNING_SVG_EMPTY
+            );
+        }
+    }
+
+    /**
+     * Whether a file is sanitized as SVG: the file extension is svg, or the
+     * root element of the content is an `svg` element (also with a namespace
+     * prefix): the first element after a byte order mark, whitespace, the XML
+     * declaration, processing instructions, comments and the document type,
+     * within the first megabyte. If no root element is found there (e.g. an
+     * unclosed comment), the MIME type image/svg+xml decides. Markup with
+     * another root element, e.g. HTML or RSS with an inline `svg` element, is
+     * not sanitized. The detection is a best effort.
      */
     protected function isSvgFile(string $targetPath, string $contentPath): bool
     {
@@ -213,12 +242,41 @@ trait GenerateFileTrait
         if (!\is_string($content)) {
             return false;
         }
-        if ((new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml') {
-            return true;
-        }
-        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
 
-        return str_starts_with($markup, '<') && preg_match('/<(?:[a-z0-9_.-]+:)?svg[\s>\/]/i', $markup) === 1;
+        return self::hasSvgRootElement($content)
+            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+    }
+
+    /**
+     * @return bool|null null if no element is found
+     */
+    private static function hasSvgRootElement(string $content): ?bool
+    {
+        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
+        while ($markup !== '') {
+            if (str_starts_with($markup, '<?')) {
+                $end = strpos($markup, '?>');
+                $length = 2;
+            } elseif (str_starts_with($markup, '<!--')) {
+                $end = strpos($markup, '-->', 4);
+                $length = 3;
+            } elseif (preg_match('/^<!DOCTYPE[^\[>]*(?:\[.*?\])?\s*>/is', $markup, $matches) === 1) {
+                $end = \strlen($matches[0]);
+                $length = 0;
+            } else {
+                break;
+            }
+            if ($end === false) {
+                return null;
+            }
+            $markup = ltrim(substr($markup, $end + $length));
+        }
+
+        if (preg_match('/^<[a-z_]/i', $markup) !== 1) {
+            return null;
+        }
+
+        return preg_match('/^<(?:[a-z0-9_.-]+:)?svg[\s>\/]/i', $markup) === 1;
     }
 
     /**
