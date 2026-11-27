@@ -872,9 +872,9 @@ class GenerateUploadFileTest extends TestCase
 
     public static function incompleteStartTagDataProvider(): iterable
     {
-        yield 'less than' => [1, self::SVG];
-        yield 'first letter' => [2, self::SVG];
-        yield 'part of svg' => [3, self::SVG];
+        yield 'less than' => [1, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'first letter' => [2, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'part of the name' => [3, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
         yield 'other root element' => [20, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
         yield 'greater than in an attribute value' => [17, '<html title="a>b" xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
     }
@@ -895,6 +895,10 @@ class GenerateUploadFileTest extends TestCase
 
     public static function svgStartTagAtWindowEndDataProvider(): iterable
     {
+        // XMLReader reads a margin after the window
+        yield 'less than' => [1];
+        yield 'first letter' => [2];
+        yield 'part of the name' => [3];
         yield 'name' => [4];
         yield 'name and space' => [5];
         yield 'attribute' => [20];
@@ -912,6 +916,58 @@ class GenerateUploadFileTest extends TestCase
         $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
 
         self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileLogsWarningIfWhitespaceFillsTheWindowAndTheMargin(): void
+    {
+        $this->prepareTargetDirectory();
+        $content = str_repeat("\n", 1048576 + 16384) . self::SVG;
+        file_put_contents($this->sourceDirectory . '/x.xml', $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/x.xml');
+
+        self::assertSame($content, file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileSanitizesSvgRootElementAfterWhitespaceOfTheWholeWindow(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/x.xml', str_repeat("\n", 1048576) . self::SVG);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/x.xml');
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    public static function xhtmlRootAtWindowEndDataProvider(): iterable
+    {
+        yield '300 bytes' => [300];
+        yield 'start tag and part of the script' => [60];
+        yield 'start tag only' => [44];
+    }
+
+    /**
+     * @test
+     * @dataProvider xhtmlRootAtWindowEndDataProvider
+     */
+    public function getFileLogsWarningForXhtmlRootElementAtTheEndOfTheWindow(int $bytesOfRoot): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents(
+            $this->sourceDirectory . '/feed.xml',
+            self::contentWithRootAtWindowEnd($bytesOfRoot, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>')
+        );
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
     }
 
     public static function manyPrologItemsDataProvider(): iterable

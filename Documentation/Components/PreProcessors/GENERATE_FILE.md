@@ -170,7 +170,8 @@ element (also with a namespace prefix), whatever its name: the first element
 after a byte order mark, whitespace, the XML declaration, processing
 instructions, comments and the document type, within the first megabyte. The
 root element is read with XMLReader (no network access, no DTD loading, no
-entity substitution); for content XMLReader cannot read, a simple scan is
+entity substitution; it reads 8 KB more than the first megabyte, since it
+returns an element only after some lookahead, also for the XML check below); for content XMLReader cannot read, a simple scan is
 used, which treats a document type with an internal subset as unknown. If the
 root element is unknown, the MIME type `image/svg+xml` (detected with `finfo`)
 decides. This is a best effort. If the sanitizer leaves an empty file, a
