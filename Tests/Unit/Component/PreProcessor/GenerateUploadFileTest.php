@@ -246,7 +246,28 @@ class GenerateUploadFileTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
 
-        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'typo3conf/secret.txt');
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target', 'sourcePath' => 'typo3conf/'], 'typo3conf/secret.txt');
+    }
+
+    #[Test]
+    public function getFileRejectsLocalFileWithoutSourcePath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/image.jpg');
+    }
+
+    #[Test]
+    public function getFileRejectsLocalFileOutsideOfTheSourcePath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/images/'],
+            Environment::getVarPath() . '/import/tests/image.jpg'
+        );
     }
 
     #[Test]

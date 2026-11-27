@@ -269,10 +269,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   type (e.g. `data.csv` pointing to `data.csv.1`) is rejected
 * ValidateXML: schemas cannot include files or URLs outside the allowed
   locations
-* `GenerateFileResource` and `GenerateUploadFile` accept an `EXT:` path only
-  as configured `sourcePath`; the file must be below the directory of that
-  `sourcePath` inside the extension. A value of a record which is an `EXT:`
-  path is refused (exception code 1795300101)
+* `GenerateFileResource` and `GenerateUploadFile` read local files and
+  `EXT:` paths only below the configured `sourcePath`: the file must be below
+  the directory of `sourcePath` (the path itself if it ends with a slash, else
+  its parent directory; for `EXT:` paths inside the extension). Without
+  `sourcePath`, the values of a record can only be URLs. A value of a record
+  which names a local file or an `EXT:` path itself is refused (exception
+  code 1795300101). Configurations which copy local files without
+  `sourcePath` need one, see [Deprecations](Documentation/DEPRECATIONS.md#files)
 * `allowedHosts` checks the port: an entry `host` allows only the default
   port of the scheme (80, 443), an entry `host:port` only that port,
   `*.example.org` the subdomains and `*` every host and port. This applies to

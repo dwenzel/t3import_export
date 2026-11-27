@@ -400,7 +400,13 @@ to the classes of the core and the deprecated ones:
   `DataTargetXMLStream` (`template`), `GenerateFileResource` and
   `GenerateUploadFile` (source file; the target file only for its name, see
   [Names of written files](./Persistence/Files.md#names-of-written-files))
-  and `ResourcePathConfigurationValidator`. Relative source paths of
+  and `ResourcePathConfigurationValidator`.
+* `GenerateFileResource` and `GenerateUploadFile` read local files only below
+  the directory of the configured `sourcePath` (the path itself if it ends
+  with a slash, else its parent directory). Without `sourcePath`, the values
+  of a record can only be URLs (before: any file). Set `sourcePath` to the
+  directory of the files, e.g. `fileadmin/import/images/`, and keep only the
+  file names (or paths below it) in the records. Relative source paths of
   `GenerateFileResource` and `GenerateUploadFile` are relative to the public
   directory. See [Files](./Persistence/Files.md#other-components).
 * `DataTargetFileStream` and `DataTargetXMLStream` write their temporary file

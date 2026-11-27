@@ -178,45 +178,48 @@ final readonly class Typo3PathResolver implements PathResolverInterface
     }
 
     /**
-     * Resolves a source file whose path is built from a configured source
-     * path and a value of a record, e.g. of `GenerateFileResource`.
+     * Resolves a local source file whose path is built from a configured
+     * source path and a value of a record, e.g. of `GenerateFileResource`.
      *
-     * Like `resolve()`, but an `EXT:` path is only allowed if `$sourcePath`
-     * (the `sourcePath` of the configuration) is an `EXT:` path and `$path`
-     * starts with it. The file must then be below the directory of
-     * `$sourcePath` (the path itself if it ends with a slash, else its parent
-     * directory), which must be inside the extension. A value of a record
-     * cannot name an `EXT:` path itself.
+     * Like `resolve()`, but the path must start with `$sourcePath` (the
+     * `sourcePath` of the configuration), and the file must be below the
+     * directory of `$sourcePath`: the path itself if it ends with a slash,
+     * else its parent directory. Symbolic links are resolved. Without a
+     * source path, no local file is allowed. For an `EXT:` source path, the
+     * directory must be inside the extension. A value of a record cannot
+     * name a local file or an `EXT:` path itself.
      *
      * @throws InvalidArgumentException if the path is not allowed
      */
     public function resolveSource(string $path, ?string $sourcePath): string
     {
-        if (!PathUtility::isExtensionPath($path)) {
-            return $this->resolve($path);
-        }
         if (
             $sourcePath === null
-            || !PathUtility::isExtensionPath($sourcePath)
+            || trim($sourcePath) === ''
+            || preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $sourcePath) === 1
             || !str_starts_with($path, $sourcePath)
         ) {
-            throw $this->notAllowed($path, 'EXT: paths are only allowed below the configured source path.', self::ERROR_NOT_ALLOWED);
+            throw $this->notAllowed($path, 'local files are only allowed below the configured source path.', self::ERROR_NOT_ALLOWED);
         }
         $absolutePath = $this->resolve($path);
         $absoluteSourcePath = GeneralUtility::getFileAbsFileName($sourcePath);
-        $extensionDirectory = self::extensionDirectory($sourcePath);
         $sourceDirectory = str_ends_with($sourcePath, '/') ? rtrim($absoluteSourcePath, '/') : \dirname($absoluteSourcePath);
         $realSourceDirectory = $absoluteSourcePath === '' ? null : self::realPath($sourceDirectory);
-        $realExtensionDirectory = $extensionDirectory === null ? null : self::realPath(rtrim($extensionDirectory, '/'));
+        $isInExtension = true;
+        if ($realSourceDirectory !== null && PathUtility::isExtensionPath($sourcePath)) {
+            $extensionDirectory = self::extensionDirectory($sourcePath);
+            $realExtensionDirectory = $extensionDirectory === null ? null : self::realPath(rtrim($extensionDirectory, '/'));
+            $isInExtension = $realExtensionDirectory !== null
+                && ($realSourceDirectory === $realExtensionDirectory || str_starts_with($realSourceDirectory, $realExtensionDirectory . '/'));
+        }
         if (
             $realSourceDirectory === null
-            || $realExtensionDirectory === null
-            || ($realSourceDirectory !== $realExtensionDirectory && !str_starts_with($realSourceDirectory, $realExtensionDirectory . '/'))
+            || !$isInExtension
             || !self::isInDirectories($absolutePath, [$realSourceDirectory])
         ) {
             throw $this->notAllowed(
                 $path,
-                'files of EXT: paths must be below the directory of the source path inside the extension.',
+                'files must be below the directory of the configured source path (for EXT: paths inside the extension).',
                 self::ERROR_DIRECTORY_NOT_ALLOWED
             );
         }

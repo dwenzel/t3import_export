@@ -183,14 +183,14 @@ class Typo3PathResolverTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function resolveSourceAppliesTheRulesOfResolveToOtherPaths(): void
+    public function resolveSourceAllowsLocalFileBelowTheSourcePath(): void
     {
         $file = $this->createFile(Environment::getPublicPath() . '/fileadmin/import');
 
         self::assertSame(
             $file,
             (new Typo3PathResolver(directories: [Environment::getPublicPath() . '/fileadmin']))
-                ->resolveSource('fileadmin/import/' . basename($file), null)
+                ->resolveSource('fileadmin/import/' . basename($file), 'fileadmin/import/')
         );
     }
 

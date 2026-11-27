@@ -375,6 +375,93 @@ b.csv"];
      * Creates a directory in the var directory (inside of the project) with
      * the sub-directories `allowed` and `outside`.
      */
+    #[Test]
+    public function resolveSourceAllowsFileBelowTheSourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+        $sourcePath = $directory . '/allowed/images/';
+
+        self::assertSame($sourcePath . 'a.jpg', $subject->resolveSource($sourcePath . 'a.jpg', $sourcePath));
+        self::assertSame($sourcePath . 'sub/a.jpg', $subject->resolveSource($sourcePath . 'sub/a.jpg', $sourcePath));
+    }
+
+    #[Test]
+    public function resolveSourceRejectsLocalFileWithoutSourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/allowed/a.jpg', null);
+    }
+
+    #[Test]
+    public function resolveSourceRejectsLocalFileWithEmptySourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/allowed/a.jpg', '');
+    }
+
+    #[Test]
+    public function resolveSourceRejectsLocalFileThatDoesNotStartWithTheSourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/allowed/other/a.jpg', $directory . '/allowed/images/');
+    }
+
+    #[Test]
+    public function resolveSourceUsesTheParentDirectoryOfALocalSourcePathWithoutTrailingSlash(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        mkdir($directory . '/allowed/imagesb');
+        $subject = new Typo3PathResolver(directories: [$directory]);
+
+        // the boundary is allowed/, not allowed/images/
+        self::assertSame(
+            $directory . '/allowed/imagesb/a.jpg',
+            $subject->resolveSource($directory . '/allowed/images' . 'b/a.jpg', $directory . '/allowed/images')
+        );
+    }
+
+    #[Test]
+    public function resolveSourceRejectsSymbolicLinkOutOfTheSourceDirectory(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        file_put_contents($directory . '/allowed/secret.jpg', 'x');
+        symlink($directory . '/allowed/secret.jpg', $directory . '/allowed/images/link.jpg');
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+        $sourcePath = $directory . '/allowed/images/';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $subject->resolveSource($sourcePath . 'link.jpg', $sourcePath);
+    }
+
+    #[Test]
+    public function resolveSourceRejectsSourcePathOutsideOfTheAllowedDirectories(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/outside/a.jpg', $directory . '/outside/');
+    }
+
     private function createTestDirectory(): string
     {
         $this->testDirectory = Environment::getVarPath() . '/' . uniqid('Typo3PathResolverTest', true);

@@ -53,11 +53,15 @@ by default `fileadmin/` of the public directory and `import/` of the `var`
 directory), see [Paths](../../Persistence/Files.md#paths). Relative paths are
 relative to the public directory.
 
-`EXT:` paths are allowed only as `config.sourcePath`, e.g.
-`EXT:my_sitepackage/Resources/Private/Import/`. The file must then be below
-the directory of the source path (the source path itself if it ends with `/`,
-else its parent directory), and that directory must be inside the extension.
-A value of a record which is an `EXT:` path is refused.
+Local files and `EXT:` paths are read only below the configured
+`config.sourcePath`, e.g. `fileadmin/import/images/` or
+`EXT:my_sitepackage/Resources/Private/Import/`. The file must be below the
+directory of the source path (the source path itself if it ends with `/`,
+else its parent directory: `fileadmin/import/img` allows files below
+`fileadmin/import/`). Symbolic links are resolved. For an `EXT:` source path
+the directory must be inside the extension. Without `config.sourcePath`, the
+values of a record can only be URLs; a value which names a local file or an
+`EXT:` path is refused (code 1795300101).
 
 ### URLs
 

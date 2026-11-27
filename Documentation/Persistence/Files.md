@@ -159,11 +159,14 @@ files themselves:
 | `Validation\Configuration\ResourcePathConfigurationValidator` | `file`, `url` | a path or host that is not allowed makes the configuration invalid |
 
 `GenerateFileResource` and `GenerateUploadFile` build the source path from
-`sourcePath` and a value of the record. For them, an `EXT:` path is only
-allowed if `sourcePath` is an `EXT:` path: the file must then be below the
+`sourcePath` and a value of the record. Local files and `EXT:` paths are
+only read below the configured `sourcePath`: the file must be below the
 directory of `sourcePath` (the path itself if it ends with a slash, else its
-parent directory) inside the extension. A value of a record which is an
-`EXT:` path is refused (code 1795300101).
+parent directory; symbolic links are resolved), in addition to the rules
+above. For an `EXT:` source path, the directory must be inside the
+extension. Without `sourcePath`, the values of a record can only be URLs; a
+value that names a local file or an `EXT:` path is refused (code
+1795300101).
 
 If `sourcePath` is a URL, the value of the record cannot change its scheme,
 host, port or user information (code 1795200302). The path of a URL
