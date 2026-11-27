@@ -44,6 +44,12 @@ trait GenerateFileTrait
     use LoggingTrait;
 
     /**
+     * Items of the prolog (processing instructions, comments, document types)
+     * which are scanned for the root element
+     */
+    private const int MAX_PROLOG_ITEMS = 1000;
+
+    /**
      * Warning: the SVG sanitizer removed the whole content of a file
      */
     public const int WARNING_SVG_EMPTY = 1_795_300_502;
@@ -291,40 +297,74 @@ trait GenerateFileTrait
     }
 
     /**
-     * Whether markup content (within the checked window) consists only of
-     * the prolog: byte order mark, whitespace, XML declaration, processing
-     * instructions, comments and the document type, without the start of a
-     * root element, e.g. after a long comment.
+     * Whether the root element of markup content does not start within the
+     * checked window: the window holds only the prolog (byte order mark,
+     * whitespace, XML declaration, processing instructions, comments and the
+     * document type, at most `MAX_PROLOG_ITEMS` items), or it ends inside the
+     * start tag of the root element, e.g. after a long comment.
      */
     private static function isRootElementBeyondWindow(string $content): bool
     {
-        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
-        if (!str_starts_with($markup, '<')) {
+        $start = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
+        $start += strspn($content, " \t\n\r\0\x0B", $start);
+        if (($content[$start] ?? '') !== '<') {
             return false;
         }
-        while ($markup !== '') {
-            if (str_starts_with($markup, '<?')) {
-                $end = strpos($markup, '?>');
-                $length = 2;
-            } elseif (str_starts_with($markup, '<!--')) {
-                $end = strpos($markup, '-->', 4);
-                $length = 3;
-            } elseif (preg_match('/^<!DOCTYPE/i', $markup) === 1) {
-                if (preg_match('/^<!DOCTYPE[^\[>]*+(?:\[[^\]]*+\]\s*+)?>/i', $markup, $matches) !== 1) {
-                    return true;
-                }
-                $end = \strlen($matches[0]);
-                $length = 0;
-            } else {
-                return false;
-            }
-            if ($end === false) {
-                return true;
-            }
-            $markup = ltrim(substr($markup, $end + $length));
+        $offset = self::skipProlog($content, true);
+        if ($offset === null || $offset >= \strlen($content)) {
+            return true;
         }
 
-        return true;
+        // a complete start tag of the root element (attribute values may contain ">")
+        return preg_match(
+            '/\G<[^\s>\/]++(?:\s++[^\s=>\/]++(?:\s*+=\s*+(?:"[^"]*+"|\'[^\']*+\'|[^\s"\'>]++))?)*+\s*+\/?>/',
+            $content,
+            $matches,
+            0,
+            $offset
+        ) !== 1;
+    }
+
+    /**
+     * Skips the prolog of markup content: byte order mark, whitespace, XML
+     * declaration, processing instructions, comments and the document type.
+     * Scans with an offset, without copies of the content.
+     *
+     * @param bool $allowInternalSubset whether a document type may have an internal subset
+     * @return int|null offset of the first character after the prolog; null
+     *                  if an item does not end within the content, a document
+     *                  type is not allowed or there are more than
+     *                  `MAX_PROLOG_ITEMS` items
+     */
+    private static function skipProlog(string $content, bool $allowInternalSubset): ?int
+    {
+        $whitespace = " \t\n\r\0\x0B";
+        $length = \strlen($content);
+        $offset = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
+        $offset += strspn($content, $whitespace, $offset);
+        $items = 0;
+        while ($offset < $length) {
+            if (substr_compare($content, '<?', $offset, 2) === 0) {
+                $end = strpos($content, '?>', $offset + 2);
+                $end = $end === false ? false : $end + 2;
+            } elseif (substr_compare($content, '<!--', $offset, 4) === 0) {
+                $end = strpos($content, '-->', $offset + 4);
+                $end = $end === false ? false : $end + 3;
+            } elseif (substr_compare($content, '<!DOCTYPE', $offset, 9, true) === 0) {
+                $pattern = $allowInternalSubset
+                    ? '/\G<!DOCTYPE[^\[>]*+(?:\[[^\]]*+\]\s*+)?>/i'
+                    : '/\G<!DOCTYPE[^\[>]*+>/i';
+                $end = preg_match($pattern, $content, $matches, 0, $offset) === 1 ? $offset + \strlen($matches[0]) : false;
+            } else {
+                return $offset;
+            }
+            if ($end === false || ++$items > self::MAX_PROLOG_ITEMS) {
+                return null;
+            }
+            $offset = $end + strspn($content, $whitespace, $end);
+        }
+
+        return $offset;
     }
 
     /**
@@ -406,34 +446,13 @@ trait GenerateFileTrait
      */
     private static function hasSvgRootElement(string $content): ?bool
     {
-        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
-        while ($markup !== '') {
-            if (str_starts_with($markup, '<?')) {
-                $end = strpos($markup, '?>');
-                $length = 2;
-            } elseif (str_starts_with($markup, '<!--')) {
-                $end = strpos($markup, '-->', 4);
-                $length = 3;
-            } elseif (preg_match('/^<!DOCTYPE/i', $markup) === 1) {
-                if (preg_match('/^<!DOCTYPE[^\[>]*>/i', $markup, $matches) !== 1) {
-                    return null;
-                }
-                $end = \strlen($matches[0]);
-                $length = 0;
-            } else {
-                break;
-            }
-            if ($end === false) {
-                return null;
-            }
-            $markup = ltrim(substr($markup, $end + $length));
-        }
-
-        if (preg_match('/^<[a-z_]/i', $markup) !== 1) {
+        $offset = self::skipProlog($content, false);
+        if ($offset === null || preg_match('/\G<[a-z_]/i', $content, $matches, 0, $offset) !== 1) {
             return null;
         }
 
-        return preg_match('/^<(?:[a-z0-9_.-]+:)?svg[\s>\/]/i', $markup) === 1;
+        // the start tag may end with the checked window
+        return preg_match('/\G<(?:[a-z0-9_.-]+:)?svg(?:[\s>\/]|$)/i', $content, $matches, 0, $offset) === 1;
     }
 
     /**

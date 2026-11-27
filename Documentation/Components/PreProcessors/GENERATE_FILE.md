@@ -181,8 +181,10 @@ they contain an inline `svg` element. If XML content contains elements of the
 XHTML or SVG namespace or an `xml-stylesheet` processing instruction, a warning
 is logged (1795300503) and the file is written unchanged: browsers can run
 scripts in such files. The same warning is logged if the first megabyte ends
-before a root element is found (e.g. after a long comment or document type);
-such content is not checked. The check does not expand entities, browsers do;
+before the start tag of the root element is complete (e.g. after a long
+comment or document type, or after more than 1000 processing instructions,
+comments and document types); such content is not checked. A root element
+`svg` whose start tag begins at the end of the first megabyte is sanitized. The check does not expand entities, browsers do;
 XML that builds markup from entities belongs to the files that are not
 sanitized. This check is a limit, not a protection; allow such
 files only from trusted sources and check them before they are served from a
