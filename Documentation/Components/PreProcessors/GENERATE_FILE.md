@@ -114,9 +114,10 @@ SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG,
 whatever its name, if its extension is `svg` or if the root element of the
 content is `svg` (also with a namespace prefix, e.g. `s:svg`): the first
 element after a byte order mark, whitespace, the XML declaration, processing
-instructions, comments and the document type, within the first megabyte. If
-no element is found there, the MIME type `image/svg+xml` (detected with
-`finfo`) decides. This is a best effort. If the sanitizer leaves an empty
+instructions, comments and the document type, within the first megabyte. The
+root element is read with XMLReader (no network access, no DTD loading, no
+entity substitution). If it cannot be determined, the MIME type
+`image/svg+xml` (detected with `finfo`) decides. This is a best effort. If the sanitizer leaves an empty
 file, e.g. for content that is no valid SVG, a warning is logged
 (1795300502). HTML, XHTML and XML files with another root element are not
 sanitized, also if they contain an inline `svg` element; check them before

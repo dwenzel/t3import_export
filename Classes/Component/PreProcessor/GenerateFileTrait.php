@@ -228,8 +228,11 @@ trait GenerateFileTrait
      * root element of the content is an `svg` element (also with a namespace
      * prefix): the first element after a byte order mark, whitespace, the XML
      * declaration, processing instructions, comments and the document type,
-     * within the first megabyte. If no root element is found there (e.g. an
-     * unclosed comment), the MIME type image/svg+xml decides. Markup with
+     * within the first megabyte. The root element is read with XMLReader;
+     * for content XMLReader cannot read, a simple scan is used, which treats
+     * a document type with an internal subset as unknown. If the root element
+     * is unknown (e.g. an unclosed comment), the MIME type image/svg+xml
+     * decides. Markup with
      * another root element, e.g. HTML or RSS with an inline `svg` element, is
      * not sanitized. The detection is a best effort.
      */
@@ -243,12 +246,49 @@ trait GenerateFileTrait
             return false;
         }
 
-        return self::hasSvgRootElement($content)
+        return self::readRootElementIsSvg($content)
+            ?? self::hasSvgRootElement($content)
             ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
     }
 
     /**
-     * @return bool|null null if no element is found
+     * Whether the root element is `svg`, read with XMLReader: no network
+     * access, no DTD loading, no entity substitution.
+     *
+     * @return bool|null null if XMLReader finds no root element, e.g. the
+     *                   content is no XML
+     */
+    private static function readRootElementIsSvg(string $content): ?bool
+    {
+        $previous = libxml_use_internal_errors(true);
+        $reader = null;
+        try {
+            $reader = \XMLReader::XML($content, null, LIBXML_NONET);
+            if (!$reader instanceof \XMLReader) {
+                return null;
+            }
+            while ($reader->read()) {
+                if ($reader->nodeType === \XMLReader::ELEMENT) {
+                    return strtolower($reader->localName) === 'svg';
+                }
+            }
+
+            return null;
+        } catch (\Throwable) {
+            return null;
+        } finally {
+            $reader?->close();
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
+    }
+
+    /**
+     * The root element without an XML parser, for content XMLReader cannot
+     * read. A document type with an internal subset makes the root element
+     * unknown.
+     *
+     * @return bool|null null if the root element is unknown
      */
     private static function hasSvgRootElement(string $content): ?bool
     {
@@ -260,7 +300,10 @@ trait GenerateFileTrait
             } elseif (str_starts_with($markup, '<!--')) {
                 $end = strpos($markup, '-->', 4);
                 $length = 3;
-            } elseif (preg_match('/^<!DOCTYPE[^\[>]*(?:\[.*?\])?\s*>/is', $markup, $matches) === 1) {
+            } elseif (preg_match('/^<!DOCTYPE/i', $markup) === 1) {
+                if (preg_match('/^<!DOCTYPE[^\[>]*>/i', $markup, $matches) !== 1) {
+                    return null;
+                }
                 $end = \strlen($matches[0]);
                 $length = 0;
             } else {

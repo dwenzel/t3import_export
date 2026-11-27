@@ -638,6 +638,15 @@ class GenerateUploadFileTest extends TestCase
         yield 'byte order mark and whitespace' => ["\xEF\xBB\xBF \n\t" . self::SVG];
         yield 'doctype' => ['<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' . "\n" . self::SVG];
         yield 'upper case element' => [str_replace('<svg ', '<SVG ', self::SVG)];
+        yield 'internal subset with "]>" in an entity value' => [
+            '<!DOCTYPE svg [<!ENTITY a "]><foo>">]><svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(1)</script></svg>',
+        ];
+        yield 'internal subset with "]>" in a comment' => [
+            '<!DOCTYPE svg [<!-- ]><foo> -->]><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        ];
+        yield 'internal subset with "]>" in a processing instruction' => [
+            '<!DOCTYPE svg [<?x ]><foo>?>]><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        ];
         yield 'processing instruction and doctype with internal subset' => [
             '<?xml version="1.0"?><?xml-stylesheet href="a.css"?><!DOCTYPE svg [<!ENTITY a "b">]>' . self::SVG,
         ];
