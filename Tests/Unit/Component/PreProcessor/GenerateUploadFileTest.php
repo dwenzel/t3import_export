@@ -657,6 +657,7 @@ class GenerateUploadFileTest extends TestCase
         yield 'htm' => ['page.htm'];
         yield 'xhtml' => ['page.xhtml'];
         yield 'xht' => ['page.xht'];
+        yield 'shtm' => ['page.shtm'];
         yield 'js' => ['script.js'];
         yield 'mjs' => ['module.mjs'];
         yield 'upper case' => ['PAGE.HTML'];
@@ -670,7 +671,6 @@ class GenerateUploadFileTest extends TestCase
         yield from self::activeContentFileNameDataProvider();
         // also in the default fileDenyPattern of TYPO3
         yield 'shtml' => ['page.shtml'];
-        yield 'shtm' => ['page.shtm'];
     }
 
     #[Test]
@@ -803,6 +803,44 @@ class GenerateUploadFileTest extends TestCase
 
         self::assertSame($content, file_get_contents($result));
         self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    public static function prologBeyondCheckedWindowDataProvider(): iterable
+    {
+        yield 'long comment' => ['<?xml version="1.0"?><!--' . str_repeat('x', 1100000) . '--><html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'long processing instruction' => ['<?xml version="1.0"?><?pi ' . str_repeat('x', 1100000) . '?><feed/>'];
+        yield 'long document type' => ['<!DOCTYPE feed [<!ENTITY a "' . str_repeat('x', 1100000) . '">]><feed>&a;</feed>'];
+    }
+
+    #[Test]
+    #[DataProvider('prologBeyondCheckedWindowDataProvider')]
+    public function getFileLogsWarningIfNoRootElementIsFoundInTheCheckedWindow(string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertSame($content, file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    public static function largeFileWithRootElementDataProvider(): iterable
+    {
+        yield 'large xml' => ['feed.xml', '<?xml version="1.0"?><feed>' . str_repeat('<item>x</item>', 80000) . '</feed>'];
+        yield 'large text' => ['notes.txt', str_repeat('x', 1100000)];
+    }
+
+    #[Test]
+    #[DataProvider('largeFileWithRootElementDataProvider')]
+    public function getFileDoesNotLogWarningForLargeFilesWithRootElementOrWithoutMarkup(string $fileName, string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertFalse($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
     }
 
     #[Test]
