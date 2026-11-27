@@ -21,7 +21,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `GenerateFileResource` checks the source and the target name also if a file
   with the same name exists already
 * SVG content is detected by its root element (read with XMLReader), also
-  with leading whitespace, comments or another file extension; a warning is
+  with leading whitespace, comments or another file extension, and files with
+  `.svg` in any position of the name are sanitized; `.svgz` is refused in any
+  position; a warning is
   logged if the sanitizer empties a file (1795300502)
 * `GenerateFileResource` and `GenerateUploadFile` refuse target files of the
   types `html`, `htm`, `xhtml`, `xht`, `shtml`, `shtm`, `js` and `mjs` (in any

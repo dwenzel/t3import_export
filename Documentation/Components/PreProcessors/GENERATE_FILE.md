@@ -138,7 +138,8 @@ of TYPO3 or its default pattern, server configuration files (e.g.
 `.htaccess`), names with a colon, `?` or `#` and names ending in a dot or space
 are refused. The last file extension must not be empty and must consist of
 letters and digits only (e.g. `page.html;a=b`, `page%2ehtml` and `README` are
-refused). Compressed SVG files (`.svgz`) are refused. All these names are
+refused). Compressed SVG files (`.svgz`, in any position of the name, e.g.
+`image.svgz.txt`) are refused. All these names are
 refused with code 1795400103.
 
 Files of the types `html`, `htm`, `xhtml`, `xht`, `shtml`, `shtm`, `js` and
@@ -159,7 +160,8 @@ default `fileDenyPattern` of TYPO3. The setting applies to
 these files is not sanitized.
 
 SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG
-if its extension is `svg`, or if the root element of the content is an `svg`
+if its name has the extension `svg` in any position (e.g. `image.svg.txt`),
+or if the root element of the content is an `svg`
 element (also with a namespace prefix), whatever its name: the first element
 after a byte order mark, whitespace, the XML declaration, processing
 instructions, comments and the document type, within the first megabyte. The

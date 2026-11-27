@@ -601,6 +601,25 @@ class GenerateUploadFileTest extends TestCase
         self::assertStringNotContainsString('alert', (string)file_get_contents($result));
     }
 
+    public static function svgFileNameDataProvider(): iterable
+    {
+        yield 'svg before another extension' => ['image.svg.txt'];
+        yield 'svg in upper case before another extension' => ['image.SVG.jpg'];
+        yield 'svg in the middle' => ['image.svg.min.txt'];
+    }
+
+    #[Test]
+    #[DataProvider('svgFileNameDataProvider')]
+    public function getFileSanitizesFilesWithSvgExtensionInAnyPosition(string $fileName): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, '<html><body><script>alert(1)</script></body></html>');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
     public static function otherMarkupDataProvider(): iterable
     {
         yield 'html with inline svg' => ['page.txt', '<html><body><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg></body></html>'];
@@ -801,6 +820,8 @@ class GenerateUploadFileTest extends TestCase
     {
         yield 'compressed svg' => ['image.svgz'];
         yield 'compressed svg in upper case' => ['image.SVGZ'];
+        yield 'compressed svg before another extension' => ['image.svgz.txt'];
+        yield 'compressed svg in upper case before another extension' => ['image.SVGZ.jpg'];
         yield 'question mark' => ['evil.svg?x=1'];
         yield 'hash' => ['evil.svg#a'];
     }
