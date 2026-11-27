@@ -119,6 +119,136 @@ class Typo3PathResolverTest extends TestCase
         (new Typo3PathResolver(false))->resolve('EXT:t3import_export/Resources/Private/news.csv');
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function notAllowedTargetFileNameDataProvider(): iterable
+    {
+        yield '.htaccess' => ['.htaccess'];
+        yield '.htpasswd' => ['.htpasswd'];
+        yield '.htaccess, upper case' => ['.HTACCESS'];
+        yield '.user.ini' => ['.user.ini'];
+        yield 'php.ini' => ['php.ini'];
+        yield 'web.config' => ['web.config'];
+        yield 'question mark' => ['a?b.csv'];
+        yield 'hash' => ['a#b.csv'];
+        yield 'colon' => ['a:b.csv'];
+        yield 'colon, alternate data stream' => ['news.csv::$DATA'];
+        yield 'control character' => ["a
+b.csv"];
+        yield 'delete character' => ["ab.csv"];
+        yield 'trailing dot' => ['news.csv.'];
+        yield 'trailing space' => ['news.csv '];
+    }
+
+    #[Test]
+    #[DataProvider('notAllowedTargetFileNameDataProvider')]
+    public function rejectsTargetFileNamesThatAreNotAllowed(string $fileName): void
+    {
+        try {
+            (new Typo3PathResolver())->assertTargetFileName('fileadmin/import/' . $fileName);
+            self::fail('The file name is allowed.');
+        } catch (InvalidArgumentException $exception) {
+            // the default fileDenyPattern of TYPO3 covers some of them (.htaccess, control characters)
+            self::assertContains(
+                $exception->getCode(),
+                [Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED, Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED]
+            );
+        }
+    }
+
+    #[Test]
+    public function rejectsServerConfigurationFilesWithEmptyFileDenyPattern(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = '';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->assertTargetFileName('fileadmin/.htaccess');
+    }
+
+    #[Test]
+    #[DataProvider('notAllowedTargetFileNameDataProvider')]
+    public function targetResolverRejectsFileNamesThatAreNotAllowed(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        (new Typo3PathResolver(false, ['fileadmin'], checkTargetFileNames: true))->resolve('fileadmin/' . $fileName);
+    }
+
+    #[Test]
+    public function sourceResolverAllowsFileNamesOfTargetRules(): void
+    {
+        self::assertSame(
+            Environment::getPublicPath() . '/fileadmin/a#b.csv',
+            (new Typo3PathResolver(directories: ['fileadmin']))->resolve('fileadmin/a#b.csv')
+        );
+    }
+
+    #[Test]
+    public function appliesTheDefaultFileDenyPatternToTargetsInAdditionToTheConfiguredOne(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = '\\.exe$';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->assertTargetFileName('fileadmin/image.php.jpg');
+    }
+
+    #[Test]
+    public function appliesTheDefaultFileDenyPatternToTargetsWithEmptyConfiguredOne(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = '';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->assertTargetFileName('fileadmin/script.phtml');
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidUtf8FileNameDataProvider(): iterable
+    {
+        yield 'php file' => ["script\xFF.php"];
+        yield 'csv file' => ["news\xC3.csv"];
+    }
+
+    #[Test]
+    #[DataProvider('invalidUtf8FileNameDataProvider')]
+    public function rejectsTargetFileNamesThatAreNotValidUtf8(string $fileName): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = '';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->assertTargetFileName('fileadmin/' . $fileName);
+    }
+
+    #[Test]
+    public function appliesTheConfiguredFileDenyPatternToTargets(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = '\\.csv$';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->assertTargetFileName('fileadmin/news.csv');
+    }
+
+    #[Test]
+    public function allowsTargetFileNamesOfAllowedTypes(): void
+    {
+        $subject = new Typo3PathResolver();
+        $subject->assertTargetFileName('fileadmin/news 2026.csv');
+        $subject->assertTargetFileName('fileadmin/.hidden.csv');
+        $subject->assertTargetFileName('fileadmin/image.JPG');
+
+        self::assertSame(
+            Environment::getPublicPath() . '/fileadmin/news.csv',
+            (new Typo3PathResolver(false, ['fileadmin'], checkTargetFileNames: true))->resolve('fileadmin/news.csv')
+        );
+    }
+
     #[Test]
     public function appliesTheConfiguredFileDenyPattern(): void
     {
@@ -265,6 +395,107 @@ class Typo3PathResolverTest extends TestCase
      * Creates a directory in the var directory (inside of the project) with
      * the sub-directories `allowed` and `outside`.
      */
+    #[Test]
+    public function resolveSourceAllowsFileBelowTheSourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+        $sourcePath = $directory . '/allowed/images/';
+
+        self::assertSame($sourcePath . 'a.jpg', $subject->resolveSource($sourcePath . 'a.jpg', $sourcePath));
+        self::assertSame($sourcePath . 'sub/a.jpg', $subject->resolveSource($sourcePath . 'sub/a.jpg', $sourcePath));
+    }
+
+    #[Test]
+    public function resolveSourceRejectsLocalFileWithoutSourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/allowed/a.jpg', null);
+    }
+
+    #[Test]
+    public function resolveSourceRejectsLocalFileWithEmptySourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/allowed/a.jpg', '');
+    }
+
+    #[Test]
+    public function resolveSourceRejectsLocalFileThatDoesNotStartWithTheSourcePath(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/allowed/other/a.jpg', $directory . '/allowed/images/');
+    }
+
+    #[Test]
+    public function resolveSourceUsesAnExistingDirectoryWithoutTrailingSlashAsBound(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        mkdir($directory . '/allowed/images2');
+        $subject = new Typo3PathResolver(directories: [$directory]);
+
+        self::assertSame(
+            $directory . '/allowed/images/a.jpg',
+            $subject->resolveSource($directory . '/allowed/images' . '/a.jpg', $directory . '/allowed/images')
+        );
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+        $subject->resolveSource($directory . '/allowed/images' . '2/a.jpg', $directory . '/allowed/images');
+    }
+
+    #[Test]
+    public function resolveSourceUsesTheParentDirectoryOfAFileNamePrefix(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory]);
+
+        // allowed/image_ is no directory: the bound is allowed/
+        self::assertSame(
+            $directory . '/allowed/image_1.jpg',
+            $subject->resolveSource($directory . '/allowed/image_' . '1.jpg', $directory . '/allowed/image_')
+        );
+    }
+
+    #[Test]
+    public function resolveSourceRejectsSymbolicLinkOutOfTheSourceDirectory(): void
+    {
+        $directory = $this->createTestDirectory();
+        mkdir($directory . '/allowed/images');
+        file_put_contents($directory . '/allowed/secret.jpg', 'x');
+        symlink($directory . '/allowed/secret.jpg', $directory . '/allowed/images/link.jpg');
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+        $sourcePath = $directory . '/allowed/images/';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $subject->resolveSource($sourcePath . 'link.jpg', $sourcePath);
+    }
+
+    #[Test]
+    public function resolveSourceRejectsSourcePathOutsideOfTheAllowedDirectories(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory . '/allowed']);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $subject->resolveSource($directory . '/outside/a.jpg', $directory . '/outside/');
+    }
+
     private function createTestDirectory(): string
     {
         $this->testDirectory = Environment::getVarPath() . '/' . uniqid('Typo3PathResolverTest', true);

@@ -90,6 +90,7 @@ trait SetCommandTrait
         }
 
         $this->io->comment(static::MESSAGE_STARTING);
+        $this->warnAboutFileOptions();
 
         $this->process($identifier);
         $this->io->success(static::MESSAGE_SUCCESS);

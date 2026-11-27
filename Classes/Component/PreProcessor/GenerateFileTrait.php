@@ -25,9 +25,12 @@ use CPSIT\T3importExport\Factory\FilePathFactory;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceStorageTrait;
 use CPSIT\T3importExport\Resource\ResourceTrait;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use Psr\Http\Message\StreamInterface;
+use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -44,6 +47,11 @@ trait GenerateFileTrait
      * Message ID of the warning that a URL cannot be loaded
      */
     public const int WARNING_URL_NOT_LOADED = 1_795_300_501;
+
+    /**
+     * Message ID of the warning that the SVG sanitizer emptied a file
+     */
+    public const int WARNING_SVG_EMPTY = 1_795_300_502;
 
     protected FilePathFactory $filePathFactory;
 
@@ -70,14 +78,18 @@ trait GenerateFileTrait
      * Copies a source file or URL to a target path in the storage.
      *
      * The source must be an allowed file (see `Typo3PathResolver`) or a URL
-     * of an allowed host. URLs are loaded with the resource loader of the
-     * core (see `copyUrl()`). The target file name must have an allowed file
-     * type.
+     * of an allowed host. Local files and `EXT:` paths are only allowed below
+     * the `sourcePath` of the configuration. URLs are loaded with the resource
+     * loader of the core (see `copyUrl()`). The target file name must be
+     * allowed (see `getAbsoluteTargetPath()`). The content is written to a
+     * temporary file in the target directory, which then replaces the target
+     * file (see `writeTargetFile()`).
      *
+     * @param string|null $sourcePath the `sourcePath` of the configuration
      * @throws InvalidArgumentException if the source file or the target file type is not allowed
      * @throws MissingResourceException if the source URL is not allowed
      */
-    protected function copyFile(string $sourceFilePath, string $targetPath): bool
+    protected function copyFile(string $sourceFilePath, string $targetPath, ?string $sourcePath = null): bool
     {
         $absoluteTargetPath = $this->getAbsoluteTargetPath($targetPath);
         if ($absoluteTargetPath === '') {
@@ -87,7 +99,36 @@ trait GenerateFileTrait
             return $this->copyUrl($sourceFilePath, $absoluteTargetPath);
         }
 
-        return @copy($this->resolveSourceFile($sourceFilePath), $absoluteTargetPath);
+        $absoluteSourcePath = $this->resolveSourceFile($sourceFilePath, $sourcePath);
+        if (!is_file($absoluteSourcePath)) {
+            return false;
+        }
+        $source = @fopen($absoluteSourcePath, 'rb');
+        if ($source === false) {
+            return false;
+        }
+
+        return $this->writeTargetFile(new Stream($source), $absoluteTargetPath);
+    }
+
+    /**
+     * Applies the rules of `copyFile()` without copying: the target file name
+     * and the source file or URL (scheme, allowed host and port) must be
+     * allowed.
+     *
+     * @param string|null $sourcePath the `sourcePath` of the configuration
+     * @throws InvalidArgumentException if the source file or the target file name is not allowed
+     * @throws MissingResourceException if the source URL is not allowed
+     */
+    protected function assertCopyAllowed(string $sourceFilePath, string $targetPath, ?string $sourcePath = null): void
+    {
+        $this->getAbsoluteTargetPath($targetPath);
+        if (ResourceAccess::isUrl($sourceFilePath)) {
+            $this->getResourceAccess()->assertUrlAllowed($sourceFilePath);
+
+            return;
+        }
+        $this->resolveSourceFile($sourceFilePath, $sourcePath);
     }
 
     /**
@@ -121,23 +162,164 @@ trait GenerateFileTrait
             return false;
         }
 
+        return $this->writeTargetFile($stream, $absoluteTargetPath);
+    }
+
+    /**
+     * Writes a stream to a temporary file in the target directory
+     * (`.<name>.<random>.part`), which then replaces the target file. SVG
+     * files (by file extension or MIME type of the content) are sanitized
+     * with the SVG sanitizer of TYPO3 before. Returns false if the stream
+     * cannot be read or the file cannot be written; the target file is not
+     * changed then. The stream is closed.
+     */
+    protected function writeTargetFile(StreamInterface $stream, string $absoluteTargetPath): bool
+    {
         $temporaryPath = \dirname($absoluteTargetPath) . '/.' . basename($absoluteTargetPath) . '.' . bin2hex(random_bytes(8)) . '.part';
+        $created = false;
+        $renamed = false;
         try {
             $handle = @fopen($temporaryPath, 'xb');
             if ($handle === false) {
                 return false;
             }
+            $created = true;
             $written = $this->writeStream($stream, $handle);
-            if (!fclose($handle) || !$written || !@rename($temporaryPath, $absoluteTargetPath)) {
-                @unlink($temporaryPath);
-
+            if (!fclose($handle) || !$written) {
                 return false;
             }
+            if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
+                $this->sanitizeSvgFile($temporaryPath, $absoluteTargetPath);
+            }
+            $renamed = @rename($temporaryPath, $absoluteTargetPath);
 
-            return true;
+            return $renamed;
         } finally {
+            if ($created && !$renamed) {
+                @unlink($temporaryPath);
+            }
             $stream->close();
         }
+    }
+
+    /**
+     * Sanitizes an SVG file with the SVG sanitizer of TYPO3; logs a warning
+     * if the sanitizer leaves an empty file, e.g. for content that is no
+     * valid SVG.
+     */
+    protected function sanitizeSvgFile(string $path, string $targetPath): void
+    {
+        clearstatcache(true, $path);
+        $sizeBefore = (int)@filesize($path);
+        GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($path);
+        clearstatcache(true, $path);
+        if ($sizeBefore > 0 && (int)@filesize($path) === 0) {
+            $this->logMessage(
+                'SVG file empty',
+                \sprintf('The SVG sanitizer removed the whole content of "%s".', basename($targetPath)),
+                Message::SEVERITY_WARNING,
+                self::WARNING_SVG_EMPTY
+            );
+        }
+    }
+
+    /**
+     * Whether a file is sanitized as SVG: the file extension is svg, or the
+     * root element of the content is an `svg` element (also with a namespace
+     * prefix): the first element after a byte order mark, whitespace, the XML
+     * declaration, processing instructions, comments and the document type,
+     * within the first megabyte. The root element is read with XMLReader;
+     * for content XMLReader cannot read, a simple scan is used, which treats
+     * a document type with an internal subset as unknown. If the root element
+     * is unknown (e.g. an unclosed comment), the MIME type image/svg+xml
+     * decides. Markup with
+     * another root element, e.g. HTML or RSS with an inline `svg` element, is
+     * not sanitized. The detection is a best effort.
+     */
+    protected function isSvgFile(string $targetPath, string $contentPath): bool
+    {
+        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svg') {
+            return true;
+        }
+        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        if (!\is_string($content)) {
+            return false;
+        }
+
+        return self::readRootElementIsSvg($content)
+            ?? self::hasSvgRootElement($content)
+            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+    }
+
+    /**
+     * Whether the root element is `svg`, read with XMLReader: no network
+     * access, no DTD loading, no entity substitution.
+     *
+     * @return bool|null null if XMLReader finds no root element, e.g. the
+     *                   content is no XML
+     */
+    private static function readRootElementIsSvg(string $content): ?bool
+    {
+        $previous = libxml_use_internal_errors(true);
+        $reader = null;
+        try {
+            $reader = \XMLReader::XML($content, null, LIBXML_NONET);
+            if (!$reader instanceof \XMLReader) {
+                return null;
+            }
+            while ($reader->read()) {
+                if ($reader->nodeType === \XMLReader::ELEMENT) {
+                    return strtolower($reader->localName) === 'svg';
+                }
+            }
+
+            return null;
+        } catch (\Throwable) {
+            return null;
+        } finally {
+            $reader?->close();
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
+    }
+
+    /**
+     * The root element without an XML parser, for content XMLReader cannot
+     * read. A document type with an internal subset makes the root element
+     * unknown.
+     *
+     * @return bool|null null if the root element is unknown
+     */
+    private static function hasSvgRootElement(string $content): ?bool
+    {
+        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
+        while ($markup !== '') {
+            if (str_starts_with($markup, '<?')) {
+                $end = strpos($markup, '?>');
+                $length = 2;
+            } elseif (str_starts_with($markup, '<!--')) {
+                $end = strpos($markup, '-->', 4);
+                $length = 3;
+            } elseif (preg_match('/^<!DOCTYPE/i', $markup) === 1) {
+                if (preg_match('/^<!DOCTYPE[^\[>]*>/i', $markup, $matches) !== 1) {
+                    return null;
+                }
+                $end = \strlen($matches[0]);
+                $length = 0;
+            } else {
+                break;
+            }
+            if ($end === false) {
+                return null;
+            }
+            $markup = ltrim(substr($markup, $end + $length));
+        }
+
+        if (preg_match('/^<[a-z_]/i', $markup) !== 1) {
+            return null;
+        }
+
+        return preg_match('/^<(?:[a-z0-9_.-]+:)?svg[\s>\/]/i', $markup) === 1;
     }
 
     /**
@@ -161,25 +343,58 @@ trait GenerateFileTrait
     }
 
     /**
+     * @param string|null $sourcePath the `sourcePath` of the configuration
      * @return string absolute path of an allowed file
      * @throws InvalidArgumentException if the file is not allowed
      */
-    protected function resolveSourceFile(string $sourceFilePath): string
+    protected function resolveSourceFile(string $sourceFilePath, ?string $sourcePath = null): string
     {
-        return $this->getResourceAccess()->resolveFile($sourceFilePath);
+        return $this->getResourceAccess()->resolveSourceFile($sourceFilePath, $sourcePath);
     }
 
     /**
+     * @param array<string, mixed> $configuration
+     */
+    protected function getSourcePath(array $configuration): ?string
+    {
+        return isset($configuration['sourcePath']) ? (string)$configuration['sourcePath'] : null;
+    }
+
+    /**
+     * The file name must be allowed for written files (see
+     * `Typo3PathResolver::assertTargetFileName()`); compressed SVG files
+     * (`svgz`), which cannot be sanitized, are refused.
+     *
      * @return string absolute path in the storage, '' if it cannot be resolved
+     * @throws InvalidArgumentException if the file name is not allowed
      */
     protected function getAbsoluteTargetPath(string $targetPath): string
     {
         $absolutePath = GeneralUtility::getFileAbsFileName($targetPath);
-        if ($absolutePath !== '') {
-            $this->getResourceAccess()->assertFileTypeAllowed($absolutePath);
+        // the name is checked also if the path cannot be resolved, e.g. a
+        // storage outside of the project, so that no check is skipped
+        $this->getResourceAccess()->assertTargetFileAllowed($absolutePath !== '' ? $absolutePath : $targetPath);
+        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svgz') {
+            throw new InvalidArgumentException(
+                \sprintf('The path "%s" is not allowed: compressed SVG files (svgz) are not written.', $targetPath),
+                Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
+            );
         }
 
         return $absolutePath;
+    }
+
+    /**
+     * File name of a source file; for URLs the last segment of the path,
+     * without query and fragment
+     */
+    protected function getSourceFileName(string $sourceFilePath): string
+    {
+        if (ResourceAccess::isUrl($sourceFilePath)) {
+            $sourceFilePath = (string)parse_url($sourceFilePath, PHP_URL_PATH);
+        }
+
+        return PathUtility::basename($sourceFilePath);
     }
 
     /**
@@ -203,7 +418,11 @@ trait GenerateFileTrait
 
         // Prefix all files with the source path
         if (isset($configuration['sourcePath'])) {
-            $filePaths = preg_filter('/^/', (string)$configuration['sourcePath'], $filePaths);
+            $sourcePath = (string)$configuration['sourcePath'];
+            $filePaths = array_map(
+                fn(string $filePath): string => $this->buildSourceLocation($sourcePath, $filePath),
+                $filePaths
+            );
         }
 
         if ($configuration['multipleRows']) {
@@ -220,6 +439,36 @@ trait GenerateFileTrait
         $record[$targetField] = $fieldValue;
 
         return true;
+    }
+
+    /**
+     * Joins the source path of the configuration and a value of the record.
+     * If the source path is a URL, the value cannot change its scheme, host,
+     * port or user information.
+     *
+     * @throws MissingResourceException if the value changes the scheme, host or port of a URL source path
+     */
+    protected function buildSourceLocation(string $sourcePath, string $value): string
+    {
+        $location = $sourcePath . $value;
+        if (!ResourceAccess::isUrl($sourcePath)) {
+            return $location;
+        }
+        $base = parse_url($sourcePath);
+        $result = parse_url($location);
+        foreach (['scheme', 'host', 'port', 'user', 'pass'] as $component) {
+            if (
+                !\is_array($base) || !\is_array($result)
+                || strtolower((string)($base[$component] ?? '')) !== strtolower((string)($result[$component] ?? ''))
+            ) {
+                throw new MissingResourceException(
+                    \sprintf('Resource "%s" cannot be loaded: the value must not change the scheme, host or port of the source path.', $location),
+                    HttpResourceLoader::ERROR_HOST_NOT_ALLOWED
+                );
+            }
+        }
+
+        return $location;
     }
 
     /**
@@ -268,6 +517,9 @@ trait GenerateFileTrait
     }
 
     /**
+     * The file name of the target is the one of the source (for URLs the last
+     * segment of the path).
+     *
      * @param array $configuration
      * @param string $sourcePath
      * @return string
@@ -283,6 +535,6 @@ trait GenerateFileTrait
             ]
         );
 
-        return $targetDirectoryPath . PathUtility::basename($sourcePath);
+        return $targetDirectoryPath . $this->getSourceFileName((string)$sourcePath);
     }
 }

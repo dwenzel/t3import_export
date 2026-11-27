@@ -44,6 +44,9 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  * - With the feature `security.system.enforceAllowedFileExtensions`, the
  *   extension must be in `textfile_ext`, `mediafile_ext` or `miscfile_ext`.
  *
+ * - With `$checkTargetFileNames` (the resolver of file targets), the file
+ *   name must also be allowed as target name (see `assertTargetFileName()`).
+ *
  * Paths with `..` segments and stream wrappers (`scheme://`) are rejected.
  * Symbolic links are resolved before the check: the real path of the file (or,
  * for a file that does not exist yet, of its nearest existing parent
@@ -58,6 +61,13 @@ final readonly class Typo3PathResolver implements PathResolverInterface
     public const int ERROR_NOT_ALLOWED = 1795300101;
     public const int ERROR_DIRECTORY_NOT_ALLOWED = 1795300102;
     public const int ERROR_FILE_TYPE_NOT_ALLOWED = 1795300103;
+    public const int ERROR_FILE_NAME_NOT_ALLOWED = 1795400103;
+
+    /**
+     * Server configuration files, which the default fileDenyPattern of
+     * TYPO3 does not cover completely
+     */
+    private const string SERVER_CONFIGURATION_FILES = '/^(?:\.ht[a-z0-9_.-]*|\.user\.ini|php\.ini|web\.config)$/i';
 
     /**
      * @var list<string> absolute paths without trailing slash
@@ -68,12 +78,15 @@ final readonly class Typo3PathResolver implements PathResolverInterface
      * @param list<string>|null $directories allowed directories, absolute or
      *                                       relative to the public directory;
      *                                       default: the configured ones
+     * @param bool $checkTargetFileNames apply the rules for names of written
+     *                                   files (see `assertTargetFileName()`)
      */
     public function __construct(
         private bool $allowExtensionPaths = true,
         ?array $directories = null,
         private Features $features = new Features(),
         private FileNameValidator $fileNameValidator = new FileNameValidator(),
+        private bool $checkTargetFileNames = false,
     ) {
         $this->directories = array_map(
             static fn(string $directory): string => rtrim(
@@ -154,6 +167,67 @@ final readonly class Typo3PathResolver implements PathResolverInterface
         if ($realPath !== null && !$this->isFileTypeAllowed(basename($realPath))) {
             throw $this->notAllowed($path, 'the file type is not allowed in TYPO3 (fileDenyPattern, allowed file extensions).', self::ERROR_FILE_TYPE_NOT_ALLOWED);
         }
+        if ($this->checkTargetFileNames) {
+            $this->assertTargetFileName($absolutePath);
+            if ($realPath !== null) {
+                $this->assertTargetFileName($realPath);
+            }
+        }
+
+        return $absolutePath;
+    }
+
+    /**
+     * Resolves a local source file whose path is built from a configured
+     * source path and a value of a record, e.g. of `GenerateFileResource`.
+     *
+     * Like `resolve()`, but the path must start with `$sourcePath` (the
+     * `sourcePath` of the configuration), and the file must be below the
+     * directory of `$sourcePath`: the path itself if it ends with a slash or
+     * is an existing directory, else (a file name prefix) its parent
+     * directory. Symbolic links are resolved. Without a
+     * source path, no local file is allowed. For an `EXT:` source path, the
+     * directory must be inside the extension. A value of a record cannot
+     * name a local file or an `EXT:` path itself.
+     *
+     * @throws InvalidArgumentException if the path is not allowed
+     */
+    public function resolveSource(string $path, ?string $sourcePath): string
+    {
+        if (
+            $sourcePath === null
+            || trim($sourcePath) === ''
+            || preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $sourcePath) === 1
+            || !str_starts_with($path, $sourcePath)
+        ) {
+            throw $this->notAllowed($path, 'local files are only allowed below the configured source path.', self::ERROR_NOT_ALLOWED);
+        }
+        $absolutePath = $this->resolve($path);
+        $absoluteSourcePath = GeneralUtility::getFileAbsFileName($sourcePath);
+        // a directory (with or without trailing slash) is the bound itself, a
+        // file name prefix is bound by its parent directory
+        $sourceDirectory = str_ends_with($sourcePath, '/') || ($absoluteSourcePath !== '' && is_dir($absoluteSourcePath))
+            ? rtrim($absoluteSourcePath, '/')
+            : \dirname($absoluteSourcePath);
+        $realSourceDirectory = $absoluteSourcePath === '' ? null : self::realPath($sourceDirectory);
+        $isInExtension = true;
+        if ($realSourceDirectory !== null && PathUtility::isExtensionPath($sourcePath)) {
+            $extensionDirectory = self::extensionDirectory($sourcePath);
+            $realExtensionDirectory = $extensionDirectory === null ? null : self::realPath(rtrim($extensionDirectory, '/'));
+            $isInExtension = $realExtensionDirectory !== null
+                && ($realSourceDirectory === $realExtensionDirectory || str_starts_with($realSourceDirectory, $realExtensionDirectory . '/'));
+        }
+        if (
+            $realSourceDirectory === null
+            || !$isInExtension
+            || !self::isInDirectories($absolutePath, [$realSourceDirectory])
+        ) {
+            throw $this->notAllowed(
+                $path,
+                'files must be below the directory of the configured source path (for EXT: paths inside the extension).',
+                self::ERROR_DIRECTORY_NOT_ALLOWED
+            );
+        }
 
         return $absolutePath;
     }
@@ -169,6 +243,39 @@ final readonly class Typo3PathResolver implements PathResolverInterface
     {
         if (!$this->isFileTypeAllowed(basename($path))) {
             throw $this->notAllowed($path, 'the file type is not allowed in TYPO3 (fileDenyPattern, allowed file extensions).', self::ERROR_FILE_TYPE_NOT_ALLOWED);
+        }
+    }
+
+    /**
+     * Applies the rules for names of files which are written to the file name
+     * of `$path`: the file type rules of TYPO3 (see `assertFileTypeAllowed()`)
+     * and the default fileDenyPattern of TYPO3 in addition to a configured
+     * one. Server configuration files (`.htaccess`, `.htpasswd` and other
+     * `.ht*` files, `.user.ini`, `php.ini`, `web.config`), names that are not
+     * valid UTF-8, names with `?`, `#`, `:` or control characters and names
+     * ending in a dot or space are refused.
+     *
+     * @throws InvalidArgumentException
+     */
+    public function assertTargetFileName(string $path): void
+    {
+        $this->assertFileTypeAllowed($path);
+        $fileName = basename($path);
+        if (
+            $fileName === ''
+            || !mb_check_encoding($fileName, 'UTF-8')
+            || strpbrk($fileName, '?#:') !== false
+            || preg_match('/[\x00-\x1F\x7F]/', $fileName) === 1
+            || preg_match('/[. ]$/', $fileName) === 1
+            // fails closed: an error of preg_match() refuses the name
+            || preg_match('/' . FileNameValidator::DEFAULT_FILE_DENY_PATTERN . '/iu', $fileName) !== 0
+            || preg_match(self::SERVER_CONFIGURATION_FILES, $fileName) === 1
+        ) {
+            throw $this->notAllowed(
+                $path,
+                'the file name is not allowed for written files (fileDenyPattern, server configuration files, invalid UTF-8, "?", "#", ":", control characters, a dot or space at the end).',
+                self::ERROR_FILE_NAME_NOT_ALLOWED
+            );
         }
     }
 
@@ -258,7 +365,7 @@ final readonly class Typo3PathResolver implements PathResolverInterface
     private function notAllowed(string $path, string $reason, int $code): InvalidArgumentException
     {
         return new InvalidArgumentException(
-            \sprintf('The path "%s" is not allowed: %s', str_replace("\0", '\0', $path), $reason),
+            \sprintf('The path "%s" is not allowed: %s', addcslashes($path, "\0..\37\177"), $reason),
             $code
         );
     }

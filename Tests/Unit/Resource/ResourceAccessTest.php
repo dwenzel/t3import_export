@@ -19,6 +19,7 @@ namespace CPSIT\T3importExport\Tests\Unit\Resource;
 
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
+use CPSIT\T3importExport\Resource\AllowedHosts;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use GuzzleHttp\Psr7\Request;
@@ -43,7 +44,8 @@ class ResourceAccessTest extends TestCase
                 $this->createStub(ClientInterface::class),
                 $this->createStub(RequestFactoryInterface::class),
                 ['data.example.org']
-            )
+            ),
+            new AllowedHosts(['data.example.org'])
         );
     }
 
@@ -61,6 +63,23 @@ class ResourceAccessTest extends TestCase
         self::assertTrue($this->subject->isUrlAllowed('https://data.example.org/news.xml'));
         self::assertFalse($this->subject->isUrlAllowed('https://other.example.org/news.xml'));
         self::assertFalse($this->subject->isUrlAllowed('ftp://data.example.org/news.xml'));
+    }
+
+    #[Test]
+    public function tellsWhetherThePortOfAUrlIsAllowed(): void
+    {
+        self::assertTrue($this->subject->isUrlAllowed('https://data.example.org:443/news.xml'));
+        self::assertFalse($this->subject->isUrlAllowed('https://data.example.org:8443/news.xml'));
+        self::assertFalse($this->subject->isUrlAllowed('http://data.example.org:8080/news.xml'));
+    }
+
+    #[Test]
+    public function assertUrlAllowedThrowsExceptionForPortThatIsNotAllowed(): void
+    {
+        $this->expectException(MissingResourceException::class);
+        $this->expectExceptionCode(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED);
+
+        $this->subject->assertUrlAllowed('https://data.example.org:8443/news.xml');
     }
 
     #[Test]
@@ -84,7 +103,8 @@ class ResourceAccessTest extends TestCase
         );
         $subject = new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import']),
-            new HttpResourceLoader($client, $requestFactory, ['data.example.org'])
+            new HttpResourceLoader($client, $requestFactory, ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         );
 
         $this->expectException(MissingResourceException::class);

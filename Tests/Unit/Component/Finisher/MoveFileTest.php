@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace CPSIT\T3importExport\Tests\Unit\Component\Finisher;
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\T3importExport\Component\Finisher\MoveFile;
+use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\ImportExportCore\LoggingInterface;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -122,5 +125,50 @@ class MoveFileTest extends TestCase
     public function testIsConfigurationValidReturnsTrueForValidConfiguration(array $configuration): void
     {
         $this->assertTrue($this->subject->isConfigurationValid($configuration));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function notAllowedTargetNameDataProvider(): iterable
+    {
+        yield 'server configuration file' => ['.user.ini'];
+        yield 'hash' => ['report#1.xml'];
+        yield 'question mark' => ['report?.xml'];
+        yield 'colon' => ['report:1.xml'];
+    }
+
+    #[DataProvider('notAllowedTargetNameDataProvider')]
+    public function testProcessDoesNotMoveToFileNamesThatAreNotAllowed(string $fileName): void
+    {
+        $records = [];
+        $result = [];
+        $file = $this->createStub(File::class);
+        $this->resourceStorage->method('hasFileInFolder')->willReturn(true);
+        $this->folder->method('getFiles')->willReturn(['foo.xml' => $file]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->subject->process(
+            ['source' => ['name' => 'foo.xml'], 'target' => ['name' => $fileName]],
+            $records,
+            $result
+        );
+    }
+
+    #[DataProvider('notAllowedTargetNameDataProvider')]
+    public function testProcessChecksTheSourceNameIfNoTargetNameIsSet(string $fileName): void
+    {
+        $records = [];
+        $result = [];
+        $file = $this->createStub(File::class);
+        $this->resourceStorage->method('hasFileInFolder')->willReturn(true);
+        $this->folder->method('getFiles')->willReturn([$fileName => $file]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->subject->process(['source' => ['name' => $fileName], 'target' => []], $records, $result);
     }
 }

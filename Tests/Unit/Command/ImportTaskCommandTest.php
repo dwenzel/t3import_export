@@ -111,6 +111,25 @@ class ImportTaskCommandTest extends TestCase
     }
 
     #[Test]
+    public function executeShowsWarningForFileOptionsOfVersion3(): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileTargetDirectories'] = ['fileadmin/export'];
+        $this->transferTaskFactory->method('create')->willReturn(new TransferTask());
+
+        try {
+            $commandTester = new CommandTester($this->subject);
+            $status = $commandTester->execute([TaskArgument::NAME => self::TASK_IDENTIFIER]);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
+
+        self::assertSame(Command::SUCCESS, $status);
+        // the output is wrapped
+        self::assertStringContainsString("['fileTargetDirectories']", (string)preg_replace('/\\s+/', '', $commandTester->getDisplay()));
+    }
+
+    #[Test]
     public function executeReturnsInvalidForMissingTaskConfiguration(): void
     {
         $this->transferService->expects(self::never())->method('run');

@@ -41,7 +41,7 @@ Write the file from `result.info` into the file `bar.xml` in the directory `foo/
 ### Options
 | option                    | type    | required | default    |description         |
 | --------------------------| ------- | ---------|------------|----------- |
-| config.target.name        | string  | yes      |            | target file name |
+| config.target.name        | string  | yes      |            | target file name. Must be allowed for written files, see [Names of written files](../../Persistence/Files.md#names-of-written-files) (exception code 1795400103 or 1795300103) |
 | config.target.storage     | integer | no       | 1          | ID of the storage in which the file should be written. If not set default storage is used. |
 | config.target.directory   | string  | no       |            | target directory name. If the directory does not exist, it will be created in the selected storage |
 | config.target.conflictMode| string  | no       | changeName | which strategy to use when a file already exists. Allowed: cancel, replace, changeName |

@@ -14,6 +14,7 @@ use CPSIT\T3importExport\Service\TransferService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 #[CoversClass(TransferService::class)]
 class TransferServiceTest extends TestCase
@@ -108,5 +109,38 @@ class TransferServiceTest extends TestCase
             self::assertSame(1795000001, $exception->getCode());
         }
         self::assertSame(['read', 'fail'], $this->calls);
+    }
+
+    #[Test]
+    public function runLogsWarningsForFileOptionsOfVersion3(): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileSourceDirectories'] = ['fileadmin/import'];
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('warning')
+            ->with(self::stringContains("['fileSourceDirectories']"));
+        $subject = new TransferService(new DataTransferProcessor(), $logger);
+
+        try {
+            $subject->run([$this->createTask('foo', [['uid' => 1]])]);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
+    }
+
+    #[Test]
+    public function runLogsNoWarningWithoutFileOptionsOfVersion3(): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::never())->method('warning');
+        $subject = new TransferService(new DataTransferProcessor(), $logger);
+
+        try {
+            $subject->run([$this->createTask('foo', [['uid' => 1]])]);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
     }
 }

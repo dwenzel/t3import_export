@@ -269,3 +269,47 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   type (e.g. `data.csv` pointing to `data.csv.1`) is rejected
 * ValidateXML: schemas cannot include files or URLs outside the allowed
   locations
+* `GenerateFileResource` and `GenerateUploadFile` read local files and
+  `EXT:` paths only below the configured `sourcePath`: the file must be below
+  the directory of `sourcePath` (the path itself if it ends with a slash or
+  is an existing directory, else, for a file name prefix, its parent
+  directory; for `EXT:` paths inside the extension). Without
+  `sourcePath`, the values of a record can only be URLs. A value of a record
+  which names a local file or an `EXT:` path itself is refused (exception
+  code 1795300101). Configurations which copy local files without
+  `sourcePath` need one, see [Deprecations](Documentation/DEPRECATIONS.md#files)
+* `allowedHosts` checks the port: an entry `host` allows only the default
+  port of the scheme (80, 443), an entry `host:port` only that port,
+  `*.example.org` the subdomains and `*` every host and port. This applies to
+  the URL and to the target of every redirect (`Resource\AllowedHosts`,
+  `Resource\AllowedHostsClient`). Configurations which load URLs with
+  another port need an entry `host:port`
+* If `sourcePath` of `GenerateFileResource` or `GenerateUploadFile` is a URL,
+  the value of a record cannot change its scheme, host, port or user
+  information
+* `GenerateFileResource` and `GenerateUploadFile` check the names of the
+  files they write: the default `fileDenyPattern` of TYPO3 applies in
+  addition to a configured one; server configuration files (e.g.
+  `.htaccess`, `.user.ini`, `web.config`), names that are not valid UTF-8,
+  names with `?`, `#`, `:` or control characters and names ending in a dot
+  or space are refused
+  (exception code 1795400103). For URLs the target name is the last segment
+  of the path, without query and fragment
+* `GenerateFileResource` and `GenerateUploadFile` copy local files through a
+  temporary file in the target directory, like URLs; the target file is
+  replaced only when the copy is complete
+* `DataTargetCSV` (of the core and the deprecated class of the extension)
+  applies the same rules to the name of `file`; e.g. `report#1.csv` or
+  `a?b.csv` are refused (previous exception code 1795400103)
+* The finishers `WriteFile` and `MoveFile` apply the same rules to
+  `target.name`
+* The options `fileSourceDirectories`, `fileTargetDirectories` and
+  `fileTargetExtensions` of 3.3.1 are not read; use `fileDirectories`, see
+  [Deprecations](Documentation/DEPRECATIONS.md#files). If they are set, or if
+  `allowedHosts` is a string instead of a list, the import and export
+  commands show a warning and `TransferService` logs one for each run
+* `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by
+  file extension, or content whose root element is `svg`) with the SVG
+  sanitizer of TYPO3 and refuse compressed SVG files (`.svgz`); a warning is
+  logged if the sanitizer leaves an empty file. HTML and XML files with
+  another root element are not sanitized

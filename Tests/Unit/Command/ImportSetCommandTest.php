@@ -118,4 +118,22 @@ class ImportSetCommandTest extends TestCase
         self::assertStringContainsString('Error loading YAML configuration', $commandTester->getDisplay());
         self::assertStringNotContainsString(ImportSetCommand::MESSAGE_SUCCESS, $commandTester->getDisplay());
     }
+
+    #[Test]
+    public function executeShowsWarningForAllowedHostsAsString(): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = 'data.example.org';
+
+        try {
+            $commandTester = new CommandTester($this->subject);
+            $status = $commandTester->execute(['set' => self::SET_IDENTIFIER]);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
+
+        self::assertSame(Command::SUCCESS, $status);
+        // the output is wrapped
+        self::assertStringContainsString("['allowedHosts']", (string)preg_replace('/\\s+/', '', $commandTester->getDisplay()));
+    }
 }

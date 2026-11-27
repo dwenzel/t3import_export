@@ -23,6 +23,7 @@ use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateUploadFile;
+use CPSIT\T3importExport\Resource\AllowedHosts;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\T3importExport\Factory\FilePathFactory;
@@ -42,6 +43,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
@@ -228,7 +231,8 @@ class GenerateUploadFileTest extends TestCase
         $client->expects(self::never())->method('sendRequest');
         $subject->setResourceAccess(new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
-            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org'])
+            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         ));
         $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
         $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
@@ -242,7 +246,28 @@ class GenerateUploadFileTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
 
-        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'typo3conf/secret.txt');
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target', 'sourcePath' => 'typo3conf/'], 'typo3conf/secret.txt');
+    }
+
+    #[Test]
+    public function getFileRejectsLocalFileWithoutSourcePath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/image.jpg');
+    }
+
+    #[Test]
+    public function getFileRejectsLocalFileOutsideOfTheSourcePath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/images/'],
+            Environment::getVarPath() . '/import/tests/image.jpg'
+        );
     }
 
     #[Test]
@@ -261,6 +286,67 @@ class GenerateUploadFileTest extends TestCase
         $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
 
         $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/image.php');
+    }
+
+    #[Test]
+    public function getFilePassesTheSourcePathOfTheConfigurationToTheSourceCheck(): void
+    {
+        $subject = $this->createSubjectWithFileRules();
+        $resourceAccess = $this->createMock(ResourceAccess::class);
+        $resourceAccess->expects(self::once())->method('resolveSourceFile')
+            ->with('EXT:t3import_export/Resources/Public/ext_icon.gif', 'EXT:t3import_export/Resources/Public/')
+            ->willThrowException(new InvalidArgumentException('not allowed', Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED));
+        $subject->setResourceAccess($resourceAccess);
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $subject->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => 'EXT:t3import_export/Resources/Public/'],
+            'EXT:t3import_export/Resources/Public/ext_icon.gif'
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function notAllowedTargetFileNameDataProvider(): iterable
+    {
+        yield 'server configuration file' => ['.user.ini'];
+        yield 'hash' => ['image#1.jpg'];
+        yield 'question mark' => ['image?.jpg'];
+        yield 'colon' => ['image:1.jpg'];
+        yield 'trailing dot' => ['image.jpg.'];
+    }
+
+    #[Test]
+    #[DataProvider('notAllowedTargetFileNameDataProvider')]
+    public function getFileRejectsTargetFileNameThatIsNotAllowed(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/' . $fileName);
+    }
+
+    #[Test]
+    public function getFileTakesTheTargetFileNameOfAUrlFromItsPath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/download.php?file=image.jpg');
+    }
+
+    #[Test]
+    public function getFileWritesUrlWithQueryAndFragmentToTheNameOfItsPath(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], 'image data')], $requestedUrls));
+
+        $result = $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg?size=large#top');
+
+        self::assertSame('fileadmin/target/image.jpg', $result);
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
     }
 
     /**
@@ -284,7 +370,8 @@ class GenerateUploadFileTest extends TestCase
         );
         $subject->setResourceAccess(new ResourceAccess(
             new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
-            new HttpResourceLoader($client, $requestFactory, ['data.example.org', 'cdn.example.org'])
+            new HttpResourceLoader($client, $requestFactory, ['data.example.org', 'cdn.example.org']),
+            new AllowedHosts(['data.example.org', 'cdn.example.org'])
         ));
         $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
         $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
@@ -431,6 +518,251 @@ class GenerateUploadFileTest extends TestCase
         self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.jpg'));
         self::assertSame('old content', file_get_contents(vfsStream::url('root/target/image.jpg')));
         self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
+    public function processDoesNotLetARecordChangeTheHostOfAUrlSourcePath(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], 'image data')], $requestedUrls));
+        $record = ['image' => '@cdn.example.org/image.jpg'];
+
+        try {
+            $subject->process(
+                [
+                    'targetDirectoryPath' => 'target',
+                    'sourceField' => 'image',
+                    'targetField' => 'image',
+                    'sourcePath' => 'https://data.example.org',
+                    'multipleRows' => false,
+                ],
+                $record
+            );
+            self::fail('The URL is loaded.');
+        } catch (MissingResourceException $exception) {
+            self::assertSame(HttpResourceLoader::ERROR_HOST_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertSame([], $requestedUrls);
+    }
+
+    /**
+     * A subject that copies files from vfs://root/source/<file name> to
+     * vfs://root/target/<file name>
+     *
+     * @param array<string, string> $sourceFiles
+     * @param array<string, string> $targetFiles
+     */
+    protected function createSubjectCopyingFiles(array $sourceFiles, array $targetFiles = []): GenerateUploadFile
+    {
+        vfsStream::setup('root', null, ['source' => $sourceFiles, 'target' => $targetFiles]);
+        $subject = new class () extends GenerateUploadFile {
+            protected function getAbsoluteTargetPath(string $targetPath): string
+            {
+                return vfsStream::url('root/target/' . basename($targetPath));
+            }
+
+            protected function resolveSourceFile(string $sourceFilePath, ?string $sourcePath = null): string
+            {
+                return vfsStream::url('root/source/' . basename($sourceFilePath));
+            }
+        };
+        $subject->withStorage($this->resourceStorage);
+        $subject->injectFilePathFactory($this->filePathFactory);
+        $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
+
+        return $subject;
+    }
+
+    #[Test]
+    public function getFileCopiesLocalFileWithoutTemporaryFilesLeft(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.jpg' => 'image data'], ['image.jpg' => 'old content']);
+
+        self::assertSame('fileadmin/target/image.jpg', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.jpg'));
+        self::assertSame('image data', file_get_contents(vfsStream::url('root/target/image.jpg')));
+        self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
+    public function getFileKeepsExistingTargetIfLocalFileCannotBeWritten(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.jpg' => str_repeat('x', 100)], ['image.jpg' => 'old content']);
+        vfsStream::setQuota(150);
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.jpg'));
+        self::assertSame('old content', file_get_contents(vfsStream::url('root/target/image.jpg')));
+        self::assertSame(['image.jpg'], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    #[Test]
+    public function getFileReturnsEmptyStringIfLocalFileDoesNotExist(): void
+    {
+        $subject = $this->createSubjectCopyingFiles([]);
+
+        self::assertSame('', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.jpg'));
+        self::assertSame([], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    protected const string SVG = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/></svg>';
+
+    #[Test]
+    public function getFileSanitizesSvgFiles(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+
+        self::assertSame('fileadmin/target/image.svg', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg'));
+        $content = (string)file_get_contents(vfsStream::url('root/target/image.svg'));
+        self::assertStringNotContainsString('script', $content);
+        self::assertStringContainsString('rect', $content);
+    }
+
+    #[Test]
+    public function getFileSanitizesSvgContentWithOtherFileExtension(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.txt' => '<?xml version="1.0"?>' . "\n" . self::SVG]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.txt');
+
+        $content = (string)file_get_contents(vfsStream::url('root/target/image.txt'));
+        self::assertStringNotContainsString('script', $content);
+        self::assertStringContainsString('rect', $content);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function svgContentDataProvider(): iterable
+    {
+        yield 'long comment' => ['<?xml version="1.0"?>' . "\n" . '<!--' . str_repeat(' comment', 20000) . ' -->' . "\n" . self::SVG];
+        yield 'byte order mark and whitespace' => ["\xEF\xBB\xBF \n\t" . self::SVG];
+        yield 'doctype' => ['<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' . "\n" . self::SVG];
+        yield 'upper case element' => [str_replace('<svg ', '<SVG ', self::SVG)];
+        yield 'internal subset with "]>" in an entity value' => [
+            '<!DOCTYPE svg [<!ENTITY a "]><foo>">]><svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(1)</script></svg>',
+        ];
+        yield 'internal subset with "]>" in a comment' => [
+            '<!DOCTYPE svg [<!-- ]><foo> -->]><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        ];
+        yield 'internal subset with "]>" in a processing instruction' => [
+            '<!DOCTYPE svg [<?x ]><foo>?>]><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        ];
+        yield 'processing instruction and doctype with internal subset' => [
+            '<?xml version="1.0"?><?xml-stylesheet href="a.css"?><!DOCTYPE svg [<!ENTITY a "b">]>' . self::SVG,
+        ];
+        yield 'namespace prefix' => ['<?xml version="1.0"?><!--' . str_repeat(' comment', 20000) . ' --><s:svg xmlns:s="http://www.w3.org/2000/svg"><s:script>alert(1)</s:script></s:svg>'];
+    }
+
+    #[Test]
+    #[DataProvider('svgContentDataProvider')]
+    public function getFileSanitizesSvgContentAfterAProlog(string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.txt' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.txt');
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/image.txt')));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function markupWithInlineSvgDataProvider(): iterable
+    {
+        yield 'html' => ['page.html', '<!DOCTYPE html>' . "\n" . '<html><body><p>Logo</p>' . self::SVG . '</body></html>'];
+        yield 'rss' => ['feed.xml', '<?xml version="1.0"?><rss version="2.0"><channel><title>News</title><description>' . self::SVG . '</description></channel></rss>'];
+        yield 'comment with svg before the root element' => ['page.html', '<!-- <svg> --><html><body>' . self::SVG . '</body></html>'];
+    }
+
+    #[Test]
+    #[DataProvider('markupWithInlineSvgDataProvider')]
+    public function getFileDoesNotSanitizeMarkupWithInlineSvg(string $fileName, string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles([$fileName => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/' . $fileName);
+
+        self::assertSame($content, file_get_contents(vfsStream::url('root/target/' . $fileName)));
+    }
+
+    #[Test]
+    public function getFileLogsWarningIfSanitizingEmptiesTheFile(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => 'not an svg file']);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
+    }
+
+    #[Test]
+    public function getFileLogsNoWarningIfSanitizingKeepsContent(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
+    }
+
+    #[Test]
+    public function getFileDoesNotSanitizeOtherContent(): void
+    {
+        $content = 'id,title' . "\n" . '1,"<svg> in a field"' . "\n";
+        $subject = $this->createSubjectCopyingFiles(['news.csv' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/news.csv');
+
+        self::assertSame($content, file_get_contents(vfsStream::url('root/target/news.csv')));
+    }
+
+    #[Test]
+    public function getFileSanitizesSvgOfUrl(): void
+    {
+        $requestedUrls = [];
+        $subject = $this->createSubjectLoadingUrls($this->createClient([new Response(200, [], self::SVG)], $requestedUrls));
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/image.svg?v=1');
+
+        self::assertStringNotContainsString('script', (string)file_get_contents(vfsStream::url('root/target/image.svg')));
+    }
+
+    #[Test]
+    public function getFileRemovesTemporaryFileIfSanitizingFails(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+        $sanitizer = $this->getMockBuilder(SvgSanitizer::class)->onlyMethods(['sanitizeFile'])->getMock();
+        $sanitizer->method('sanitizeFile')->willThrowException(new \RuntimeException('failed', 1795300598));
+        GeneralUtility::addInstance(SvgSanitizer::class, $sanitizer);
+
+        try {
+            $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+            self::fail('No exception thrown');
+        } catch (\RuntimeException $exception) {
+            self::assertSame(1795300598, $exception->getCode());
+        } finally {
+            GeneralUtility::purgeInstances();
+        }
+        self::assertSame([], array_values(array_diff(scandir(vfsStream::url('root/target')) ?: [], ['.', '..'])));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function compressedSvgDataProvider(): iterable
+    {
+        yield 'svgz' => ['image.svgz'];
+        yield 'svgz in upper case' => ['image.SVGZ'];
+    }
+
+    #[Test]
+    #[DataProvider('compressedSvgDataProvider')]
+    public function getFileRejectsCompressedSvgFiles(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/' . $fileName);
     }
 
     #[Test]

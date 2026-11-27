@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CPSIT\T3importExport\Command;
 
 use CPSIT\ImportExportCore\Configuration\YamlConfigurationLoader;
+use CPSIT\T3importExport\Configuration\FileOptionsCheck;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -51,6 +52,17 @@ trait TransferCommandTrait
             $this->settings = $fullConfiguration[static::SETTINGS_KEY];
         }
 
+    }
+
+    /**
+     * Shows a warning for each option for files that is not read (see
+     * `FileOptionsCheck`)
+     */
+    protected function warnAboutFileOptions(): void
+    {
+        foreach (FileOptionsCheck::messages() as $message) {
+            $this->io->warning($message);
+        }
     }
 
     /**

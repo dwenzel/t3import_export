@@ -8,6 +8,7 @@ use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Messaging\MessageContainer;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Component\PreProcessor\ValidateXML;
+use CPSIT\T3importExport\Resource\AllowedHosts;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
 use CPSIT\T3importExport\Resource\XmlSchema;
@@ -90,7 +91,8 @@ class ValidateXMLTest extends TestCase
 
         return new ResourceAccess(
             new Typo3PathResolver(directories: [self::schemaDirectory()]),
-            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org'])
+            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         );
     }
 

@@ -69,6 +69,7 @@ trait TaskCommandTrait
         }
 
         $this->io->comment(static::MESSAGE_STARTING);
+        $this->warnAboutFileOptions();
 
         if (empty($this->settings['tasks'][$identifier])) {
             $this->io->warning(

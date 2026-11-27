@@ -6,6 +6,7 @@ namespace CPSIT\T3importExport\Tests\Unit;
 use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
+use CPSIT\T3importExport\Resource\AllowedHosts;
 use CPSIT\T3importExport\Resource\ResourceAccess;
 use CPSIT\T3importExport\Resource\ResourceTrait;
 use CPSIT\T3importExport\Resource\Typo3PathResolver;
@@ -38,7 +39,8 @@ class ResourceTraitTest extends TestCase
         $client->expects(self::never())->method('sendRequest');
         $this->subject->setResourceAccess(new ResourceAccess(
             new Typo3PathResolver(directories: [self::directory()]),
-            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org'])
+            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
         ));
     }
 

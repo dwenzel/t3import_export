@@ -122,6 +122,78 @@ class Typo3PathResolverTest extends FunctionalTestCase
             ->resolve('EXT:t3import_export/' . self::FIXTURES . $name . '/' . basename($target));
     }
 
+    #[Test]
+    public function resolveSourceAllowsFileBelowTheExtensionSourcePath(): void
+    {
+        $sourcePath = 'EXT:t3import_export/' . self::FIXTURES;
+
+        self::assertSame(
+            ExtensionManagementUtility::extPath('t3import_export') . self::FIXTURES . 'courses.csv',
+            (new Typo3PathResolver())->resolveSource($sourcePath . 'courses.csv', $sourcePath)
+        );
+    }
+
+    #[Test]
+    public function resolveSourceUsesTheParentDirectoryOfASourcePathWithoutTrailingSlash(): void
+    {
+        $sourcePath = 'EXT:t3import_export/' . self::FIXTURES . 'cour';
+
+        self::assertFileExists((new Typo3PathResolver())->resolveSource($sourcePath . 'ses.csv', $sourcePath));
+    }
+
+    #[Test]
+    public function resolveSourceRejectsExtensionPathWithoutSourcePath(): void
+    {
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->resolveSource('EXT:t3import_export/' . self::FIXTURES . 'courses.csv', null);
+    }
+
+    #[Test]
+    public function resolveSourceRejectsExtensionPathWithSourcePathOfAllowedDirectory(): void
+    {
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->resolveSource('EXT:t3import_export/' . self::FIXTURES . 'courses.csv', 'fileadmin/');
+    }
+
+    #[Test]
+    public function resolveSourceRejectsExtensionPathThatDoesNotStartWithTheSourcePath(): void
+    {
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->resolveSource(
+            'EXT:t3import_export/' . self::FIXTURES . 'courses.csv',
+            'EXT:t3import_export/' . self::FIXTURES . 'Schema/'
+        );
+    }
+
+    #[Test]
+    public function resolveSourceRejectsSymbolicLinkOutOfTheSourceDirectory(): void
+    {
+        // a link in Schema/ to a file of the extension outside of Schema/
+        $link = ExtensionManagementUtility::extPath('t3import_export') . self::FIXTURES . 'Schema/' . uniqid('Typo3PathResolverTest', true) . '.csv';
+        symlink(ExtensionManagementUtility::extPath('t3import_export') . self::FIXTURES . 'courses.csv', $link);
+        $this->files[] = $link;
+        $sourcePath = 'EXT:t3import_export/' . self::FIXTURES . 'Schema/';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->resolveSource($sourcePath . basename($link), $sourcePath);
+    }
+
+    #[Test]
+    public function resolveSourceAllowsLocalFileBelowTheSourcePath(): void
+    {
+        $file = $this->createFile(Environment::getPublicPath() . '/fileadmin/import');
+
+        self::assertSame(
+            $file,
+            (new Typo3PathResolver(directories: [Environment::getPublicPath() . '/fileadmin']))
+                ->resolveSource('fileadmin/import/' . basename($file), 'fileadmin/import/')
+        );
+    }
+
     /**
      * A directory outside of the extension and of the test instance
      */

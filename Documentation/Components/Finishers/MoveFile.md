@@ -48,7 +48,7 @@ Renames (moves) the file `foo.xml` from directory `foo/bar` of the storage with 
 | config.source.name        | string  | yes      |            | source file name |
 | config.source.storage     | integer | no       | 1          | ID of the storage in which the file should be written. If not set default storage is used. |
 | config.source.directory   | string  | no       |            | target directory name. If the directory does not exist, it will be created in the selected storage |
-| config.target.name        | string  | yes      |            | target file name |
+| config.target.name        | string  | yes      |            | target file name. Must be allowed for written files (without `target.name`, the source name is checked), see [Names of written files](../../Persistence/Files.md#names-of-written-files) (exception code 1795400103 or 1795300103) |
 | config.target.storage     | integer | no       | 1          | ID of the storage in which the file should be written. If not set default storage is used. |
 | config.target.directory   | string  | no       |            | target directory name. If the directory does not exist, it will be created in the selected storage |
 | config.target.conflictMode| string  | no       | renameNewFile | which strategy to use when a file already exists. Allowed: cancel, renameNewFile, overrideExistingFile |

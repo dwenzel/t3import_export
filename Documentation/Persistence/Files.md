@@ -40,6 +40,8 @@ Rejected, with an exception before the file is opened or created:
 * with the feature `security.system.enforceAllowedFileExtensions`: file
   extensions that are not in `textfile_ext`, `mediafile_ext` or
   `miscfile_ext` of `$GLOBALS['TYPO3_CONF_VARS']['SYS']`
+* in targets (`DataTargetCSV`): file names that are not allowed for written
+  files, see [Names of written files](#names-of-written-files)
 * file types the component does not read or write: `DataSourceCSV` and
   `DataTargetCSV` accept `csv`, `tsv` and `txt`, `DataSourceXML` accepts
   `xml` (core `FileTypePolicy`)
@@ -74,9 +76,32 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = [
 ];
 ```
 
-`['*']` allows all hosts. A URL with another host throws a
-`MissingResourceException` (code 1795200302) before a request is sent. The
-URL is not checked for its file type, since it often has no file extension.
+An entry checks the host and the port:
+
+| Entry | Allows |
+|---|---|
+| `data.example.org` | this host with the default port of the scheme (80 for `http`, 443 for `https`) |
+| `data.example.org:8443` | this host with port 8443 only |
+| `*.example.com` | the subdomains of example.com with the default port |
+| `*.example.com:8080` | the subdomains of example.com with port 8080 |
+| `*` | all hosts and ports, including internal addresses |
+
+Host names are not resolved or checked against IP ranges, so do not list
+names which resolve to internal addresses.
+
+No request is sent to a host or port that is not allowed. The loader of the
+core checks the host name of each URL; the HTTP client of the extension
+(`Resource\AllowedHostsClient`) checks the host and port of each request.
+What happens then:
+
+| Case | Result |
+|---|---|
+| URL of `GenerateFileResource`, `GenerateUploadFile`, `ValidateXML`, `ResourcePathConfigurationValidator` with a host or port that is not allowed | the extension checks the URL first: `MissingResourceException` (code 1795200302), the task stops (the validator marks the configuration invalid) |
+| `url` of the data sources and of the XML components of the core with a host that is not allowed | `MissingResourceException` (code 1795200302) |
+| `url` of the data sources and of the XML components of the core with a port that is not allowed | `MissingResourceException` (code 1795200301, request failed) |
+
+The URL is not checked for its file type, since it often has no file
+extension.
 
 For the `url` of these components, redirects are followed by the loader,
 not by the client. The extension passes the PSR-18 client of TYPO3 (Guzzle)
@@ -87,9 +112,15 @@ no effect here. The loader
 * follows redirects (301, 302, 303, 307, 308) with a GET request, at most
   five for one URL; more fail the request,
 * checks the target of each redirect like the URL itself: it must be an
-  `http` or `https` URL with an allowed host, otherwise a
-  `MissingResourceException` is thrown (code 1795200302 for a host that is
-  not allowed),
+  `http` or `https` URL with an allowed host and port, otherwise the
+  redirect is not followed:
+  * a host that is not allowed throws a `MissingResourceException` (code
+    1795200302); in `GenerateFileResource` and `GenerateUploadFile` the task
+    stops,
+  * a port that is not allowed fails the request (code 1795200301); the data
+    sources throw the exception, `GenerateFileResource` and
+    `GenerateUploadFile` log a warning (1795300501), do not copy the file and
+    go on with the next record,
 * does not follow a redirect from `https` to `http`.
 
 A redirect to another allowed host is followed; allow every host a URL may
@@ -134,8 +165,23 @@ files themselves:
 | `PreProcessor\ValidateXML`, `Finisher\ValidateXML` (deprecated) | `file` or `url` of the document, `schema.file` / `schema.url` | allowed directories and file types, allowed hosts |
 | `Persistence\DataTargetXMLStream` | `template` | allowed directories and file types |
 | `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | source file (`sourcePath` and the record field) | allowed directories and file types, allowed hosts for URLs |
-| `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | target file in the storage (`storageId`, `targetDirectoryPath`) | file types only (`fileDenyPattern`, allowed file extensions); the storage is not limited to the allowed directories |
+| `PreProcessor\GenerateFileResource`, `PreProcessor\GenerateUploadFile` | target file in the storage (`storageId`, `targetDirectoryPath`) | file names of written files (see [below](#names-of-written-files)); the storage is not limited to the allowed directories |
 | `Validation\Configuration\ResourcePathConfigurationValidator` | `file`, `url` | a path or host that is not allowed makes the configuration invalid |
+
+`GenerateFileResource` and `GenerateUploadFile` build the source path from
+`sourcePath` and a value of the record. Local files and `EXT:` paths are
+only read below the configured `sourcePath`: the file must be below the
+directory of `sourcePath` (the path itself if it ends with a slash or is an
+existing directory, else, for a file name prefix, its parent directory;
+symbolic links are resolved), in addition to the rules
+above. For an `EXT:` source path, the directory must be inside the
+extension. Without `sourcePath`, the values of a record can only be URLs; a
+value that names a local file or an `EXT:` path is refused (code
+1795300101).
+
+If `sourcePath` is a URL, the value of the record cannot change its scheme,
+host, port or user information (code 1795200302). The path of a URL
+`sourcePath` is not a boundary.
 
 A path or URL that is not allowed throws the exception described above, a
 file that does not exist is handled as before. Relative source paths of
@@ -161,6 +207,45 @@ directory, outside of the public directory in Composer installations), the
 YAML configuration directories
 (`yamlConfigurationDirectories`, set by the administrator) and the file
 arguments of the console commands.
+
+## Names of written files
+
+The extension checks the names of the files it writes itself, of the
+file targets of the core (`DataTargetCSV`) and the target names of the
+finishers `WriteFile` and `MoveFile`, in addition to the file type rules
+above (`Typo3PathResolver::assertTargetFileName()`):
+
+* the default `fileDenyPattern` of TYPO3 applies in addition to a configured
+  one, so an empty or weaker configured pattern does not allow e.g. `.php`
+  files
+* server configuration files are refused: `.htaccess`, `.htpasswd` and other
+  `.ht*` files, `.user.ini`, `php.ini`, `web.config`
+* names that are not valid UTF-8, names with `?`, `#`, `:` or control
+  characters and names ending in a dot or a space are refused
+
+A name that is not allowed throws an `InvalidArgumentException` (code
+1795400103, or 1795300103 for the `fileDenyPattern` configured in TYPO3).
+The target name of `GenerateFileResource` and `GenerateUploadFile` is the
+name of the source file; for a URL the last segment of its path, without
+query and fragment (`https://example.org/image.jpg?size=large` is written to
+`image.jpg`).
+
+`GenerateFileResource` and `GenerateUploadFile` write the content of a
+local file or URL into a temporary file in the target directory
+(`.<name>.<random>.part`), which replaces the target file when it is
+complete. If the source cannot be read or the file cannot be written, the
+target file is not changed.
+
+SVG files (by file extension, or content whose root element is `svg`) are
+sanitized with the SVG sanitizer of TYPO3 before they replace the target
+file; the detection is a best effort, see
+[GenerateFileResource](../Components/PreProcessors/GENERATE_FILE.md#target-files).
+If the sanitizer leaves an empty file, a warning is logged (1795300502).
+Compressed SVG files (`.svgz`) are refused (code 1795400103). HTML, XHTML and
+XML files with another root element are not sanitized, also if they contain
+an inline `svg` element. Such targets can contain scripts that a browser
+runs when the file is served from a public directory, so copy HTML, XHTML and
+XML files only from trusted sources.
 
 ## Large files
 
