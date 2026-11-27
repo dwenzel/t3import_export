@@ -91,15 +91,18 @@ class GenerateFileResourceTest extends TestCase
     public function testGetFileReturnsExistingFileFromResourceStorage(): void
     {
         $mockFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
+        file_put_contents($this->sourceDirectory . '/bar.x', 'bar');
 
         $targetDirectoryPath = 'foo/';
         $fileName = 'bar.x';
-        $filePath = 'sourcePath/' . $fileName;
+        $filePath = $this->sourceDirectory . '/' . $fileName;
         $expectedPath = $targetDirectoryPath . $fileName;
 
         $configuration = [
-            'targetDirectoryPath' => $targetDirectoryPath
+            'targetDirectoryPath' => $targetDirectoryPath,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
+        $this->mockTargetDirectory();
 
         $this->resourceStorage->expects($this->once())
             ->method('hasFile')
@@ -115,6 +118,48 @@ class GenerateFileResourceTest extends TestCase
             $mockFile,
             $this->subject->getFile($configuration, $filePath)
         );
+    }
+
+    protected function mockTargetDirectory(): void
+    {
+        $this->resourceStorage->method('getConfiguration')
+            ->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')
+            ->willReturn('fileadmin/targetDir/');
+        $this->subject->method('getAbsoluteFilePath')->willReturnArgument(0);
+    }
+
+    public static function existingFileOfDeniedSourceDataProvider(): iterable
+    {
+        yield 'local file without source path' => [null, '{source}/image.jpg', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'local file outside of source directory' => ['{source}/a', '{source}/ab/image.jpg', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'file outside of allowed directories' => ['/etc/', '/etc/image.jpg', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'URL of other host' => [null, 'https://example.org/image.jpg', FileSourceGuard::ERROR_HOST_NOT_ALLOWED];
+        yield 'other scheme' => [null, 'ftp://example.org/image.jpg', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
+        yield 'denied target name' => ['{source}/', '{source}/image.php', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+    }
+
+    /**
+     * @test
+     * @dataProvider existingFileOfDeniedSourceDataProvider
+     */
+    public function getFileChecksSourceAndNameBeforeUsingExistingFile(?string $sourcePath, string $value, int $code): void
+    {
+        $configuration = ['targetDirectoryPath' => 'targetDir'];
+        if ($sourcePath !== null) {
+            $configuration['sourcePath'] = str_replace('{source}', $this->sourceDirectory, $sourcePath);
+        }
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/a');
+        $this->mockTargetDirectory();
+        $this->resourceStorage->method('hasFile')->willReturn(true);
+        $this->resourceStorage->expects($this->never())->method('getFile');
+
+        try {
+            $this->subject->getFile($configuration, str_replace('{source}', $this->sourceDirectory, $value));
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame($code, $exception->getCode());
+        }
     }
 
     public function testGetFileCopiesFileToTarget(): void

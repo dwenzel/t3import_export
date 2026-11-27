@@ -189,6 +189,24 @@ trait GenerateFileTrait
     }
 
     /**
+     * Checks a source without reading it: a URL must be an http(s) URL of an
+     * allowed host, a local file or `EXT:` path must be allowed by
+     * `FileSourceGuard::resolveFile()`.
+     *
+     * @param string|null $sourcePath the `sourcePath` of the configuration
+     * @throws InvalidArgumentException if the source is not allowed
+     */
+    protected function assertSourceAllowed(string $sourceFilePath, ?string $sourcePath = null): void
+    {
+        if (FileSourceGuard::isUrl($sourceFilePath)) {
+            $this->getFileSourceGuard()->assertUrlAllowed($sourceFilePath);
+
+            return;
+        }
+        $this->getFileSourceGuard()->resolveFile($sourceFilePath, $sourcePath);
+    }
+
+    /**
      * Like the SVG check of TYPO3: the file extension is svg (or svgz) or the
      * MIME type of the content is image/svg+xml.
      */
