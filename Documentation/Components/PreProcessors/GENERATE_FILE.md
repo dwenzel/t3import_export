@@ -6,7 +6,8 @@ files is taken from a field of the record.
 
 * `GenerateFileResource` copies the file, adds it to the file index and sets a
   file object in the target field. A file with the same name that is already
-  in the target directory is used instead.
+  in the target directory is used instead; the rules for the source and the
+  target name below apply in this case too.
 * `GenerateUploadFile` copies the file and sets its path in the target field
   (base path of the storage, `targetDirectoryPath` and file name), or `''` if
   it could not be copied.

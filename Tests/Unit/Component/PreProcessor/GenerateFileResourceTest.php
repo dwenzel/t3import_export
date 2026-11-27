@@ -19,6 +19,8 @@ namespace CPSIT\T3importExport\Tests\Unit\Component\PreProcessor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use CPSIT\ImportExportCore\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use CPSIT\ImportExportCore\Exception\MissingResourceException;
 use CPSIT\ImportExportCore\Resource\HttpResourceLoader;
 use CPSIT\T3importExport\Component\PreProcessor\GenerateFileResource;
@@ -357,6 +359,81 @@ class GenerateFileResourceTest extends TestCase
         return $subject;
     }
 
+    /**
+     * A subject that applies the file rules, with a file of the same name in
+     * the target directory: sources only from var/import/tests, URLs only
+     * from data.example.org
+     */
+    protected function createSubjectWithExistingFile(): GenerateFileResource
+    {
+        $subject = new GenerateFileResource($this->fileIndexRepository, $this->filePathFactory);
+        $subject->withStorage($this->resourceStorage);
+        $client = $this->createMock(ClientInterface::class);
+        $client->expects(self::never())->method('sendRequest');
+        $subject->setResourceAccess(new ResourceAccess(
+            new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
+            new HttpResourceLoader($client, $this->createStub(RequestFactoryInterface::class), ['data.example.org']),
+            new AllowedHosts(['data.example.org'])
+        ));
+        $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')->willReturn('fileadmin/target/');
+        $this->resourceStorage->method('hasFile')->willReturn(true);
+        $this->resourceStorage->expects(self::never())->method('getFile');
+
+        return $subject;
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>, string, class-string<\Throwable>, int}>
+     */
+    public static function notAllowedSourceOfExistingFileDataProvider(): iterable
+    {
+        yield 'target name' => [
+            ['sourcePath' => 'fileadmin/'],
+            'fileadmin/image#1.jpg',
+            InvalidArgumentException::class,
+            Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED,
+        ];
+        yield 'local file without source path' => [
+            [],
+            'fileadmin/image.jpg',
+            InvalidArgumentException::class,
+            Typo3PathResolver::ERROR_NOT_ALLOWED,
+        ];
+        yield 'local file outside of the allowed directories' => [
+            ['sourcePath' => 'typo3conf/'],
+            'typo3conf/image.jpg',
+            InvalidArgumentException::class,
+            Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED,
+        ];
+        yield 'host that is not allowed' => [
+            [],
+            'https://other.example.org/image.jpg',
+            MissingResourceException::class,
+            HttpResourceLoader::ERROR_HOST_NOT_ALLOWED,
+        ];
+    }
+
+    /**
+     * @param array<string, string> $configuration
+     * @param class-string<\Throwable> $exceptionClass
+     */
+    #[Test]
+    #[DataProvider('notAllowedSourceOfExistingFileDataProvider')]
+    public function getFileChecksTheSourceBeforeUsingAnExistingFile(
+        array $configuration,
+        string $source,
+        string $exceptionClass,
+        int $code
+    ): void {
+        $subject = $this->createSubjectWithExistingFile();
+
+        $this->expectException($exceptionClass);
+        $this->expectExceptionCode($code);
+
+        $subject->getFile($configuration + ['targetDirectoryPath' => 'target'], $source);
+    }
+
     #[Test]
     public function getFileAddsFileLoadedFromAllowedUrl(): void
     {
@@ -416,7 +493,8 @@ class GenerateFileResourceTest extends TestCase
             ->with([$storageConfiguration['basePath'], $targetDirectoryPath])
             ->willReturn($storageConfiguration['basePath'] . DIRECTORY_SEPARATOR . $targetDirectoryPath . DIRECTORY_SEPARATOR);
 
-        $this->subject->expects($this->once())
+        // checked before an existing file is used and again when copying
+        $this->subject->expects($this->atLeastOnce())
             ->method('getAbsoluteTargetPath')
             ->with(...[$expectedFilePath])
             ->willReturn($expectedFilePath);

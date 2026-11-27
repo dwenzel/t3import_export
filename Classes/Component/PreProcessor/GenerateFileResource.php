@@ -77,13 +77,14 @@ class GenerateFileResource extends AbstractPreProcessor implements PreProcessorI
     public function getFile($configuration, $sourceFilePath)
     {
         $filePath = PathUtility::sanitizeTrailingSeparator($configuration['targetDirectoryPath'], DIRECTORY_SEPARATOR) . $this->getSourceFileName((string)$sourceFilePath);
+        $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
+        // the rules apply also if a file with the same name exists already
+        $this->assertCopyAllowed((string)$sourceFilePath, $targetPath, $this->getSourcePath($configuration));
 
         if ($this->resourceStorage->hasFile($filePath)
         ) {
             return $this->resourceStorage->getFile($filePath);
         }
-
-        $targetPath = $this->getTargetPath($configuration, $sourceFilePath);
 
         if (!$this->copyFile((string)$sourceFilePath, $targetPath, $this->getSourcePath($configuration))) {
             return null;

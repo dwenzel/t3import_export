@@ -107,6 +107,26 @@ trait GenerateFileTrait
     }
 
     /**
+     * Applies the rules of `copyFile()` without copying: the target file name
+     * and the source file or URL (scheme, allowed host and port) must be
+     * allowed.
+     *
+     * @param string|null $sourcePath the `sourcePath` of the configuration
+     * @throws InvalidArgumentException if the source file or the target file name is not allowed
+     * @throws MissingResourceException if the source URL is not allowed
+     */
+    protected function assertCopyAllowed(string $sourceFilePath, string $targetPath, ?string $sourcePath = null): void
+    {
+        $this->getAbsoluteTargetPath($targetPath);
+        if (ResourceAccess::isUrl($sourceFilePath)) {
+            $this->getResourceAccess()->assertUrlAllowed($sourceFilePath);
+
+            return;
+        }
+        $this->resolveSourceFile($sourceFilePath, $sourcePath);
+    }
+
+    /**
      * Writes the contents of a URL to a file.
      *
      * The URL is loaded with the HTTP resource loader of the core and the HTTP
