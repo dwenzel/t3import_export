@@ -53,21 +53,4 @@ final readonly class ResourceLoaderFactory
             $allowedHosts->hostNames()
         );
     }
-
-    /**
-     * @return list<string>|null null: all hosts
-     */
-    public static function allowedHosts(): ?array
-    {
-        $configured = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] ?? [];
-        if (!\is_array($configured)) {
-            return [];
-        }
-        $hosts = array_values(array_filter(
-            $configured,
-            static fn(mixed $host): bool => \is_string($host) && trim($host) !== ''
-        ));
-
-        return \in_array('*', $hosts, true) ? null : $hosts;
-    }
 }

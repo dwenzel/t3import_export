@@ -9,7 +9,6 @@ use CPSIT\T3importExport\Resource\ResourceLoaderFactory;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
@@ -33,30 +32,6 @@ class ResourceLoaderFactoryTest extends TestCase
     protected function tearDown(): void
     {
         $GLOBALS['TYPO3_CONF_VARS'] = $this->configuration;
-    }
-
-    /**
-     * @return iterable<string, array{mixed, list<string>|null}>
-     */
-    public static function allowedHostsDataProvider(): iterable
-    {
-        yield 'not set' => [null, []];
-        yield 'not a list' => ['example.org', []];
-        yield 'hosts' => [['example.org', '', 1, '*.example.com'], ['example.org', '*.example.com']];
-        yield 'all hosts' => [['*'], null];
-    }
-
-    #[Test]
-    #[DataProvider('allowedHostsDataProvider')]
-    public function readsAllowedHostsFromConfiguration(mixed $configured, ?array $expected): void
-    {
-        if ($configured === null) {
-            unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts']);
-        } else {
-            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] = $configured;
-        }
-
-        self::assertSame($expected, ResourceLoaderFactory::allowedHosts());
     }
 
     #[Test]
