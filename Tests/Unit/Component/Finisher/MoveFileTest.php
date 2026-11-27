@@ -156,4 +156,19 @@ class MoveFileTest extends TestCase
             $result
         );
     }
+
+    #[DataProvider('notAllowedTargetNameDataProvider')]
+    public function testProcessChecksTheSourceNameIfNoTargetNameIsSet(string $fileName): void
+    {
+        $records = [];
+        $result = [];
+        $file = $this->createStub(File::class);
+        $this->resourceStorage->method('hasFileInFolder')->willReturn(true);
+        $this->folder->method('getFiles')->willReturn([$fileName => $file]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->subject->process(['source' => ['name' => $fileName], 'target' => []], $records, $result);
+    }
 }

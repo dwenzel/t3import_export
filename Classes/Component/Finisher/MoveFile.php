@@ -189,8 +189,10 @@ class MoveFile extends AbstractFinisher implements FinisherInterface, LoggingInt
         array &$records,
         object|array &$result
     ): bool {
-        if (!empty($configuration['target']['name'])) {
-            $this->getResourceAccess()->assertTargetFileAllowed((string)$configuration['target']['name']);
+        // the name that is written: the target name or else the name of the source
+        $writtenName = (string)(($configuration['target']['name'] ?? '') ?: ($configuration['source']['name'] ?? ''));
+        if ($writtenName !== '') {
+            $this->getResourceAccess()->assertTargetFileAllowed($writtenName);
         }
         $defaultStorage = $this->storageRepository->getDefaultStorage();
         $targetStorage = $defaultStorage;
