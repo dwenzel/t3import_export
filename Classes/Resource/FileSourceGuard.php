@@ -29,14 +29,16 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  * Checks the source files which components copy themselves (not through FAL),
  * e.g. `GenerateFileResource` and `GenerateUploadFile`.
  *
- * Local files are read only
+ * Local files are read only below the directory of the `sourcePath` of the
+ * configuration (the path itself if it ends with a slash or is an existing
+ * directory, else its parent directory). Without a local `sourcePath`, a
+ * value of a record cannot name a local file or an `EXT:` path. Local files
+ * must also be
  * - inside an allowed directory
  *   (`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileSourceDirectories']`,
  *   default: `fileadmin/` of the public directory and `import/` of the var
  *   directory). Relative directories are relative to the public directory.
- * - or, for an `EXT:` path given as `sourcePath` in the configuration, below
- *   the directory of that `sourcePath` inside the extension. A value of a
- *   record cannot name an `EXT:` path.
+ * - or, for an `EXT:` path given as `sourcePath`, inside the extension.
  *
  * Paths with control characters, `..` segments and stream wrappers
  * (`scheme://`, `php:`, `data:`, `phar:` ...) are rejected. Symbolic links are
@@ -146,31 +148,44 @@ final readonly class FileSourceGuard
     }
 
     /**
-     * Resolves the path of a local source file.
+     * Resolves the path of a local source file whose path is built from the
+     * `sourcePath` of the configuration and a value of a record.
      *
-     * An `EXT:` path is only allowed if `$sourcePath` (the `sourcePath` of the
-     * configuration) is an `EXT:` path and `$path` starts with it. The file
-     * must be below the directory of `$sourcePath`, which must be inside the
-     * extension.
+     * Local files are only allowed with a local `$sourcePath` (not a URL):
+     * `$path` must start with it, and the file must be below the directory
+     * of `$sourcePath`: the path itself if it ends with a slash or is an
+     * existing directory, else (a file name prefix) its parent directory.
+     * Without a local source path, a value of a record cannot name a local
+     * file. Local files must also be inside an allowed directory. For an
+     * `EXT:` source path, the directory must be inside the extension.
+     * Symbolic links are resolved.
      *
      * @return string real path of the file (symbolic links resolved)
      * @throws InvalidArgumentException if the path is not allowed
      */
     public function resolveFile(string $path, ?string $sourcePath = null): string
     {
-        $isExtensionPath = PathUtility::isExtensionPath($path);
-        if (
-            self::isInvalidPath($path)
-            || ($isExtensionPath && ($sourcePath === null || !PathUtility::isExtensionPath($sourcePath) || !str_starts_with($path, $sourcePath)))
-        ) {
+        if (self::isInvalidPath($path)) {
             throw $this->notAllowed(
                 $path,
-                'empty paths, control characters, ".." segments, stream wrappers and EXT: paths which are not the configured source path are not allowed.',
+                'empty paths, control characters, ".." segments and stream wrappers are not allowed.',
                 self::ERROR_PATH_NOT_ALLOWED
             );
         }
-        if ($isExtensionPath) {
-            return $this->resolveExtensionFile($path, (string)$sourcePath);
+        if (
+            $sourcePath === null
+            || self::isInvalidPath($sourcePath)
+            || self::isUrl($sourcePath)
+            || !str_starts_with($path, $sourcePath)
+        ) {
+            throw $this->notAllowed(
+                $path,
+                'local files and EXT: paths are only allowed below the configured source path (sourcePath).',
+                self::ERROR_PATH_NOT_ALLOWED
+            );
+        }
+        if (PathUtility::isExtensionPath($path)) {
+            return $this->resolveExtensionFile($path, $sourcePath);
         }
         $absolutePath = PathUtility::isAbsolutePath($path) ? $path : Environment::getPublicPath() . '/' . $path;
         $realPath = self::realPath($absolutePath);
@@ -181,8 +196,30 @@ final readonly class FileSourceGuard
                 self::ERROR_DIRECTORY_NOT_ALLOWED
             );
         }
+        $absoluteSourcePath = PathUtility::isAbsolutePath($sourcePath) ? $sourcePath : Environment::getPublicPath() . '/' . $sourcePath;
+        $realSourceDirectory = self::realPath(self::sourceDirectory($sourcePath, $absoluteSourcePath));
+        if ($realSourceDirectory === null || !self::isInDirectories($realPath, [$realSourceDirectory])) {
+            throw $this->notAllowed(
+                $path,
+                'files must be below the directory of the source path (a source path which is no existing directory and has no trailing slash uses its parent directory).',
+                self::ERROR_DIRECTORY_NOT_ALLOWED
+            );
+        }
 
         return $realPath;
+    }
+
+    /**
+     * The directory of a source path: the path itself if it ends with a slash
+     * or is an existing directory, else (a file name prefix) its parent
+     *
+     * @return string absolute path without trailing slash
+     */
+    private static function sourceDirectory(string $sourcePath, string $absoluteSourcePath): string
+    {
+        return str_ends_with($sourcePath, '/') || is_dir($absoluteSourcePath)
+            ? rtrim($absoluteSourcePath, '/')
+            : \dirname($absoluteSourcePath);
     }
 
     /**
@@ -191,9 +228,6 @@ final readonly class FileSourceGuard
      */
     private function resolveExtensionFile(string $path, string $sourcePath): string
     {
-        if (self::isInvalidPath($sourcePath)) {
-            throw $this->notAllowed($sourcePath, 'the source path is not allowed.', self::ERROR_PATH_NOT_ALLOWED);
-        }
         $extensionDirectory = self::extensionDirectory($sourcePath);
         $absoluteSourcePath = GeneralUtility::getFileAbsFileName($sourcePath);
         $absolutePath = GeneralUtility::getFileAbsFileName($path);
@@ -203,14 +237,12 @@ final readonly class FileSourceGuard
         if ($absoluteSourcePath === '' || $absolutePath === '') {
             throw $this->notAllowed($path, 'the path cannot be resolved inside the extension.', self::ERROR_DIRECTORY_NOT_ALLOWED);
         }
-        // the directory of the source path: the path itself if it ends with a slash, else its parent
-        $sourceDirectory = str_ends_with($sourcePath, '/') ? rtrim($absoluteSourcePath, '/') : \dirname($absoluteSourcePath);
-        $realSourceDirectory = self::realPath($sourceDirectory);
+        $realSourceDirectory = self::realPath(self::sourceDirectory($sourcePath, $absoluteSourcePath));
         $realPath = self::realPath($absolutePath);
         if ($realSourceDirectory === null || !self::isInDirectories($realSourceDirectory . '/', [$extensionDirectory])) {
             throw $this->notAllowed(
                 $path,
-                'the source directory must be inside the extension (a source path without trailing slash uses its parent directory).',
+                'the source directory must be inside the extension (a source path which is no existing directory and has no trailing slash uses its parent directory).',
                 self::ERROR_DIRECTORY_NOT_ALLOWED
             );
         }

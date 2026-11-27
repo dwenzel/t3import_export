@@ -219,6 +219,7 @@ class GenerateFileResourceTest extends TestCase
 
         $configuration = [
             'targetDirectoryPath' => $targetDirectory,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
 
         $fileStructure = [
@@ -304,7 +305,7 @@ class GenerateFileResourceTest extends TestCase
         vfsStream::setup($rootDirectory, null, $fileStructure);
 
         // Use an invalid target directory to force copy failure
-        $invalidConfiguration = ['targetDirectoryPath' => 'invalidDirectory'];
+        $invalidConfiguration = ['targetDirectoryPath' => 'invalidDirectory', 'sourcePath' => $this->sourceDirectory . '/'];
 
         // Mock that the file doesn't exist initially
         $expectedFilePath = 'invalidDirectory/' . $sourceFileName;

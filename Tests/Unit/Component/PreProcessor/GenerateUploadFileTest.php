@@ -145,6 +145,7 @@ class GenerateUploadFileTest extends TestCase
 
         $configuration = [
             'targetDirectoryPath' => $targetDirectory,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
 
         // Non-existent source file path
@@ -233,6 +234,7 @@ class GenerateUploadFileTest extends TestCase
         $targetDirectory = 'targetDir';
         $configuration = [
             'targetDirectoryPath' => $targetDirectory,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
 
         $fileStructure = [
@@ -302,8 +304,9 @@ class GenerateUploadFileTest extends TestCase
 
     public static function sourceOutsideOfAllowedDirectoriesDataProvider(): iterable
     {
-        yield 'system file' => ['/etc/hosts', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
-        yield 'project file' => [Environment::getProjectPath() . '/composer.json', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'system file' => ['/etc/hosts', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'project file' => [Environment::getProjectPath() . '/composer.json', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'file in allowed directory without source path' => ['{source}/image.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'dot dot segment' => ['{source}/../secret.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'php filter' => ['php://filter/read=convert.base64-encode/resource={source}/../secret.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
         yield 'compress.zlib' => ['compress.zlib://{source}/../secret.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
@@ -317,6 +320,7 @@ class GenerateUploadFileTest extends TestCase
     {
         $this->prepareTargetDirectory();
         file_put_contents(\dirname($this->sourceDirectory) . '/secret.txt', 'secret');
+        file_put_contents($this->sourceDirectory . '/image.txt', 'image');
         $source = str_replace('{source}', $this->sourceDirectory, $source);
 
         try {
@@ -416,7 +420,7 @@ class GenerateUploadFileTest extends TestCase
             '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/></svg>'
         );
 
-        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.svg');
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.svg');
 
         self::assertStringNotContainsString('script', (string)file_get_contents($result));
         self::assertStringContainsString('rect', (string)file_get_contents($result));
@@ -471,6 +475,66 @@ class GenerateUploadFileTest extends TestCase
         self::assertSame('image', file_get_contents($record['target']));
     }
 
+    public static function valueOutsideOfSourcePathDataProvider(): iterable
+    {
+        yield 'system file' => ['/etc/', '/etc/hosts', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'sibling of existing directory without trailing slash' => ['{source}/a', 'b/secret.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'parent of existing directory without trailing slash' => ['{source}/a', '.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'URL source path' => ['https://data.example.org/', '{source}/a/image.txt', FileSourceGuard::ERROR_HOST_NOT_ALLOWED];
+    }
+
+    #[Test]
+    #[DataProvider('valueOutsideOfSourcePathDataProvider')]
+    public function processDoesNotCopyFileOutsideOfSourceDirectory(string $sourcePath, string $value, int $code): void
+    {
+        $this->prepareTargetDirectory();
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/a');
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/ab');
+        file_put_contents($this->sourceDirectory . '/a/image.txt', 'image');
+        file_put_contents($this->sourceDirectory . '/ab/secret.txt', 'secret');
+        file_put_contents($this->sourceDirectory . '/a.txt', 'secret');
+        $record = ['source' => str_replace('{source}', $this->sourceDirectory, $value)];
+
+        try {
+            $this->subject->process(
+                [
+                    'sourceField' => 'source',
+                    'targetField' => 'target',
+                    'targetDirectoryPath' => 'targetDir',
+                    'sourcePath' => str_replace('{source}', $this->sourceDirectory, $sourcePath),
+                    'multipleRows' => false,
+                ],
+                $record
+            );
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame($code, $exception->getCode());
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    #[Test]
+    public function processCopiesFileBelowExistingSourceDirectoryWithoutTrailingSlash(): void
+    {
+        $this->prepareTargetDirectory();
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/a');
+        file_put_contents($this->sourceDirectory . '/a/image.txt', 'image');
+        $record = ['source' => '/image.txt'];
+
+        $this->subject->process(
+            [
+                'sourceField' => 'source',
+                'targetField' => 'target',
+                'targetDirectoryPath' => 'targetDir',
+                'sourcePath' => $this->sourceDirectory . '/a',
+                'multipleRows' => false,
+            ],
+            $record
+        );
+
+        self::assertSame('image', file_get_contents($record['target']));
+    }
+
     protected const string SVG = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/></svg>';
 
     protected function targetFiles(): array
@@ -504,7 +568,7 @@ class GenerateUploadFileTest extends TestCase
         $this->prepareTargetDirectory();
         file_put_contents($this->sourceDirectory . '/image.txt', '<?xml version="1.0"?>' . "\n" . self::SVG);
 
-        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.txt');
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.txt');
 
         self::assertSame(vfsStream::url('root') . '/targetDir/image.txt', $result);
         self::assertStringNotContainsString('script', (string)file_get_contents($result));
@@ -527,7 +591,7 @@ class GenerateUploadFileTest extends TestCase
         file_put_contents($this->sourceDirectory . '/' . $fileName, (string)gzencode(self::SVG));
 
         try {
-            $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/' . $fileName);
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
             self::fail('No exception thrown');
         } catch (InvalidArgumentException $exception) {
             self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
@@ -545,7 +609,7 @@ class GenerateUploadFileTest extends TestCase
         GeneralUtility::addInstance(SvgSanitizer::class, $sanitizer);
 
         try {
-            $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.svg');
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.svg');
             self::fail('No exception thrown');
         } catch (\RuntimeException $exception) {
             self::assertSame(1795400298, $exception->getCode());
