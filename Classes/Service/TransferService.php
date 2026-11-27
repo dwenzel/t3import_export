@@ -8,7 +8,9 @@ use CPSIT\ImportExportCore\Domain\Model\Dto\TaskDemand;
 use CPSIT\ImportExportCore\Domain\Model\TransferTaskInterface;
 use CPSIT\ImportExportCore\Service\DataTransferProcessor;
 use CPSIT\ImportExportCore\Service\DemandProcessor;
+use CPSIT\T3importExport\Configuration\FileOptionsCheck;
 use CPSIT\T3importExport\Persistence\CompletableSourceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Runs tasks with the processor of the core.
@@ -19,7 +21,10 @@ use CPSIT\T3importExport\Persistence\CompletableSourceInterface;
  */
 class TransferService
 {
-    public function __construct(private readonly DataTransferProcessor $processor) {}
+    public function __construct(
+        private readonly DataTransferProcessor $processor,
+        private readonly ?LoggerInterface $logger = null,
+    ) {}
 
     /**
      * @param array<array-key, TransferTaskInterface> $tasks
@@ -28,6 +33,9 @@ class TransferService
      */
     public function run(array $tasks, bool $dryRun = false): array
     {
+        foreach (FileOptionsCheck::messages() as $message) {
+            $this->logger?->warning($message);
+        }
         $demand = new TaskDemand();
         $demand->setTasks($tasks);
         $this->processor->buildQueue($demand);

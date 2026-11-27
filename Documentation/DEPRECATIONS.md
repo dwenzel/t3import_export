@@ -417,7 +417,9 @@ to the classes of the core and the deprecated ones:
 
 Upgrading from 3.3.1: the options of 3.3.1 for files are replaced by
 `fileDirectories`. Version 4.0 does not read the options of 3.3.1; rename
-them in `config/system/additional.php`:
+them in `config/system/additional.php`. While they are set, or while
+`allowedHosts` is a string, the import and export commands show a warning,
+and each run logs one (`Configuration\FileOptionsCheck`):
 
 | 3.3.1 | 4.0 |
 |---|---|
