@@ -293,7 +293,23 @@ trait GenerateFileTrait
     protected function checkXmlContent(string $contentPath, string $targetPath): void
     {
         $content = @file_get_contents($contentPath, false, null, 0, 1048576);
-        if (!\is_string($content) || !self::hasXmlActiveContent($content)) {
+        if (!\is_string($content)) {
+            return;
+        }
+        if (\strlen($content) >= 1048576 && self::isRootElementBeyondWindow($content)) {
+            $this->logMessage(
+                'XML file not checked',
+                \sprintf(
+                    'The first megabyte of "%s" contains no root element (e.g. a long comment or document type); its content is not checked and not sanitized.',
+                    basename($targetPath)
+                ),
+                Message::WARNING,
+                self::WARNING_ACTIVE_XML
+            );
+
+            return;
+        }
+        if (!self::hasXmlActiveContent($content)) {
             return;
         }
         $this->logMessage(
@@ -305,6 +321,43 @@ trait GenerateFileTrait
             Message::WARNING,
             self::WARNING_ACTIVE_XML
         );
+    }
+
+    /**
+     * Whether markup content (within the checked window) consists only of
+     * the prolog: byte order mark, whitespace, XML declaration, processing
+     * instructions, comments and the document type, without the start of a
+     * root element, e.g. after a long comment.
+     */
+    private static function isRootElementBeyondWindow(string $content): bool
+    {
+        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
+        if (!str_starts_with($markup, '<')) {
+            return false;
+        }
+        while ($markup !== '') {
+            if (str_starts_with($markup, '<?')) {
+                $end = strpos($markup, '?>');
+                $length = 2;
+            } elseif (str_starts_with($markup, '<!--')) {
+                $end = strpos($markup, '-->', 4);
+                $length = 3;
+            } elseif (preg_match('/^<!DOCTYPE/i', $markup) === 1) {
+                if (preg_match('/^<!DOCTYPE[^\[>]*+(?:\[[^\]]*+\]\s*+)?>/i', $markup, $matches) !== 1) {
+                    return true;
+                }
+                $end = \strlen($matches[0]);
+                $length = 0;
+            } else {
+                return false;
+            }
+            if ($end === false) {
+                return true;
+            }
+            $markup = ltrim(substr($markup, $end + $length));
+        }
+
+        return true;
     }
 
     /**
