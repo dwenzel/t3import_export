@@ -10,3 +10,6 @@ if ((TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(TYPO3\CMS\Core\Informat
 // register custom implementation of PersistentObjectConverter
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerTypeConverter(\CPSIT\T3importExport\Property\TypeConverter\PersistentObjectConverter::class);
 \CPSIT\T3importExport\Configuration\Extension::registerIcons();
+
+// $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']
+// (default false: GenerateFileResource and GenerateUploadFile do not write html, htm, xhtml, xht, shtml, shtm, js, mjs)

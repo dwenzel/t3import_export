@@ -22,7 +22,8 @@ is taken from a field of the record, which then receives the result.
 ### Optional
 * **config.sourcePath** *string* prefix for each value of the source field,
   e.g. `fileadmin/import/`, `EXT:my_sitepackage/Resources/Private/Import/` or
-  `https://data.example.org/images/`
+  `https://data.example.org/images/`. Required for local files and `EXT:`
+  paths: without a local source path, values of records can only be URLs.
 * **config.separator** *string* separator of multiple values (default: `,`)
 * **config.multipleRows** *bool* process all values of the source field
   instead of only the first one
@@ -32,18 +33,39 @@ is taken from a field of the record, which then receives the result.
 A source is either a local file or an http(s) URL.
 
 A source which is not allowed throws an exception (codes 1795400201 to
-1795400204) and stops the task. Records processed before are already
-imported, and files copied for them stay in the target directory. A source
+1795400204, 1795400103 for target names) and stops the task.
+`GenerateFileResource` checks the source and the target name also if a file
+with the same name exists in the target directory already. Files copied for
+records processed before stay in the target directory. Whether these records
+are stored depends on the target: `DataTargetRepository` persists all records
+after the record loop, so none of them is stored; targets which write each
+record directly (e.g. `DataTargetDB`) keep the records written before. A source
 which is allowed but cannot be read (missing file, HTTP error) is not copied;
 the field is set to `null` (`GenerateFileResource`) or `''`
 (`GenerateUploadFile`) and the task goes on.
 
 ### Local files
 
-Local files are read only from allowed directories. By default these are
+Local files and `EXT:` paths are read only with a local `config.sourcePath`
+(not a URL). The joined path must start with the source path, and the file
+must be below the directory of the source path:
+
+* the source path itself if it ends with `/` or is an existing directory,
+  e.g. `fileadmin/import/` or `fileadmin/import`;
+* else (a prefix of file names, e.g. `fileadmin/import/img_`) its parent
+  directory, here `fileadmin/import/`.
+
+Without `config.sourcePath`, or with a URL as source path, a value of a record
+which is a local path or an `EXT:` path is refused (code 1795400201); a file
+outside of the directory of the source path is refused with code 1795400202.
+Symbolic links are resolved: a link which leads out of the directory is
+refused.
+
+In addition, local files are read only from allowed directories. By default these are
 `fileadmin/` of the public directory and `import/` of the `var` directory of
 TYPO3. The list can be changed in the system configuration, e.g. in
-`config/system/additional.php`:
+`typo3conf/AdditionalConfiguration.php` (`public/typo3conf/` in Composer
+mode):
 
 ```php
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileSourceDirectories'] = [
@@ -63,9 +85,13 @@ directory. An allowed directory may itself be a symbolic link.
 
 `EXT:` paths are allowed only as `config.sourcePath`, e.g.
 `EXT:my_sitepackage/Resources/Private/Import/`. The file must then be below
-the directory of the source path (the source path itself if it ends with `/`,
-else its parent directory), and that directory must be inside the extension.
-A value of a record which is an `EXT:` path is refused.
+the directory of the source path (see above), and that directory must be
+inside the extension. A value of a record which is an `EXT:` path is refused.
+
+Upgrade note: configurations whose records contain local paths need a
+`config.sourcePath` now, e.g. `sourcePath = fileadmin/import/` with values
+relative to it (each value is appended to the source path). Absolute paths
+in records need a source path such as `/var/data/import/`.
 
 ### URLs
 
@@ -113,14 +139,60 @@ The target file has the name of the source file; for URLs the last segment of
 the path, without query and fragment. Names which match the `fileDenyPattern`
 of TYPO3 or its default pattern, server configuration files (e.g.
 `.htaccess`), names with a colon, `?` or `#` and names ending in a dot or space
-are refused. Compressed SVG files (`.svgz`) are refused.
+are refused. The last file extension must not be empty and must consist of
+letters and digits only (e.g. `page.html;a=b`, `page%2ehtml` and `README` are
+refused). Compressed SVG files (`.svgz`, in any position of the name, e.g.
+`image.svgz.txt`) are refused. All these names are
+refused with code 1795400103.
+
+Files of the types `html`, `htm`, `xhtml`, `xht`, `shtml`, `shtm`, `js` and
+`mjs` are refused by default, in any position of the name and without case
+(e.g. `PAGE.HTML`, `image.jpg.html`, `page.html.zzz`; web servers may serve
+a file by any of its extensions), also for names taken from URLs. To write
+them, e.g. for trusted sources, allow them explicitly:
+
+```php
+// typo3conf/AdditionalConfiguration.php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+```
+
+Only the boolean `true` allows them. `shtml` stays refused by the default
+`fileDenyPattern` of TYPO3; `shtm` is written when `allowActiveContentTargets`
+is `true`. The setting applies to
+`GenerateFileResource` and `GenerateUploadFile` only; the rules of
+`WriteFile`, `MoveFile` and `DataTargetCSV` do not change. The content of
+these files is not sanitized.
 
 SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG
-if its extension is `svg` or if the content has the MIME type `image/svg+xml`,
-whatever its name. The MIME type is detected with `finfo` on the first
-megabyte of the content; this is a best effort and may miss SVG content that
-the detection does not recognize. HTML, XHTML and XML files are not sanitized;
-check them before they are served from a public directory.
+if its name has the extension `svg` in any position (e.g. `image.svg.txt`),
+or if the root element of the content is an `svg`
+element (also with a namespace prefix), whatever its name: the first element
+after a byte order mark, whitespace, the XML declaration, processing
+instructions, comments and the document type, within the first megabyte. The
+root element is read with XMLReader (no network access, no DTD loading, no
+entity substitution; it reads 8 KB more than the first megabyte, since it
+returns an element only after some lookahead, also for the XML check below); for content XMLReader cannot read, a simple scan is
+used, which treats a document type with an internal subset as unknown. If the
+root element is unknown, the MIME type `image/svg+xml` (detected with `finfo`)
+decides. This is a best effort. If the sanitizer leaves an empty file, a
+warning is logged (1795300502). This includes content which the SVG sanitizer
+of TYPO3 11 refuses (content without an `svg` element, e.g. a file named
+`page.svg.txt` with HTML content or an `SVG` root element in upper case): an
+empty file is written.
+
+HTML, XHTML and XML files with another root element are not sanitized, also if
+they contain an inline `svg` element. If XML content contains elements of the
+XHTML or SVG namespace or an `xml-stylesheet` processing instruction, a warning
+is logged (1795300503) and the file is written unchanged: browsers can run
+scripts in such files. The same warning is logged if the first megabyte ends
+before the start tag of the root element is complete (e.g. after a long
+comment or document type, or after more than 1000 processing instructions,
+comments and document types); such content is not checked. A root element
+`svg` whose start tag begins at the end of the first megabyte is sanitized. The check does not expand entities, browsers do;
+XML that builds markup from entities belongs to the files that are not
+sanitized. This check is a limit, not a protection; allow such
+files only from trusted sources and check them before they are served from a
+public directory.
 
 Upgrade note: target file names containing `?` or `#` are now refused
 (exception code 1795400103), like names with a colon and names ending in a dot

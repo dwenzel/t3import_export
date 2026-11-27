@@ -67,6 +67,7 @@ class GenerateUploadFileTest extends TestCase
 
     protected function tearDown(): void
     {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
         GeneralUtility::rmdir($this->sourceDirectory, true);
     }
 
@@ -128,12 +129,13 @@ class GenerateUploadFileTest extends TestCase
      */
     public function getFileInitiallyReturnsEmptyString()
     {
-        $sourceFilePath = 'bang';
+        $sourceFilePath = $this->sourceDirectory . '/bang.txt';
         $storageConfiguration = [
             'basePath' => ''
         ];
         $configuration = [
-            'targetDirectoryPath' => 'foo'
+            'targetDirectoryPath' => 'foo',
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
 
         $this->resourceStorage->expects($this->once())
@@ -241,12 +243,13 @@ class GenerateUploadFileTest extends TestCase
 
     public static function sourceOutsideOfAllowedDirectoriesDataProvider(): iterable
     {
-        yield 'system file' => ['/etc/hosts', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
-        yield 'project file' => [Environment::getProjectPath() . '/composer.json', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'system file' => ['/etc/hosts.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'project file' => [Environment::getProjectPath() . '/composer.json', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'file in allowed directory without source path' => ['{source}/image.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'dot dot segment' => ['{source}/../secret.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'php filter' => ['php://filter/read=convert.base64-encode/resource={source}/../secret.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
         yield 'compress.zlib' => ['compress.zlib://{source}/../secret.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
-        yield 'file' => ['file:///etc/hosts', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
+        yield 'file' => ['file:///etc/hosts.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
         yield 'data' => ['data:text/plain;base64,c2VjcmV0#/secret.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
     }
 
@@ -258,6 +261,7 @@ class GenerateUploadFileTest extends TestCase
     {
         $this->prepareTargetDirectory();
         file_put_contents(\dirname($this->sourceDirectory) . '/secret.txt', 'secret');
+        file_put_contents($this->sourceDirectory . '/image.txt', 'image');
         $source = str_replace('{source}', $this->sourceDirectory, $source);
 
         try {
@@ -369,7 +373,7 @@ class GenerateUploadFileTest extends TestCase
             '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/></svg>'
         );
 
-        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.svg');
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.svg');
 
         self::assertStringNotContainsString('script', (string)file_get_contents($result));
         self::assertStringContainsString('rect', (string)file_get_contents($result));
@@ -426,6 +430,68 @@ class GenerateUploadFileTest extends TestCase
         self::assertSame('image', file_get_contents($record['source']));
     }
 
+    public static function valueOutsideOfSourcePathDataProvider(): iterable
+    {
+        yield 'system file' => ['/etc/', '/etc/hosts.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'sibling of existing directory without trailing slash' => ['{source}/a', 'b/secret.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'parent of existing directory without trailing slash' => ['{source}/a', '.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'URL source path' => ['https://data.example.org/', '{source}/a/image.txt', FileSourceGuard::ERROR_HOST_NOT_ALLOWED];
+    }
+
+    /**
+     * @test
+     * @dataProvider valueOutsideOfSourcePathDataProvider
+     */
+    public function processDoesNotCopyFileOutsideOfSourceDirectory(string $sourcePath, string $value, int $code): void
+    {
+        $this->prepareTargetDirectory();
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/a');
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/ab');
+        file_put_contents($this->sourceDirectory . '/a/image.txt', 'image');
+        file_put_contents($this->sourceDirectory . '/ab/secret.txt', 'secret');
+        file_put_contents($this->sourceDirectory . '/a.txt', 'secret');
+        $record = ['source' => str_replace('{source}', $this->sourceDirectory, $value)];
+
+        try {
+            $this->subject->process(
+                [
+                    'fieldName' => 'source',
+                    'targetDirectoryPath' => 'targetDir',
+                    'sourcePath' => str_replace('{source}', $this->sourceDirectory, $sourcePath),
+                    'multipleRows' => false,
+                ],
+                $record
+            );
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame($code, $exception->getCode());
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function processCopiesFileBelowExistingSourceDirectoryWithoutTrailingSlash(): void
+    {
+        $this->prepareTargetDirectory();
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/a');
+        file_put_contents($this->sourceDirectory . '/a/image.txt', 'image');
+        $record = ['source' => '/image.txt'];
+
+        $this->subject->process(
+            [
+                'fieldName' => 'source',
+                'targetDirectoryPath' => 'targetDir',
+                'sourcePath' => $this->sourceDirectory . '/a',
+                'multipleRows' => false,
+            ],
+            $record
+        );
+
+        self::assertSame('image', file_get_contents($record['source']));
+    }
+
     protected const SVG = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/></svg>';
 
     protected function targetFiles(): array
@@ -463,17 +529,508 @@ class GenerateUploadFileTest extends TestCase
         $this->prepareTargetDirectory();
         file_put_contents($this->sourceDirectory . '/image.txt', '<?xml version="1.0"?>' . "\n" . self::SVG);
 
-        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.txt');
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.txt');
 
         self::assertSame(vfsStream::url('root') . '/targetDir/image.txt', $result);
         self::assertStringNotContainsString('script', (string)file_get_contents($result));
         self::assertStringContainsString('rect', (string)file_get_contents($result));
     }
 
+    public static function svgContentDataProvider(): iterable
+    {
+        yield 'leading whitespace' => ['image.xml', "\n  \n" . self::SVG];
+        yield 'byte order mark' => ['image.jpg', "\xEF\xBB\xBF" . self::SVG];
+        yield 'xml declaration and long comment' => ['image.jpg', '<?xml version="1.0"?>' . "\n<!--" . str_repeat('x', 20000) . "-->\n" . self::SVG];
+        yield 'processing instruction' => ['image.txt', '<?xml version="1.0"?><?xml-stylesheet href="a.css"?>' . self::SVG];
+        yield 'document type' => ['image.txt', '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' . self::SVG];
+        yield 'namespace prefix' => ['image.txt', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><s:script>alert(1)</s:script><s:rect width="1" height="1"/></s:svg>'];
+        yield 'document type with internal subset' => ['image.txt', '<!DOCTYPE svg [<!ENTITY a "b">]>' . self::SVG];
+        yield 'invalid xml' => ['image.txt', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/><b></svg>'];
+    }
+
+    /**
+     * @test
+     * @dataProvider svgContentDataProvider
+     */
+    public function getFileSanitizesSvgContentByRootElement(string $fileName, string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    public static function contentWhichTheSanitizerRefusesDataProvider(): iterable
+    {
+        yield 'svg root element in upper case' => ['image.xml', '<SVG xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></SVG>'];
+        yield 'html with svg in the name' => ['page.svg.jpg', '<html><body><script>alert(1)</script></body></html>'];
+        yield 'rss with svg in the name' => ['feed.svg.xml', '<?xml version="1.0"?><rss version="2.0"><channel><title><![CDATA[<script>alert(1)</script>]]></title></channel></rss>'];
+    }
+
+    /**
+     * The SVG sanitizer of TYPO3 11 throws an exception for content without
+     * svg element: an empty file is written and a warning is logged.
+     *
+     * @test
+     * @dataProvider contentWhichTheSanitizerRefusesDataProvider
+     */
+    public function getFileWritesEmptyFileIfTheSanitizerRefusesTheContent(string $fileName, string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame('', file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileDoesNotKeepContentIfTheRefusedFileCannotBeEmptied(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/page.svg.txt', '<html><body><script>alert(1)</script></body></html>');
+        $sanitizer = $this->getMockBuilder(SvgSanitizer::class)->onlyMethods(['sanitizeFile'])->getMock();
+        $sanitizer->method('sanitizeFile')->willReturnCallback(
+            static function (string $path): void {
+                // the file cannot be emptied
+                chmod($path, 0444);
+                throw new \LogicException('Got 0 svg elements, expected exactly one', 1570870568);
+            }
+        );
+        GeneralUtility::addInstance(SvgSanitizer::class, $sanitizer);
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/page.svg.txt');
+            self::fail('No exception thrown');
+        } catch (\LogicException $exception) {
+            self::assertSame(1570870568, $exception->getCode());
+        } finally {
+            GeneralUtility::purgeInstances();
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    public static function svgFileNameDataProvider(): iterable
+    {
+        yield 'svg before another extension' => ['image.svg.txt'];
+        yield 'svg in upper case before another extension' => ['image.SVG.jpg'];
+        yield 'svg in the middle' => ['image.svg.min.txt'];
+    }
+
+    /**
+     * @test
+     * @dataProvider svgFileNameDataProvider
+     */
+    public function getFileSanitizesFilesWithSvgExtensionInAnyPosition(string $fileName): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, '<html><body><script>alert(1)</script></body></html>');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    public static function otherMarkupDataProvider(): iterable
+    {
+        yield 'html with inline svg' => ['page.txt', '<html><body><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg></body></html>'];
+        yield 'rss with inline svg' => ['feed.xml', '<?xml version="1.0"?><rss version="2.0"><channel><description><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg></description></channel></rss>'];
+        yield 'text mentioning svg' => ['notes.txt', 'An <svg> element can contain <script>alert(1)</script>.'];
+    }
+
+    /**
+     * @test
+     * @dataProvider otherMarkupDataProvider
+     */
+    public function getFileDoesNotSanitizeOtherMarkup(string $fileName, string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame($content, file_get_contents($result));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileLogsWarningIfSanitizingEmptiesTheFile(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/image.svg', 'no svg');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.svg');
+
+        self::assertSame('', file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
+    }
+
+    public static function activeContentFileNameDataProvider(): iterable
+    {
+        yield 'html' => ['page.html'];
+        yield 'htm' => ['page.htm'];
+        yield 'xhtml' => ['page.xhtml'];
+        yield 'xht' => ['page.xht'];
+        yield 'shtm' => ['page.shtm'];
+        yield 'js' => ['script.js'];
+        yield 'mjs' => ['module.mjs'];
+        yield 'upper case' => ['PAGE.HTML'];
+        yield 'last of two extensions' => ['image.jpg.html'];
+        yield 'first of two extensions' => ['page.html.zzz'];
+        yield 'middle extension' => ['script.js.min.txt'];
+    }
+
+    public static function deniedActiveContentFileNameDataProvider(): iterable
+    {
+        yield from self::activeContentFileNameDataProvider();
+        // also in the default fileDenyPattern of TYPO3
+        yield 'shtml' => ['page.shtml'];
+    }
+
+    /**
+     * @test
+     * @dataProvider deniedActiveContentFileNameDataProvider
+     */
+    public function getFileDoesNotCopyActiveContentByDefault(string $fileName): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, '<script>alert(1)</script>');
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function getFileDoesNotLoadUrlWithActiveContentName(): void
+    {
+        $this->prepareTargetDirectory();
+        $this->useHttpResponses(
+            ['https://data.example.org/page.html?x=1' => self::response('<script>alert(1)</script>')],
+            new FileSourceGuard([$this->sourceDirectory], ['data.example.org'])
+        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], 'https://data.example.org/page.html?x=1');
+    }
+
+    /**
+     * @test
+     * @dataProvider activeContentFileNameDataProvider
+     */
+    public function getFileCopiesActiveContentIfAllowed(string $fileName): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, '<script>alert(1)</script>');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame('<script>alert(1)</script>', file_get_contents($result));
+    }
+
+    public static function nonBooleanSettingDataProvider(): iterable
+    {
+        yield 'string yes' => ['yes'];
+        yield 'string 1' => ['1'];
+        yield 'integer 1' => [1];
+        yield 'string true' => ['true'];
+    }
+
+    /**
+     * @test
+     * @dataProvider nonBooleanSettingDataProvider
+     */
+    public function getFileAllowsActiveContentOnlyWithTrue(mixed $value): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = $value;
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/page.html', '<script>alert(1)</script>');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/page.html');
+    }
+
+    public static function invalidLastExtensionDataProvider(): iterable
+    {
+        yield 'parameter' => ['page.html;a=b'];
+        yield 'encoded dot' => ['page%2ehtml'];
+        yield 'no extension' => ['README'];
+        yield 'dash' => ['image.jp-g'];
+        yield 'underscore' => ['image.jp_g'];
+        yield 'percent' => ['image.%6Apg'];
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidLastExtensionDataProvider
+     */
+    public function getFileDoesNotCopyFilesWithInvalidLastExtension(string $fileName): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, 'content');
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    public static function allowedFileNameDataProvider(): iterable
+    {
+        yield 'xml' => ['feed.xml'];
+        yield 'html in base name' => ['html-export.txt'];
+        yield 'json' => ['data.JSON'];
+        yield 'digits' => ['archive.7z'];
+    }
+
+    /**
+     * @test
+     * @dataProvider allowedFileNameDataProvider
+     */
+    public function getFileCopiesOtherFileTypes(string $fileName): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, 'content');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame('content', file_get_contents($result));
+    }
+
+    public static function xmlWithActiveContentDataProvider(): iterable
+    {
+        yield 'xhtml element' => ['<?xml version="1.0"?><feed><content><div xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></div></content></feed>'];
+        yield 'prefixed xhtml element' => ['<feed xmlns:h="http://www.w3.org/1999/xhtml"><h:script>alert(1)</h:script></feed>'];
+        yield 'svg element' => ['<feed><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg></feed>'];
+        yield 'xml stylesheet' => ['<?xml version="1.0"?><?xml-stylesheet type="text/xsl" href="a.xsl"?><feed/>'];
+    }
+
+    /**
+     * @test
+     * @dataProvider xmlWithActiveContentDataProvider
+     */
+    public function getFileLogsWarningForXmlWithActiveContent(string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertSame($content, file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    public static function prologBeyondCheckedWindowDataProvider(): iterable
+    {
+        yield 'long comment' => ['<?xml version="1.0"?><!--' . str_repeat('x', 1100000) . '--><html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'long processing instruction' => ['<?xml version="1.0"?><?pi ' . str_repeat('x', 1100000) . '?><feed/>'];
+        yield 'long document type' => ['<!DOCTYPE feed [<!ENTITY a "' . str_repeat('x', 1100000) . '">]><feed>&a;</feed>'];
+    }
+
+    /**
+     * @test
+     * @dataProvider prologBeyondCheckedWindowDataProvider
+     */
+    public function getFileLogsWarningIfNoRootElementIsFoundInTheCheckedWindow(string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertSame($content, file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
+     * The content of a file whose first megabyte ends after `$bytesOfRoot`
+     * bytes of the root element
+     */
+    protected static function contentWithRootAtWindowEnd(int $bytesOfRoot, string $root = self::SVG): string
+    {
+        return '<!--' . str_repeat('a', 1048576 - 7 - $bytesOfRoot) . '-->' . $root;
+    }
+
+    public static function incompleteStartTagDataProvider(): iterable
+    {
+        yield 'less than' => [1, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'first letter' => [2, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'part of the name' => [3, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'other root element' => [20, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'greater than in an attribute value' => [17, '<html title="a>b" xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+    }
+
+    /**
+     * @test
+     * @dataProvider incompleteStartTagDataProvider
+     */
+    public function getFileLogsWarningIfTheWindowEndsInTheStartTagOfTheRootElement(int $bytesOfRoot, string $root): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', self::contentWithRootAtWindowEnd($bytesOfRoot, $root));
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    public static function svgStartTagAtWindowEndDataProvider(): iterable
+    {
+        // XMLReader reads a margin after the window
+        yield 'less than' => [1];
+        yield 'first letter' => [2];
+        yield 'part of the name' => [3];
+        yield 'name' => [4];
+        yield 'name and space' => [5];
+        yield 'attribute' => [20];
+    }
+
+    /**
+     * @test
+     * @dataProvider svgStartTagAtWindowEndDataProvider
+     */
+    public function getFileSanitizesSvgRootElementAtTheWindowEnd(int $bytesOfRoot): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', self::contentWithRootAtWindowEnd($bytesOfRoot));
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileLogsWarningIfWhitespaceFillsTheWindowAndTheMargin(): void
+    {
+        $this->prepareTargetDirectory();
+        $content = str_repeat("\n", 1048576 + 16384) . self::SVG;
+        file_put_contents($this->sourceDirectory . '/x.xml', $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/x.xml');
+
+        self::assertSame($content, file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileSanitizesSvgRootElementAfterWhitespaceOfTheWholeWindow(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/x.xml', str_repeat("\n", 1048576) . self::SVG);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/x.xml');
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    public static function xhtmlRootAtWindowEndDataProvider(): iterable
+    {
+        yield '300 bytes' => [300];
+        yield 'start tag and part of the script' => [60];
+        yield 'start tag only' => [44];
+    }
+
+    /**
+     * @test
+     * @dataProvider xhtmlRootAtWindowEndDataProvider
+     */
+    public function getFileLogsWarningForXhtmlRootElementAtTheEndOfTheWindow(int $bytesOfRoot): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents(
+            $this->sourceDirectory . '/feed.xml',
+            self::contentWithRootAtWindowEnd($bytesOfRoot, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>')
+        );
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    public static function manyPrologItemsDataProvider(): iterable
+    {
+        yield 'processing instructions' => [str_repeat("<?a?> \n", 300000)];
+        yield 'comments' => [str_repeat('<!---->', 300000)];
+        yield 'document types' => [str_repeat('<!DOCTYPE a>', 200000)];
+    }
+
+    /**
+     * @test
+     * @dataProvider manyPrologItemsDataProvider
+     */
+    public function getFileLogsWarningForAPrologOfManyItems(string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', $content . '<feed/>');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertSame($content . '<feed/>', file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    public static function largeFileWithRootElementDataProvider(): iterable
+    {
+        yield 'large xml' => ['feed.xml', '<?xml version="1.0"?><feed>' . str_repeat('<item>x</item>', 80000) . '</feed>'];
+        yield 'large text' => ['notes.txt', str_repeat('x', 1100000)];
+    }
+
+    /**
+     * @test
+     * @dataProvider largeFileWithRootElementDataProvider
+     */
+    public function getFileDoesNotLogWarningForLargeFilesWithRootElementOrWithoutMarkup(string $fileName, string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertFalse($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileDoesNotLogWarningForPlainXml(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', '<?xml version="1.0"?><feed><title>svg and script</title></feed>');
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertFalse($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
     public static function deniedTargetNameDataProvider(): iterable
     {
         yield 'compressed svg' => ['image.svgz'];
         yield 'compressed svg in upper case' => ['image.SVGZ'];
+        yield 'compressed svg before another extension' => ['image.svgz.txt'];
+        yield 'compressed svg in upper case before another extension' => ['image.SVGZ.jpg'];
         yield 'question mark' => ['evil.svg?x=1'];
         yield 'hash' => ['evil.svg#a'];
     }
@@ -488,7 +1045,7 @@ class GenerateUploadFileTest extends TestCase
         file_put_contents($this->sourceDirectory . '/' . $fileName, (string)gzencode(self::SVG));
 
         try {
-            $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/' . $fileName);
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
             self::fail('No exception thrown');
         } catch (InvalidArgumentException $exception) {
             self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
@@ -508,7 +1065,7 @@ class GenerateUploadFileTest extends TestCase
         GeneralUtility::addInstance(SvgSanitizer::class, $sanitizer);
 
         try {
-            $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], $this->sourceDirectory . '/image.svg');
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.svg');
             self::fail('No exception thrown');
         } catch (\RuntimeException $exception) {
             self::assertSame(1795400298, $exception->getCode());
