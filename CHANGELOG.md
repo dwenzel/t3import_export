@@ -123,8 +123,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   in the record to `[]` for an empty result; the field stays unset; see
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#lookupdb)
   ([#180](https://github.com/dwenzel/t3import_export/issues/180))
-* `LookUpDB` with `keepOrder` does not sort the rows if `groupBy` is set;
-  see [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#lookupdb)
+* `LookUpDB` with `keepOrder` and `groupBy` runs the query without sorting
+  (3.x created invalid SQL); `keepOrder: 0` turns the sorting off; see [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#lookupdb)
   ([#180](https://github.com/dwenzel/t3import_export/issues/180))
 * `DataSourceQueue` and `DataTargetQueue` are adapters on the queue
   components of the core and use the table `tx_t3importexport_queue_item`.
@@ -287,14 +287,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `sourcePath`, the values of a record can only be URLs. A value of a record
   which names a local file or an `EXT:` path itself is refused (exception
   code 1795300101). Configurations which copy local files without
-  `sourcePath` need one, see [Deprecations](Documentation/DEPRECATIONS.md#files)
+  `sourcePath` need one, see [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * `allowedHosts` checks the port: an entry `host` allows only the default
   port of the scheme (80, 443), an entry `host:port` only that port,
   `*.example.org` the subdomains and `*` every host and port. This applies to
   the URL and to the target of every redirect (`Resource\AllowedHosts`,
   `Resource\AllowedHostsClient`). Configurations which load URLs with
   another port need an entry `host:port`, see
-  [Deprecations](Documentation/DEPRECATIONS.md#files)
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * If `sourcePath` of `GenerateFileResource` or `GenerateUploadFile` is a URL,
   the value of a record cannot change its scheme, host, port or user
   information
@@ -304,20 +304,23 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `.htaccess`, `.user.ini`, `web.config`), names that are not valid UTF-8,
   names with `?`, `#`, `:` or control characters and names ending in a dot
   or space are refused
-  (exception code 1795400103). For URLs the target name is the last segment
+  (exception code 1795400103, or 1795300103 for the `fileDenyPattern` and
+  file extension rules). For URLs the target name is the last segment
   of the path, without query and fragment
 * `GenerateFileResource` and `GenerateUploadFile` copy local files through a
   temporary file in the target directory, like URLs; the target file is
   replaced only when the copy is complete
 * `DataTargetCSV` (of the core and the deprecated class of the extension)
   applies the same rules to the name of `file`; e.g. `report#1.csv` or
-  `a?b.csv` are refused (previous exception code 1795400103), see
-  [Deprecations](Documentation/DEPRECATIONS.md#files)
+  `a?b.csv` are refused (`PersistenceException` 1795200702 of the core;
+  the previous exception has the code 1795400103, or 1795300103 for
+  `fileDenyPattern` and file extensions), see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * The finishers `WriteFile` and `MoveFile` apply the same rules to
   `target.name`
 * The options `fileSourceDirectories`, `fileTargetDirectories` and
   `fileTargetExtensions` of 3.3.1 are not read; use `fileDirectories`, see
-  [Deprecations](Documentation/DEPRECATIONS.md#files). If they are set, or if
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files). If they are set, or if
   `allowedHosts` is a string instead of a list, the import and export
   commands show a warning and `TransferService` logs one for each run
 * `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by

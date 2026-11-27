@@ -344,7 +344,7 @@ Breaking changes for code that uses the class:
 
 | Case | 3.x | 4.0 |
 |---|---|---|
-| Invalid task configuration (e.g. a missing class) | error message, exit code 0 | error message, exit code 1 |
+| Invalid task configuration (e.g. a missing class) | no error shown, "Import task successfully processed", exit code 0 | error message, exit code 1 |
 | Empty task identifier | warning, the command went on and returned 2 for the missing configuration | warning, exit code 2 at once |
 | Task not configured | 2 | 2, unchanged |
 
@@ -360,11 +360,14 @@ other than 0 as a failure.
   Components after `LookUpDB` that expect the field must accept a missing
   field, or set a scalar default afterwards with the rule `default` of
   `ValueRulesPreProcessor` of the core.
-* With `keepOrder`, the rows are no longer sorted if `groupBy` is set. Before,
-  the MySQL-specific `ORDER BY FIELD()` was added to the WHERE clause, which
-  failed on other databases and with AND/OR constraints. Set `orderBy` if the grouped rows need an order, or
-  remove `groupBy` to keep the order of the values. See
-  [LookUpDB](./Components/PreProcessors/LOOK_UP_DB.md).
+* With `keepOrder` and `groupBy`, 3.x created invalid SQL: the
+  MySQL-specific `ORDER BY FIELD()` was appended to the WHERE clause,
+  followed by `GROUP BY`. 4.0 runs the query without sorting. Set `orderBy`
+  if the grouped rows need an order.
+* `keepOrder: 0` now turns the sorting off. 3.x sorted whenever `keepOrder`
+  was set (`isset`), also with `0`; 4.0 sorts only for a non-empty value.
+  Remove `keepOrder: 0` or set `keepOrder: 1` if the rows were sorted
+  before. See [LookUpDB](./Components/PreProcessors/LOOK_UP_DB.md).
 
 ## Deprecated in 4.0
 
