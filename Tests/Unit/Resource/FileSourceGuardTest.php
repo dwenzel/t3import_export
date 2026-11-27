@@ -52,7 +52,7 @@ class FileSourceGuardTest extends TestCase
     {
         self::assertSame(
             $this->directory . '/image.jpg',
-            $this->subject()->resolveFile($this->directory . '/image.jpg')
+            $this->subject()->resolveFile($this->directory . '/image.jpg', $this->directory . '/')
         );
     }
 
@@ -63,7 +63,7 @@ class FileSourceGuardTest extends TestCase
     {
         self::assertSame(
             Environment::getPublicPath() . '/fileadmin/import/image.jpg',
-            (new FileSourceGuard())->resolveFile('fileadmin/import/image.jpg')
+            (new FileSourceGuard())->resolveFile('fileadmin/import/image.jpg', 'fileadmin/import/')
         );
     }
 
@@ -74,7 +74,7 @@ class FileSourceGuardTest extends TestCase
     {
         self::assertSame(
             Environment::getVarPath() . '/import/image.jpg',
-            (new FileSourceGuard())->resolveFile(Environment::getVarPath() . '/import/image.jpg')
+            (new FileSourceGuard())->resolveFile(Environment::getVarPath() . '/import/image.jpg', Environment::getVarPath() . '/import/')
         );
     }
 
@@ -87,32 +87,32 @@ class FileSourceGuardTest extends TestCase
 
         self::assertSame(
             $this->outsideDirectory . '/secret.txt',
-            (new FileSourceGuard())->resolveFile($this->outsideDirectory . '/secret.txt')
+            (new FileSourceGuard())->resolveFile($this->outsideDirectory . '/secret.txt', $this->outsideDirectory . '/')
         );
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
-        (new FileSourceGuard())->resolveFile('fileadmin/import/image.jpg');
+        (new FileSourceGuard())->resolveFile('fileadmin/import/image.jpg', 'fileadmin/import/');
     }
 
     public static function fileOutsideOfAllowedDirectoriesDataProvider(): iterable
     {
-        yield 'system file' => ['/etc/passwd'];
-        yield 'project file' => [Environment::getProjectPath() . '/composer.json'];
-        yield 'var directory' => [Environment::getVarPath() . '/log/typo3.log'];
-        yield 'relative path outside of fileadmin' => ['typo3conf/system/settings.php'];
-        yield 'scheme relative path' => ['//data.example.org/image.jpg'];
+        yield 'system file' => ['/etc/passwd', '/etc/'];
+        yield 'project file' => [Environment::getProjectPath() . '/composer.json', Environment::getProjectPath() . '/'];
+        yield 'var directory' => [Environment::getVarPath() . '/log/typo3.log', Environment::getVarPath() . '/'];
+        yield 'relative path outside of fileadmin' => ['typo3conf/system/settings.php', 'typo3conf/'];
+        yield 'scheme relative path' => ['//data.example.org/image.jpg', '//data.example.org/'];
     }
 
     /**
      * @test
      * @dataProvider fileOutsideOfAllowedDirectoriesDataProvider
      */
-    public function resolveFileRejectsFileOutsideOfAllowedDirectories(string $path): void
+    public function resolveFileRejectsFileOutsideOfAllowedDirectories(string $path, string $sourcePath): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
 
-        (new FileSourceGuard())->resolveFile($path);
+        (new FileSourceGuard())->resolveFile($path, $sourcePath);
     }
 
     /**
@@ -123,7 +123,7 @@ class FileSourceGuardTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
 
-        $this->subject()->resolveFile($this->outsideDirectory . '/secret.txt');
+        $this->subject()->resolveFile($this->outsideDirectory . '/secret.txt', $this->outsideDirectory . '/');
     }
 
     /**
@@ -137,7 +137,7 @@ class FileSourceGuardTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
 
-        $this->subject()->resolveFile($this->directory . '/link.txt');
+        $this->subject()->resolveFile($this->directory . '/link.txt', $this->directory . '/');
     }
 
     /**
@@ -152,7 +152,7 @@ class FileSourceGuardTest extends TestCase
 
         self::assertSame(
             realpath($this->directory) . '/image.jpg',
-            (new FileSourceGuard([$link], []))->resolveFile($link . '/image.jpg')
+            (new FileSourceGuard([$link], []))->resolveFile($link . '/image.jpg', $link . '/')
         );
     }
 
@@ -285,15 +285,14 @@ class FileSourceGuardTest extends TestCase
     /**
      * @test
      */
-    public function resolveFileRejectsSourceDirectoryOutsideOfExtension(): void
+    public function resolveFileUsesExistingDirectoryOfExtensionSourcePathWithoutTrailingSlash(): void
     {
         $this->mockExtension();
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
-        $this->expectExceptionMessage('the source directory must be inside the extension');
 
-        // without trailing slash: the directory is the parent of the extension
-        (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/Import/a.csv', 'EXT:my_ext');
+        self::assertSame(
+            realpath($this->directory) . '/Import/a.csv',
+            (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/Import/a.csv', 'EXT:my_ext')
+        );
     }
 
     /**
@@ -325,6 +324,127 @@ class FileSourceGuardTest extends TestCase
         $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
 
         (new FileSourceGuard([], []))->resolveFile('EXT:my_ext/Link/a.csv', 'EXT:my_ext/Link/');
+    }
+
+    /**
+     * `$this->directory` with the files `image.jpg`, `Import/a.csv`,
+     * `Import/prefix_a.csv` and `Importer/b.csv`
+     */
+    protected function createSourceFiles(): void
+    {
+        GeneralUtility::mkdir_deep($this->directory . '/Import');
+        GeneralUtility::mkdir_deep($this->directory . '/Importer');
+        file_put_contents($this->directory . '/Import/a.csv', 'a');
+        file_put_contents($this->directory . '/Import/prefix_a.csv', 'a');
+        file_put_contents($this->directory . '/Importer/b.csv', 'b');
+    }
+
+    public static function missingSourcePathDataProvider(): iterable
+    {
+        yield 'no source path' => [null];
+        yield 'empty source path' => [''];
+        yield 'URL source path' => ['https://data.example.org/'];
+    }
+
+    /**
+     * @test
+     * @dataProvider missingSourcePathDataProvider
+     */
+    public function resolveFileRejectsLocalFileWithoutLocalSourcePath(?string $sourcePath): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_PATH_NOT_ALLOWED);
+
+        $this->subject()->resolveFile($this->directory . '/image.jpg', $sourcePath);
+    }
+
+    /**
+     * @test
+     */
+    public function resolveFileRejectsPathWhichDoesNotStartWithSourcePath(): void
+    {
+        $this->createSourceFiles();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_PATH_NOT_ALLOWED);
+
+        $this->subject()->resolveFile($this->directory . '/image.jpg', $this->directory . '/Import/');
+    }
+
+    public static function localSourceFileDataProvider(): iterable
+    {
+        yield 'directory with trailing slash' => ['/Import/', 'a.csv', '/Import/a.csv'];
+        yield 'existing directory without trailing slash' => ['/Import', '/a.csv', '/Import/a.csv'];
+        yield 'prefix of file name' => ['/Import/prefix_', 'a.csv', '/Import/prefix_a.csv'];
+        yield 'subdirectory' => ['/', 'Import/a.csv', '/Import/a.csv'];
+    }
+
+    /**
+     * @test
+     * @dataProvider localSourceFileDataProvider
+     */
+    public function resolveFileAcceptsFileBelowLocalSourcePath(string $sourcePath, string $value, string $expected): void
+    {
+        $this->createSourceFiles();
+        $guard = $this->subject();
+        $sourcePath = $this->directory . $sourcePath;
+
+        self::assertSame(
+            realpath($this->directory) . $expected,
+            $guard->resolveFile($guard->buildLocation($sourcePath, $value), $sourcePath)
+        );
+    }
+
+    public static function fileOutsideOfLocalSourcePathDataProvider(): iterable
+    {
+        yield 'sibling of existing directory without trailing slash' => ['/Import', 'er/b.csv'];
+        yield 'file next to existing directory without trailing slash' => ['/Import', '.csv'];
+    }
+
+    /**
+     * @test
+     * @dataProvider fileOutsideOfLocalSourcePathDataProvider
+     */
+    public function resolveFileRejectsFileOutsideOfLocalSourceDirectory(string $sourcePath, string $value): void
+    {
+        $this->createSourceFiles();
+        file_put_contents($this->directory . '/Import.csv', 'c');
+        $guard = $this->subject();
+        $sourcePath = $this->directory . $sourcePath;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $guard->resolveFile($guard->buildLocation($sourcePath, $value), $sourcePath);
+    }
+
+    /**
+     * @test
+     */
+    public function resolveFileUsesParentDirectoryOfFileNamePrefixAsBound(): void
+    {
+        $this->createSourceFiles();
+        if (!@symlink($this->directory . '/image.jpg', $this->directory . '/Import/prefix_link.jpg')) {
+            self::markTestSkipped('Symbolic links cannot be created.');
+        }
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        // the bound of "Import/prefix_" is "Import/", the link leads to its parent
+        $this->subject()->resolveFile($this->directory . '/Import/prefix_link.jpg', $this->directory . '/Import/prefix_');
+    }
+
+    /**
+     * @test
+     */
+    public function resolveFileRejectsSymbolicLinkLeadingOutOfLocalSourceDirectory(): void
+    {
+        $this->createSourceFiles();
+        if (!@symlink($this->directory . '/image.jpg', $this->directory . '/Import/link.jpg')) {
+            self::markTestSkipped('Symbolic links cannot be created.');
+        }
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED);
+
+        $this->subject()->resolveFile($this->directory . '/Import/link.jpg', $this->directory . '/Import/');
     }
 
     public static function allowedUrlDataProvider(): iterable

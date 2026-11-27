@@ -37,7 +37,8 @@ trait MockFileStructureTrait
         file_put_contents($sourceFilePath, $sourceFileContent);
         $targetDirectory = 'targetDir';
         $configuration = [
-            'targetDirectoryPath' => $targetDirectory
+            'targetDirectoryPath' => $targetDirectory,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
 
         $fileStructure = [
