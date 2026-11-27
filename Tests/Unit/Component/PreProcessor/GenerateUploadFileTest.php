@@ -328,6 +328,182 @@ class GenerateUploadFileTest extends TestCase
         $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/' . $fileName);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function activeContentFileNameDataProvider(): iterable
+    {
+        yield 'html' => ['page.html'];
+        yield 'htm' => ['page.htm'];
+        yield 'xhtml' => ['page.xhtml'];
+        yield 'xht' => ['page.xht'];
+        yield 'js' => ['script.js'];
+        yield 'mjs' => ['module.mjs'];
+        yield 'upper case' => ['PAGE.HTML'];
+        yield 'double extension' => ['image.jpg.html'];
+        yield 'shtm' => ['page.shtm'];
+        yield 'html before another extension' => ['page.html.zzz'];
+        yield 'html before a backup extension' => ['page.html.bak'];
+        yield 'html before a number' => ['page.html.1'];
+        yield 'js before another extension' => ['script.js.zzz'];
+        yield 'html before a language extension' => ['page.html.youtube'];
+        yield 'html before an archive extension' => ['report.html.zip'];
+    }
+
+    #[Test]
+    #[DataProvider('activeContentFileNameDataProvider')]
+    public function getFileRejectsActiveContentTargetsByDefault(string $fileName): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+            Environment::getVarPath() . '/import/tests/' . $fileName
+        );
+    }
+
+    #[Test]
+    public function getFileRejectsActiveContentTargetOfAUrl(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/page.html?x=1');
+    }
+
+    #[Test]
+    #[DataProvider('activeContentFileNameDataProvider')]
+    public function getFileAllowsActiveContentTargetsIfConfigured(string $fileName): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+
+        try {
+            // the source does not exist: no exception, nothing copied
+            $result = $this->createSubjectWithFileRules()->getFile(
+                ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+                Environment::getVarPath() . '/import/tests/' . $fileName
+            );
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function getFileAllowsActiveContentTargetsOnlyWithTrue(): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = 'yes';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        try {
+            $this->createSubjectWithFileRules()->getFile(
+                ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+                Environment::getVarPath() . '/import/tests/page.html'
+            );
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function fileNameWithoutUsableExtensionDataProvider(): iterable
+    {
+        yield 'no extension' => ['image'];
+        yield 'encoded dot' => ['page%2ehtml'];
+        yield 'parameter' => ['image.jpg;a=b'];
+        yield 'hyphen' => ['image.jp-g'];
+        yield 'underscore' => ['image.jp_g'];
+        yield 'non-ASCII' => ['image.jpgä'];
+    }
+
+    #[Test]
+    #[DataProvider('fileNameWithoutUsableExtensionDataProvider')]
+    public function getFileRejectsTargetsWithoutUsableFileExtension(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+            Environment::getVarPath() . '/import/tests/' . $fileName
+        );
+    }
+
+    #[Test]
+    public function getFileAllowsTargetsWithOtherExtensions(): void
+    {
+        foreach (['image.zzz', 'archive.tar.gz', 'image.JPG', 'document.pdf', 'track.mp3'] as $fileName) {
+            self::assertSame('', $this->createSubjectWithFileRules()->getFile(
+                ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+                Environment::getVarPath() . '/import/tests/' . $fileName
+            ), $fileName);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function xmlWithActiveContentDataProvider(): iterable
+    {
+        yield 'xhtml element' => ['<?xml version="1.0"?><feed><content><div xmlns="http://www.w3.org/1999/xhtml"><p>text</p></div></content></feed>'];
+        yield 'svg element' => ['<?xml version="1.0"?><rss version="2.0"><channel>' . self::SVG . '</channel></rss>'];
+        yield 'prefixed xhtml element' => ['<feed xmlns:h="http://www.w3.org/1999/xhtml"><h:script>alert(1)</h:script></feed>'];
+        yield 'xml-stylesheet' => ['<?xml version="1.0"?><?xml-stylesheet type="text/xsl" href="a.xsl"?><feed/>'];
+    }
+
+    #[Test]
+    #[DataProvider('xmlWithActiveContentDataProvider')]
+    public function getFileWarnsAboutXmlWithActiveContent(string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        self::assertSame('fileadmin/target/feed.xml', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml'));
+        self::assertSame($content, file_get_contents(vfsStream::url('root/target/feed.xml')));
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileDoesNotWarnAboutXmlWithoutActiveContent(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => '<?xml version="1.0"?><rss version="2.0"><channel><title>News</title></channel></rss>']);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileDoesNotWarnAboutSanitizedSvg(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileAllowsXmlTargets(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
+
+        self::assertSame('', $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+            Environment::getVarPath() . '/import/tests/feed.xml'
+        ));
+    }
+
     #[Test]
     public function getFileTakesTheTargetFileNameOfAUrlFromItsPath(): void
     {
@@ -716,6 +892,206 @@ class GenerateUploadFileTest extends TestCase
         self::assertSame($content, file_get_contents(vfsStream::url('root/target/news.csv')));
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function svgExtensionInAnyPositionDataProvider(): iterable
+    {
+        yield 'svg before another extension' => ['image.svg.zzz'];
+        yield 'svg in upper case before a number' => ['image.SVG.1'];
+    }
+
+    #[Test]
+    #[DataProvider('svgExtensionInAnyPositionDataProvider')]
+    public function getFileSanitizesFilesWithSvgExtensionInAnyPosition(string $fileName): void
+    {
+        // the root element is not within the first megabyte
+        $content = '<!--' . str_repeat(' comment', 140000) . ' -->' . self::SVG;
+        $subject = $this->createSubjectCopyingFiles([$fileName => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/' . $fileName);
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/' . $fileName)));
+    }
+
+    /**
+     * Content whose first megabyte ends after `$tail`, the start of an SVG
+     * root element after a long comment. The start tag is longer than the
+     * lookahead of XMLReader.
+     */
+    protected static function contentWithRootAtTheEndOfTheWindow(string $tail): string
+    {
+        $body = '<svg xmlns="http://www.w3.org/2000/svg" data-pad="' . str_repeat('x', 10000) . '"><script>alert(1)</script></svg>';
+        self::assertStringStartsWith($tail, $body);
+
+        return '<!--' . str_repeat('a', 1048576 - 7 - \strlen($tail)) . '-->' . $body;
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function svgStartTagAtTheEndOfTheWindowDataProvider(): iterable
+    {
+        yield 'svg' => ['<svg'];
+        yield 'svg and space' => ['<svg '];
+    }
+
+    #[Test]
+    #[DataProvider('svgStartTagAtTheEndOfTheWindowDataProvider')]
+    public function getFileSanitizesSvgWhoseStartTagEndsTheWindow(string $tail): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => self::contentWithRootAtTheEndOfTheWindow($tail)]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/feed.xml')));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function incompleteStartTagAtTheEndOfTheWindowDataProvider(): iterable
+    {
+        yield 'less-than sign' => ['<'];
+        yield 'first letter' => ['<s'];
+        yield 'two letters' => ['<sv'];
+    }
+
+    #[Test]
+    #[DataProvider('incompleteStartTagAtTheEndOfTheWindowDataProvider')]
+    public function getFileWarnsIfTheWindowEndsInTheRootStartTag(string $tail): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => self::contentWithRootAtTheEndOfTheWindow($tail)]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function prologFillsTheWindowDataProvider(): iterable
+    {
+        yield 'long comment' => ['<!--' . str_repeat('a', 1100000) . '-->' . self::SVG];
+        yield 'long document type' => ['<!DOCTYPE feed [' . str_repeat(' ', 1100000) . ']><feed/>'];
+        yield 'many processing instructions' => [str_repeat("<?a?>\n", 1001) . '<feed/>' . str_repeat(' ', 1048576)];
+    }
+
+    #[Test]
+    #[DataProvider('prologFillsTheWindowDataProvider')]
+    public function getFileWarnsIfThePrologFillsTheWindow(string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileSanitizesSvgRootAfterWhitespaceWithinTheLookahead(): void
+    {
+        $content = str_repeat("\n", 1048576) . self::SVG;
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/x.xml')));
+    }
+
+    #[Test]
+    public function getFileWarnsIfWhitespaceFillsTheWindow(): void
+    {
+        // also longer than the lookahead of XMLReader
+        $content = str_repeat("\n", 1048576 + 10000) . self::SVG;
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileWarnsAboutScriptAtTheEndOfTheWindow(): void
+    {
+        // the root element is in no namespace; the script element in the last 300 bytes of the window is
+        $start = '<?xml version="1.0"?><feed><entry>';
+        $script = '<script xmlns="http://www.w3.org/1999/xhtml">alert(1)</script>';
+        $content = $start . str_repeat('a', 1048576 - 300 - \strlen($start)) . $script . str_repeat('b', 20000) . '</entry></feed>';
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileWarnsAboutXhtmlRootWithScriptAtTheEndOfTheWindow(): void
+    {
+        $start = '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>';
+        $content = $start . str_repeat('a', 1048576 - 300 - \strlen($start)) . '</p><script>alert(1)</script>' . str_repeat('b', 20000) . '</body></html>';
+        $subject = $this->createSubjectCopyingFiles(['x.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/x.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileWarnsIfTheRootStartTagWithQuotedGreaterThanSignEndsTheWindow(): void
+    {
+        $tag = '<feed title="a>b" ';
+        $content = '<!--' . str_repeat('a', 1048576 - 7 - \strlen($tag)) . '-->' . $tag . '/>';
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileDoesNotWarnAboutALargeFileWithCompleteRootStartTag(): void
+    {
+        $content = '<?xml version="1.0"?><feed><title>News</title>' . str_repeat('<entry>text</entry>', 70000) . '</feed>';
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
+     * @return \Closure(string): ?bool
+     */
+    protected static function svgRootScan(): \Closure
+    {
+        return \Closure::bind(
+            static fn(string $content): ?bool => self::hasSvgRootElement($content),
+            null,
+            GenerateUploadFile::class
+        );
+    }
+
+    #[Test]
+    public function rootScanFindsSvgAfterPrologItems(): void
+    {
+        self::assertTrue((self::svgRootScan())(str_repeat("<?a?> \n<!-- c -->\n", 499) . self::SVG));
+    }
+
+    #[Test]
+    public function rootScanTreatsTheRootAsUnknownAfterTooManyPrologItems(): void
+    {
+        self::assertTrue((self::svgRootScan())(str_repeat("<?a?> \n", 1000) . self::SVG));
+        self::assertNull((self::svgRootScan())(str_repeat("<?a?> \n", 1001) . self::SVG));
+    }
+
+    #[Test]
+    public function rootScanTreatsADocumentTypeWithInternalSubsetAsUnknown(): void
+    {
+        self::assertNull((self::svgRootScan())('<!DOCTYPE svg [<!ENTITY a "b">]>' . self::SVG));
+    }
+
     #[Test]
     public function getFileSanitizesSvgOfUrl(): void
     {
@@ -753,6 +1129,8 @@ class GenerateUploadFileTest extends TestCase
     {
         yield 'svgz' => ['image.svgz'];
         yield 'svgz in upper case' => ['image.SVGZ'];
+        yield 'svgz before another extension' => ['image.svgz.zzz'];
+        yield 'svgz in upper case before a number' => ['image.SVGZ.1'];
     }
 
     #[Test]

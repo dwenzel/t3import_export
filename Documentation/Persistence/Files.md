@@ -236,16 +236,53 @@ local file or URL into a temporary file in the target directory
 complete. If the source cannot be read or the file cannot be written, the
 target file is not changed.
 
-SVG files (by file extension, or content whose root element is `svg`) are
-sanitized with the SVG sanitizer of TYPO3 before they replace the target
+SVG files (by the file extension `svg` in any position of the name, e.g.
+`image.svg.1`, or content whose root element is `svg`) are sanitized with the SVG sanitizer of TYPO3 before they replace the target
 file; the detection is a best effort, see
 [GenerateFileResource](../Components/PreProcessors/GENERATE_FILE.md#target-files).
 If the sanitizer leaves an empty file, a warning is logged (1795300502).
-Compressed SVG files (`.svgz`) are refused (code 1795400103). HTML, XHTML and
-XML files with another root element are not sanitized, also if they contain
-an inline `svg` element. Such targets can contain scripts that a browser
-runs when the file is served from a public directory, so copy HTML, XHTML and
-XML files only from trusted sources.
+Compressed SVG files (`svgz` in any position of the name, e.g.
+`image.svgz.zzz`) are refused (code 1795400103).
+
+`GenerateFileResource` and `GenerateUploadFile` refuse target names (code
+1795400103)
+
+* without a last file extension of letters and digits, e.g. `image`,
+  `page%2ehtml` or `image.jpg;a=b`, since a browser may guess the type of
+  such files,
+* with one of the file extensions `html`, `htm`, `xhtml`, `xht`, `shtml`,
+  `shtm`, `js` and `mjs` in any position, without case, like the
+  `fileDenyPattern` of TYPO3 does for PHP: `page.html`, `image.jpg.html`,
+  `page.html.bak`, `script.js.1`. Web servers such as Apache (`mod_mime`) may
+  use each extension of a name to choose the type. Archives such as
+  `report.html.zip` are refused as well.
+
+To write files with these extensions, e.g. from trusted sources, allow them
+explicitly:
+
+```php
+// config/system/additional.php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+```
+
+Only `true` allows them; the commands show a warning for other values. The
+setting applies to `GenerateFileResource` and `GenerateUploadFile`; it does
+not change the rules of other components. Consider enabling the TYPO3
+feature `security.system.enforceAllowedFileExtensions`, which limits all
+written files to `textfile_ext`, `mediafile_ext` and `miscfile_ext`.
+
+Limits: the content of HTML, XHTML and XML files (and of other files whose
+root element is not `svg`) is not sanitized, also if it contains an inline
+`svg` element. XML files are written; an XML document with an element in the
+XHTML or SVG namespace or an `xml-stylesheet` processing instruction (within
+the first megabyte) is logged as warning (1795300503), since a browser may
+run scripts in it when the file is served from a public directory. The same
+warning is logged if the root element does not start within the first
+megabyte (e.g. after a long comment, document type or whitespace, or more
+than 1000 items before it) or the first megabyte ends inside its start tag,
+so the content is not checked. The XML reader reads 8 KB more than the first
+megabyte, so that it can report the elements that end within it. Allow such files only from trusted
+sources.
 
 ## Large files
 

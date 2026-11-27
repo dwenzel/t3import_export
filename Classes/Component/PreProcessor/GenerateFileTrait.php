@@ -53,6 +53,48 @@ trait GenerateFileTrait
      */
     public const int WARNING_SVG_EMPTY = 1_795_300_502;
 
+    /**
+     * Message ID of the warning that an XML file contains XHTML or SVG
+     * elements or an `xml-stylesheet` processing instruction
+     */
+    public const int WARNING_ACTIVE_XML = 1_795_300_503;
+
+    /**
+     * File extensions of active content, which is not written unless
+     * `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
+     * is `true`. They are refused in any position of the name, like the
+     * fileDenyPattern of TYPO3 (`page.html.bak`), since web servers may use
+     * each extension of a name.
+     */
+    public const array ACTIVE_CONTENT_EXTENSIONS = ['html', 'htm', 'xhtml', 'xht', 'js', 'mjs', 'shtml', 'shtm'];
+
+    /**
+     * SVG and compressed SVG files, by a file extension in any position
+     */
+    private const string SVG_PATTERN = '/\.svg(?:\..*)?$/i';
+
+    private const string SVGZ_PATTERN = '/\.svgz(?:\..*)?$/i';
+
+    /**
+     * Maximum number of items before the root element (processing
+     * instructions, comments, document type) that the root element scan
+     * reads; with more, the root element is unknown
+     */
+    private const int MAX_PROLOG_ITEMS = 1000;
+
+    /**
+     * Size of the checked window at the start of a file
+     */
+    private const int CHECKED_WINDOW = 1048576;
+
+    /**
+     * Bytes after the window that XMLReader reads, so that it can report the
+     * nodes which end within the window
+     */
+    private const int XML_READER_LOOKAHEAD = 8192;
+
+    private const string ACTIVE_CONTENT_PATTERN = '/\.(?:html?|xht(?:ml)?|m?js|shtml?)(?:\..*)?$/i';
+
     protected FilePathFactory $filePathFactory;
 
     /**
@@ -190,6 +232,8 @@ trait GenerateFileTrait
             }
             if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
                 $this->sanitizeSvgFile($temporaryPath, $absoluteTargetPath);
+            } else {
+                $this->checkXmlContent($temporaryPath, $absoluteTargetPath);
             }
             $renamed = @rename($temporaryPath, $absoluteTargetPath);
 
@@ -224,7 +268,8 @@ trait GenerateFileTrait
     }
 
     /**
-     * Whether a file is sanitized as SVG: the file extension is svg, or the
+     * Whether a file is sanitized as SVG: the name has the file extension svg
+     * in any position (e.g. `image.svg.1`), or the
      * root element of the content is an `svg` element (also with a namespace
      * prefix): the first element after a byte order mark, whitespace, the XML
      * declaration, processing instructions, comments and the document type,
@@ -238,17 +283,173 @@ trait GenerateFileTrait
      */
     protected function isSvgFile(string $targetPath, string $contentPath): bool
     {
-        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svg') {
+        if (preg_match(self::SVG_PATTERN, PathUtility::basename($targetPath)) === 1) {
             return true;
         }
-        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        $content = @file_get_contents($contentPath, false, null, 0, self::CHECKED_WINDOW + self::XML_READER_LOOKAHEAD);
         if (!\is_string($content)) {
             return false;
         }
+        $window = substr($content, 0, self::CHECKED_WINDOW);
 
         return self::readRootElementIsSvg($content)
-            ?? self::hasSvgRootElement($content)
-            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+            ?? self::hasSvgRootElement($window)
+            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($window) === 'image/svg+xml';
+    }
+
+    /**
+     * Logs a warning if XML content (within the first megabyte) contains
+     * elements of the XHTML or SVG namespace or an xml-stylesheet processing
+     * instruction. Such content is written unchanged; browsers can run
+     * scripts in it.
+     */
+    protected function checkXmlContent(string $contentPath, string $targetPath): void
+    {
+        $content = @file_get_contents($contentPath, false, null, 0, self::CHECKED_WINDOW + self::XML_READER_LOOKAHEAD);
+        if (!\is_string($content)) {
+            return;
+        }
+        $window = substr($content, 0, self::CHECKED_WINDOW);
+        if (\strlen($window) >= self::CHECKED_WINDOW && self::isRootElementBeyondWindow($window)) {
+            $this->logMessage(
+                'XML file not checked',
+                \sprintf(
+                    'The first megabyte of "%s" contains no root element (e.g. a long comment or document type); its content is not checked and not sanitized.',
+                    basename($targetPath)
+                ),
+                Message::SEVERITY_WARNING,
+                self::WARNING_ACTIVE_XML
+            );
+
+            return;
+        }
+        if (!self::hasXmlActiveContent($content)) {
+            return;
+        }
+        $this->logMessage(
+            'XML file with active content',
+            \sprintf(
+                'The file "%s" contains XHTML or SVG elements or an xml-stylesheet processing instruction; it is not sanitized.',
+                basename($targetPath)
+            ),
+            Message::SEVERITY_WARNING,
+            self::WARNING_ACTIVE_XML
+        );
+    }
+
+    /**
+     * Whether the root element of markup content does not start within the
+     * checked window: the window holds only the prolog (byte order mark,
+     * whitespace, XML declaration, processing instructions, comments and the
+     * document type, at most `MAX_PROLOG_ITEMS` items), or it ends inside the
+     * start tag of the root element, e.g. after a long comment.
+     */
+    private static function isRootElementBeyondWindow(string $content): bool
+    {
+        $start = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
+        $start += strspn($content, " \t\n\r\0\x0B", $start);
+        if ($start >= \strlen($content)) {
+            // only a byte order mark and whitespace
+            return true;
+        }
+        if ($content[$start] !== '<') {
+            return false;
+        }
+        $offset = self::skipProlog($content, true);
+        if ($offset === null || $offset >= \strlen($content)) {
+            return true;
+        }
+
+        // a complete start tag of the root element (attribute values may
+        // contain ">"); an error of preg_match() (false) counts as incomplete,
+        // so the check fails safe
+        return preg_match(
+            '/\G<[^\s>\/]++(?:\s++[^\s=>\/]++(?:\s*+=\s*+(?:"[^"]*+"|\'[^\']*+\'|[^\s"\'>]++))?)*+\s*+\/?>/',
+            $content,
+            $matches,
+            0,
+            $offset
+        ) !== 1;
+    }
+
+    /**
+     * Skips the prolog of markup content: byte order mark, whitespace, XML
+     * declaration, processing instructions, comments and the document type.
+     * Scans with an offset, without copies of the content.
+     *
+     * @param bool $allowInternalSubset whether a document type may have an internal subset
+     * @return int|null offset of the first character after the prolog; null
+     *                  if an item does not end within the content, a document
+     *                  type is not allowed or there are more than
+     *                  `MAX_PROLOG_ITEMS` items
+     */
+    private static function skipProlog(string $content, bool $allowInternalSubset): ?int
+    {
+        $whitespace = " \t\n\r\0\x0B";
+        $length = \strlen($content);
+        $offset = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
+        $offset += strspn($content, $whitespace, $offset);
+        $items = 0;
+        while ($offset < $length) {
+            if (substr_compare($content, '<?', $offset, 2) === 0) {
+                $end = strpos($content, '?>', $offset + 2);
+                $end = $end === false ? false : $end + 2;
+            } elseif (substr_compare($content, '<!--', $offset, 4) === 0) {
+                $end = strpos($content, '-->', $offset + 4);
+                $end = $end === false ? false : $end + 3;
+            } elseif (substr_compare($content, '<!DOCTYPE', $offset, 9, true) === 0) {
+                $pattern = $allowInternalSubset
+                    ? '/\G<!DOCTYPE[^\[>]*+(?:\[[^\]]*+\]\s*+)?>/i'
+                    : '/\G<!DOCTYPE[^\[>]*+>/i';
+                $end = preg_match($pattern, $content, $matches, 0, $offset) === 1 ? $offset + \strlen($matches[0]) : false;
+            } else {
+                return $offset;
+            }
+            if ($end === false || ++$items > self::MAX_PROLOG_ITEMS) {
+                return null;
+            }
+            $offset = $end + strspn($content, $whitespace, $end);
+        }
+
+        return $offset;
+    }
+
+    /**
+     * Read with XMLReader: no network access, no DTD loading, no entity
+     * substitution. Content which is no XML has no XML active content.
+     */
+    private static function hasXmlActiveContent(string $content): bool
+    {
+        $previous = libxml_use_internal_errors(true);
+        $reader = null;
+        try {
+            $reader = \XMLReader::XML($content, null, LIBXML_NONET);
+            if (!$reader instanceof \XMLReader) {
+                return false;
+            }
+            while ($reader->read()) {
+                if (
+                    $reader->nodeType === \XMLReader::PI
+                    && strtolower($reader->name) === 'xml-stylesheet'
+                ) {
+                    return true;
+                }
+                if (
+                    $reader->nodeType === \XMLReader::ELEMENT
+                    && \in_array($reader->namespaceURI, ['http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg'], true)
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (\Throwable) {
+            return false;
+        } finally {
+            $reader?->close();
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
     }
 
     /**
@@ -292,34 +493,13 @@ trait GenerateFileTrait
      */
     private static function hasSvgRootElement(string $content): ?bool
     {
-        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
-        while ($markup !== '') {
-            if (str_starts_with($markup, '<?')) {
-                $end = strpos($markup, '?>');
-                $length = 2;
-            } elseif (str_starts_with($markup, '<!--')) {
-                $end = strpos($markup, '-->', 4);
-                $length = 3;
-            } elseif (preg_match('/^<!DOCTYPE/i', $markup) === 1) {
-                if (preg_match('/^<!DOCTYPE[^\[>]*>/i', $markup, $matches) !== 1) {
-                    return null;
-                }
-                $end = \strlen($matches[0]);
-                $length = 0;
-            } else {
-                break;
-            }
-            if ($end === false) {
-                return null;
-            }
-            $markup = ltrim(substr($markup, $end + $length));
-        }
-
-        if (preg_match('/^<[a-z_]/i', $markup) !== 1) {
+        $offset = self::skipProlog($content, false);
+        if ($offset === null || preg_match('/\G<[a-z_]/i', $content, $matches, 0, $offset) !== 1) {
             return null;
         }
 
-        return preg_match('/^<(?:[a-z0-9_.-]+:)?svg[\s>\/]/i', $markup) === 1;
+        // the start tag may end with the checked window
+        return preg_match('/\G<(?:[a-z0-9_.-]+:)?svg(?:[\s>\/]|$)/i', $content, $matches, 0, $offset) === 1;
     }
 
     /**
@@ -363,7 +543,10 @@ trait GenerateFileTrait
     /**
      * The file name must be allowed for written files (see
      * `Typo3PathResolver::assertTargetFileName()`); compressed SVG files
-     * (`svgz`), which cannot be sanitized, are refused.
+     * (`svgz` in any position of the name), which cannot be sanitized, are
+     * refused, and active content (`ACTIVE_CONTENT_EXTENSIONS`, in any
+     * position of the name) unless `allowActiveContentTargets` is configured. The last file extension
+     * must consist of letters and digits.
      *
      * @return string absolute path in the storage, '' if it cannot be resolved
      * @throws InvalidArgumentException if the file name is not allowed
@@ -374,9 +557,30 @@ trait GenerateFileTrait
         // the name is checked also if the path cannot be resolved, e.g. a
         // storage outside of the project, so that no check is skipped
         $this->getResourceAccess()->assertTargetFileAllowed($absolutePath !== '' ? $absolutePath : $targetPath);
-        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svgz') {
+        $fileName = PathUtility::basename($targetPath);
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        if (preg_match('/^[a-z0-9]+$/', $extension) !== 1) {
+            throw new InvalidArgumentException(
+                \sprintf('The path "%s" is not allowed: written files need a file extension of letters and digits.', $targetPath),
+                Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
+            );
+        }
+        if (preg_match(self::SVGZ_PATTERN, $fileName) === 1) {
             throw new InvalidArgumentException(
                 \sprintf('The path "%s" is not allowed: compressed SVG files (svgz) are not written.', $targetPath),
+                Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
+            );
+        }
+        if (
+            preg_match(self::ACTIVE_CONTENT_PATTERN, $fileName) === 1
+            && ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] ?? false) !== true
+        ) {
+            throw new InvalidArgumentException(
+                \sprintf(
+                    'The path "%s" is not allowed: files of the types %s are only written if $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'allowActiveContentTargets\'] is true.',
+                    $targetPath,
+                    implode(', ', self::ACTIVE_CONTENT_EXTENSIONS)
+                ),
                 Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
             );
         }

@@ -93,12 +93,35 @@ class FileOptionsCheckTest extends TestCase
         self::assertStringContainsString("['allowedHosts']", $messages[0]);
     }
 
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonBooleanDataProvider(): iterable
+    {
+        yield 'string' => ['1'];
+        yield 'integer' => [1];
+        yield 'string true' => ['true'];
+    }
+
+    #[Test]
+    #[DataProvider('nonBooleanDataProvider')]
+    public function reportsAllowActiveContentTargetsThatIsNotBoolean(mixed $value): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = $value;
+
+        $messages = FileOptionsCheck::messages();
+
+        self::assertCount(1, $messages);
+        self::assertStringContainsString("['allowActiveContentTargets']", $messages[0]);
+    }
+
     #[Test]
     public function reportsNothingForTheOptionsOfVersion4(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export'] = [
             'fileDirectories' => ['fileadmin/import'],
             'allowedHosts' => ['data.example.org'],
+            'allowActiveContentTargets' => true,
             'yamlConfigurationDirectories' => [],
         ];
 

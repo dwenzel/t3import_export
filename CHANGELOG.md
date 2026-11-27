@@ -308,8 +308,20 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   [Deprecations](Documentation/DEPRECATIONS.md#files). If they are set, or if
   `allowedHosts` is a string instead of a list, the import and export
   commands show a warning and `TransferService` logs one for each run
-* `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by
-  file extension, or content whose root element is `svg`) with the SVG
-  sanitizer of TYPO3 and refuse compressed SVG files (`.svgz`); a warning is
+* `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by the
+  file extension `svg` in any position of the name, e.g. `image.svg.1`, or
+  content whose root element is `svg`) with the SVG sanitizer of TYPO3 and
+  refuse compressed SVG files (`svgz` in any position, e.g.
+  `image.svgz.zzz`; code 1795400103); a warning is
   logged if the sanitizer leaves an empty file. HTML and XML files with
   another root element are not sanitized
+* `GenerateFileResource` and `GenerateUploadFile` refuse target names with
+  the file extensions `html`, `htm`, `xhtml`, `xht`, `shtml`, `shtm`, `js`
+  and `mjs` in any position (e.g. `image.jpg.html`, `page.html.bak`, also
+  `report.html.zip`; exception code 1795400103) unless
+  `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
+  is `true`. Target names need a last file extension of letters and digits
+  (code 1795400103). XML files with XHTML or SVG elements or an
+  `xml-stylesheet` processing instruction, or whose root start tag is not
+  complete within the first megabyte, are written, with a warning
+  (1795300503). See [Deprecations](Documentation/DEPRECATIONS.md#files)

@@ -410,6 +410,21 @@ to the classes of the core and the deprecated ones:
   file names (or paths below it) in the records. Relative source paths of
   `GenerateFileResource` and `GenerateUploadFile` are relative to the public
   directory. See [Files](./Persistence/Files.md#other-components).
+* `GenerateFileResource` and `GenerateUploadFile` do not write files whose
+  name contains one of the file extensions `html`, `htm`, `xhtml`, `xht`,
+  `shtml`, `shtm`, `js` and `mjs` in any position, without case (e.g.
+  `page.html`, `image.jpg.html`, `page.html.bak`, also archives such as
+  `report.html.zip`) by default; they throw an `InvalidArgumentException`
+  (code 1795400103). Configurations which copy such files from trusted
+  sources need
+  `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;`
+  in `config/system/additional.php` (only the boolean `true`; other values
+  have no effect and the commands show a warning). The content of these files
+  is not sanitized. XML files are still written.
+* The target names of `GenerateFileResource` and `GenerateUploadFile` need a
+  last file extension of letters and digits; names without extension (e.g.
+  `image`) or with other characters in it (e.g. `image.jpg;a=b`) are refused
+  (code 1795400103). Give the source files a file extension.
 * `DataTargetFileStream` and `DataTargetXMLStream` write their temporary file
   into `transient/t3import_export/` of the var directory (before:
   `typo3temp/tx_importexport_/` of the public directory, which the web server
