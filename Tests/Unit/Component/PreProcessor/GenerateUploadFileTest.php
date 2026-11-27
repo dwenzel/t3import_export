@@ -865,6 +865,81 @@ class GenerateUploadFileTest extends TestCase
         self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
     }
 
+    /**
+     * The content of a file whose first megabyte ends after `$bytesOfRoot`
+     * bytes of the root element
+     */
+    protected static function contentWithRootAtWindowEnd(int $bytesOfRoot, string $root = self::SVG): string
+    {
+        return '<!--' . str_repeat('a', 1048576 - 7 - $bytesOfRoot) . '-->' . $root;
+    }
+
+    public static function incompleteStartTagDataProvider(): iterable
+    {
+        yield 'less than' => [1, self::SVG];
+        yield 'first letter' => [2, self::SVG];
+        yield 'part of svg' => [3, self::SVG];
+        yield 'other root element' => [20, '<html xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+        yield 'greater than in an attribute value' => [17, '<html title="a>b" xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></html>'];
+    }
+
+    /**
+     * @test
+     * @dataProvider incompleteStartTagDataProvider
+     */
+    public function getFileLogsWarningIfTheWindowEndsInTheStartTagOfTheRootElement(int $bytesOfRoot, string $root): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', self::contentWithRootAtWindowEnd($bytesOfRoot, $root));
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    public static function svgStartTagAtWindowEndDataProvider(): iterable
+    {
+        yield 'name' => [4];
+        yield 'name and space' => [5];
+        yield 'attribute' => [20];
+    }
+
+    /**
+     * @test
+     * @dataProvider svgStartTagAtWindowEndDataProvider
+     */
+    public function getFileSanitizesSvgRootElementAtTheWindowEnd(int $bytesOfRoot): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', self::contentWithRootAtWindowEnd($bytesOfRoot));
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    public static function manyPrologItemsDataProvider(): iterable
+    {
+        yield 'processing instructions' => [str_repeat("<?a?> \n", 300000)];
+        yield 'comments' => [str_repeat('<!---->', 300000)];
+        yield 'document types' => [str_repeat('<!DOCTYPE a>', 200000)];
+    }
+
+    /**
+     * @test
+     * @dataProvider manyPrologItemsDataProvider
+     */
+    public function getFileLogsWarningForAPrologOfManyItems(string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', $content . '<feed/>');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertSame($content . '<feed/>', file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
     public static function largeFileWithRootElementDataProvider(): iterable
     {
         yield 'large xml' => ['feed.xml', '<?xml version="1.0"?><feed>' . str_repeat('<item>x</item>', 80000) . '</feed>'];
