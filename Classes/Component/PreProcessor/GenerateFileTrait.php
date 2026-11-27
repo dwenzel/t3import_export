@@ -75,6 +75,13 @@ trait GenerateFileTrait
 
     private const string SVGZ_PATTERN = '/\.svgz(?:\..*)?$/i';
 
+    /**
+     * Maximum number of items before the root element (processing
+     * instructions, comments, document type) that the root element scan
+     * reads; with more, the root element is unknown
+     */
+    private const int MAX_PROLOG_ITEMS = 1000;
+
     private const string ACTIVE_CONTENT_PATTERN = '/\.(?:html?|xht(?:ml)?|m?js|shtml?)(?:\..*)?$/i';
 
     protected FilePathFactory $filePathFactory;
@@ -214,11 +221,11 @@ trait GenerateFileTrait
             }
             if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
                 $this->sanitizeSvgFile($temporaryPath, $absoluteTargetPath);
-            } elseif (self::containsActiveXml($temporaryPath)) {
+            } elseif (self::containsActiveXml($temporaryPath) || self::endsInUnknownRoot($temporaryPath)) {
                 $this->logMessage(
                     'XML file with active content',
                     \sprintf(
-                        'The file "%s" contains XHTML or SVG elements or an xml-stylesheet processing instruction, which a browser may run. It is not sanitized.',
+                        'The file "%s" contains XHTML or SVG elements or an xml-stylesheet processing instruction, which a browser may run, or its root element is not within the first megabyte. It is not sanitized.',
                         basename($absoluteTargetPath)
                     ),
                     Message::SEVERITY_WARNING,
@@ -284,6 +291,17 @@ trait GenerateFileTrait
         return self::readRootElementIsSvg($content)
             ?? self::hasSvgRootElement($content)
             ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+    }
+
+    /**
+     * Whether the first megabyte of a file ends inside the start tag of the
+     * root element, so the root element is unknown
+     */
+    private static function endsInUnknownRoot(string $path): bool
+    {
+        $content = @file_get_contents($path, false, null, 0, 1048576);
+
+        return \is_string($content) && \strlen($content) === 1048576 && self::endsInRootStartTag($content);
     }
 
     /**
@@ -366,34 +384,73 @@ trait GenerateFileTrait
      */
     private static function hasSvgRootElement(string $content): ?bool
     {
-        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
-        while ($markup !== '') {
-            if (str_starts_with($markup, '<?')) {
-                $end = strpos($markup, '?>');
-                $length = 2;
-            } elseif (str_starts_with($markup, '<!--')) {
-                $end = strpos($markup, '-->', 4);
-                $length = 3;
-            } elseif (preg_match('/^<!DOCTYPE/i', $markup) === 1) {
-                if (preg_match('/^<!DOCTYPE[^\[>]*>/i', $markup, $matches) !== 1) {
-                    return null;
-                }
-                $end = \strlen($matches[0]);
-                $length = 0;
-            } else {
-                break;
-            }
-            if ($end === false) {
-                return null;
-            }
-            $markup = ltrim(substr($markup, $end + $length));
+        $offset = self::rootElementOffset($content);
+        if ($offset === null) {
+            return null;
         }
-
-        if (preg_match('/^<[a-z_]/i', $markup) !== 1) {
+        // the start tag may end with the window
+        if (preg_match('/\G<(?:[a-z0-9_.-]+:)?svg(?:[\s>\/]|\z)/i', $content, $matches, 0, $offset) === 1) {
+            return true;
+        }
+        if (preg_match('/\G<[a-z_]/i', $content, $matches, 0, $offset) !== 1) {
             return null;
         }
 
-        return preg_match('/^<(?:[a-z0-9_.-]+:)?svg[\s>\/]/i', $markup) === 1;
+        return false;
+    }
+
+    /**
+     * Whether the content ends inside the start tag of the root element, e.g.
+     * a window of the first megabyte that ends with `<s`, so the root element
+     * is unknown
+     */
+    private static function endsInRootStartTag(string $content): bool
+    {
+        $offset = self::rootElementOffset($content);
+
+        return $offset !== null
+            && preg_match('/\G<[a-z0-9_.:-]*\z/i', $content, $matches, 0, $offset) === 1;
+    }
+
+    /**
+     * Offset of the first element: after a byte order mark, whitespace, the
+     * XML declaration, processing instructions, comments and a document type
+     * without internal subset. The content is not copied.
+     *
+     * @return int|null null if it is unknown: an unclosed item, a document
+     *                  type with internal subset, or more than
+     *                  `MAX_PROLOG_ITEMS` items
+     */
+    private static function rootElementOffset(string $content): ?int
+    {
+        $length = \strlen($content);
+        $offset = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
+        for ($items = 0; ; $items++) {
+            $offset += strspn($content, " \t\r\n", $offset);
+            if ($offset >= $length || $content[$offset] !== '<') {
+                return $offset;
+            }
+            if (substr_compare($content, '<?', $offset, 2) === 0) {
+                $end = strpos($content, '?>', $offset + 2);
+                $endLength = 2;
+            } elseif (substr_compare($content, '<!--', $offset, 4) === 0) {
+                $end = strpos($content, '-->', $offset + 4);
+                $endLength = 3;
+            } elseif (substr_compare($content, '<!DOCTYPE', $offset, 9, true) === 0) {
+                $end = strpos($content, '>', $offset + 9);
+                // an internal subset: a "[" before the end of the document type
+                if ($end !== false && strcspn($content, '[', $offset + 9, $end - $offset - 9) < $end - $offset - 9) {
+                    return null;
+                }
+                $endLength = 1;
+            } else {
+                return $offset;
+            }
+            if ($end === false || $items >= self::MAX_PROLOG_ITEMS) {
+                return null;
+            }
+            $offset = $end + $endLength;
+        }
     }
 
     /**

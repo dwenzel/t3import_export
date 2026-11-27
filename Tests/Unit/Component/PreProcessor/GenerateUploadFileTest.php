@@ -914,6 +914,90 @@ class GenerateUploadFileTest extends TestCase
         self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/' . $fileName)));
     }
 
+    /**
+     * Content whose first megabyte ends after `$tail`, the start of an SVG
+     * root element after a long comment
+     */
+    protected static function contentWithRootAtTheEndOfTheWindow(string $tail): string
+    {
+        $body = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>';
+        self::assertStringStartsWith($tail, $body);
+
+        return '<!--' . str_repeat('a', 1048576 - 7 - \strlen($tail)) . '-->' . $body;
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function svgStartTagAtTheEndOfTheWindowDataProvider(): iterable
+    {
+        yield 'svg' => ['<svg'];
+        yield 'svg and space' => ['<svg '];
+    }
+
+    #[Test]
+    #[DataProvider('svgStartTagAtTheEndOfTheWindowDataProvider')]
+    public function getFileSanitizesSvgWhoseStartTagEndsTheWindow(string $tail): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => self::contentWithRootAtTheEndOfTheWindow($tail)]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/feed.xml')));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function incompleteStartTagAtTheEndOfTheWindowDataProvider(): iterable
+    {
+        yield 'less-than sign' => ['<'];
+        yield 'first letter' => ['<s'];
+        yield 'two letters' => ['<sv'];
+    }
+
+    #[Test]
+    #[DataProvider('incompleteStartTagAtTheEndOfTheWindowDataProvider')]
+    public function getFileWarnsIfTheWindowEndsInTheRootStartTag(string $tail): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => self::contentWithRootAtTheEndOfTheWindow($tail)]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
+     * @return \Closure(string): ?bool
+     */
+    protected static function svgRootScan(): \Closure
+    {
+        return \Closure::bind(
+            static fn(string $content): ?bool => self::hasSvgRootElement($content),
+            null,
+            GenerateUploadFile::class
+        );
+    }
+
+    #[Test]
+    public function rootScanFindsSvgAfterPrologItems(): void
+    {
+        self::assertTrue((self::svgRootScan())(str_repeat("<?a?> \n<!-- c -->\n", 499) . self::SVG));
+    }
+
+    #[Test]
+    public function rootScanTreatsTheRootAsUnknownAfterTooManyPrologItems(): void
+    {
+        self::assertTrue((self::svgRootScan())(str_repeat("<?a?> \n", 1000) . self::SVG));
+        self::assertNull((self::svgRootScan())(str_repeat("<?a?> \n", 1001) . self::SVG));
+    }
+
+    #[Test]
+    public function rootScanTreatsADocumentTypeWithInternalSubsetAsUnknown(): void
+    {
+        self::assertNull((self::svgRootScan())('<!DOCTYPE svg [<!ENTITY a "b">]>' . self::SVG));
+    }
+
     #[Test]
     public function getFileSanitizesSvgOfUrl(): void
     {

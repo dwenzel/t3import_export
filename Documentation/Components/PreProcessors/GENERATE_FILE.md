@@ -115,7 +115,8 @@ unless `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveCo
 is `true` (see [Names of written files](../../Persistence/Files.md#names-of-written-files)).
 XML files are written; their content is not sanitized unless the root element
 is `svg`. An XML document with XHTML or SVG elements or an `xml-stylesheet`
-processing instruction is logged as warning (1795300503).
+processing instruction, or whose first megabyte ends inside the start tag of
+the root element, is logged as warning (1795300503).
 
 The content is written to a temporary file in the target directory, which
 replaces the target file when it is complete; if the source cannot be read or
@@ -128,10 +129,12 @@ content is `svg` (also with a namespace prefix, e.g. `s:svg`): the first
 element after a byte order mark, whitespace, the XML declaration, processing
 instructions, comments and the document type, within the first megabyte. The
 root element is read with XMLReader (no network access, no DTD loading, no
-entity substitution). If it cannot be determined, the MIME type
-`image/svg+xml` (detected with `finfo`) decides. This is a best effort. If
-the sanitizer leaves an empty file, e.g. for content that is no valid SVG, a
-warning is logged (1795300502). HTML, XHTML and XML files with another root
+entity substitution); for content XMLReader cannot read, a simple scan is
+used, which reads at most 1000 items before the root element and accepts a
+start tag `<svg` at the end of the first megabyte. If the root element cannot
+be determined, the MIME type `image/svg+xml` (detected with `finfo`) decides.
+This is a best effort. If the sanitizer leaves an empty file, e.g. for
+content that is no valid SVG, a warning is logged (1795300502). HTML, XHTML and XML files with another root
 element are not sanitized, also if they contain an inline `svg` element; they
 can contain scripts, so allow them only for trusted sources and check them
 before they are served from a public directory.
