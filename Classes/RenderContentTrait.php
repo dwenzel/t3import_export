@@ -42,6 +42,12 @@ trait RenderContentTrait
     protected TypoScriptFrontendController $typoScriptFrontendController;
 
     /**
+     * Fake frontend request for the own ContentObjectRenderer, if any.
+     * It is also set as global request when none exists (CLI, scheduler); an existing global request is kept.
+     */
+    protected ?ServerRequestInterface $renderContentRequest = null;
+
+    /**
      * Get a ContentObjectRenderer
      */
     public function getContentObjectRenderer(): ContentObjectRenderer
@@ -49,6 +55,19 @@ trait RenderContentTrait
         if (!$this->contentObjectRenderer instanceof ContentObjectRenderer) {
             $this->assertTypoScriptFrontendController();
             $this->contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+            if (!$this->renderContentRequest instanceof ServerRequestInterface) {
+                $globalRequest = $GLOBALS['TYPO3_REQUEST'] ?? null;
+                // Only a frontend request can be used for rendering. Any other request
+                // (e.g. a backend request) gets a fake one; the global request is left untouched.
+                if (!$globalRequest instanceof ServerRequestInterface
+                    || $globalRequest->getAttribute('applicationType') !== SystemEnvironmentBuilder::REQUESTTYPE_FE
+                ) {
+                    $this->renderContentRequest = $this->createFakeFrontendRequest();
+                }
+            }
+            if ($this->renderContentRequest instanceof ServerRequestInterface) {
+                $this->contentObjectRenderer->setRequest($this->renderContentRequest);
+            }
         }
 
         return $this->contentObjectRenderer;
@@ -107,54 +126,79 @@ trait RenderContentTrait
          * ContentObjectRenderer fails in method cObjGetSingle since
          * getTypoScriptFrontendController return NULL instead of $GLOBALS['TSFE']
          */
-        if (!$this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
-            $fakeUri = new Uri('https://domain.org/page');
-            $site = GeneralUtility::makeInstance(Site::class, 1, 1, []);
-            $siteLanguage = GeneralUtility::makeInstance(
-                SiteLanguage::class,
-                0,
-                'en-EN',
-                $fakeUri,
-                []
-            );
-
-            $fakeRequest = (GeneralUtility::makeInstance(ServerRequest::class))
-                ->withAttribute('site', $site)
-                ->withAttribute('language', $siteLanguage)
-                ->withAttribute(
-                    'applicationType', SystemEnvironmentBuilder::REQUESTTYPE_CLI
-                )
-                ->withUri($fakeUri);
-            $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
-
-            $pageArguments = GeneralUtility::makeInstance(PageArguments::class, 1, 0, []);
-
-            $nullFrontend = GeneralUtility::makeInstance(NullFrontend::class, 'pages');
-            $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
-            try {
-                $cacheManager->registerCache($nullFrontend);
-            } catch (\Exception $exception) {
-                unset($exception);
-            }
-
-            $context = GeneralUtility::makeInstance(Context::class);
-            /** @var FrontendUserAuthentication $feUser */
-            $feUser = GeneralUtility::makeInstance(FrontendUserAuthentication::class);
-            $userGroups = [0, -1];
-            $feUser->user = ['uid' => 0, 'username' => '', 'usergroup' => implode(',', $userGroups)];
-            $feUser->fetchGroupData();
-            $feUser->initializeUserSessionManager();
-            $feUser->fetchUserSession();
-            $context->setAspect('frontend.user', GeneralUtility::makeInstance(UserAspect::class, $feUser, $userGroups));
-
-
-            $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class,
-                $context,
-                $site,
-                $siteLanguage,
-                $pageArguments,
-                $feUser
-            );
+        if ($this->getTypoScriptFrontendController() instanceof TypoScriptFrontendController) {
+            return;
         }
+
+        $fakeRequest = $this->createFakeFrontendRequest();
+        $this->renderContentRequest = $fakeRequest;
+
+        // Keep an existing request (e.g. a backend request): replacing it
+        // breaks code which relies on its attributes, like normalizedParams.
+        if (!($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
+            $GLOBALS['TYPO3_REQUEST'] = $fakeRequest;
+        }
+
+        $GLOBALS['TSFE'] = $this->createTypoScriptFrontendController($fakeRequest);
+    }
+
+    /**
+     * Creates a fake frontend request for page 1 with a fake site and language
+     */
+    protected function createFakeFrontendRequest(): ServerRequestInterface
+    {
+        $fakeUri = new Uri('https://domain.org/page');
+        $site = GeneralUtility::makeInstance(Site::class, 1, 1, []);
+        $siteLanguage = GeneralUtility::makeInstance(
+            SiteLanguage::class,
+            0,
+            'en-EN',
+            $fakeUri,
+            []
+        );
+
+        return (GeneralUtility::makeInstance(ServerRequest::class))
+            ->withAttribute('site', $site)
+            ->withAttribute('language', $siteLanguage)
+            ->withAttribute(
+                'applicationType', SystemEnvironmentBuilder::REQUESTTYPE_CLI
+            )
+            ->withUri($fakeUri);
+    }
+
+    /**
+     * Creates a TypoScriptFrontendController for the site and language of the given request
+     */
+    protected function createTypoScriptFrontendController(ServerRequestInterface $request): TypoScriptFrontendController
+    {
+        $site = $request->getAttribute('site');
+        $siteLanguage = $request->getAttribute('language');
+        $pageArguments = GeneralUtility::makeInstance(PageArguments::class, 1, 0, []);
+
+        $nullFrontend = GeneralUtility::makeInstance(NullFrontend::class, 'pages');
+        $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
+        try {
+            $cacheManager->registerCache($nullFrontend);
+        } catch (\Exception $exception) {
+            unset($exception);
+        }
+
+        $context = GeneralUtility::makeInstance(Context::class);
+        /** @var FrontendUserAuthentication $feUser */
+        $feUser = GeneralUtility::makeInstance(FrontendUserAuthentication::class);
+        $userGroups = [0, -1];
+        $feUser->user = ['uid' => 0, 'username' => '', 'usergroup' => implode(',', $userGroups)];
+        $feUser->fetchGroupData();
+        $feUser->initializeUserSessionManager();
+        $feUser->fetchUserSession();
+        $context->setAspect('frontend.user', GeneralUtility::makeInstance(UserAspect::class, $feUser, $userGroups));
+
+        return GeneralUtility::makeInstance(TypoScriptFrontendController::class,
+            $context,
+            $site,
+            $siteLanguage,
+            $pageArguments,
+            $feUser
+        );
     }
 }
