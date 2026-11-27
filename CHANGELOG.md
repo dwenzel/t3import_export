@@ -31,7 +31,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
   is `true`, and names whose last extension is empty or not only letters and
   digits (code 1795400103). XML files with XHTML or SVG elements or an
-  `xml-stylesheet` instruction are written with a warning (1795300503)
+  `xml-stylesheet` instruction, or without a root element in the first
+  megabyte, are written with a warning (1795300503)
 
 ## 3.3.1 - 2026-11-25
 
