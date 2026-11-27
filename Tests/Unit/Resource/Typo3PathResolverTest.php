@@ -442,17 +442,31 @@ b.csv"];
     }
 
     #[Test]
-    public function resolveSourceUsesTheParentDirectoryOfALocalSourcePathWithoutTrailingSlash(): void
+    public function resolveSourceUsesAnExistingDirectoryWithoutTrailingSlashAsBound(): void
     {
         $directory = $this->createTestDirectory();
         mkdir($directory . '/allowed/images');
-        mkdir($directory . '/allowed/imagesb');
+        mkdir($directory . '/allowed/images2');
         $subject = new Typo3PathResolver(directories: [$directory]);
 
-        // the boundary is allowed/, not allowed/images/
         self::assertSame(
-            $directory . '/allowed/imagesb/a.jpg',
-            $subject->resolveSource($directory . '/allowed/images' . 'b/a.jpg', $directory . '/allowed/images')
+            $directory . '/allowed/images/a.jpg',
+            $subject->resolveSource($directory . '/allowed/images' . '/a.jpg', $directory . '/allowed/images')
+        );
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_DIRECTORY_NOT_ALLOWED);
+        $subject->resolveSource($directory . '/allowed/images' . '2/a.jpg', $directory . '/allowed/images');
+    }
+
+    #[Test]
+    public function resolveSourceUsesTheParentDirectoryOfAFileNamePrefix(): void
+    {
+        $directory = $this->createTestDirectory();
+        $subject = new Typo3PathResolver(directories: [$directory]);
+
+        // allowed/image_ is no directory: the bound is allowed/
+        self::assertSame(
+            $directory . '/allowed/image_1.jpg',
+            $subject->resolveSource($directory . '/allowed/image_' . '1.jpg', $directory . '/allowed/image_')
         );
     }
 

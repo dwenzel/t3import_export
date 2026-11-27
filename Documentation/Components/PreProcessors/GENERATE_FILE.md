@@ -57,9 +57,11 @@ relative to the public directory.
 Local files and `EXT:` paths are read only below the configured
 `config.sourcePath`, e.g. `fileadmin/import/images/` or
 `EXT:my_sitepackage/Resources/Private/Import/`. The file must be below the
-directory of the source path (the source path itself if it ends with `/`,
-else its parent directory: `fileadmin/import/img` allows files below
-`fileadmin/import/`). Symbolic links are resolved. For an `EXT:` source path
+directory of the source path: the source path itself if it ends with `/` or
+is an existing directory (`fileadmin/import/img` allows files below
+`fileadmin/import/img/`, not `fileadmin/import/img2/`), else its parent
+directory (a file name prefix such as `fileadmin/import/img_` allows files
+below `fileadmin/import/`). Symbolic links are resolved. For an `EXT:` source path
 the directory must be inside the extension. Without `config.sourcePath`, the
 values of a record can only be URLs; a value which names a local file or an
 `EXT:` path is refused (code 1795300101).

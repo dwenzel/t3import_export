@@ -183,8 +183,9 @@ final readonly class Typo3PathResolver implements PathResolverInterface
      *
      * Like `resolve()`, but the path must start with `$sourcePath` (the
      * `sourcePath` of the configuration), and the file must be below the
-     * directory of `$sourcePath`: the path itself if it ends with a slash,
-     * else its parent directory. Symbolic links are resolved. Without a
+     * directory of `$sourcePath`: the path itself if it ends with a slash or
+     * is an existing directory, else (a file name prefix) its parent
+     * directory. Symbolic links are resolved. Without a
      * source path, no local file is allowed. For an `EXT:` source path, the
      * directory must be inside the extension. A value of a record cannot
      * name a local file or an `EXT:` path itself.
@@ -203,7 +204,11 @@ final readonly class Typo3PathResolver implements PathResolverInterface
         }
         $absolutePath = $this->resolve($path);
         $absoluteSourcePath = GeneralUtility::getFileAbsFileName($sourcePath);
-        $sourceDirectory = str_ends_with($sourcePath, '/') ? rtrim($absoluteSourcePath, '/') : \dirname($absoluteSourcePath);
+        // a directory (with or without trailing slash) is the bound itself, a
+        // file name prefix is bound by its parent directory
+        $sourceDirectory = str_ends_with($sourcePath, '/') || ($absoluteSourcePath !== '' && is_dir($absoluteSourcePath))
+            ? rtrim($absoluteSourcePath, '/')
+            : \dirname($absoluteSourcePath);
         $realSourceDirectory = $absoluteSourcePath === '' ? null : self::realPath($sourceDirectory);
         $isInExtension = true;
         if ($realSourceDirectory !== null && PathUtility::isExtensionPath($sourcePath)) {

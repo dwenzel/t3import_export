@@ -271,8 +271,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   locations
 * `GenerateFileResource` and `GenerateUploadFile` read local files and
   `EXT:` paths only below the configured `sourcePath`: the file must be below
-  the directory of `sourcePath` (the path itself if it ends with a slash, else
-  its parent directory; for `EXT:` paths inside the extension). Without
+  the directory of `sourcePath` (the path itself if it ends with a slash or
+  is an existing directory, else, for a file name prefix, its parent
+  directory; for `EXT:` paths inside the extension). Without
   `sourcePath`, the values of a record can only be URLs. A value of a record
   which names a local file or an `EXT:` path itself is refused (exception
   code 1795300101). Configurations which copy local files without

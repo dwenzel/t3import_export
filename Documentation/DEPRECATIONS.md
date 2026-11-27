@@ -403,7 +403,8 @@ to the classes of the core and the deprecated ones:
   and `ResourcePathConfigurationValidator`.
 * `GenerateFileResource` and `GenerateUploadFile` read local files only below
   the directory of the configured `sourcePath` (the path itself if it ends
-  with a slash, else its parent directory). Without `sourcePath`, the values
+  with a slash or is an existing directory, else, for a file name prefix,
+  its parent directory). Without `sourcePath`, the values
   of a record can only be URLs (before: any file). Set `sourcePath` to the
   directory of the files, e.g. `fileadmin/import/images/`, and keep only the
   file names (or paths below it) in the records. Relative source paths of
