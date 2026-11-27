@@ -810,7 +810,7 @@ class GenerateUploadFileTest extends TestCase
         $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
 
         self::assertSame($content, file_get_contents($result));
-        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_XML_ACTIVE_CONTENT));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
     }
 
     /**
@@ -823,7 +823,7 @@ class GenerateUploadFileTest extends TestCase
 
         $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
 
-        self::assertFalse($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_XML_ACTIVE_CONTENT));
+        self::assertFalse($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
     }
 
     public static function deniedTargetNameDataProvider(): iterable

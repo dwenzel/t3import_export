@@ -63,7 +63,7 @@ trait GenerateFileTrait
      * Warning: an XML file contains XHTML or SVG elements below another root
      * element or an xml-stylesheet processing instruction
      */
-    public const WARNING_XML_ACTIVE_CONTENT = 1_795_300_503;
+    public const WARNING_ACTIVE_XML = 1_795_300_503;
 
     /**
      * File types of active content (in any position of the file name), which
@@ -295,7 +295,7 @@ trait GenerateFileTrait
                 basename($targetPath)
             ),
             Message::WARNING,
-            self::WARNING_XML_ACTIVE_CONTENT
+            self::WARNING_ACTIVE_XML
         );
     }
 
