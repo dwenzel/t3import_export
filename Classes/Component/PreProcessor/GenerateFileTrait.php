@@ -231,13 +231,19 @@ trait GenerateFileTrait
     /**
      * Sanitizes an SVG file with the SVG sanitizer of TYPO3; logs a warning
      * if the sanitizer leaves an empty file, e.g. for content that is no
-     * valid SVG.
+     * valid SVG. If the sanitizer refuses the content (an exception for
+     * content without svg element), the file is emptied.
      */
     protected function sanitizeSvgFile(string $path, string $targetPath): void
     {
         clearstatcache(true, $path);
         $sizeBefore = (int)@filesize($path);
-        GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($path);
+        try {
+            GeneralUtility::makeInstance(SvgSanitizer::class)->sanitizeFile($path);
+        } catch (\LogicException) {
+            // the sanitizer refuses content without svg element: nothing of it is kept
+            file_put_contents($path, '');
+        }
         clearstatcache(true, $path);
         if ($sizeBefore > 0 && (int)@filesize($path) === 0) {
             $this->logMessage(
