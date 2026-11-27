@@ -587,6 +587,34 @@ class GenerateUploadFileTest extends TestCase
         self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
     }
 
+    /**
+     * @test
+     */
+    public function getFileDoesNotKeepContentIfTheRefusedFileCannotBeEmptied(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/page.svg.txt', '<html><body><script>alert(1)</script></body></html>');
+        $sanitizer = $this->getMockBuilder(SvgSanitizer::class)->onlyMethods(['sanitizeFile'])->getMock();
+        $sanitizer->method('sanitizeFile')->willReturnCallback(
+            static function (string $path): void {
+                // the file cannot be emptied
+                chmod($path, 0444);
+                throw new \LogicException('Got 0 svg elements, expected exactly one', 1570870568);
+            }
+        );
+        GeneralUtility::addInstance(SvgSanitizer::class, $sanitizer);
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/page.svg.txt');
+            self::fail('No exception thrown');
+        } catch (\LogicException $exception) {
+            self::assertSame(1570870568, $exception->getCode());
+        } finally {
+            GeneralUtility::purgeInstances();
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
     public static function svgFileNameDataProvider(): iterable
     {
         yield 'svg before another extension' => ['image.svg.txt'];
