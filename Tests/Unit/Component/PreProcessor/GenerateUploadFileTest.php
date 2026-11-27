@@ -539,6 +539,86 @@ class GenerateUploadFileTest extends TestCase
         self::assertStringContainsString('rect', (string)file_get_contents($result));
     }
 
+    public static function svgContentDataProvider(): iterable
+    {
+        yield 'leading whitespace' => ['image.xml', "\n  \n" . self::SVG];
+        yield 'byte order mark' => ['image.jpg', "\xEF\xBB\xBF" . self::SVG];
+        yield 'xml declaration and long comment' => ['image.jpg', '<?xml version="1.0"?>' . "\n<!--" . str_repeat('x', 20000) . "-->\n" . self::SVG];
+        yield 'processing instruction' => ['image.txt', '<?xml version="1.0"?><?xml-stylesheet href="a.css"?>' . self::SVG];
+        yield 'document type' => ['image.txt', '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' . self::SVG];
+        yield 'namespace prefix' => ['image.txt', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><s:script>alert(1)</s:script><s:rect width="1" height="1"/></s:svg>'];
+        yield 'document type with internal subset' => ['image.txt', '<!DOCTYPE svg [<!ENTITY a "b">]>' . self::SVG];
+        yield 'invalid xml' => ['image.txt', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="1" height="1"/><b></svg>'];
+    }
+
+    /**
+     * @test
+     * @dataProvider svgContentDataProvider
+     */
+    public function getFileSanitizesSvgContentByRootElement(string $fileName, string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
+    }
+
+    /**
+     * The SVG sanitizer of TYPO3 12 refuses an `SVG` root element in upper
+     * case: the file is not written.
+     *
+     * @test
+     */
+    public function getFileDoesNotWriteSvgContentWhichTheSanitizerRefuses(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/image.txt', '<SVG xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></SVG>');
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.txt');
+            self::fail('No exception thrown');
+        } catch (\LogicException $exception) {
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    public static function otherMarkupDataProvider(): iterable
+    {
+        yield 'html with inline svg' => ['page.txt', '<html><body><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg></body></html>'];
+        yield 'rss with inline svg' => ['feed.xml', '<?xml version="1.0"?><rss version="2.0"><channel><description><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg></description></channel></rss>'];
+        yield 'text mentioning svg' => ['notes.txt', 'An <svg> element can contain <script>alert(1)</script>.'];
+    }
+
+    /**
+     * @test
+     * @dataProvider otherMarkupDataProvider
+     */
+    public function getFileDoesNotSanitizeOtherMarkup(string $fileName, string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame($content, file_get_contents($result));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileLogsWarningIfSanitizingEmptiesTheFile(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/image.svg', 'no svg');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.svg');
+
+        self::assertSame('', file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
+    }
+
     public static function deniedTargetNameDataProvider(): iterable
     {
         yield 'compressed svg' => ['image.svgz'];
