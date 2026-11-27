@@ -55,6 +55,17 @@ trait GenerateFileTrait
     ];
 
     /**
+     * Bytes of the content which are scanned for the root element
+     */
+    private const CHECKED_WINDOW = 1048576;
+
+    /**
+     * Bytes after the checked window which XMLReader reads in addition; it
+     * returns a node only after some lookahead
+     */
+    private const READER_MARGIN = 8192;
+
+    /**
      * Items of the prolog (processing instructions, comments, document types)
      * which are scanned for the root element
      */
@@ -269,7 +280,8 @@ trait GenerateFileTrait
      * with a namespace prefix): the first element after a byte order mark,
      * whitespace, the XML declaration, processing instructions, comments and
      * the document type, within the first megabyte. The root element is read
-     * with XMLReader; for content XMLReader cannot read, a simple scan is
+     * with XMLReader, which reads 8 KB more (it returns an element only after
+     * some lookahead); for content XMLReader cannot read, a simple scan is
      * used, which treats a document type with an internal subset as unknown.
      * If the root element is unknown (e.g. an unclosed comment), the MIME
      * type image/svg+xml decides. Markup with another root element, e.g.
@@ -282,14 +294,15 @@ trait GenerateFileTrait
         if (preg_match('/\.svgz?(?:\..*)?$/i', basename($targetPath)) !== 0) {
             return true;
         }
-        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        $content = @file_get_contents($contentPath, false, null, 0, self::CHECKED_WINDOW + self::READER_MARGIN);
         if (!\is_string($content)) {
             return false;
         }
+        $window = substr($content, 0, self::CHECKED_WINDOW);
 
         return self::readRootElementIsSvg($content)
-            ?? self::hasSvgRootElement($content)
-            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+            ?? self::hasSvgRootElement($window)
+            ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($window) === 'image/svg+xml';
     }
 
     /**
@@ -300,11 +313,12 @@ trait GenerateFileTrait
      */
     protected function checkXmlContent(string $contentPath, string $targetPath): void
     {
-        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        $content = @file_get_contents($contentPath, false, null, 0, self::CHECKED_WINDOW + self::READER_MARGIN);
         if (!\is_string($content)) {
             return;
         }
-        if (\strlen($content) >= 1048576 && self::isRootElementBeyondWindow($content)) {
+        $window = substr($content, 0, self::CHECKED_WINDOW);
+        if (\strlen($window) >= self::CHECKED_WINDOW && self::isRootElementBeyondWindow($window)) {
             $this->logMessage(
                 'XML file not checked',
                 \sprintf(
@@ -317,6 +331,7 @@ trait GenerateFileTrait
 
             return;
         }
+        // XMLReader reads the window and the margin
         if (!self::hasXmlActiveContent($content)) {
             return;
         }
@@ -342,7 +357,11 @@ trait GenerateFileTrait
     {
         $start = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
         $start += strspn($content, " \t\n\r\0\x0B", $start);
-        if (($content[$start] ?? '') !== '<') {
+        if ($start >= \strlen($content)) {
+            // byte order mark and whitespace fill the window
+            return true;
+        }
+        if ($content[$start] !== '<') {
             return false;
         }
         $offset = self::skipProlog($content, true);
@@ -350,7 +369,9 @@ trait GenerateFileTrait
             return true;
         }
 
-        // a complete start tag of the root element (attribute values may contain ">")
+        // a complete start tag of the root element (attribute values may contain
+        // ">"); fails safe: an error of preg_match() (false) counts as beyond
+        // the window, so the warning is logged
         return preg_match(
             '/\G<[^\s>\/]++(?:\s++[^\s=>\/]++(?:\s*+=\s*+(?:"[^"]*+"|\'[^\']*+\'|[^\s"\'>]++))?)*+\s*+\/?>/',
             $content,
