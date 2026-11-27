@@ -236,12 +236,13 @@ local file or URL into a temporary file in the target directory
 complete. If the source cannot be read or the file cannot be written, the
 target file is not changed.
 
-SVG files (by file extension, or content whose root element is `svg`) are
-sanitized with the SVG sanitizer of TYPO3 before they replace the target
+SVG files (by the file extension `svg` in any position of the name, e.g.
+`image.svg.1`, or content whose root element is `svg`) are sanitized with the SVG sanitizer of TYPO3 before they replace the target
 file; the detection is a best effort, see
 [GenerateFileResource](../Components/PreProcessors/GENERATE_FILE.md#target-files).
 If the sanitizer leaves an empty file, a warning is logged (1795300502).
-Compressed SVG files (`.svgz`) are refused (code 1795400103).
+Compressed SVG files (`svgz` in any position of the name, e.g.
+`image.svgz.zzz`) are refused (code 1795400103).
 
 `GenerateFileResource` and `GenerateUploadFile` refuse target names (code
 1795400103)

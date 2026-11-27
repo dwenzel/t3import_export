@@ -892,6 +892,28 @@ class GenerateUploadFileTest extends TestCase
         self::assertSame($content, file_get_contents(vfsStream::url('root/target/news.csv')));
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function svgExtensionInAnyPositionDataProvider(): iterable
+    {
+        yield 'svg before another extension' => ['image.svg.zzz'];
+        yield 'svg in upper case before a number' => ['image.SVG.1'];
+    }
+
+    #[Test]
+    #[DataProvider('svgExtensionInAnyPositionDataProvider')]
+    public function getFileSanitizesFilesWithSvgExtensionInAnyPosition(string $fileName): void
+    {
+        // the root element is not within the first megabyte
+        $content = '<!--' . str_repeat(' comment', 140000) . ' -->' . self::SVG;
+        $subject = $this->createSubjectCopyingFiles([$fileName => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/' . $fileName);
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/' . $fileName)));
+    }
+
     #[Test]
     public function getFileSanitizesSvgOfUrl(): void
     {
@@ -929,6 +951,8 @@ class GenerateUploadFileTest extends TestCase
     {
         yield 'svgz' => ['image.svgz'];
         yield 'svgz in upper case' => ['image.SVGZ'];
+        yield 'svgz before another extension' => ['image.svgz.zzz'];
+        yield 'svgz in upper case before a number' => ['image.SVGZ.1'];
     }
 
     #[Test]

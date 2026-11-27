@@ -104,7 +104,8 @@ files (see [Names of written files](../../Persistence/Files.md#names-of-written-
 the default `fileDenyPattern` of TYPO3 applies in addition to a configured
 one, server configuration files (e.g. `.htaccess`, `.user.ini`), names with
 `?`, `#`, `:` or control characters and names ending in a dot or space are
-refused (code 1795400103). Compressed SVG files (`.svgz`) are refused.
+refused (code 1795400103). Compressed SVG files (`svgz` in any position of the
+name, e.g. `image.svgz.zzz`) are refused.
 
 The target name needs a last file extension of letters and digits. Names with
 one of the file extensions `html`, `htm`, `xhtml`, `xht`, `shtml`, `shtm`,
@@ -120,8 +121,9 @@ The content is written to a temporary file in the target directory, which
 replaces the target file when it is complete; if the source cannot be read or
 the file cannot be written, the target file is not changed.
 
-SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG,
-whatever its name, if its extension is `svg` or if the root element of the
+SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG
+if its name has the file extension `svg` in any position (e.g.
+`image.svg.1`), or, whatever its name, if the root element of the
 content is `svg` (also with a namespace prefix, e.g. `s:svg`): the first
 element after a byte order mark, whitespace, the XML declaration, processing
 instructions, comments and the document type, within the first megabyte. The

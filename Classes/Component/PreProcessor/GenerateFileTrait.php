@@ -68,6 +68,13 @@ trait GenerateFileTrait
      */
     public const array ACTIVE_CONTENT_EXTENSIONS = ['html', 'htm', 'xhtml', 'xht', 'js', 'mjs', 'shtml', 'shtm'];
 
+    /**
+     * SVG and compressed SVG files, by a file extension in any position
+     */
+    private const string SVG_PATTERN = '/\.svg(?:\..*)?$/i';
+
+    private const string SVGZ_PATTERN = '/\.svgz(?:\..*)?$/i';
+
     private const string ACTIVE_CONTENT_PATTERN = '/\.(?:html?|xht(?:ml)?|m?js|shtml?)(?:\..*)?$/i';
 
     protected FilePathFactory $filePathFactory;
@@ -251,7 +258,8 @@ trait GenerateFileTrait
     }
 
     /**
-     * Whether a file is sanitized as SVG: the file extension is svg, or the
+     * Whether a file is sanitized as SVG: the name has the file extension svg
+     * in any position (e.g. `image.svg.1`), or the
      * root element of the content is an `svg` element (also with a namespace
      * prefix): the first element after a byte order mark, whitespace, the XML
      * declaration, processing instructions, comments and the document type,
@@ -265,7 +273,7 @@ trait GenerateFileTrait
      */
     protected function isSvgFile(string $targetPath, string $contentPath): bool
     {
-        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svg') {
+        if (preg_match(self::SVG_PATTERN, PathUtility::basename($targetPath)) === 1) {
             return true;
         }
         $content = @file_get_contents($contentPath, false, null, 0, 1048576);
@@ -429,9 +437,9 @@ trait GenerateFileTrait
     /**
      * The file name must be allowed for written files (see
      * `Typo3PathResolver::assertTargetFileName()`); compressed SVG files
-     * (`svgz`), which cannot be sanitized, are refused, and active content
-     * (`ACTIVE_CONTENT_EXTENSIONS`, in any position of the name) unless
-     * `allowActiveContentTargets` is configured. The last file extension
+     * (`svgz` in any position of the name), which cannot be sanitized, are
+     * refused, and active content (`ACTIVE_CONTENT_EXTENSIONS`, in any
+     * position of the name) unless `allowActiveContentTargets` is configured. The last file extension
      * must consist of letters and digits.
      *
      * @return string absolute path in the storage, '' if it cannot be resolved
@@ -451,7 +459,7 @@ trait GenerateFileTrait
                 Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
             );
         }
-        if ($extension === 'svgz') {
+        if (preg_match(self::SVGZ_PATTERN, $fileName) === 1) {
             throw new InvalidArgumentException(
                 \sprintf('The path "%s" is not allowed: compressed SVG files (svgz) are not written.', $targetPath),
                 Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED

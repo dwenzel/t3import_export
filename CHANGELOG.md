@@ -308,9 +308,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   [Deprecations](Documentation/DEPRECATIONS.md#files). If they are set, or if
   `allowedHosts` is a string instead of a list, the import and export
   commands show a warning and `TransferService` logs one for each run
-* `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by
-  file extension, or content whose root element is `svg`) with the SVG
-  sanitizer of TYPO3 and refuse compressed SVG files (`.svgz`); a warning is
+* `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by the
+  file extension `svg` in any position of the name, e.g. `image.svg.1`, or
+  content whose root element is `svg`) with the SVG sanitizer of TYPO3 and
+  refuse compressed SVG files (`svgz` in any position, e.g.
+  `image.svgz.zzz`; code 1795400103); a warning is
   logged if the sanitizer leaves an empty file. HTML and XML files with
   another root element are not sanitized
 * `GenerateFileResource` and `GenerateUploadFile` refuse target names with
