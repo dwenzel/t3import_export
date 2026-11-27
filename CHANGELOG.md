@@ -12,6 +12,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 ## Unreleased
 
+## 4.0.0 - 2026-11-27
+
 ### Added
 
 * Support for TYPO3 14.3
@@ -78,7 +80,8 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 ### Changed
 
 * `t3import-export:import-task` returns 1 instead of 0 for an invalid task
-  configuration and 2 right away for an empty task identifier
+  configuration and 2 right away for an empty task identifier; see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#exit-codes-of-t3import-exportimport-task)
 * Requires TYPO3 14.3 and `cpsit/import-export-core` ^0.7. Components of a
   task run in the order of their integer keys (core
   [#81](https://github.com/CPS-IT/import-export-core/issues/81)); see
@@ -87,8 +90,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   source, and `DataSourceQueue` marks only items that are still claimed by
   the run as finished or failed (core 0.7); see
   [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#changes-of-cpsitimport-export-core-07)
-* `GenerateFileResource` and `GenerateUploadFile` load URLs through the
-  resource loader of the core (redirects, allowed hosts, HTTP settings)
 * Tasks are run by the processor of the core; tasks, sets and components are
   created by the factories of the core
   ([#71](https://github.com/dwenzel/t3import_export/issues/71))
@@ -99,12 +100,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   components, including `ValidateXML`, `DataTargetXMLStream`,
   `GenerateFileResource` and `GenerateUploadFile`. The `url` of the data
   sources and of the XML components (`ValidateXML` and the XML components of
-  the core) is loaded by `HttpResourceLoader` of the core,
-  which follows redirects itself (at most five) and checks the scheme and
-  the allowed host of each redirect; a redirect from `https` to `http` is
-  not followed. URLs that redirect to an allowed host are loaded. The
+  the core) and the URLs of `GenerateFileResource` and `GenerateUploadFile`
+  are loaded by `HttpResourceLoader` of the core with the HTTP client and the
+  HTTP settings of TYPO3. The loader follows redirects itself (at most five)
+  and checks the scheme and the allowed host and port of each redirect; a
+  redirect from `https` to `http` is not followed. URLs that redirect to an allowed host are loaded. The
   redirect settings of TYPO3 do not apply to them
-  ([Files](Documentation/Persistence/Files.md#urls))
+  ([Files](Documentation/Persistence/Files.md#urls)); see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * The backend modules use the module access `user`
 * The file finishers use the resource API of TYPO3 14
 * `DataTargetFileStream` and `DataTargetXMLStream` write their temporary files
@@ -117,9 +120,11 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * The export module lists export sets with label and description, like the
   import module ([#62](https://github.com/dwenzel/t3import_export/issues/62))
 * `LookUpDB` without `singleRow` no longer sets a target field that was not
-  in the record to `[]` for an empty result; the field stays unset
+  in the record to `[]` for an empty result; the field stays unset; see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#lookupdb)
   ([#180](https://github.com/dwenzel/t3import_export/issues/180))
-* `LookUpDB` with `keepOrder` does not sort the rows if `groupBy` is set
+* `LookUpDB` with `keepOrder` and `groupBy` runs the query without sorting
+  (3.x created invalid SQL); `keepOrder: 0` turns the sorting off; see [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#lookupdb)
   ([#180](https://github.com/dwenzel/t3import_export/issues/180))
 * `DataSourceQueue` and `DataTargetQueue` are adapters on the queue
   components of the core and use the table `tx_t3importexport_queue_item`.
@@ -151,11 +156,10 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   record with `__identity` updates the row with this `uid`. The rows of a
   batch are written in one transaction and rolled back if the task fails;
   before, each row was committed at once. Values are converted to the
-  column types, as before. Values must be scalar or `null` (arrays in JSON
-  columns and `DateTime` objects in date and time columns (as the Doctrine type of
-  the column expects) are
-  converted as before),
-  field names plain names, and records not empty (`PersistenceException`
+  column types, as before. Values must be scalar or `null`; arrays in JSON
+  columns and `DateTime` objects in date and time columns are converted by
+  the Doctrine type of the column, as before. Field names must be plain
+  names, and records must not be empty (`PersistenceException`
   1647701464). The class extends `DataTargetDBAL` instead of
   `AbstractComponent`; its constructor takes `Dbal\Typo3ConnectionProvider`,
   `getDatabase()` is removed, and invalid configurations throw the code
@@ -193,32 +197,38 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 
 * Support for TYPO3 13; it is maintained on the branch `support/typo3-v13`
 * Rendering content with TypoScript: pre-processor `RenderContent`, content
-  objects in `disable` and in `DataSourceDB` queries
+  objects in `disable` and in `DataSourceDB` queries; see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#rendering-content-with-typoscript)
   ([#75](https://github.com/dwenzel/t3import_export/issues/75))
 * The pre-processors that the core replaces (`AddArrays`, `Clean`,
   `ConcatenateFields`, `ImplodeArray`, `MapFields`, `MapFieldValues`,
-  `RemoveFields`, `SetFieldValue`, `StringToTime`, `UnsetEmptyFields`)
+  `RemoveFields`, `SetFieldValue`, `StringToTime`, `UnsetEmptyFields`); see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#pre-processors-replaced-by-the-core)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 * Pre-processor `EvaluateExpressions`, `Expression\ExpressionEvaluator` and
-  `Expression\ExpressionEvaluatorInterface`; use the classes of the core
+  `Expression\ExpressionEvaluatorInterface`; use the classes of the core, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#expressions-and-conditions-of-the-core)
 * `Service\DataTransferProcessor`; use `Service\TransferService`
 * `Domain\Model\TransferTask`, `TransferSet`, `Dto\TaskDemand` and
   `Dto\DemandInterface`; use the models of the core
 * `Domain\Factory\TransferTaskFactory`, `Factory\FactoryFactory`,
   `ComponentFactoryMap`, `AbstractFactory`, `FactoryInterface`,
   `FactoryMapInterface`, the component factories, `DataSourceFactory` and
-  `DataTargetFactory`; use the factories of the core
+  `DataTargetFactory`; use the factories of the core, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#processor-and-factories-of-the-core)
 * `ext_tables.php`
 * Tasks and sets in TypoScript (`module.tx_t3importexport.settings`),
   `ext_typoscript_setup.typoscript`, the static template and the TypoScript
   examples; use YAML. The command `t3import-export:convert-typoscript`
-  converts existing configurations
+  converts existing configurations, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#typoscript-configuration)
   ([#75](https://github.com/dwenzel/t3import_export/issues/75))
 * `Domain\Model\QueueItem`, `Domain\Repository\QueueItemRepository` and
   the TCA of the table `tx_t3importexport_domain_model_queueitem` (list of
   queue items in the backend); use the queue of the core and the commands
   `queue:status` and `queue:release`. The table stays defined through 4.x
-  for the upgrade wizard and will be removed in 5.0
+  for the upgrade wizard and will be removed in 5.0; see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#queue)
   ([#132](https://github.com/dwenzel/t3import_export/issues/132))
 
 ### Fixed
@@ -277,13 +287,14 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `sourcePath`, the values of a record can only be URLs. A value of a record
   which names a local file or an `EXT:` path itself is refused (exception
   code 1795300101). Configurations which copy local files without
-  `sourcePath` need one, see [Deprecations](Documentation/DEPRECATIONS.md#files)
+  `sourcePath` need one, see [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * `allowedHosts` checks the port: an entry `host` allows only the default
   port of the scheme (80, 443), an entry `host:port` only that port,
   `*.example.org` the subdomains and `*` every host and port. This applies to
   the URL and to the target of every redirect (`Resource\AllowedHosts`,
   `Resource\AllowedHostsClient`). Configurations which load URLs with
-  another port need an entry `host:port`
+  another port need an entry `host:port`, see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * If `sourcePath` of `GenerateFileResource` or `GenerateUploadFile` is a URL,
   the value of a record cannot change its scheme, host, port or user
   information
@@ -293,19 +304,23 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `.htaccess`, `.user.ini`, `web.config`), names that are not valid UTF-8,
   names with `?`, `#`, `:` or control characters and names ending in a dot
   or space are refused
-  (exception code 1795400103). For URLs the target name is the last segment
+  (exception code 1795400103, or 1795300103 for the `fileDenyPattern` and
+  file extension rules). For URLs the target name is the last segment
   of the path, without query and fragment
 * `GenerateFileResource` and `GenerateUploadFile` copy local files through a
   temporary file in the target directory, like URLs; the target file is
   replaced only when the copy is complete
 * `DataTargetCSV` (of the core and the deprecated class of the extension)
   applies the same rules to the name of `file`; e.g. `report#1.csv` or
-  `a?b.csv` are refused (previous exception code 1795400103)
+  `a?b.csv` are refused (`PersistenceException` 1795200702 of the core;
+  the previous exception has the code 1795400103, or 1795300103 for
+  `fileDenyPattern` and file extensions), see
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files)
 * The finishers `WriteFile` and `MoveFile` apply the same rules to
   `target.name`
 * The options `fileSourceDirectories`, `fileTargetDirectories` and
   `fileTargetExtensions` of 3.3.1 are not read; use `fileDirectories`, see
-  [Deprecations](Documentation/DEPRECATIONS.md#files). If they are set, or if
+  [DEPRECATIONS.md](Documentation/DEPRECATIONS.md#files). If they are set, or if
   `allowedHosts` is a string instead of a list, the import and export
   commands show a warning and `TransferService` logs one for each run
 * `GenerateFileResource` and `GenerateUploadFile` sanitize SVG files (by
