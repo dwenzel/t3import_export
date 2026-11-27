@@ -106,6 +106,14 @@ one, server configuration files (e.g. `.htaccess`, `.user.ini`), names with
 `?`, `#`, `:` or control characters and names ending in a dot or space are
 refused (code 1795400103). Compressed SVG files (`.svgz`) are refused.
 
+Target files of the types `html`, `htm`, `xhtml`, `xht`, `js` and `mjs` (the
+last file extension, without case, also e.g. `image.jpg.html`) are refused
+with code 1795400103, unless
+`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
+is `true` (see [Names of written files](../../Persistence/Files.md#names-of-written-files)).
+XML files are written; their content is not sanitized unless the root element
+is `svg`.
+
 The content is written to a temporary file in the target directory, which
 replaces the target file when it is complete; if the source cannot be read or
 the file cannot be written, the target file is not changed.
@@ -117,11 +125,12 @@ element after a byte order mark, whitespace, the XML declaration, processing
 instructions, comments and the document type, within the first megabyte. The
 root element is read with XMLReader (no network access, no DTD loading, no
 entity substitution). If it cannot be determined, the MIME type
-`image/svg+xml` (detected with `finfo`) decides. This is a best effort. If the sanitizer leaves an empty
-file, e.g. for content that is no valid SVG, a warning is logged
-(1795300502). HTML, XHTML and XML files with another root element are not
-sanitized, also if they contain an inline `svg` element; check them before
-they are served from a public directory.
+`image/svg+xml` (detected with `finfo`) decides. This is a best effort. If
+the sanitizer leaves an empty file, e.g. for content that is no valid SVG, a
+warning is logged (1795300502). HTML, XHTML and XML files with another root
+element are not sanitized, also if they contain an inline `svg` element; they
+can contain scripts, so allow them only for trusted sources and check them
+before they are served from a public directory.
 
 ## Example
 

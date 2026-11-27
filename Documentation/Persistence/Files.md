@@ -241,11 +241,25 @@ sanitized with the SVG sanitizer of TYPO3 before they replace the target
 file; the detection is a best effort, see
 [GenerateFileResource](../Components/PreProcessors/GENERATE_FILE.md#target-files).
 If the sanitizer leaves an empty file, a warning is logged (1795300502).
-Compressed SVG files (`.svgz`) are refused (code 1795400103). HTML, XHTML and
-XML files with another root element are not sanitized, also if they contain
-an inline `svg` element. Such targets can contain scripts that a browser
-runs when the file is served from a public directory, so copy HTML, XHTML and
-XML files only from trusted sources.
+Compressed SVG files (`.svgz`) are refused (code 1795400103).
+
+Target files of the types `html`, `htm`, `xhtml`, `xht`, `js` and `mjs` (the
+last file extension, without case, so also `image.jpg.html`) are refused by
+default (code 1795400103). To write them, e.g. for trusted sources, allow
+them explicitly:
+
+```php
+// config/system/additional.php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+```
+
+Only `true` allows them. The setting applies to `GenerateFileResource` and
+`GenerateUploadFile`; it does not change the rules of other components.
+
+The content of HTML, XHTML and XML files (and of other files whose root
+element is not `svg`) is not sanitized, also if it contains an inline `svg`
+element. Such targets can contain scripts that a browser runs when the file
+is served from a public directory, so allow them only for trusted sources.
 
 ## Large files
 

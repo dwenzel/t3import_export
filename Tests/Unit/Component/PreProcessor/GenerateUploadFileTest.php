@@ -328,6 +328,96 @@ class GenerateUploadFileTest extends TestCase
         $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], Environment::getVarPath() . '/import/tests/' . $fileName);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function activeContentFileNameDataProvider(): iterable
+    {
+        yield 'html' => ['page.html'];
+        yield 'htm' => ['page.htm'];
+        yield 'xhtml' => ['page.xhtml'];
+        yield 'xht' => ['page.xht'];
+        yield 'js' => ['script.js'];
+        yield 'mjs' => ['module.mjs'];
+        yield 'upper case' => ['PAGE.HTML'];
+        yield 'double extension' => ['image.jpg.html'];
+    }
+
+    #[Test]
+    #[DataProvider('activeContentFileNameDataProvider')]
+    public function getFileRejectsActiveContentTargetsByDefault(string $fileName): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+            Environment::getVarPath() . '/import/tests/' . $fileName
+        );
+    }
+
+    #[Test]
+    public function getFileRejectsActiveContentTargetOfAUrl(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(['targetDirectoryPath' => 'target'], 'https://data.example.org/page.html?x=1');
+    }
+
+    #[Test]
+    #[DataProvider('activeContentFileNameDataProvider')]
+    public function getFileAllowsActiveContentTargetsIfConfigured(string $fileName): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+
+        try {
+            // the source does not exist: no exception, nothing copied
+            $result = $this->createSubjectWithFileRules()->getFile(
+                ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+                Environment::getVarPath() . '/import/tests/' . $fileName
+            );
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function getFileAllowsActiveContentTargetsOnlyWithTrue(): void
+    {
+        $configuration = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = 'yes';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        try {
+            $this->createSubjectWithFileRules()->getFile(
+                ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+                Environment::getVarPath() . '/import/tests/page.html'
+            );
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
+        }
+    }
+
+    #[Test]
+    public function getFileAllowsXmlTargets(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
+
+        self::assertSame('', $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+            Environment::getVarPath() . '/import/tests/feed.xml'
+        ));
+    }
+
     #[Test]
     public function getFileTakesTheTargetFileNameOfAUrlFromItsPath(): void
     {

@@ -394,6 +394,12 @@ class GenerateFileResourceTest extends TestCase
             InvalidArgumentException::class,
             Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED,
         ];
+        yield 'active content' => [
+            ['sourcePath' => 'fileadmin/'],
+            'fileadmin/page.html',
+            InvalidArgumentException::class,
+            Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED,
+        ];
         yield 'local file without source path' => [
             [],
             'fileadmin/image.jpg',

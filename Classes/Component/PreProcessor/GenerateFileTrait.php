@@ -53,6 +53,13 @@ trait GenerateFileTrait
      */
     public const int WARNING_SVG_EMPTY = 1_795_300_502;
 
+    /**
+     * File extensions of active content, which is not written unless
+     * `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
+     * is `true`
+     */
+    public const array ACTIVE_CONTENT_EXTENSIONS = ['html', 'htm', 'xhtml', 'xht', 'js', 'mjs'];
+
     protected FilePathFactory $filePathFactory;
 
     /**
@@ -363,7 +370,9 @@ trait GenerateFileTrait
     /**
      * The file name must be allowed for written files (see
      * `Typo3PathResolver::assertTargetFileName()`); compressed SVG files
-     * (`svgz`), which cannot be sanitized, are refused.
+     * (`svgz`), which cannot be sanitized, are refused, and active content
+     * (`ACTIVE_CONTENT_EXTENSIONS`, the last file extension) unless
+     * `allowActiveContentTargets` is configured.
      *
      * @return string absolute path in the storage, '' if it cannot be resolved
      * @throws InvalidArgumentException if the file name is not allowed
@@ -374,9 +383,23 @@ trait GenerateFileTrait
         // the name is checked also if the path cannot be resolved, e.g. a
         // storage outside of the project, so that no check is skipped
         $this->getResourceAccess()->assertTargetFileAllowed($absolutePath !== '' ? $absolutePath : $targetPath);
-        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svgz') {
+        $extension = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+        if ($extension === 'svgz') {
             throw new InvalidArgumentException(
                 \sprintf('The path "%s" is not allowed: compressed SVG files (svgz) are not written.', $targetPath),
+                Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
+            );
+        }
+        if (
+            \in_array($extension, self::ACTIVE_CONTENT_EXTENSIONS, true)
+            && ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] ?? false) !== true
+        ) {
+            throw new InvalidArgumentException(
+                \sprintf(
+                    'The path "%s" is not allowed: files of the types %s are only written if $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'allowActiveContentTargets\'] is true.',
+                    $targetPath,
+                    implode(', ', self::ACTIVE_CONTENT_EXTENSIONS)
+                ),
                 Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED
             );
         }

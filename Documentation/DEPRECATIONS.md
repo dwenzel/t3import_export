@@ -410,6 +410,14 @@ to the classes of the core and the deprecated ones:
   file names (or paths below it) in the records. Relative source paths of
   `GenerateFileResource` and `GenerateUploadFile` are relative to the public
   directory. See [Files](./Persistence/Files.md#other-components).
+* `GenerateFileResource` and `GenerateUploadFile` do not write files of the
+  types `html`, `htm`, `xhtml`, `xht`, `js` and `mjs` (the last file
+  extension, without case) by default; they throw an
+  `InvalidArgumentException` (code 1795400103). Configurations which copy
+  such files from trusted sources need
+  `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;`
+  in `config/system/additional.php`. The content of these files is not
+  sanitized. XML files are still written.
 * `DataTargetFileStream` and `DataTargetXMLStream` write their temporary file
   into `transient/t3import_export/` of the var directory (before:
   `typo3temp/tx_importexport_/` of the public directory, which the web server
