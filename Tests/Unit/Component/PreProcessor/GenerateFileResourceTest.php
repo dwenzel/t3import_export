@@ -29,6 +29,7 @@ use CPSIT\ImportExportCore\LoggingInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamException;
 use org\bovigo\vfs\vfsStreamWrapper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -219,6 +220,7 @@ class GenerateFileResourceTest extends TestCase
 
         $configuration = [
             'targetDirectoryPath' => $targetDirectory,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
 
         $fileStructure = [
@@ -234,15 +236,18 @@ class GenerateFileResourceTest extends TestCase
     public function testGetFileReturnsExistingFileFromResourceStorage(): void
     {
         $mockFile = $this->getMockBuilder(File::class)->disableOriginalConstructor()->getMock();
+        file_put_contents($this->sourceDirectory . '/bar.x', 'bar');
 
         $targetDirectoryPath = 'foo/';
         $fileName = 'bar.x';
-        $filePath = 'sourcePath/' . $fileName;
+        $filePath = $this->sourceDirectory . '/' . $fileName;
         $expectedPath = $targetDirectoryPath . $fileName;
 
         $configuration = [
             'targetDirectoryPath' => $targetDirectoryPath,
+            'sourcePath' => $this->sourceDirectory . '/',
         ];
+        $this->mockTargetDirectory();
 
         $this->resourceStorage->expects($this->once())
             ->method('hasFile')
@@ -258,6 +263,49 @@ class GenerateFileResourceTest extends TestCase
             $mockFile,
             $this->subject->getFile($configuration, $filePath)
         );
+    }
+
+    protected function mockTargetDirectory(): void
+    {
+        $this->resourceStorage->method('getConfiguration')
+            ->willReturn(['basePath' => 'fileadmin/']);
+        $this->filePathFactory->method('createFromParts')
+            ->willReturn('fileadmin/targetDir/');
+        $this->subject->method('getAbsoluteFilePath')->willReturnArgument(0);
+    }
+
+    public static function existingFileOfDeniedSourceDataProvider(): iterable
+    {
+        yield 'local file without source path' => [null, '{source}/image.jpg', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'local file outside of source directory' => ['{source}/a', '{source}/ab/image.jpg', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'file outside of allowed directories' => ['/etc/', '/etc/image.jpg', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'URL of other host' => [null, 'https://example.org/image.jpg', FileSourceGuard::ERROR_HOST_NOT_ALLOWED];
+        yield 'other scheme' => [null, 'ftp://example.org/image.jpg', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
+        yield 'denied target name' => ['{source}/', '{source}/image.php', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+        yield 'active content' => ['{source}/', '{source}/page.html', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+        yield 'active content of URL' => [null, 'https://example.org/page.html.zzz', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+        yield 'invalid last extension' => ['{source}/', '{source}/page.html;a=b', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+    }
+
+    #[Test]
+    #[DataProvider('existingFileOfDeniedSourceDataProvider')]
+    public function getFileChecksSourceAndNameBeforeUsingExistingFile(?string $sourcePath, string $value, int $code): void
+    {
+        $configuration = ['targetDirectoryPath' => 'targetDir'];
+        if ($sourcePath !== null) {
+            $configuration['sourcePath'] = str_replace('{source}', $this->sourceDirectory, $sourcePath);
+        }
+        GeneralUtility::mkdir_deep($this->sourceDirectory . '/a');
+        $this->mockTargetDirectory();
+        $this->resourceStorage->method('hasFile')->willReturn(true);
+        $this->resourceStorage->expects($this->never())->method('getFile');
+
+        try {
+            $this->subject->getFile($configuration, str_replace('{source}', $this->sourceDirectory, $value));
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame($code, $exception->getCode());
+        }
     }
 
     public function testGetFileCopiesFileToTarget(): void
@@ -304,7 +352,7 @@ class GenerateFileResourceTest extends TestCase
         vfsStream::setup($rootDirectory, null, $fileStructure);
 
         // Use an invalid target directory to force copy failure
-        $invalidConfiguration = ['targetDirectoryPath' => 'invalidDirectory'];
+        $invalidConfiguration = ['targetDirectoryPath' => 'invalidDirectory', 'sourcePath' => $this->sourceDirectory . '/'];
 
         // Mock that the file doesn't exist initially
         $expectedFilePath = 'invalidDirectory/' . $sourceFileName;
