@@ -566,23 +566,29 @@ class GenerateUploadFileTest extends TestCase
         self::assertStringNotContainsString('alert', (string)file_get_contents($result));
     }
 
+    public static function contentWhichTheSanitizerRefusesDataProvider(): iterable
+    {
+        yield 'svg root element in upper case' => ['image.xml', '<SVG xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></SVG>'];
+        yield 'html with svg in the name' => ['page.svg.jpg', '<html><body><script>alert(1)</script></body></html>'];
+        yield 'rss with svg in the name' => ['feed.svg.xml', '<?xml version="1.0"?><rss version="2.0"><channel><title><![CDATA[<script>alert(1)</script>]]></title></channel></rss>'];
+    }
+
     /**
-     * The SVG sanitizer of TYPO3 12 refuses an `SVG` root element in upper
-     * case: the file is not written.
+     * The SVG sanitizer of TYPO3 12 throws an exception for content without
+     * svg element: an empty file is written and a warning is logged.
      *
      * @test
+     * @dataProvider contentWhichTheSanitizerRefusesDataProvider
      */
-    public function getFileDoesNotWriteSvgContentWhichTheSanitizerRefuses(): void
+    public function getFileWritesEmptyFileIfTheSanitizerRefusesTheContent(string $fileName, string $content): void
     {
         $this->prepareTargetDirectory();
-        file_put_contents($this->sourceDirectory . '/image.txt', '<SVG xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></SVG>');
+        file_put_contents($this->sourceDirectory . '/' . $fileName, $content);
 
-        try {
-            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/image.txt');
-            self::fail('No exception thrown');
-        } catch (\LogicException $exception) {
-        }
-        self::assertSame([], $this->targetFiles());
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame('', file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
     }
 
     public static function svgFileNameDataProvider(): iterable
@@ -601,13 +607,9 @@ class GenerateUploadFileTest extends TestCase
         $this->prepareTargetDirectory();
         file_put_contents($this->sourceDirectory . '/' . $fileName, '<html><body><script>alert(1)</script></body></html>');
 
-        // the SVG sanitizer of TYPO3 12 refuses content without svg element: the file is not written
-        try {
-            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
-            self::fail('No exception thrown');
-        } catch (\LogicException $exception) {
-        }
-        self::assertSame([], $this->targetFiles());
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertStringNotContainsString('alert', (string)file_get_contents($result));
     }
 
     public static function otherMarkupDataProvider(): iterable
