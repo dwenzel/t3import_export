@@ -328,9 +328,9 @@ trait GenerateFileTrait
     protected function getAbsoluteTargetPath(string $targetPath): string
     {
         $absolutePath = GeneralUtility::getFileAbsFileName($targetPath);
-        if ($absolutePath !== '') {
-            $this->getResourceAccess()->assertTargetFileAllowed($absolutePath);
-        }
+        // the name is checked also if the path cannot be resolved, e.g. a
+        // storage outside of the project, so that no check is skipped
+        $this->getResourceAccess()->assertTargetFileAllowed($absolutePath !== '' ? $absolutePath : $targetPath);
         if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'svgz') {
             throw new InvalidArgumentException(
                 \sprintf('The path "%s" is not allowed: compressed SVG files (svgz) are not written.', $targetPath),

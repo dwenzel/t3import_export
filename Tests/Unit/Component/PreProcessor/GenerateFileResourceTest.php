@@ -435,6 +435,31 @@ class GenerateFileResourceTest extends TestCase
     }
 
     #[Test]
+    public function getFileChecksTheTargetNameIfTheStorageIsOutsideOfTheProject(): void
+    {
+        $subject = new GenerateFileResource($this->fileIndexRepository, $this->filePathFactory);
+        $subject->withStorage($this->resourceStorage);
+        $subject->setResourceAccess(new ResourceAccess(
+            new Typo3PathResolver(directories: [Environment::getVarPath() . '/import/tests']),
+            new HttpResourceLoader($this->createStub(ClientInterface::class), $this->createStub(RequestFactoryInterface::class), []),
+            new AllowedHosts([])
+        ));
+        // the base path of the storage cannot be resolved to a path of the project
+        $this->resourceStorage->method('getConfiguration')->willReturn(['basePath' => '/outside-of-the-project/']);
+        $this->filePathFactory->method('createFromParts')->willReturn('/outside-of-the-project/target/');
+        $this->resourceStorage->method('hasFile')->willReturn(true);
+        $this->resourceStorage->expects(self::never())->method('getFile');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $subject->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+            Environment::getVarPath() . '/import/tests/.user.ini'
+        );
+    }
+
+    #[Test]
     public function getFileAddsFileLoadedFromAllowedUrl(): void
     {
         $requestedUrls = [];
