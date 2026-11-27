@@ -35,8 +35,11 @@ A source is either a local file or an http(s) URL.
 A source which is not allowed throws an exception (codes 1795400201 to
 1795400204, 1795400103 for target names) and stops the task.
 `GenerateFileResource` checks the source and the target name also if a file
-with the same name exists in the target directory already. Records processed before are already
-imported, and files copied for them stay in the target directory. A source
+with the same name exists in the target directory already. Files copied for
+records processed before stay in the target directory. Whether these records
+are stored depends on the target: `DataTargetRepository` persists all records
+after the record loop, so none of them is stored; targets which write each
+record directly (e.g. `DataTargetDB`) keep the records written before. A source
 which is allowed but cannot be read (missing file, HTTP error) is not copied;
 the field is set to `null` (`GenerateFileResource`) or `''`
 (`GenerateUploadFile`) and the task goes on.
@@ -61,7 +64,8 @@ refused.
 In addition, local files are read only from allowed directories. By default these are
 `fileadmin/` of the public directory and `import/` of the `var` directory of
 TYPO3. The list can be changed in the system configuration, e.g. in
-`config/system/additional.php`:
+`typo3conf/AdditionalConfiguration.php` (`public/typo3conf/` in Composer
+mode):
 
 ```php
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileSourceDirectories'] = [
@@ -148,12 +152,13 @@ a file by any of its extensions), also for names taken from URLs. To write
 them, e.g. for trusted sources, allow them explicitly:
 
 ```php
-// config/system/additional.php
+// typo3conf/AdditionalConfiguration.php
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
 ```
 
-Only the boolean `true` allows them. `shtml` and `shtm` stay refused by the
-default `fileDenyPattern` of TYPO3. The setting applies to
+Only the boolean `true` allows them. `shtml` stays refused by the default
+`fileDenyPattern` of TYPO3; `shtm` is written when `allowActiveContentTargets`
+is `true`. The setting applies to
 `GenerateFileResource` and `GenerateUploadFile` only; the rules of
 `WriteFile`, `MoveFile` and `DataTargetCSV` do not change. The content of
 these files is not sanitized.
@@ -169,16 +174,20 @@ entity substitution); for content XMLReader cannot read, a simple scan is
 used, which treats a document type with an internal subset as unknown. If the
 root element is unknown, the MIME type `image/svg+xml` (detected with `finfo`)
 decides. This is a best effort. If the sanitizer leaves an empty file, a
-warning is logged (1795300502). The SVG sanitizer of TYPO3 11 throws an
-exception for content without an `svg` element (e.g. a file named
-`page.svg.txt` with HTML content or an `SVG` root element in upper case): the
-file is then not written and the task stops.
+warning is logged (1795300502). This includes content which the SVG sanitizer
+of TYPO3 11 refuses (content without an `svg` element, e.g. a file named
+`page.svg.txt` with HTML content or an `SVG` root element in upper case): an
+empty file is written.
 
 HTML, XHTML and XML files with another root element are not sanitized, also if
 they contain an inline `svg` element. If XML content contains elements of the
 XHTML or SVG namespace or an `xml-stylesheet` processing instruction, a warning
 is logged (1795300503) and the file is written unchanged: browsers can run
-scripts in such files. This check is a limit, not a protection; allow such
+scripts in such files. The same warning is logged if the first megabyte ends
+before a root element is found (e.g. after a long comment or document type);
+such content is not checked. The check does not expand entities, browsers do;
+XML that builds markup from entities belongs to the files that are not
+sanitized. This check is a limit, not a protection; allow such
 files only from trusted sources and check them before they are served from a
 public directory.
 
