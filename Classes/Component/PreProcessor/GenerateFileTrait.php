@@ -48,6 +48,20 @@ trait GenerateFileTrait
      */
     public const int WARNING_SVG_EMPTY = 1_795_300_502;
 
+    /**
+     * Warning: an XML file contains XHTML or SVG elements below another root
+     * element or an xml-stylesheet processing instruction
+     */
+    public const int WARNING_XML_ACTIVE_CONTENT = 1_795_300_503;
+
+    /**
+     * File types of active content (in any position of the file name), which
+     * are not written unless
+     * `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
+     * is `true`
+     */
+    public const string ACTIVE_CONTENT_PATTERN = '/\.(html?|xht(ml)?|m?js|shtml?)(\..*)?$/i';
+
     protected FilePathFactory $filePathFactory;
 
     protected ?FileSourceGuard $fileSourceGuard = null;
@@ -152,6 +166,8 @@ trait GenerateFileTrait
             }
             if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
                 $this->sanitizeSvgFile($temporaryPath, $absoluteTargetPath);
+            } else {
+                $this->checkXmlContent($temporaryPath, $absoluteTargetPath);
             }
             $renamed = @rename($temporaryPath, $absoluteTargetPath);
 
@@ -232,6 +248,67 @@ trait GenerateFileTrait
         return self::readRootElementIsSvg($content)
             ?? self::hasSvgRootElement($content)
             ?? (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+    }
+
+    /**
+     * Logs a warning if XML content (within the first megabyte) contains
+     * elements of the XHTML or SVG namespace or an xml-stylesheet processing
+     * instruction. Such content is written unchanged; browsers can run
+     * scripts in it.
+     */
+    protected function checkXmlContent(string $contentPath, string $targetPath): void
+    {
+        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        if (!\is_string($content) || !self::hasXmlActiveContent($content)) {
+            return;
+        }
+        $this->logMessage(
+            'XML file with active content',
+            \sprintf(
+                'The file "%s" contains XHTML or SVG elements or an xml-stylesheet processing instruction; it is not sanitized.',
+                basename($targetPath)
+            ),
+            Message::SEVERITY_WARNING,
+            self::WARNING_XML_ACTIVE_CONTENT
+        );
+    }
+
+    /**
+     * Read with XMLReader: no network access, no DTD loading, no entity
+     * substitution. Content which is no XML has no XML active content.
+     */
+    private static function hasXmlActiveContent(string $content): bool
+    {
+        $previous = libxml_use_internal_errors(true);
+        $reader = null;
+        try {
+            $reader = \XMLReader::XML($content, null, LIBXML_NONET);
+            if (!$reader instanceof \XMLReader) {
+                return false;
+            }
+            while ($reader->read()) {
+                if (
+                    $reader->nodeType === \XMLReader::PI
+                    && strtolower($reader->name) === 'xml-stylesheet'
+                ) {
+                    return true;
+                }
+                if (
+                    $reader->nodeType === \XMLReader::ELEMENT
+                    && \in_array($reader->namespaceURI, ['http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg'], true)
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (\Throwable) {
+            return false;
+        } finally {
+            $reader?->close();
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
     }
 
     /**
@@ -430,6 +507,11 @@ trait GenerateFileTrait
     /**
      * The file name of the target is the one of the source. It must not
      * match the fileDenyPattern of TYPO3 (the file is copied without FAL).
+     * The last file extension must consist of letters and digits; compressed
+     * SVG files (svgz) are refused, and active content (`html`, `htm`,
+     * `xhtml`, `xht`, `shtml`, `shtm`, `js`, `mjs` in any position of the
+     * name, see `ACTIVE_CONTENT_PATTERN`) unless `allowActiveContentTargets`
+     * is `true`.
      *
      * @param array $configuration
      * @param string $sourcePath
@@ -440,9 +522,28 @@ trait GenerateFileTrait
     {
         $fileName = $this->getSourceFileName((string)$sourcePath);
         $this->getFileTargetGuard()->assertFileName($fileName);
-        if (strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'svgz') {
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        if (preg_match('/^[A-Za-z0-9]+$/', $extension) !== 1) {
+            throw new InvalidArgumentException(
+                \sprintf('The file "%s" cannot be written: the last file extension must consist of letters and digits.', $fileName),
+                FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED
+            );
+        }
+        if (strtolower($extension) === 'svgz') {
             throw new InvalidArgumentException(
                 \sprintf('The file "%s" cannot be written: compressed SVG files (svgz) are not allowed.', $fileName),
+                FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED
+            );
+        }
+        if (
+            preg_match(self::ACTIVE_CONTENT_PATTERN, $fileName) !== 0
+            && ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] ?? false) !== true
+        ) {
+            throw new InvalidArgumentException(
+                \sprintf(
+                    'The file "%s" cannot be written: files of the types html, htm, xhtml, xht, shtml, shtm, js and mjs (in any position of the name) are only written if $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'allowActiveContentTargets\'] is true.',
+                    $fileName
+                ),
                 FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED
             );
         }
