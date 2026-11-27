@@ -248,8 +248,8 @@ trait GenerateFileTrait
     }
 
     /**
-     * Whether a file is sanitized as SVG: the file extension is svg (or
-     * svgz), or the root element of the content is an `svg` element (also
+     * Whether a file is sanitized as SVG: the file name has the extension
+     * svg (or svgz) in any position, e.g. `image.svg.txt`, or the root element of the content is an `svg` element (also
      * with a namespace prefix): the first element after a byte order mark,
      * whitespace, the XML declaration, processing instructions, comments and
      * the document type, within the first megabyte. The root element is read
@@ -262,7 +262,8 @@ trait GenerateFileTrait
      */
     protected function isSvgFile(string $targetPath, string $contentPath): bool
     {
-        if (\in_array(strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)), ['svg', 'svgz'], true)) {
+        // web servers may serve a file by any of its extensions
+        if (preg_match('/\.svgz?(?:\..*)?$/i', basename($targetPath)) !== 0) {
             return true;
         }
         $content = @file_get_contents($contentPath, false, null, 0, 1048576);
@@ -536,7 +537,7 @@ trait GenerateFileTrait
      * The file name of the target is the one of the source. It must not
      * match the fileDenyPattern of TYPO3 (the file is copied without FAL).
      * The last file extension must consist of letters and digits; compressed
-     * SVG files (svgz) are refused, and active content (`html`, `htm`,
+     * SVG files (svgz, in any position of the name) are refused, and active content (`html`, `htm`,
      * `xhtml`, `xht`, `shtml`, `shtm`, `js`, `mjs` in any position of the
      * name, see `ACTIVE_CONTENT_PATTERN`) unless `allowActiveContentTargets`
      * is `true`.
@@ -557,7 +558,7 @@ trait GenerateFileTrait
                 FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED
             );
         }
-        if (strtolower($extension) === 'svgz') {
+        if (preg_match('/\.svgz(?:\..*)?$/i', $fileName) !== 0) {
             throw new InvalidArgumentException(
                 \sprintf('The file "%s" cannot be written: compressed SVG files (svgz) are not allowed.', $fileName),
                 FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED
