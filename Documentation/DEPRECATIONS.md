@@ -340,6 +340,32 @@ Breaking changes for code that uses the class:
   are not used any more. A connection that is not configured throws a
   `MissingResourceException` (code 1795351767).
 
+### Exit codes of `t3import-export:import-task`
+
+| Case | 3.x | 4.0 |
+|---|---|---|
+| Invalid task configuration (e.g. a missing class) | error message, exit code 0 | error message, exit code 1 |
+| Empty task identifier | warning, the command went on and returned 2 for the missing configuration | warning, exit code 2 at once |
+| Task not configured | 2 | 2, unchanged |
+
+Scripts and monitoring that call the command should treat every exit code
+other than 0 as a failure.
+
+### LookUpDB
+
+* Without `singleRow`, an empty result no longer sets a target field that
+  was not in the record to `[]`; the field stays unset. A target field that
+  was in the record is removed, as before
+  ([#180](https://github.com/dwenzel/t3import_export/issues/180)).
+  Components after `LookUpDB` that expect the field must accept a missing
+  field, or set a scalar default afterwards with the rule `default` of
+  `ValueRulesPreProcessor` of the core.
+* With `keepOrder`, the rows are no longer sorted if `groupBy` is set. Before,
+  the MySQL-specific `ORDER BY FIELD()` was added to the WHERE clause, which
+  failed on other databases and with AND/OR constraints. Set `orderBy` if the grouped rows need an order, or
+  remove `groupBy` to keep the order of the values. See
+  [LookUpDB](./Components/PreProcessors/LOOK_UP_DB.md).
+
 ## Deprecated in 4.0
 
 ### Files
