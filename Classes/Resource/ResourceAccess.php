@@ -61,8 +61,8 @@ class ResourceAccess
 
     /**
      * Absolute path of a source file whose path is built from a configured
-     * source path and a value of a record: an `EXT:` path is only allowed
-     * below an `EXT:` source path (see `Typo3PathResolver::resolveSource()`).
+     * source path and a value of a record: local files and `EXT:` paths are
+     * only allowed below the source path (see `Typo3PathResolver::resolveSource()`).
      *
      * @param string|null $sourcePath the `sourcePath` of the configuration
      * @throws InvalidArgumentException if the path is not allowed

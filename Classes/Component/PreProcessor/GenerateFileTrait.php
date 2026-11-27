@@ -73,8 +73,8 @@ trait GenerateFileTrait
      * Copies a source file or URL to a target path in the storage.
      *
      * The source must be an allowed file (see `Typo3PathResolver`) or a URL
-     * of an allowed host. An `EXT:` path is only allowed below an `EXT:`
-     * `sourcePath` of the configuration. URLs are loaded with the resource
+     * of an allowed host. Local files and `EXT:` paths are only allowed below
+     * the `sourcePath` of the configuration. URLs are loaded with the resource
      * loader of the core (see `copyUrl()`). The target file name must be
      * allowed (see `getAbsoluteTargetPath()`). The content is written to a
      * temporary file in the target directory, which then replaces the target
