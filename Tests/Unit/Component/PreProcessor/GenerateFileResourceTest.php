@@ -137,6 +137,9 @@ class GenerateFileResourceTest extends TestCase
         yield 'URL of other host' => [null, 'https://example.org/image.jpg', FileSourceGuard::ERROR_HOST_NOT_ALLOWED];
         yield 'other scheme' => [null, 'ftp://example.org/image.jpg', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
         yield 'denied target name' => ['{source}/', '{source}/image.php', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+        yield 'active content' => ['{source}/', '{source}/page.html', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+        yield 'active content of URL' => [null, 'https://example.org/page.html.zzz', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
+        yield 'invalid last extension' => ['{source}/', '{source}/page.html;a=b', FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED];
     }
 
     /**

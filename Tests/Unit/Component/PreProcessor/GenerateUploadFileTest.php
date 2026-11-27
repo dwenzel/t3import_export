@@ -67,6 +67,7 @@ class GenerateUploadFileTest extends TestCase
 
     protected function tearDown(): void
     {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']);
         GeneralUtility::rmdir($this->sourceDirectory, true);
     }
 
@@ -242,13 +243,13 @@ class GenerateUploadFileTest extends TestCase
 
     public static function sourceOutsideOfAllowedDirectoriesDataProvider(): iterable
     {
-        yield 'system file' => ['/etc/hosts', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
+        yield 'system file' => ['/etc/hosts.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'project file' => [Environment::getProjectPath() . '/composer.json', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'file in allowed directory without source path' => ['{source}/image.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'dot dot segment' => ['{source}/../secret.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
         yield 'php filter' => ['php://filter/read=convert.base64-encode/resource={source}/../secret.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
         yield 'compress.zlib' => ['compress.zlib://{source}/../secret.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
-        yield 'file' => ['file:///etc/hosts', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
+        yield 'file' => ['file:///etc/hosts.txt', FileSourceGuard::ERROR_URL_NOT_ALLOWED];
         yield 'data' => ['data:text/plain;base64,c2VjcmV0#/secret.txt', FileSourceGuard::ERROR_PATH_NOT_ALLOWED];
     }
 
@@ -433,7 +434,7 @@ class GenerateUploadFileTest extends TestCase
 
     public static function valueOutsideOfSourcePathDataProvider(): iterable
     {
-        yield 'system file' => ['/etc/', '/etc/hosts', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
+        yield 'system file' => ['/etc/', '/etc/hosts.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
         yield 'sibling of existing directory without trailing slash' => ['{source}/a', 'b/secret.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
         yield 'parent of existing directory without trailing slash' => ['{source}/a', '.txt', FileSourceGuard::ERROR_DIRECTORY_NOT_ALLOWED];
         yield 'URL source path' => ['https://data.example.org/', '{source}/a/image.txt', FileSourceGuard::ERROR_HOST_NOT_ALLOWED];
@@ -617,6 +618,187 @@ class GenerateUploadFileTest extends TestCase
 
         self::assertSame('', file_get_contents($result));
         self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_SVG_EMPTY));
+    }
+
+    public static function activeContentFileNameDataProvider(): iterable
+    {
+        yield 'html' => ['page.html'];
+        yield 'htm' => ['page.htm'];
+        yield 'xhtml' => ['page.xhtml'];
+        yield 'xht' => ['page.xht'];
+        yield 'js' => ['script.js'];
+        yield 'mjs' => ['module.mjs'];
+        yield 'upper case' => ['PAGE.HTML'];
+        yield 'last of two extensions' => ['image.jpg.html'];
+        yield 'first of two extensions' => ['page.html.zzz'];
+        yield 'middle extension' => ['script.js.min.txt'];
+    }
+
+    public static function deniedActiveContentFileNameDataProvider(): iterable
+    {
+        yield from self::activeContentFileNameDataProvider();
+        // also in the default fileDenyPattern of TYPO3
+        yield 'shtml' => ['page.shtml'];
+        yield 'shtm' => ['page.shtm'];
+    }
+
+    /**
+     * @test
+     * @dataProvider deniedActiveContentFileNameDataProvider
+     */
+    public function getFileDoesNotCopyActiveContentByDefault(string $fileName): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, '<script>alert(1)</script>');
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    /**
+     * @test
+     */
+    public function getFileDoesNotLoadUrlWithActiveContentName(): void
+    {
+        $this->prepareTargetDirectory();
+        $this->useHttpResponses(
+            ['https://data.example.org/page.html?x=1' => self::response('<script>alert(1)</script>')],
+            new FileSourceGuard([$this->sourceDirectory], ['data.example.org'])
+        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir'], 'https://data.example.org/page.html?x=1');
+    }
+
+    /**
+     * @test
+     * @dataProvider activeContentFileNameDataProvider
+     */
+    public function getFileCopiesActiveContentIfAllowed(string $fileName): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, '<script>alert(1)</script>');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame('<script>alert(1)</script>', file_get_contents($result));
+    }
+
+    public static function nonBooleanSettingDataProvider(): iterable
+    {
+        yield 'string yes' => ['yes'];
+        yield 'string 1' => ['1'];
+        yield 'integer 1' => [1];
+        yield 'string true' => ['true'];
+    }
+
+    /**
+     * @test
+     * @dataProvider nonBooleanSettingDataProvider
+     */
+    public function getFileAllowsActiveContentOnlyWithTrue(mixed $value): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = $value;
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/page.html', '<script>alert(1)</script>');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED);
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/page.html');
+    }
+
+    public static function invalidLastExtensionDataProvider(): iterable
+    {
+        yield 'parameter' => ['page.html;a=b'];
+        yield 'encoded dot' => ['page%2ehtml'];
+        yield 'no extension' => ['README'];
+        yield 'dash' => ['image.jp-g'];
+        yield 'underscore' => ['image.jp_g'];
+        yield 'percent' => ['image.%6Apg'];
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidLastExtensionDataProvider
+     */
+    public function getFileDoesNotCopyFilesWithInvalidLastExtension(string $fileName): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, 'content');
+
+        try {
+            $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+            self::fail('No exception thrown');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(FileTargetGuard::ERROR_FILE_TYPE_NOT_ALLOWED, $exception->getCode());
+        }
+        self::assertSame([], $this->targetFiles());
+    }
+
+    public static function allowedFileNameDataProvider(): iterable
+    {
+        yield 'xml' => ['feed.xml'];
+        yield 'html in base name' => ['html-export.txt'];
+        yield 'json' => ['data.JSON'];
+        yield 'digits' => ['archive.7z'];
+    }
+
+    /**
+     * @test
+     * @dataProvider allowedFileNameDataProvider
+     */
+    public function getFileCopiesOtherFileTypes(string $fileName): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/' . $fileName, 'content');
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/' . $fileName);
+
+        self::assertSame('content', file_get_contents($result));
+    }
+
+    public static function xmlWithActiveContentDataProvider(): iterable
+    {
+        yield 'xhtml element' => ['<?xml version="1.0"?><feed><content><div xmlns="http://www.w3.org/1999/xhtml"><script>alert(1)</script></div></content></feed>'];
+        yield 'prefixed xhtml element' => ['<feed xmlns:h="http://www.w3.org/1999/xhtml"><h:script>alert(1)</h:script></feed>'];
+        yield 'svg element' => ['<feed><svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg></feed>'];
+        yield 'xml stylesheet' => ['<?xml version="1.0"?><?xml-stylesheet type="text/xsl" href="a.xsl"?><feed/>'];
+    }
+
+    /**
+     * @test
+     * @dataProvider xmlWithActiveContentDataProvider
+     */
+    public function getFileLogsWarningForXmlWithActiveContent(string $content): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', $content);
+
+        $result = $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertSame($content, file_get_contents($result));
+        self::assertTrue($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_XML_ACTIVE_CONTENT));
+    }
+
+    /**
+     * @test
+     */
+    public function getFileDoesNotLogWarningForPlainXml(): void
+    {
+        $this->prepareTargetDirectory();
+        file_put_contents($this->sourceDirectory . '/feed.xml', '<?xml version="1.0"?><feed><title>svg and script</title></feed>');
+
+        $this->subject->getFile(['targetDirectoryPath' => 'targetDir', 'sourcePath' => $this->sourceDirectory . '/'], $this->sourceDirectory . '/feed.xml');
+
+        self::assertFalse($this->subject->hasMessageWithId(GenerateUploadFile::WARNING_XML_ACTIVE_CONTENT));
     }
 
     public static function deniedTargetNameDataProvider(): iterable
