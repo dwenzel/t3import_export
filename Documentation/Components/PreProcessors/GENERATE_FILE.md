@@ -89,7 +89,10 @@ or user information (e.g. with `@` or a host suffix).
 
 Redirects are followed by the loader of the core, at most 5; the target of
 each redirect must be an http(s) URL of an allowed host and port, and a
-redirect from https to http is not followed.
+redirect from https to http is not followed. A redirect to a host that is not
+allowed throws an exception (code 1795200302) and stops the task; a redirect
+to a port that is not allowed is logged as warning (1795300501), and the file
+is not copied.
 
 ### Target files
 
@@ -110,8 +113,8 @@ whatever its name, if its extension is `svg`, if the content has the MIME
 type `image/svg+xml` (detected with `finfo`), or if the content is markup
 (it starts with `<` after a byte order mark and whitespace) with an `svg`
 element within the first megabyte, e.g. after a long comment. This is a best
-effort. HTML, XHTML and XML files are
-not sanitized; check them before they are served from a public directory.
+effort. Other HTML, XHTML and XML files are not sanitized; check them before
+they are served from a public directory.
 
 ## Example
 

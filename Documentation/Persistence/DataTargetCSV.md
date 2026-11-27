@@ -15,7 +15,9 @@ its name must be allowed for written files: names with `?`, `#`, `:` or
 control characters, names ending in a dot or space and server configuration
 files are refused, see [Names of written files](./Files.md#names-of-written-files).
 The target throws a `PersistenceException` (code 1795200702 of the core)
-whose previous exception has the code 1795400103.
+whose previous exception has the code 1795400103 (name rules of the
+extension) or 1795300103 (`fileDenyPattern` and allowed file extensions of
+TYPO3).
 
 ## Options
 

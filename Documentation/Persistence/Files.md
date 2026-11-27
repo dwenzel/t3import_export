@@ -89,15 +89,19 @@ An entry checks the host and the port:
 Host names are not resolved or checked against IP ranges, so do not list
 names which resolve to internal addresses.
 
-A URL with another host or port throws a `MissingResourceException`
-before a request is sent: code 1795200302 where the extension checks the
-URL first (`GenerateFileResource`, `GenerateUploadFile`, `ValidateXML`,
-`ResourcePathConfigurationValidator`), code 1795200301 (request failed) for
-the `url` of the data sources and of the XML components of the core, whose
-loader checks only the host name; there the HTTP client of the extension
-(`Resource\AllowedHostsClient`) refuses the request to a port that is not
-allowed. The URL is not checked for its file type, since it often has no
-file extension.
+No request is sent to a host or port that is not allowed. The loader of the
+core checks the host name of each URL; the HTTP client of the extension
+(`Resource\AllowedHostsClient`) checks the host and port of each request.
+What happens then:
+
+| Case | Result |
+|---|---|
+| URL of `GenerateFileResource`, `GenerateUploadFile`, `ValidateXML`, `ResourcePathConfigurationValidator` with a host or port that is not allowed | the extension checks the URL first: `MissingResourceException` (code 1795200302), the task stops (the validator marks the configuration invalid) |
+| `url` of the data sources and of the XML components of the core with a host that is not allowed | `MissingResourceException` (code 1795200302) |
+| `url` of the data sources and of the XML components of the core with a port that is not allowed | `MissingResourceException` (code 1795200301, request failed) |
+
+The URL is not checked for its file type, since it often has no file
+extension.
 
 For the `url` of these components, redirects are followed by the loader,
 not by the client. The extension passes the PSR-18 client of TYPO3 (Guzzle)
@@ -108,9 +112,15 @@ no effect here. The loader
 * follows redirects (301, 302, 303, 307, 308) with a GET request, at most
   five for one URL; more fail the request,
 * checks the target of each redirect like the URL itself: it must be an
-  `http` or `https` URL with an allowed host and port, otherwise a
-  `MissingResourceException` is thrown (code 1795200302 for a host that is
-  not allowed, 1795200301 for a port that is not allowed),
+  `http` or `https` URL with an allowed host and port, otherwise the
+  redirect is not followed:
+  * a host that is not allowed throws a `MissingResourceException` (code
+    1795200302); in `GenerateFileResource` and `GenerateUploadFile` the task
+    stops,
+  * a port that is not allowed fails the request (code 1795200301); the data
+    sources throw the exception, `GenerateFileResource` and
+    `GenerateUploadFile` log a warning (1795300501), do not copy the file and
+    go on with the next record,
 * does not follow a redirect from `https` to `http`.
 
 A redirect to another allowed host is followed; allow every host a URL may
@@ -226,10 +236,10 @@ complete. If the source cannot be read or the file cannot be written, the
 target file is not changed.
 
 SVG files (by file extension, by the MIME type of the content, or markup
-with an `svg` element within the first megabyte) are sanitized with the SVG sanitizer of TYPO3 before they replace the target
-file; the detection is a best effort. Compressed SVG files
-(`.svgz`) are refused (code 1795400103). HTML, XHTML and XML files are not
-sanitized.
+with an `svg` element within the first megabyte) are sanitized with the SVG
+sanitizer of TYPO3 before they replace the target file; the detection is a
+best effort. Compressed SVG files (`.svgz`) are refused (code 1795400103).
+Other HTML, XHTML and XML files are not sanitized.
 
 ## Large files
 
