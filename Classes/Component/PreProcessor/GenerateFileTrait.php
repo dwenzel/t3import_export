@@ -221,16 +221,8 @@ trait GenerateFileTrait
             }
             if ($this->isSvgFile($absoluteTargetPath, $temporaryPath)) {
                 $this->sanitizeSvgFile($temporaryPath, $absoluteTargetPath);
-            } elseif (self::containsActiveXml($temporaryPath) || self::endsInUnknownRoot($temporaryPath)) {
-                $this->logMessage(
-                    'XML file with active content',
-                    \sprintf(
-                        'The file "%s" contains XHTML or SVG elements or an xml-stylesheet processing instruction, which a browser may run, or its root element is not within the first megabyte. It is not sanitized.',
-                        basename($absoluteTargetPath)
-                    ),
-                    Message::SEVERITY_WARNING,
-                    self::WARNING_ACTIVE_XML
-                );
+            } else {
+                $this->checkXmlContent($temporaryPath, $absoluteTargetPath);
             }
             $renamed = @rename($temporaryPath, $absoluteTargetPath);
 
@@ -294,28 +286,121 @@ trait GenerateFileTrait
     }
 
     /**
-     * Whether the first megabyte of a file ends inside the start tag of the
-     * root element, so the root element is unknown
+     * Logs a warning if XML content (within the first megabyte) contains
+     * elements of the XHTML or SVG namespace or an xml-stylesheet processing
+     * instruction. Such content is written unchanged; browsers can run
+     * scripts in it.
      */
-    private static function endsInUnknownRoot(string $path): bool
+    protected function checkXmlContent(string $contentPath, string $targetPath): void
     {
-        $content = @file_get_contents($path, false, null, 0, 1048576);
+        $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        if (!\is_string($content)) {
+            return;
+        }
+        if (\strlen($content) >= 1048576 && self::isRootElementBeyondWindow($content)) {
+            $this->logMessage(
+                'XML file not checked',
+                \sprintf(
+                    'The first megabyte of "%s" contains no root element (e.g. a long comment or document type); its content is not checked and not sanitized.',
+                    basename($targetPath)
+                ),
+                Message::SEVERITY_WARNING,
+                self::WARNING_ACTIVE_XML
+            );
 
-        return \is_string($content) && \strlen($content) === 1048576 && self::endsInRootStartTag($content);
+            return;
+        }
+        if (!self::hasXmlActiveContent($content)) {
+            return;
+        }
+        $this->logMessage(
+            'XML file with active content',
+            \sprintf(
+                'The file "%s" contains XHTML or SVG elements or an xml-stylesheet processing instruction; it is not sanitized.',
+                basename($targetPath)
+            ),
+            Message::SEVERITY_WARNING,
+            self::WARNING_ACTIVE_XML
+        );
     }
 
     /**
-     * Whether an XML document contains an element in the XHTML or SVG
-     * namespace or an `xml-stylesheet` processing instruction within the
-     * first megabyte, read with XMLReader (no network access, no DTD loading,
-     * no entity substitution). Content that is no XML is not reported.
+     * Whether the root element of markup content does not start within the
+     * checked window: the window holds only the prolog (byte order mark,
+     * whitespace, XML declaration, processing instructions, comments and the
+     * document type, at most `MAX_PROLOG_ITEMS` items), or it ends inside the
+     * start tag of the root element, e.g. after a long comment.
      */
-    private static function containsActiveXml(string $path): bool
+    private static function isRootElementBeyondWindow(string $content): bool
     {
-        $content = @file_get_contents($path, false, null, 0, 1048576);
-        if (!\is_string($content) || $content === '') {
+        $start = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
+        $start += strspn($content, " \t\n\r\0\x0B", $start);
+        if (($content[$start] ?? '') !== '<') {
             return false;
         }
+        $offset = self::skipProlog($content, true);
+        if ($offset === null || $offset >= \strlen($content)) {
+            return true;
+        }
+
+        // a complete start tag of the root element (attribute values may contain ">")
+        return preg_match(
+            '/\G<[^\s>\/]++(?:\s++[^\s=>\/]++(?:\s*+=\s*+(?:"[^"]*+"|\'[^\']*+\'|[^\s"\'>]++))?)*+\s*+\/?>/',
+            $content,
+            $matches,
+            0,
+            $offset
+        ) !== 1;
+    }
+
+    /**
+     * Skips the prolog of markup content: byte order mark, whitespace, XML
+     * declaration, processing instructions, comments and the document type.
+     * Scans with an offset, without copies of the content.
+     *
+     * @param bool $allowInternalSubset whether a document type may have an internal subset
+     * @return int|null offset of the first character after the prolog; null
+     *                  if an item does not end within the content, a document
+     *                  type is not allowed or there are more than
+     *                  `MAX_PROLOG_ITEMS` items
+     */
+    private static function skipProlog(string $content, bool $allowInternalSubset): ?int
+    {
+        $whitespace = " \t\n\r\0\x0B";
+        $length = \strlen($content);
+        $offset = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
+        $offset += strspn($content, $whitespace, $offset);
+        $items = 0;
+        while ($offset < $length) {
+            if (substr_compare($content, '<?', $offset, 2) === 0) {
+                $end = strpos($content, '?>', $offset + 2);
+                $end = $end === false ? false : $end + 2;
+            } elseif (substr_compare($content, '<!--', $offset, 4) === 0) {
+                $end = strpos($content, '-->', $offset + 4);
+                $end = $end === false ? false : $end + 3;
+            } elseif (substr_compare($content, '<!DOCTYPE', $offset, 9, true) === 0) {
+                $pattern = $allowInternalSubset
+                    ? '/\G<!DOCTYPE[^\[>]*+(?:\[[^\]]*+\]\s*+)?>/i'
+                    : '/\G<!DOCTYPE[^\[>]*+>/i';
+                $end = preg_match($pattern, $content, $matches, 0, $offset) === 1 ? $offset + \strlen($matches[0]) : false;
+            } else {
+                return $offset;
+            }
+            if ($end === false || ++$items > self::MAX_PROLOG_ITEMS) {
+                return null;
+            }
+            $offset = $end + strspn($content, $whitespace, $end);
+        }
+
+        return $offset;
+    }
+
+    /**
+     * Read with XMLReader: no network access, no DTD loading, no entity
+     * substitution. Content which is no XML has no XML active content.
+     */
+    private static function hasXmlActiveContent(string $content): bool
+    {
         $previous = libxml_use_internal_errors(true);
         $reader = null;
         try {
@@ -325,9 +410,14 @@ trait GenerateFileTrait
             }
             while ($reader->read()) {
                 if (
-                    ($reader->nodeType === \XMLReader::PI && strtolower($reader->name) === 'xml-stylesheet')
-                    || ($reader->nodeType === \XMLReader::ELEMENT
-                        && \in_array($reader->namespaceURI, ['http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg'], true))
+                    $reader->nodeType === \XMLReader::PI
+                    && strtolower($reader->name) === 'xml-stylesheet'
+                ) {
+                    return true;
+                }
+                if (
+                    $reader->nodeType === \XMLReader::ELEMENT
+                    && \in_array($reader->namespaceURI, ['http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg'], true)
                 ) {
                     return true;
                 }
@@ -384,73 +474,13 @@ trait GenerateFileTrait
      */
     private static function hasSvgRootElement(string $content): ?bool
     {
-        $offset = self::rootElementOffset($content);
-        if ($offset === null) {
-            return null;
-        }
-        // the start tag may end with the window
-        if (preg_match('/\G<(?:[a-z0-9_.-]+:)?svg(?:[\s>\/]|\z)/i', $content, $matches, 0, $offset) === 1) {
-            return true;
-        }
-        if (preg_match('/\G<[a-z_]/i', $content, $matches, 0, $offset) !== 1) {
+        $offset = self::skipProlog($content, false);
+        if ($offset === null || preg_match('/\G<[a-z_]/i', $content, $matches, 0, $offset) !== 1) {
             return null;
         }
 
-        return false;
-    }
-
-    /**
-     * Whether the content ends inside the start tag of the root element, e.g.
-     * a window of the first megabyte that ends with `<s`, so the root element
-     * is unknown
-     */
-    private static function endsInRootStartTag(string $content): bool
-    {
-        $offset = self::rootElementOffset($content);
-
-        return $offset !== null
-            && preg_match('/\G<[a-z0-9_.:-]*\z/i', $content, $matches, 0, $offset) === 1;
-    }
-
-    /**
-     * Offset of the first element: after a byte order mark, whitespace, the
-     * XML declaration, processing instructions, comments and a document type
-     * without internal subset. The content is not copied.
-     *
-     * @return int|null null if it is unknown: an unclosed item, a document
-     *                  type with internal subset, or more than
-     *                  `MAX_PROLOG_ITEMS` items
-     */
-    private static function rootElementOffset(string $content): ?int
-    {
-        $length = \strlen($content);
-        $offset = str_starts_with($content, "\xEF\xBB\xBF") ? 3 : 0;
-        for ($items = 0; ; $items++) {
-            $offset += strspn($content, " \t\r\n", $offset);
-            if ($offset >= $length || $content[$offset] !== '<') {
-                return $offset;
-            }
-            if (substr_compare($content, '<?', $offset, 2) === 0) {
-                $end = strpos($content, '?>', $offset + 2);
-                $endLength = 2;
-            } elseif (substr_compare($content, '<!--', $offset, 4) === 0) {
-                $end = strpos($content, '-->', $offset + 4);
-                $endLength = 3;
-            } elseif (substr_compare($content, '<!DOCTYPE', $offset, 9, true) === 0) {
-                $end = strpos($content, '>', $offset + 9);
-                // an internal subset: a "[" before the end of the document type
-                if ($end !== false && strcspn($content, '[', $offset + 9, $end - $offset - 9) < $end - $offset - 9) {
-                    return null;
-                }
-                $endLength = 1;
-            } else {
-                return $offset;
-            }
-            if ($end === false || $items >= self::MAX_PROLOG_ITEMS) {
-                return null;
-            }
-            $offset = $end + $endLength;
-        }
+        // the start tag may end with the checked window
+        return preg_match('/\G<(?:[a-z0-9_.-]+:)?svg(?:[\s>\/]|$)/i', $content, $matches, 0, $offset) === 1;
     }
 
     /**

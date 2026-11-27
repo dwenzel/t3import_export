@@ -322,6 +322,6 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
   is `true`. Target names need a last file extension of letters and digits
   (code 1795400103). XML files with XHTML or SVG elements or an
-  `xml-stylesheet` processing instruction, or whose first megabyte ends
-  inside the start tag of the root element, are written, with a warning
+  `xml-stylesheet` processing instruction, or whose root start tag is not
+  complete within the first megabyte, are written, with a warning
   (1795300503). See [Deprecations](Documentation/DEPRECATIONS.md#files)

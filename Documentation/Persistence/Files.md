@@ -277,8 +277,10 @@ root element is not `svg`) is not sanitized, also if it contains an inline
 XHTML or SVG namespace or an `xml-stylesheet` processing instruction (within
 the first megabyte) is logged as warning (1795300503), since a browser may
 run scripts in it when the file is served from a public directory. The same
-warning is logged if the first megabyte ends inside the start tag of the root
-element, so the root element is unknown. Allow such files only from trusted
+warning is logged if the root element does not start within the first
+megabyte (e.g. after a long comment or document type, or more than 1000
+items before it) or the first megabyte ends inside its start tag, so the
+content is not checked. Allow such files only from trusted
 sources.
 
 ## Large files

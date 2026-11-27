@@ -115,8 +115,9 @@ unless `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveCo
 is `true` (see [Names of written files](../../Persistence/Files.md#names-of-written-files)).
 XML files are written; their content is not sanitized unless the root element
 is `svg`. An XML document with XHTML or SVG elements or an `xml-stylesheet`
-processing instruction, or whose first megabyte ends inside the start tag of
-the root element, is logged as warning (1795300503).
+processing instruction, or whose root start tag is not complete within the
+first megabyte (e.g. after a long comment), is logged as warning
+(1795300503).
 
 The content is written to a temporary file in the target directory, which
 replaces the target file when it is complete; if the source cannot be read or

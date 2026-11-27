@@ -968,6 +968,50 @@ class GenerateUploadFileTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string}>
+     */
+    public static function prologFillsTheWindowDataProvider(): iterable
+    {
+        yield 'long comment' => ['<!--' . str_repeat('a', 1100000) . '-->' . self::SVG];
+        yield 'long document type' => ['<!DOCTYPE feed [' . str_repeat(' ', 1100000) . ']><feed/>'];
+        yield 'many processing instructions' => [str_repeat("<?a?>\n", 1001) . '<feed/>' . str_repeat(' ', 1048576)];
+    }
+
+    #[Test]
+    #[DataProvider('prologFillsTheWindowDataProvider')]
+    public function getFileWarnsIfThePrologFillsTheWindow(string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileWarnsIfTheRootStartTagWithQuotedGreaterThanSignEndsTheWindow(): void
+    {
+        $tag = '<feed title="a>b" ';
+        $content = '<!--' . str_repeat('a', 1048576 - 7 - \strlen($tag)) . '-->' . $tag . '/>';
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileDoesNotWarnAboutALargeFileWithCompleteRootStartTag(): void
+    {
+        $content = '<?xml version="1.0"?><feed><title>News</title>' . str_repeat('<entry>text</entry>', 70000) . '</feed>';
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    /**
      * @return \Closure(string): ?bool
      */
     protected static function svgRootScan(): \Closure
