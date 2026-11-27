@@ -105,10 +105,12 @@ The content is written to a temporary file in the target directory, which
 replaces the target file when it is complete; if the source cannot be read or
 the file cannot be written, the target file is not changed.
 
-SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG
-if its extension is `svg` or if the content has the MIME type `image/svg+xml`,
-whatever its name. The MIME type is detected with `finfo` on the first
-megabyte of the content; this is a best effort. HTML, XHTML and XML files are
+SVG files are sanitized with the SVG sanitizer of TYPO3. A file counts as SVG,
+whatever its name, if its extension is `svg`, if the content has the MIME
+type `image/svg+xml` (detected with `finfo`), or if the content is markup
+(it starts with `<` after a byte order mark and whitespace) with an `svg`
+element within the first megabyte, e.g. after a long comment. This is a best
+effort. HTML, XHTML and XML files are
 not sanitized; check them before they are served from a public directory.
 
 ## Example

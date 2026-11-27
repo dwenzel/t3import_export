@@ -198,9 +198,11 @@ trait GenerateFileTrait
     }
 
     /**
-     * Like the SVG check of TYPO3: the file extension is svg or the MIME type
-     * of the content is image/svg+xml. The MIME type detection is a best
-     * effort.
+     * Whether a file is sanitized as SVG: the file extension is svg, the MIME
+     * type of the content is image/svg+xml, or the content is markup (it
+     * starts with `<` after a byte order mark and whitespace) that contains an
+     * `svg` element (also with a namespace prefix) within the first megabyte, e.g. after a long prolog or
+     * comment. The detection is a best effort.
      */
     protected function isSvgFile(string $targetPath, string $contentPath): bool
     {
@@ -208,9 +210,15 @@ trait GenerateFileTrait
             return true;
         }
         $content = @file_get_contents($contentPath, false, null, 0, 1048576);
+        if (!\is_string($content)) {
+            return false;
+        }
+        if ((new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml') {
+            return true;
+        }
+        $markup = ltrim(str_starts_with($content, "\xEF\xBB\xBF") ? substr($content, 3) : $content);
 
-        return \is_string($content)
-            && (new \finfo(FILEINFO_MIME_TYPE))->buffer($content) === 'image/svg+xml';
+        return str_starts_with($markup, '<') && preg_match('/<(?:[a-z0-9_.-]+:)?svg[\s>\/]/i', $markup) === 1;
     }
 
     /**

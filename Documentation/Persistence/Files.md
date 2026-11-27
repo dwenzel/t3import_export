@@ -225,9 +225,9 @@ local file or URL into a temporary file in the target directory
 complete. If the source cannot be read or the file cannot be written, the
 target file is not changed.
 
-SVG files (by file extension or by the MIME type of the content) are
-sanitized with the SVG sanitizer of TYPO3 before they replace the target
-file; the MIME type detection is a best effort. Compressed SVG files
+SVG files (by file extension, by the MIME type of the content, or markup
+with an `svg` element within the first megabyte) are sanitized with the SVG sanitizer of TYPO3 before they replace the target
+file; the detection is a best effort. Compressed SVG files
 (`.svgz`) are refused (code 1795400103). HTML, XHTML and XML files are not
 sanitized.
 

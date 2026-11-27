@@ -629,6 +629,40 @@ class GenerateUploadFileTest extends TestCase
         self::assertStringContainsString('rect', $content);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function svgContentDataProvider(): iterable
+    {
+        yield 'long comment' => ['<?xml version="1.0"?>' . "\n" . '<!--' . str_repeat(' comment', 20000) . ' -->' . "\n" . self::SVG];
+        yield 'byte order mark and whitespace' => ["\xEF\xBB\xBF \n\t" . self::SVG];
+        yield 'doctype' => ['<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">' . "\n" . self::SVG];
+        yield 'upper case element' => [str_replace('<svg ', '<SVG ', self::SVG)];
+        yield 'namespace prefix' => ['<?xml version="1.0"?><!--' . str_repeat(' comment', 20000) . ' --><s:svg xmlns:s="http://www.w3.org/2000/svg"><s:script>alert(1)</s:script></s:svg>'];
+    }
+
+    #[Test]
+    #[DataProvider('svgContentDataProvider')]
+    public function getFileSanitizesSvgContentAfterAProlog(string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.txt' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.txt');
+
+        self::assertStringNotContainsString('script>', (string)file_get_contents(vfsStream::url('root/target/image.txt')));
+    }
+
+    #[Test]
+    public function getFileDoesNotSanitizeOtherContent(): void
+    {
+        $content = 'id,title' . "\n" . '1,"<svg> in a field"' . "\n";
+        $subject = $this->createSubjectCopyingFiles(['news.csv' => $content]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/news.csv');
+
+        self::assertSame($content, file_get_contents(vfsStream::url('root/target/news.csv')));
+    }
+
     #[Test]
     public function getFileSanitizesSvgOfUrl(): void
     {
