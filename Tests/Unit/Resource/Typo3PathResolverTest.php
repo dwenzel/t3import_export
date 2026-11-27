@@ -205,6 +205,26 @@ b.csv"];
         (new Typo3PathResolver())->assertTargetFileName('fileadmin/script.phtml');
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidUtf8FileNameDataProvider(): iterable
+    {
+        yield 'php file' => ["script\xFF.php"];
+        yield 'csv file' => ["news\xC3.csv"];
+    }
+
+    #[Test]
+    #[DataProvider('invalidUtf8FileNameDataProvider')]
+    public function rejectsTargetFileNamesThatAreNotValidUtf8(string $fileName): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'] = '';
+
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        (new Typo3PathResolver())->assertTargetFileName('fileadmin/' . $fileName);
+    }
+
     #[Test]
     public function appliesTheConfiguredFileDenyPatternToTargets(): void
     {

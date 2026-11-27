@@ -246,9 +246,9 @@ final readonly class Typo3PathResolver implements PathResolverInterface
      * of `$path`: the file type rules of TYPO3 (see `assertFileTypeAllowed()`)
      * and the default fileDenyPattern of TYPO3 in addition to a configured
      * one. Server configuration files (`.htaccess`, `.htpasswd` and other
-     * `.ht*` files, `.user.ini`, `php.ini`, `web.config`), names with `?`,
-     * `#`, `:` or control characters and names ending in a dot or space are
-     * refused.
+     * `.ht*` files, `.user.ini`, `php.ini`, `web.config`), names that are not
+     * valid UTF-8, names with `?`, `#`, `:` or control characters and names
+     * ending in a dot or space are refused.
      *
      * @throws InvalidArgumentException
      */
@@ -258,15 +258,17 @@ final readonly class Typo3PathResolver implements PathResolverInterface
         $fileName = basename($path);
         if (
             $fileName === ''
+            || !mb_check_encoding($fileName, 'UTF-8')
             || strpbrk($fileName, '?#:') !== false
             || preg_match('/[\x00-\x1F\x7F]/', $fileName) === 1
             || preg_match('/[. ]$/', $fileName) === 1
-            || preg_match('/' . FileNameValidator::DEFAULT_FILE_DENY_PATTERN . '/iu', $fileName) === 1
+            // fails closed: an error of preg_match() refuses the name
+            || preg_match('/' . FileNameValidator::DEFAULT_FILE_DENY_PATTERN . '/iu', $fileName) !== 0
             || preg_match(self::SERVER_CONFIGURATION_FILES, $fileName) === 1
         ) {
             throw $this->notAllowed(
                 $path,
-                'the file name is not allowed for written files (fileDenyPattern, server configuration files, "?", "#", ":", control characters, a dot or space at the end).',
+                'the file name is not allowed for written files (fileDenyPattern, server configuration files, invalid UTF-8, "?", "#", ":", control characters, a dot or space at the end).',
                 self::ERROR_FILE_NAME_NOT_ALLOWED
             );
         }

@@ -209,8 +209,8 @@ above (`Typo3PathResolver::assertTargetFileName()`):
   files
 * server configuration files are refused: `.htaccess`, `.htpasswd` and other
   `.ht*` files, `.user.ini`, `php.ini`, `web.config`
-* names with `?`, `#`, `:` or control characters and names ending in a dot or
-  a space are refused
+* names that are not valid UTF-8, names with `?`, `#`, `:` or control
+  characters and names ending in a dot or a space are refused
 
 A name that is not allowed throws an `InvalidArgumentException` (code
 1795400103, or 1795300103 for the `fileDenyPattern` configured in TYPO3).

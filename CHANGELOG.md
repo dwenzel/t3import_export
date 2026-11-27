@@ -289,8 +289,9 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
 * `GenerateFileResource` and `GenerateUploadFile` check the names of the
   files they write: the default `fileDenyPattern` of TYPO3 applies in
   addition to a configured one; server configuration files (e.g.
-  `.htaccess`, `.user.ini`, `web.config`), names with `?`, `#`, `:` or
-  control characters and names ending in a dot or space are refused
+  `.htaccess`, `.user.ini`, `web.config`), names that are not valid UTF-8,
+  names with `?`, `#`, `:` or control characters and names ending in a dot
+  or space are refused
   (exception code 1795400103). For URLs the target name is the last segment
   of the path, without query and fragment
 * `GenerateFileResource` and `GenerateUploadFile` copy local files through a
