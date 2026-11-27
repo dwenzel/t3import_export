@@ -341,6 +341,13 @@ class GenerateUploadFileTest extends TestCase
         yield 'mjs' => ['module.mjs'];
         yield 'upper case' => ['PAGE.HTML'];
         yield 'double extension' => ['image.jpg.html'];
+        yield 'shtm' => ['page.shtm'];
+        yield 'html before another extension' => ['page.html.zzz'];
+        yield 'html before a backup extension' => ['page.html.bak'];
+        yield 'html before a number' => ['page.html.1'];
+        yield 'js before another extension' => ['script.js.zzz'];
+        yield 'html before a language extension' => ['page.html.youtube'];
+        yield 'html before an archive extension' => ['report.html.zip'];
     }
 
     #[Test]
@@ -405,6 +412,85 @@ class GenerateUploadFileTest extends TestCase
         } finally {
             $GLOBALS['TYPO3_CONF_VARS'] = $configuration;
         }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function fileNameWithoutUsableExtensionDataProvider(): iterable
+    {
+        yield 'no extension' => ['image'];
+        yield 'encoded dot' => ['page%2ehtml'];
+        yield 'parameter' => ['image.jpg;a=b'];
+        yield 'hyphen' => ['image.jp-g'];
+        yield 'underscore' => ['image.jp_g'];
+        yield 'non-ASCII' => ['image.jpgä'];
+    }
+
+    #[Test]
+    #[DataProvider('fileNameWithoutUsableExtensionDataProvider')]
+    public function getFileRejectsTargetsWithoutUsableFileExtension(string $fileName): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(Typo3PathResolver::ERROR_FILE_NAME_NOT_ALLOWED);
+
+        $this->createSubjectWithFileRules()->getFile(
+            ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+            Environment::getVarPath() . '/import/tests/' . $fileName
+        );
+    }
+
+    #[Test]
+    public function getFileAllowsTargetsWithOtherExtensions(): void
+    {
+        foreach (['image.zzz', 'archive.tar.gz', 'image.JPG', 'document.pdf', 'track.mp3'] as $fileName) {
+            self::assertSame('', $this->createSubjectWithFileRules()->getFile(
+                ['targetDirectoryPath' => 'target', 'sourcePath' => Environment::getVarPath() . '/import/tests/'],
+                Environment::getVarPath() . '/import/tests/' . $fileName
+            ), $fileName);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function xmlWithActiveContentDataProvider(): iterable
+    {
+        yield 'xhtml element' => ['<?xml version="1.0"?><feed><content><div xmlns="http://www.w3.org/1999/xhtml"><p>text</p></div></content></feed>'];
+        yield 'svg element' => ['<?xml version="1.0"?><rss version="2.0"><channel>' . self::SVG . '</channel></rss>'];
+        yield 'prefixed xhtml element' => ['<feed xmlns:h="http://www.w3.org/1999/xhtml"><h:script>alert(1)</h:script></feed>'];
+        yield 'xml-stylesheet' => ['<?xml version="1.0"?><?xml-stylesheet type="text/xsl" href="a.xsl"?><feed/>'];
+    }
+
+    #[Test]
+    #[DataProvider('xmlWithActiveContentDataProvider')]
+    public function getFileWarnsAboutXmlWithActiveContent(string $content): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => $content]);
+
+        self::assertSame('fileadmin/target/feed.xml', $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml'));
+        self::assertSame($content, file_get_contents(vfsStream::url('root/target/feed.xml')));
+        self::assertTrue($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileDoesNotWarnAboutXmlWithoutActiveContent(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['feed.xml' => '<?xml version="1.0"?><rss version="2.0"><channel><title>News</title></channel></rss>']);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/feed.xml');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
+    }
+
+    #[Test]
+    public function getFileDoesNotWarnAboutSanitizedSvg(): void
+    {
+        $subject = $this->createSubjectCopyingFiles(['image.svg' => self::SVG]);
+
+        $subject->getFile(['targetDirectoryPath' => 'target'], 'source/image.svg');
+
+        self::assertFalse($subject->hasMessageWithId(GenerateUploadFile::WARNING_ACTIVE_XML));
     }
 
     #[Test]

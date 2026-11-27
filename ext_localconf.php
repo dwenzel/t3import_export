@@ -7,5 +7,5 @@ defined('TYPO3') or die();
 // File sources and targets (Documentation/Persistence/Files.md):
 // $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['fileDirectories'] (default fileadmin/ and var/import/)
 // $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowedHosts'] (default: no URLs; `host` default port, `host:port`, `*.domain`, `*`)
-// $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] (default false: GenerateFile* do not write html, htm, xhtml, xht, js, mjs)
+// $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] (default false: GenerateFile* do not write html, htm, xhtml, xht, shtml, shtm, js, mjs in any position of the name)
 (new \CPSIT\T3importExport\Extension())->boot();

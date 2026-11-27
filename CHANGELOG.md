@@ -313,8 +313,12 @@ Changes up to version 3.2.0 are listed in [ChangeLog](ChangeLog).
   sanitizer of TYPO3 and refuse compressed SVG files (`.svgz`); a warning is
   logged if the sanitizer leaves an empty file. HTML and XML files with
   another root element are not sanitized
-* `GenerateFileResource` and `GenerateUploadFile` refuse target files of the
-  types `html`, `htm`, `xhtml`, `xht`, `js` and `mjs` (by the last file
-  extension, also e.g. `image.jpg.html`; exception code 1795400103) unless
+* `GenerateFileResource` and `GenerateUploadFile` refuse target names with
+  the file extensions `html`, `htm`, `xhtml`, `xht`, `shtml`, `shtm`, `js`
+  and `mjs` in any position (e.g. `image.jpg.html`, `page.html.bak`, also
+  `report.html.zip`; exception code 1795400103) unless
   `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
-  is `true`, see [Deprecations](Documentation/DEPRECATIONS.md#files)
+  is `true`. Target names need a last file extension of letters and digits
+  (code 1795400103). XML files with XHTML or SVG elements or an
+  `xml-stylesheet` processing instruction are written, with a warning
+  (1795300503). See [Deprecations](Documentation/DEPRECATIONS.md#files)

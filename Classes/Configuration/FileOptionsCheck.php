@@ -21,9 +21,10 @@ namespace CPSIT\T3importExport\Configuration;
  * Finds options for files in
  * `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']` which version
  * 4.0 does not read: the options `fileSourceDirectories`,
- * `fileTargetDirectories` and `fileTargetExtensions` of version 3.3, and
- * `allowedHosts` as string instead of a list. The commands show the
- * messages, `TransferService` logs them as warnings.
+ * `fileTargetDirectories` and `fileTargetExtensions` of version 3.3,
+ * `allowedHosts` as string instead of a list, and `allowActiveContentTargets`
+ * that is not a boolean. The commands show the messages, `TransferService`
+ * logs them as warnings.
  */
 final class FileOptionsCheck
 {
@@ -53,6 +54,9 @@ final class FileOptionsCheck
                     ? 'It has no equivalent: DataTargetCSV writes only files of the types csv, tsv and txt.'
                     : 'Use [\'fileDirectories\'] instead.'
             );
+        }
+        if (\array_key_exists('allowActiveContentTargets', $configuration) && !\is_bool($configuration['allowActiveContentTargets'])) {
+            $messages[] = 'The option $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'allowActiveContentTargets\'] is not a boolean and has no effect. Set it to true or false, see Documentation/Persistence/Files.md (Names of written files).';
         }
         if (\is_string($configuration['allowedHosts'] ?? null)) {
             $messages[] = 'The option $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTCONF\'][\'t3import_export\'][\'allowedHosts\'] is a string and is not read, so no host is allowed. Use a list, e.g. [\'data.example.org\'], see Documentation/Persistence/Files.md (URLs).';

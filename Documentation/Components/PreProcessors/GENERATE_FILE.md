@@ -106,13 +106,15 @@ one, server configuration files (e.g. `.htaccess`, `.user.ini`), names with
 `?`, `#`, `:` or control characters and names ending in a dot or space are
 refused (code 1795400103). Compressed SVG files (`.svgz`) are refused.
 
-Target files of the types `html`, `htm`, `xhtml`, `xht`, `js` and `mjs` (the
-last file extension, without case, also e.g. `image.jpg.html`) are refused
-with code 1795400103, unless
-`$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
+The target name needs a last file extension of letters and digits. Names with
+one of the file extensions `html`, `htm`, `xhtml`, `xht`, `shtml`, `shtm`,
+`js` and `mjs` in any position, without case (e.g. `image.jpg.html`,
+`page.html.bak`, also `report.html.zip`), are refused with code 1795400103,
+unless `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets']`
 is `true` (see [Names of written files](../../Persistence/Files.md#names-of-written-files)).
 XML files are written; their content is not sanitized unless the root element
-is `svg`.
+is `svg`. An XML document with XHTML or SVG elements or an `xml-stylesheet`
+processing instruction is logged as warning (1795300503).
 
 The content is written to a temporary file in the target directory, which
 replaces the target file when it is complete; if the source cannot be read or

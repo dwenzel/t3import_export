@@ -243,23 +243,40 @@ file; the detection is a best effort, see
 If the sanitizer leaves an empty file, a warning is logged (1795300502).
 Compressed SVG files (`.svgz`) are refused (code 1795400103).
 
-Target files of the types `html`, `htm`, `xhtml`, `xht`, `js` and `mjs` (the
-last file extension, without case, so also `image.jpg.html`) are refused by
-default (code 1795400103). To write them, e.g. for trusted sources, allow
-them explicitly:
+`GenerateFileResource` and `GenerateUploadFile` refuse target names (code
+1795400103)
+
+* without a last file extension of letters and digits, e.g. `image`,
+  `page%2ehtml` or `image.jpg;a=b`, since a browser may guess the type of
+  such files,
+* with one of the file extensions `html`, `htm`, `xhtml`, `xht`, `shtml`,
+  `shtm`, `js` and `mjs` in any position, without case, like the
+  `fileDenyPattern` of TYPO3 does for PHP: `page.html`, `image.jpg.html`,
+  `page.html.bak`, `script.js.1`. Web servers such as Apache (`mod_mime`) may
+  use each extension of a name to choose the type. Archives such as
+  `report.html.zip` are refused as well.
+
+To write files with these extensions, e.g. from trusted sources, allow them
+explicitly:
 
 ```php
 // config/system/additional.php
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['t3import_export']['allowActiveContentTargets'] = true;
 ```
 
-Only `true` allows them. The setting applies to `GenerateFileResource` and
-`GenerateUploadFile`; it does not change the rules of other components.
+Only `true` allows them; the commands show a warning for other values. The
+setting applies to `GenerateFileResource` and `GenerateUploadFile`; it does
+not change the rules of other components. Consider enabling the TYPO3
+feature `security.system.enforceAllowedFileExtensions`, which limits all
+written files to `textfile_ext`, `mediafile_ext` and `miscfile_ext`.
 
-The content of HTML, XHTML and XML files (and of other files whose root
-element is not `svg`) is not sanitized, also if it contains an inline `svg`
-element. Such targets can contain scripts that a browser runs when the file
-is served from a public directory, so allow them only for trusted sources.
+Limits: the content of HTML, XHTML and XML files (and of other files whose
+root element is not `svg`) is not sanitized, also if it contains an inline
+`svg` element. XML files are written; an XML document with an element in the
+XHTML or SVG namespace or an `xml-stylesheet` processing instruction (within
+the first megabyte) is logged as warning (1795300503), since a browser may
+run scripts in it when the file is served from a public directory. Allow
+such files only from trusted sources.
 
 ## Large files
 
